@@ -17,7 +17,7 @@ const AboutSection = () => {
 
           <div className="text-center space-y-6">
             <p className="text-2xl font-bold text-foreground">
-              רוי מיכאלס
+              Dean Azulay
             </p>
             
             <p className="text-xl leading-relaxed text-muted-foreground">
