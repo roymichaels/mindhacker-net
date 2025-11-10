@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Brain } from "lucide-react";
+import DecryptText from "./DecryptText";
 
 const HeroSection = () => {
-  const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות"];
+  const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const [currentWord, setCurrentWord] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 2000);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
@@ -18,24 +18,32 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden" style={{ zIndex: 2 }}>
-      {/* Sacred geometry background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 border border-primary rounded-full animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 border border-primary-glow rotate-45 animate-float" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/3 right-1/3 w-32 h-32 border border-secondary animate-float" style={{ animationDelay: "2s" }} />
+    <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette" style={{ zIndex: 2 }}>
+      {/* Radial glow overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at center, rgba(0, 240, 255, 0.03) 0%, transparent 70%)"
+        }}
+      />
+
+      {/* Consciousness pulse behind headline */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-primary rounded-full consciousness-pulse pointer-events-none" />
+
+      {/* Sacred geometry background - more subtle */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 border border-primary rounded-full animate-breathe" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 border border-primary-glow rotate-45 animate-breathe" style={{ animationDelay: "3s" }} />
+        <div className="absolute top-1/3 right-1/3 w-32 h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        <div className="mb-8 flex justify-center">
-          <Brain className="w-16 h-16 text-primary animate-pulse" />
-        </div>
-        
         <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight">
-          <span className="text-foreground">האקר </span>
-          <span className="cyber-glow text-primary transition-all duration-500">
-            {words[currentWord]}
-          </span>
+          <span className="text-foreground static-word-glow">האקר </span>
+          <DecryptText 
+            text={words[currentWord]} 
+            className="text-primary"
+          />
         </h1>
 
         <p className="text-2xl md:text-3xl text-muted-foreground mb-4 font-medium">
