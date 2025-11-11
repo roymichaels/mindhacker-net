@@ -182,7 +182,7 @@ All colors MUST be HSL.
   }
 
   .consciousness-pulse {
-    animation: consciousness-pulse 10s ease-in-out infinite;
+    animation: consciousness-pulse 15s ease-in-out infinite;
   }
 
   @keyframes breathe {
@@ -197,6 +197,6 @@ All colors MUST be HSL.
   }
 
   .animate-breathe {
-    animation: breathe 8s ease-in-out infinite;
+    animation: breathe 12s ease-in-out infinite;
   }
 }

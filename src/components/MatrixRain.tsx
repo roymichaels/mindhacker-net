@@ -24,7 +24,7 @@ const MatrixRain = () => {
     const layers = [
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.3,
+        speed: 0.2,
         opacity: 0.2,
         color: "0, 51, 68", // Deep teal
         fontSize: 14,
@@ -33,7 +33,7 @@ const MatrixRain = () => {
       },
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.6,
+        speed: 0.4,
         opacity: 0.35,
         color: "0, 240, 255", // Cyan
         fontSize: 16,
@@ -42,7 +42,7 @@ const MatrixRain = () => {
       },
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 1,
+        speed: 0.7,
         opacity: 0.6,
         color: "230, 253, 255", // Cyan-white
         fontSize: 18,
@@ -53,7 +53,7 @@ const MatrixRain = () => {
 
     let animationFrameId: number;
     let lastFrameTime = 0;
-    const frameInterval = 50; // 20 FPS for smooth, meditative effect
+    const frameInterval = 70; // ~14 FPS for deeper meditative effect
 
     const draw = (currentTime: number) => {
       if (currentTime - lastFrameTime < frameInterval) {

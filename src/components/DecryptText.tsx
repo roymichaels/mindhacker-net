@@ -20,11 +20,11 @@ const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
     setIsDecrypting(true);
 
     const chars = text.split("");
-    const scrambleIterations = 8;
+    const scrambleIterations = 10;
 
     chars.forEach((finalChar, index) => {
-      // Stagger each character by 60ms
-      const startDelay = index * 60;
+      // Stagger each character by 80ms for meditative flow
+      const startDelay = index * 80;
 
       for (let iteration = 0; iteration < scrambleIterations; iteration++) {
         const timeout = setTimeout(() => {
@@ -33,7 +33,7 @@ const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
             current[index] = glyphs[Math.floor(Math.random() * glyphs.length)];
             return current.join("");
           });
-        }, startDelay + iteration * 50);
+        }, startDelay + iteration * 60);
 
         timeoutsRef.current.push(timeout);
       }
@@ -48,9 +48,9 @@ const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
 
         // If this is the last character, mark decryption as complete
         if (index === chars.length - 1) {
-          setTimeout(() => setIsDecrypting(false), 100);
+          setTimeout(() => setIsDecrypting(false), 150);
         }
-      }, startDelay + scrambleIterations * 50);
+      }, startDelay + scrambleIterations * 60);
 
       timeoutsRef.current.push(finalTimeout);
     });

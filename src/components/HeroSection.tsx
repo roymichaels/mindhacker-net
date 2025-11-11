@@ -9,7 +9,7 @@ const HeroSection = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 3500);
+    }, 4500);
     return () => clearInterval(interval);
   }, []);
 
