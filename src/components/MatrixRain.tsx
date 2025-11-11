@@ -5,9 +5,9 @@ const MatrixRain = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Mobile detection
+    // Mobile detection - only disable on actual phones, not tablets
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 480);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -118,12 +118,9 @@ const MatrixRain = () => {
         ctx.shadowBlur = layer.blur === 0 ? 10 : 0;
         ctx.shadowColor = `rgba(${layer.color}, ${layer.opacity * 0.5})`;
 
-        // PERFORMANCE: Pre-calculate random density check
-        const densityThreshold = Math.random();
-
         for (let i = 0; i < layer.drops.length; i++) {
-          // Random column density - skip some columns
-          if (densityThreshold > 0.85) continue;
+          // Random column density - skip some columns (per-column check)
+          if (Math.random() > 0.85) continue;
 
           const char = layer.chars[Math.floor(Math.random() * layer.chars.length)];
           const x = i * fontSize;
