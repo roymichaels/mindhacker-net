@@ -8,56 +8,71 @@ interface DecryptTextProps {
 const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const [isDecrypting, setIsDecrypting] = useState(false);
-  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const rafRef = useRef<number>();
+  const startTimeRef = useRef<number>(0);
 
   const glyphs = "אבגדהוזחטיכלמנסעפצקרשת✶◇⊙△✦";
 
   useEffect(() => {
-    // Clear any existing timeouts
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
+    // Cancel any existing animation
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
 
+    // CRITICAL FIX: Reset display text to spaces to prevent character overflow
+    setDisplayText(" ".repeat(text.length));
     setIsDecrypting(true);
 
     const chars = text.split("");
     const scrambleIterations = 10;
+    const charStagger = 80; // ms delay between each character starting
+    const iterationDuration = 60; // ms per scramble iteration
+    const totalCharDuration = scrambleIterations * iterationDuration;
 
-    chars.forEach((finalChar, index) => {
-      // Stagger each character by 80ms for meditative flow
-      const startDelay = index * 80;
-
-      for (let iteration = 0; iteration < scrambleIterations; iteration++) {
-        const timeout = setTimeout(() => {
-          setDisplayText((prev) => {
-            const current = prev.split("");
-            current[index] = glyphs[Math.floor(Math.random() * glyphs.length)];
-            return current.join("");
-          });
-        }, startDelay + iteration * 60);
-
-        timeoutsRef.current.push(timeout);
+    const animate = (currentTime: number) => {
+      if (!startTimeRef.current) {
+        startTimeRef.current = currentTime;
       }
 
-      // Lock in final character
-      const finalTimeout = setTimeout(() => {
-        setDisplayText((prev) => {
-          const current = prev.split("");
-          current[index] = finalChar;
-          return current.join("");
-        });
+      const elapsed = currentTime - startTimeRef.current;
+      let newText = "";
+      let allComplete = true;
 
-        // If this is the last character, mark decryption as complete
-        if (index === chars.length - 1) {
-          setTimeout(() => setIsDecrypting(false), 150);
+      chars.forEach((finalChar, index) => {
+        const charStartTime = index * charStagger;
+        const charElapsed = elapsed - charStartTime;
+
+        if (charElapsed < 0) {
+          // Character hasn't started yet
+          newText += " ";
+          allComplete = false;
+        } else if (charElapsed < totalCharDuration) {
+          // Character is scrambling
+          newText += glyphs[Math.floor(Math.random() * glyphs.length)];
+          allComplete = false;
+        } else {
+          // Character is locked in
+          newText += finalChar;
         }
-      }, startDelay + scrambleIterations * 60);
+      });
 
-      timeoutsRef.current.push(finalTimeout);
-    });
+      setDisplayText(newText);
+
+      if (!allComplete) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setIsDecrypting(false);
+        startTimeRef.current = 0;
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
 
     return () => {
-      timeoutsRef.current.forEach(clearTimeout);
-      timeoutsRef.current = [];
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      startTimeRef.current = 0;
     };
   }, [text]);
 

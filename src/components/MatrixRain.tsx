@@ -1,9 +1,23 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Mobile detection
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Skip rendering on mobile devices
+    if (isMobile) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -51,13 +65,39 @@ const MatrixRain = () => {
       }
     ];
 
+    // PERFORMANCE: Cache gradients - create once instead of 5000+ times per second
+    const cachedGradients = layers.map((layer) => {
+      // Skip gradient for background layer (will use flat color)
+      if (layer.blur === 2) return null;
+      
+      const gradient = ctx.createLinearGradient(0, -layer.fontSize * 8, 0, 0);
+      gradient.addColorStop(0, `rgba(${layer.color}, 0)`);
+      gradient.addColorStop(0.3, `rgba(${layer.color}, ${layer.opacity * 0.3})`);
+      gradient.addColorStop(0.7, `rgba(${layer.color}, ${layer.opacity * 0.8})`);
+      gradient.addColorStop(1, `rgba(${layer.color}, ${layer.opacity})`);
+      return gradient;
+    });
+
     let animationFrameId: number;
     let lastFrameTime = 0;
     const frameInterval = 70; // ~14 FPS for deeper meditative effect
+    let isVisible = true;
+
+    // PERFORMANCE: Pause when tab is not visible
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+      if (isVisible) {
+        lastFrameTime = 0;
+        animationFrameId = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     const draw = (currentTime: number) => {
-      if (currentTime - lastFrameTime < frameInterval) {
-        animationFrameId = requestAnimationFrame(draw);
+      if (!isVisible || currentTime - lastFrameTime < frameInterval) {
+        if (isVisible) {
+          animationFrameId = requestAnimationFrame(draw);
+        }
         return;
       }
       lastFrameTime = currentTime;
@@ -73,10 +113,17 @@ const MatrixRain = () => {
       layers.forEach((layer, layerIndex) => {
         ctx.font = `${layer.fontSize}px Heebo`;
         ctx.filter = `blur(${layer.blur}px)`;
+        
+        // PERFORMANCE: Set shadow once per layer instead of per character
+        ctx.shadowBlur = layer.blur === 0 ? 10 : 0;
+        ctx.shadowColor = `rgba(${layer.color}, ${layer.opacity * 0.5})`;
+
+        // PERFORMANCE: Pre-calculate random density check
+        const densityThreshold = Math.random();
 
         for (let i = 0; i < layer.drops.length; i++) {
           // Random column density - skip some columns
-          if (Math.random() > 0.85) continue;
+          if (densityThreshold > 0.85) continue;
 
           const char = layer.chars[Math.floor(Math.random() * layer.chars.length)];
           const x = i * fontSize;
@@ -90,28 +137,21 @@ const MatrixRain = () => {
             ctx.shadowBlur = 20;
             ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
           } else {
-            // Create gradient trail for each character
-            const gradient = ctx.createLinearGradient(
-              x, 
-              y - layer.fontSize * 8, 
-              x, 
-              y
-            );
-            gradient.addColorStop(0, `rgba(${layer.color}, 0)`);
-            gradient.addColorStop(0.3, `rgba(${layer.color}, ${layer.opacity * 0.3})`);
-            gradient.addColorStop(0.7, `rgba(${layer.color}, ${layer.opacity * 0.8})`);
-            gradient.addColorStop(1, `rgba(${layer.color}, ${layer.opacity})`);
-            
-            ctx.fillStyle = gradient;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = `rgba(${layer.color}, ${layer.opacity * 0.5})`;
+            // PERFORMANCE: Use cached gradient for mid/foreground, flat color for background
+            if (cachedGradients[layerIndex]) {
+              ctx.fillStyle = cachedGradients[layerIndex]!;
+            } else {
+              // Background layer uses simple flat color
+              ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity})`;
+            }
           }
 
           ctx.fillText(char, x, y);
 
           // Reset shadow after flash
           if (isFlash) {
-            ctx.shadowBlur = 0;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = `rgba(${layer.color}, ${layer.opacity * 0.5})`;
           }
 
           // Move drops with layer-specific speed
@@ -141,14 +181,20 @@ const MatrixRain = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [isMobile]);
+
+  // Don't render canvas on mobile
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none opacity-40"
-      style={{ zIndex: 1, willChange: "transform" }}
+      style={{ zIndex: 1 }}
     />
   );
 };
