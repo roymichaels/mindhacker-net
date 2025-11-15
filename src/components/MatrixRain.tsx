@@ -21,9 +21,9 @@ const MatrixRain = () => {
     const symbols = "✶◇△⊙✦";
     const chars = hebrewChars + symbols;
     
-    // Mobile optimizations
-    const fontSize = isMobile ? 12 : 16;
-    const columnDensity = isMobile ? 2 : 1; // Skip more columns on mobile
+    // Mobile optimizations - improved visibility
+    const fontSize = isMobile ? 14 : 16;
+    const columnDensity = isMobile ? 1.5 : 1; // Less aggressive column reduction
     const columns = Math.floor(canvas.width / fontSize / columnDensity);
     
     // Use fewer layers on mobile for performance
@@ -31,18 +31,18 @@ const MatrixRain = () => {
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.4,
-        opacity: 0.3,
+        opacity: 0.5,
         color: "0, 240, 255", // Cyan
-        fontSize: 12,
+        fontSize: 14,
         blur: 0, // No blur on mobile
         chars: hebrewChars + symbols.substring(0, 2)
       },
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.6,
-        opacity: 0.5,
+        speed: 0.7,
+        opacity: 0.7,
         color: "230, 253, 255", // Cyan-white
-        fontSize: 14,
+        fontSize: 16,
         blur: 0, // No blur on mobile
         chars: chars
       }
@@ -202,7 +202,7 @@ const MatrixRain = () => {
       className="fixed inset-0 pointer-events-none"
       style={{ 
         zIndex: 1,
-        opacity: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.25 : 0.40
+        opacity: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.5 : 0.40
       }}
     />
   );
