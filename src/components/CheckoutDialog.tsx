@@ -146,7 +146,8 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
                 <Button
                   onClick={() => {
                     onClose();
-                    navigate(`/login?redirect=/checkout&package=${packageData.id}`);
+                    const redirectUrl = encodeURIComponent(`/?package=${packageData.id}`);
+                    navigate(`/login?redirect=${redirectUrl}`);
                   }}
                   size="lg"
                   className="w-full"
@@ -157,7 +158,8 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
                 <Button
                   onClick={() => {
                     onClose();
-                    navigate(`/signup?redirect=/checkout&package=${packageData.id}`);
+                    const redirectUrl = encodeURIComponent(`/?package=${packageData.id}`);
+                    navigate(`/signup?redirect=${redirectUrl}`);
                   }}
                   variant="outline"
                   size="lg"
