@@ -47,6 +47,81 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          booking_link: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          notes: string | null
+          package_type: string
+          payment_method: string | null
+          payment_status: string | null
+          price: number
+          purchase_date: string | null
+          sessions_remaining: number
+          sessions_total: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_link?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          package_type: string
+          payment_method?: string | null
+          payment_status?: string | null
+          price: number
+          purchase_date?: string | null
+          sessions_remaining: number
+          sessions_total: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_link?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          package_type?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          price?: number
+          purchase_date?: string | null
+          sessions_remaining?: number
+          sessions_total?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           description: string | null

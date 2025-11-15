@@ -1,66 +1,94 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle, Home, MessageCircle } from "lucide-react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { CheckCircle, Home, Calendar, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import MatrixRain from "@/components/MatrixRain";
+import { supabase } from "@/integrations/supabase/client";
 
-interface PurchaseDetails {
+interface Purchase {
   id: string;
-  packageType: "single" | "package_4";
-  sessions: number;
+  package_type: string;
+  sessions_total: number;
+  sessions_remaining: number;
   price: number;
-  customerName: string;
-  customerEmail: string;
-  purchaseDate: string;
-  demo: true;
+  payment_status: string;
+  purchase_date: string;
+  booking_link: string | null;
 }
 
 const Success = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [purchase, setPurchase] = useState<PurchaseDetails | null>(null);
+  const [purchase, setPurchase] = useState<Purchase | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    // Try to get purchase from localStorage first
-    const currentPurchase = localStorage.getItem("current_demo_purchase");
-    if (currentPurchase) {
-      setPurchase(JSON.parse(currentPurchase));
-    } else {
-      // Fallback to URL params
-      const packageType = searchParams.get("package") as "single" | "package_4";
-      const sessions = parseInt(searchParams.get("sessions") || "1");
-      const price = parseInt(searchParams.get("price") || "250");
-
-      if (packageType) {
-        setPurchase({
-          id: `demo-${Date.now()}`,
-          packageType,
-          sessions,
-          price,
-          customerName: "אורח",
-          customerEmail: "",
-          purchaseDate: new Date().toISOString(),
-          demo: true,
-        });
-      }
-    }
+    fetchPurchase();
   }, [searchParams]);
 
-  const handleGoHome = () => {
-    localStorage.removeItem("current_demo_purchase");
-    navigate("/");
+  const fetchPurchase = async () => {
+    try {
+      const purchaseId = searchParams.get("purchaseId");
+      
+      if (!purchaseId) {
+        navigate("/");
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      setUserEmail(user.email || "");
+
+      const { data: purchaseData, error } = await supabase
+        .from("purchases")
+        .select("*")
+        .eq("id", purchaseId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (error || !purchaseData) {
+        console.error("Error fetching purchase:", error);
+        navigate("/");
+        return;
+      }
+
+      setPurchase(purchaseData);
+    } catch (error) {
+      console.error("Error:", error);
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleContact = () => {
-    // Replace with your actual WhatsApp number
-    window.open("https://wa.me/972123456789", "_blank");
+  const handleBookSession = () => {
+    const bookingUrl = purchase?.booking_link || `https://calendly.com/consciousness-hacker?email=${encodeURIComponent(userEmail)}`;
+    window.open(bookingUrl, "_blank");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Skeleton className="h-96 w-full max-w-2xl" />
+      </div>
+    );
+  }
 
   if (!purchase) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="glass-panel p-8 text-center">
-          <p className="text-muted-foreground">טוען...</p>
+          <p className="text-muted-foreground">רכישה לא נמצאה</p>
+          <Button onClick={() => navigate("/")} className="mt-4">
+            חזור לעמוד הראשי
+          </Button>
         </div>
       </div>
     );
@@ -84,7 +112,7 @@ const Success = () => {
               הרכישה הושלמה בהצלחה! 🎉
             </h1>
             <p className="text-xl text-accent mb-2" dir="rtl">
-              זוהי רכישת דמו - לא בוצע חיוב אמיתי
+              {purchase.payment_status === "demo" && "זוהי רכישת דמו - לא בוצע חיוב אמיתי"}
             </p>
           </div>
 
@@ -94,37 +122,30 @@ const Success = () => {
             
             <div className="space-y-4">
               <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">מספר הזמנה (Demo):</span>
-                <span className="font-mono text-primary">{purchase.id}</span>
+                <span className="text-muted-foreground">מספר הזמנה:</span>
+                <span className="font-mono text-primary text-sm">{purchase.id.slice(0, 13)}...</span>
               </div>
               
               <div className="flex justify-between items-center py-3 border-b border-border/30">
                 <span className="text-muted-foreground">חבילה:</span>
                 <span className="font-bold">
-                  {purchase.sessions === 1 ? "מפגש בודד" : "חבילת 4 מפגשים"}
+                  {purchase.package_type === "single" ? "מפגש בודד" : "חבילת 4 מפגשים"}
                 </span>
               </div>
               
               <div className="flex justify-between items-center py-3 border-b border-border/30">
                 <span className="text-muted-foreground">מספר מפגשים:</span>
-                <span className="font-bold">{purchase.sessions}</span>
+                <span className="font-bold">{purchase.sessions_total}</span>
               </div>
               
               <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">שם:</span>
-                <span className="font-medium">{purchase.customerName}</span>
+                <span className="text-muted-foreground">סכום:</span>
+                <span className="font-bold text-primary cyber-glow">₪{purchase.price}</span>
               </div>
-
-              {purchase.customerEmail && (
-                <div className="flex justify-between items-center py-3 border-b border-border/30">
-                  <span className="text-muted-foreground">אימייל:</span>
-                  <span className="font-medium">{purchase.customerEmail}</span>
-                </div>
-              )}
               
               <div className="flex justify-between items-center py-3">
-                <span className="text-muted-foreground">סכום (Demo):</span>
-                <span className="text-3xl font-black cyber-glow">₪{purchase.price}</span>
+                <span className="text-muted-foreground">תאריך רכישה:</span>
+                <span>{new Date(purchase.purchase_date).toLocaleDateString("he-IL")}</span>
               </div>
             </div>
           </div>
@@ -133,57 +154,69 @@ const Success = () => {
           <div className="glass-panel p-8 mb-8" dir="rtl">
             <h2 className="text-2xl font-bold mb-6 text-right">השלבים הבאים</h2>
             
-            <ul className="space-y-4 text-right">
-              <li className="flex items-start">
-                <span className="text-primary ml-3 text-xl">✓</span>
-                <span className="text-muted-foreground">
-                  נציג ייצור איתך קשר תוך 24 שעות לתיאום המפגש הראשון
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary ml-3 text-xl">✓</span>
-                <span className="text-muted-foreground">
-                  תקבל אימייל אישור עם כל הפרטים הרלוונטיים
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary ml-3 text-xl">✓</span>
-                <span className="text-muted-foreground">
-                  המפגשים יתקיימו בזום או פנים אל פנים, לפי העדפתך
-                </span>
-              </li>
-            </ul>
+            <div className="space-y-4 text-right">
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-bold mb-1">קבע את המפגש הראשון שלך</h3>
+                  <p className="text-muted-foreground text-sm">
+                    לחץ על כפתור "קבע מפגש" למטה כדי לתאם את הזמן המתאים לך
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-bold mb-1">היכנס ללוח הבקרה שלך</h3>
+                  <p className="text-muted-foreground text-sm">
+                    בלוח הבקרה תוכל לראות את כל המפגשים שלך ולנהל את החבילה
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-bold mb-1">התכונן למפגש</h3>
+                  <p className="text-muted-foreground text-sm">
+                    תקבל אימייל עם פרטים נוספים ומה להכין לקראת המפגש
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4" dir="rtl">
+          <div className="flex gap-4 flex-col sm:flex-row" dir="rtl">
             <Button
-              onClick={handleGoHome}
+              onClick={handleBookSession}
               size="lg"
               className="flex-1"
             >
-              <Home className="ml-2 h-5 w-5" />
-              חזרה לדף הבית
+              <Calendar className="ml-2" />
+              קבע מפגש
             </Button>
             
-            <Button
-              onClick={handleContact}
-              variant="outline"
-              size="lg"
-              className="flex-1"
-            >
-              <MessageCircle className="ml-2 h-5 w-5" />
-              צור קשר עכשיו
-            </Button>
-          </div>
-
-          {/* Demo Mode Notice */}
-          <div className="mt-8 text-center">
-            <div className="inline-block glass-panel px-6 py-3 border border-accent/30">
-              <p className="text-sm text-accent" dir="rtl">
-                🎭 Demo Mode Active - This is a demonstration purchase
-              </p>
-            </div>
+            <Link to="/dashboard" className="flex-1">
+              <Button variant="outline" size="lg" className="w-full">
+                <LayoutDashboard className="ml-2" />
+                לוח הבקרה שלי
+              </Button>
+            </Link>
+            
+            <Link to="/" className="flex-1">
+              <Button variant="outline" size="lg" className="w-full">
+                <Home className="ml-2" />
+                עמוד הבית
+              </Button>
+            </Link>
           </div>
         </div>
       </main>
