@@ -18,7 +18,7 @@ const HowSection = () => {
   ];
 
   return (
-    <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
+    <section id="how" className="relative py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-6xl mx-auto">
         <h2 className="text-5xl font-black mb-16 text-center cyber-glow">
           איך זה עובד?

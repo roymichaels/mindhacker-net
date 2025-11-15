@@ -3,7 +3,7 @@ import PricingCards from "./PricingCards";
 const BookingSection = () => {
 
   return (
-    <section id="booking" className="relative py-32 px-4" style={{ zIndex: 2 }}>
+    <section id="pricing" className="relative py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-12">
           <h2 className="text-5xl font-black mb-6 text-center cyber-glow">
