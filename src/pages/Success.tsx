@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle2, Calendar, Package } from "lucide-react";
 import MatrixRain from "@/components/MatrixRain";
 import Header from "@/components/Header";
+import { handleError } from "@/lib/errorHandling";
 
 interface Purchase {
   id: string;
@@ -53,13 +54,13 @@ const Success = () => {
         .single();
 
       if (error || !purchaseData) {
-        console.error("Error fetching purchase:", error);
+        handleError(error, "לא ניתן לטעון את פרטי הרכישה", "Success.fetchPurchase");
         setPurchase(null);
       } else {
         setPurchase(purchaseData);
       }
     } catch (error) {
-      console.error("Error:", error);
+      handleError(error, "שגיאה בטעינת פרטי הרכישה", "Success.fetchPurchase");
       setPurchase(null);
     } finally {
       setLoading(false);

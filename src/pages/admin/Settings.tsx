@@ -7,6 +7,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandling";
+
+const settingsSchema = z.object({
+  calendly_link: z.string().url("קישור Calendly לא חוקי").or(z.literal("")),
+  instagram_url: z.string().url("קישור Instagram לא חוקי").or(z.literal("")),
+  telegram_url: z.string().url("קישור Telegram לא חוקי").or(z.literal("")),
+  email: z.string().email("כתובת אימייל לא חוקית").max(255, "כתובת אימייל ארוכה מדי"),
+  single_session_price: z.string()
+    .transform(val => parseFloat(val))
+    .refine(val => !isNaN(val) && val > 0, "מחיר חייב להיות מספר חיובי"),
+  package_session_price: z.string()
+    .transform(val => parseFloat(val))
+    .refine(val => !isNaN(val) && val > 0, "מחיר חייב להיות מספר חיובי"),
+  single_session_description: z.string()
+    .min(5, "תיאור חייב להכיל לפחות 5 תווים")
+    .max(500, "תיאור ארוך מדי"),
+  package_session_description: z.string()
+    .min(5, "תיאור חייב להכיל לפחות 5 תווים")
+    .max(500, "תיאור ארוך מדי"),
+});
 
 const Settings = () => {
   const [loading, setLoading] = useState(true);
@@ -43,11 +64,7 @@ const Settings = () => {
 
       setSettings(settingsObj);
     } catch (error: any) {
-      toast({
-        title: "שגיאה בטעינת הגדרות",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
     } finally {
       setLoading(false);
     }
@@ -55,6 +72,20 @@ const Settings = () => {
 
   const handleSave = async () => {
     setSaving(true);
+    
+    // Validate settings
+    const result = settingsSchema.safeParse(settings);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: "שגיאת אימות",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      setSaving(false);
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -79,11 +110,7 @@ const Settings = () => {
         description: "השינויים עודכנו באתר",
       });
     } catch (error: any) {
-      toast({
-        title: "שגיאה בשמירת הגדרות",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לשמור את ההגדרות", "Settings.handleSave");
     } finally {
       setSaving(false);
     }

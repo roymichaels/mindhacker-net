@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, LogOut, Package, ShoppingBag, User } from "lucide-react";
 import Header from "@/components/Header";
+import { handleError } from "@/lib/errorHandling";
 
 interface Purchase {
   id: string;
@@ -67,12 +68,7 @@ const UserDashboard = () => {
 
       setPurchases(purchasesData || []);
     } catch (error: any) {
-      console.error("Error fetching user data:", error);
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון את הנתונים",
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון את הנתונים", "UserDashboard.fetchUserData");
     } finally {
       setLoading(false);
     }

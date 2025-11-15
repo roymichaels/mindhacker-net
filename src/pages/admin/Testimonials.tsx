@@ -11,6 +11,35 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandling";
+
+const testimonialSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, "שם חייב להכיל לפחות 2 תווים")
+    .max(100, "שם ארוך מדי"),
+  role: z.string()
+    .trim()
+    .max(100, "תפקיד ארוך מדי")
+    .optional()
+    .or(z.literal("")),
+  quote: z.string()
+    .trim()
+    .min(10, "ציטוט חייב להכיל לפחות 10 תווים")
+    .max(1000, "ציטוט ארוך מדי"),
+  avatar_url: z.string()
+    .url("קישור תמונה לא חוקי")
+    .optional()
+    .or(z.literal("")),
+  initials: z.string()
+    .max(3, "ראשי תיבות ארוכים מדי")
+    .optional()
+    .or(z.literal("")),
+  is_active: z.boolean(),
+  is_featured: z.boolean(),
+  order_index: z.number().int().nonnegative()
+});
 
 interface Testimonial {
   id: string;
@@ -55,11 +84,7 @@ const Testimonials = () => {
       if (error) throw error;
       setTestimonials(data || []);
     } catch (error: any) {
-      toast({
-        title: "שגיאה בטעינת המלצות",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון את ההמלצות", "Testimonials.fetchTestimonials");
     } finally {
       setLoading(false);
     }
@@ -75,6 +100,18 @@ const Testimonials = () => {
   };
 
   const handleSubmit = async () => {
+    // Validate form data
+    const result = testimonialSchema.safeParse(formData);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: "שגיאת אימות",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const dataToSubmit = {
@@ -114,11 +151,7 @@ const Testimonials = () => {
       });
       fetchTestimonials();
     } catch (error: any) {
-      toast({
-        title: "שגיאה",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לשמור את ההמלצה", "Testimonials.handleSubmit");
     }
   };
 
@@ -129,11 +162,7 @@ const Testimonials = () => {
       toast({ title: "ההמלצה נמחקה בהצלחה" });
       fetchTestimonials();
     } catch (error: any) {
-      toast({
-        title: "שגיאה במחיקה",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן למחוק את ההמלצה", "Testimonials.handleDelete");
     }
   };
 

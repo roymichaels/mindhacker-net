@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { z } from "zod";
+import { handleError } from "@/lib/errorHandling";
 
 interface FAQ {
   id: string;
@@ -18,6 +20,19 @@ interface FAQ {
   order_index: number;
   is_active: boolean;
 }
+
+const faqSchema = z.object({
+  question: z.string()
+    .trim()
+    .min(5, "שאלה חייבת להכיל לפחות 5 תווים")
+    .max(500, "שאלה ארוכה מדי"),
+  answer: z.string()
+    .trim()
+    .min(10, "תשובה חייבת להכיל לפחות 10 תווים")
+    .max(2000, "תשובה ארוכה מדי"),
+  is_active: z.boolean(),
+  order_index: z.number().int().nonnegative()
+});
 
 const FAQs = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -41,17 +56,25 @@ const FAQs = () => {
       if (error) throw error;
       setFaqs(data || []);
     } catch (error: any) {
-      toast({
-        title: "שגיאה בטעינת שאלות נפוצות",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון את השאלות", "FAQs.fetchFAQs");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSubmit = async () => {
+    // Validate form data
+    const result = faqSchema.safeParse(formData);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: "שגיאת אימות",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -77,11 +100,7 @@ const FAQs = () => {
       setFormData({ question: "", answer: "", order_index: 0, is_active: true });
       fetchFAQs();
     } catch (error: any) {
-      toast({
-        title: "שגיאה",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לשמור את השאלה", "FAQs.handleSubmit");
     }
   };
 
@@ -92,11 +111,7 @@ const FAQs = () => {
       toast({ title: "השאלה נמחקה בהצלחה" });
       fetchFAQs();
     } catch (error: any) {
-      toast({
-        title: "שגיאה במחיקה",
-        description: error.message,
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן למחוק את השאלה", "FAQs.handleDelete");
     }
   };
 
