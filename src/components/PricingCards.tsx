@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Calendar, Package, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Package, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CheckoutDialog from "./CheckoutDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PricingOption {
   id: "single" | "package_4";
@@ -14,36 +15,75 @@ interface PricingOption {
   features: string[];
 }
 
-const pricingOptions: PricingOption[] = [
-  {
-    id: "single",
-    sessions: 1,
-    price: 250,
-    pricePerSession: 250,
-    features: [
-      "מפגש אחד של 90 דקות",
-      "תיאום מיידי",
-      "ליווי אישי מלא",
-    ],
-  },
-  {
-    id: "package_4",
-    sessions: 4,
-    price: 800,
-    pricePerSession: 200,
-    savings: 200,
-    recommended: true,
-    features: [
-      "4 מפגשים של 90 דקות כל אחד",
-      "200₪ למפגש (חיסכון של 200₪!)",
-      "ליווי מתמשך",
-      "גמישות בתיאום",
-    ],
-  },
-];
-
 const PricingCards = () => {
   const [selectedPackage, setSelectedPackage] = useState<PricingOption | null>(null);
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", [
+          "single_session_price",
+          "package_session_price",
+          "single_session_description",
+          "package_session_description",
+        ]);
+
+      if (!error && data) {
+        const settings = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+
+        const singlePrice = Number(settings.single_session_price) || 250;
+        const packagePrice = Number(settings.package_session_price) || 800;
+        const pricePerSession = packagePrice / 4;
+        const savings = singlePrice * 4 - packagePrice;
+
+        setPricingOptions([
+          {
+            id: "single",
+            sessions: 1,
+            price: singlePrice,
+            pricePerSession: singlePrice,
+            features: [
+              settings.single_session_description || "מפגש אחד של 90 דקות",
+              "תיאום מיידי",
+              "ליווי אישי מלא",
+            ],
+          },
+          {
+            id: "package_4",
+            sessions: 4,
+            price: packagePrice,
+            pricePerSession,
+            savings,
+            recommended: true,
+            features: [
+              settings.package_session_description || "4 מפגשים של 90 דקות כל אחד",
+              `₪${pricePerSession} למפגש (חיסכון של ₪${savings}!)`,
+              "ליווי מתמשך",
+              "גמישות בתיאום",
+            ],
+          },
+        ]);
+      }
+      setLoading(false);
+    };
+
+    fetchPricing();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>

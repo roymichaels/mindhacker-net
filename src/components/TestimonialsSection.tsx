@@ -1,32 +1,49 @@
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Quote } from "lucide-react";
+import { Quote, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const testimonials = [
-  {
-    name: "שרה כהן",
-    role: "יזמת ומנהלת",
-    image: "https://i.pravatar.cc/150?img=1",
-    quote: "אחרי שלושה מפגשים הרגשתי שינוי עמוק. זה לא טיפול רגיל - זה ממש עדכון תודעתי. דין יודע איך לגעת בנקודות הנכונות.",
-    initials: "ש"
-  },
-  {
-    name: "יונתן לוי",
-    role: "מפתח תוכנה",
-    image: "https://i.pravatar.cc/150?img=12",
-    quote: "כמו למחוק קוד ישן ולהריץ גרסה חדשה. הגישה של דין משלבת טכנולוגיה עם עומק רוחני בצורה שעובדת ממש.",
-    initials: "י"
-  },
-  {
-    name: "מיכל ברק",
-    role: "מעצבת UI/UX",
-    image: "https://i.pravatar.cc/150?img=5",
-    quote: "ההיפנוזה המודעת שינתה לי את האמונות הכי עמוקות על עצמי. תוצאות מהירות, תהליך עדין, שינוי אמיתי.",
-    initials: "מ"
-  }
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  quote: string;
+  avatar_url: string | null;
+  initials: string | null;
+}
 
 const TestimonialsSection = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_index", { ascending: true })
+        .limit(6);
+
+      if (!error && data) {
+        setTestimonials(data);
+      }
+      setLoading(false);
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
+        <div className="max-w-7xl mx-auto flex justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-7xl mx-auto">
@@ -52,9 +69,9 @@ const TestimonialsSection = () => {
                   
                   {/* Avatar */}
                   <Avatar className="w-20 h-20 border-2 border-primary/50">
-                    <AvatarImage src={testimonial.image} alt={testimonial.name} />
+                    <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
                     <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
-                      {testimonial.initials}
+                      {testimonial.initials || testimonial.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
 
