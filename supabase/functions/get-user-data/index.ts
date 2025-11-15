@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,15 +49,33 @@ serve(async (req) => {
       );
     }
 
-    // Get the user ID to fetch from request body
-    const { userId } = await req.json();
+    // Get the user ID to fetch from request body with validation
+    const requestSchema = z.object({
+      userId: z.string().uuid('Invalid user ID format')
+    });
 
-    if (!userId) {
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
       return new Response(
-        JSON.stringify({ error: 'userId is required' }),
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const result = requestSchema.safeParse(body);
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid request data',
+          details: result.error.issues.map(issue => issue.message)
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { userId } = result.data;
 
     // Create admin client
     const supabaseAdmin = createClient(
