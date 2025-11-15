@@ -1,6 +1,34 @@
-import { Instagram, Send, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Instagram, Send, Mail, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
+  const [socialLinks, setSocialLinks] = useState({
+    instagram_url: "https://instagram.com",
+    telegram_url: "https://t.me",
+    email: "contact@consciousness-hacker.com",
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["instagram_url", "telegram_url", "email"]);
+
+      if (!error && data) {
+        const settings = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+        setSocialLinks({ ...socialLinks, ...settings });
+      }
+      setLoading(false);
+    };
+
+    fetchSettings();
+  }, []);
   return (
     <footer className="relative py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto text-center">
@@ -10,7 +38,7 @@ const Footer = () => {
 
         <div className="flex justify-center gap-8 mb-12">
           <a
-            href="https://instagram.com"
+            href={socialLinks.instagram_url}
             target="_blank"
             rel="noopener noreferrer"
             className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
@@ -18,7 +46,7 @@ const Footer = () => {
             <Instagram className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />
           </a>
           <a
-            href="https://t.me"
+            href={socialLinks.telegram_url}
             target="_blank"
             rel="noopener noreferrer"
             className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
@@ -26,7 +54,7 @@ const Footer = () => {
             <Send className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />
           </a>
           <a
-            href="mailto:contact@consciousness-hacker.com"
+            href={`mailto:${socialLinks.email}`}
             className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
           >
             <Mail className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />

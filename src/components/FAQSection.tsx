@@ -1,25 +1,50 @@
+import { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+
+interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  order_index: number;
+}
 
 const FAQSection = () => {
-  const faqs = [
-    {
-      question: "מה ההבדל בין אימון תודעתי לטיפול?",
-      answer: "טיפול מתמקד בעבר ובריפוי פצעים. אימון תודעתי מתמקד בהווה ובעתיד — שכתוב תבניות, תכנות מחדש של התת-מודע, ושחרור מהגבלות. זה לא ניתוח, זה עדכון מערכת הפעלה.",
-    },
-    {
-      question: "האם אני בשליטה בזמן ההיפנוזה?",
-      answer: "לחלוטין. היפנוזה מודעת היא מצב של מיקוד עמוק ורצוני. אתה מודע לכל רגע, יכול לעצור בכל שלב, ורק מקבל הצעות שמתאימות לך. זה לא שליטה חיצונית — זה שליטה פנימית משוחררת.",
-    },
-    {
-      question: "כמה מפגשים נדרשים?",
-      answer: "שינוי משמעותי מורגש כבר מהמפגש הראשון. תהליך מלא נע בין 3-6 מפגשים, תלוי במטרה ובעומק השינוי הרצוי. כל מפגש בונה על הקודם ומעמיק את התכנות.",
-    },
-  ];
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_index", { ascending: true });
+
+      if (!error && data) {
+        setFaqs(data);
+      }
+      setLoading(false);
+    };
+
+    fetchFAQs();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
+        <div className="max-w-4xl mx-auto flex justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
