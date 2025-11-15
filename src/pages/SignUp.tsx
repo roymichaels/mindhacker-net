@@ -7,6 +7,38 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, UserPlus } from "lucide-react";
+import { z } from "zod";
+
+const signUpSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(2, "השם חייב להכיל לפחות 2 תווים")
+    .max(100, "השם חייב להכיל פחות מ-100 תווים")
+    .regex(/^[\u0590-\u05FFa-zA-Z\s'-]+$/, "השם מכיל תווים לא חוקיים"),
+  
+  email: z.string()
+    .trim()
+    .email("כתובת אימייל לא חוקית")
+    .max(255, "כתובת אימייל ארוכה מדי")
+    .toLowerCase(),
+  
+  password: z.string()
+    .min(10, "הסיסמה חייבת להכיל לפחות 10 תווים")
+    .max(128, "הסיסמה ארוכה מדי")
+    .regex(/[A-Z]/, "הסיסמה חייבת להכיל לפחות אות גדולה אחת")
+    .regex(/[a-z]/, "הסיסמה חייבת להכיל לפחות אות קטנה אחת")
+    .regex(/[0-9]/, "הסיסמה חייבת להכיל לפחות מספר אחד")
+    .regex(/[^A-Za-z0-9]/, "הסיסמה חייבת להכיל לפחות תו מיוחד אחד"),
+  
+  confirmPassword: z.string(),
+  
+  agreeTerms: z.literal(true, {
+    errorMap: () => ({ message: "עליך לאשר את תנאי השימוש" })
+  })
+}).refine(data => data.password === data.confirmPassword, {
+  message: "הסיסמאות אינן תואמות",
+  path: ["confirmPassword"]
+});
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -23,28 +55,14 @@ const SignUp = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.agreeTerms) {
+    // Validate with Zod
+    const result = signUpSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const firstError = result.error.errors[0];
       toast({
-        title: "שגיאה",
-        description: "עליך לאשר את התנאים וההגבלות",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "שגיאה",
-        description: "הסיסמאות אינן תואמות",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: "שגיאה",
-        description: "הסיסמה חייבת להכיל לפחות 6 תווים",
+        title: "שגיאת אימות",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -53,11 +71,11 @@ const SignUp = () => {
     setIsLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
+      email: result.data.email,
+      password: result.data.password,
       options: {
         data: {
-          full_name: formData.fullName,
+          full_name: result.data.fullName,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
@@ -145,7 +163,7 @@ const SignUp = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="לפחות 6 תווים"
+                placeholder="לפחות 10 תווים עם אותיות גדולות, קטנות, מספר ותו מיוחד"
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })

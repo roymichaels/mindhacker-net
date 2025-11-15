@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { handleError } from "@/lib/errorHandling";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         setIsAuthenticated(!!user);
       } catch (error) {
-        console.error("Error checking auth:", error);
+        handleError(error, "לא ניתן לבדוק אימות", "ProtectedRoute");
         setIsAuthenticated(false);
       } finally {
         setLoading(false);

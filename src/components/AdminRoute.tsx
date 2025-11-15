@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { handleError } from "@/lib/errorHandling";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -29,7 +30,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
         setIsAdmin(hasAdminRole || false);
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        handleError(error, "לא ניתן לבדוק הרשאות מנהל", "AdminRoute");
         setIsAdmin(false);
       } finally {
         setLoading(false);
