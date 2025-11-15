@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { User } from "@supabase/supabase-js";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus, LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PackageData {
   id: "single" | "package_4";
@@ -40,83 +42,65 @@ interface DemoPurchase {
 const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    checkAuth();
+  }, [isOpen]);
 
-    if (!packageData) return;
-
-    // Validate form
-    if (!formData.name.trim() || !formData.email.trim()) {
-      toast({
-        title: "שגיאה",
-        description: "אנא מלא את כל השדות",
-        variant: "destructive",
-      });
-      return;
+  const checkAuth = async () => {
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
+    } catch (error) {
+      console.error("Error checking auth:", error);
+    } finally {
+      setCheckingAuth(false);
     }
+  };
 
-    // Simple email validation
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "שגיאה",
-        description: "כתובת אימייל לא תקינה",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handlePurchase = async () => {
+    if (!packageData || !user) return;
 
     setIsProcessing(true);
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { data: purchase, error } = await supabase
+        .from("purchases")
+        .insert({
+          user_id: user.id,
+          package_type: packageData.id,
+          sessions_total: packageData.sessions,
+          sessions_remaining: packageData.sessions,
+          price: packageData.price,
+          payment_status: "demo",
+          payment_method: "demo",
+        })
+        .select()
+        .single();
 
-    // Create demo purchase
-    const purchase: DemoPurchase = {
-      id: `demo-${Date.now()}`,
-      packageType: packageData.id,
-      sessions: packageData.sessions,
-      price: packageData.price,
-      customerName: formData.name,
-      customerEmail: formData.email,
-      purchaseDate: new Date().toISOString(),
-      demo: true,
-    };
+      if (error) throw error;
 
-    // Store in localStorage
-    const existingPurchases = JSON.parse(
-      localStorage.getItem("demo_purchases") || "[]"
-    );
-    existingPurchases.push(purchase);
-    // Keep only last 10 purchases
-    const recentPurchases = existingPurchases.slice(-10);
-    localStorage.setItem("demo_purchases", JSON.stringify(recentPurchases));
+      toast({
+        title: "רכישה הושלמה בהצלחה!",
+        description: "מעביר אותך לעמוד האישור...",
+      });
 
-    // Store current purchase for success page
-    localStorage.setItem("current_demo_purchase", JSON.stringify(purchase));
-
-    console.log("🎭 Demo purchase completed:", purchase);
-
-    toast({
-      title: "רכישה הושלמה בהצלחה!",
-      description: "מעביר אותך לעמוד האישור...",
-    });
-
-    // Navigate to success page
-    setTimeout(() => {
-      navigate(
-        `/success?package=${packageData.id}&sessions=${packageData.sessions}&price=${packageData.price}`
-      );
-      onClose();
+      setTimeout(() => {
+        navigate(`/success?purchaseId=${purchase.id}`);
+        onClose();
+        setIsProcessing(false);
+      }, 500);
+    } catch (error: any) {
+      console.error("Purchase error:", error);
+      toast({
+        title: "שגיאה ברכישה",
+        description: error.message || "אירעה שגיאה, נסה שוב",
+        variant: "destructive",
+      });
       setIsProcessing(false);
-      // Reset form
-      setFormData({ name: "", email: "" });
-    }, 500);
+    }
   };
 
   if (!packageData) return null;
@@ -127,13 +111,16 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
         <DialogHeader>
           <DialogTitle className="text-2xl cyber-glow">אישור רכישה</DialogTitle>
           <DialogDescription className="text-right">
-            אנא מלא את הפרטים שלך להשלמת הרכישה (Demo Mode)
+            {user ? "אישור פרטי הרכישה" : "נדרשת התחברות להשלמת הרכישה"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        {checkingAuth ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !user ? (
           <div className="space-y-6 py-4">
-            {/* Package Details */}
             <div className="glass-panel p-4 border border-primary/20">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-muted-foreground">חבילה:</span>
@@ -151,67 +138,86 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
               </div>
             </div>
 
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">שם מלא</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="הכנס שם מלא"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                  disabled={isProcessing}
-                  className="text-right"
-                />
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                כדי להשלים את הרכישה, עליך להתחבר או ליצור חשבון
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/login?redirect=/checkout&package=${packageData.id}`);
+                  }}
+                  size="lg"
+                  className="w-full"
+                >
+                  <LogIn className="ml-2 h-4 w-4" />
+                  התחבר
+                </Button>
+                <Button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/signup?redirect=/checkout&package=${packageData.id}`);
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  <UserPlus className="ml-2 h-4 w-4" />
+                  הרשם עכשיו
+                </Button>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">אימייל</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@email.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                  disabled={isProcessing}
-                  className="text-right"
-                />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6 py-4">
+            <div className="glass-panel p-4 border border-primary/20">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-muted-foreground">חבילה:</span>
+                <span className="font-bold">
+                  {packageData.sessions === 1 ? "מפגש בודד" : "חבילת 4 מפגשים"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-muted-foreground">מפגשים:</span>
+                <span className="font-bold">{packageData.sessions}</span>
+              </div>
+              <div className="flex justify-between items-center text-lg">
+                <span className="text-muted-foreground">סה"כ לתשלום:</span>
+                <span className="font-black cyber-glow">₪{packageData.price}</span>
               </div>
             </div>
 
             <div className="text-center text-xs text-muted-foreground bg-accent/10 p-3 rounded-lg">
               ⚠️ זוהי רכישת דמו - לא יתבצע חיוב אמיתי
             </div>
-          </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isProcessing}
-            >
-              ביטול
-            </Button>
-            <Button type="submit" disabled={isProcessing} className="min-w-[150px]">
-              {isProcessing ? (
-                <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  מעבד רכישה...
-                </>
-              ) : (
-                "השלם רכישה"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isProcessing}
+              >
+                ביטול
+              </Button>
+              <Button
+                onClick={handlePurchase}
+                disabled={isProcessing}
+                className="min-w-[150px]"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    מעבד רכישה...
+                  </>
+                ) : (
+                  "השלם רכישה"
+                )}
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
