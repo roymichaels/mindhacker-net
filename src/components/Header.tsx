@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,38 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Brain, LogOut, Menu, ShoppingBag, User } from "lucide-react";
+import { Brain, LogOut, Menu, Settings, ShoppingBag, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { handleError } from "@/lib/errorHandling";
 
 const Header = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        const { data: hasAdminRole } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+        setIsAdmin(hasAdminRole || false);
+      } catch (error) {
+        handleError(error, "לא ניתן לבדוק הרשאות", "Header");
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -98,6 +122,12 @@ const Header = () => {
                   <ShoppingBag className="ml-2 h-4 w-4" />
                   הרכישות שלי
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <Settings className="ml-2 h-4 w-4" />
+                    פאנל ניהול
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="ml-2 h-4 w-4" />
@@ -160,7 +190,47 @@ const Header = () => {
                 >
                   שאלות נפוצות
                 </button>
-                {!user && (
+
+                {user ? (
+                  <>
+                    <div className="border-t my-4" />
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        navigate("/dashboard");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full justify-start"
+                    >
+                      <ShoppingBag className="ml-2 h-4 w-4" />
+                      הרכישות שלי
+                    </Button>
+                    {isAdmin && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          navigate("/admin");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start"
+                      >
+                        <Settings className="ml-2 h-4 w-4" />
+                        פאנל ניהול
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full justify-start text-destructive hover:text-destructive"
+                    >
+                      <LogOut className="ml-2 h-4 w-4" />
+                      התנתק
+                    </Button>
+                  </>
+                ) : (
                   <>
                     <Button
                       variant="outline"
