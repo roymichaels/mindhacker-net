@@ -45,10 +45,30 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
   const [isProcessing, setIsProcessing] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [calendlyLink, setCalendlyLink] = useState<string>("");
 
   useEffect(() => {
-    checkAuth();
+    if (isOpen) {
+      checkAuth();
+      fetchCalendlyLink();
+    }
   }, [isOpen]);
+
+  const fetchCalendlyLink = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_value")
+        .eq("setting_key", "calendly_link")
+        .single();
+      
+      if (data?.setting_value) {
+        setCalendlyLink(data.setting_value);
+      }
+    } catch (error) {
+      handleError(error, "שגיאה בטעינת קישור Calendly", "CheckoutDialog.fetchCalendlyLink");
+    }
+  };
 
   const checkAuth = async () => {
     try {
@@ -77,6 +97,7 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
           price: packageData.price,
           payment_status: "demo",
           payment_method: "demo",
+          booking_link: calendlyLink || null,
         })
         .select()
         .single();

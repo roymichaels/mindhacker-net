@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Search, Loader2, Edit, Trash2 } from "lucide-react";
+import { Search, Loader2, Edit, Trash2, Link as LinkIcon } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import {
   Dialog,
@@ -34,6 +34,7 @@ interface Purchase {
   payment_status: string;
   payment_method: string | null;
   purchase_date: string;
+  booking_link: string | null;
   user_email?: string;
   user_name?: string;
 }
@@ -44,6 +45,9 @@ const Purchases = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [editSessions, setEditSessions] = useState(0);
+  const [bookingLinkDialogOpen, setBookingLinkDialogOpen] = useState(false);
+  const [editingBookingLink, setEditingBookingLink] = useState<Purchase | null>(null);
+  const [newBookingLink, setNewBookingLink] = useState("");
 
   useEffect(() => {
     fetchPurchases();
@@ -142,11 +146,38 @@ const Purchases = () => {
 
       fetchPurchases();
     } catch (error: any) {
+      handleError(error, "לא ניתן למחוק את הרכישה", "Purchases.handleDelete");
+    }
+  };
+
+  const handleOpenBookingLinkDialog = (purchase: Purchase) => {
+    setEditingBookingLink(purchase);
+    setNewBookingLink(purchase.booking_link || "");
+    setBookingLinkDialogOpen(true);
+  };
+
+  const handleUpdateBookingLink = async () => {
+    if (!editingBookingLink) return;
+
+    try {
+      const { error } = await supabase
+        .from("purchases")
+        .update({ booking_link: newBookingLink || null })
+        .eq("id", editingBookingLink.id);
+
+      if (error) throw error;
+
       toast({
-        title: "שגיאה",
-        description: error.message,
-        variant: "destructive",
+        title: "הצלחה",
+        description: "קישור הזמנת פגישה עודכן בהצלחה",
       });
+
+      setBookingLinkDialogOpen(false);
+      setEditingBookingLink(null);
+      setNewBookingLink("");
+      fetchPurchases();
+    } catch (error: any) {
+      handleError(error, "לא ניתן לעדכן את קישור הזמנת הפגישה", "Purchases.handleUpdateBookingLink");
     }
   };
 
@@ -238,6 +269,13 @@ const Purchases = () => {
                       <Button
                         variant="outline"
                         size="icon"
+                        onClick={() => handleOpenBookingLinkDialog(purchase)}
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
                         onClick={() => {
                           setEditingPurchase(purchase);
                           setEditSessions(purchase.sessions_remaining);
@@ -288,6 +326,37 @@ const Purchases = () => {
             </Button>
             <Button onClick={handleUpdateSessions}>
               שמור שינויים
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking Link Dialog */}
+      <Dialog open={bookingLinkDialogOpen} onOpenChange={setBookingLinkDialogOpen}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>ערוך קישור זמן פגישה</DialogTitle>
+            <DialogDescription>
+              עדכן את קישור Calendly עבור רכישה זו
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>קישור Calendly</Label>
+              <Input
+                value={newBookingLink}
+                onChange={(e) => setNewBookingLink(e.target.value)}
+                placeholder="https://calendly.com/..."
+                dir="ltr"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBookingLinkDialogOpen(false)}>
+              ביטול
+            </Button>
+            <Button onClick={handleUpdateBookingLink}>
+              שמור
             </Button>
           </DialogFooter>
         </DialogContent>
