@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, UserPlus, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/errorHandling";
 
 interface PackageData {
   id: "single" | "package_4";
@@ -54,7 +55,7 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       setUser(currentUser);
     } catch (error) {
-      console.error("Error checking auth:", error);
+      handleError(error, "לא ניתן לבדוק אימות", "CheckoutDialog");
     } finally {
       setCheckingAuth(false);
     }
@@ -93,12 +94,7 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
         setIsProcessing(false);
       }, 500);
     } catch (error: any) {
-      console.error("Purchase error:", error);
-      toast({
-        title: "שגיאה ברכישה",
-        description: error.message || "אירעה שגיאה, נסה שוב",
-        variant: "destructive",
-      });
+      handleError(error, "אירעה שגיאה ביצירת הרכישה", "CheckoutDialog");
       setIsProcessing(false);
     }
   };

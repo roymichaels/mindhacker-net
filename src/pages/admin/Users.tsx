@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Search, Loader2 } from "lucide-react";
+import { handleError, generateErrorId } from "@/lib/errorHandling";
 
 interface UserData {
   id: string;
@@ -61,18 +62,32 @@ const Users = () => {
         .from("user_roles")
         .select("user_id, role");
 
+      // Function to get user email via Edge Function
+      const getUserEmail = async (userId: string) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('get-user-data', {
+            body: { userId }
+          });
+
+          if (error) throw error;
+          return data.user?.email || "Unknown";
+        } catch (error) {
+          console.error("Error fetching user email - ID:", generateErrorId());
+          return "Unknown";
+        }
+      };
+
       // Combine the data
       const usersWithData = await Promise.all(
         (profilesData || []).map(async (profile) => {
-          // Get user email from auth
-          const { data: authData } = await supabase.auth.admin.getUserById(profile.id);
-          
+          // Get user email via Edge Function
+          const email = await getUserEmail(profile.id);
           const userPurchases = purchasesData?.filter(p => p.user_id === profile.id) || [];
           const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
 
           return {
             id: profile.id,
-            email: authData.user?.email || "לא ידוע",
+            email,
             created_at: profile.created_at,
             profiles: {
               full_name: profile.full_name,
@@ -85,12 +100,7 @@ const Users = () => {
 
       setUsers(usersWithData);
     } catch (error: any) {
-      console.error("Error fetching users:", error);
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון משתמשים",
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון משתמשים", "Users");
     } finally {
       setLoading(false);
     }

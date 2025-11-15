@@ -6,6 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, LogIn } from "lucide-react";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string()
+    .trim()
+    .email("כתובת אימייל לא חוקית")
+    .max(255, "כתובת אימייל ארוכה מדי")
+    .toLowerCase(),
+  
+  password: z.string()
+    .min(1, "נא להזין סיסמה")
+    .max(128, "סיסמה ארוכה מדי")
+});
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,11 +31,25 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate with Zod
+    const result = loginSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: "שגיאת אימות",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
+      email: result.data.email,
+      password: result.data.password,
     });
 
     setIsLoading(false);

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Search, Loader2, Edit, Trash2 } from "lucide-react";
+import { handleError, generateErrorId } from "@/lib/errorHandling";
 import {
   Dialog,
   DialogContent,
@@ -57,30 +58,40 @@ const Purchases = () => {
 
       if (error) throw error;
 
+      // Function to get user data via Edge Function
+      const getUserData = async (userId: string) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('get-user-data', {
+            body: { userId }
+          });
+
+          if (error) throw error;
+          return {
+            email: data.user?.email || "Unknown",
+            name: data.user?.user_metadata?.full_name || "לא ידוע"
+          };
+        } catch (error) {
+          console.error("Error fetching user data - ID:", generateErrorId());
+          return { email: "Unknown", name: "לא ידוע" };
+        }
+      };
+
       // Enrich with user data
       const enrichedPurchases = await Promise.all(
         (purchasesData || []).map(async (purchase) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", purchase.user_id)
-            .single();
+          const userData = await getUserData(purchase.user_id);
 
           return {
             ...purchase,
-            user_name: profile?.full_name || "לא ידוע",
+            user_name: userData.name,
+            user_email: userData.email,
           };
         })
       );
 
       setPurchases(enrichedPurchases);
     } catch (error: any) {
-      console.error("Error fetching purchases:", error);
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון רכישות",
-        variant: "destructive",
-      });
+      handleError(error, "לא ניתן לטעון רכישות", "Purchases");
     } finally {
       setLoading(false);
     }
@@ -137,11 +148,6 @@ const Purchases = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const getUserEmail = async (userId: string) => {
-    const { data } = await supabase.auth.admin.getUserById(userId);
-    return data.user?.email || "לא ידוע";
   };
 
   const filteredPurchases = purchases.filter((purchase) => {
