@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { CheckCircle, Home, Calendar, LayoutDashboard } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import MatrixRain from "@/components/MatrixRain";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle2, Calendar, Package } from "lucide-react";
+import MatrixRain from "@/components/MatrixRain";
+import Header from "@/components/Header";
 
 interface Purchase {
   id: string;
@@ -20,23 +21,21 @@ interface Purchase {
 const Success = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const purchaseId = searchParams.get("purchaseId");
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    fetchPurchase();
-  }, [searchParams]);
+    if (purchaseId) {
+      fetchPurchase();
+    } else {
+      setLoading(false);
+    }
+  }, [purchaseId]);
 
   const fetchPurchase = async () => {
     try {
-      const purchaseId = searchParams.get("purchaseId");
-      
-      if (!purchaseId) {
-        navigate("/");
-        return;
-      }
-
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -55,14 +54,13 @@ const Success = () => {
 
       if (error || !purchaseData) {
         console.error("Error fetching purchase:", error);
-        navigate("/");
-        return;
+        setPurchase(null);
+      } else {
+        setPurchase(purchaseData);
       }
-
-      setPurchase(purchaseData);
     } catch (error) {
       console.error("Error:", error);
-      navigate("/");
+      setPurchase(null);
     } finally {
       setLoading(false);
     }
@@ -75,20 +73,66 @@ const Success = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Skeleton className="h-96 w-full max-w-2xl" />
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
+          <div className="h-96 w-full max-w-2xl animate-pulse bg-muted rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!purchaseId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+          <Card className="max-w-md w-full glass-panel">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center cyber-glow">
+                ברוך הבא!
+              </CardTitle>
+              <CardDescription className="text-center">
+                אין פרטי רכישה בכתובת זו
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Button onClick={() => navigate("/dashboard")} className="w-full">
+                לצפייה בכל הרכישות שלי
+              </Button>
+              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+                חזור לדף הבית
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (!purchase) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="glass-panel p-8 text-center">
-          <p className="text-muted-foreground">רכישה לא נמצאה</p>
-          <Button onClick={() => navigate("/")} className="mt-4">
-            חזור לעמוד הראשי
-          </Button>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+          <Card className="max-w-md w-full glass-panel">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center cyber-glow">
+                רכישה לא נמצאה
+              </CardTitle>
+              <CardDescription className="text-center">
+                לא הצלחנו למצוא את פרטי הרכישה
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Button onClick={() => navigate("/dashboard")} className="w-full">
+                חזור ללוח הבקרה
+              </Button>
+              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+                חזור לדף הבית
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -96,130 +140,101 @@ const Success = () => {
 
   return (
     <div className="relative min-h-screen">
+      {/* Matrix rain background effect */}
       <MatrixRain />
       
       {/* Scanline overlay */}
       <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.02)_50%)] bg-[length:100%_4px] opacity-30" style={{ zIndex: 1 }} />
       
-      <main className="relative min-h-screen flex items-center justify-center px-4 py-20" style={{ zIndex: 2 }}>
-        <div className="max-w-2xl w-full">
-          {/* Success Icon */}
-          <div className="text-center mb-8 animate-scale-in">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/20 mb-6">
-              <CheckCircle className="w-12 h-12 text-primary cyber-glow" />
+      {/* Header */}
+      <Header />
+      
+      {/* Main content */}
+      <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center p-4" dir="rtl">
+        <div className="max-w-2xl w-full space-y-8">
+          {/* Success Header */}
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-4">
+              <CheckCircle2 className="w-10 h-10 text-primary cyber-glow" />
             </div>
-            <h1 className="text-5xl font-black mb-4 cyber-glow" dir="rtl">
+            <h1 className="text-4xl md:text-5xl font-black cyber-glow">
               הרכישה הושלמה בהצלחה! 🎉
             </h1>
-            <p className="text-xl text-accent mb-2" dir="rtl">
-              {purchase.payment_status === "demo" && "זוהי רכישת דמו - לא בוצע חיוב אמיתי"}
-            </p>
+            {purchase.payment_status === "demo" && (
+              <p className="text-lg text-accent">
+                זוהי רכישת דמו - לא בוצע חיוב אמיתי
+              </p>
+            )}
           </div>
 
-          {/* Purchase Details */}
-          <div className="glass-panel p-8 mb-8" dir="rtl">
-            <h2 className="text-2xl font-bold mb-6 text-right">פרטי הרכישה</h2>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">מספר הזמנה:</span>
-                <span className="font-mono text-primary text-sm">{purchase.id.slice(0, 13)}...</span>
-              </div>
-              
-              <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">חבילה:</span>
-                <span className="font-bold">
-                  {purchase.package_type === "single" ? "מפגש בודד" : "חבילת 4 מפגשים"}
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">מספר מפגשים:</span>
-                <span className="font-bold">{purchase.sessions_total}</span>
-              </div>
-              
-              <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-muted-foreground">סכום:</span>
-                <span className="font-bold text-primary cyber-glow">₪{purchase.price}</span>
-              </div>
-              
-              <div className="flex justify-between items-center py-3">
-                <span className="text-muted-foreground">תאריך רכישה:</span>
-                <span>{new Date(purchase.purchase_date).toLocaleDateString("he-IL")}</span>
-              </div>
-            </div>
-          </div>
+          {/* Purchase Details Card */}
+          <Card className="glass-panel">
+            <CardHeader>
+              <CardTitle className="text-2xl cyber-glow">פרטי הרכישה</CardTitle>
+              <CardDescription>
+                הנה סיכום הרכישה שלך
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Package className="h-4 w-4" />
+                    <span className="text-sm">חבילה</span>
+                  </div>
+                  <p className="font-semibold">
+                    {purchase.package_type === "single" ? "פגישה בודדת" : "חבילת 4 פגישות"}
+                  </p>
+                </div>
 
-          {/* Next Steps */}
-          <div className="glass-panel p-8 mb-8" dir="rtl">
-            <h2 className="text-2xl font-bold mb-6 text-right">השלבים הבאים</h2>
-            
-            <div className="space-y-4 text-right">
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
-                  1
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">פגישות כוללות</p>
+                  <p className="font-semibold">{purchase.sessions_total}</p>
                 </div>
-                <div>
-                  <h3 className="font-bold mb-1">קבע את המפגש הראשון שלך</h3>
-                  <p className="text-muted-foreground text-sm">
-                    לחץ על כפתור "קבע מפגש" למטה כדי לתאם את הזמן המתאים לך
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
-                  2
-                </div>
-                <div>
-                  <h3 className="font-bold mb-1">היכנס ללוח הבקרה שלך</h3>
-                  <p className="text-muted-foreground text-sm">
-                    בלוח הבקרה תוכל לראות את כל המפגשים שלך ולנהל את החבילה
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center cyber-glow">
-                  3
-                </div>
-                <div>
-                  <h3 className="font-bold mb-1">התכונן למפגש</h3>
-                  <p className="text-muted-foreground text-sm">
-                    תקבל אימייל עם פרטים נוספים ומה להכין לקראת המפגש
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 flex-col sm:flex-row" dir="rtl">
-            <Button
-              onClick={handleBookSession}
-              size="lg"
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">פגישות נותרו</p>
+                  <p className="font-semibold text-primary">{purchase.sessions_remaining}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">מחיר</p>
+                  <p className="font-semibold">₪{purchase.price}</p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <Button 
+                  onClick={handleBookSession} 
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <Calendar className="h-5 w-5" />
+                  קבע פגישה עכשיו
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={() => navigate("/dashboard")} 
+              variant="outline"
               className="flex-1"
             >
-              <Calendar className="ml-2" />
-              קבע מפגש
+              לוח הבקרה שלי
             </Button>
-            
-            <Link to="/dashboard" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full">
-                <LayoutDashboard className="ml-2" />
-                לוח הבקרה שלי
-              </Button>
-            </Link>
-            
-            <Link to="/" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full">
-                <Home className="ml-2" />
-                עמוד הבית
-              </Button>
-            </Link>
+            <Button 
+              onClick={() => navigate("/")} 
+              variant="outline"
+              className="flex-1"
+            >
+              חזור לדף הבית
+            </Button>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

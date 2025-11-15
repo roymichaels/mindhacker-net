@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, LogOut, Package, ShoppingBag, User } from "lucide-react";
+import Header from "@/components/Header";
 
 interface Purchase {
   id: string;
@@ -93,18 +94,23 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8" dir="rtl">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="p-8" dir="rtl">
+          <div className="max-w-6xl mx-auto space-y-6">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8" dir="rtl">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="p-4 md:p-8" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="glass-panel p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -226,6 +232,7 @@ const UserDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

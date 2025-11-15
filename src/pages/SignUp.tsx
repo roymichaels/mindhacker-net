@@ -81,9 +81,12 @@ const SignUp = () => {
       });
 
       const redirect = searchParams.get("redirect");
-      if (redirect === "/checkout") {
-        const packageParam = searchParams.get("package");
-        navigate(packageParam ? `/checkout?package=${packageParam}` : "/checkout");
+      if (redirect) {
+        // Preserve all query params except redirect
+        const params = new URLSearchParams(searchParams);
+        params.delete("redirect");
+        const queryString = params.toString();
+        navigate(redirect + (queryString ? `?${queryString}` : ""));
       } else {
         navigate("/dashboard");
       }
