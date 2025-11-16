@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Upload, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { z } from "zod";
 import { handleError } from "@/lib/errorHandling";
@@ -33,6 +33,7 @@ const settingsSchema = z.object({
 const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   const [settings, setSettings] = useState({
@@ -70,6 +71,75 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "שגיאה",
+        description: "יש להעלות קובץ תמונה בלבד",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "שגיאה",
+        description: "גודל הקובץ חייב להיות קטן מ-5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      // Delete old image if exists
+      if (settings.about_image_url) {
+        const oldPath = settings.about_image_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('site-images').remove([oldPath]);
+        }
+      }
+
+      // Upload new image
+      const fileExt = file.name.split('.').pop();
+      const fileName = `about-${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-images')
+        .getPublicUrl(fileName);
+
+      setSettings({ ...settings, about_image_url: publicUrl });
+
+      toast({
+        title: "התמונה הועלתה בהצלחה",
+        description: "אל תשכח לשמור את השינויים",
+      });
+    } catch (error: any) {
+      handleError(error, "לא ניתן להעלות את התמונה", "Settings.handleImageUpload");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSettings({ ...settings, about_image_url: "" });
   };
 
   const handleSave = async () => {
@@ -185,16 +255,39 @@ const Settings = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="about_image_url">תמונת המאמן (קישור URL)</Label>
-            <Input
-              id="about_image_url"
-              value={settings.about_image_url}
-              onChange={(e) => setSettings({ ...settings, about_image_url: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-              className="text-right"
-            />
+            <Label htmlFor="about_image">תמונת המאמן</Label>
+            {settings.about_image_url ? (
+              <div className="space-y-2">
+                <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-primary/20">
+                  <img 
+                    src={settings.about_image_url} 
+                    alt="Coach" 
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  id="about_image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                  className="text-right"
+                />
+                {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
-              תמונה שתוצג בסקשן "מי עומד מאחורי הקוד"
+              תמונה שתוצג בסקשן "מי עומד מאחורי הקוד" (מקסימום 5MB)
             </p>
           </div>
         </CardContent>
