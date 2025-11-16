@@ -26,12 +26,12 @@ function BrainModel({ isMobile }: { isMobile: boolean }) {
     scene.userData.materialsSet = true;
   }
 
-  // Smooth rotation animation with reduced complexity on mobile
-  useFrame((state) => {
+  // Smooth continuous rotation animation
+  useFrame((state, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.3;
+      meshRef.current.rotation.y += delta * 0.5; // Smooth consistent rotation
       if (!isMobile) {
-        meshRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
+        meshRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.8) * 0.15;
       }
     }
   });
@@ -71,7 +71,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           }}
           dpr={isMobile ? [1, 1.5] : [1, 2]} // Lower DPR on mobile
           style={{ background: 'transparent' }}
-          frameloop="demand" // Only render when needed
+          frameloop="always" // Continuous rendering for smooth animation
         >
           <PerspectiveCamera makeDefault position={[0, 0, 5]} />
           
