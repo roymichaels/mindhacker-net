@@ -2,7 +2,6 @@ import { Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
-import { Brain } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 function Particles({ count = 100 }: { count?: number }) {
@@ -100,7 +99,7 @@ useGLTF.preload("/brain_hologram.glb");
 function LoadingFallback() {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <Brain className="w-full h-full text-primary cyber-glow animate-pulse" />
+      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }
