@@ -38,11 +38,12 @@ interface Brain3DModelProps {
 
 const Brain3DModel = ({ className }: Brain3DModelProps) => {
   return (
-    <div className={className}>
+    <div className={className} style={{ width: '100%', height: '100%' }}>
       <Canvas
-        className="cursor-pointer"
+        className="cursor-pointer w-full h-full"
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
+        style={{ background: 'transparent' }}
       >
         <PerspectiveCamera makeDefault position={[0, 0, 5]} />
         
