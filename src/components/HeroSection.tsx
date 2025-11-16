@@ -20,8 +20,8 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette py-16 md:py-0" style={{ zIndex: 2 }}>
-      {/* 3D Brain Model at top */}
-      <Brain3DModel className="absolute top-8 left-1/2 -translate-x-1/2 z-50 h-16 w-16 md:h-24 md:w-24" />
+      {/* 3D Brain Model above title */}
+      <Brain3DModel className="absolute top-12 left-1/2 -translate-x-1/2 h-20 w-20 md:h-28 md:w-28" style={{ zIndex: 100 }} />
       
       {/* Radial glow overlay */}
       <div 
@@ -41,7 +41,7 @@ const HeroSection = () => {
         <div className="absolute top-1/3 right-1/3 w-16 md:w-32 h-16 md:h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
       </div>
 
-      <div className="relative text-center max-w-4xl mx-auto">
+      <div className="relative text-center max-w-4xl mx-auto mt-24 md:mt-32">
         <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight">
           <span className="text-foreground static-word-glow">האקר </span>
           <DecryptText 
