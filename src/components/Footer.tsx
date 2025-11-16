@@ -36,6 +36,27 @@ const Footer = () => {
     };
 
     fetchSettings();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('site_settings_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'site_settings',
+          filter: 'setting_key=in.(instagram_url,instagram_enabled,telegram_url,telegram_enabled,email,email_enabled)'
+        },
+        () => {
+          fetchSettings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
   return (
     <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
