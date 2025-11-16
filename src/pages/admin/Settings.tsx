@@ -39,6 +39,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [savingSwitch, setSavingSwitch] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [settings, setSettings] = useState({
@@ -70,7 +71,6 @@ const Settings = () => {
       if (error) throw error;
 
       const settingsObj = data.reduce((acc: any, item) => {
-        // Handle boolean values for enabled fields
         if (item.setting_key.endsWith('_enabled')) {
           acc[item.setting_key] = item.setting_value === 'true';
         } else {
@@ -79,7 +79,6 @@ const Settings = () => {
         return acc;
       }, {});
 
-      // Set defaults for enabled fields if not in database
       setSettings({
         calendly_link: settingsObj.calendly_link || "",
         calendly_enabled: settingsObj.calendly_enabled ?? true,
@@ -106,7 +105,6 @@ const Settings = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "שגיאה",
@@ -116,7 +114,6 @@ const Settings = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "שגיאה",
@@ -131,7 +128,6 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
-      // Delete old image if exists
       if (settings.about_image_url) {
         const oldPath = settings.about_image_url.split('/').pop();
         if (oldPath) {
@@ -139,7 +135,6 @@ const Settings = () => {
         }
       }
 
-      // Upload new image
       const fileExt = file.name.split('.').pop();
       const fileName = `about-${Date.now()}.${fileExt}`;
       
@@ -149,7 +144,6 @@ const Settings = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('site-images')
         .getPublicUrl(fileName);
@@ -168,13 +162,45 @@ const Settings = () => {
   };
 
   const handleRemoveImage = () => {
-    setSettings({ ...settings, about_image_url: "" });
+    setSettings(prev => ({ ...prev, about_image_url: "" }));
+    toast({
+      title: "התמונה הוסרה",
+      description: "התמונה הוסרה מהגדרות. לא לשכוח לשמור!",
+    });
+  };
+
+  const handleSwitchToggle = async (key: string, value: boolean) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+    setSavingSwitch(key);
+
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({
+          setting_key: key,
+          setting_value: value.toString(),
+          setting_type: "boolean",
+        }, {
+          onConflict: "setting_key"
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "✓ נשמר",
+        description: "ההגדרה עודכנה בהצלחה",
+      });
+    } catch (error) {
+      setSettings(prev => ({ ...prev, [key]: !value }));
+      handleError(error, "שגיאה בעדכון ההגדרה", "handleSwitchToggle");
+    } finally {
+      setSavingSwitch(null);
+    }
   };
 
   const handleSave = async () => {
     setSaving(true);
     
-    // Validate settings
     const result = settingsSchema.safeParse(settings);
     if (!result.success) {
       const firstError = result.error.errors[0];
@@ -226,227 +252,259 @@ const Settings = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       <div>
         <h1 className="text-4xl font-black cyber-glow mb-2">הגדרות</h1>
         <p className="text-muted-foreground">נהל את הגדרות האתר והתוכן</p>
       </div>
 
-      <Card className="glass-panel border-primary/20">
-        <CardHeader>
-          <CardTitle>קישורי חיצוניים</CardTitle>
-          <CardDescription>נהל קישורים לשירותים חיצוניים</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="calendly_link">קישור Calendly</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {settings.calendly_enabled ? "פעיל" : "כבוי"}
-                </span>
-                <Switch
-                  checked={settings.calendly_enabled}
-                  onCheckedChange={(checked) => setSettings({ ...settings, calendly_enabled: checked })}
-                />
-              </div>
-            </div>
-            <Input
-              id="calendly_link"
-              value={settings.calendly_link}
-              onChange={(e) => setSettings({ ...settings, calendly_link: e.target.value })}
-              placeholder="https://calendly.com/..."
-              className="text-right"
-              disabled={!settings.calendly_enabled}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="instagram_url">Instagram</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {settings.instagram_enabled ? "פעיל" : "כבוי"}
-                </span>
-                <Switch
-                  checked={settings.instagram_enabled}
-                  onCheckedChange={(checked) => setSettings({ ...settings, instagram_enabled: checked })}
-                />
-              </div>
-            </div>
-            <Input
-              id="instagram_url"
-              value={settings.instagram_url}
-              onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
-              placeholder="https://instagram.com/..."
-              className="text-right"
-              disabled={!settings.instagram_enabled}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="telegram_url">Telegram</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {settings.telegram_enabled ? "פעיל" : "כבוי"}
-                </span>
-                <Switch
-                  checked={settings.telegram_enabled}
-                  onCheckedChange={(checked) => setSettings({ ...settings, telegram_enabled: checked })}
-                />
-              </div>
-            </div>
-            <Input
-              id="telegram_url"
-              value={settings.telegram_url}
-              onChange={(e) => setSettings({ ...settings, telegram_url: e.target.value })}
-              placeholder="https://t.me/..."
-              className="text-right"
-              disabled={!settings.telegram_enabled}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="email">אימייל</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {settings.email_enabled ? "פעיל" : "כבוי"}
-                </span>
-                <Switch
-                  checked={settings.email_enabled}
-                  onCheckedChange={(checked) => setSettings({ ...settings, email_enabled: checked })}
-                />
-              </div>
-            </div>
-            <Input
-              id="email"
-              type="email"
-              value={settings.email}
-              onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-              placeholder="contact@example.com"
-              className="text-right"
-              disabled={!settings.email_enabled}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="about_image">תמונת המאמן</Label>
-            {settings.about_image_url ? (
-              <div className="space-y-2">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-primary/20">
-                  <img 
-                    src={settings.about_image_url} 
-                    alt="Coach" 
-                    className="w-full h-full object-cover"
+      <div className="space-y-6">
+        {/* External Links Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>קישורים חיצוניים</CardTitle>
+            <CardDescription>
+              ניהול קישורים לרשתות חברתיות ושירותים חיצוניים
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Calendly */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="calendly_link" className="text-base font-medium">קישור Calendly</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'calendly_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.calendly_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('calendly_enabled', checked)}
+                    disabled={savingSwitch === 'calendly_enabled'}
                   />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Input
-                  id="about_image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="text-right"
-                />
-                {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Input
+                id="calendly_link"
+                type="url"
+                placeholder="https://calendly.com/your-link"
+                value={settings.calendly_link}
+                onChange={(e) => setSettings(prev => ({ ...prev, calendly_link: e.target.value }))}
+                disabled={!settings.calendly_enabled}
+                className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                dir="ltr"
+              />
+            </div>
+
+            {/* Instagram */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="instagram_url" className="text-base font-medium">קישור Instagram</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'instagram_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.instagram_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('instagram_enabled', checked)}
+                    disabled={savingSwitch === 'instagram_enabled'}
+                  />
+                </div>
               </div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              תמונה שתוצג בסקשן "מי עומד מאחורי הקוד" (מקסימום 5MB)
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="glass-panel border-primary/20">
-        <CardHeader>
-          <CardTitle>תמחור</CardTitle>
-          <CardDescription>נהל מחירי המפגשים והחבילות</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="single_session_price">מחיר מפגש בודד (₪)</Label>
               <Input
-                id="single_session_price"
-                type="number"
-                value={settings.single_session_price}
-                onChange={(e) => setSettings({ ...settings, single_session_price: e.target.value })}
-                placeholder="250"
-                className="text-right"
+                id="instagram_url"
+                type="url"
+                placeholder="https://instagram.com/your-profile"
+                value={settings.instagram_url}
+                onChange={(e) => setSettings(prev => ({ ...prev, instagram_url: e.target.value }))}
+                disabled={!settings.instagram_enabled}
+                className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                dir="ltr"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="package_session_price">מחיר חבילת 4 מפגשים (₪)</Label>
+            {/* Telegram */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="telegram_url" className="text-base font-medium">קישור Telegram</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'telegram_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.telegram_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('telegram_enabled', checked)}
+                    disabled={savingSwitch === 'telegram_enabled'}
+                  />
+                </div>
+              </div>
               <Input
-                id="package_session_price"
-                type="number"
-                value={settings.package_session_price}
-                onChange={(e) => setSettings({ ...settings, package_session_price: e.target.value })}
-                placeholder="800"
-                className="text-right"
+                id="telegram_url"
+                type="url"
+                placeholder="https://t.me/your-channel"
+                value={settings.telegram_url}
+                onChange={(e) => setSettings(prev => ({ ...prev, telegram_url: e.target.value }))}
+                disabled={!settings.telegram_enabled}
+                className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                dir="ltr"
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="single_session_description">תיאור מפגש בודד</Label>
-            <Textarea
-              id="single_session_description"
-              value={settings.single_session_description}
-              onChange={(e) => setSettings({ ...settings, single_session_description: e.target.value })}
-              placeholder="מפגש אחד של 90 דקות"
-              className="text-right"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="package_session_description">תיאור חבילת מפגשים</Label>
-            <Textarea
-              id="package_session_description"
-              value={settings.package_session_description}
-              onChange={(e) => setSettings({ ...settings, package_session_description: e.target.value })}
-              placeholder="4 מפגשים של 90 דקות כל אחד"
-              className="text-right"
-            />
-          </div>
-
-          {settings.single_session_price && settings.package_session_price && (
-            <div className="p-4 glass-panel border border-primary/20 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                חיסכון בחבילה: ₪{(Number(settings.single_session_price) * 4 - Number(settings.package_session_price))}
-              </p>
+            {/* Email */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email" className="text-base font-medium">כתובת אימייל</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'email_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.email_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('email_enabled', checked)}
+                    disabled={savingSwitch === 'email_enabled'}
+                  />
+                </div>
+              </div>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your-email@example.com"
+                value={settings.email}
+                onChange={(e) => setSettings(prev => ({ ...prev, email: e.target.value }))}
+                disabled={!settings.email_enabled}
+                className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                dir="ltr"
+              />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Pricing Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>מחירון</CardTitle>
+            <CardDescription>
+              הגדרות מחירים ותיאורים למוצרים
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Single Session */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">סשן יחיד</h3>
+              <div className="space-y-2">
+                <Label htmlFor="single_session_price">מחיר (₪)</Label>
+                <Input
+                  id="single_session_price"
+                  type="number"
+                  placeholder="500"
+                  value={settings.single_session_price}
+                  onChange={(e) => setSettings(prev => ({ ...prev, single_session_price: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="single_session_description">תיאור</Label>
+                <Textarea
+                  id="single_session_description"
+                  placeholder="תיאור הסשן היחיד..."
+                  value={settings.single_session_description}
+                  onChange={(e) => setSettings(prev => ({ ...prev, single_session_description: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            {/* Package Session */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">חבילת סשנים</h3>
+              <div className="space-y-2">
+                <Label htmlFor="package_session_price">מחיר (₪)</Label>
+                <Input
+                  id="package_session_price"
+                  type="number"
+                  placeholder="1500"
+                  value={settings.package_session_price}
+                  onChange={(e) => setSettings(prev => ({ ...prev, package_session_price: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="package_session_description">תיאור</Label>
+                <Textarea
+                  id="package_session_description"
+                  placeholder="תיאור חבילת הסשנים..."
+                  value={settings.package_session_description}
+                  onChange={(e) => setSettings(prev => ({ ...prev, package_session_description: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* About Image Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>תמונת אודות</CardTitle>
+            <CardDescription>
+              העלה תמונה שתוצג בדף האודות
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {settings.about_image_url ? (
+                <div className="relative rounded-lg overflow-hidden border border-border">
+                  <img
+                    src={settings.about_image_url}
+                    alt="About"
+                    className="w-full h-64 object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={handleRemoveImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    העלה תמונה (עד 5MB)
+                  </p>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="max-w-xs mx-auto"
+                  />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          size="lg"
+          className="min-w-[200px]"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              שומר...
+            </>
+          ) : (
+            <>
+              <Save className="ml-2 h-4 w-4" />
+              שמור שינויים
+            </>
           )}
-        </CardContent>
-      </Card>
-
-      <Button onClick={handleSave} disabled={saving} size="lg">
-        {saving ? (
-          <>
-            <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-            שומר...
-          </>
-        ) : (
-          <>
-            <Save className="ml-2 h-4 w-4" />
-            שמור שינויים
-          </>
-        )}
-      </Button>
+        </Button>
+      </div>
     </div>
   );
 };
