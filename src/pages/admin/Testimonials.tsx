@@ -110,6 +110,7 @@ const Testimonials = () => {
         description: "יש להעלות קובץ תמונה בלבד",
         variant: "destructive",
       });
+      event.target.value = '';
       return;
     }
 
@@ -120,6 +121,7 @@ const Testimonials = () => {
         description: "גודל הקובץ חייב להיות קטן מ-5MB",
         variant: "destructive",
       });
+      event.target.value = '';
       return;
     }
 
@@ -140,7 +142,7 @@ const Testimonials = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `testimonial-${Date.now()}.${fileExt}`;
       
-      const { error: uploadError } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from('site-images')
         .upload(fileName, file);
 
@@ -151,14 +153,18 @@ const Testimonials = () => {
         .from('site-images')
         .getPublicUrl(fileName);
 
-      setFormData({ ...formData, avatar_url: publicUrl });
+      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
 
       toast({
         title: "התמונה הועלתה בהצלחה",
         description: "התמונה נוספה להמלצה",
       });
+      
+      // Clear the input
+      event.target.value = '';
     } catch (error: any) {
       handleError(error, "לא ניתן להעלות את התמונה", "Testimonials.handleImageUpload");
+      event.target.value = '';
     } finally {
       setUploading(false);
     }
