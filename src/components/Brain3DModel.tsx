@@ -114,7 +114,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className={className} style={{ width: '100%', height: '100%', ...style }}>
+    <div className={className} style={{ width: '100%', height: '100%', overflow: 'visible', ...style }}>
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
           className="cursor-pointer w-full h-full"
@@ -127,7 +127,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           style={{ background: 'transparent' }}
           frameloop="always" // Continuous rendering for smooth animation
         >
-          <PerspectiveCamera makeDefault position={[0, -1.5, 6]} />
+          <PerspectiveCamera makeDefault position={[0, -1.5, 7]} fov={75} />
           
           {/* Simplified lighting for better performance */}
           <ambientLight intensity={0.6} />
