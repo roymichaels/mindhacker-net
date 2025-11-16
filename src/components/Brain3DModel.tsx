@@ -36,7 +36,7 @@ function BrainModel({ isMobile }: { isMobile: boolean }) {
     }
   });
 
-  return <primitive ref={meshRef} object={scene} scale={isMobile ? 1.2 : 1.5} />;
+  return <primitive ref={meshRef} object={scene} scale={isMobile ? 3.6 : 4.5} />;
 }
 
 // Preload the model
