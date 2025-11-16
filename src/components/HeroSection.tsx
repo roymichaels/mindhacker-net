@@ -19,7 +19,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette py-16 md:py-0" style={{ zIndex: 2 }}>
+    <section className="relative min-h-screen flex items-center justify-center px-4 vignette py-20 md:py-24" style={{ zIndex: 2 }}>
       
       {/* Radial glow overlay */}
       <div 
@@ -41,7 +41,7 @@ const HeroSection = () => {
 
       <div className="relative text-center max-w-4xl mx-auto">
         {/* 3D Brain Model above title */}
-        <div className="flex justify-center mb-2 md:mb-3 mt-20 md:mt-32">
+        <div className="flex justify-center mt-8 md:mt-12">
           <Brain3DModel className="h-72 w-72 md:h-96 md:w-96" style={{ zIndex: 100 }} />
         </div>
         
