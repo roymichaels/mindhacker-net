@@ -3,10 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Calendar, Package } from "lucide-react";
+import { CheckCircle2, Home, LayoutDashboard } from "lucide-react";
 import MatrixRain from "@/components/MatrixRain";
 import Header from "@/components/Header";
+import BookingCalendar from "@/components/BookingCalendar";
 import { handleError } from "@/lib/errorHandling";
+import { toast } from "@/hooks/use-toast";
 
 interface Purchase {
   id: string;
@@ -16,7 +18,9 @@ interface Purchase {
   price: number;
   payment_status: string;
   purchase_date: string;
-  booking_link: string | null;
+  booking_status: string;
+  scheduled_date: string | null;
+  scheduled_time: string | null;
 }
 
 const Success = () => {
@@ -25,7 +29,8 @@ const Success = () => {
   const purchaseId = searchParams.get("purchaseId");
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState("");
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [bookingSubmitted, setBookingSubmitted] = useState(false);
 
   useEffect(() => {
     if (purchaseId) {
@@ -44,8 +49,6 @@ const Success = () => {
         return;
       }
 
-      setUserEmail(user.email || "");
-
       const { data: purchaseData, error } = await supabase
         .from("purchases")
         .select("*")
@@ -58,6 +61,10 @@ const Success = () => {
         setPurchase(null);
       } else {
         setPurchase(purchaseData);
+        // Check if booking already exists
+        if (purchaseData.booking_status !== "pending" || purchaseData.scheduled_date) {
+          setBookingSubmitted(true);
+        }
       }
     } catch (error) {
       handleError(error, "שגיאה בטעינת פרטי הרכישה", "Success.fetchPurchase");
@@ -67,9 +74,36 @@ const Success = () => {
     }
   };
 
-  const handleBookSession = () => {
-    const bookingUrl = purchase?.booking_link || `https://calendly.com/consciousness-hacker?email=${encodeURIComponent(userEmail)}`;
-    window.open(bookingUrl, "_blank");
+  const handleBookingSubmit = async (date: Date | undefined, time: string, notes: string) => {
+    if (!date || !purchaseId) return;
+
+    setIsSubmittingBooking(true);
+
+    try {
+      const { error } = await supabase
+        .from("purchases")
+        .update({
+          booking_status: "pending",
+          scheduled_date: date.toISOString().split('T')[0],
+          scheduled_time: time,
+          booking_notes: notes || null,
+        })
+        .eq("id", purchaseId);
+
+      if (error) throw error;
+
+      toast({
+        title: "🎉 בקשת הפגישה נשלחה בהצלחה!",
+        description: "נחזור אליך בהקדם עם אישור. נתראה בפגישה שתשנה הכל!",
+      });
+
+      setBookingSubmitted(true);
+      fetchPurchase(); // Refresh the purchase data
+    } catch (error) {
+      handleError(error, "שגיאה בשליחת בקשת הפגישה", "Success.handleBookingSubmit");
+    } finally {
+      setIsSubmittingBooking(false);
+    }
   };
 
   if (loading) {
@@ -118,16 +152,16 @@ const Success = () => {
         <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
           <Card className="max-w-md w-full glass-panel">
             <CardHeader>
-              <CardTitle className="text-2xl text-center cyber-glow">
-                רכישה לא נמצאה
+              <CardTitle className="text-2xl text-center text-destructive">
+                שגיאה
               </CardTitle>
               <CardDescription className="text-center">
-                לא הצלחנו למצוא את פרטי הרכישה
+                לא נמצאו פרטי רכישה
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <Button onClick={() => navigate("/dashboard")} className="w-full">
-                חזור ללוח הבקרה
+                לצפייה בכל הרכישות שלי
               </Button>
               <Button onClick={() => navigate("/")} variant="outline" className="w-full">
                 חזור לדף הבית
@@ -140,97 +174,130 @@ const Success = () => {
   }
 
   return (
-    <div className="relative min-h-screen">
-      {/* Matrix rain background effect */}
+    <div className="min-h-screen bg-background relative">
       <MatrixRain />
+      <div className="scanlines" />
       
-      {/* Scanline overlay */}
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.02)_50%)] bg-[length:100%_4px] opacity-30" style={{ zIndex: 1 }} />
-      
-      {/* Header */}
       <Header />
       
-      {/* Main content */}
-      <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center p-4" dir="rtl">
-        <div className="max-w-2xl w-full space-y-8">
+      <div className="relative z-10 flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+        <div className="w-full max-w-4xl space-y-6">
           {/* Success Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-4">
-              <CheckCircle2 className="w-10 h-10 text-primary cyber-glow" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black cyber-glow">
-              הרכישה הושלמה בהצלחה! 🎉
-            </h1>
-            {purchase.payment_status === "demo" && (
-              <p className="text-lg text-accent">
-                זוהי רכישת דמו - לא בוצע חיוב אמיתי
-              </p>
-            )}
-          </div>
-
-          {/* Purchase Details Card */}
-          <Card className="glass-panel">
-            <CardHeader>
-              <CardTitle className="text-2xl cyber-glow">פרטי הרכישה</CardTitle>
-              <CardDescription>
-                הנה סיכום הרכישה שלך
+          <Card className="glass-panel text-center">
+            <CardHeader className="space-y-4">
+              <div className="flex justify-center">
+                <div className="rounded-full bg-primary/20 p-4">
+                  <CheckCircle2 className="h-16 w-16 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-3xl md:text-4xl cyber-glow">
+                🎉 מזל טוב! קיבלת את ההחלטה הנכונה
+              </CardTitle>
+              <CardDescription className="text-lg">
+                הצעד הראשון לשינוי כבר נעשה. המציאות שלך עומדת להשתנות לנצח.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+          </Card>
+
+          {/* Purchase Details */}
+          <Card className="glass-panel">
+            <CardHeader>
+              <CardTitle className="text-2xl">פרטי החבילה שלך</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Package className="h-4 w-4" />
-                    <span className="text-sm">חבילה</span>
-                  </div>
-                  <p className="font-semibold">
+                  <p className="text-sm text-muted-foreground">סוג חבילה</p>
+                  <p className="text-lg font-semibold">
                     {purchase.package_type === "single" ? "פגישה בודדת" : "חבילת 4 פגישות"}
                   </p>
                 </div>
-
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">פגישות כוללות</p>
-                  <p className="font-semibold">{purchase.sessions_total}</p>
+                  <p className="text-sm text-muted-foreground">מספר פגישות</p>
+                  <p className="text-lg font-semibold">{purchase.sessions_total}</p>
                 </div>
-
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">פגישות נותרו</p>
-                  <p className="font-semibold text-primary">{purchase.sessions_remaining}</p>
-                </div>
-
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">מחיר</p>
-                  <p className="font-semibold">₪{purchase.price}</p>
+                  <p className="text-lg font-semibold cyber-glow">₪{purchase.price}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">תאריך רכישה</p>
+                  <p className="text-lg font-semibold">
+                    {new Date(purchase.purchase_date).toLocaleDateString('he-IL')}
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border">
-                <Button 
-                  onClick={handleBookSession} 
-                  className="w-full gap-2"
-                  size="lg"
-                >
-                  <Calendar className="h-5 w-5" />
-                  קבע פגישה עכשיו
-                </Button>
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <p className="font-semibold">💳 לגבי התשלום:</p>
+                <ul className="space-y-1 text-sm">
+                  <li>• התשלום יתבצע לאחר הפגישה הראשונה</li>
+                  <li>• ניתן לשלם דרך PayPal או העברה בנקאית</li>
+                  <li>• פרטי התשלום ישלחו אליך לאחר הפגישה</li>
+                  <li className="font-semibold mt-2">• המחיר הסופי: ₪{purchase.price}</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
 
+          {/* Booking Section */}
+          {!bookingSubmitted ? (
+            <Card className="glass-panel">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center cyber-glow">
+                  עכשיו בוא נקבע את הפגישה שתשנה הכל
+                </CardTitle>
+                <CardDescription className="text-center text-base">
+                  בחר את התאריך והשעה המועדפים עליך
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BookingCalendar 
+                  onSubmit={handleBookingSubmit}
+                  isSubmitting={isSubmittingBooking}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="glass-panel">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center cyber-glow">
+                  ✅ בקשת הפגישה נקלטה!
+                </CardTitle>
+                <CardDescription className="text-center text-base">
+                  נחזור אליך בהקדם עם אישור הפגישה. נתראה בפגישה שתשנה הכל! 🚀
+                </CardDescription>
+              </CardHeader>
+              {purchase.scheduled_date && purchase.scheduled_time && (
+                <CardContent>
+                  <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
+                    <p className="font-semibold">הבקשה שלך:</p>
+                    <p>📅 {new Date(purchase.scheduled_date).toLocaleDateString('he-IL')}</p>
+                    <p>🕐 {purchase.scheduled_time}</p>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          )}
+
           {/* Navigation Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              onClick={() => navigate("/dashboard")} 
-              variant="outline"
+          <div className="flex flex-col md:flex-row gap-4">
+            <Button
+              onClick={() => navigate("/dashboard")}
+              variant="default"
               className="flex-1"
+              size="lg"
             >
+              <LayoutDashboard className="ml-2 h-5 w-5" />
               לוח הבקרה שלי
             </Button>
-            <Button 
-              onClick={() => navigate("/")} 
+            <Button
+              onClick={() => navigate("/")}
               variant="outline"
               className="flex-1"
+              size="lg"
             >
+              <Home className="ml-2 h-5 w-5" />
               חזור לדף הבית
             </Button>
           </div>

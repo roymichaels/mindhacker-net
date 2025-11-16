@@ -73,48 +73,66 @@ export type Database = {
       }
       purchases: {
         Row: {
+          booking_confirmed_at: string | null
           booking_link: string | null
+          booking_notes: string | null
+          booking_status: string | null
           created_at: string | null
           expires_at: string | null
           id: string
           notes: string | null
           package_type: string
+          payment_completed_at: string | null
           payment_method: string | null
           payment_status: string | null
           price: number
           purchase_date: string | null
+          scheduled_date: string | null
+          scheduled_time: string | null
           sessions_remaining: number
           sessions_total: number
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          booking_confirmed_at?: string | null
           booking_link?: string | null
+          booking_notes?: string | null
+          booking_status?: string | null
           created_at?: string | null
           expires_at?: string | null
           id?: string
           notes?: string | null
           package_type: string
+          payment_completed_at?: string | null
           payment_method?: string | null
           payment_status?: string | null
           price: number
           purchase_date?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
           sessions_remaining: number
           sessions_total: number
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          booking_confirmed_at?: string | null
           booking_link?: string | null
+          booking_notes?: string | null
+          booking_status?: string | null
           created_at?: string | null
           expires_at?: string | null
           id?: string
           notes?: string | null
           package_type?: string
+          payment_completed_at?: string | null
           payment_method?: string | null
           payment_status?: string | null
           price?: number
           purchase_date?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
           sessions_remaining?: number
           sessions_total?: number
           updated_at?: string | null
