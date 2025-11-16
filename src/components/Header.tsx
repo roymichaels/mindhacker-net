@@ -72,7 +72,7 @@ const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Brain className="h-6 w-6 text-primary cyber-glow" />
-          <span className="font-black text-lg cyber-glow hidden sm:inline">
+          <span className="font-black text-lg cyber-glow">
             MIND-HACKER
           </span>
         </Link>

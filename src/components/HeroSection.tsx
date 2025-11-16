@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Brain } from "lucide-react";
 import DecryptText from "./DecryptText";
 
 const HeroSection = () => {
@@ -19,6 +20,11 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette py-16 md:py-0" style={{ zIndex: 2 }}>
+      {/* Brain icon at top */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50">
+        <Brain className="h-16 w-16 md:h-24 md:w-24 text-primary cyber-glow animate-pulse" />
+      </div>
+      
       {/* Radial glow overlay */}
       <div 
         className="absolute inset-0 pointer-events-none"
