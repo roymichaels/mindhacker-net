@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Edit, Trash2, Star } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, Star, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
@@ -29,7 +29,6 @@ const testimonialSchema = z.object({
     .min(10, "ציטוט חייב להכיל לפחות 10 תווים")
     .max(1000, "ציטוט ארוך מדי"),
   avatar_url: z.string()
-    .url("קישור תמונה לא חוקי")
     .optional()
     .or(z.literal("")),
   initials: z.string()
@@ -56,6 +55,7 @@ interface Testimonial {
 const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [formData, setFormData] = useState({
@@ -97,6 +97,75 @@ const Testimonials = () => {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "שגיאה",
+        description: "יש להעלות קובץ תמונה בלבד",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "שגיאה",
+        description: "גודל הקובץ חייב להיות קטן מ-5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      // Delete old image if exists
+      if (formData.avatar_url) {
+        const oldPath = formData.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('site-images').remove([oldPath]);
+        }
+      }
+
+      // Upload new image
+      const fileExt = file.name.split('.').pop();
+      const fileName = `testimonial-${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-images')
+        .getPublicUrl(fileName);
+
+      setFormData({ ...formData, avatar_url: publicUrl });
+
+      toast({
+        title: "התמונה הועלתה בהצלחה",
+        description: "התמונה נוספה להמלצה",
+      });
+    } catch (error: any) {
+      handleError(error, "לא ניתן להעלות את התמונה", "Testimonials.handleImageUpload");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData({ ...formData, avatar_url: "" });
   };
 
   const handleSubmit = async () => {
@@ -257,13 +326,39 @@ const Testimonials = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>URL תמונה (אופציונלי)</Label>
-                <Input
-                  value={formData.avatar_url}
-                  onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                  placeholder="https://..."
-                  className="text-right"
-                />
+                <Label>תמונת פרופיל (אופציונלי)</Label>
+                {formData.avatar_url ? (
+                  <div className="space-y-2">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
+                      <img 
+                        src={formData.avatar_url} 
+                        alt="Avatar preview" 
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-0 right-0 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      className="text-right"
+                    />
+                    {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  אם לא תעלה תמונה, יוצגו ראשי תיבות (מקסימום 5MB)
+                </p>
               </div>
 
               <div className="space-y-2">
