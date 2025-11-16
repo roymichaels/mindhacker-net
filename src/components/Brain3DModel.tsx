@@ -1,9 +1,63 @@
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { Brain } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+function Particles({ count = 100 }: { count?: number }) {
+  const points = useRef<THREE.Points>(null);
+  
+  const particlesPosition = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    
+    for (let i = 0; i < count; i++) {
+      // Create particles in a spherical distribution around the brain
+      const radius = 3 + Math.random() * 2;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = radius * Math.cos(phi);
+    }
+    
+    return positions;
+  }, [count]);
+
+  useFrame((state) => {
+    if (points.current) {
+      // Rotate particles around the brain
+      points.current.rotation.y = state.clock.getElapsedTime() * 0.1;
+      points.current.rotation.x = state.clock.getElapsedTime() * 0.05;
+      
+      // Pulse effect
+      const scale = 1 + Math.sin(state.clock.getElapsedTime() * 2) * 0.1;
+      points.current.scale.set(scale, scale, scale);
+    }
+  });
+
+  return (
+    <points ref={points}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={particlesPosition.length / 3}
+          array={particlesPosition}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.05}
+        color="#00f0ff"
+        transparent
+        opacity={0.6}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
 
 function BrainModel({ isMobile }: { isMobile: boolean }) {
   const { scene } = useGLTF("/brain_hologram.glb");
@@ -81,6 +135,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           {!isMobile && <pointLight position={[0, 0, 10]} intensity={0.8} color="#00f0ff" />}
 
           <BrainModel isMobile={isMobile} />
+          {!isMobile && <Particles count={150} />}
         </Canvas>
       </Suspense>
     </div>
