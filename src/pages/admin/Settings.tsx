@@ -15,6 +15,7 @@ const settingsSchema = z.object({
   instagram_url: z.string().url("קישור Instagram לא חוקי").or(z.literal("")),
   telegram_url: z.string().url("קישור Telegram לא חוקי").or(z.literal("")),
   email: z.string().email("כתובת אימייל לא חוקית").max(255, "כתובת אימייל ארוכה מדי"),
+  about_image_url: z.string().url("קישור תמונה לא חוקי").or(z.literal("")),
   single_session_price: z.string()
     .transform(val => parseFloat(val))
     .refine(val => !isNaN(val) && val > 0, "מחיר חייב להיות מספר חיובי"),
@@ -39,6 +40,7 @@ const Settings = () => {
     instagram_url: "",
     telegram_url: "",
     email: "",
+    about_image_url: "",
     single_session_price: "",
     package_session_price: "",
     single_session_description: "",
@@ -180,6 +182,20 @@ const Settings = () => {
               placeholder="contact@example.com"
               className="text-right"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="about_image_url">תמונת המאמן (קישור URL)</Label>
+            <Input
+              id="about_image_url"
+              value={settings.about_image_url}
+              onChange={(e) => setSettings({ ...settings, about_image_url: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+              className="text-right"
+            />
+            <p className="text-xs text-muted-foreground">
+              תמונה שתוצג בסקשן "מי עומד מאחורי הקוד"
+            </p>
           </div>
         </CardContent>
       </Card>
