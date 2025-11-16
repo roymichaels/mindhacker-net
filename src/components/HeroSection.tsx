@@ -42,7 +42,7 @@ const HeroSection = () => {
       <div className="relative text-center max-w-4xl mx-auto">
         {/* 3D Brain Model above title */}
         <div className="flex justify-center mt-12 md:mt-16">
-          <Brain3DModel className="h-72 w-72 md:h-96 md:w-96" style={{ zIndex: 100 }} />
+          <Brain3DModel className="h-100 w-72 md:h-96 md:w-96" style={{ zIndex: 100 }} />
         </div>
         
         <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight">
