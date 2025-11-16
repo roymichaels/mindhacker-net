@@ -16,8 +16,13 @@ const BookingSection = () => {
 
           <PricingCards />
 
-          <div className="text-center mt-8 text-sm text-muted-foreground">
-            <p>Demo Mode - No real payment will be processed</p>
+          <div className="text-center mt-8 space-y-2">
+            <p className="text-lg font-semibold cyber-glow">
+              השקעה בעצמך היא ההשקעה הטובה ביותר
+            </p>
+            <p className="text-sm text-muted-foreground">
+              💳 התשלום יתבצע לאחר הפגישה הראשונה דרך PayPal או העברה בנקאית
+            </p>
           </div>
         </div>
       </div>

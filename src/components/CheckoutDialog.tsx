@@ -102,9 +102,10 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
           sessions_total: packageData.sessions,
           sessions_remaining: packageData.sessions,
           price: packageData.price,
-          payment_status: "demo",
-          payment_method: "demo",
+          payment_status: "pending_session",
+          payment_method: null,
           booking_link: calendlyLink || null,
+          booking_status: "pending",
         })
         .select()
         .single();
@@ -112,8 +113,8 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
       if (error) throw error;
 
       toast({
-        title: "רכישה הושלמה בהצלחה!",
-        description: "מעביר אותך לעמוד האישור...",
+        title: "🎉 מזל טוב! קיבלת את ההחלטה הנכונה",
+        description: "הצעד הראשון לשינוי כבר נעשה. מעביר אותך לקביעת פגישה...",
       });
 
       setTimeout(() => {
@@ -133,9 +134,18 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[500px] glass-panel" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-xl md:text-2xl cyber-glow">אישור רכישה</DialogTitle>
-          <DialogDescription className="text-right text-sm md:text-base">
-            {user ? "אישור פרטי הרכישה" : "נדרשת התחברות להשלמת הרכישה"}
+          <DialogTitle className="text-2xl text-center cyber-glow">
+            אתה עומד לקחת את הצעד הכי חשוב בחיים שלך
+          </DialogTitle>
+          <DialogDescription className="text-center text-base mt-4 space-y-2">
+            {user ? (
+              <>
+                <p className="text-lg font-semibold">זוהי השקעה שתחזיר את עצמה פי כמה וכמה</p>
+                <p>אנשים ששינו את חייהם התחילו בדיוק כאן</p>
+              </>
+            ) : (
+              "נדרשת התחברות להשלמת הרכישה"
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -197,20 +207,27 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
           </div>
         ) : (
           <div className="space-y-6 py-4">
-            <div className="glass-panel p-4 border border-primary/20">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">חבילה:</span>
-                <span className="font-bold">
-                  {packageData.sessions === 1 ? "מפגש בודד" : "חבילת 4 מפגשים"}
-                </span>
+            <div className="text-center space-y-4 mb-6">
+              <div className="bg-primary/10 p-6 rounded-lg space-y-3">
+                <h3 className="text-xl font-bold">פרטי החבילה</h3>
+                <div className="flex justify-center items-baseline gap-2">
+                  <span className="text-4xl font-black cyber-glow">
+                    ₪{packageData.price}
+                  </span>
+                </div>
+                <p className="text-lg font-semibold">
+                  {packageData.sessions === 1 
+                    ? "פגישה בודדת" 
+                    : `חבילת ${packageData.sessions} פגישות`
+                  }
+                </p>
               </div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">מפגשים:</span>
-                <span className="font-bold">{packageData.sessions}</span>
-              </div>
-              <div className="flex justify-between items-center text-lg">
-                <span className="text-muted-foreground">סה"כ לתשלום:</span>
-                <span className="font-black cyber-glow">₪{packageData.price}</span>
+              
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
+                <p className="font-semibold">💳 לגבי התשלום:</p>
+                <p>התשלום יתבצע לאחר הפגישה הראשונה</p>
+                <p>ניתן לשלם דרך PayPal או העברה בנקאית</p>
+                <p className="text-xs text-muted-foreground">פרטי התשלום ישלחו אליך לאחר הפגישה</p>
               </div>
             </div>
 

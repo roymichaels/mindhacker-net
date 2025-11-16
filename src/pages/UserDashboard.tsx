@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, LogOut, Package, ShoppingBag, User } from "lucide-react";
+import { Calendar, LogOut, Package, User, Clock, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
+import BookingDialog from "@/components/BookingDialog";
 import { handleError } from "@/lib/errorHandling";
 
 interface Purchase {
@@ -17,7 +19,10 @@ interface Purchase {
   price: number;
   payment_status: string;
   purchase_date: string;
-  booking_link: string | null;
+  booking_status: string;
+  scheduled_date: string | null;
+  scheduled_time: string | null;
+  booking_notes: string | null;
 }
 
 interface Profile {
@@ -30,6 +35,8 @@ const UserDashboard = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userEmail, setUserEmail] = useState("");
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUserData();
@@ -83,9 +90,37 @@ const UserDashboard = () => {
     navigate("/");
   };
 
-  const handleBookSession = (purchase: Purchase) => {
-    const bookingUrl = purchase.booking_link || `https://calendly.com/consciousness-hacker?email=${encodeURIComponent(userEmail)}`;
-    window.open(bookingUrl, "_blank");
+  const handleOpenBooking = (purchaseId: string) => {
+    setSelectedPurchaseId(purchaseId);
+    setBookingDialogOpen(true);
+  };
+
+  const getBookingStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Badge variant="outline">ממתין לקביעה</Badge>;
+      case "scheduled":
+        return <Badge variant="default">קבוע</Badge>;
+      case "completed":
+        return <Badge variant="secondary">הושלם</Badge>;
+      case "cancelled":
+        return <Badge variant="destructive">בוטל</Badge>;
+      default:
+        return <Badge variant="outline">ממתין</Badge>;
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending_session":
+        return <Badge variant="outline">ממתין לפגישה</Badge>;
+      case "completed":
+        return <Badge variant="default">שולם</Badge>;
+      case "cancelled":
+        return <Badge variant="destructive">בוטל</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   if (loading) {
@@ -125,111 +160,158 @@ const UserDashboard = () => {
         </div>
 
         {/* Purchases Section */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <ShoppingBag className="h-6 w-6 text-primary" />
-              הרכישות שלי
-            </h2>
-            <Link to="/">
-              <Button variant="outline">
-                <Package className="ml-2 h-4 w-4" />
-                רכוש חבילה נוספת
-              </Button>
-            </Link>
-          </div>
-
-          {purchases.length === 0 ? (
-            <Card className="glass-panel">
-              <CardContent className="pt-6 text-center">
-                <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">
-                  עדיין לא ביצעת רכישות
-                </p>
-                <Link to="/">
-                  <Button>
-                    רכוש את החבילה הראשונה שלך
+        <Card className="glass-panel">
+          <CardHeader>
+            <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+              <Package className="h-5 w-5 md:h-6 md:w-6" />
+              החבילות שלי
+            </CardTitle>
+            <CardDescription>
+              פגישות ומידע על הרכישות שלך
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {purchases.length === 0 ? (
+              <div className="text-center py-12 space-y-4">
+                <Package className="h-16 w-16 mx-auto text-muted-foreground" />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">אין לך חבילות עדיין</h3>
+                  <p className="text-muted-foreground mb-4">
+                    קנה חבילה כדי להתחיל את המסע שלך
+                  </p>
+                  <Button asChild>
+                    <Link to="/#pricing">
+                      לרכישת חבילה
+                    </Link>
                   </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {purchases.map((purchase) => (
-                <Card key={purchase.id} className="glass-panel">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>
-                        {purchase.package_type === "single"
-                          ? "מפגש בודד"
-                          : "חבילת 4 מפגשים"}
-                      </span>
-                      <span className="text-primary cyber-glow">
-                        ₪{purchase.price}
-                      </span>
-                    </CardTitle>
-                    <CardDescription>
-                      נרכש ב: {new Date(purchase.purchase_date).toLocaleDateString("he-IL")}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-accent/20 rounded-lg">
-                      <span className="text-sm text-muted-foreground">
-                        מפגשים נותרו:
-                      </span>
-                      <span className="text-xl font-bold cyber-glow">
-                        {purchase.sessions_remaining} / {purchase.sessions_total}
-                      </span>
-                    </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {purchases.map((purchase) => (
+                  <Card key={purchase.id} className="bg-muted/30">
+                    <CardHeader>
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="space-y-2 flex-1">
+                          <CardTitle className="text-lg">
+                            {purchase.package_type === "single" 
+                              ? "פגישה בודדת" 
+                              : "חבילת 4 פגישות"
+                            }
+                          </CardTitle>
+                          <div className="flex flex-wrap gap-2">
+                            {getBookingStatusBadge(purchase.booking_status)}
+                            {getPaymentStatusBadge(purchase.payment_status)}
+                          </div>
+                        </div>
+                        <div className="text-left space-y-1">
+                          <p className="text-2xl font-black cyber-glow">₪{purchase.price}</p>
+                          <p className="text-xs text-muted-foreground">
+                            נרכש ב-{new Date(purchase.purchase_date).toLocaleDateString('he-IL')}
+                          </p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="space-y-1">
+                          <p className="text-muted-foreground">סה"כ פגישות</p>
+                          <p className="font-semibold text-lg">{purchase.sessions_total}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-muted-foreground">פגישות נותרו</p>
+                          <p className="font-semibold text-lg">{purchase.sessions_remaining}</p>
+                        </div>
+                      </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">סטטוס:</span>
-                      <span className={`text-sm font-medium ${
-                        purchase.payment_status === "demo" 
-                          ? "text-yellow-500" 
-                          : "text-green-500"
-                      }`}>
-                        {purchase.payment_status === "demo" ? "Demo" : "פעיל"}
-                      </span>
-                    </div>
+                      {/* Booking Info */}
+                      {purchase.scheduled_date && purchase.scheduled_time ? (
+                        <div className="bg-primary/10 p-4 rounded-lg space-y-2">
+                          <div className="flex items-center gap-2 font-semibold">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>הפגישה שלך</span>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <p className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              {new Date(purchase.scheduled_date).toLocaleDateString('he-IL')}
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              {purchase.scheduled_time}
+                            </p>
+                          </div>
+                          {purchase.booking_status === "pending" && (
+                            <p className="text-xs text-muted-foreground">
+                              ממתין לאישור - נחזור אליך בהקדם
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <Button 
+                          onClick={() => handleOpenBooking(purchase.id)}
+                          className="w-full"
+                          variant="default"
+                        >
+                          <Calendar className="ml-2 h-4 w-4" />
+                          קבע פגישה
+                        </Button>
+                      )}
 
-                    {purchase.sessions_remaining > 0 && (
-                      <Button
-                        className="w-full"
-                        onClick={() => handleBookSession(purchase)}
-                      >
-                        <Calendar className="ml-2 h-4 w-4" />
-                        קבע מפגש
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                      {/* Payment Info */}
+                      {purchase.payment_status === "pending_session" && (
+                        <div className="bg-muted/50 p-3 rounded-lg text-xs space-y-1">
+                          <p className="font-semibold">💳 תשלום:</p>
+                          <p>התשלום יתבצע לאחר הפגישה הראשונה</p>
+                          <p>PayPal או העברה בנקאית</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Profile Section */}
         <Card className="glass-panel">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              פרטים אישיים
+            <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+              <User className="h-5 w-5 md:h-6 md:w-6" />
+              הפרופיל שלי
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">שם:</span>
-              <span className="font-medium">{profile?.full_name || "לא מוגדר"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">אימייל:</span>
-              <span className="font-medium">{userEmail}</span>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">שם מלא</p>
+                <p className="text-base md:text-lg font-semibold">
+                  {profile?.full_name || "לא הוגדר"}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">אימייל</p>
+                <p className="text-base md:text-lg font-semibold">{userEmail}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
       </div>
+
+      {/* Booking Dialog */}
+      {selectedPurchaseId && (
+        <BookingDialog
+          isOpen={bookingDialogOpen}
+          onClose={() => {
+            setBookingDialogOpen(false);
+            setSelectedPurchaseId(null);
+          }}
+          purchaseId={selectedPurchaseId}
+          onBookingSuccess={fetchUserData}
+        />
+      )}
     </div>
   );
 };
