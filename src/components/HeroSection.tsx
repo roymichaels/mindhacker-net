@@ -18,7 +18,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette" style={{ zIndex: 2 }}>
+    <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden vignette py-16 md:py-0" style={{ zIndex: 2 }}>
       {/* Radial glow overlay */}
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -28,17 +28,17 @@ const HeroSection = () => {
       />
 
       {/* Consciousness pulse behind headline */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-primary rounded-full consciousness-pulse pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] md:w-[1200px] h-[800px] md:h-[1200px] border border-primary rounded-full consciousness-pulse pointer-events-none" />
 
       {/* Sacred geometry background - more subtle */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 border border-primary rounded-full animate-breathe" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 border border-primary-glow rotate-45 animate-breathe" style={{ animationDelay: "3s" }} />
-        <div className="absolute top-1/3 right-1/3 w-32 h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
+        <div className="absolute top-1/4 left-1/4 w-32 md:w-64 h-32 md:h-64 border border-primary rounded-full animate-breathe" />
+        <div className="absolute bottom-1/4 right-1/4 w-24 md:w-48 h-24 md:h-48 border border-primary-glow rotate-45 animate-breathe" style={{ animationDelay: "3s" }} />
+        <div className="absolute top-1/3 right-1/3 w-16 md:w-32 h-16 md:h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight">
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight">
           <span className="text-foreground static-word-glow">האקר </span>
           <DecryptText 
             text={words[currentWord]} 
@@ -46,18 +46,18 @@ const HeroSection = () => {
           />
         </h1>
 
-        <p className="text-2xl md:text-3xl text-muted-foreground mb-4 font-medium">
+        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium">
           אימון תודעתי עמוק — לא טיפול, לא פסיכולוגיה.
         </p>
 
-        <p className="text-lg md:text-xl text-secondary mb-12 font-light">
+        <p className="text-base sm:text-lg md:text-xl text-secondary mb-8 md:mb-12 font-light">
           תכניס סיסמה. נשום. ברוך הבא אל הקוד שלך.
         </p>
 
         <Button 
           onClick={scrollToBooking}
           size="lg"
-          className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-xl px-12 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105"
+          className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105"
         >
           קבע סשן אונליין
         </Button>

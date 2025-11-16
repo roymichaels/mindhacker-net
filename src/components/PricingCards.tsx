@@ -91,28 +91,28 @@ const PricingCards = () => {
         {pricingOptions.map((option) => (
           <div
             key={option.id}
-            className={`glass-panel p-8 relative group transition-all duration-300 ${
+            className={`glass-panel p-4 md:p-8 relative group transition-all duration-300 ${
               option.recommended
                 ? "border-primary/50 cyber-border"
                 : "hover:border-primary/30"
             }`}
           >
             {option.recommended && (
-              <Badge className="absolute -top-3 right-6 bg-primary text-primary-foreground cyber-glow">
+              <Badge className="absolute -top-3 right-4 md:right-6 bg-primary text-primary-foreground cyber-glow text-xs md:text-sm">
                 <Sparkles className="w-3 h-3 ml-1" />
                 מומלץ ביותר
               </Badge>
             )}
 
-            <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center mb-4 md:mb-6">
               {option.sessions === 1 ? (
-                <Calendar className="w-12 h-12 text-primary" />
+                <Calendar className="w-10 h-10 md:w-12 md:h-12 text-primary" />
               ) : (
-                <Package className="w-12 h-12 text-primary" />
+                <Package className="w-10 h-10 md:w-12 md:h-12 text-primary" />
               )}
             </div>
 
-            <h3 className="text-3xl font-bold text-center mb-2">
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-2">
               {option.sessions === 1 ? "מפגש בודד" : "חבילת 4 מפגשים"}
             </h3>
 

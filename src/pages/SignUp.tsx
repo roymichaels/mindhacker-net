@@ -117,10 +117,10 @@ const SignUp = () => {
         <div className="glass-panel p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <UserPlus className="h-12 w-12 text-primary cyber-glow" />
+              <UserPlus className="h-10 w-10 md:h-12 md:w-12 text-primary cyber-glow" />
             </div>
-            <h1 className="text-3xl font-black cyber-glow">הרשמה</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-black cyber-glow">הרשמה</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               צור חשבון חדש כדי להתחיל את המסע שלך
             </p>
           </div>

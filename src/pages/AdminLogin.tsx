@@ -67,16 +67,16 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md">
         <div className="glass-panel p-8">
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <Lock className="w-6 h-6 text-primary" />
+          <div className="flex items-center justify-center mb-6 md:mb-8">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center">
+              <Lock className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             </div>
           </div>
           
-          <h1 className="text-3xl font-black text-center mb-2 cyber-glow">
+          <h1 className="text-2xl md:text-3xl font-black text-center mb-2 cyber-glow">
             פאנל ניהול
           </h1>
-          <p className="text-center text-muted-foreground mb-8">
+          <p className="text-center text-sm md:text-base text-muted-foreground mb-6 md:mb-8">
             התחבר עם פרטי המנהל שלך
           </p>
 

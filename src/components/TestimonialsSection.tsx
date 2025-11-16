@@ -45,47 +45,47 @@ const TestimonialsSection = () => {
     );
   }
   return (
-    <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
+    <section className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-black mb-6 cyber-glow">
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 cyber-glow">
             קולות מתוך המטריקס
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-base md:text-xl text-muted-foreground">
             אנשים שבחרו לשכתב את הקוד שלהם
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-4 md:gap-8">
           {testimonials.map((testimonial, index) => (
             <Card 
               key={index} 
               className="glass-panel border-primary/30 hover:border-primary/60 transition-all duration-500 cyber-border"
             >
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center text-center space-y-6">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
                   {/* Quote Icon */}
-                  <Quote className="w-10 h-10 text-primary opacity-50" />
+                  <Quote className="w-8 h-8 md:w-10 md:h-10 text-primary opacity-50" />
                   
                   {/* Avatar */}
-                  <Avatar className="w-20 h-20 border-2 border-primary/50">
+                  <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-primary/50">
                     <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-                    <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
+                    <AvatarFallback className="bg-primary/20 text-primary text-lg md:text-xl font-bold">
                       {testimonial.initials || testimonial.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
 
                   {/* Quote */}
-                  <p className="text-lg leading-relaxed text-foreground/90 italic">
+                  <p className="text-base md:text-lg leading-relaxed text-foreground/90 italic">
                     "{testimonial.quote}"
                   </p>
 
                   {/* Divider */}
-                  <div className="w-16 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+                  <div className="w-12 md:w-16 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
                   {/* Name & Role */}
                   <div>
-                    <p className="font-bold text-xl text-foreground">
+                    <p className="font-bold text-lg md:text-xl text-foreground">
                       {testimonial.name}
                     </p>
                     <p className="text-sm text-secondary">
@@ -99,11 +99,11 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Bottom decoration */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-            <div className="w-8 h-px bg-primary/30" />
+        <div className="mt-8 md:mt-16 text-center">
+          <div className="inline-flex items-center gap-2 text-muted-foreground text-xs md:text-sm">
+            <div className="w-6 md:w-8 h-px bg-primary/30" />
             <span>תוצאות אמיתיות · שינוי מודע</span>
-            <div className="w-8 h-px bg-primary/30" />
+            <div className="w-6 md:w-8 h-px bg-primary/30" />
           </div>
         </div>
       </div>
