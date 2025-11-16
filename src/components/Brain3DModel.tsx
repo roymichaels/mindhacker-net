@@ -36,7 +36,7 @@ function BrainModel({ isMobile }: { isMobile: boolean }) {
     }
   });
 
-  return <primitive ref={meshRef} object={scene} scale={isMobile ? 2 : 2.5} />;
+  return <primitive ref={meshRef} object={scene} scale={isMobile ? 1.2 : 1.5} />;
 }
 
 // Preload the model
@@ -53,13 +53,14 @@ function LoadingFallback() {
 
 interface Brain3DModelProps {
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const Brain3DModel = ({ className }: Brain3DModelProps) => {
+const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className={className} style={{ width: '100%', height: '100%' }}>
+    <div className={className} style={{ width: '100%', height: '100%', ...style }}>
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
           className="cursor-pointer w-full h-full"
