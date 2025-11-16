@@ -13,7 +13,7 @@ function Particles({ count = 100 }: { count?: number }) {
     
     for (let i = 0; i < count; i++) {
       // Create particles in a spherical distribution around the brain
-      const radius = 3 + Math.random() * 2;
+      const radius = 2.5 + Math.random() * 1.5;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI;
       
@@ -127,7 +127,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           style={{ background: 'transparent' }}
           frameloop="always" // Continuous rendering for smooth animation
         >
-          <PerspectiveCamera makeDefault position={[0, 0, 5]} />
+          <PerspectiveCamera makeDefault position={[0, -0.8, 6]} />
           
           {/* Simplified lighting for better performance */}
           <ambientLight intensity={0.6} />
