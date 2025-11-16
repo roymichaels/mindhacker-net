@@ -5,8 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 const Footer = () => {
   const [socialLinks, setSocialLinks] = useState({
     instagram_url: "https://instagram.com",
+    instagram_enabled: true,
     telegram_url: "https://t.me",
+    telegram_enabled: true,
     email: "contact@consciousness-hacker.com",
+    email_enabled: true,
   });
   const [loading, setLoading] = useState(true);
 
@@ -15,11 +18,16 @@ const Footer = () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["instagram_url", "telegram_url", "email"]);
+        .in("setting_key", ["instagram_url", "instagram_enabled", "telegram_url", "telegram_enabled", "email", "email_enabled"]);
 
       if (!error && data) {
         const settings = data.reduce((acc: any, item) => {
-          acc[item.setting_key] = item.setting_value;
+          // Handle boolean values for enabled fields
+          if (item.setting_key.endsWith('_enabled')) {
+            acc[item.setting_key] = item.setting_value === 'true';
+          } else {
+            acc[item.setting_key] = item.setting_value;
+          }
           return acc;
         }, {});
         setSocialLinks({ ...socialLinks, ...settings });
@@ -37,28 +45,34 @@ const Footer = () => {
         </p>
 
         <div className="flex justify-center gap-4 md:gap-8 mb-8 md:mb-12">
-          <a
-            href={socialLinks.instagram_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-          >
-            <Instagram className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-          </a>
-          <a
-            href={socialLinks.telegram_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-          >
-            <Send className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-          </a>
-          <a
-            href={`mailto:${socialLinks.email}`}
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
-          >
-            <Mail className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
-          </a>
+          {socialLinks.instagram_enabled && (
+            <a
+              href={socialLinks.instagram_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            >
+              <Instagram className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            </a>
+          )}
+          {socialLinks.telegram_enabled && (
+            <a
+              href={socialLinks.telegram_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            >
+              <Send className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            </a>
+          )}
+          {socialLinks.email_enabled && (
+            <a
+              href={`mailto:${socialLinks.email}`}
+              className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            >
+              <Mail className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            </a>
+          )}
         </div>
 
         <div className="text-sm text-muted-foreground">
