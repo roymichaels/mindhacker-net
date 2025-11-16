@@ -39,9 +39,9 @@ const HeroSection = () => {
         <div className="absolute top-1/3 right-1/3 w-16 md:w-32 h-16 md:h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
       </div>
 
-      <div className="relative text-center max-w-4xl mx-auto pt-20 md:pt-24">
+      <div className="relative text-center max-w-4xl mx-auto">
         {/* 3D Brain Model above title */}
-        <div className="flex justify-center mb-2 md:mb-3">
+        <div className="flex justify-center mb-2 md:mb-3 mt-16 md:mt-20">
           <Brain3DModel className="h-72 w-72 md:h-96 md:w-96" style={{ zIndex: 100 }} />
         </div>
         
