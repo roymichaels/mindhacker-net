@@ -90,7 +90,7 @@ function BrainModel({ isMobile }: { isMobile: boolean }) {
     }
   });
 
-  return <primitive ref={meshRef} object={scene} scale={isMobile ? 3.6 : 4.5} />;
+  return <primitive ref={meshRef} object={scene} scale={isMobile ? 4.2 : 5.5} />;
 }
 
 // Preload the model
@@ -127,7 +127,7 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           style={{ background: 'transparent' }}
           frameloop="always" // Continuous rendering for smooth animation
         >
-          <PerspectiveCamera makeDefault position={[0, -1.5, 7]} fov={75} />
+          <PerspectiveCamera makeDefault position={[0, -1.5, 5.5]} fov={75} />
           
           {/* Simplified lighting for better performance */}
           <ambientLight intensity={0.6} />
