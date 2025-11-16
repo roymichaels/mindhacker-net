@@ -109,16 +109,16 @@ const UserDashboard = () => {
       <div className="p-4 md:p-8" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="glass-panel p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="glass-panel p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-black cyber-glow mb-2">
+            <h1 className="text-2xl md:text-3xl font-black cyber-glow mb-2">
               שלום, {profile?.full_name || userEmail}! 👋
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               ברוך הבא ללוח הבקרה האישי שלך
             </p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" onClick={handleLogout} className="w-full md:w-auto">
             <LogOut className="ml-2 h-4 w-4" />
             התנתק
           </Button>

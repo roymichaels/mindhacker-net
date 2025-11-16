@@ -30,34 +30,34 @@ const Footer = () => {
     fetchSettings();
   }, []);
   return (
-    <footer className="relative py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
+    <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto text-center">
-        <p className="text-3xl font-black mb-8 cyber-glow">
+        <p className="text-2xl md:text-3xl font-black mb-6 md:mb-8 cyber-glow">
           הקוד שלך מחכה שתפעיל אותו.
         </p>
 
-        <div className="flex justify-center gap-8 mb-12">
+        <div className="flex justify-center gap-4 md:gap-8 mb-8 md:mb-12">
           <a
             href={socialLinks.instagram_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
           >
-            <Instagram className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            <Instagram className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
           </a>
           <a
             href={socialLinks.telegram_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
           >
-            <Send className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            <Send className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
           </a>
           <a
             href={`mailto:${socialLinks.email}`}
-            className="w-16 h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
+            className="w-12 h-12 md:w-16 md:h-16 rounded-full glass-panel flex items-center justify-center hover:scale-110 transition-all duration-300 cyber-border group"
           >
-            <Mail className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors" />
+            <Mail className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
           </a>
         </div>
 

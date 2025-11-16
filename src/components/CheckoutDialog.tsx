@@ -124,10 +124,10 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] glass-panel" dir="rtl">
+      <DialogContent className="max-w-[95vw] sm:max-w-[500px] glass-panel" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-2xl cyber-glow">אישור רכישה</DialogTitle>
-          <DialogDescription className="text-right">
+          <DialogTitle className="text-xl md:text-2xl cyber-glow">אישור רכישה</DialogTitle>
+          <DialogDescription className="text-right text-sm md:text-base">
             {user ? "אישור פרטי הרכישה" : "נדרשת התחברות להשלמת הרכישה"}
           </DialogDescription>
         </DialogHeader>
