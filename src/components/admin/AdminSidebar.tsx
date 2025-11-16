@@ -5,7 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const AdminSidebar = () => {
+interface AdminSidebarProps {
+  isMobile?: boolean;
+  onNavigate?: () => void;
+}
+
+const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -16,6 +21,7 @@ const AdminSidebar = () => {
       description: "להתראות!",
     });
     navigate("/admin/login");
+    onNavigate?.();
   };
 
   const navItems = [
@@ -27,7 +33,10 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <aside className="w-64 h-screen glass-panel border-l border-primary/20 flex flex-col">
+    <aside className={cn(
+      "w-64 glass-panel border-l border-primary/20 flex flex-col",
+      !isMobile && "h-screen"
+    )}>
       <div className="p-6 border-b border-primary/20">
         <h2 className="text-2xl font-black cyber-glow">פאנל ניהול</h2>
       </div>
@@ -37,6 +46,7 @@ const AdminSidebar = () => {
           <NavLink
             key={item.to}
             to={item.to}
+            onClick={() => onNavigate?.()}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all",
