@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Upload, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,9 +13,13 @@ import { handleError } from "@/lib/errorHandling";
 
 const settingsSchema = z.object({
   calendly_link: z.string().url("קישור Calendly לא חוקי").or(z.literal("")),
+  calendly_enabled: z.boolean(),
   instagram_url: z.string().url("קישור Instagram לא חוקי").or(z.literal("")),
+  instagram_enabled: z.boolean(),
   telegram_url: z.string().url("קישור Telegram לא חוקי").or(z.literal("")),
+  telegram_enabled: z.boolean(),
   email: z.string().email("כתובת אימייל לא חוקית").max(255, "כתובת אימייל ארוכה מדי"),
+  email_enabled: z.boolean(),
   about_image_url: z.string().url("קישור תמונה לא חוקי").or(z.literal("")),
   single_session_price: z.string()
     .transform(val => parseFloat(val))
@@ -38,9 +43,13 @@ const Settings = () => {
 
   const [settings, setSettings] = useState({
     calendly_link: "",
+    calendly_enabled: true,
     instagram_url: "",
+    instagram_enabled: true,
     telegram_url: "",
+    telegram_enabled: true,
     email: "",
+    email_enabled: true,
     about_image_url: "",
     single_session_price: "",
     package_session_price: "",
@@ -61,11 +70,31 @@ const Settings = () => {
       if (error) throw error;
 
       const settingsObj = data.reduce((acc: any, item) => {
-        acc[item.setting_key] = item.setting_value || "";
+        // Handle boolean values for enabled fields
+        if (item.setting_key.endsWith('_enabled')) {
+          acc[item.setting_key] = item.setting_value === 'true';
+        } else {
+          acc[item.setting_key] = item.setting_value || "";
+        }
         return acc;
       }, {});
 
-      setSettings(settingsObj);
+      // Set defaults for enabled fields if not in database
+      setSettings({
+        calendly_link: settingsObj.calendly_link || "",
+        calendly_enabled: settingsObj.calendly_enabled ?? true,
+        instagram_url: settingsObj.instagram_url || "",
+        instagram_enabled: settingsObj.instagram_enabled ?? true,
+        telegram_url: settingsObj.telegram_url || "",
+        telegram_enabled: settingsObj.telegram_enabled ?? true,
+        email: settingsObj.email || "",
+        email_enabled: settingsObj.email_enabled ?? true,
+        about_image_url: settingsObj.about_image_url || "",
+        single_session_price: settingsObj.single_session_price || "",
+        package_session_price: settingsObj.package_session_price || "",
+        single_session_description: settingsObj.single_session_description || "",
+        package_session_description: settingsObj.package_session_description || "",
+      });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
     } finally {
@@ -163,7 +192,7 @@ const Settings = () => {
 
       const updates = Object.entries(settings).map(([key, value]) => ({
         setting_key: key,
-        setting_value: value,
+        setting_value: typeof value === 'boolean' ? String(value) : value,
         updated_by: user?.id,
         updated_at: new Date().toISOString(),
       }));
@@ -210,40 +239,87 @@ const Settings = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="calendly_link">קישור Calendly</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="calendly_link">קישור Calendly</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {settings.calendly_enabled ? "פעיל" : "כבוי"}
+                </span>
+                <Switch
+                  checked={settings.calendly_enabled}
+                  onCheckedChange={(checked) => setSettings({ ...settings, calendly_enabled: checked })}
+                />
+              </div>
+            </div>
             <Input
               id="calendly_link"
               value={settings.calendly_link}
               onChange={(e) => setSettings({ ...settings, calendly_link: e.target.value })}
               placeholder="https://calendly.com/..."
               className="text-right"
+              disabled={!settings.calendly_enabled}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="instagram_url">Instagram</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="instagram_url">Instagram</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {settings.instagram_enabled ? "פעיל" : "כבוי"}
+                </span>
+                <Switch
+                  checked={settings.instagram_enabled}
+                  onCheckedChange={(checked) => setSettings({ ...settings, instagram_enabled: checked })}
+                />
+              </div>
+            </div>
             <Input
               id="instagram_url"
               value={settings.instagram_url}
               onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
               placeholder="https://instagram.com/..."
               className="text-right"
+              disabled={!settings.instagram_enabled}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="telegram_url">Telegram</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="telegram_url">Telegram</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {settings.telegram_enabled ? "פעיל" : "כבוי"}
+                </span>
+                <Switch
+                  checked={settings.telegram_enabled}
+                  onCheckedChange={(checked) => setSettings({ ...settings, telegram_enabled: checked })}
+                />
+              </div>
+            </div>
             <Input
               id="telegram_url"
               value={settings.telegram_url}
               onChange={(e) => setSettings({ ...settings, telegram_url: e.target.value })}
               placeholder="https://t.me/..."
               className="text-right"
+              disabled={!settings.telegram_enabled}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="email">אימייל</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {settings.email_enabled ? "פעיל" : "כבוי"}
+                </span>
+                <Switch
+                  checked={settings.email_enabled}
+                  onCheckedChange={(checked) => setSettings({ ...settings, email_enabled: checked })}
+                />
+              </div>
+            </div>
             <Input
               id="email"
               type="email"
@@ -251,6 +327,7 @@ const Settings = () => {
               onChange={(e) => setSettings({ ...settings, email: e.target.value })}
               placeholder="contact@example.com"
               className="text-right"
+              disabled={!settings.email_enabled}
             />
           </div>
 

@@ -58,12 +58,19 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
     try {
       const { data } = await supabase
         .from("site_settings")
-        .select("setting_value")
-        .eq("setting_key", "calendly_link")
-        .single();
+        .select("setting_key, setting_value")
+        .in("setting_key", ["calendly_link", "calendly_enabled"]);
       
-      if (data?.setting_value) {
-        setCalendlyLink(data.setting_value);
+      if (data) {
+        const settings = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+        
+        // Only set calendly link if it's enabled
+        if (settings.calendly_enabled === 'true' && settings.calendly_link) {
+          setCalendlyLink(settings.calendly_link);
+        }
       }
     } catch (error) {
       handleError(error, "שגיאה בטעינת קישור Calendly", "CheckoutDialog.fetchCalendlyLink");
