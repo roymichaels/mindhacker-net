@@ -29,14 +29,12 @@ const HeroSection = () => {
         }}
       />
 
-      {/* Consciousness pulse behind headline */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] md:w-[1200px] h-[800px] md:h-[1200px] border border-primary rounded-full consciousness-pulse pointer-events-none" />
+      {/* Consciousness pulse behind headline - single pulse */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] h-[600px] md:h-[900px] border border-primary/30 rounded-full consciousness-pulse pointer-events-none" />
 
-      {/* Sacred geometry background - more subtle */}
+      {/* Sacred geometry background - simplified */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/4 left-1/4 w-32 md:w-64 h-32 md:h-64 border border-primary rounded-full animate-breathe" />
-        <div className="absolute bottom-1/4 right-1/4 w-24 md:w-48 h-24 md:h-48 border border-primary-glow rotate-45 animate-breathe" style={{ animationDelay: "3s" }} />
-        <div className="absolute top-1/3 right-1/3 w-16 md:w-32 h-16 md:h-32 border border-secondary animate-breathe" style={{ animationDelay: "6s" }} />
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">

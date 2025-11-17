@@ -1,4 +1,4 @@
-import { Suspense, useRef, useMemo } from "react";
+import { Suspense, useRef, useMemo, memo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
@@ -96,13 +96,9 @@ function BrainModel({ isMobile }: { isMobile: boolean }) {
 // Preload the model
 useGLTF.preload("/brain_hologram.glb");
 
-// Loading fallback component
+// Loading fallback component - no spinner for cleaner experience
 function LoadingFallback() {
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  return null;
 }
 
 interface Brain3DModelProps {
@@ -123,9 +119,9 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
             antialias: !isMobile, // Disable antialiasing on mobile for performance
             powerPreference: "high-performance"
           }}
-          dpr={isMobile ? [1, 1.5] : [1, 2]} // Lower DPR on mobile
+          dpr={isMobile ? [1, 1.2] : [1, 2]} // Lower DPR on mobile for better performance
           style={{ background: 'transparent' }}
-          frameloop="always" // Continuous rendering for smooth animation
+          frameloop="demand" // Render on demand for better performance
         >
           <PerspectiveCamera makeDefault position={[0, 0, 5.5]} fov={75} near={0.01} far={1000} />
           
@@ -135,11 +131,11 @@ const Brain3DModel = ({ className, style }: Brain3DModelProps) => {
           {!isMobile && <pointLight position={[0, 0, 10]} intensity={0.8} color="#00f0ff" />}
 
           <BrainModel isMobile={isMobile} />
-          {!isMobile && <Particles count={150} />}
+          {!isMobile && <Particles count={100} />}
         </Canvas>
       </Suspense>
     </div>
   );
 };
 
-export default Brain3DModel;
+export default memo(Brain3DModel);

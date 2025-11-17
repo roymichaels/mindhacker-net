@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,7 +23,7 @@ const MatrixRain = () => {
     
     // Mobile optimizations - improved visibility
     const fontSize = isMobile ? 14 : 16;
-    const columnDensity = isMobile ? 1.5 : 1; // Less aggressive column reduction
+    const columnDensity = isMobile ? 2 : 1; // Reduce columns more on mobile for performance
     const columns = Math.floor(canvas.width / fontSize / columnDensity);
     
     // Use fewer layers on mobile for performance
@@ -91,7 +91,7 @@ const MatrixRain = () => {
 
     let animationFrameId: number;
     let lastFrameTime = 0;
-    const frameInterval = isMobile ? 100 : 70; // Slower on mobile: 10 FPS vs 14 FPS
+    const frameInterval = isMobile ? 125 : 70; // Slower on mobile: 8 FPS vs 14 FPS
     let isVisible = true;
 
     // PERFORMANCE: Pause when tab is not visible
@@ -113,8 +113,8 @@ const MatrixRain = () => {
       }
       lastFrameTime = currentTime;
 
-      // Fade effect for trails
-      ctx.fillStyle = "rgba(1, 4, 9, 0.08)";
+      // Fade effect for trails - faster fade on mobile
+      ctx.fillStyle = isMobile ? "rgba(1, 4, 9, 0.12)" : "rgba(1, 4, 9, 0.08)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Use additive blending for luminous effect
@@ -208,4 +208,4 @@ const MatrixRain = () => {
   );
 };
 
-export default MatrixRain;
+export default memo(MatrixRain);
