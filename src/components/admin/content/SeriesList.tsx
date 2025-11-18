@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, FolderOpen } from "lucide-react";
+import { Edit, Trash2, FolderOpen, Layers } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -43,6 +43,16 @@ const SeriesList = ({ series, onEdit }: SeriesListProps) => {
       });
     },
   });
+
+  if (series.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 glass-panel rounded-lg border border-primary/20">
+        <Layers className="w-16 h-16 text-muted-foreground mb-4" />
+        <h3 className="text-xl font-bold mb-2">אין סדרות עדיין</h3>
+        <p className="text-muted-foreground">התחל ליצור סדרה ראשונה למוצר זה</p>
+      </div>
+    );
+  }
 
   return (
     <>
