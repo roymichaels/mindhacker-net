@@ -23,6 +23,7 @@ const Testimonials = lazy(() => import("./pages/admin/Testimonials"));
 const Purchases = lazy(() => import("./pages/admin/Purchases"));
 const Users = lazy(() => import("./pages/admin/Users"));
 const Content = lazy(() => import("./pages/admin/Content"));
+const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
@@ -62,7 +63,8 @@ const App = () => (
                 </AdminRoute>
               }
             >
-              <Route index element={<Navigate to="/admin/settings" replace />} />
+              <Route index element={<Navigate to="/admin/analytics" replace />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
               <Route path="faqs" element={<FAQs />} />
               <Route path="testimonials" element={<Testimonials />} />
