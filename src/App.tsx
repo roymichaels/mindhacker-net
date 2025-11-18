@@ -25,6 +25,7 @@ const Users = lazy(() => import("./pages/admin/Users"));
 const Content = lazy(() => import("./pages/admin/Content"));
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
+const CourseWatch = lazy(() => import("./pages/CourseWatch"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:slug" element={<CourseDetail />} />
+            <Route path="/courses/:slug/watch" element={<CourseWatch />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             
             {/* Protected user routes */}
