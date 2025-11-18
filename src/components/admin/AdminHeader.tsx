@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
+import { NotificationBell } from "./NotificationBell";
 
 const AdminHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,6 +21,9 @@ const AdminHeader = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Notification Bell */}
+          <NotificationBell />
+
           {/* Home Button */}
           <Button
             variant="outline"
