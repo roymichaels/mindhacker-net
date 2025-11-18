@@ -8,6 +8,8 @@ import CourseFilters from "@/components/courses/CourseFilters";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,7 +18,7 @@ const Courses = () => {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
 
-  const { data: courses, isLoading } = useQuery({
+  const { data: courses, isLoading, refetch } = useQuery({
     queryKey: ["courses", selectedCategory, selectedDifficulty, selectedType, sortBy],
     queryFn: async () => {
       let query = supabase
@@ -65,8 +67,15 @@ const Courses = () => {
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: async () => {
+      await refetch();
+    },
+  });
+
   return (
     <div className="relative min-h-screen">
+      <PullToRefreshIndicator {...pullToRefresh} />
       <MatrixRain />
       <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.02)_50%)] bg-[length:100%_4px] opacity-30" style={{ zIndex: 1 }} />
       
