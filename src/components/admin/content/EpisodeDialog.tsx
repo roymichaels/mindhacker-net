@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { FileUpload } from "../FileUpload";
 
 interface EpisodeDialogProps {
   open: boolean;
@@ -136,9 +137,15 @@ const EpisodeDialog = ({ open, onOpenChange, episode, seriesId, productId }: Epi
               rules={{ required: "שדה חובה" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>קישור לסרטון</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://..." />
+                    <FileUpload
+                      bucket="content-videos"
+                      accept="video/*"
+                      label="קובץ וידאו"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={500}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,9 +157,15 @@ const EpisodeDialog = ({ open, onOpenChange, episode, seriesId, productId }: Epi
               name="thumbnail_url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>קישור לתמונת תצוגה מקדימה</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://..." />
+                    <FileUpload
+                      bucket="content-thumbnails"
+                      accept="image/*"
+                      label="תמונת תצוגה מקדימה"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={5}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

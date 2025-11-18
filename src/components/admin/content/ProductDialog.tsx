@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { FileUpload } from "../FileUpload";
 
 interface ProductDialogProps {
   open: boolean;
@@ -32,6 +33,8 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
       instructor_name: "",
       category: "",
       difficulty_level: "beginner",
+      thumbnail_url: "",
+      preview_video_url: "",
     },
   });
 
@@ -48,6 +51,8 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
         instructor_name: product.instructor_name || "",
         category: product.category || "",
         difficulty_level: product.difficulty_level || "beginner",
+        thumbnail_url: product.thumbnail_url || "",
+        preview_video_url: product.preview_video_url || "",
       });
     } else {
       form.reset();
@@ -288,6 +293,46 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="thumbnail_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUpload
+                      bucket="content-thumbnails"
+                      accept="image/*"
+                      label="תמונת תצוגה"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={5}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="preview_video_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUpload
+                      bucket="content-videos"
+                      accept="video/*"
+                      label="וידאו תצוגה מקדימה"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={100}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="flex gap-2 justify-end pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
