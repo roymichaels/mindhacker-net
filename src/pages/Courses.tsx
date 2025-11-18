@@ -10,8 +10,25 @@ import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { useSEO } from "@/hooks/useSEO";
+import { getBreadcrumbSchema } from "@/lib/seo";
 
 const Courses = () => {
+  // SEO Configuration
+  useSEO({
+    title: "מוצרים דיגיטליים | מיינד-האקר",
+    description: "גלה את מגוון המוצרים הדיגיטליים והקורסים המקוונים שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי בתחום אימון התודעה והפיתוח האישי.",
+    keywords: "קורסים דיגיטליים, קורסים אונליין, פיתוח אישי, אימון תודעתי, מוצרים דיגיטליים, קורסי וידאו",
+    url: `${window.location.origin}/courses`,
+    type: "website",
+    structuredData: [
+      getBreadcrumbSchema([
+        { name: "דף הבית", url: window.location.origin },
+        { name: "מוצרים דיגיטליים", url: `${window.location.origin}/courses` },
+      ]),
+    ],
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");

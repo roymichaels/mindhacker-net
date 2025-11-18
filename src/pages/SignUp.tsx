@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, UserPlus } from "lucide-react";
 import { z } from "zod";
+import { useSEO } from "@/hooks/useSEO";
 
 const signUpSchema = z.object({
   fullName: z.string()
@@ -41,6 +42,15 @@ const signUpSchema = z.object({
 });
 
 const SignUp = () => {
+  // SEO Configuration
+  useSEO({
+    title: "הרשמה | מיינד-האקר",
+    description: "הירשם למיינד-האקר וקבל גישה למוצרים דיגיטליים, קורסים אונליין, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
+    keywords: "הרשמה, יצירת חשבון, רישום, קורסים אונליין",
+    url: `${window.location.origin}/signup`,
+    type: "website",
+  });
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);

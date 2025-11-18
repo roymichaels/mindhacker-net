@@ -12,8 +12,25 @@ import { CheckCircle2, Crown, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import SubscriptionCheckoutDialog from "@/components/checkout/SubscriptionCheckoutDialog";
 import type { Tables } from "@/integrations/supabase/types";
+import { useSEO } from "@/hooks/useSEO";
+import { getBreadcrumbSchema } from "@/lib/seo";
 
 const Subscriptions = () => {
+  // SEO Configuration
+  useSEO({
+    title: "מנויים | מיינד-האקר",
+    description: "בחר את תוכנית המנוי המתאימה לך. גישה בלתי מוגבלת למוצרים דיגיטליים, קורסים, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
+    keywords: "מנוי חודשי, תוכנית מנוי, גישה בלתי מוגבלת, קורסים אונליין, מנוי דיגיטלי",
+    url: `${window.location.origin}/subscriptions`,
+    type: "website",
+    structuredData: [
+      getBreadcrumbSchema([
+        { name: "דף הבית", url: window.location.origin },
+        { name: "מנויים", url: `${window.location.origin}/subscriptions` },
+      ]),
+    ],
+  });
+
   const { user } = useAuth();
   const [selectedTier, setSelectedTier] = useState<Tables<"subscription_tiers"> | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
