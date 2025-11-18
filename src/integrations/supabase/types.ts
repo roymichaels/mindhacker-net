@@ -14,6 +14,398 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_analytics: {
+        Row: {
+          browser: string | null
+          created_at: string | null
+          device_type: string | null
+          episode_id: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown
+          product_id: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          episode_id?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown
+          product_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          episode_id?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown
+          product_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_analytics_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "content_episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_analytics_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_episodes: {
+        Row: {
+          completion_count: number | null
+          created_at: string | null
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          is_preview: boolean | null
+          order_index: number | null
+          product_id: string
+          resources_url: string[] | null
+          series_id: string
+          thumbnail_url: string | null
+          title: string
+          transcript_url: string | null
+          updated_at: string | null
+          video_url: string
+          view_count: number | null
+        }
+        Insert: {
+          completion_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_preview?: boolean | null
+          order_index?: number | null
+          product_id: string
+          resources_url?: string[] | null
+          series_id: string
+          thumbnail_url?: string | null
+          title: string
+          transcript_url?: string | null
+          updated_at?: string | null
+          video_url: string
+          view_count?: number | null
+        }
+        Update: {
+          completion_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_preview?: boolean | null
+          order_index?: number | null
+          product_id?: string
+          resources_url?: string[] | null
+          series_id?: string
+          thumbnail_url?: string | null
+          title?: string
+          transcript_url?: string | null
+          updated_at?: string | null
+          video_url?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_episodes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_episodes_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "content_series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_products: {
+        Row: {
+          access_level: Database["public"]["Enums"]["content_access_level"]
+          average_rating: number | null
+          category: string | null
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string | null
+          duration_minutes: number | null
+          enrollment_count: number | null
+          id: string
+          instructor_name: string | null
+          is_featured: boolean | null
+          learning_objectives: string[] | null
+          order_index: number | null
+          preview_video_url: string | null
+          price: number | null
+          requirements: string[] | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+          view_count: number | null
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["content_access_level"]
+          average_rating?: number | null
+          category?: string | null
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          enrollment_count?: number | null
+          id?: string
+          instructor_name?: string | null
+          is_featured?: boolean | null
+          learning_objectives?: string[] | null
+          order_index?: number | null
+          preview_video_url?: string | null
+          price?: number | null
+          requirements?: string[] | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["content_access_level"]
+          average_rating?: number | null
+          category?: string | null
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          enrollment_count?: number | null
+          id?: string
+          instructor_name?: string | null
+          is_featured?: boolean | null
+          learning_objectives?: string[] | null
+          order_index?: number | null
+          preview_video_url?: string | null
+          price?: number | null
+          requirements?: string[] | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      content_purchases: {
+        Row: {
+          access_expires_at: string | null
+          access_granted_at: string | null
+          id: string
+          payment_status: string | null
+          price_paid: number
+          product_id: string
+          purchase_date: string | null
+          user_id: string
+        }
+        Insert: {
+          access_expires_at?: string | null
+          access_granted_at?: string | null
+          id?: string
+          payment_status?: string | null
+          price_paid: number
+          product_id: string
+          purchase_date?: string | null
+          user_id: string
+        }
+        Update: {
+          access_expires_at?: string | null
+          access_granted_at?: string | null
+          id?: string
+          payment_status?: string | null
+          price_paid?: number
+          product_id?: string
+          purchase_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_reviews: {
+        Row: {
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          is_approved: boolean | null
+          is_featured: boolean | null
+          product_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          product_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          product_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_series: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          order_index: number | null
+          product_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          order_index?: number | null
+          product_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          order_index?: number | null
+          product_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_series_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_enrollments: {
+        Row: {
+          completed_at: string | null
+          completed_episodes: number | null
+          enrolled_at: string | null
+          id: string
+          is_completed: boolean | null
+          last_accessed_at: string | null
+          product_id: string
+          progress_percentage: number | null
+          total_episodes: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_episodes?: number | null
+          enrolled_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_at?: string | null
+          product_id: string
+          progress_percentage?: number | null
+          total_episodes?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_episodes?: number | null
+          enrolled_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_at?: string | null
+          product_id?: string
+          progress_percentage?: number | null
+          total_episodes?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faqs: {
         Row: {
           answer: string
@@ -170,6 +562,63 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tiers: {
+        Row: {
+          access_level: Database["public"]["Enums"]["content_access_level"]
+          can_download_resources: boolean | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          is_active: boolean | null
+          max_downloads_per_month: number | null
+          name: string
+          order_index: number | null
+          price_monthly: number
+          price_quarterly: number | null
+          price_yearly: number | null
+          priority_support: boolean | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level: Database["public"]["Enums"]["content_access_level"]
+          can_download_resources?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          max_downloads_per_month?: number | null
+          name: string
+          order_index?: number | null
+          price_monthly: number
+          price_quarterly?: number | null
+          price_yearly?: number | null
+          priority_support?: boolean | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["content_access_level"]
+          can_download_resources?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          max_downloads_per_month?: number | null
+          name?: string
+          order_index?: number | null
+          price_monthly?: number
+          price_quarterly?: number | null
+          price_yearly?: number | null
+          priority_support?: boolean | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
@@ -215,6 +664,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          episode_id: string
+          id: string
+          last_position_seconds: number | null
+          last_watched_at: string | null
+          product_id: string
+          user_id: string
+          watch_time_seconds: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          episode_id: string
+          id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
+          product_id: string
+          user_id: string
+          watch_time_seconds?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          episode_id?: string
+          id?: string
+          last_position_seconds?: number | null
+          last_watched_at?: string | null
+          product_id?: string
+          user_id?: string
+          watch_time_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "content_episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "content_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -239,6 +742,62 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          billing_cycle: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          next_billing_date: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          tier_id: string
+          trial_ends_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          next_billing_date?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier_id: string
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          next_billing_date?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier_id?: string
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -254,6 +813,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      content_access_level: "free" | "basic" | "premium" | "vip"
+      content_status: "draft" | "published" | "archived"
+      content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
+      subscription_status:
+        | "active"
+        | "cancelled"
+        | "expired"
+        | "trial"
+        | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -382,6 +950,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      content_access_level: ["free", "basic", "premium", "vip"],
+      content_status: ["draft", "published", "archived"],
+      content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
+      subscription_status: [
+        "active",
+        "cancelled",
+        "expired",
+        "trial",
+        "paused",
+      ],
     },
   },
 } as const
