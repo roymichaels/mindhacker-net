@@ -46,8 +46,11 @@ export const UserNotificationBell = () => {
       <PopoverContent
         align="end"
         side="bottom"
+        sideOffset={8}
         className="p-0 w-auto bg-background z-50"
         dir="rtl"
+        avoidCollisions={true}
+        collisionPadding={{ right: 16, left: 16 }}
       >
         <UserNotificationPanel
           notifications={notifications.slice(0, 10)}
