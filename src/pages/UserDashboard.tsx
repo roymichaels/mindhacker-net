@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, LogOut, Package, User, Clock, CheckCircle } from "lucide-react";
+import { Calendar, LogOut, Package, User, Clock, CheckCircle, BookOpen, Crown } from "lucide-react";
 import Header from "@/components/Header";
 import BookingDialog from "@/components/BookingDialog";
+import MyCourses from "@/components/dashboard/MyCourses";
+import MySubscriptions from "@/components/dashboard/MySubscriptions";
 import { handleError } from "@/lib/errorHandling";
 
 interface Purchase {
@@ -159,17 +162,46 @@ const UserDashboard = () => {
           </Button>
         </div>
 
-        {/* Purchases Section */}
-        <Card className="glass-panel">
-          <CardHeader>
-            <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-              <Package className="h-5 w-5 md:h-6 md:w-6" />
-              החבילות שלי
-            </CardTitle>
-            <CardDescription>
-              פגישות ומידע על הרכישות שלך
-            </CardDescription>
-          </CardHeader>
+        {/* Dashboard Content - Organized with Tabs */}
+        <Tabs defaultValue="courses" className="w-full" dir="rtl">
+          <TabsList className="grid w-full grid-cols-3 glass-panel">
+            <TabsTrigger value="courses" className="gap-2">
+              <BookOpen className="h-4 w-4" />
+              הקורסים שלי
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-2">
+              <Crown className="h-4 w-4" />
+              מנויים
+            </TabsTrigger>
+            <TabsTrigger value="sessions" className="gap-2">
+              <Package className="h-4 w-4" />
+              פגישות
+            </TabsTrigger>
+          </TabsList>
+
+          {/* My Courses Tab */}
+          <TabsContent value="courses" className="space-y-6">
+            <MyCourses />
+          </TabsContent>
+
+          {/* My Subscriptions Tab */}
+          <TabsContent value="subscriptions" className="space-y-6">
+            <MySubscriptions />
+          </TabsContent>
+
+          {/* Sessions/Purchases Tab */}
+          <TabsContent value="sessions" className="space-y-6">
+            {/* Purchases Section */}
+            <Card className="glass-panel">
+              <CardHeader>
+                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                  <Package className="h-5 w-5 md:h-6 md:w-6" />
+                  החבילות שלי
+                </CardTitle>
+                <CardDescription>
+                  פגישות ומידע על הרכישות שלך
+                </CardDescription>
+              </CardHeader>
           <CardContent className="space-y-4">
             {purchases.length === 0 ? (
               <div className="text-center py-12 space-y-4">
@@ -273,6 +305,8 @@ const UserDashboard = () => {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Profile Section */}
         <Card className="glass-panel">
