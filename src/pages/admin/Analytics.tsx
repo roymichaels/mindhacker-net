@@ -27,6 +27,7 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { format, startOfMonth, subMonths } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EngagementMetrics } from "@/components/admin/analytics/EngagementMetrics";
 
 interface AnalyticsStats {
   totalEnrollments: number;
@@ -337,6 +338,7 @@ const Analytics = () => {
       <Tabs defaultValue="trends" className="space-y-4">
         <TabsList>
           <TabsTrigger value="trends">מגמות חודשיות</TabsTrigger>
+          <TabsTrigger value="engagement">מעורבות משתמשים</TabsTrigger>
           <TabsTrigger value="courses">קורסים פופולריים</TabsTrigger>
           <TabsTrigger value="completions">שיעורי השלמה</TabsTrigger>
           <TabsTrigger value="activity">פעילות אחרונה</TabsTrigger>
@@ -421,6 +423,11 @@ const Analytics = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Engagement Metrics */}
+        <TabsContent value="engagement">
+          <EngagementMetrics />
         </TabsContent>
 
         {/* Popular Courses */}
