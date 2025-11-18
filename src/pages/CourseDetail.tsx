@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,12 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Clock, Users, Star, BookOpen, Target, CheckCircle2 } from "lucide-react";
 import CourseCurriculum from "@/components/courses/CourseCurriculum";
+import CheckoutDialog from "@/components/checkout/CheckoutDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CourseDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Fetch course details
   const { data: course, isLoading: courseLoading } = useQuery({
@@ -100,8 +103,7 @@ const CourseDetail = () => {
       navigate("/login");
       return;
     }
-    // Will be implemented in Phase 2
-    console.log("Enrollment flow - Phase 2");
+    setCheckoutOpen(true);
   };
 
   if (courseLoading) {
@@ -318,6 +320,15 @@ const CourseDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Checkout Dialog */}
+      {course && (
+        <CheckoutDialog
+          open={checkoutOpen}
+          onOpenChange={setCheckoutOpen}
+          course={course}
+        />
+      )}
     </div>
   );
 };

@@ -104,6 +104,12 @@ const Header = () => {
             קורסים
           </button>
           <button
+            onClick={() => navigate("/subscriptions")}
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            מנויים
+          </button>
+          <button
             onClick={() => scrollToSection("faq")}
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
@@ -198,6 +204,15 @@ const Header = () => {
                   className="text-right text-sm font-medium hover:text-primary transition-colors"
                 >
                   קורסים
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/subscriptions");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-right text-sm font-medium hover:text-primary transition-colors"
+                >
+                  מנויים
                 </button>
                 <button
                   onClick={() => scrollToSection("faq")}
