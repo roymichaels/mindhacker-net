@@ -76,7 +76,7 @@ const MyCourses = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            הקורסים שלי
+            המוצרים שלי
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -101,20 +101,20 @@ const MyCourses = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            הקורסים שלי
+            המוצרים שלי
           </CardTitle>
           <CardDescription>
-            הקורסים שנרשמת אליהם יופיעו כאן
+            המוצרים הדיגיטליים שרכשת יופיעו כאן
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">
-              עדיין לא נרשמת לאף קורס
+              עדיין לא רכשת מוצרים דיגיטליים
             </p>
             <Button onClick={() => navigate("/courses")}>
-              גלה קורסים
+              גלה מוצרים
             </Button>
           </div>
         </CardContent>

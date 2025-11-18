@@ -166,7 +166,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
               המנוי שלך ל-{tier.name} הופעל בהצלחה
             </DialogDescription>
             <Button onClick={() => navigate("/courses")}>
-              גלה קורסים
+              גלה מוצרים דיגיטליים
             </Button>
           </div>
         ) : (

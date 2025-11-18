@@ -77,7 +77,7 @@ const Courses = () => {
     <div className="relative min-h-screen">
       <PullToRefreshIndicator {...pullToRefresh} />
       <MatrixRain />
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.02)_50%)] bg-[length:100%_4px] opacity-30" style={{ zIndex: 1 }} />
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.01)_50%)] bg-[length:100%_4px] opacity-10" style={{ zIndex: 1 }} />
       
       <Header />
       
@@ -85,19 +85,19 @@ const Courses = () => {
         {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12" dir="rtl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black cyber-glow mb-3 sm:mb-4">
-            הקורסים שלנו
+            המוצרים הדיגיטליים שלנו
           </h1>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
-            גלה את מגוון הקורסים והתוכן שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי
+            גלה את מגוון המוצרים הדיגיטליים והתוכן שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="relative mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/80 backdrop-blur-sm py-2">
+        <div className="relative mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/95 backdrop-blur-sm py-2">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
           <Input
             type="text"
-            placeholder="חפש קורס..."
+            placeholder="חפש מוצר..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-9 sm:pr-10 glass-panel text-right h-10 sm:h-11"
@@ -136,7 +136,7 @@ const Courses = () => {
           ) : (
             <div className="col-span-full text-center py-12" dir="rtl">
               <p className="text-base sm:text-xl text-muted-foreground">
-                לא נמצאו קורסים התואמים את החיפוש
+                לא נמצאו מוצרים התואמים את החיפוש
               </p>
             </div>
           )}

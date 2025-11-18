@@ -177,7 +177,7 @@ const UserDashboard = () => {
             <TabsList className="inline-flex min-w-full sm:grid sm:grid-cols-3 glass-panel h-auto">
               <TabsTrigger value="courses" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                הקורסים שלי
+                המוצרים שלי
               </TabsTrigger>
               <TabsTrigger value="subscriptions" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <Crown className="h-3 w-3 sm:h-4 sm:w-4" />

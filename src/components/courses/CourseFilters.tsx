@@ -68,7 +68,7 @@ const CourseFilters = ({
             </SelectTrigger>
             <SelectContent className="z-50">
               <SelectItem value="all">הכל</SelectItem>
-              <SelectItem value="course">קורס</SelectItem>
+              <SelectItem value="course">קורס מלא</SelectItem>
               <SelectItem value="masterclass">מאסטרקלאס</SelectItem>
               <SelectItem value="workshop">סדנה</SelectItem>
               <SelectItem value="guide">מדריך</SelectItem>
