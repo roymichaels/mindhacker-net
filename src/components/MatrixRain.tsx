@@ -202,7 +202,7 @@ const MatrixRain = () => {
       className="fixed inset-0 pointer-events-none"
       style={{ 
         zIndex: 1,
-        opacity: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.5 : 0.40
+        opacity: 0.15
       }}
     />
   );

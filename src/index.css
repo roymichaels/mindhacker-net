@@ -26,7 +26,7 @@ All colors MUST be HSL.
     --secondary-foreground: 215 100% 2%;
 
     --muted: 215 40% 15%;
-    --muted-foreground: 187 30% 70%;
+    --muted-foreground: 187 30% 85%;
 
     --accent: 45 100% 73%;
     --accent-foreground: 215 100% 2%;
@@ -35,12 +35,12 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     --border: 187 80% 30%;
-    --input: 215 40% 15%;
+    --input: 215 40% 18%;
     --ring: 187 100% 50%;
 
     --radius: 0.75rem;
     
-    --glass-bg: 215 50% 8%;
+    --glass-bg: 215 50% 10%;
     --glass-border: 187 100% 50%;
     
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -85,7 +85,7 @@ All colors MUST be HSL.
 
 @layer utilities {
   .glass-panel {
-    @apply bg-[hsl(var(--glass-bg))]/40 backdrop-blur-xl border border-[hsl(var(--glass-border))]/30 rounded-2xl;
+    @apply bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-[hsl(var(--glass-border))]/40 rounded-2xl;
   }
   
   .cyber-glow {

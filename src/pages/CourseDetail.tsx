@@ -150,7 +150,7 @@ const CourseDetail = () => {
   return (
     <div className="relative min-h-screen">
       <MatrixRain />
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.02)_50%)] bg-[length:100%_4px] opacity-30" style={{ zIndex: 1 }} />
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.01)_50%)] bg-[length:100%_4px] opacity-10" style={{ zIndex: 1 }} />
       
       <Header />
       
@@ -163,7 +163,7 @@ const CourseDetail = () => {
           dir="rtl"
         >
           <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="text-xs sm:text-sm">חזור לקורסים</span>
+          <span className="text-xs sm:text-sm">חזור למוצרים</span>
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">

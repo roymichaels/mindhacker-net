@@ -28,7 +28,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-            <span className="text-4xl font-black cyber-glow opacity-30">קורס</span>
+            <span className="text-4xl font-black cyber-glow opacity-30">מוצר</span>
           </div>
         )}
         
@@ -111,7 +111,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
             navigate(`/courses/${course.slug}`);
           }}
         >
-          צפה בקורס
+          צפה במוצר
         </Button>
       </CardFooter>
     </Card>

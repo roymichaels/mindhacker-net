@@ -289,7 +289,7 @@ const Success = () => {
               size="lg"
             >
               <LayoutDashboard className="ml-2 h-5 w-5" />
-              לוח הבקרה שלי
+              דאשבורד
             </Button>
             <Button
               onClick={() => navigate("/")}

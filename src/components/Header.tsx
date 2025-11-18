@@ -101,7 +101,7 @@ const Header = () => {
             onClick={() => navigate("/courses")}
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
-            קורסים
+            מוצרים דיגיטליים
           </button>
           <button
             onClick={() => navigate("/subscriptions")}
@@ -130,10 +130,10 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  <ShoppingBag className="ml-2 h-4 w-4" />
-                  הרכישות שלי
-                </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+              <ShoppingBag className="ml-2 h-4 w-4" />
+              דאשבורד
+            </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate("/admin")}>
                     <Settings className="ml-2 h-4 w-4" />
@@ -203,7 +203,7 @@ const Header = () => {
                   }}
                   className="text-right text-sm font-medium hover:text-primary transition-colors"
                 >
-                  קורסים
+                  מוצרים דיגיטליים
                 </button>
                 <button
                   onClick={() => {
@@ -233,7 +233,7 @@ const Header = () => {
                       className="w-full justify-start"
                     >
                       <ShoppingBag className="ml-2 h-4 w-4" />
-                      הרכישות שלי
+                      דאשבורד
                     </Button>
                     {isAdmin && (
                       <Button
