@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUpdateEnrollmentProgress } from "@/hooks/useUpdateEnrollmentProgress";
+import { useSwipeable } from "react-swipeable";
 
 const CourseWatch = () => {
   const { slug } = useParams();
@@ -142,6 +143,22 @@ const CourseWatch = () => {
   const nextEpisode = currentIndex < allEpisodes.length - 1 ? allEpisodes[currentIndex + 1] : null;
   const prevEpisode = currentIndex > 0 ? allEpisodes[currentIndex - 1] : null;
 
+  // Swipe handlers for mobile episode navigation
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (nextEpisode) {
+        handleEpisodeChange(nextEpisode.id);
+      }
+    },
+    onSwipedRight: () => {
+      if (prevEpisode) {
+        handleEpisodeChange(prevEpisode.id);
+      }
+    },
+    trackMouse: false,
+    preventScrollOnSwipe: true,
+  });
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
@@ -231,7 +248,7 @@ const CourseWatch = () => {
             onNavigate={handleEpisodeChange}
           />
 
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main {...swipeHandlers} className="flex-1 p-6 overflow-y-auto">
             {currentEpisode ? (
               <div className="max-w-5xl mx-auto">
                 <EpisodeViewer episode={currentEpisode} />

@@ -12,12 +12,25 @@ import { ArrowRight, Clock, Users, Star, BookOpen, Target, CheckCircle2 } from "
 import CourseCurriculum from "@/components/courses/CourseCurriculum";
 import CheckoutDialog from "@/components/checkout/CheckoutDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSwipeable } from "react-swipeable";
 
 const CourseDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  // Swipe to go back on mobile
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: () => {
+      if (window.innerWidth < 768) {
+        navigate(-1);
+      }
+    },
+    trackMouse: false,
+    preventScrollOnSwipe: true,
+    delta: 50,
+  });
 
   // Fetch course details
   const { data: course, isLoading: courseLoading } = useQuery({
@@ -122,10 +135,10 @@ const CourseDetail = () => {
   }
 
   if (!course) {
-    return (
-      <div className="relative min-h-screen">
-        <MatrixRain />
-        <Header />
+  return (
+    <div {...swipeHandlers} className="relative min-h-screen">
+      <MatrixRain />
+      <Header />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20 text-center" dir="rtl">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black cyber-glow mb-4">קורס לא נמצא</h1>
           <Button onClick={() => navigate("/courses")} size="lg">חזור לקורסים</Button>
