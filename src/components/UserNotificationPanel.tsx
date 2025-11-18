@@ -59,7 +59,7 @@ export const UserNotificationPanel = ({
   const unreadNotifications = notifications.filter(n => !n.is_read);
 
   return (
-    <div className="w-[380px] sm:w-[420px] bg-background">
+    <div className="w-[min(380px,calc(100vw-2rem))] sm:w-[min(420px,calc(100vw-2rem))] bg-background border border-border shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-2">
