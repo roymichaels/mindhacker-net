@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUpdateEnrollmentProgress } from "@/hooks/useUpdateEnrollmentProgress";
 
 const CourseWatch = () => {
   const { slug } = useParams();
@@ -117,6 +118,9 @@ const CourseWatch = () => {
 
   // Current episode
   const currentEpisode = allEpisodes.find(ep => ep.id === currentEpisodeId) || allEpisodes[0];
+
+  // Update enrollment progress whenever watching
+  useUpdateEnrollmentProgress(course?.id || "");
 
   // Set first episode if none selected
   useEffect(() => {
