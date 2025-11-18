@@ -164,20 +164,22 @@ const UserDashboard = () => {
 
         {/* Dashboard Content - Organized with Tabs */}
         <Tabs defaultValue="courses" className="w-full" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 glass-panel">
-            <TabsTrigger value="courses" className="gap-2">
-              <BookOpen className="h-4 w-4" />
-              הקורסים שלי
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="gap-2">
-              <Crown className="h-4 w-4" />
-              מנויים
-            </TabsTrigger>
-            <TabsTrigger value="sessions" className="gap-2">
-              <Package className="h-4 w-4" />
-              פגישות
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2 mb-6 sm:mb-8">
+            <TabsList className="inline-flex min-w-full sm:grid sm:grid-cols-3 glass-panel h-auto">
+              <TabsTrigger value="courses" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
+                <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                הקורסים שלי
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
+                <Crown className="h-3 w-3 sm:h-4 sm:w-4" />
+                מנויים
+              </TabsTrigger>
+              <TabsTrigger value="sessions" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
+                <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                פגישות
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* My Courses Tab */}
           <TabsContent value="courses" className="space-y-6">

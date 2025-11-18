@@ -25,20 +25,20 @@ const AdminHeader = () => {
             variant="outline"
             size="sm"
             onClick={() => navigate("/")}
-            className="gap-2"
+            className="gap-1 sm:gap-2 h-9 px-2 sm:px-4"
           >
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">דף הבית</span>
+            <Home className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline text-xs sm:text-sm">דף הבית</span>
           </Button>
 
           {/* Mobile Menu Button */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
+              <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9">
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-64 p-0" dir="rtl">
+            <SheetContent side="right" className="w-[280px] sm:w-[320px] p-0" dir="rtl">
               <AdminSidebar 
                 isMobile={true} 
                 onNavigate={() => setMobileMenuOpen(false)} 
