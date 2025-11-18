@@ -28,6 +28,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { format, startOfMonth, subMonths } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EngagementMetrics } from "@/components/admin/analytics/EngagementMetrics";
+import { RealTimeActivity } from "@/components/admin/analytics/RealTimeActivity";
 
 interface AnalyticsStats {
   totalEnrollments: number;
@@ -335,14 +336,20 @@ const Analytics = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="trends" className="space-y-4">
+      <Tabs defaultValue="realtime" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="realtime">זמן אמת</TabsTrigger>
           <TabsTrigger value="trends">מגמות חודשיות</TabsTrigger>
           <TabsTrigger value="engagement">מעורבות משתמשים</TabsTrigger>
           <TabsTrigger value="courses">קורסים פופולריים</TabsTrigger>
           <TabsTrigger value="completions">שיעורי השלמה</TabsTrigger>
           <TabsTrigger value="activity">פעילות אחרונה</TabsTrigger>
         </TabsList>
+
+        {/* Real-Time Activity */}
+        <TabsContent value="realtime">
+          <RealTimeActivity />
+        </TabsContent>
 
         {/* Monthly Trends */}
         <TabsContent value="trends" className="space-y-4">
