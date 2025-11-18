@@ -22,6 +22,7 @@ const FAQs = lazy(() => import("./pages/admin/FAQs"));
 const Testimonials = lazy(() => import("./pages/admin/Testimonials"));
 const Purchases = lazy(() => import("./pages/admin/Purchases"));
 const Users = lazy(() => import("./pages/admin/Users"));
+const Content = lazy(() => import("./pages/admin/Content"));
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="purchases" element={<Purchases />} />
               <Route path="users" element={<Users />} />
+              <Route path="content" element={<Content />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
