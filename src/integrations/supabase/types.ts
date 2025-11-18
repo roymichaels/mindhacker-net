@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          message: string
+          metadata: Json | null
+          priority: Database["public"]["Enums"]["notification_priority"] | null
+          read_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: []
+      }
       content_analytics: {
         Row: {
           browser: string | null
@@ -803,6 +845,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_admin_notification: {
+        Args: {
+          p_link?: string
+          p_message: string
+          p_metadata?: Json
+          p_priority: Database["public"]["Enums"]["notification_priority"]
+          p_title: string
+          p_type: Database["public"]["Enums"]["notification_type"]
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -816,6 +869,23 @@ export type Database = {
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
+      notification_priority: "low" | "medium" | "high" | "urgent"
+      notification_type:
+        | "new_user"
+        | "new_purchase"
+        | "new_subscription"
+        | "subscription_cancelled"
+        | "new_enrollment"
+        | "course_completed"
+        | "new_review"
+        | "high_value_purchase"
+        | "payment_failed"
+        | "content_uploaded"
+        | "user_milestone"
+        | "expiring_access"
+        | "new_testimonial"
+        | "new_faq_needed"
+        | "system_alert"
       subscription_status:
         | "active"
         | "cancelled"
@@ -953,6 +1023,24 @@ export const Constants = {
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
+      notification_priority: ["low", "medium", "high", "urgent"],
+      notification_type: [
+        "new_user",
+        "new_purchase",
+        "new_subscription",
+        "subscription_cancelled",
+        "new_enrollment",
+        "course_completed",
+        "new_review",
+        "high_value_purchase",
+        "payment_failed",
+        "content_uploaded",
+        "user_milestone",
+        "expiring_access",
+        "new_testimonial",
+        "new_faq_needed",
+        "system_alert",
+      ],
       subscription_status: [
         "active",
         "cancelled",
