@@ -121,34 +121,34 @@ const Subscriptions = () => {
         )}
 
         {/* Billing Cycle Selector */}
-        <div className="flex justify-center mb-12">
+        <div className="flex justify-center mb-8 sm:mb-12">
           <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as any)} dir="rtl">
             <TabsList className="glass-panel">
-              <TabsTrigger value="monthly">חודשי</TabsTrigger>
-              <TabsTrigger value="quarterly">
+              <TabsTrigger value="monthly" className="text-xs sm:text-sm">חודשי</TabsTrigger>
+              <TabsTrigger value="quarterly" className="text-xs sm:text-sm">
                 רבעוני
-                <Badge variant="secondary" className="mr-2 text-xs">חסוך 10%</Badge>
+                <Badge variant="secondary" className="mr-1 sm:mr-2 text-[10px] sm:text-xs">חסוך 10%</Badge>
               </TabsTrigger>
-              <TabsTrigger value="yearly">
+              <TabsTrigger value="yearly" className="text-xs sm:text-sm">
                 שנתי
-                <Badge variant="secondary" className="mr-2 text-xs">חסוך 20%</Badge>
+                <Badge variant="secondary" className="mr-1 sm:mr-2 text-[10px] sm:text-xs">חסוך 20%</Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
         {/* Subscription Tiers */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto">
           {isLoading ? (
             Array(3).fill(0).map((_, i) => (
               <Card key={i} className="glass-panel">
-                <CardHeader>
-                  <Skeleton className="h-8 w-32 mb-2" />
-                  <Skeleton className="h-4 w-full" />
+                <CardHeader className="p-4 sm:p-6">
+                  <Skeleton className="h-6 sm:h-8 w-32 mb-2" />
+                  <Skeleton className="h-3 sm:h-4 w-full" />
                 </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-16 w-full mb-4" />
-                  <Skeleton className="h-40 w-full" />
+                <CardContent className="p-4 sm:p-6">
+                  <Skeleton className="h-12 sm:h-16 w-full mb-4" />
+                  <Skeleton className="h-32 sm:h-40 w-full" />
                 </CardContent>
               </Card>
             ))

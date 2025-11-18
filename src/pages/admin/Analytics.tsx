@@ -283,68 +283,70 @@ const Analytics = () => {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-4 sm:space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold">ניתוח נתונים</h1>
-        <p className="text-muted-foreground">סקירה כללית של פעילות הפלטפורמה</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">ניתוח נתונים</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">סקירה כללית של פעילות הפלטפורמה</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סך הרשמות לקורסים</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">סך הרשמות לקורסים</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalEnrollments}</div>
-            <p className="text-xs text-muted-foreground">סך כל ההרשמות</p>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.totalEnrollments}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">סך כל ההרשמות</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סך הכנסות</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">סך הכנסות</CardTitle>
+            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₪{stats.totalRevenue.toFixed(0)}</div>
-            <p className="text-xs text-muted-foreground">מקורסים ומנויים</p>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">₪{stats.totalRevenue.toFixed(0)}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">מקורסים ומנויים</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">מנויים פעילים</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">מנויים פעילים</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
-            <p className="text-xs text-muted-foreground">מנויים פעילים כעת</p>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.activeSubscriptions}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">מנויים פעילים כעת</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">אחוז השלמת קורסים</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">אחוז השלמת קורסים</CardTitle>
+            <Award className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.avgCompletionRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">ממוצע השלמות</p>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.avgCompletionRate.toFixed(1)}%</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">ממוצע השלמות</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="realtime" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="realtime">זמן אמת</TabsTrigger>
-          <TabsTrigger value="trends">מגמות חודשיות</TabsTrigger>
-          <TabsTrigger value="engagement">מעורבות משתמשים</TabsTrigger>
-          <TabsTrigger value="courses">קורסים פופולריים</TabsTrigger>
-          <TabsTrigger value="completions">שיעורי השלמה</TabsTrigger>
-          <TabsTrigger value="activity">פעילות אחרונה</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="inline-flex min-w-full sm:w-auto">
+            <TabsTrigger value="realtime" className="text-xs sm:text-sm whitespace-nowrap">זמן אמת</TabsTrigger>
+            <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">מגמות חודשיות</TabsTrigger>
+            <TabsTrigger value="engagement" className="text-xs sm:text-sm whitespace-nowrap">מעורבות</TabsTrigger>
+            <TabsTrigger value="courses" className="text-xs sm:text-sm whitespace-nowrap">קורסים</TabsTrigger>
+            <TabsTrigger value="completions" className="text-xs sm:text-sm whitespace-nowrap">השלמה</TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs sm:text-sm whitespace-nowrap">פעילות</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Real-Time Activity */}
         <TabsContent value="realtime">

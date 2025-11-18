@@ -72,26 +72,26 @@ const Courses = () => {
       
       <Header />
       
-      <main className="relative container mx-auto px-4 py-8 mt-20">
+      <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-16 sm:mt-20">
         {/* Hero Section */}
-        <div className="text-center mb-12" dir="rtl">
-          <h1 className="text-4xl md:text-6xl font-black cyber-glow mb-4">
+        <div className="text-center mb-8 sm:mb-12" dir="rtl">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black cyber-glow mb-3 sm:mb-4">
             הקורסים שלנו
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
             גלה את מגוון הקורסים והתוכן שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="relative mb-8 max-w-2xl mx-auto">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+        <div className="relative mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/80 backdrop-blur-sm py-2">
+          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
           <Input
             type="text"
             placeholder="חפש קורס..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-10 glass-panel text-right"
+            className="pr-9 sm:pr-10 glass-panel text-right h-10 sm:h-11"
             dir="rtl"
           />
         </div>
@@ -109,15 +109,15 @@ const Courses = () => {
         />
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (
-              <div key={i} className="glass-panel p-6 space-y-4">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-10 w-full" />
+              <div key={i} className="glass-panel p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <Skeleton className="h-40 sm:h-48 w-full" />
+                <Skeleton className="h-5 sm:h-6 w-3/4" />
+                <Skeleton className="h-3 sm:h-4 w-full" />
+                <Skeleton className="h-3 sm:h-4 w-full" />
+                <Skeleton className="h-9 sm:h-10 w-full" />
               </div>
             ))
           ) : filteredCourses && filteredCourses.length > 0 ? (
@@ -126,7 +126,7 @@ const Courses = () => {
             ))
           ) : (
             <div className="col-span-full text-center py-12" dir="rtl">
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base sm:text-xl text-muted-foreground">
                 לא נמצאו קורסים התואמים את החיפוש
               </p>
             </div>
