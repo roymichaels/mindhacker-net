@@ -13,6 +13,8 @@ import BookingDialog from "@/components/BookingDialog";
 import MyCourses from "@/components/dashboard/MyCourses";
 import MySubscriptions from "@/components/dashboard/MySubscriptions";
 import { handleError } from "@/lib/errorHandling";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 
 interface Purchase {
   id: string;
@@ -126,6 +128,12 @@ const UserDashboard = () => {
     }
   };
 
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: async () => {
+      await fetchUserData();
+    },
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -143,6 +151,7 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <PullToRefreshIndicator {...pullToRefresh} />
       <Header />
       <div className="p-4 md:p-8" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-6">
