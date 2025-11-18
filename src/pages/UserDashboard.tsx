@@ -174,15 +174,15 @@ const UserDashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="glass-panel p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-black cyber-glow mb-2 truncate">
-              שלום, <span className="truncate inline-block max-w-[200px] sm:max-w-xs align-bottom">{profile?.full_name || userEmail}</span>! 👋
+          <div className="flex-1 min-w-0 max-w-full">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-black cyber-glow mb-1.5 truncate">
+              שלום, <span className="truncate inline-block max-w-[140px] sm:max-w-[200px] md:max-w-sm align-bottom">{profile?.full_name || userEmail}</span>! 👋
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               ברוך הבא ללוח הבקרה האישי שלך
             </p>
           </div>
-          <Button variant="outline" onClick={handleLogout} className="w-full md:w-auto">
+          <Button variant="outline" onClick={handleLogout} className="w-full md:w-auto shrink-0">
             <LogOut className="ml-2 h-4 w-4" />
             התנתק
           </Button>
