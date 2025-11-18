@@ -20,6 +20,7 @@ import { Brain, LogOut, Menu, Settings, ShoppingBag, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
+import { UserNotificationBell } from "./UserNotificationBell";
 
 const Header = () => {
   const { user, loading } = useAuth();
@@ -122,7 +123,9 @@ const Header = () => {
           {loading ? (
             <div className="h-9 w-20 animate-pulse bg-muted rounded" />
           ) : user ? (
-            <DropdownMenu dir="rtl">
+            <>
+              <UserNotificationBell />
+              <DropdownMenu dir="rtl">
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <User className="h-4 w-4" />
@@ -146,7 +149,8 @@ const Header = () => {
                   התנתק
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               <Button
