@@ -98,6 +98,12 @@ const Header = () => {
             מחירים
           </button>
           <button
+            onClick={() => navigate("/courses")}
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            קורסים
+          </button>
+          <button
             onClick={() => scrollToSection("faq")}
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
@@ -183,6 +189,15 @@ const Header = () => {
                   className="text-right text-sm font-medium hover:text-primary transition-colors"
                 >
                   מחירים
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/courses");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-right text-sm font-medium hover:text-primary transition-colors"
+                >
+                  קורסים
                 </button>
                 <button
                   onClick={() => scrollToSection("faq")}
