@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, LogIn } from "lucide-react";
 import { z } from "zod";
+import { useSEO } from "@/hooks/useSEO";
 
 const loginSchema = z.object({
   email: z.string()
@@ -21,6 +22,14 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+  // SEO Configuration
+  useSEO({
+    title: "התחברות | מיינד-האקר",
+    description: "התחבר לחשבון שלך במיינד-האקר וקבל גישה למוצרים הדיגיטליים, הקורסים והסדנאות שרכשת.",
+    url: `${window.location.origin}/login`,
+    type: "website",
+  });
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);

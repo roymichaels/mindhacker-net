@@ -13,6 +13,8 @@ import CourseCurriculum from "@/components/courses/CourseCurriculum";
 import CheckoutDialog from "@/components/checkout/CheckoutDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSwipeable } from "react-swipeable";
+import { useSEO } from "@/hooks/useSEO";
+import { getCourseSchema, getBreadcrumbSchema } from "@/lib/seo";
 
 const CourseDetail = () => {
   const { slug } = useParams();
@@ -118,6 +120,32 @@ const CourseDetail = () => {
     }
     setCheckoutOpen(true);
   };
+
+  // Update SEO when course data is loaded
+  useSEO({
+    title: course ? `${course.title} | מיינד-האקר` : "מוצר דיגיטלי | מיינד-האקר",
+    description: course?.description || "גלה מוצר דיגיטלי איכותי בתחום אימון התודעה והפיתוח האישי",
+    keywords: course ? `${course.title}, קורס אונליין, ${course.category}, ${course.difficulty_level}` : undefined,
+    image: course?.thumbnail_url,
+    url: `${window.location.origin}/courses/${slug}`,
+    type: "product",
+    structuredData: course ? [
+      getCourseSchema({
+        name: course.title,
+        description: course.description || "",
+        provider: "מיינד-האקר - Dean Azulay",
+        image: course.thumbnail_url || undefined,
+        price: course.price || undefined,
+        currency: "ILS",
+      }),
+      getBreadcrumbSchema([
+        { name: "דף הבית", url: window.location.origin },
+        { name: "מוצרים דיגיטליים", url: `${window.location.origin}/courses` },
+        { name: course.title, url: `${window.location.origin}/courses/${slug}` },
+      ]),
+    ] : undefined,
+  });
+
 
   if (courseLoading) {
     return (

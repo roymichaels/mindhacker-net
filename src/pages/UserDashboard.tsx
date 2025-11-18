@@ -15,6 +15,9 @@ import MySubscriptions from "@/components/dashboard/MySubscriptions";
 import { handleError } from "@/lib/errorHandling";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { useSEO } from "@/hooks/useSEO";
+import { getBreadcrumbSchema } from "@/lib/seo";
+
 
 interface Purchase {
   id: string;
@@ -35,6 +38,20 @@ interface Profile {
 }
 
 const UserDashboard = () => {
+  // SEO Configuration
+  useSEO({
+    title: "דאשבורד | מיינד-האקר",
+    description: "לוח הבקרה האישי שלך - גישה למוצרים הדיגיטליים, מנויים, ופגישות שרכשת",
+    url: `${window.location.origin}/dashboard`,
+    type: "website",
+    structuredData: [
+      getBreadcrumbSchema([
+        { name: "דף הבית", url: window.location.origin },
+        { name: "דאשבורד", url: `${window.location.origin}/dashboard` },
+      ]),
+    ],
+  });
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [purchases, setPurchases] = useState<Purchase[]>([]);

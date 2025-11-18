@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
@@ -8,8 +9,20 @@ import AboutSection from "@/components/AboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
+import { useSEO } from "@/hooks/useSEO";
+import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 
 const Index = () => {
+  // SEO Configuration
+  useSEO({
+    title: "מיינד-האקר | אימון תודעתי עמוק עם Dean Azulay",
+    description: "אימון תודעתי עמוק עם Dean Azulay - תכנות תודעה מתקדם, היפנוזה מודעת, ו-Reframe לשינוי תת-מודע. קבע סשן אונליין היום והתחל את המסע לשינוי אמיתי.",
+    keywords: "אימון תודעתי, היפנוזה מודעת, שינוי תת-מודע, תכנות תודעה, Dean Azulay, קורסים דיגיטליים, פיתוח אישי",
+    url: window.location.origin,
+    type: "website",
+    structuredData: [getOrganizationSchema(), getWebsiteSchema()],
+  });
+
   return (
     <div className="relative min-h-screen">
       {/* Matrix rain background effect */}
