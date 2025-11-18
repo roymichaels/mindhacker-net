@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, FolderOpen } from "lucide-react";
+import { Edit, Trash2, FolderOpen, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import SeriesManager from "./SeriesManager";
@@ -57,6 +57,16 @@ const ProductsList = ({ products, onEdit }: ProductsListProps) => {
     premium: "bg-pink-500/20 text-pink-300",
     vip: "bg-amber-500/20 text-amber-300",
   };
+
+  if (products.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 glass-panel rounded-lg border border-primary/20">
+        <Package className="w-16 h-16 text-muted-foreground mb-4" />
+        <h3 className="text-xl font-bold mb-2">אין מוצרי תוכן עדיין</h3>
+        <p className="text-muted-foreground">התחל ליצור את הקורס הראשון שלך</p>
+      </div>
+    );
+  }
 
   return (
     <>
