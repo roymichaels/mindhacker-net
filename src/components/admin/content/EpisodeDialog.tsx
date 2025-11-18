@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { FileUpload } from "../FileUpload";
+import { MultiFileUpload } from "../MultiFileUpload";
 
 interface EpisodeDialogProps {
   open: boolean;
@@ -32,6 +33,8 @@ const EpisodeDialog = ({ open, onOpenChange, episode, seriesId, productId }: Epi
       duration_seconds: "",
       is_preview: false,
       order_index: "0",
+      resources_url: [] as string[],
+      transcript_url: "",
     },
   });
 
@@ -45,6 +48,8 @@ const EpisodeDialog = ({ open, onOpenChange, episode, seriesId, productId }: Epi
         duration_seconds: episode.duration_seconds?.toString() || "",
         is_preview: episode.is_preview ?? false,
         order_index: episode.order_index?.toString() || "0",
+        resources_url: episode.resources_url || [],
+        transcript_url: episode.transcript_url || "",
       });
     } else {
       form.reset();
@@ -165,6 +170,46 @@ const EpisodeDialog = ({ open, onOpenChange, episode, seriesId, productId }: Epi
                       value={field.value}
                       onChange={field.onChange}
                       maxSizeMB={5}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="resources_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <MultiFileUpload
+                      bucket="content-resources"
+                      label="קבצי משאבים להורדה"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={50}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="transcript_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUpload
+                      bucket="content-resources"
+                      accept=".txt,.pdf,.doc,.docx"
+                      label="תמליל (אופציונלי)"
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxSizeMB={10}
+                      showPreview={false}
                     />
                   </FormControl>
                   <FormMessage />
