@@ -147,12 +147,6 @@ const PricingCards = () => {
             >
               בחר חבילה זו
             </Button>
-
-            {option.id === "single" && (
-              <div className="text-center mt-4 text-xs text-muted-foreground">
-                Demo Mode - לא יתבצע חיוב אמיתי
-              </div>
-            )}
           </div>
         ))}
       </div>

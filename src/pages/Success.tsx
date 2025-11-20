@@ -31,14 +31,38 @@ const Success = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
+  const [calendlyLink, setCalendlyLink] = useState<string>("");
 
   useEffect(() => {
+    fetchCalendlyLink();
     if (purchaseId) {
       fetchPurchase();
     } else {
       setLoading(false);
     }
   }, [purchaseId]);
+
+  const fetchCalendlyLink = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["calendly_link", "calendly_enabled"]);
+      
+      if (data) {
+        const settings = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+        
+        if (settings.calendly_enabled === 'true' && settings.calendly_link) {
+          setCalendlyLink(settings.calendly_link);
+        }
+      }
+    } catch (error) {
+      handleError(error, "שגיאה בטעינת קישור Calendly", "Success.fetchCalendlyLink");
+    }
+  };
 
   const fetchPurchase = async () => {
     try {
@@ -248,10 +272,24 @@ const Success = () => {
                   עכשיו בוא נקבע את הפגישה שתשנה הכל
                 </CardTitle>
                 <CardDescription className="text-center text-base">
-                  בחר את התאריך והשעה המועדפים עליך
+                  {calendlyLink ? "לחץ על הכפתור למטה לקביעת פגישה ישירות" : "בחר את התאריך והשעה המועדפים עליך"}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
+                {calendlyLink && (
+                  <div className="text-center space-y-4">
+                    <Button
+                      onClick={() => window.open(calendlyLink, '_blank')}
+                      size="lg"
+                      className="w-full max-w-md bg-primary hover:bg-primary/90 text-primary-foreground cyber-glow"
+                    >
+                      📅 קבע פגישה עכשיו ב-Calendly
+                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      או השאר פרטים והמנטור יחזור אליך:
+                    </p>
+                  </div>
+                )}
                 <BookingCalendar 
                   onSubmit={handleBookingSubmit}
                   isSubmitting={isSubmittingBooking}
