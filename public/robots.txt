@@ -10,4 +10,4 @@ Disallow: /login
 Disallow: /signup
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://mind-hacker.net/sitemap.xml
