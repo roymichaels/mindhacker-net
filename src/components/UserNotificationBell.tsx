@@ -13,7 +13,7 @@ import { useUserNotifications } from "@/hooks/useUserNotifications";
 export const UserNotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { notifications, unreadCount } = useUserNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useUserNotifications();
 
   // Animate bell when new notification arrives
   useEffect(() => {
@@ -54,6 +54,8 @@ export const UserNotificationBell = () => {
       >
         <UserNotificationPanel
           notifications={notifications.slice(0, 10)}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
           onClose={() => setOpen(false)}
         />
       </PopoverContent>

@@ -9,6 +9,8 @@ import { Bell, ExternalLink } from "lucide-react";
 
 interface UserNotificationPanelProps {
   notifications: UserNotification[];
+  onMarkAsRead: (notificationId: string) => Promise<void>;
+  onMarkAllAsRead: () => Promise<void>;
   onClose: () => void;
 }
 
@@ -45,11 +47,16 @@ const getTypeIcon = (type: string) => {
 
 export const UserNotificationPanel = ({
   notifications,
+  onMarkAsRead,
+  onMarkAllAsRead,
   onClose,
 }: UserNotificationPanelProps) => {
   const navigate = useNavigate();
 
-  const handleNotificationClick = (notification: UserNotification) => {
+  const handleNotificationClick = async (notification: UserNotification) => {
+    if (!notification.is_read) {
+      await onMarkAsRead(notification.id);
+    }
     if (notification.link) {
       navigate(notification.link);
       onClose();
@@ -71,6 +78,19 @@ export const UserNotificationPanel = ({
             </Badge>
           )}
         </div>
+        {unreadNotifications.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onMarkAllAsRead();
+            }}
+            className="text-xs"
+          >
+            סמן הכל כנקרא
+          </Button>
+        )}
       </div>
 
       {/* Notifications List */}
