@@ -33,6 +33,7 @@ const settingsSchema = z.object({
   package_session_description: z.string()
     .min(5, "תיאור חייב להכיל לפחות 5 תווים")
     .max(500, "תיאור ארוך מדי"),
+  availability_hours: z.string().optional(),
 });
 
 const Settings = () => {
@@ -56,6 +57,7 @@ const Settings = () => {
     package_session_price: "",
     single_session_description: "",
     package_session_description: "",
+    availability_hours: "",
   });
 
   useEffect(() => {
@@ -93,6 +95,7 @@ const Settings = () => {
         package_session_price: settingsObj.package_session_price || "",
         single_session_description: settingsObj.single_session_description || "",
         package_session_description: settingsObj.package_session_description || "",
+        availability_hours: settingsObj.availability_hours || "ראשון-חמישי: 09:00-18:00",
       });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
@@ -480,6 +483,31 @@ const Settings = () => {
                   />
                 </div>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Availability Hours Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>שעות זמינות</CardTitle>
+            <CardDescription>
+              הגדר את שעות הפעילות שלך שיוצגו ללקוחות
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="availability_hours">שעות זמינות</Label>
+              <Textarea
+                id="availability_hours"
+                placeholder="לדוגמה: ראשון-חמישי: 09:00-18:00, שישי: 09:00-13:00"
+                value={settings.availability_hours}
+                onChange={(e) => setSettings(prev => ({ ...prev, availability_hours: e.target.value }))}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                הגדר את שעות הפעילות שלך. טקסט זה יוצג ללקוחות בעמוד הבית
+              </p>
             </div>
           </CardContent>
         </Card>

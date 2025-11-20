@@ -706,6 +706,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          message: string
+          metadata: Json | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message: string
+          metadata?: Json | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string
+          metadata?: Json | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed: boolean | null
@@ -845,6 +884,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_expiring_access: { Args: never; Returns: undefined }
       create_admin_notification: {
         Args: {
           p_link?: string
@@ -853,6 +893,17 @@ export type Database = {
           p_priority: Database["public"]["Enums"]["notification_priority"]
           p_title: string
           p_type: Database["public"]["Enums"]["notification_type"]
+        }
+        Returns: undefined
+      }
+      create_user_notification: {
+        Args: {
+          p_link?: string
+          p_message: string
+          p_metadata?: Json
+          p_title: string
+          p_type: string
+          p_user_id: string
         }
         Returns: undefined
       }
