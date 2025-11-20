@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import Brain3DModel from "./Brain3DModel";
 import DecryptText from "./DecryptText";
 
 const HeroSection = () => {
@@ -38,12 +37,7 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        {/* 3D Brain Model above title */}
-        <div className="flex justify-center mt-4 md:mt-8">
-          <Brain3DModel className="h-[400px] w-72 md:h-[500px] md:w-96" style={{ zIndex: 100 }} />
-        </div>
-        
-        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight">
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight mt-4 md:mt-8">
           <span className="text-foreground static-word-glow">האקר </span>
           <DecryptText 
             text={words[currentWord]} 
