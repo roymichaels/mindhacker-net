@@ -1,25 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BookingCalendarProps {
   onSubmit: (date: Date | undefined, time: string, notes: string) => void;
   isSubmitting?: boolean;
 }
 
-const timeSlots = [
-  "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", 
-  "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
-];
-
 const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [notes, setNotes] = useState("");
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAvailabilityHours = async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('setting_value')
+        .eq('setting_key', 'availability_hours')
+        .single();
+
+      if (data?.setting_value) {
+        const [start, end] = data.setting_value.split('-');
+        const startHour = parseInt(start.split(':')[0]);
+        const endHour = parseInt(end.split(':')[0]);
+        
+        const slots: string[] = [];
+        for (let hour = startHour; hour <= endHour; hour++) {
+          slots.push(`${hour.toString().padStart(2, '0')}:00`);
+        }
+        setTimeSlots(slots);
+      } else {
+        // Default fallback
+        setTimeSlots([
+          "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", 
+          "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
+        ]);
+      }
+    };
+
+    fetchAvailabilityHours();
+  }, []);
 
   const handleSubmit = () => {
     if (date && selectedTime) {
