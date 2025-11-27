@@ -37,8 +37,8 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
 
   return (
     <aside className={cn(
-      "w-64 glass-panel border-l border-primary/20 flex flex-col",
-      !isMobile && "h-screen"
+      "w-64 glass-panel flex flex-col",
+      isMobile ? "h-full border-r border-primary/20" : "h-screen border-l border-primary/20"
     )}>
       <div className="p-6 border-b border-primary/20">
         <h2 className="text-2xl font-black cyber-glow">פאנל ניהול</h2>
