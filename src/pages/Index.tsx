@@ -9,6 +9,8 @@ import AboutSection from "@/components/AboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
+import FloatingCTA from "@/components/FloatingCTA";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 
@@ -45,6 +47,10 @@ const Index = () => {
         <FAQSection />
         <Footer />
       </main>
+
+      {/* Floating Elements */}
+      <FloatingCTA />
+      <WhatsAppButton />
     </div>
   );
 };
