@@ -14,7 +14,7 @@ const HeroSection = () => {
   }, []);
 
   const scrollToBooking = () => {
-    document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
