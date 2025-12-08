@@ -34,6 +34,20 @@ const settingsSchema = z.object({
     .min(5, "תיאור חייב להכיל לפחות 5 תווים")
     .max(500, "תיאור ארוך מדי"),
   availability_hours: z.string().optional(),
+  // Social proof settings
+  happy_clients_count: z.string().optional(),
+  success_rate_percent: z.string().optional(),
+  habit_break_percent: z.string().optional(),
+  spots_available: z.string().optional(),
+  // Trust badges
+  trust_badge_1: z.string().optional(),
+  trust_badge_2: z.string().optional(),
+  trust_badge_3: z.string().optional(),
+  trust_badge_4: z.string().optional(),
+  // WhatsApp settings
+  whatsapp_number: z.string().optional(),
+  whatsapp_enabled: z.boolean().optional(),
+  whatsapp_message: z.string().optional(),
 });
 
 const Settings = () => {
@@ -58,6 +72,20 @@ const Settings = () => {
     single_session_description: "",
     package_session_description: "",
     availability_hours: "",
+    // Social proof
+    happy_clients_count: "200",
+    success_rate_percent: "94",
+    habit_break_percent: "87",
+    spots_available: "3",
+    // Trust badges
+    trust_badge_1: "100% דיסקרטיות",
+    trust_badge_2: "ללא התחייבות",
+    trust_badge_3: "10+ שנות ניסיון",
+    trust_badge_4: "ליווי אישי",
+    // WhatsApp
+    whatsapp_number: "",
+    whatsapp_enabled: false,
+    whatsapp_message: "היי, אני מעוניין לשמוע עוד על השירותים שלכם",
   });
 
   useEffect(() => {
@@ -96,6 +124,20 @@ const Settings = () => {
         single_session_description: settingsObj.single_session_description || "",
         package_session_description: settingsObj.package_session_description || "",
         availability_hours: settingsObj.availability_hours || "ראשון-חמישי: 09:00-18:00",
+        // Social proof
+        happy_clients_count: settingsObj.happy_clients_count || "200",
+        success_rate_percent: settingsObj.success_rate_percent || "94",
+        habit_break_percent: settingsObj.habit_break_percent || "87",
+        spots_available: settingsObj.spots_available || "3",
+        // Trust badges
+        trust_badge_1: settingsObj.trust_badge_1 || "100% דיסקרטיות",
+        trust_badge_2: settingsObj.trust_badge_2 || "ללא התחייבות",
+        trust_badge_3: settingsObj.trust_badge_3 || "10+ שנות ניסיון",
+        trust_badge_4: settingsObj.trust_badge_4 || "ליווי אישי",
+        // WhatsApp
+        whatsapp_number: settingsObj.whatsapp_number || "",
+        whatsapp_enabled: settingsObj.whatsapp_enabled ?? false,
+        whatsapp_message: settingsObj.whatsapp_message || "היי, אני מעוניין לשמוע עוד על השירותים שלכם",
       });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
@@ -508,6 +550,160 @@ const Settings = () => {
               <p className="text-xs text-muted-foreground">
                 הגדר את שעות הפעילות שלך. טקסט זה יוצג ללקוחות בעמוד הבית
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Proof Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>הוכחה חברתית</CardTitle>
+            <CardDescription>
+              הגדר את המספרים שיוצגו בעמוד הבית
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="happy_clients_count">מספר לקוחות מרוצים</Label>
+                <Input
+                  id="happy_clients_count"
+                  type="number"
+                  placeholder="200"
+                  value={settings.happy_clients_count}
+                  onChange={(e) => setSettings(prev => ({ ...prev, happy_clients_count: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="success_rate_percent">אחוז שינוי מהמפגש הראשון</Label>
+                <Input
+                  id="success_rate_percent"
+                  type="number"
+                  placeholder="94"
+                  value={settings.success_rate_percent}
+                  onChange={(e) => setSettings(prev => ({ ...prev, success_rate_percent: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="habit_break_percent">אחוז שברו הרגלים תוך 4 מפגשים</Label>
+                <Input
+                  id="habit_break_percent"
+                  type="number"
+                  placeholder="87"
+                  value={settings.habit_break_percent}
+                  onChange={(e) => setSettings(prev => ({ ...prev, habit_break_percent: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="spots_available">מקומות פנויים השבוע</Label>
+                <Input
+                  id="spots_available"
+                  type="number"
+                  placeholder="3"
+                  value={settings.spots_available}
+                  onChange={(e) => setSettings(prev => ({ ...prev, spots_available: e.target.value }))}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Trust Badges Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>תגי אמון</CardTitle>
+            <CardDescription>
+              הגדר את תגי האמון שיוצגו מתחת לכותרת הראשית
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="trust_badge_1">תג אמון 1</Label>
+                <Input
+                  id="trust_badge_1"
+                  placeholder="100% דיסקרטיות"
+                  value={settings.trust_badge_1}
+                  onChange={(e) => setSettings(prev => ({ ...prev, trust_badge_1: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="trust_badge_2">תג אמון 2</Label>
+                <Input
+                  id="trust_badge_2"
+                  placeholder="ללא התחייבות"
+                  value={settings.trust_badge_2}
+                  onChange={(e) => setSettings(prev => ({ ...prev, trust_badge_2: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="trust_badge_3">תג אמון 3</Label>
+                <Input
+                  id="trust_badge_3"
+                  placeholder="10+ שנות ניסיון"
+                  value={settings.trust_badge_3}
+                  onChange={(e) => setSettings(prev => ({ ...prev, trust_badge_3: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="trust_badge_4">תג אמון 4</Label>
+                <Input
+                  id="trust_badge_4"
+                  placeholder="ליווי אישי"
+                  value={settings.trust_badge_4}
+                  onChange={(e) => setSettings(prev => ({ ...prev, trust_badge_4: e.target.value }))}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* WhatsApp Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>WhatsApp</CardTitle>
+            <CardDescription>
+              הגדר את כפתור הוואטסאפ הצף
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="whatsapp_number" className="text-base font-medium">הפעל כפתור WhatsApp</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'whatsapp_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.whatsapp_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('whatsapp_enabled', checked)}
+                    disabled={savingSwitch === 'whatsapp_enabled'}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp_number">מספר טלפון (עם קידומת מדינה)</Label>
+                <Input
+                  id="whatsapp_number"
+                  placeholder="972501234567"
+                  value={settings.whatsapp_number}
+                  onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_number: e.target.value }))}
+                  disabled={!settings.whatsapp_enabled}
+                  className="text-left disabled:opacity-50"
+                  dir="ltr"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp_message">הודעה ראשונית</Label>
+                <Textarea
+                  id="whatsapp_message"
+                  placeholder="היי, אני מעוניין לשמוע עוד..."
+                  value={settings.whatsapp_message}
+                  onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_message: e.target.value }))}
+                  disabled={!settings.whatsapp_enabled}
+                  rows={2}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

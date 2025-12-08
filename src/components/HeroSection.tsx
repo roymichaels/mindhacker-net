@@ -72,7 +72,7 @@ const HeroSection = () => {
           
           {/* Urgency Badge */}
           <div className="mt-4">
-            <UrgencyBadge spotsLeft={3} />
+            <UrgencyBadge />
           </div>
         </div>
 
