@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Users, Star, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CounterProps {
   end: number;
@@ -52,12 +53,42 @@ const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) =>
 };
 
 const SocialProofCounter = () => {
+  const [stats, setStats] = useState({
+    happyClients: 200,
+    successRate: 94,
+    habitBreak: 87,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["happy_clients_count", "success_rate_percent", "habit_break_percent"]);
+
+      if (data) {
+        const statsObj = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+
+        setStats({
+          happyClients: parseInt(statsObj.happy_clients_count) || 200,
+          successRate: parseInt(statsObj.success_rate_percent) || 94,
+          habitBreak: parseInt(statsObj.habit_break_percent) || 87,
+        });
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8 md:mt-12">
       <div className="glass-panel px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
         <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
         <div className="flex flex-col">
-          <AnimatedCounter end={200} suffix="+" />
+          <AnimatedCounter end={stats.happyClients} suffix="+" />
           <span className="text-xs md:text-sm text-muted-foreground">לקוחות מרוצים</span>
         </div>
       </div>
@@ -65,7 +96,7 @@ const SocialProofCounter = () => {
       <div className="glass-panel px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
         <Star className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />
         <div className="flex flex-col">
-          <AnimatedCounter end={94} suffix="%" />
+          <AnimatedCounter end={stats.successRate} suffix="%" />
           <span className="text-xs md:text-sm text-muted-foreground">שינוי מהמפגש הראשון</span>
         </div>
       </div>
@@ -73,7 +104,7 @@ const SocialProofCounter = () => {
       <div className="glass-panel px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
         <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-primary" />
         <div className="flex flex-col">
-          <AnimatedCounter end={87} suffix="%" />
+          <AnimatedCounter end={stats.habitBreak} suffix="%" />
           <span className="text-xs md:text-sm text-muted-foreground">שברו הרגלים תוך 4 מפגשים</span>
         </div>
       </div>

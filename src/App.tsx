@@ -26,6 +26,7 @@ const Users = lazy(() => import("./pages/admin/Users"));
 const Content = lazy(() => import("./pages/admin/Content"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
+const Leads = lazy(() => import("./pages/admin/Leads"));
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
@@ -77,6 +78,7 @@ const App = () => (
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="purchases" element={<Purchases />} />
               <Route path="users" element={<Users />} />
+              <Route path="leads" element={<Leads />} />
               <Route path="content" element={<Content />} />
             </Route>
 

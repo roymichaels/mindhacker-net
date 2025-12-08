@@ -1,24 +1,56 @@
+import { useState, useEffect } from "react";
 import { Shield, Lock, Award, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+const iconMap = [Shield, Lock, Award, Heart];
 
 const TrustBadges = () => {
-  const badges = [
-    { icon: Shield, label: "100% דיסקרטיות" },
-    { icon: Lock, label: "ללא התחייבות" },
-    { icon: Award, label: "10+ שנות ניסיון" },
-    { icon: Heart, label: "ליווי אישי" },
-  ];
+  const [badges, setBadges] = useState([
+    "100% דיסקרטיות",
+    "ללא התחייבות",
+    "10+ שנות ניסיון",
+    "ליווי אישי",
+  ]);
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["trust_badge_1", "trust_badge_2", "trust_badge_3", "trust_badge_4"]);
+
+      if (data && data.length > 0) {
+        const badgesObj = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+
+        setBadges([
+          badgesObj.trust_badge_1 || "100% דיסקרטיות",
+          badgesObj.trust_badge_2 || "ללא התחייבות",
+          badgesObj.trust_badge_3 || "10+ שנות ניסיון",
+          badgesObj.trust_badge_4 || "ליווי אישי",
+        ]);
+      }
+    };
+
+    fetchBadges();
+  }, []);
 
   return (
     <div className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6">
-      {badges.map((badge, index) => (
-        <div
-          key={index}
-          className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm"
-        >
-          <badge.icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-          <span>{badge.label}</span>
-        </div>
-      ))}
+      {badges.map((label, index) => {
+        const Icon = iconMap[index];
+        return (
+          <div
+            key={index}
+            className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm"
+          >
+            <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+            <span>{label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 };
