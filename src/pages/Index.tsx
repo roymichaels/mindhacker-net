@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Header from "@/components/Header";
 import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
@@ -11,6 +10,7 @@ import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 
@@ -51,6 +51,7 @@ const Index = () => {
       {/* Floating Elements */}
       <FloatingCTA />
       <WhatsAppButton />
+      <ExitIntentPopup />
     </div>
   );
 };

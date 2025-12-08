@@ -448,6 +448,33 @@ export type Database = {
           },
         ]
       }
+      exit_intent_leads: {
+        Row: {
+          contacted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          is_contacted: boolean | null
+          notes: string | null
+        }
+        Insert: {
+          contacted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_contacted?: boolean | null
+          notes?: string | null
+        }
+        Update: {
+          contacted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_contacted?: boolean | null
+          notes?: string | null
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer: string

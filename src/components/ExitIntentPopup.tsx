@@ -65,8 +65,9 @@ const ExitIntentPopup = () => {
 
     try {
       // Store the lead in the database
+      // Using type assertion since table was just created
       const { error } = await supabase
-        .from("exit_intent_leads")
+        .from("exit_intent_leads" as any)
         .insert({ email: email.trim() });
 
       if (error) {
