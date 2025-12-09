@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Gift, Sparkles } from "lucide-react";
+import { X, MessageCircle, Sparkles, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,8 +17,23 @@ const ExitIntentPopup = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasShown, setHasShown] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
+    // Fetch about image for personal touch
+    const fetchImage = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_value")
+        .eq("setting_key", "about_image_url")
+        .single();
+      
+      if (data?.setting_value) {
+        setImageUrl(data.setting_value);
+      }
+    };
+    fetchImage();
+
     // Check if popup was already shown in this session
     const popupShown = sessionStorage.getItem("exitIntentShown");
     if (popupShown) {
@@ -92,14 +107,22 @@ const ExitIntentPopup = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md border-primary/30 bg-background/95 backdrop-blur-xl">
         <DialogHeader className="text-center pt-4">
-          <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-            <Gift className="w-8 h-8 text-primary" />
+          <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center overflow-hidden ring-4 ring-primary/20">
+            {imageUrl ? (
+              <img 
+                src={imageUrl} 
+                alt="Dean" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-10 h-10 text-primary-foreground" />
+            )}
           </div>
           <DialogTitle className="text-2xl font-black text-center cyber-glow">
-            חכה! יש לנו מתנה בשבילך 🎁
+            חכה! Dean רוצה לדבר איתך 💬
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground pt-2">
-            קבל 15 דקות התייעצות חינם עם מאמן תודעתי מנוסה
+            השאר פרטים ואחזור אליך אישית עם 15 דקות התייעצות חינם
           </DialogDescription>
         </DialogHeader>
 

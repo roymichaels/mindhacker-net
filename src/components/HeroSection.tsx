@@ -4,6 +4,8 @@ import DecryptText from "./DecryptText";
 import SocialProofCounter from "./SocialProofCounter";
 import UrgencyBadge from "./UrgencyBadge";
 import TrustBadges from "./TrustBadges";
+import HeroVideo from "./HeroVideo";
+import PersonalQuote from "./PersonalQuote";
 import { Sparkles } from "lucide-react";
 
 const HeroSection = () => {
@@ -50,17 +52,27 @@ const HeroSection = () => {
         </h1>
 
         <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium">
-          אימון תודעתי עמוק — לא טיפול, לא פסיכולוגיה.
+          אני מלווה אותך בתהליך עמוק — לא טיפול, לא פסיכולוגיה.
         </p>
 
-        <p className="text-base sm:text-lg md:text-xl text-secondary mb-6 md:mb-8 font-light">
+        <p className="text-base sm:text-lg md:text-xl text-secondary mb-4 font-light">
           תכניס סיסמה. נשום. ברוך הבא אל הקוד שלך.
         </p>
+
+        {/* Personal Video Button */}
+        <HeroVideo />
 
         {/* Trust Badges */}
         <TrustBadges />
 
-        <div className="mt-8 md:mt-10">
+        {/* Personal Quote before CTA */}
+        <PersonalQuote 
+          settingKey="hero_personal_quote" 
+          defaultQuote="אני מחכה לך בצד השני של השינוי"
+          className="mt-6 mb-4"
+        />
+
+        <div className="mt-4 md:mt-6">
           <Button 
             onClick={scrollToBooking}
             size="lg"
