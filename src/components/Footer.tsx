@@ -68,14 +68,17 @@ const Footer = () => {
     <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto text-center">
         
-        {/* Final CTA Section */}
+        {/* Final CTA Section - More personal */}
         <div className="mb-12 glass-panel p-8 md:p-12 rounded-2xl">
           <p className="text-sm md:text-base text-secondary mb-2">🚀 הצעד הראשון הוא הקשה ביותר</p>
           <p className="text-2xl md:text-4xl font-black mb-4 cyber-glow">
-            אבל אתה כבר כאן. אתה מוכן.
+            אבל אתה כבר כאן. אני מחכה לך.
           </p>
-          <p className="text-muted-foreground mb-8">
-            הקוד שלך מחכה שתפעיל אותו. היום זה הזמן.
+          <p className="text-muted-foreground mb-6">
+            הקוד שלך מחכה שתפעיל אותו. בוא נעשה את זה יחד.
+          </p>
+          <p className="text-secondary italic mb-8 text-sm md:text-base">
+            "אני מאמין בך עוד לפני שפגשנו" — Dean
           </p>
           <Button 
             onClick={scrollToBooking}
@@ -83,7 +86,7 @@ const Footer = () => {
             className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
           >
             <Sparkles className="w-5 h-5" />
-            בוא נתחיל לשנות את המציאות שלך
+            בוא נתחיל את המסע שלך
           </Button>
         </div>
 

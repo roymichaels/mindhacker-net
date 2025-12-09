@@ -51,6 +51,17 @@ const settingsSchema = z.object({
   // Countdown timer
   countdown_end_date: z.string().optional(),
   countdown_enabled: z.boolean().optional(),
+  // Personal touch settings
+  hero_personal_quote: z.string().optional(),
+  pricing_personal_quote: z.string().optional(),
+  personal_story: z.string().optional(),
+  personal_invitation_message: z.string().optional(),
+  hero_video_url: z.string().optional(),
+  hero_video_enabled: z.boolean().optional(),
+  about_video_url: z.string().optional(),
+  about_video_enabled: z.boolean().optional(),
+  free_call_calendly_link: z.string().optional(),
+  free_call_enabled: z.boolean().optional(),
 });
 
 const Settings = () => {
@@ -92,6 +103,17 @@ const Settings = () => {
     // Countdown
     countdown_end_date: "",
     countdown_enabled: true,
+    // Personal touch
+    hero_personal_quote: "אני מחכה לך בצד השני של השינוי",
+    pricing_personal_quote: "אני כאן כדי ללוות אותך בכל צעד",
+    personal_story: "",
+    personal_invitation_message: "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.",
+    hero_video_url: "",
+    hero_video_enabled: false,
+    about_video_url: "",
+    about_video_enabled: false,
+    free_call_calendly_link: "",
+    free_call_enabled: true,
   });
 
   useEffect(() => {
@@ -147,6 +169,17 @@ const Settings = () => {
         // Countdown
         countdown_end_date: settingsObj.countdown_end_date || "",
         countdown_enabled: settingsObj.countdown_enabled ?? true,
+        // Personal touch
+        hero_personal_quote: settingsObj.hero_personal_quote || "אני מחכה לך בצד השני של השינוי",
+        pricing_personal_quote: settingsObj.pricing_personal_quote || "אני כאן כדי ללוות אותך בכל צעד",
+        personal_story: settingsObj.personal_story || "",
+        personal_invitation_message: settingsObj.personal_invitation_message || "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.",
+        hero_video_url: settingsObj.hero_video_url || "",
+        hero_video_enabled: settingsObj.hero_video_enabled ?? false,
+        about_video_url: settingsObj.about_video_url || "",
+        about_video_enabled: settingsObj.about_video_enabled ?? false,
+        free_call_calendly_link: settingsObj.free_call_calendly_link || "",
+        free_call_enabled: settingsObj.free_call_enabled ?? true,
       });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
@@ -755,6 +788,118 @@ const Settings = () => {
                   בחר תאריך ושעה שבהם המבצע יסתיים. הטיימר ייעלם אוטומטית לאחר התאריך שנקבע.
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Personal Touch Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>מגע אישי</CardTitle>
+            <CardDescription>
+              הגדרות לתוכן אישי ומסרים מותאמים
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Personal Quotes */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">ציטוטים אישיים</h3>
+              <div className="space-y-2">
+                <Label htmlFor="hero_personal_quote">ציטוט בהירו (לפני כפתור CTA)</Label>
+                <Input
+                  id="hero_personal_quote"
+                  placeholder="אני מחכה לך בצד השני של השינוי"
+                  value={settings.hero_personal_quote}
+                  onChange={(e) => setSettings(prev => ({ ...prev, hero_personal_quote: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pricing_personal_quote">ציטוט בעמוד המחירים</Label>
+                <Input
+                  id="pricing_personal_quote"
+                  placeholder="אני כאן כדי ללוות אותך בכל צעד"
+                  value={settings.pricing_personal_quote}
+                  onChange={(e) => setSettings(prev => ({ ...prev, pricing_personal_quote: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Personal Story */}
+            <div className="space-y-2">
+              <Label htmlFor="personal_story">הסיפור האישי שלך (בעמוד אודות)</Label>
+              <Textarea
+                id="personal_story"
+                placeholder="ספר על עצמך, למה התחלת את הדרך הזו..."
+                value={settings.personal_story}
+                onChange={(e) => setSettings(prev => ({ ...prev, personal_story: e.target.value }))}
+                rows={4}
+              />
+            </div>
+
+            {/* Personal Invitation */}
+            <div className="space-y-2">
+              <Label htmlFor="personal_invitation_message">הודעת הזמנה אישית (לפני הפוטר)</Label>
+              <Textarea
+                id="personal_invitation_message"
+                placeholder="אם הגעת עד לכאן..."
+                value={settings.personal_invitation_message}
+                onChange={(e) => setSettings(prev => ({ ...prev, personal_invitation_message: e.target.value }))}
+                rows={3}
+              />
+            </div>
+
+            {/* Hero Video */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-medium">וידאו אישי בהירו</Label>
+                <Switch
+                  checked={settings.hero_video_enabled}
+                  onCheckedChange={(checked) => handleSwitchToggle('hero_video_enabled', checked)}
+                />
+              </div>
+              <Input
+                placeholder="קישור YouTube"
+                value={settings.hero_video_url}
+                onChange={(e) => setSettings(prev => ({ ...prev, hero_video_url: e.target.value }))}
+                disabled={!settings.hero_video_enabled}
+                dir="ltr"
+              />
+            </div>
+
+            {/* About Video */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-medium">וידאו הכרות (בעמוד אודות)</Label>
+                <Switch
+                  checked={settings.about_video_enabled}
+                  onCheckedChange={(checked) => handleSwitchToggle('about_video_enabled', checked)}
+                />
+              </div>
+              <Input
+                placeholder="קישור YouTube"
+                value={settings.about_video_url}
+                onChange={(e) => setSettings(prev => ({ ...prev, about_video_url: e.target.value }))}
+                disabled={!settings.about_video_enabled}
+                dir="ltr"
+              />
+            </div>
+
+            {/* Free Discovery Call */}
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-medium">שיחת היכרות חינם</Label>
+                <Switch
+                  checked={settings.free_call_enabled}
+                  onCheckedChange={(checked) => handleSwitchToggle('free_call_enabled', checked)}
+                />
+              </div>
+              <Input
+                placeholder="קישור Calendly לשיחת היכרות"
+                value={settings.free_call_calendly_link}
+                onChange={(e) => setSettings(prev => ({ ...prev, free_call_calendly_link: e.target.value }))}
+                disabled={!settings.free_call_enabled}
+                dir="ltr"
+              />
             </div>
           </CardContent>
         </Card>

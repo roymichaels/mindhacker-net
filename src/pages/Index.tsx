@@ -3,10 +3,12 @@ import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
 import WhatSection from "@/components/WhatSection";
 import HowSection from "@/components/HowSection";
+import FreeDiscoveryCall from "@/components/FreeDiscoveryCall";
 import BookingSection from "@/components/BookingSection";
 import AboutSection from "@/components/AboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
+import PersonalInvitation from "@/components/PersonalInvitation";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -41,10 +43,12 @@ const Index = () => {
         <HeroSection />
         <WhatSection />
         <HowSection />
+        <FreeDiscoveryCall />
         <BookingSection />
         <AboutSection />
         <TestimonialsSection />
         <FAQSection />
+        <PersonalInvitation />
         <Footer />
       </main>
 
