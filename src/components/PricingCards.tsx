@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CheckoutDialog from "./CheckoutDialog";
 import GuaranteeBadge from "./GuaranteeBadge";
+import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PricingOption {
@@ -101,7 +102,8 @@ const PricingCards = () => {
 
   return (
     <>
-      <div className="grid md:grid-cols-2 gap-6 mt-12" dir="rtl">
+      <CountdownTimer />
+      <div className="grid md:grid-cols-2 gap-6 mt-8" dir="rtl">
         {pricingOptions.map((option) => (
           <div
             key={option.id}
