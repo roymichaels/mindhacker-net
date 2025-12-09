@@ -1,56 +1,93 @@
 import { useState, useEffect } from "react";
-import { Clock, Flame } from "lucide-react";
+import { Clock, Flame, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const CountdownTimer = () => {
   const [timeLeft, setTimeLeft] = useState({
+    days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
   });
+  const [loading, setLoading] = useState(true);
+  const [isExpired, setIsExpired] = useState(false);
+  const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
-    // Get or set the end time in localStorage for persistence
-    const storageKey = "pricing_countdown_end";
-    let endTime = localStorage.getItem(storageKey);
-    
-    if (!endTime || new Date(endTime) < new Date()) {
-      // Set countdown to end of current day at midnight
-      const now = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(23, 59, 59, 999);
-      endTime = midnight.toISOString();
-      localStorage.setItem(storageKey, endTime);
-    }
+    const fetchCountdownSettings = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["countdown_end_date", "countdown_enabled"]);
 
-    const calculateTimeLeft = () => {
-      const difference = new Date(endTime!).getTime() - new Date().getTime();
-      
-      if (difference > 0) {
+      if (data) {
+        const settings = data.reduce((acc: any, item) => {
+          acc[item.setting_key] = item.setting_value;
+          return acc;
+        }, {});
+
+        const isEnabled = settings.countdown_enabled !== "false";
+        setEnabled(isEnabled);
+
+        if (isEnabled && settings.countdown_end_date) {
+          const endDate = new Date(settings.countdown_end_date);
+          startCountdown(endDate);
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    const startCountdown = (endDate: Date) => {
+      const calculateTimeLeft = () => {
+        const now = new Date().getTime();
+        const difference = endDate.getTime() - now;
+
+        if (difference <= 0) {
+          setIsExpired(true);
+          return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+        }
+
         return {
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
         };
-      }
-      
-      // Reset for next day
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(23, 59, 59, 999);
-      localStorage.setItem(storageKey, tomorrow.toISOString());
-      
-      return { hours: 23, minutes: 59, seconds: 59 };
+      };
+
+      setTimeLeft(calculateTimeLeft());
+      setLoading(false);
+
+      const timer = setInterval(() => {
+        const newTimeLeft = calculateTimeLeft();
+        setTimeLeft(newTimeLeft);
+        
+        if (newTimeLeft.days === 0 && newTimeLeft.hours === 0 && 
+            newTimeLeft.minutes === 0 && newTimeLeft.seconds === 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+
+      return () => clearInterval(timer);
     };
 
-    setTimeLeft(calculateTimeLeft());
-
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    return () => clearInterval(timer);
+    fetchCountdownSettings();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="glass-panel p-4 md:p-6 mb-8 text-center animate-fade-in" dir="rtl">
+        <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
+      </div>
+    );
+  }
+
+  if (!enabled || isExpired) {
+    return null;
+  }
 
   const TimeBox = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
@@ -78,6 +115,12 @@ const CountdownTimer = () => {
       </p>
       
       <div className="flex items-center justify-center gap-2 md:gap-4">
+        {timeLeft.days > 0 && (
+          <>
+            <TimeBox value={timeLeft.days} label="ימים" />
+            <span className="text-2xl md:text-3xl font-bold text-primary cyber-glow">:</span>
+          </>
+        )}
         <TimeBox value={timeLeft.hours} label="שעות" />
         <span className="text-2xl md:text-3xl font-bold text-primary cyber-glow">:</span>
         <TimeBox value={timeLeft.minutes} label="דקות" />
@@ -87,7 +130,7 @@ const CountdownTimer = () => {
       
       <div className="mt-4 flex items-center justify-center gap-2 text-sm">
         <Clock className="w-4 h-4 text-accent" />
-        <span className="text-accent font-medium">אל תפספס! ההנחה נגמרת היום</span>
+        <span className="text-accent font-medium">אל תפספס! ההנחה נגמרת בקרוב</span>
       </div>
     </div>
   );
