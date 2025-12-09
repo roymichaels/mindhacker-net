@@ -48,6 +48,9 @@ const settingsSchema = z.object({
   whatsapp_number: z.string().optional(),
   whatsapp_enabled: z.boolean().optional(),
   whatsapp_message: z.string().optional(),
+  // Countdown timer
+  countdown_end_date: z.string().optional(),
+  countdown_enabled: z.boolean().optional(),
 });
 
 const Settings = () => {
@@ -86,6 +89,9 @@ const Settings = () => {
     whatsapp_number: "",
     whatsapp_enabled: false,
     whatsapp_message: "היי, אני מעוניין לשמוע עוד על השירותים שלכם",
+    // Countdown
+    countdown_end_date: "",
+    countdown_enabled: true,
   });
 
   useEffect(() => {
@@ -138,6 +144,9 @@ const Settings = () => {
         whatsapp_number: settingsObj.whatsapp_number || "",
         whatsapp_enabled: settingsObj.whatsapp_enabled ?? false,
         whatsapp_message: settingsObj.whatsapp_message || "היי, אני מעוניין לשמוע עוד על השירותים שלכם",
+        // Countdown
+        countdown_end_date: settingsObj.countdown_end_date || "",
+        countdown_enabled: settingsObj.countdown_enabled ?? true,
       });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");
@@ -703,6 +712,48 @@ const Settings = () => {
                   disabled={!settings.whatsapp_enabled}
                   rows={2}
                 />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Countdown Timer Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>טיימר ספירה לאחור</CardTitle>
+            <CardDescription>
+              הגדר את תאריך סיום המבצע שיוצג בדף המחירים
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border border-border/50 p-4 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="countdown_enabled" className="text-base font-medium">הפעל טיימר ספירה לאחור</Label>
+                <div className="flex items-center gap-2">
+                  {savingSwitch === 'countdown_enabled' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  <Switch
+                    checked={settings.countdown_enabled}
+                    onCheckedChange={(checked) => handleSwitchToggle('countdown_enabled', checked)}
+                    disabled={savingSwitch === 'countdown_enabled'}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="countdown_end_date">תאריך סיום המבצע</Label>
+                <Input
+                  id="countdown_end_date"
+                  type="datetime-local"
+                  value={settings.countdown_end_date}
+                  onChange={(e) => setSettings(prev => ({ ...prev, countdown_end_date: e.target.value }))}
+                  disabled={!settings.countdown_enabled}
+                  className="text-left disabled:opacity-50"
+                  dir="ltr"
+                />
+                <p className="text-xs text-muted-foreground">
+                  בחר תאריך ושעה שבהם המבצע יסתיים. הטיימר ייעלם אוטומטית לאחר התאריך שנקבע.
+                </p>
               </div>
             </div>
           </CardContent>
