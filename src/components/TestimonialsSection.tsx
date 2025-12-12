@@ -124,8 +124,11 @@ const TestimonialsSection = () => {
               {testimonials.map((testimonial, index) => (
                 <div 
                   key={testimonial.id} 
-                  className="flex-[0_0_100%] min-w-0 px-2 md:px-4 transition-opacity duration-500"
-                  style={{ opacity: selectedIndex === index ? 1 : 0.3 }}
+                  className={`flex-[0_0_100%] min-w-0 px-2 md:px-4 transition-all duration-700 ease-out ${
+                    selectedIndex === index 
+                      ? "opacity-100 scale-100" 
+                      : "opacity-0 scale-95"
+                  }`}
                 >
                   <TestimonialCard testimonial={testimonial} />
                 </div>
