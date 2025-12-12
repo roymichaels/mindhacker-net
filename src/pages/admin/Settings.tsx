@@ -313,8 +313,14 @@ const Settings = () => {
       for (const update of updates) {
         const { error } = await supabase
           .from("site_settings")
-          .update({ setting_value: update.setting_value, updated_at: update.updated_at, updated_by: update.updated_by })
-          .eq("setting_key", update.setting_key);
+          .upsert({
+            setting_key: update.setting_key,
+            setting_value: update.setting_value,
+            updated_at: update.updated_at,
+            updated_by: update.updated_by,
+          }, {
+            onConflict: "setting_key"
+          });
 
         if (error) throw error;
       }
