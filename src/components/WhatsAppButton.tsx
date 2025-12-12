@@ -31,14 +31,17 @@ const WhatsAppButton = () => {
 
   const message = encodeURIComponent("היי, אני מעוניין לשמוע עוד על אימון תודעתי 🙏");
   const cleanedNumber = whatsappNumber.replace(/\D/g, "");
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanedNumber}&text=${message}&type=phone_number&app_absent=0`;
+  const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${message}`;
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <a
       href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+      onClick={handleClick}
       className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 w-14 h-14 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 group animate-bounce-slow"
       style={{ animationDuration: "3s" }}
       aria-label="צור קשר בוואטסאפ"
