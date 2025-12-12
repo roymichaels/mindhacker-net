@@ -85,13 +85,6 @@ const SocialProofCounter = () => {
 
   return (
     <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8 md:mt-12">
-      <div className="glass-panel px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
-        <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-        <div className="flex flex-col">
-          <AnimatedCounter end={stats.happyClients} suffix="+" />
-          <span className="text-xs md:text-sm text-muted-foreground">לקוחות מרוצים</span>
-        </div>
-      </div>
       
       <div className="glass-panel px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
         <Star className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />
