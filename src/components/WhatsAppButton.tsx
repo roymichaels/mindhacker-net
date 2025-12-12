@@ -31,12 +31,8 @@ const WhatsAppButton = () => {
 
   const message = encodeURIComponent("היי, אני מעוניין לשמוע עוד על אימון תודעתי 🙏");
   const cleanedNumber = whatsappNumber.replace(/\D/g, "");
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent || ""
-  );
-  const whatsappUrl = isMobile
-    ? `whatsapp://send?phone=${cleanedNumber}&text=${message}`
-    : `https://web.whatsapp.com/send?phone=${cleanedNumber}&text=${message}`;
+  const whatsappUrl = `https://wa.me/+${cleanedNumber}?text=${message}`;
+
 
   return (
     <a
