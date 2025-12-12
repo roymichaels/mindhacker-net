@@ -80,10 +80,34 @@ export default {
             height: "0",
           },
         },
+        "gift-bounce": {
+          "0%, 100%": {
+            transform: "scale(1) rotate(0deg)",
+          },
+          "25%": {
+            transform: "scale(1.1) rotate(-3deg)",
+          },
+          "50%": {
+            transform: "scale(1) rotate(0deg)",
+          },
+          "75%": {
+            transform: "scale(1.1) rotate(3deg)",
+          },
+        },
+        "shimmer": {
+          "0%": {
+            backgroundPosition: "-200% 0",
+          },
+          "100%": {
+            backgroundPosition: "200% 0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "gift-bounce": "gift-bounce 2s ease-in-out infinite",
+        "shimmer": "shimmer 3s linear infinite",
       },
     },
   },

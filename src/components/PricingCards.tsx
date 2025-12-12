@@ -144,7 +144,7 @@ const PricingCards = () => {
                 ₪{option.price}
               </div>
               {option.recommended && (
-                <div className="inline-block bg-accent/20 text-accent text-sm font-bold px-3 py-1 rounded-full animate-pulse">
+                <div className="inline-block bg-gradient-to-r from-accent/30 via-accent/50 to-accent/30 bg-[length:200%_100%] text-accent text-sm font-bold px-4 py-1.5 rounded-full animate-gift-bounce shadow-lg shadow-accent/20 border border-accent/40">
                   🎁 המפגש הראשון עלינו!
                 </div>
               )}
