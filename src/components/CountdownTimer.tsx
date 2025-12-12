@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 const CountdownTimer = () => {
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(true);
-  const [promoText, setPromoText] = useState("הפגישה הראשונה עלינו! 🎁");
-  const [promoSubtext, setPromoSubtext] = useState("התנסו בתהליך ללא התחייבות - שלמו רק אם תרצו להמשיך");
+  const [promoText, setPromoText] = useState("קנה 3 מפגשים - קבל את הראשון במתנה! 🎁");
+  const [promoSubtext, setPromoSubtext] = useState("ברכישת תהליך מלא של 4 מפגשים - המפגש הראשון עלינו");
 
   useEffect(() => {
     const fetchPromoSettings = async () => {

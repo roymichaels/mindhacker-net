@@ -67,10 +67,10 @@ const PricingCards = () => {
             recommended: true,
             originalPrice: singlePrice * 4,
             features: [
-              settings.package_session_description || "4 מפגשים של 90 דקות כל אחד",
-              `₪${pricePerSession} למפגש (חיסכון של ₪${savings}!)`,
+              "🎁 המפגש הראשון - עלינו!",
+              "3 מפגשי המשך של 90 דק' כ\"א",
               "ליווי מתמשך לאורך כל התהליך",
-              "גמישות מלאה בתיאום",
+              "ליווי בוואטסאפ בין המפגשים",
               "הקלטת המפגשים",
               "תרגילים מותאמים אישית",
             ],
@@ -131,7 +131,7 @@ const PricingCards = () => {
             </div>
 
             <h3 className="text-2xl md:text-3xl font-bold text-center mb-2">
-              {option.sessions === 1 ? "מפגש בודד" : "חבילת 4 מפגשים"}
+              {option.sessions === 1 ? "מפגש בודד" : "3 מפגשים + 1 במתנה 🎁"}
             </h3>
 
             <div className="text-center mb-6">
@@ -143,9 +143,9 @@ const PricingCards = () => {
               <div className="text-5xl font-black cyber-glow mb-2">
                 ₪{option.price}
               </div>
-              {option.savings && (
-                <div className="inline-block bg-accent/20 text-accent text-sm font-bold px-3 py-1 rounded-full">
-                  חסוך ₪{option.savings}
+              {option.recommended && (
+                <div className="inline-block bg-accent/20 text-accent text-sm font-bold px-3 py-1 rounded-full animate-pulse">
+                  🎁 המפגש הראשון עלינו!
                 </div>
               )}
             </div>
@@ -174,7 +174,7 @@ const PricingCards = () => {
 
             {option.recommended && (
               <p className="text-center text-xs text-muted-foreground mt-3">
-                💳 התשלום יתבצע לאחר הפגישה הראשונה
+                💳 תשלום אחד פשוט - המפגש הראשון במתנה
               </p>
             )}
           </div>
