@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { Shield, Lock, Award, Heart } from "lucide-react";
+import { Shield, Lock, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const iconMap = [Shield, Lock, Award, Heart];
+const iconMap = [Shield, Lock, Heart];
 
 const TrustBadges = () => {
   const [badges, setBadges] = useState([
     "100% דיסקרטיות",
     "ללא התחייבות",
-    "10+ שנות ניסיון",
     "ליווי אישי",
   ]);
 
@@ -17,7 +16,7 @@ const TrustBadges = () => {
       const { data } = await supabase
         .from("site_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["trust_badge_1", "trust_badge_2", "trust_badge_3", "trust_badge_4"]);
+        .in("setting_key", ["trust_badge_1", "trust_badge_2", "trust_badge_4"]);
 
       if (data && data.length > 0) {
         const badgesObj = data.reduce((acc: any, item) => {
@@ -28,7 +27,6 @@ const TrustBadges = () => {
         setBadges([
           badgesObj.trust_badge_1 || "100% דיסקרטיות",
           badgesObj.trust_badge_2 || "ללא התחייבות",
-          badgesObj.trust_badge_3 || "10+ שנות ניסיון",
           badgesObj.trust_badge_4 || "ליווי אישי",
         ]);
       }
