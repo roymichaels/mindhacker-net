@@ -74,10 +74,6 @@ const TestimonialsSection = () => {
               ))}
             </div>
             <span className="text-lg font-bold text-foreground">4.9/5</span>
-            <span className="text-muted-foreground flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              מתוך 200+ לקוחות
-            </span>
           </div>
         </div>
 
