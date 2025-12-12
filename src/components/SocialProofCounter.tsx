@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Users, Star, CheckCircle } from "lucide-react";
+import { Star, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CounterProps {
@@ -54,7 +54,6 @@ const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) =>
 
 const SocialProofCounter = () => {
   const [stats, setStats] = useState({
-    happyClients: 200,
     successRate: 94,
     habitBreak: 87,
   });
@@ -64,7 +63,7 @@ const SocialProofCounter = () => {
       const { data } = await supabase
         .from("site_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["happy_clients_count", "success_rate_percent", "habit_break_percent"]);
+        .in("setting_key", ["success_rate_percent", "habit_break_percent"]);
 
       if (data) {
         const statsObj = data.reduce((acc: any, item) => {
@@ -73,7 +72,6 @@ const SocialProofCounter = () => {
         }, {});
 
         setStats({
-          happyClients: parseInt(statsObj.happy_clients_count) || 200,
           successRate: parseInt(statsObj.success_rate_percent) || 94,
           habitBreak: parseInt(statsObj.habit_break_percent) || 87,
         });

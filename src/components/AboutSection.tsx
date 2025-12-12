@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Play, Award, Heart, Brain, Sparkles } from "lucide-react";
+import { User, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -47,12 +47,6 @@ const AboutSection = () => {
     return url;
   };
 
-  const milestones = [
-    { icon: Brain, text: "10+ שנות ניסיון בתודעה" },
-    { icon: Heart, text: "200+ לקוחות מרוצים" },
-    { icon: Award, text: "מוסמך NLP & היפנוזה" },
-  ];
-
   return (
     <section className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
@@ -93,19 +87,6 @@ const AboutSection = () => {
             <p className="text-base md:text-lg text-foreground font-medium">
               אני מאמין שכל אחד יכול לשנות את הקוד הפנימי שלו — וזה בדיוק מה שאני עושה יחד איתך.
             </p>
-          </div>
-
-          {/* Milestones */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {milestones.map((milestone, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-center gap-3 bg-primary/5 rounded-lg px-4 py-3 border border-primary/20"
-              >
-                <milestone.icon className="w-5 h-5 text-primary" />
-                <span className="text-sm text-foreground">{milestone.text}</span>
-              </div>
-            ))}
           </div>
 
           {/* Meet Me Video Button */}
