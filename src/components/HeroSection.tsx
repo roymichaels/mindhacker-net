@@ -90,9 +90,6 @@ const HeroSection = () => {
 
         {/* Social Proof Counter */}
         <SocialProofCounter />
-
-        {/* Vertical energy lines */}
-        <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-px h-40 bg-gradient-to-b from-primary to-transparent" />
       </div>
     </section>
   );
