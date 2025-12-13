@@ -81,7 +81,6 @@ const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
       className={`${className} ${
         isDecrypting ? "decrypt-glow-scramble" : "decrypt-glow-locked"
       } transition-all duration-100`}
-      style={{ minWidth: "200px", display: "inline-block" }}
     >
       {displayText}
     </span>

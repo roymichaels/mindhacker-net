@@ -43,11 +43,11 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 text-center">
-          <span className="text-foreground static-word-glow">האקר</span>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+          <span className="text-foreground static-word-glow w-full md:w-auto text-center">האקר</span>
           <DecryptText 
             text={words[currentWord]} 
-            className="text-primary"
+            className="text-primary w-full md:w-auto text-center"
           />
         </h1>
 
