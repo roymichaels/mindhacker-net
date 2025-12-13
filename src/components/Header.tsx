@@ -17,7 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { LogOut, Menu, Settings, ShoppingBag, User } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-small.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -74,7 +74,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <img src={logo} alt="מיינד האקר" className="h-8 w-8" />
+          <img src={logo} alt="מיינד האקר" className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
           <span className="font-black text-lg cyber-glow">
             מיינד האקר
           </span>

@@ -182,7 +182,12 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
         
         {/* Avatar */}
         <Avatar className="w-20 h-20 md:w-24 md:h-24 border-2 border-primary/50">
-          <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
+          <AvatarImage 
+            src={testimonial.avatar_url || undefined} 
+            alt={testimonial.name}
+            loading="lazy"
+            decoding="async"
+          />
           <AvatarFallback className="bg-primary/20 text-primary text-xl md:text-2xl font-bold">
             {testimonial.initials || testimonial.name.charAt(0)}
           </AvatarFallback>
