@@ -1,4 +1,26 @@
+import { useRef, useState, useEffect } from "react";
+
 const HowSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   const steps = [
     {
       number: "01",
@@ -18,9 +40,9 @@ const HowSection = () => {
   ];
 
   return (
-    <section id="how" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section ref={sectionRef} id="how" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow">
+        <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
           איך זה עובד?
         </h2>
 
@@ -28,9 +50,12 @@ const HowSection = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className="glass-panel p-6 md:p-10 relative overflow-hidden group hover:scale-105 transition-all duration-300"
+              className={`glass-panel p-6 md:p-10 relative overflow-hidden group hover:scale-105 transition-all duration-300 hover-lift hover-glow ${
+                isVisible ? 'animate-fade-in-up' : 'opacity-0'
+              }`}
+              style={{ animationDelay: `${0.1 + index * 0.15}s` }}
             >
-              <div className="absolute top-3 right-3 md:top-4 md:right-4 text-5xl md:text-7xl font-black text-primary/10 group-hover:text-primary/20 transition-colors">
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 text-5xl md:text-7xl font-black text-primary/10 group-hover:text-primary/20 transition-all duration-300 group-hover:scale-110">
                 {step.number}
               </div>
               <div className="relative">
@@ -50,7 +75,7 @@ const HowSection = () => {
           ))}
         </div>
 
-        <div className="text-center mt-8 md:mt-12">
+        <div className={`text-center mt-8 md:mt-12 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`} style={{ animationDelay: '0.5s' }}>
           <p className="text-lg md:text-xl text-secondary font-medium">
             תוצאות מורגשות מהמפגש הראשון.
           </p>

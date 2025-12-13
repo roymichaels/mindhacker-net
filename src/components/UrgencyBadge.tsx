@@ -30,7 +30,7 @@ const UrgencyBadge = ({ spotsLeft: initialSpots, variant = "inline" }: UrgencyBa
 
   if (variant === "floating") {
     return (
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/40 text-destructive text-sm animate-pulse">
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/40 text-destructive text-sm animate-attention-pulse">
         <Flame className="w-4 h-4" />
         <span className="font-semibold">{spotsLeft} מקומות פנויים השבוע</span>
       </div>
@@ -38,9 +38,11 @@ const UrgencyBadge = ({ spotsLeft: initialSpots, variant = "inline" }: UrgencyBa
   }
 
   return (
-    <div className="inline-flex items-center gap-2 text-accent text-sm mt-4">
-      <Clock className="w-4 h-4" />
-      <span className="font-medium">🔥 {spotsLeft} מקומות פנויים השבוע בלבד</span>
+    <div className="inline-flex items-center gap-2 text-accent text-sm mt-4 animate-fade-in-up group">
+      <Clock className="w-4 h-4 transition-transform group-hover:rotate-12" />
+      <span className="font-medium relative">
+        🔥 <span className="animate-attention-pulse inline-block">{spotsLeft}</span> מקומות פנויים השבוע בלבד
+      </span>
     </div>
   );
 };

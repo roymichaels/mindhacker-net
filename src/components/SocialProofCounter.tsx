@@ -11,6 +11,7 @@ interface CounterProps {
 const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) => {
   const [count, setCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -40,13 +41,18 @@ const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) =>
       setCount(Math.floor(progress * end));
       if (progress < 1) {
         requestAnimationFrame(animate);
+      } else {
+        setIsComplete(true);
       }
     };
     requestAnimationFrame(animate);
   }, [hasStarted, end, duration]);
 
   return (
-    <span ref={ref} className="font-black text-2xl md:text-3xl text-primary md:cyber-glow">
+    <span 
+      ref={ref} 
+      className={`font-black text-2xl md:text-3xl text-primary md:cyber-glow transition-transform ${isComplete ? 'animate-pop' : ''}`}
+    >
       {count}{suffix}
     </span>
   );
@@ -57,6 +63,25 @@ const SocialProofCounter = () => {
     successRate: 94,
     habitBreak: 87,
   });
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -82,9 +107,16 @@ const SocialProofCounter = () => {
   }, []);
 
   return (
-    <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8 md:mt-12">
-      
-      <div className="bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-border/20 rounded-2xl px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
+    <div 
+      ref={containerRef}
+      className="flex flex-wrap justify-center gap-4 md:gap-8 mt-8 md:mt-12"
+    >
+      <div 
+        className={`bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-border/20 rounded-2xl px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3 hover-lift hover-glow transition-all duration-300 ${
+          isVisible ? 'animate-fade-in-up' : 'opacity-0'
+        }`}
+        style={{ animationDelay: '0.1s' }}
+      >
         <Star className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />
         <div className="flex flex-col">
           <AnimatedCounter end={stats.successRate} suffix="%" />
@@ -92,7 +124,12 @@ const SocialProofCounter = () => {
         </div>
       </div>
       
-      <div className="bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-border/20 rounded-2xl px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3">
+      <div 
+        className={`bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-border/20 rounded-2xl px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3 hover-lift hover-glow transition-all duration-300 ${
+          isVisible ? 'animate-fade-in-up' : 'opacity-0'
+        }`}
+        style={{ animationDelay: '0.2s' }}
+      >
         <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-primary" />
         <div className="flex flex-col">
           <AnimatedCounter end={stats.habitBreak} suffix="%" />
