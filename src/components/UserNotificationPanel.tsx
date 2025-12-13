@@ -17,11 +17,15 @@ interface UserNotificationPanelProps {
 const getTypeLabel = (type: string) => {
   const labels: Record<string, string> = {
     purchase_confirmed: 'רכישה אושרה',
+    purchase_success: 'רכישה הצליחה',
     course_completed: 'קורס הושלם',
     access_expiring: 'גישה מסתיימת',
     new_content: 'תוכן חדש',
     subscription_renewed: 'מנוי חודש',
     subscription_expiring: 'מנוי מסתיים',
+    subscription_activated: 'מנוי הופעל',
+    welcome: 'ברוך הבא',
+    reminder: 'תזכורת',
   };
   return labels[type] || type;
 };
@@ -29,6 +33,7 @@ const getTypeLabel = (type: string) => {
 const getTypeIcon = (type: string) => {
   switch (type) {
     case 'purchase_confirmed':
+    case 'purchase_success':
       return '🎉';
     case 'course_completed':
       return '🎓';
@@ -37,9 +42,14 @@ const getTypeIcon = (type: string) => {
     case 'new_content':
       return '✨';
     case 'subscription_renewed':
+    case 'subscription_activated':
       return '⭐';
     case 'subscription_expiring':
       return '⚠️';
+    case 'welcome':
+      return '👋';
+    case 'reminder':
+      return '📢';
     default:
       return '📌';
   }
