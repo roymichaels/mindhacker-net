@@ -12,6 +12,7 @@ import PersonalInvitation from "@/components/PersonalInvitation";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ChatWidget from "@/components/ChatWidget";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
@@ -55,6 +56,7 @@ const Index = () => {
       {/* Floating Elements */}
       <FloatingCTA />
       <WhatsAppButton />
+      <ChatWidget />
       <ExitIntentPopup />
     </div>
   );
