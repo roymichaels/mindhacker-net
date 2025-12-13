@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Brain, Menu, Home } from "lucide-react";
+import { Menu, Home } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +16,7 @@ const AdminHeader = () => {
       <div className="flex h-16 items-center justify-between px-4">
         {/* Logo/Title */}
         <div className="flex items-center gap-2">
-          <Brain className="h-6 w-6 text-primary cyber-glow" />
+          <img src={logo} alt="מיינד האקר" className="h-8 w-8" />
           <h1 className="text-xl font-black cyber-glow">פאנל ניהול</h1>
         </div>
 
