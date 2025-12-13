@@ -129,10 +129,10 @@ export const useUserNotifications = () => {
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
             
-            // Trigger push notification for admin alerts and important notifications
-            if (user && (newNotification.type === 'admin_alert' || 
-                newNotification.type === 'purchase_success' || 
-                newNotification.type === 'new_content')) {
+            // Trigger push notification for ALL notification types
+            // This sends push to the user's devices when they receive any notification
+            if (user) {
+              console.log('Sending push notification for:', newNotification.type, newNotification.title);
               sendPushNotification(
                 user.id,
                 newNotification.title,
