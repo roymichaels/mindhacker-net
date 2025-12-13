@@ -51,10 +51,15 @@
     <meta name="twitter:description" content="אימון תודעתי עמוק עם דין אזולאי - תכנות תודעה מתקדם, היפנוזה מודעת, ו-Reframe לשינוי תת-מודע." />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
-    <!-- Fonts -->
+    <!-- Preconnect for external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://tsvfsbluyuaajqmkpzdv.supabase.co" crossorigin />
+    
+    <!-- Fonts with display=swap for faster FCP -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
     
     <!-- Favicon - using new logo -->
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png?v=2" />
