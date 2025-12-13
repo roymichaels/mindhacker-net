@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MessageCircle, Sparkles, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { User } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,12 +8,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import LeadCaptureForm from "./LeadCaptureForm";
 
 const ExitIntentPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasShown, setHasShown] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
 
@@ -61,46 +57,8 @@ const ExitIntentPopup = () => {
     };
   }, [hasShown]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim()) {
-      toast.error("נא להזין כתובת אימייל");
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("כתובת אימייל לא תקינה");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Store the lead in the database
-      // Using type assertion since table was just created
-      const { error } = await supabase
-        .from("exit_intent_leads" as any)
-        .insert({ email: email.trim() });
-
-      if (error) {
-        // If table doesn't exist or other error, just show success anyway
-        // The lead capture is a nice-to-have, not critical
-        console.error("Error saving lead:", error);
-      }
-
-      toast.success("נרשמת בהצלחה! ניצור איתך קשר בקרוב");
-      setIsOpen(false);
-      setEmail("");
-    } catch (error) {
-      console.error("Error:", error);
-      toast.success("תודה! ניצור איתך קשר בקרוב");
-      setIsOpen(false);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSuccess = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -139,24 +97,11 @@ const ExitIntentPopup = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="הכנס את האימייל שלך"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="text-center bg-muted/50 border-primary/20 focus:border-primary"
-              dir="ltr"
-            />
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-bold py-6 rounded-full cyber-border transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-5 h-5" />
-              {isSubmitting ? "שולח..." : "קבל את ההתייעצות החינמית"}
-            </Button>
-          </form>
+          <LeadCaptureForm 
+            source="exit_popup" 
+            variant="compact"
+            onSuccess={handleSuccess}
+          />
 
           <button
             onClick={() => setIsOpen(false)}

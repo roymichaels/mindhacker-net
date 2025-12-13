@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import DecryptText from "./DecryptText";
 import SocialProofCounter from "./SocialProofCounter";
 import UrgencyBadge from "./UrgencyBadge";
@@ -12,7 +11,6 @@ import { Phone, CreditCard } from "lucide-react";
 const HeroSection = () => {
   const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const [currentWord, setCurrentWord] = useState(0);
-  const [showLeadDialog, setShowLeadDialog] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,10 +18,6 @@ const HeroSection = () => {
     }, 4500);
     return () => clearInterval(interval);
   }, []);
-
-  const scrollToFreeCall = () => {
-    document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const scrollToPricing = () => {
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
@@ -81,14 +75,13 @@ const HeroSection = () => {
         />
 
         <div className="mt-4 md:mt-6 flex flex-col items-center gap-3">
-          <Button 
-            onClick={scrollToFreeCall}
-            size="lg"
-            className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto animate-attention-pulse"
-          >
-            <Phone className="w-5 h-5 md:w-6 md:h-6" />
-            קבע שיחת היכרות חינם
-          </Button>
+          <LeadCaptureDialog 
+            source="hero"
+            triggerText="קבע שיחת היכרות חינם"
+            triggerIcon={<Phone className="w-5 h-5 md:w-6 md:h-6" />}
+            triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto animate-attention-pulse"
+            showPreferredTime
+          />
           
           {/* Secondary CTA - Pricing */}
           <button
@@ -104,12 +97,6 @@ const HeroSection = () => {
             <UrgencyBadge />
           </div>
         </div>
-
-        <LeadCaptureDialog 
-          open={showLeadDialog} 
-          onOpenChange={setShowLeadDialog}
-          source="hero"
-        />
 
         {/* Social Proof Counter */}
         <SocialProofCounter />
