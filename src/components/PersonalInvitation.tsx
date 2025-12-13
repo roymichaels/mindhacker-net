@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Sparkles, MessageCircle } from "lucide-react";
+import { User, Phone, MessageCircle } from "lucide-react";
+import LeadCaptureDialog from "./LeadCaptureDialog";
 
 const PersonalInvitation = () => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [message, setMessage] = useState("אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.");
+  const [showLeadDialog, setShowLeadDialog] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -28,8 +30,8 @@ const PersonalInvitation = () => {
     fetchSettings();
   }, []);
 
-  const scrollToBooking = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToFreeCall = () => {
+    document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -72,16 +74,16 @@ const PersonalInvitation = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                onClick={scrollToBooking}
+                onClick={() => setShowLeadDialog(true)}
                 size="lg"
                 className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
               >
-                <Sparkles className="w-5 h-5" />
-                בוא נדבר
+                <Phone className="w-5 h-5" />
+                השאר פרטים ונדבר
               </Button>
               
               <Button 
-                onClick={() => document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={scrollToFreeCall}
                 size="lg"
                 variant="outline"
                 className="border-primary/50 text-primary hover:bg-primary/10 font-bold text-lg px-8 py-6 rounded-full transition-all duration-300 flex items-center gap-2"
@@ -93,6 +95,12 @@ const PersonalInvitation = () => {
           </div>
         </div>
       </div>
+
+      <LeadCaptureDialog 
+        open={showLeadDialog} 
+        onOpenChange={setShowLeadDialog}
+        source="invitation"
+      />
     </section>
   );
 };

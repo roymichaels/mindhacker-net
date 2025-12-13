@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Phone } from "lucide-react";
 
 const FloatingCTA = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -15,8 +15,8 @@ const FloatingCTA = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToBooking = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToFreeCall = () => {
+    document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -27,12 +27,12 @@ const FloatingCTA = () => {
       style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
     >
       <Button
-        onClick={scrollToBooking}
+        onClick={scrollToFreeCall}
         size="lg"
         className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg py-6 rounded-full cyber-border pulse-glow flex items-center justify-center gap-2 animate-attention-pulse"
       >
-        <Sparkles className="w-5 h-5" />
-        קבע סשן עכשיו
+        <Phone className="w-5 h-5" />
+        שיחת היכרות חינם 📞
       </Button>
     </div>
   );

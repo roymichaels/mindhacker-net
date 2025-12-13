@@ -6,11 +6,13 @@ import UrgencyBadge from "./UrgencyBadge";
 import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
 import PersonalQuote from "./PersonalQuote";
-import { Sparkles } from "lucide-react";
+import LeadCaptureDialog from "./LeadCaptureDialog";
+import { Phone, CreditCard } from "lucide-react";
 
 const HeroSection = () => {
   const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const [currentWord, setCurrentWord] = useState(0);
+  const [showLeadDialog, setShowLeadDialog] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -19,7 +21,11 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const scrollToBooking = () => {
+  const scrollToFreeCall = () => {
+    document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToPricing = () => {
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -74,21 +80,36 @@ const HeroSection = () => {
           className="mt-6 mb-4"
         />
 
-        <div className="mt-4 md:mt-6">
+        <div className="mt-4 md:mt-6 flex flex-col items-center gap-3">
           <Button 
-            onClick={scrollToBooking}
+            onClick={scrollToFreeCall}
             size="lg"
             className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto animate-attention-pulse"
           >
-            <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
-            התחל את השינוי עכשיו
+            <Phone className="w-5 h-5 md:w-6 md:h-6" />
+            קבע שיחת היכרות חינם
           </Button>
           
+          {/* Secondary CTA - Pricing */}
+          <button
+            onClick={scrollToPricing}
+            className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1 transition-colors"
+          >
+            <CreditCard className="w-4 h-4" />
+            או ראה את החבילות שלי
+          </button>
+          
           {/* Urgency Badge */}
-          <div className="mt-4">
+          <div className="mt-2">
             <UrgencyBadge />
           </div>
         </div>
+
+        <LeadCaptureDialog 
+          open={showLeadDialog} 
+          onOpenChange={setShowLeadDialog}
+          source="hero"
+        />
 
         {/* Social Proof Counter */}
         <SocialProofCounter />
