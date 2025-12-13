@@ -111,7 +111,7 @@ const ExitIntentPopup = () => {
             {imageUrl ? (
               <img 
                 src={imageUrl} 
-                alt="Dean" 
+                alt="דין" 
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -119,7 +119,7 @@ const ExitIntentPopup = () => {
             )}
           </div>
           <DialogTitle className="text-2xl font-black text-center cyber-glow">
-            חכה! Dean רוצה לדבר איתך 💬
+            חכה! דין רוצה לדבר איתך 💬
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground pt-2">
             השאר פרטים ואחזור אליך אישית עם 15 דקות התייעצות חינם

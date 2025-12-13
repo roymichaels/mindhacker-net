@@ -115,14 +115,14 @@ export const addStructuredData = (data: StructuredData | StructuredData[]) => {
 export const getOrganizationSchema = (): StructuredData => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'מיינד-האקר - Dean Azulay',
+  name: 'מיינד-האקר - דין אזולאי',
   alternateName: 'Mind Hacker',
   url: window.location.origin,
   logo: 'https://lovable.dev/opengraph-image-p98pqg.png',
   description: 'אימון תודעתי עמוק, תכנות תודעה מתקדם, היפנוזה מודעת',
   founder: {
     '@type': 'Person',
-    name: 'Dean Azulay',
+    name: 'דין אזולאי',
     jobTitle: 'מאמן תודעה',
   },
   contactPoint: {

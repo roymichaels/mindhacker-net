@@ -19,7 +19,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assista
 
 const GREETING_MESSAGE: Message = {
   role: "assistant",
-  content: "היי! 👋 אני כאן לעזור. רוצה לשאול משהו על אימון תודעתי או להכיר את הגישה של Dean?"
+  content: "היי! 👋 אני כאן לעזור. רוצה לשאול משהו על אימון תודעתי או להכיר את הגישה של דין?"
 };
 
 const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
@@ -149,7 +149,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-medium text-foreground">העוזר של Dean</h3>
+            <h3 className="font-medium text-foreground">העוזר של דין</h3>
             <p className="text-xs text-muted-foreground">כאן לעזור 24/7</p>
           </div>
         </div>

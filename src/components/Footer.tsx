@@ -78,7 +78,7 @@ const Footer = () => {
             הקוד שלך מחכה שתפעיל אותו. בוא נעשה את זה יחד.
           </p>
           <p className="text-secondary italic mb-8 text-sm md:text-base">
-            "אני מאמין בך עוד לפני שפגשנו" — Dean
+            "אני מאמין בך עוד לפני שפגשנו" — דין
           </p>
           <Button 
             onClick={scrollToBooking}

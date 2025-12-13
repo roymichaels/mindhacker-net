@@ -20,9 +20,9 @@ import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 const Index = () => {
   // SEO Configuration
   useSEO({
-    title: "מיינד-האקר | אימון תודעתי עמוק עם Dean Azulay",
-    description: "אימון תודעתי עמוק עם Dean Azulay - תכנות תודעה מתקדם, היפנוזה מודעת, ו-Reframe לשינוי תת-מודע. קבע סשן אונליין היום והתחל את המסע לשינוי אמיתי.",
-    keywords: "אימון תודעתי, היפנוזה מודעת, שינוי תת-מודע, תכנות תודעה, Dean Azulay, קורסים דיגיטליים, פיתוח אישי",
+    title: "מיינד-האקר | אימון תודעתי עמוק עם דין אזולאי",
+    description: "אימון תודעתי עמוק עם דין אזולאי - תכנות תודעה מתקדם, היפנוזה מודעת, ו-Reframe לשינוי תת-מודע. קבע סשן אונליין היום והתחל את המסע לשינוי אמיתי.",
+    keywords: "אימון תודעתי, היפנוזה מודעת, שינוי תת-מודע, תכנות תודעה, דין אזולאי, קורסים דיגיטליים, פיתוח אישי",
     url: window.location.origin,
     type: "website",
     structuredData: [getOrganizationSchema(), getWebsiteSchema()],

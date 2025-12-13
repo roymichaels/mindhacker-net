@@ -46,7 +46,7 @@ const PersonalInvitation = () => {
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
-                    alt="Dean Osher Azulay" 
+                    alt="דין אושר אזולאי" 
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -57,7 +57,7 @@ const PersonalInvitation = () => {
 
             {/* Personal message */}
             <p className="text-xl md:text-2xl text-foreground mb-2 font-medium">
-              הודעה אישית מ-Dean
+              הודעה אישית מדין
             </p>
             
             <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed max-w-xl mx-auto">
@@ -66,7 +66,7 @@ const PersonalInvitation = () => {
 
             {/* Signature */}
             <p className="text-primary font-bold text-lg mb-8">
-              — Dean Osher Azulay
+              — דין אושר אזולאי
             </p>
 
             {/* CTA Buttons */}
