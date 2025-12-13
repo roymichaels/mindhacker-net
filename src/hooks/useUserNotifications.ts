@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleError } from "@/lib/errorHandling";
@@ -13,6 +13,24 @@ export interface UserNotification {
   created_at: string;
   read_at: string | null;
 }
+
+// Send push notification via edge function
+const sendPushNotification = async (userId: string, title: string, body: string, url?: string) => {
+  try {
+    await supabase.functions.invoke('push-notifications', {
+      body: {
+        action: 'send',
+        user_id: userId,
+        title,
+        body,
+        url: url || '/dashboard'
+      }
+    });
+    console.log('Push notification sent successfully');
+  } catch (error) {
+    console.error('Failed to send push notification:', error);
+  }
+};
 
 export const useUserNotifications = () => {
   const { user } = useAuth();
@@ -110,6 +128,18 @@ export const useUserNotifications = () => {
             const newNotification = payload.new as UserNotification;
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
+            
+            // Trigger push notification for admin alerts and important notifications
+            if (user && (newNotification.type === 'admin_alert' || 
+                newNotification.type === 'purchase_success' || 
+                newNotification.type === 'new_content')) {
+              sendPushNotification(
+                user.id,
+                newNotification.title,
+                newNotification.message,
+                newNotification.link || undefined
+              );
+            }
           }
         )
         .subscribe();
