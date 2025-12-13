@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-small.webp";
 
 interface ChatMessageProps {
   role: "user" | "assistant";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ChatPanel from "./chat/ChatPanel";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-small.webp";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
