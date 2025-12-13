@@ -43,7 +43,7 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 leading-tight mt-4 md:mt-8">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight mt-4 md:mt-8 whitespace-nowrap">
           <span className="text-foreground static-word-glow">האקר </span>
           <DecryptText 
             text={words[currentWord]} 
