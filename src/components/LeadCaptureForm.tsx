@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,9 @@ interface LeadCaptureFormProps {
   showPreferredTime?: boolean;
 }
 
+// Minimum time in ms a human would take to fill the form (3 seconds)
+const MIN_FORM_TIME_MS = 3000;
+
 const LeadCaptureForm = ({ 
   source, 
   variant = "full", 
@@ -28,9 +31,37 @@ const LeadCaptureForm = ({
   const [preferredTime, setPreferredTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  // Honeypot field - bots will fill this, humans won't see it
+  const [honeypot, setHoneypot] = useState("");
+  
+  // Track when form was rendered to detect too-fast submissions
+  const formLoadTime = useRef<number>(Date.now());
+  
+  useEffect(() => {
+    formLoadTime.current = Date.now();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Anti-spam check 1: Honeypot field should be empty
+    if (honeypot) {
+      // Silently reject - don't tell the bot it failed
+      console.log("Spam detected: honeypot filled");
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 3000);
+      return;
+    }
+    
+    // Anti-spam check 2: Form submitted too quickly
+    const timeTaken = Date.now() - formLoadTime.current;
+    if (timeTaken < MIN_FORM_TIME_MS) {
+      console.log("Spam detected: form submitted too quickly", timeTaken);
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 3000);
+      return;
+    }
     
     if (!name.trim() || !phone.trim()) {
       toast({
@@ -117,6 +148,29 @@ const LeadCaptureForm = ({
 
   return (
     <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
+      {/* Honeypot field - hidden from humans, bots will fill it */}
+      <div 
+        aria-hidden="true" 
+        style={{ 
+          position: 'absolute', 
+          left: '-9999px', 
+          top: '-9999px',
+          opacity: 0,
+          pointerEvents: 'none'
+        }}
+      >
+        <label htmlFor="website-url">Website</label>
+        <input
+          type="text"
+          id="website-url"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+      </div>
+      
       <div className={cn(isCompact ? "space-y-3" : "space-y-4")}>
         {/* Name */}
         <div className="space-y-1.5">
