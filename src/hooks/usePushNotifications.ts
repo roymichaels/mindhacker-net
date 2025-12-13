@@ -138,40 +138,79 @@ export const usePushNotifications = () => {
   }, [isSupported]);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
+    console.log('[Push] Starting subscribe process...');
+    console.log('[Push] isSupported:', isSupported, 'user:', !!user, 'vapidKey:', !!vapidKey);
+    
     if (!isSupported || !user || !vapidKey) {
-      console.warn('Cannot subscribe: missing requirements');
+      console.warn('[Push] Cannot subscribe: missing requirements');
       return false;
     }
 
     setIsLoading(true);
 
     try {
-      // Request permission if not granted
-      if (permission !== 'granted') {
-        const result = await requestPermission();
-        if (result !== 'granted') {
-          setIsLoading(false);
-          return false;
-        }
+      // iOS Safari requires ALWAYS calling requestPermission in gesture context
+      // Even if already granted - this refreshes the gesture association
+      console.log('[Push] Requesting permission (iOS fix: always request)...');
+      const permissionResult = await Notification.requestPermission();
+      console.log('[Push] Permission result:', permissionResult);
+      
+      if (permissionResult !== 'granted') {
+        console.warn('[Push] Permission not granted');
+        setIsLoading(false);
+        return false;
       }
+      setPermission(permissionResult);
 
       // Get service worker registration
+      console.log('[Push] Getting service worker registration...');
       const registration = await navigator.serviceWorker.ready;
+      console.log('[Push] Service worker ready, active state:', registration.active?.state);
+      
+      // Wait for service worker to be fully activated (iOS fix)
+      if (registration.active && registration.active.state !== 'activated') {
+        console.log('[Push] Waiting for service worker to activate...');
+        await new Promise<void>((resolve) => {
+          if (registration.active?.state === 'activated') {
+            resolve();
+          } else {
+            const handleStateChange = () => {
+              if (registration.active?.state === 'activated') {
+                registration.active?.removeEventListener('statechange', handleStateChange);
+                resolve();
+              }
+            };
+            registration.active?.addEventListener('statechange', handleStateChange);
+            // Timeout fallback
+            setTimeout(() => {
+              console.log('[Push] SW activation timeout, proceeding anyway');
+              resolve();
+            }, 2000);
+          }
+        });
+        console.log('[Push] Service worker now activated');
+      }
 
-      // Subscribe to push
+      // Subscribe to push - pass Uint8Array directly for iOS compatibility
       const keyArray = urlBase64ToUint8Array(vapidKey);
+      console.log('[Push] Attempting pushManager.subscribe with keyArray length:', keyArray.length);
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: keyArray.buffer as ArrayBuffer
+        applicationServerKey: keyArray as BufferSource
       });
+      
+      console.log('[Push] Subscription created successfully!');
+      console.log('[Push] Endpoint:', subscription.endpoint.substring(0, 50) + '...');
 
       const subscriptionJson = subscription.toJSON();
       
       if (!subscriptionJson.endpoint || !subscriptionJson.keys) {
-        throw new Error('Invalid subscription');
+        throw new Error('Invalid subscription - missing endpoint or keys');
       }
 
       // Save subscription to edge function
+      console.log('[Push] Saving subscription to server...');
       const { error } = await supabase.functions.invoke('push-notifications', {
         body: {
           action: 'subscribe',
@@ -185,18 +224,21 @@ export const usePushNotifications = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Push] Server save error:', error);
+        throw error;
+      }
 
       setIsSubscribed(true);
-      console.log('Push subscription successful');
+      console.log('[Push] ✅ Push subscription complete and saved!');
       return true;
     } catch (error) {
-      console.error('Push subscription failed:', error);
+      console.error('[Push] ❌ Push subscription failed:', error);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isSupported, user, vapidKey, permission, requestPermission]);
+  }, [isSupported, user, vapidKey]);
 
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported || !user) return false;
