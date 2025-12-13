@@ -15,6 +15,9 @@ const ChatWidget = () => {
       >
         <img src={logo} alt="צ'אט" className="w-8 h-8 md:w-9 md:h-9" />
         
+        {/* Pulse ring */}
+        <span className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ping opacity-30" />
+        
         {/* Glow effect on hover */}
         <span className="absolute inset-0 rounded-full bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
       </button>
