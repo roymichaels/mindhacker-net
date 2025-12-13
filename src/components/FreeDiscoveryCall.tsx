@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, Clock, CheckCircle, Heart } from "lucide-react";
+import { Phone, Clock, CheckCircle, Heart, Calendar, ArrowLeft } from "lucide-react";
+import LeadCaptureForm from "./LeadCaptureForm";
 
 const FreeDiscoveryCall = () => {
   const [calendlyLink, setCalendlyLink] = useState("");
   const [enabled, setEnabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<"callback" | "calendly">("callback");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -30,17 +32,9 @@ const FreeDiscoveryCall = () => {
 
   if (!enabled) return null;
 
-  const handleClick = () => {
-    if (calendlyLink) {
-      window.open(calendlyLink, "_blank");
-    } else {
-      document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <section id="free-call" className="relative py-12 md:py-20 px-4" style={{ zIndex: 2 }}>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-10 border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm font-medium mb-4">
@@ -72,20 +66,70 @@ const FreeDiscoveryCall = () => {
             </div>
           </div>
 
-          <div className="text-center">
-            <Button 
-              onClick={handleClick}
-              size="lg"
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-bold text-lg px-10 py-6 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
+          {/* Two options tabs */}
+          <div className="bg-background/30 rounded-2xl p-1 mb-6 flex gap-1">
+            <button
+              onClick={() => setActiveTab("callback")}
+              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                activeTab === "callback"
+                  ? "bg-primary text-primary-foreground shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <Phone className="w-5 h-5" />
-              קבע שיחת היכרות חינם
-            </Button>
-            
-            <p className="text-xs text-muted-foreground mt-4">
-              * אני עונה לכל בקשה תוך 24 שעות
-            </p>
+              <Phone className="w-4 h-4" />
+              אני אחזור אליך
+            </button>
+            {calendlyLink && (
+              <button
+                onClick={() => setActiveTab("calendly")}
+                className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  activeTab === "calendly"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+                אקבע בעצמי
+              </button>
+            )}
           </div>
+
+          {/* Content based on active tab */}
+          <div className="max-w-md mx-auto">
+            {activeTab === "callback" ? (
+              <div className="animate-fade-in">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    השאר פרטים ואחזור אליך תוך 24 שעות
+                  </p>
+                </div>
+                <LeadCaptureForm 
+                  source="discovery" 
+                  variant="full"
+                  showPreferredTime
+                />
+              </div>
+            ) : (
+              <div className="text-center animate-fade-in">
+                <p className="text-muted-foreground mb-4">
+                  בחר זמן שנוח לך מהיומן שלי
+                </p>
+                <Button 
+                  onClick={() => window.open(calendlyLink, "_blank")}
+                  size="lg"
+                  className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-bold text-lg px-10 py-6 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
+                >
+                  <Calendar className="w-5 h-5" />
+                  פתח את היומן
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <p className="text-xs text-muted-foreground mt-6 text-center">
+            * אני עונה לכל בקשה תוך 24 שעות
+          </p>
         </div>
       </div>
     </section>
