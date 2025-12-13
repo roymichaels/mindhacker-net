@@ -86,17 +86,24 @@ const LeadCaptureForm = ({
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from("leads")
-        .insert({
+      // Call Edge Function with rate limiting
+      const { data, error } = await supabase.functions.invoke('submit-lead', {
+        body: {
           name: name.trim(),
           phone: phone.trim(),
           email: email.trim() || null,
           preferred_time: preferredTime.trim() || null,
           source,
-        });
+          honeypot, // Send honeypot for server-side check
+          form_load_time: formLoadTime.current, // Send timing for server-side check
+        },
+      });
 
       if (error) throw error;
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       setIsSuccess(true);
       toast({
