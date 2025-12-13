@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, BarChart3, Bell, Mail } from "lucide-react";
+import { Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, BarChart3, Bell, Mail, Menu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
     { to: "/admin/leads", icon: Mail, label: "לידים" },
     { to: "/admin/faqs", icon: HelpCircle, label: "שאלות נפוצות" },
     { to: "/admin/testimonials", icon: Quote, label: "המלצות" },
+    { to: "/admin/menu", icon: Menu, label: "ניהול תפריט" },
     { to: "/admin/settings", icon: Settings, label: "הגדרות" },
   ];
 
