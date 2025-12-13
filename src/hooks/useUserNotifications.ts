@@ -32,6 +32,18 @@ const sendPushNotification = async (userId: string, title: string, body: string,
   }
 };
 
+// Update badge on app icon (iOS 18+)
+const updateAppBadge = (count: number) => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.active?.postMessage({
+        type: 'UPDATE_BADGE',
+        count
+      });
+    });
+  }
+};
+
 export const useUserNotifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
@@ -54,8 +66,10 @@ export const useUserNotifications = () => {
 
       if (error) throw error;
 
+      const newUnreadCount = (data || []).filter(n => !n.is_read).length;
       setNotifications(data || []);
-      setUnreadCount((data || []).filter(n => !n.is_read).length);
+      setUnreadCount(newUnreadCount);
+      updateAppBadge(newUnreadCount);
     } catch (error) {
       handleError(error, "שגיאה בטעינת התראות", "useUserNotifications");
     } finally {
@@ -81,7 +95,11 @@ export const useUserNotifications = () => {
             : n
         )
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount(prev => {
+        const newCount = Math.max(0, prev - 1);
+        updateAppBadge(newCount);
+        return newCount;
+      });
     } catch (error) {
       handleError(error, "שגיאה בסימון התראה כנקראה", "useUserNotifications");
     }
@@ -104,6 +122,7 @@ export const useUserNotifications = () => {
         prev.map(n => ({ ...n, is_read: true, read_at: new Date().toISOString() }))
       );
       setUnreadCount(0);
+      updateAppBadge(0);
     } catch (error) {
       handleError(error, "שגיאה בסימון כל ההתראות כנקראות", "useUserNotifications");
     }
@@ -127,7 +146,11 @@ export const useUserNotifications = () => {
           (payload) => {
             const newNotification = payload.new as UserNotification;
             setNotifications(prev => [newNotification, ...prev]);
-            setUnreadCount(prev => prev + 1);
+            setUnreadCount(prev => {
+              const newCount = prev + 1;
+              updateAppBadge(newCount);
+              return newCount;
+            });
             
             // Trigger push notification for ALL notification types
             // This sends push to the user's devices when they receive any notification
