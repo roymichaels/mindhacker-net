@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { Bot, User } from "lucide-react";
+import { User } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -21,7 +22,7 @@ const ChatMessage = ({ role, content, isStreaming }: ChatMessageProps) => {
           ? "bg-primary/20 text-primary" 
           : "bg-accent/20 text-accent"
       )}>
-        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+        {isUser ? <User className="w-4 h-4" /> : <img src={logo} alt="דין" className="w-5 h-5" />}
       </div>
       <div className={cn(
         "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
