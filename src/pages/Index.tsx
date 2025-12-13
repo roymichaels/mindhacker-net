@@ -1,21 +1,24 @@
+import { lazy, Suspense } from "react";
 import Header from "@/components/Header";
 import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
-import WhatSection from "@/components/WhatSection";
-import HowSection from "@/components/HowSection";
-import FreeDiscoveryCall from "@/components/FreeDiscoveryCall";
-import BookingSection from "@/components/BookingSection";
-import AboutSection from "@/components/AboutSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import FAQSection from "@/components/FAQSection";
-import PersonalInvitation from "@/components/PersonalInvitation";
-import Footer from "@/components/Footer";
-import FloatingCTA from "@/components/FloatingCTA";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import ChatWidget from "@/components/ChatWidget";
-import ExitIntentPopup from "@/components/ExitIntentPopup";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
+
+// Lazy load below-the-fold components to reduce main-thread work
+const WhatSection = lazy(() => import("@/components/WhatSection"));
+const HowSection = lazy(() => import("@/components/HowSection"));
+const FreeDiscoveryCall = lazy(() => import("@/components/FreeDiscoveryCall"));
+const BookingSection = lazy(() => import("@/components/BookingSection"));
+const AboutSection = lazy(() => import("@/components/AboutSection"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
+const PersonalInvitation = lazy(() => import("@/components/PersonalInvitation"));
+const Footer = lazy(() => import("@/components/Footer"));
+const FloatingCTA = lazy(() => import("@/components/FloatingCTA"));
+const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
+const ChatWidget = lazy(() => import("@/components/ChatWidget"));
+const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
 
 const Index = () => {
   // SEO Configuration
@@ -42,22 +45,26 @@ const Index = () => {
       {/* Main content */}
       <main className="relative">
         <HeroSection />
-        <WhatSection />
-        <HowSection />
-        <FreeDiscoveryCall />
-        <BookingSection />
-        <AboutSection />
-        <TestimonialsSection />
-        <FAQSection />
-        <PersonalInvitation />
-        <Footer />
+        <Suspense fallback={null}>
+          <WhatSection />
+          <HowSection />
+          <FreeDiscoveryCall />
+          <BookingSection />
+          <AboutSection />
+          <TestimonialsSection />
+          <FAQSection />
+          <PersonalInvitation />
+          <Footer />
+        </Suspense>
       </main>
 
       {/* Floating Elements */}
-      <FloatingCTA />
-      <WhatsAppButton />
-      <ChatWidget />
-      <ExitIntentPopup />
+      <Suspense fallback={null}>
+        <FloatingCTA />
+        <WhatsAppButton />
+        <ChatWidget />
+        <ExitIntentPopup />
+      </Suspense>
     </div>
   );
 };
