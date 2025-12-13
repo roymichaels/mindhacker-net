@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Phone, Clock, CheckCircle, Heart, Calendar, ArrowLeft } from "lucide-react";
-import LeadCaptureForm from "./LeadCaptureForm";
+import LeadCaptureDialog from "./LeadCaptureDialog";
 
 const FreeDiscoveryCall = () => {
   const [calendlyLink, setCalendlyLink] = useState("");
   const [enabled, setEnabled] = useState(true);
-  const [activeTab, setActiveTab] = useState<"callback" | "calendly">("callback");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -66,64 +65,28 @@ const FreeDiscoveryCall = () => {
             </div>
           </div>
 
-          {/* Two options tabs */}
-          <div className="bg-background/30 rounded-2xl p-1 mb-6 flex gap-1">
-            <button
-              onClick={() => setActiveTab("callback")}
-              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                activeTab === "callback"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Phone className="w-4 h-4" />
-              אני אחזור אליך
-            </button>
+          {/* Two CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <LeadCaptureDialog 
+              source="discovery"
+              triggerText="השאר פרטים ואחזור אליך"
+              triggerVariant="default"
+              triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+              triggerIcon={<Phone className="w-5 h-5" />}
+              showPreferredTime
+            />
+            
             {calendlyLink && (
-              <button
-                onClick={() => setActiveTab("calendly")}
-                className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                  activeTab === "calendly"
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+              <Button 
+                onClick={() => window.open(calendlyLink, "_blank")}
+                variant="outline"
+                size="lg"
+                className="border-secondary/50 text-secondary hover:bg-secondary/10 font-bold text-lg px-8 py-6 rounded-full transition-all duration-300 flex items-center gap-2"
               >
-                <Calendar className="w-4 h-4" />
-                אקבע בעצמי
-              </button>
-            )}
-          </div>
-
-          {/* Content based on active tab */}
-          <div className="max-w-md mx-auto">
-            {activeTab === "callback" ? (
-              <div className="animate-fade-in">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    השאר פרטים ואחזור אליך תוך 24 שעות
-                  </p>
-                </div>
-                <LeadCaptureForm 
-                  source="discovery" 
-                  variant="full"
-                  showPreferredTime
-                />
-              </div>
-            ) : (
-              <div className="text-center animate-fade-in">
-                <p className="text-muted-foreground mb-4">
-                  בחר זמן שנוח לך מהיומן שלי
-                </p>
-                <Button 
-                  onClick={() => window.open(calendlyLink, "_blank")}
-                  size="lg"
-                  className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-bold text-lg px-10 py-6 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
-                >
-                  <Calendar className="w-5 h-5" />
-                  פתח את היומן
-                  <ArrowLeft className="w-4 h-4" />
-                </Button>
-              </div>
+                <Calendar className="w-5 h-5" />
+                או קבע בעצמך
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
             )}
           </div>
 

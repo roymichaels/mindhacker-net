@@ -7,7 +7,6 @@ import LeadCaptureDialog from "./LeadCaptureDialog";
 const PersonalInvitation = () => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [message, setMessage] = useState("אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.");
-  const [showLeadDialog, setShowLeadDialog] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -73,14 +72,13 @@ const PersonalInvitation = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => setShowLeadDialog(true)}
-                size="lg"
-                className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                השאר פרטים ונדבר
-              </Button>
+              <LeadCaptureDialog 
+                source="invitation"
+                triggerText="השאר פרטים ונדבר"
+                triggerIcon={<Phone className="w-5 h-5" />}
+                triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                showPreferredTime
+              />
               
               <Button 
                 onClick={scrollToFreeCall}
@@ -95,12 +93,6 @@ const PersonalInvitation = () => {
           </div>
         </div>
       </div>
-
-      <LeadCaptureDialog 
-        open={showLeadDialog} 
-        onOpenChange={setShowLeadDialog}
-        source="invitation"
-      />
     </section>
   );
 };
