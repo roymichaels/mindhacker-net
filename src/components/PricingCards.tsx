@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Calendar, Package, Sparkles, Loader2, Check, X, Crown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Calendar, Package, Sparkles, Loader2, Check, X, Crown, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import CheckoutDialog from "./CheckoutDialog";
+import LeadCaptureDialog from "./LeadCaptureDialog";
 import GuaranteeBadge from "./GuaranteeBadge";
 import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +18,6 @@ interface PricingOption {
 }
 
 const PricingCards = () => {
-  const [selectedPackage, setSelectedPackage] = useState<PricingOption | null>(null);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
@@ -195,24 +193,22 @@ const PricingCards = () => {
               ))}
             </ul>
 
-            <Button
-              onClick={() => setSelectedPackage(option)}
-              className={`w-full transition-all duration-300 ${
+            <LeadCaptureDialog 
+              source={`pricing_${option.id}`}
+              triggerText="קבע שיחת ייעוץ בחינם"
+              triggerVariant="default"
+              triggerClassName={`w-full transition-all duration-300 ${
                 option.recommended
                   ? "bg-primary text-primary-foreground hover:bg-primary-glow pulse-glow hover:scale-105"
-                  : "hover:scale-105"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:scale-105"
               }`}
-              size="lg"
-            >
-              {option.recommended && <Sparkles className="w-4 h-4 ml-2" />}
-              {option.recommended ? "התחל עכשיו" : "בחר חבילה זו"}
-            </Button>
+              triggerIcon={option.recommended ? <Sparkles className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
+              showPreferredTime
+            />
 
-            {option.recommended && (
-              <p className="text-center text-xs text-muted-foreground mt-3">
-                💳 תשלום אחד פשוט - המפגש הראשון במתנה
-              </p>
-            )}
+            <p className="text-center text-xs text-muted-foreground mt-3">
+              לא ניתן לרכוש ישירות - נדבר קודם
+            </p>
           </div>
         ))}
       </div>
@@ -275,11 +271,6 @@ const PricingCards = () => {
       {/* Guarantee Badge */}
       <GuaranteeBadge />
 
-      <CheckoutDialog
-        isOpen={!!selectedPackage}
-        onClose={() => setSelectedPackage(null)}
-        packageData={selectedPackage}
-      />
     </div>
   );
 };
