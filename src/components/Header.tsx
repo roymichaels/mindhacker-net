@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
 import { UserNotificationBell } from "./UserNotificationBell";
+import { NotificationBell } from "./admin/NotificationBell";
 
 const Header = () => {
   const { user, loading } = useAuth();
@@ -119,37 +120,37 @@ const Header = () => {
           </button>
         </nav>
 
-        {/* Auth Section */}
         <div className="flex items-center gap-3">
           {loading ? (
             <div className="h-9 w-20 animate-pulse bg-muted rounded" />
           ) : user ? (
             <>
+              {isAdmin && <NotificationBell />}
               <UserNotificationBell />
               <DropdownMenu dir="rtl">
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">חשבון</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-              <ShoppingBag className="ml-2 h-4 w-4" />
-              דאשבורד
-            </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate("/admin")}>
-                    <Settings className="ml-2 h-4 w-4" />
-                    פאנל ניהול
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">חשבון</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <ShoppingBag className="ml-2 h-4 w-4" />
+                    דאשבורד
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                  <LogOut className="ml-2 h-4 w-4" />
-                  התנתק
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <Settings className="ml-2 h-4 w-4" />
+                      פאנל ניהול
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <LogOut className="ml-2 h-4 w-4" />
+                    התנתק
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
