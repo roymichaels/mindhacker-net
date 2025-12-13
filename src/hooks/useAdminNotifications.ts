@@ -184,8 +184,8 @@ export const useAdminNotifications = () => {
             playNotificationSound();
           }
 
-          // Request browser notification permission if not granted
-          if (Notification.permission === 'granted') {
+          // Request browser notification permission if API is available and granted
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
             new Notification(newNotification.title, {
               body: newNotification.message,
               icon: '/favicon.ico',
