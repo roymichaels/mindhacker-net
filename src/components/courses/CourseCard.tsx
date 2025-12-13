@@ -25,6 +25,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
             src={course.thumbnail_url}
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">

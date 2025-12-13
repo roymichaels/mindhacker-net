@@ -49,6 +49,7 @@ const PersonalInvitation = () => {
                     src={imageUrl} 
                     alt="דין אושר אזולאי" 
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <User className="w-10 h-10 md:w-12 md:h-12 text-primary-foreground" />

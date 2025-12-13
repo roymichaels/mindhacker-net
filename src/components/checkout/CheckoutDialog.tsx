@@ -146,6 +146,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
                         src={course.thumbnail_url}
                         alt={course.title}
                         className="w-20 h-20 rounded-lg object-cover"
+                        loading="lazy"
                       />
                     )}
                     <div className="flex-1">

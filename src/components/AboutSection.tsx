@@ -60,6 +60,7 @@ const AboutSection = () => {
                     src={imageUrl} 
                     alt="דין אושר אזולאי" 
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <User className="w-14 h-14 md:w-18 md:h-18 text-primary-foreground" />
