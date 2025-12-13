@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt", "sitemap.xml"],
+      includeAssets: ["icons/*", "robots.txt", "sitemap.xml"],
       manifest: {
         name: "מיינד האקר - אימון תודעתי עמוק",
         short_name: "מיינד האקר",
