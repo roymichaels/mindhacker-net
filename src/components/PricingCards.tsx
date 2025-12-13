@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar, Package, Sparkles, Loader2, Check, X, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,25 @@ const PricingCards = () => {
   const [selectedPackage, setSelectedPackage] = useState<PricingOption | null>(null);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchPricing = async () => {
@@ -101,21 +120,22 @@ const PricingCards = () => {
   ];
 
   return (
-    <>
+    <div ref={containerRef}>
       <CountdownTimer />
       <div className="grid md:grid-cols-2 gap-6 mt-8" dir="rtl">
-        {pricingOptions.map((option) => (
+        {pricingOptions.map((option, index) => (
           <div
             key={option.id}
-            className={`glass-panel p-4 md:p-8 relative group transition-all duration-300 ${
+            className={`glass-panel p-4 md:p-8 relative group transition-all duration-500 hover-lift ${
               option.recommended
-                ? "border-primary/60 cyber-border scale-[1.02] md:scale-105"
+                ? "border-primary/60 cyber-border scale-[1.02] md:scale-105 animate-glow-pulse"
                 : "hover:border-primary/30"
-            }`}
+            } ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            style={{ animationDelay: `${index * 0.15}s` }}
           >
             {option.recommended && (
               <div className="absolute -top-4 right-4 md:right-6 flex items-center gap-2">
-                <Badge className="bg-primary text-primary-foreground cyber-glow text-xs md:text-sm px-3 py-1 flex items-center gap-1">
+                <Badge className="bg-primary text-primary-foreground cyber-glow text-xs md:text-sm px-3 py-1 flex items-center gap-1 animate-attention-pulse">
                   <Crown className="w-3 h-3" />
                   הכי פופולרי
                 </Badge>
@@ -124,9 +144,9 @@ const PricingCards = () => {
 
             <div className="flex items-center justify-center mb-4 md:mb-6">
               {option.sessions === 1 ? (
-                <Calendar className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+                <Calendar className="w-10 h-10 md:w-12 md:h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
               ) : (
-                <Package className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+                <Package className="w-10 h-10 md:w-12 md:h-12 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" />
               )}
             </div>
 
@@ -151,8 +171,14 @@ const PricingCards = () => {
             </div>
 
             <ul className="space-y-3 mb-8">
-              {option.features.map((feature, index) => (
-                <li key={index} className="flex items-start text-muted-foreground">
+              {option.features.map((feature, featureIndex) => (
+                <li 
+                  key={featureIndex} 
+                  className={`flex items-start text-muted-foreground transition-all duration-300 ${
+                    isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                  }`}
+                  style={{ animationDelay: `${0.3 + featureIndex * 0.05}s` }}
+                >
                   <span className="text-primary ml-2">✓</span>
                   <span>{feature}</span>
                 </li>
@@ -161,10 +187,10 @@ const PricingCards = () => {
 
             <Button
               onClick={() => setSelectedPackage(option)}
-              className={`w-full ${
+              className={`w-full transition-all duration-300 ${
                 option.recommended
-                  ? "bg-primary text-primary-foreground hover:bg-primary-glow pulse-glow"
-                  : ""
+                  ? "bg-primary text-primary-foreground hover:bg-primary-glow pulse-glow hover:scale-105"
+                  : "hover:scale-105"
               }`}
               size="lg"
             >
@@ -182,7 +208,11 @@ const PricingCards = () => {
       </div>
 
       {/* Feature Comparison Table */}
-      <div className="mt-12 glass-panel p-6 rounded-xl overflow-hidden" dir="rtl">
+      <div 
+        className={`mt-12 glass-panel p-6 rounded-xl overflow-hidden ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+        style={{ animationDelay: '0.4s' }}
+        dir="rtl"
+      >
         <h4 className="text-lg md:text-xl font-bold text-center mb-6 cyber-glow">השוואת חבילות</h4>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -195,7 +225,13 @@ const PricingCards = () => {
             </thead>
             <tbody>
               {comparisonFeatures.map((feature, index) => (
-                <tr key={index} className="border-b border-primary/10">
+                <tr 
+                  key={index} 
+                  className={`border-b border-primary/10 transition-colors hover:bg-primary/5 ${
+                    isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                  }`}
+                  style={{ animationDelay: `${0.5 + index * 0.05}s` }}
+                >
                   <td className="py-3 px-4 text-foreground">{feature.name}</td>
                   <td className="py-3 px-4 text-center">
                     {typeof feature.single === "boolean" ? (
@@ -234,7 +270,7 @@ const PricingCards = () => {
         onClose={() => setSelectedPackage(null)}
         packageData={selectedPackage}
       />
-    </>
+    </div>
   );
 };
 

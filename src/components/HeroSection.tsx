@@ -43,7 +43,7 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-4xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-16 md:mb-10 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 pb-2">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-16 md:mb-10 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 pb-2 animate-fade-in-up">
           <span className="text-foreground static-word-glow w-full md:w-auto text-center">האקר</span>
           <DecryptText 
             text={words[currentWord]} 
@@ -51,16 +51,18 @@ const HeroSection = () => {
           />
         </h1>
 
-        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium">
+        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium opacity-0 animate-fade-in-up-delay-1">
           אני מלווה אותך בתהליך עמוק — לא טיפול, לא פסיכולוגיה.
         </p>
 
-        <p className="text-base sm:text-lg md:text-xl text-secondary mb-4 font-light">
+        <p className="text-base sm:text-lg md:text-xl text-secondary mb-4 font-light opacity-0 animate-fade-in-up-delay-2">
           תכניס סיסמה. נשום. ברוך הבא אל הקוד שלך.
         </p>
 
         {/* Personal Video Button */}
-        <HeroVideo />
+        <div className="opacity-0 animate-fade-in-up-delay-3">
+          <HeroVideo />
+        </div>
 
         {/* Trust Badges */}
         <TrustBadges />
@@ -76,7 +78,7 @@ const HeroSection = () => {
           <Button 
             onClick={scrollToBooking}
             size="lg"
-            className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
+            className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto animate-attention-pulse"
           >
             <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
             התחל את השינוי עכשיו

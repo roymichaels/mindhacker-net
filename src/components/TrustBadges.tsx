@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Shield, Lock, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,6 +10,25 @@ const TrustBadges = () => {
     "ללא התחייבות",
     "ליווי אישי",
   ]);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchBadges = async () => {
@@ -36,15 +55,18 @@ const TrustBadges = () => {
   }, []);
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6">
+    <div ref={containerRef} className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6">
       {badges.map((label, index) => {
         const Icon = iconMap[index];
         return (
           <div
             key={index}
-            className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm"
+            className={`flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm group transition-all duration-300 hover:text-foreground ${
+              isVisible ? 'animate-fade-in-up' : 'opacity-0'
+            }`}
+            style={{ animationDelay: `${0.1 + index * 0.1}s` }}
           >
-            <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+            <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary transition-transform duration-300 group-hover:scale-110" />
             <span>{label}</span>
           </div>
         );
