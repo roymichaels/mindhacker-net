@@ -141,7 +141,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 z-50 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] flex flex-col glass-panel rounded-2xl border border-border/50 shadow-2xl animate-scale-in overflow-hidden">
+    <div className="fixed bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 z-50 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] flex flex-col rounded-2xl border border-border/40 shadow-2xl animate-scale-in overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50 bg-background/80">
         <div className="flex items-center gap-3">
