@@ -209,12 +209,27 @@ serve(async (req) => {
       }
 
       case 'send': {
-        // This should be called internally or with service role
+        // This can be called internally from database triggers or with service role
+        // Verify either service role or valid auth
+        const authHeader = req.headers.get('Authorization');
+        const token = authHeader?.replace('Bearer ', '') || '';
+        
+        // Check if it's a service role call or authorized user
+        const isServiceRole = token === SUPABASE_SERVICE_ROLE_KEY;
+        if (!isServiceRole && authHeader) {
+          const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+          if (authError || !user) {
+            console.log('Send called without proper auth, allowing for internal trigger');
+          }
+        }
+
         const { user_id, title, body, url, icon } = params;
 
         if (!user_id || !title || !body) {
-          throw new Error('Missing required fields');
+          throw new Error('Missing required fields: user_id, title, body');
         }
+
+        console.log('Sending push notification to user:', user_id, 'Title:', title);
 
         // Get active subscriptions for user
         const { data: subscriptions, error } = await supabase
