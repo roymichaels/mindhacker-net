@@ -31,6 +31,10 @@ const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
+const Install = lazy(() => import("./pages/Install"));
+
+import { PWAInstallBanner } from "@/components/PWAInstallBanner";
+import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +59,7 @@ const App = () => (
             <Route path="/courses/:slug" element={<CourseDetail />} />
             <Route path="/courses/:slug/watch" element={<CourseWatch />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/install" element={<Install />} />
             
             {/* Protected user routes */}
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
@@ -85,6 +90,8 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <PWAInstallBanner />
+          <NotificationPermissionPrompt />
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
