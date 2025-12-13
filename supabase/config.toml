@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.get-user-data]
 verify_jwt = true
+
+[functions.push-notifications]
+verify_jwt = false
