@@ -41,6 +41,33 @@ const signUpSchema = z.object({
   path: ["confirmPassword"]
 });
 
+// Validate redirect path to prevent open redirect attacks
+const ALLOWED_REDIRECT_PREFIXES = [
+  '/dashboard',
+  '/courses',
+  '/admin',
+  '/success',
+  '/subscriptions',
+  '/install',
+  '/'
+];
+
+const validateRedirectPath = (redirect: string | null): string => {
+  if (!redirect) return '/dashboard';
+  
+  // Must start with single / and not // (prevents protocol-relative URLs)
+  if (!redirect.startsWith('/') || redirect.startsWith('//')) {
+    return '/dashboard';
+  }
+  
+  // Check against whitelist of allowed prefixes
+  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(prefix => 
+    redirect === prefix || redirect.startsWith(prefix + '/') || redirect.startsWith(prefix + '?')
+  );
+  
+  return isAllowed ? redirect : '/dashboard';
+};
+
 const SignUp = () => {
   // SEO Configuration
   useSEO({
@@ -108,16 +135,10 @@ const SignUp = () => {
         description: "ברוך הבא למיינד האקר",
       });
 
+      // Validate redirect to prevent open redirect attacks
       const redirect = searchParams.get("redirect");
-      if (redirect) {
-        // Preserve all query params except redirect
-        const params = new URLSearchParams(searchParams);
-        params.delete("redirect");
-        const queryString = params.toString();
-        navigate(redirect + (queryString ? `?${queryString}` : ""));
-      } else {
-        navigate("/dashboard");
-      }
+      const safeRedirect = validateRedirectPath(redirect);
+      navigate(safeRedirect);
     }
   };
 
