@@ -6,7 +6,7 @@ import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
 import PersonalQuote from "./PersonalQuote";
 import LeadCaptureDialog from "./LeadCaptureDialog";
-import { Phone, CreditCard } from "lucide-react";
+import { Phone } from "lucide-react";
 
 const HeroSection = () => {
   const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
@@ -18,10 +18,6 @@ const HeroSection = () => {
     }, 4500);
     return () => clearInterval(interval);
   }, []);
-
-  const scrollToPricing = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <section className="relative min-h-screen flex items-start justify-center px-4 md:vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }}>
@@ -77,20 +73,16 @@ const HeroSection = () => {
         <div className="mt-4 md:mt-6 flex flex-col items-center gap-3">
           <LeadCaptureDialog 
             source="hero"
-            triggerText="קבע שיחת היכרות חינם"
+            triggerText="קבע שיחת ייעוץ חינם"
             triggerIcon={<Phone className="w-5 h-5 md:w-6 md:h-6" />}
             triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg md:text-xl px-8 py-4 md:px-12 md:py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto animate-attention-pulse"
             showPreferredTime
           />
           
-          {/* Secondary CTA - Pricing */}
-          <button
-            onClick={scrollToPricing}
-            className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1 transition-colors"
-          >
-            <CreditCard className="w-4 h-4" />
-            או ראה את החבילות שלי
-          </button>
+          {/* Secondary note - selectivity messaging */}
+          <p className="text-muted-foreground text-sm max-w-sm text-center">
+            לא מקבל כל לקוח — קודם נבדוק יחד אם אני יכול לעזור לך
+          </p>
           
           {/* Urgency Badge */}
           <div className="mt-2">

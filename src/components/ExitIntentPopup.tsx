@@ -78,20 +78,20 @@ const ExitIntentPopup = () => {
             )}
           </div>
           <DialogTitle className="text-2xl font-black text-center cyber-glow">
-            חכה! דין רוצה לדבר איתך 💬
+            רגע! בוא נבדוק אם אני יכול לעזור 🎯
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground pt-2">
-            השאר פרטים ואחזור אליך אישית עם 15 דקות התייעצות חינם
+            אני לא עובד עם כל אחד — השאר פרטים ונדבר 30 דקות לבדוק אם זה מתאים
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              ✅ ללא התחייבות
+              ✅ שיחת ייעוץ ללא עלות
             </p>
             <p className="text-sm text-muted-foreground">
-              ✅ 100% דיסקרטיות
+              ✅ נבדוק אם מתאים לנו
             </p>
             <p className="text-sm text-muted-foreground">
               ✅ תקבל תשובה תוך 24 שעות

@@ -38,22 +38,22 @@ const FreeDiscoveryCall = () => {
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Heart className="w-4 h-4" />
-              ללא עלות, ללא התחייבות
+              שיחת ייעוץ ללא עלות
             </div>
             
             <h3 className="text-2xl md:text-3xl font-black mb-3 cyber-glow">
-              לא בטוח? בוא נכיר קודם 🤝
+              אני בררן לגבי הלקוחות שלי 🎯
             </h3>
             
             <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto">
-              15 דקות שיחת היכרות איתי באופן אישי — נדבר על מה שמטריד אותך ונבדוק אם אני יכול לעזור.
+              לא כל אחד מתאים לתהליך הזה — ולא אני לכל אחד. לפני שנתחיל, נדבר 30 דקות כדי לבדוק אם זה בכלל נכון לנו.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="flex items-center gap-3 justify-center md:justify-start">
               <Clock className="w-5 h-5 text-secondary" />
-              <span className="text-sm text-muted-foreground">15 דקות בלבד</span>
+              <span className="text-sm text-muted-foreground">30 דקות שיחה</span>
             </div>
             <div className="flex items-center gap-3 justify-center">
               <Phone className="w-5 h-5 text-secondary" />
