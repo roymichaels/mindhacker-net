@@ -15,6 +15,14 @@ export const UserNotificationBell = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useUserNotifications();
 
+  // Mark all as read when popover opens
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen && unreadCount > 0) {
+      markAllAsRead();
+    }
+  };
+
   // Animate bell when new notification arrives
   useEffect(() => {
     if (unreadCount > 0) {
@@ -25,7 +33,7 @@ export const UserNotificationBell = () => {
   }, [unreadCount]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
