@@ -174,7 +174,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px] max-h-[50vh]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px] max-h-[50vh] bg-background/80">
         {messages.map((message, index) => (
           <ChatMessage 
             key={index} 
