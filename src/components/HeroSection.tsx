@@ -24,7 +24,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-start justify-center px-4 vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }}>
+    <section className="relative min-h-screen flex items-start justify-center px-4 md:vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }}>
       
       {/* Radial glow overlay */}
       <div 

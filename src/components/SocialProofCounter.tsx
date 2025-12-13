@@ -46,7 +46,7 @@ const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) =>
   }, [hasStarted, end, duration]);
 
   return (
-    <span ref={ref} className="font-black text-2xl md:text-3xl text-primary cyber-glow">
+    <span ref={ref} className="font-black text-2xl md:text-3xl text-primary md:cyber-glow">
       {count}{suffix}
     </span>
   );
