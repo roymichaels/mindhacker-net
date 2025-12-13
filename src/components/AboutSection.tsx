@@ -58,7 +58,7 @@ const AboutSection = () => {
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
-                    alt="Dean Osher Azulay" 
+                    alt="דין אושר אזולאי" 
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -75,7 +75,7 @@ const AboutSection = () => {
           </h2>
           
           <p className="text-center text-secondary text-lg md:text-xl mb-8">
-            Dean Osher Azulay
+            דין אושר אזולאי
           </p>
 
           {/* Personal Story */}
@@ -109,7 +109,7 @@ const AboutSection = () => {
             <p className="text-secondary italic text-base md:text-lg">
               "לא טיפול, אלא חוויית תכנות תודעה."
             </p>
-            <p className="text-primary font-bold mt-2">— Dean</p>
+            <p className="text-primary font-bold mt-2">— דין</p>
           </div>
         </div>
       </div>

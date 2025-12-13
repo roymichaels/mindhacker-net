@@ -52,7 +52,7 @@ const HeroVideo = () => {
             <Play className="w-5 h-5 text-primary fill-primary" />
           </div>
           <span className="text-sm md:text-base text-foreground font-medium">
-            צפה בהודעה אישית מ-Dean
+            צפה בהודעה אישית מדין
           </span>
         </div>
         

@@ -133,7 +133,7 @@ const CourseDetail = () => {
       getCourseSchema({
         name: course.title,
         description: course.description || "",
-        provider: "מיינד-האקר - Dean Azulay",
+        provider: "מיינד-האקר - דין אזולאי",
         image: course.thumbnail_url || undefined,
         price: course.price || undefined,
         currency: "ILS",

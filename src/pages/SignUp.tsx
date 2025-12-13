@@ -105,7 +105,7 @@ const SignUp = () => {
     if (data.user) {
       toast({
         title: "חשבון נוצר בהצלחה!",
-        description: "ברוך הבא ל-Consciousness Hacker",
+        description: "ברוך הבא למיינד האקר",
       });
 
       const redirect = searchParams.get("redirect");

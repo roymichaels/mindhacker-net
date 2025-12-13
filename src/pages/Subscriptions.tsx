@@ -228,7 +228,7 @@ const Subscriptions = () => {
                 מוכן להתחיל את המסע?
               </h3>
               <p className="text-muted-foreground mb-6 text-lg">
-                הצטרף ל-Mind-Hacker והתחל לשנות את המציאות שלך כבר היום
+                הצטרף למיינד האקר והתחל לשנות את המציאות שלך כבר היום
               </p>
               <Button 
                 onClick={handleSubscribe}

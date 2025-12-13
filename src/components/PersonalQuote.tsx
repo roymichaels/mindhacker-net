@@ -32,7 +32,7 @@ const PersonalQuote = ({ settingKey, defaultQuote = "", className = "" }: Person
     <div className={`flex items-center justify-center gap-2 text-secondary italic ${className}`}>
       <Quote className="w-4 h-4 text-primary/60 rotate-180" />
       <span className="text-sm md:text-base">{quote}</span>
-      <span className="text-primary font-bold not-italic">— Dean</span>
+      <span className="text-primary font-bold not-italic">— דין</span>
       <Quote className="w-4 h-4 text-primary/60" />
     </div>
   );

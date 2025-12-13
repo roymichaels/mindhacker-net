@@ -11,7 +11,7 @@ const ChatWidget = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-40 md:bottom-28 right-4 md:right-8 z-50 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 group"
-        aria-label="פתח צ'אט עם העוזר של Dean"
+        aria-label="פתח צ'אט עם העוזר של דין"
       >
         <Bot className="w-7 h-7 md:w-8 md:h-8 text-white" />
         
