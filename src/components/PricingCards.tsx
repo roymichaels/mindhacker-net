@@ -32,7 +32,7 @@ const PricingCards = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '100px' }
     );
 
     if (containerRef.current) {
@@ -41,6 +41,16 @@ const PricingCards = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  // Fallback in case IntersectionObserver doesn't trigger on mobile
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isVisible) {
+        setIsVisible(true);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [isVisible]);
 
   useEffect(() => {
     const fetchPricing = async () => {
@@ -130,7 +140,7 @@ const PricingCards = () => {
               option.recommended
                 ? "border-primary/60 cyber-border scale-[1.02] md:scale-105 animate-glow-pulse"
                 : "hover:border-primary/30"
-            } ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            } ${isVisible ? 'animate-fade-in-up' : ''}`}
             style={{ animationDelay: `${index * 0.15}s` }}
           >
             {option.recommended && (
@@ -175,7 +185,7 @@ const PricingCards = () => {
                 <li 
                   key={featureIndex} 
                   className={`flex items-start text-muted-foreground transition-all duration-300 ${
-                    isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                    isVisible ? 'animate-fade-in-up' : ''
                   }`}
                   style={{ animationDelay: `${0.3 + featureIndex * 0.05}s` }}
                 >
@@ -209,7 +219,7 @@ const PricingCards = () => {
 
       {/* Feature Comparison Table */}
       <div 
-        className={`mt-12 glass-panel p-6 rounded-xl overflow-hidden ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+        className={`mt-12 glass-panel p-6 rounded-xl overflow-hidden ${isVisible ? 'animate-fade-in-up' : ''}`}
         style={{ animationDelay: '0.4s' }}
         dir="rtl"
       >
@@ -228,7 +238,7 @@ const PricingCards = () => {
                 <tr 
                   key={index} 
                   className={`border-b border-primary/10 transition-colors hover:bg-primary/5 ${
-                    isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                    isVisible ? 'animate-fade-in-up' : ''
                   }`}
                   style={{ animationDelay: `${0.5 + index * 0.05}s` }}
                 >

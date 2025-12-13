@@ -11,7 +11,7 @@ const HowSection = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2, rootMargin: '100px' }
     );
 
     if (sectionRef.current) {
@@ -20,6 +20,16 @@ const HowSection = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  // Fallback in case IntersectionObserver doesn't trigger on mobile
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isVisible) {
+        setIsVisible(true);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [isVisible]);
 
   const steps = [
     {
@@ -42,7 +52,7 @@ const HowSection = () => {
   return (
     <section ref={sectionRef} id="how" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-6xl mx-auto">
-        <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+        <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : ''}`}>
           איך זה עובד?
         </h2>
 
@@ -51,7 +61,7 @@ const HowSection = () => {
             <div
               key={index}
               className={`glass-panel p-6 md:p-10 relative overflow-hidden group hover:scale-105 transition-all duration-300 hover-lift hover-glow ${
-                isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                isVisible ? 'animate-fade-in-up' : ''
               }`}
               style={{ animationDelay: `${0.1 + index * 0.15}s` }}
             >
@@ -75,7 +85,7 @@ const HowSection = () => {
           ))}
         </div>
 
-        <div className={`text-center mt-8 md:mt-12 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`} style={{ animationDelay: '0.5s' }}>
+        <div className={`text-center mt-8 md:mt-12 ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.5s' }}>
           <p className="text-lg md:text-xl text-secondary font-medium">
             תוצאות מורגשות מהמפגש הראשון.
           </p>
