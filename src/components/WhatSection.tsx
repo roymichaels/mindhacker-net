@@ -12,7 +12,7 @@ const WhatSection = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2, rootMargin: '100px' }
     );
 
     if (sectionRef.current) {
@@ -21,6 +21,16 @@ const WhatSection = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  // Fallback in case IntersectionObserver doesn't trigger on mobile
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isVisible) {
+        setIsVisible(true);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [isVisible]);
 
   const features = [
     { icon: Code2, label: "קוד פנימי" },
@@ -31,16 +41,16 @@ const WhatSection = () => {
   return (
     <section ref={sectionRef} id="what" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
-        <div className={`glass-panel p-6 md:p-12 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+        <div className={`glass-panel p-6 md:p-12 ${isVisible ? 'animate-fade-in-up' : ''}`}>
           <h2 className="text-3xl md:text-5xl font-black mb-6 md:mb-8 text-center cyber-glow">
             מה זה אימון תודעתי?
           </h2>
 
           <div className="text-center mb-8 md:mb-12">
-            <p className={`text-lg md:text-2xl leading-relaxed text-foreground mb-4 md:mb-6 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`} style={{ animationDelay: '0.1s' }}>
+            <p className={`text-lg md:text-2xl leading-relaxed text-foreground mb-4 md:mb-6 ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
               התודעה שלך היא מערכת הפעלה.
             </p>
-            <p className={`text-base md:text-xl leading-relaxed text-muted-foreground ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`} style={{ animationDelay: '0.2s' }}>
+            <p className={`text-base md:text-xl leading-relaxed text-muted-foreground ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.2s' }}>
               אימון תודעתי הוא עדכון גרסה — שינוי קוד פנימי, שכתוב הרגלים, פתיחת גישה לחופש אמיתי.
             </p>
           </div>
@@ -52,7 +62,7 @@ const WhatSection = () => {
                 <div
                   key={index}
                   className={`glass-panel p-6 md:p-8 text-center group hover:scale-105 transition-all duration-300 cyber-border hover-lift hover-glow ${
-                    isVisible ? 'animate-fade-in-up' : 'opacity-0'
+                    isVisible ? 'animate-fade-in-up' : ''
                   }`}
                   style={{ animationDelay: `${0.3 + index * 0.1}s` }}
                 >
