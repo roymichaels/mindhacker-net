@@ -52,13 +52,74 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
+    
+    // ========== INPUT VALIDATION ==========
+    // 1. Validate messages is an array
+    if (!Array.isArray(messages) || messages.length === 0) {
+      console.warn("Invalid messages format received");
+      return new Response(
+        JSON.stringify({ error: "פורמט הודעות לא תקין" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. Limit number of messages to prevent DoS
+    const MAX_MESSAGES = 20;
+    if (messages.length > MAX_MESSAGES) {
+      console.warn(`Too many messages: ${messages.length}`);
+      return new Response(
+        JSON.stringify({ error: "יותר מדי הודעות בהיסטוריה" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 3. Validate and sanitize each message
+    const MAX_CONTENT_LENGTH = 2000;
+    const validatedMessages = [];
+    
+    for (const msg of messages) {
+      // Check message structure
+      if (!msg || typeof msg !== 'object' || !msg.role || !msg.content || typeof msg.content !== "string") {
+        console.warn("Invalid message format:", msg);
+        return new Response(
+          JSON.stringify({ error: "פורמט הודעה לא תקין" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Only allow user and assistant roles from client (filter out system injection attempts)
+      if (msg.role !== "user" && msg.role !== "assistant") {
+        console.warn("Invalid message role:", msg.role);
+        return new Response(
+          JSON.stringify({ error: "תפקיד הודעה לא תקין" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Limit content length per message
+      if (msg.content.length > MAX_CONTENT_LENGTH) {
+        console.warn(`Message content too long: ${msg.content.length} chars`);
+        return new Response(
+          JSON.stringify({ error: "הודעה ארוכה מדי" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Sanitize: trim content and add to validated array
+      validatedMessages.push({
+        role: msg.role,
+        content: msg.content.trim()
+      });
+    }
+    // ========== END VALIDATION ==========
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Starting chat with messages:", messages.length);
+    console.log("Starting chat with validated messages:", validatedMessages.length);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -70,7 +131,7 @@ serve(async (req) => {
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
+          ...validatedMessages,
         ],
         stream: true,
       }),
