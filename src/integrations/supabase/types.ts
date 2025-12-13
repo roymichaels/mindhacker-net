@@ -550,6 +550,39 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_items: {
+        Row: {
+          action_type: string
+          action_value: string
+          created_at: string | null
+          id: string
+          is_visible: boolean | null
+          label: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          action_value: string
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          action_value?: string
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,11 +25,34 @@ import { handleError } from "@/lib/errorHandling";
 import { UserNotificationBell } from "./UserNotificationBell";
 import { NotificationBell } from "./admin/NotificationBell";
 
+interface MenuItem {
+  id: string;
+  label: string;
+  action_type: string;
+  action_value: string;
+  order_index: number;
+  is_visible: boolean;
+}
+
 const Header = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ["menu-items-public"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("menu_items")
+        .select("*")
+        .eq("is_visible", true)
+        .order("order_index");
+      if (error) throw error;
+      return data as MenuItem[];
+    },
+  });
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -61,10 +85,20 @@ const Header = () => {
     navigate("/");
   };
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+  const handleMenuAction = (item: MenuItem) => {
+    if (item.action_type === "scroll") {
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          const element = document.getElementById(item.action_value);
+          if (element) element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      } else {
+        const element = document.getElementById(item.action_value);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate(item.action_value);
     }
     setMobileMenuOpen(false);
   };
@@ -82,42 +116,15 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <button
-            onClick={() => scrollToSection("what")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            מה זה
-          </button>
-          <button
-            onClick={() => scrollToSection("how")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            איך זה עובד
-          </button>
-          <button
-            onClick={() => scrollToSection("pricing")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            מחירים
-          </button>
-          <button
-            onClick={() => navigate("/courses")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            מוצרים דיגיטליים
-          </button>
-          <button
-            onClick={() => navigate("/subscriptions")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            מנויים
-          </button>
-          <button
-            onClick={() => scrollToSection("faq")}
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            שאלות נפוצות
-          </button>
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleMenuAction(item)}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -183,48 +190,15 @@ const Header = () => {
                 <SheetTitle>תפריט ניווט</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-8">
-                <button
-                  onClick={() => scrollToSection("what")}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  מה זה
-                </button>
-                <button
-                  onClick={() => scrollToSection("how")}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  איך זה עובד
-                </button>
-                <button
-                  onClick={() => scrollToSection("pricing")}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  מחירים
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/courses");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  מוצרים דיגיטליים
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/subscriptions");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  מנויים
-                </button>
-                <button
-                  onClick={() => scrollToSection("faq")}
-                  className="text-right text-sm font-medium hover:text-primary transition-colors"
-                >
-                  שאלות נפוצות
-                </button>
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuAction(item)}
+                    className="text-right text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                ))}
 
                 {user ? (
                   <>
