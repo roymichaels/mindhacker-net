@@ -125,8 +125,7 @@ const Header = () => {
             <div className="h-9 w-20 animate-pulse bg-muted rounded" />
           ) : user ? (
             <>
-              {isAdmin && <NotificationBell />}
-              <UserNotificationBell />
+              {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
               <DropdownMenu dir="rtl">
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="gap-2">
