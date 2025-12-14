@@ -97,8 +97,10 @@ const Header = () => {
         const element = document.getElementById(item.action_value);
         if (element) element.scrollIntoView({ behavior: "smooth" });
       }
-    } else {
-      navigate(item.action_value);
+    } else if (item.action_type === "navigate") {
+      // Ensure path starts with / for internal navigation
+      const path = item.action_value.startsWith("/") ? item.action_value : `/${item.action_value}`;
+      navigate(path);
     }
     setMobileMenuOpen(false);
   };
