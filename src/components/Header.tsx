@@ -18,7 +18,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { LogOut, Menu, Settings, ShoppingBag, User } from "lucide-react";
-import logo from "@/assets/logo-small.webp";
+// Use the icon from public folder which has transparent background
+const logo = "/icons/icon-96x96.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
