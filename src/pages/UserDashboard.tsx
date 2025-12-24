@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import BookingDialog from "@/components/BookingDialog";
 import MyCourses from "@/components/dashboard/MyCourses";
 import MySubscriptions from "@/components/dashboard/MySubscriptions";
+import { MyRecordings } from "@/components/dashboard/MyRecordings";
 import { handleError } from "@/lib/errorHandling";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
@@ -210,6 +211,7 @@ const UserDashboard = () => {
           {/* My Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
             <MyCourses />
+            <MyRecordings />
           </TabsContent>
 
           {/* My Subscriptions Tab */}

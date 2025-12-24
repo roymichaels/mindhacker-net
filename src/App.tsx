@@ -28,11 +28,13 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
 const Leads = lazy(() => import("./pages/admin/Leads"));
 const MenuManagement = lazy(() => import("./pages/admin/Menu"));
+const Recordings = lazy(() => import("./pages/admin/Recordings"));
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 const Install = lazy(() => import("./pages/Install"));
+const AudioPlayer = lazy(() => import("./pages/AudioPlayer"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -61,6 +63,7 @@ const App = () => (
             <Route path="/courses/:slug/watch" element={<CourseWatch />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/install" element={<Install />} />
+            <Route path="/audio/:token" element={<AudioPlayer />} />
             
             {/* Protected user routes */}
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
@@ -87,6 +90,7 @@ const App = () => (
               <Route path="leads" element={<Leads />} />
               <Route path="content" element={<Content />} />
               <Route path="menu" element={<MenuManagement />} />
+              <Route path="recordings" element={<Recordings />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
