@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, X, UserPlus } from "lucide-react";
+import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, UserPlus, Link, Check, Copy } from "lucide-react";
 import { AudioUploadDialog } from "./AudioUploadDialog";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -46,6 +46,8 @@ export const AudioLibrary = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [assigningAudioId, setAssigningAudioId] = useState<string | null>(null);
+  const [copiedAudioId, setCopiedAudioId] = useState<string | null>(null);
+  const [generatingLinkFor, setGeneratingLinkFor] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -108,6 +110,36 @@ export const AudioLibrary = () => {
       setIsPlaying(false);
     } catch (err) {
       toast({ title: "שגיאה בטעינת ההקלטה", variant: "destructive" });
+    }
+  };
+
+  // Generate a shareable link without assigning to a specific user
+  const generateQuickLink = async (audioId: string) => {
+    setGeneratingLinkFor(audioId);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("user_audio_access")
+        .insert({
+          audio_id: audioId,
+          user_id: null, // No specific user - anonymous link
+          granted_by: user.user?.id,
+          notes: "קישור מהיר",
+        })
+        .select("access_token")
+        .single();
+
+      if (error) throw error;
+
+      const link = `${window.location.origin}/audio/${data.access_token}`;
+      await navigator.clipboard.writeText(link);
+      setCopiedAudioId(audioId);
+      toast({ title: "הקישור הועתק ללוח! 🔗" });
+      setTimeout(() => setCopiedAudioId(null), 2000);
+    } catch (err) {
+      toast({ title: "שגיאה ביצירת קישור", variant: "destructive" });
+    } finally {
+      setGeneratingLinkFor(null);
     }
   };
 
@@ -242,7 +274,7 @@ export const AudioLibrary = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1 gap-2"
+                    className="gap-2"
                     onClick={() => handlePlayAudio(audio)}
                   >
                     <Play className="h-4 w-4" />
@@ -250,11 +282,26 @@ export const AudioLibrary = () => {
                   </Button>
                   <Button
                     size="sm"
-                    className="flex-1 gap-2"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => generateQuickLink(audio.id)}
+                    disabled={generatingLinkFor === audio.id}
+                  >
+                    {copiedAudioId === audio.id ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Link className="h-4 w-4" />
+                    )}
+                    {copiedAudioId === audio.id ? "הועתק!" : "העתק לינק"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-2"
                     onClick={() => setAssigningAudioId(audio.id)}
+                    title="הקצה למשתמש ספציפי"
                   >
                     <UserPlus className="h-4 w-4" />
-                    הקצה
                   </Button>
                 </div>
               </CardContent>
