@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Edit2, Music, Clock, Calendar } from "lucide-react";
+import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, X, UserPlus } from "lucide-react";
 import { AudioUploadDialog } from "./AudioUploadDialog";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { Slider } from "@/components/ui/slider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +19,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AssignAudioDialog } from "./AssignAudioDialog";
 
 interface HypnosisAudio {
   id: string;
@@ -32,6 +40,13 @@ export const AudioLibrary = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [editingAudio, setEditingAudio] = useState<HypnosisAudio | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [playingAudio, setPlayingAudio] = useState<HypnosisAudio | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [assigningAudioId, setAssigningAudioId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -73,6 +88,74 @@ export const AudioLibrary = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handlePlayAudio = async (audio: HypnosisAudio) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("hypnosis-audios")
+        .createSignedUrl(audio.file_path, 3600);
+      
+      if (error) throw error;
+      
+      setPlayingAudio(audio);
+      setAudioUrl(data.signedUrl);
+      setCurrentTime(0);
+      setIsPlaying(false);
+    } catch (err) {
+      toast({ title: "שגיאה בטעינת ההקלטה", variant: "destructive" });
+    }
+  };
+
+  const closePlayer = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setPlayingAudio(null);
+    setAudioUrl(null);
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleSeek = (value: number[]) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = value[0];
+    setCurrentTime(value[0]);
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [audioUrl]);
+
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -113,12 +196,13 @@ export const AudioLibrary = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-start justify-between gap-2">
                   <span className="line-clamp-2">{audio.title}</span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     <Button
                       size="icon"
                       variant="ghost"
                       className="h-8 w-8"
                       onClick={() => setEditingAudio(audio)}
+                      title="עריכה"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -127,13 +211,14 @@ export const AudioLibrary = () => {
                       variant="ghost"
                       className="h-8 w-8 text-destructive"
                       onClick={() => setDeletingId(audio.id)}
+                      title="מחיקה"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-3">
                 {audio.description && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {audio.description}
@@ -149,11 +234,79 @@ export const AudioLibrary = () => {
                     {format(new Date(audio.created_at), "d MMM yyyy", { locale: he })}
                   </span>
                 </div>
+                
+                {/* Action buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 gap-2"
+                    onClick={() => handlePlayAudio(audio)}
+                  >
+                    <Play className="h-4 w-4" />
+                    הפעל
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => setAssigningAudioId(audio.id)}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    הקצה
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Audio Player Dialog */}
+      <Dialog open={!!playingAudio} onOpenChange={(open) => !open && closePlayer()}>
+        <DialogContent dir="rtl" className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>{playingAudio?.title}</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {audioUrl && (
+            <audio ref={audioRef} src={audioUrl} preload="metadata" />
+          )}
+          
+          <div className="space-y-6 py-4">
+            {/* Progress bar */}
+            <div className="space-y-2">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleSeek}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            {/* Play button */}
+            <div className="flex justify-center">
+              <Button
+                size="icon"
+                onClick={togglePlay}
+                className="h-16 w-16 rounded-full"
+              >
+                {isPlaying ? (
+                  <Pause className="h-8 w-8" />
+                ) : (
+                  <Play className="h-8 w-8 mr-[-2px]" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AudioUploadDialog
         open={isUploadOpen || !!editingAudio}
@@ -164,6 +317,13 @@ export const AudioLibrary = () => {
           }
         }}
         editingAudio={editingAudio}
+      />
+
+      {/* Assign Audio Dialog */}
+      <AssignAudioDialog
+        open={!!assigningAudioId}
+        onOpenChange={(open) => !open && setAssigningAudioId(null)}
+        preselectedAudioId={assigningAudioId}
       />
 
       <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
