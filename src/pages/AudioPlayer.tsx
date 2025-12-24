@@ -20,8 +20,8 @@ import { useSEO } from "@/hooks/useSEO";
 interface AudioData {
   title: string;
   description: string | null;
-  file_path: string;
   duration_seconds: number | null;
+  audio_url: string;
 }
 
 const AudioPlayer = () => {
@@ -32,7 +32,6 @@ const AudioPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<AudioData | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -54,53 +53,25 @@ const AudioPlayer = () => {
       }
 
       try {
-        // First, verify the access token
-        const { data: access, error: accessError } = await supabase
-          .from("user_audio_access")
-          .select(`
-            is_active,
-            expires_at,
-            hypnosis_audios (
-              title,
-              description,
-              file_path,
-              duration_seconds
-            )
-          `)
-          .eq("access_token", token)
-          .maybeSingle();
+        // Call the edge function to get audio data securely
+        const { data, error: fnError } = await supabase.functions.invoke('get-audio-by-token', {
+          body: { token }
+        });
 
-        if (accessError) throw accessError;
-
-        if (!access) {
-          setError("הקישור לא נמצא או שפג תוקפו");
+        if (fnError) {
+          console.error("Edge function error:", fnError);
+          setError("שגיאה בטעינת ההקלטה");
           setLoading(false);
           return;
         }
 
-        if (!access.is_active) {
-          setError("הגישה להקלטה זו הושבתה");
+        if (data.error) {
+          setError(data.error);
           setLoading(false);
           return;
         }
 
-        if (access.expires_at && new Date(access.expires_at) < new Date()) {
-          setError("פג תוקף הגישה להקלטה זו");
-          setLoading(false);
-          return;
-        }
-
-        const audio = access.hypnosis_audios as unknown as AudioData;
-        setAudioData(audio);
-
-        // Generate signed URL for the audio file
-        const { data: signedUrlData, error: signedError } = await supabase.storage
-          .from("hypnosis-audios")
-          .createSignedUrl(audio.file_path, 3600); // 1 hour expiry
-
-        if (signedError) throw signedError;
-        
-        setAudioUrl(signedUrlData.signedUrl);
+        setAudioData(data);
       } catch (err) {
         console.error("Error fetching audio:", err);
         setError("שגיאה בטעינת ההקלטה");
@@ -129,7 +100,7 @@ const AudioPlayer = () => {
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [audioUrl]);
+  }, [audioData?.audio_url]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -206,7 +177,7 @@ const AudioPlayer = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4" dir="rtl">
-      <audio ref={audioRef} src={audioUrl || undefined} preload="metadata" />
+      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="metadata" />
       
       <Card className="max-w-lg w-full overflow-hidden">
         {/* Header with gradient */}
