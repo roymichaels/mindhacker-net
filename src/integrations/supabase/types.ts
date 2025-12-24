@@ -508,6 +508,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hypnosis_audios: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_seconds: number | null
+          file_path: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_path: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_path?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           contacted_at: string | null
@@ -843,6 +876,50 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      user_audio_access: {
+        Row: {
+          access_token: string
+          audio_id: string
+          expires_at: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string
+          audio_id: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          audio_id?: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_audio_access_audio_id_fkey"
+            columns: ["audio_id"]
+            isOneToOne: false
+            referencedRelation: "hypnosis_audios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_notifications: {
         Row: {
