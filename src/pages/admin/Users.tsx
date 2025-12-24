@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
-import { Search, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Loader2, Gift } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
+import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
 
 interface UserData {
   id: string;
@@ -34,6 +35,12 @@ const Users = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    email: string;
+    full_name: string | null;
+  } | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -99,7 +106,7 @@ const Users = () => {
       );
 
       setUsers(usersWithData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleError(error, "לא ניתן לטעון משתמשים", "Users");
     } finally {
       setLoading(false);
@@ -112,6 +119,15 @@ const Users = () => {
     const search = searchTerm.toLowerCase();
     return userName.includes(search) || email.includes(search);
   });
+
+  const handleGrantClick = (user: UserData) => {
+    setSelectedUser({
+      id: user.id,
+      email: user.email,
+      full_name: user.profiles?.full_name || null,
+    });
+    setGrantDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -152,12 +168,13 @@ const Users = () => {
               <TableHead className="text-right">רכישות</TableHead>
               <TableHead className="text-right">מפגשים פעילים</TableHead>
               <TableHead className="text-right">תפקיד</TableHead>
+              <TableHead className="text-right">פעולות</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   לא נמצאו משתמשים
                 </TableCell>
               </TableRow>
@@ -188,6 +205,17 @@ const Users = () => {
                         <Badge variant="secondary">User</Badge>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleGrantClick(user)}
+                        className="gap-1"
+                      >
+                        <Gift className="h-4 w-4" />
+                        הענק רכישה
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 );
               })
@@ -195,6 +223,13 @@ const Users = () => {
           </TableBody>
         </Table>
       </div>
+
+      <AdminGrantPurchaseDialog
+        open={grantDialogOpen}
+        onOpenChange={setGrantDialogOpen}
+        user={selectedUser}
+        onSuccess={fetchUsers}
+      />
     </div>
   );
 };
