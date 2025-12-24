@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,11 +23,13 @@ import {
 interface AssignAudioDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  preselectedAudioId?: string | null;
 }
 
 export const AssignAudioDialog = ({
   open,
   onOpenChange,
+  preselectedAudioId,
 }: AssignAudioDialogProps) => {
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedAudio, setSelectedAudio] = useState("");
@@ -36,6 +38,13 @@ export const AssignAudioDialog = ({
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Set preselected audio when dialog opens
+  useEffect(() => {
+    if (open && preselectedAudioId) {
+      setSelectedAudio(preselectedAudioId);
+    }
+  }, [open, preselectedAudioId]);
 
   const { data: users } = useQuery({
     queryKey: ["all-users"],
