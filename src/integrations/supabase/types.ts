@@ -887,7 +887,7 @@ export type Database = {
           id: string
           is_active: boolean
           notes: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           access_token?: string
@@ -898,7 +898,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           notes?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           access_token?: string
@@ -909,7 +909,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           notes?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
