@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Menu, Home } from "lucide-react";
-import logo from "@/assets/logo-small.webp";
+import logo from "@/assets/logo-small-nobg.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
