@@ -229,10 +229,12 @@ export const AudioLibrary = () => {
                     <Clock className="h-3 w-3" />
                     {formatDuration(audio.duration_seconds)}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {format(new Date(audio.created_at), "d MMM yyyy", { locale: he })}
-                  </span>
+                  {audio.created_at && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {format(new Date(audio.created_at), "d MMM yyyy", { locale: he })}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Action buttons */}
