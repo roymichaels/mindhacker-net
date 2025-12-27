@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, User, Headphones } from "lucide-react";
+import { Loader2, Check, User, Video } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -134,9 +134,9 @@ export const AssignAudioToOrderDialog = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent dir="rtl" className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>הקצאת הקלטה להזמנה</DialogTitle>
+          <DialogTitle>הקצאת סרטון להזמנה</DialogTitle>
           <DialogDescription>
-            בחר הקלטה להקצות למשתמש עבור הרכישה שביצע
+            בחר סרטון/הקלטה להקצות למשתמש עבור הרכישה שביצע
           </DialogDescription>
         </DialogHeader>
 
@@ -146,9 +146,9 @@ export const AssignAudioToOrderDialog = ({
               <Check className="h-8 w-8 text-green-500" />
             </div>
             <div>
-              <h3 className="font-medium text-lg mb-1">ההקלטה הוקצתה בהצלחה!</h3>
+              <h3 className="font-medium text-lg mb-1">הסרטון הוקצה בהצלחה!</h3>
               <p className="text-sm text-muted-foreground">
-                המשתמש קיבל התראה וכעת יכול לגשת להקלטה
+                המשתמש קיבל התראה וכעת יכול לגשת לתוכן
               </p>
             </div>
             <Button onClick={handleClose} className="w-full">
@@ -166,19 +166,19 @@ export const AssignAudioToOrderDialog = ({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Headphones className="h-4 w-4 text-muted-foreground" />
+                <Video className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
                   {order.content_products?.title}
                 </span>
               </div>
             </div>
 
-            {/* Audio Selection */}
+            {/* Audio/Video Selection */}
             <div className="space-y-2">
-              <Label>בחר הקלטה להקצאה</Label>
+              <Label>בחר סרטון/הקלטה להקצאה</Label>
               <Select value={selectedAudio} onValueChange={setSelectedAudio}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר הקלטה מהספרייה..." />
+                  <SelectValue placeholder="בחר מהספרייה..." />
                 </SelectTrigger>
                 <SelectContent>
                   {audios?.map((audio) => (

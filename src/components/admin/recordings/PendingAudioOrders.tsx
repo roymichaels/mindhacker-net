@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, User, Calendar, Headphones, AlertCircle } from "lucide-react";
+import { Loader2, Clock, User, Calendar, Video, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { AssignAudioToOrderDialog } from "./AssignAudioToOrderDialog";
@@ -101,7 +101,7 @@ export const PendingAudioOrders = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-accent" />
-          <span className="font-medium">{pendingOrders.length} הזמנות ממתינות להקלטה</span>
+          <span className="font-medium">{pendingOrders.length} הזמנות ממתינות לסרטון</span>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export const PendingAudioOrders = () => {
                       w-12 h-12 rounded-full flex items-center justify-center shrink-0
                       ${isOverdue ? "bg-destructive/20" : "bg-accent/20"}
                     `}>
-                      <Headphones className={`h-6 w-6 ${isOverdue ? "text-destructive" : "text-accent"}`} />
+                      <Video className={`h-6 w-6 ${isOverdue ? "text-destructive" : "text-accent"}`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -151,7 +151,7 @@ export const PendingAudioOrders = () => {
                   </div>
 
                   <Button onClick={() => setSelectedOrder(order)}>
-                    הקצה הקלטה
+                    הקצה סרטון
                   </Button>
                 </div>
               </CardContent>

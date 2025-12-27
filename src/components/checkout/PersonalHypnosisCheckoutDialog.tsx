@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Clock, Headphones, CheckCircle2, Shield } from "lucide-react";
+import { Loader2, Clock, Video, CheckCircle2, Shield } from "lucide-react";
 
 interface PersonalHypnosisCheckoutDialogProps {
   open: boolean;
@@ -92,24 +92,26 @@ export const PersonalHypnosisCheckoutDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent dir="rtl" className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl">היפנוזה אישית - שחרור וחופש פנימי</DialogTitle>
+          <DialogTitle className="text-xl">אימון תודעתי אישי - סרטון היפנוזה</DialogTitle>
           <DialogDescription>
-            הקלטה מותאמת אישית שנוצרת עבורך בלבד
+            סרטון אימון תודעתי מותאם אישית שנוצר עבורך בלבד
+          <DialogDescription>
+            </DialogDescription>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Product Info */}
-          <div className="flex items-center justify-between p-4 bg-primary/10 rounded-xl border border-primary/30">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                <Headphones className="h-6 w-6 text-primary" />
+            <div className="flex items-center justify-between p-4 bg-primary/10 rounded-xl border border-primary/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Video className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium">אימון תודעתי אישי</h3>
+                  <p className="text-sm text-muted-foreground">סרטון מותאם</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-medium">היפנוזה אישית</h3>
-                <p className="text-sm text-muted-foreground">הקלטה מותאמת</p>
-              </div>
-            </div>
             <span className="text-2xl font-bold text-primary">₪{PRODUCT_PRICE}</span>
           </div>
 
@@ -120,8 +122,8 @@ export const PersonalHypnosisCheckoutDialog = ({
               <div>
                 <h4 className="font-medium text-accent mb-1">מה קורה אחרי הרכישה?</h4>
                 <p className="text-sm text-muted-foreground">
-                  אני יוצר לך הקלטה אישית ומותאמת במיוחד עבורך.
-                  ההקלטה תהיה מוכנה תוך 2 ימי עסקים ותקבל התראה כשהיא מוכנה.
+                  אני יוצר לך סרטון אימון תודעתי מותאם אישית במיוחד עבורך.
+                  הסרטון יהיה מוכן תוך 2 ימי עסקים ותקבל התראה כשהוא מוכן.
                 </p>
               </div>
             </div>
@@ -132,7 +134,7 @@ export const PersonalHypnosisCheckoutDialog = ({
             <h4 className="font-medium text-sm text-muted-foreground">כלול ברכישה:</h4>
             <ul className="space-y-2">
               {[
-                "הקלטה בהתאמה אישית",
+                "סרטון אימון תודעתי בהתאמה אישית",
                 "גישה לצמיתות מכל מכשיר",
                 "תמיכה אישית",
               ].map((item, i) => (

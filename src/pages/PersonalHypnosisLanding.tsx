@@ -12,12 +12,13 @@ import {
   Brain, 
   Sparkles, 
   Clock, 
-  Headphones, 
+  Video, 
   CheckCircle2, 
   MessageCircle, 
-  Mic, 
+  Clapperboard, 
   Send,
-  Star
+  Star,
+  Play
 } from "lucide-react";
 
 const PersonalHypnosisLanding = () => {
@@ -26,9 +27,9 @@ const PersonalHypnosisLanding = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: "היפנוזה אישית - שחרור וחופש פנימי | מיינד-האקר",
-    description: "הקלטת היפנוזה בהתאמה אישית לשחרור מגבלות ויצירת חופש פנימי אמיתי. 10 דקות ביום לשינוי עמוק ומתמשך.",
-    keywords: "היפנוזה אישית, היפנוזה מותאמת, שחרור מגבלות, חופש פנימי, דין אזולאי",
+    title: "אימון תודעתי אישי - סרטון היפנוזה בהתאמה אישית | מיינד-האקר",
+    description: "סרטון היפנוזה ואימון תודעתי בהתאמה אישית לשחרור מגבלות ויצירת חופש פנימי אמיתי. 10 דקות ביום לשינוי עמוק ומתמשך.",
+    keywords: "היפנוזה אישית, אימון תודעתי, סרטון היפנוזה, שחרור מגבלות, חופש פנימי, דין אזולאי",
     url: `${window.location.origin}/personal-hypnosis`,
   });
 
@@ -48,15 +49,15 @@ const PersonalHypnosisLanding = () => {
 
   const processSteps = [
     { icon: MessageCircle, title: "1. רוכשים עכשיו", desc: "תהליך רכישה פשוט ומאובטח" },
-    { icon: Mic, title: "2. אני יוצר לך הקלטה אישית", desc: "תוך 2 ימי עסקים, מותאמת בדיוק אליך" },
+    { icon: Clapperboard, title: "2. אני יוצר לך סרטון אישי", desc: "תוך 2 ימי עסקים, מותאם בדיוק אליך" },
     { icon: Send, title: "3. מקבלים גישה", desc: "התראה + גישה מיידית לאזור האישי" },
-    { icon: Headphones, title: "4. מאזינים כל יום", desc: "10 דקות ביום = שינוי מצטבר עמוק" },
+    { icon: Play, title: "4. צופים כל יום", desc: "10 דקות ביום = שינוי מצטבר עמוק" },
   ];
 
   const benefits = [
-    "הקלטה מותאמת אישית לצרכים שלך",
+    "סרטון אימון תודעתי בהתאמה אישית",
     "10 דקות ביום בלבד",
-    "אפקט מצטבר עם כל האזנה",
+    "אפקט מצטבר עם כל צפייה",
     "גישה לצמיתות מכל מכשיר",
     "תמיכה אישית לאורך הדרך",
   ];
@@ -78,13 +79,13 @@ const PersonalHypnosisLanding = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 cyber-glow animate-fade-in-up-delay-1">
-              היפנוזה אישית
+              אימון תודעתי אישי
               <br />
-              <span className="text-primary">לשחרור וחופש פנימי</span>
+              <span className="text-primary">סרטון היפנוזה בהתאמה אישית</span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up-delay-2">
-              הקלטה מותאמת אישית שנוצרת עבורך בלבד, 
+              סרטון אימון תודעתי מותאם אישית שנוצר עבורך בלבד, 
               לפתיחת חסימות ויצירת שינוי עמוק ומתמשך בתודעה
             </p>
             
@@ -144,7 +145,7 @@ const PersonalHypnosisLanding = () => {
             <div className="mt-8 p-4 bg-accent/10 border border-accent/30 rounded-xl text-center">
               <Clock className="h-6 w-6 mx-auto mb-2 text-accent" />
               <p className="text-accent font-medium">
-                ההקלטה תהיה מוכנה תוך 2 ימי עסקים מרגע הרכישה
+                הסרטון יהיה מוכן תוך 2 ימי עסקים מרגע הרכישה
               </p>
             </div>
           </div>
@@ -179,7 +180,7 @@ const PersonalHypnosisLanding = () => {
               ))}
             </div>
             <blockquote className="text-xl md:text-2xl italic text-muted-foreground mb-6">
-              "ההקלטה הזו שינתה לי את החיים. תוך שבועיים הרגשתי שינוי משמעותי בביטחון העצמי שלי."
+              "הסרטון הזה שינה לי את החיים. תוך שבועיים הרגשתי שינוי משמעותי בביטחון העצמי שלי."
             </blockquote>
             <p className="font-medium">— לקוח מרוצה</p>
           </div>
@@ -202,12 +203,12 @@ const PersonalHypnosisLanding = () => {
               </div>
               
               <Button size="lg" onClick={handlePurchase} className="text-lg px-10 py-6 w-full sm:w-auto pulse-glow">
-                <Headphones className="h-5 w-5 ml-2" />
-                רכוש את ההקלטה האישית שלך
+                <Video className="h-5 w-5 ml-2" />
+                רכוש את הסרטון האישי שלך
               </Button>
               
               <p className="text-sm text-muted-foreground mt-4">
-                * ההקלטה תהיה מוכנה תוך 2 ימי עסקים
+                * הסרטון יהיה מוכן תוך 2 ימי עסקים
               </p>
             </div>
           </div>

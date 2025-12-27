@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import MatrixRain from "@/components/MatrixRain";
-import { CheckCircle2, Clock, Bell, Headphones, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Clock, Bell, Video, ArrowLeft } from "lucide-react";
 
 const PersonalHypnosisSuccess = () => {
   const navigate = useNavigate();
@@ -12,24 +12,24 @@ const PersonalHypnosisSuccess = () => {
     {
       icon: CheckCircle2,
       title: "הרכישה בוצעה בהצלחה!",
-      desc: "התשלום התקבל ואנחנו מתחילים לעבוד על ההקלטה שלך",
+      desc: "התשלום התקבל ואנחנו מתחילים לעבוד על הסרטון שלך",
       done: true,
     },
     {
       icon: Clock,
-      title: "יצירת ההקלטה האישית",
-      desc: "תוך 2 ימי עסקים, ההקלטה תהיה מוכנה",
+      title: "יצירת הסרטון האישי",
+      desc: "תוך 2 ימי עסקים, הסרטון יהיה מוכן",
       done: false,
     },
     {
       icon: Bell,
       title: "נודיע לך כשמוכן",
-      desc: "תקבל התראה באתר ברגע שההקלטה מוכנה להאזנה",
+      desc: "תקבל התראה באתר ברגע שהסרטון מוכן לצפייה",
       done: false,
     },
     {
-      icon: Headphones,
-      title: "מתחילים להאזין",
+      icon: Video,
+      title: "מתחילים לצפות",
       desc: "גישה לצמיתות מאזור האישי שלך",
       done: false,
     },
@@ -53,7 +53,7 @@ const PersonalHypnosisSuccess = () => {
               תודה על הרכישה! 🎉
             </h1>
             <p className="text-lg text-muted-foreground">
-              ההקלטה האישית שלך בדרך אליך
+              הסרטון האישי שלך בדרך אליך
             </p>
           </div>
 
@@ -90,10 +90,10 @@ const PersonalHypnosisSuccess = () => {
           <div className="p-4 bg-accent/10 border border-accent/30 rounded-xl text-center mb-8">
             <Clock className="h-6 w-6 mx-auto mb-2 text-accent" />
             <p className="text-accent font-medium">
-              ההקלטה תהיה מוכנה תוך 2 ימי עסקים
+              הסרטון יהיה מוכן תוך 2 ימי עסקים
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              נשלח לך התראה ברגע שתהיה מוכנה
+              נשלח לך התראה ברגע שיהיה מוכן
             </p>
           </div>
 
