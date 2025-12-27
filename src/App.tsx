@@ -35,6 +35,8 @@ const CourseWatch = lazy(() => import("./pages/CourseWatch"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 const Install = lazy(() => import("./pages/Install"));
 const AudioPlayer = lazy(() => import("./pages/AudioPlayer"));
+const PersonalHypnosisLanding = lazy(() => import("./pages/PersonalHypnosisLanding"));
+const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSuccess"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -64,8 +66,10 @@ const App = () => (
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/install" element={<Install />} />
             <Route path="/audio/:token" element={<AudioPlayer />} />
+            <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
             
             {/* Protected user routes */}
+            <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
             

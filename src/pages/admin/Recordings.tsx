@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLibrary } from "@/components/admin/recordings/AudioLibrary";
 import { AudioAssignments } from "@/components/admin/recordings/AudioAssignments";
-import { Headphones, Users } from "lucide-react";
+import { PendingAudioOrders } from "@/components/admin/recordings/PendingAudioOrders";
+import { Headphones, Users, Clock } from "lucide-react";
 
 const Recordings = () => {
-  const [activeTab, setActiveTab] = useState("library");
+  const [activeTab, setActiveTab] = useState("pending");
 
   return (
     <div className="space-y-6">
@@ -17,7 +18,11 @@ const Recordings = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsTrigger value="pending" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            הזמנות ממתינות
+          </TabsTrigger>
           <TabsTrigger value="library" className="flex items-center gap-2">
             <Headphones className="h-4 w-4" />
             ספריית הקלטות
@@ -27,6 +32,10 @@ const Recordings = () => {
             הקצאות למשתמשים
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="pending" className="mt-6">
+          <PendingAudioOrders />
+        </TabsContent>
 
         <TabsContent value="library" className="mt-6">
           <AudioLibrary />
