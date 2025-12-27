@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Zap, Target, Heart, Sparkles, CheckCircle } from "lucide-react";
 
 const ConsciousnessLeapLanding = () => {
   const [name, setName] = useState("");
@@ -60,6 +60,9 @@ const ConsciousnessLeapLanding = () => {
         <main className="pt-24 pb-20 px-4">
           <div className="container max-w-2xl mx-auto text-center">
             <div className="bg-card/50 border border-border/50 rounded-2xl p-8 md:p-12">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-primary" />
+              </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-6">
                 תודה ששיתפת
               </h1>
@@ -87,17 +90,81 @@ const ConsciousnessLeapLanding = () => {
       
       <main className="pt-24 pb-20">
         {/* Hero Section */}
-        <section className="py-12 md:py-20 px-4">
-          <div className="container max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+        <section className="relative py-16 md:py-24 px-4 overflow-hidden">
+          {/* Background effects */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+          <div className="absolute top-20 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-10 w-48 h-48 bg-accent/10 rounded-full blur-3xl" />
+          
+          <div className="container relative max-w-4xl mx-auto text-center">
+            {/* Badge */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30">
+                <Zap className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">תהליך אישי וממוקד</span>
+              </div>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight cyber-glow">
               קפיצה לתודעה חדשה
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-6 leading-relaxed">
-              תהליך אישי וממוקד
+            <p className="text-xl md:text-2xl text-muted-foreground mb-4 leading-relaxed max-w-2xl mx-auto">
+              תהליך טרנספורמציה אישית עמוקה
               <br />
-              לאנשים שנמצאים בצומת אמיתית בחיים
+              לאנשים שמוכנים לשינוי אמיתי
             </p>
+            
+            <p className="text-lg text-muted-foreground/80 mb-8">
+              בהירות. כיוון. חיבור לעצמך.
+            </p>
+            
+            {/* Price Badge */}
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-card/50 border border-border/50 mb-8">
+              <span className="text-3xl md:text-4xl font-bold text-primary">₪1,997</span>
+              <span className="text-muted-foreground">תהליך מלא</span>
+            </div>
+          </div>
+        </section>
+
+        {/* What's Included */}
+        <section className="py-12 md:py-16 px-4">
+          <div className="container max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold mb-10 text-center">
+              מה כולל התהליך
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-card/30 border border-border/30 rounded-2xl p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Target className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">מיפוי מעמיק</h3>
+                <p className="text-muted-foreground text-sm">
+                  הבנה מדויקת של איפה אתה עומד ולאן אתה רוצה להגיע
+                </p>
+              </div>
+              
+              <div className="bg-card/30 border border-border/30 rounded-2xl p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-accent/20 flex items-center justify-center">
+                  <Sparkles className="h-7 w-7 text-accent" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">עבודה תודעתית</h3>
+                <p className="text-muted-foreground text-sm">
+                  שילוב של היפנוזה, דמיון מודרך ותרגילים תודעתיים
+                </p>
+              </div>
+              
+              <div className="bg-card/30 border border-border/30 rounded-2xl p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Heart className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">ליווי אישי</h3>
+                <p className="text-muted-foreground text-sm">
+                  תמיכה לאורך כל התהליך עד להשגת התוצאות
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -127,10 +194,6 @@ const ConsciousnessLeapLanding = () => {
                 
                 <p className="text-muted-foreground">
                   המטרה היא לא לתקן אותך – אלא לעזור לך <strong className="text-foreground">לראות ברור</strong>.
-                </p>
-                
-                <p className="text-muted-foreground">
-                  העבודה משלבת שיחה, תרגילים תודעתיים ודמיון מודרך.
                 </p>
               </div>
             </div>
@@ -166,12 +229,15 @@ const ConsciousnessLeapLanding = () => {
         {/* Lead Form */}
         <section className="py-12 md:py-20 px-4">
           <div className="container max-w-xl mx-auto">
-            <div className="bg-card/50 border border-border/50 rounded-2xl p-6 md:p-10">
+            <div className="bg-card/50 border border-primary/20 rounded-2xl p-6 md:p-10 shadow-lg shadow-primary/5">
               <h2 className="text-2xl font-bold mb-4 text-center">
                 אם זה מרגיש נכון
               </h2>
-              <p className="text-center text-muted-foreground mb-8">
+              <p className="text-center text-muted-foreground mb-2">
                 אפשר להשאיר פרטים ולהמשיך משם
+              </p>
+              <p className="text-center text-sm text-primary font-medium mb-8">
+                ₪1,997 לתהליך המלא
               </p>
               
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -217,7 +283,7 @@ const ConsciousnessLeapLanding = () => {
                 <Button 
                   type="submit" 
                   size="lg" 
-                  className="w-full text-lg py-6"
+                  className="w-full text-lg py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -226,7 +292,7 @@ const ConsciousnessLeapLanding = () => {
                       שולח...
                     </>
                   ) : (
-                    "להמשיך"
+                    "להמשיך לתהליך"
                   )}
                 </Button>
               </form>
