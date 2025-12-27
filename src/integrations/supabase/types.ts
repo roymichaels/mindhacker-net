@@ -56,6 +56,98 @@ export type Database = {
         }
         Relationships: []
       }
+      consciousness_leap_applications: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          current_life_situation: string
+          id: string
+          lead_id: string
+          openness_to_process: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          what_feels_stuck: string
+          what_to_understand: string
+          why_now: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          current_life_situation: string
+          id?: string
+          lead_id: string
+          openness_to_process: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          what_feels_stuck: string
+          what_to_understand: string
+          why_now: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          current_life_situation?: string
+          id?: string
+          lead_id?: string
+          openness_to_process?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          what_feels_stuck?: string
+          what_to_understand?: string
+          why_now?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consciousness_leap_applications_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "consciousness_leap_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consciousness_leap_leads: {
+        Row: {
+          application_token: string
+          created_at: string
+          email: string
+          email_sent_at: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          what_resonated: string | null
+        }
+        Insert: {
+          application_token?: string
+          created_at?: string
+          email: string
+          email_sent_at?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          what_resonated?: string | null
+        }
+        Update: {
+          application_token?: string
+          created_at?: string
+          email?: string
+          email_sent_at?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          what_resonated?: string | null
+        }
+        Relationships: []
+      }
       content_analytics: {
         Row: {
           browser: string | null
