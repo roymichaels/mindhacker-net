@@ -77,7 +77,7 @@ const PersonalVideoPromo = () => {
           
           {/* Price hint */}
           <p className="text-center text-sm text-muted-foreground mt-4">
-            החל מ-₪299 בלבד | מוכן תוך 2 ימי עסקים
+            ₪297 בלבד | מוכן תוך 2 ימי עסקים
           </p>
         </div>
       </div>
