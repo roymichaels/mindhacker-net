@@ -19,6 +19,7 @@ const FloatingCTA = lazy(() => import("@/components/FloatingCTA"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const ChatWidget = lazy(() => import("@/components/ChatWidget"));
 const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
+const PersonalVideoPromo = lazy(() => import("@/components/PersonalVideoPromo"));
 
 const Index = () => {
   // SEO Configuration
@@ -48,6 +49,7 @@ const Index = () => {
         <Suspense fallback={null}>
           <WhatSection />
           <HowSection />
+          <PersonalVideoPromo />
           <FreeDiscoveryCall />
           <BookingSection />
           <AboutSection />
