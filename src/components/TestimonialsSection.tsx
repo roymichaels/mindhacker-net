@@ -77,7 +77,7 @@ const TestimonialsSection = () => {
   }
 
   return (
-    <section className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section id="testimonials" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 cyber-glow">
