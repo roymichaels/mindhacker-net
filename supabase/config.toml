@@ -17,3 +17,15 @@ verify_jwt = false
 
 [functions.admin-grant-purchase]
 verify_jwt = true
+
+[functions.get-video-by-token]
+verify_jwt = false
+
+[functions.submit-consciousness-leap-lead]
+verify_jwt = false
+
+[functions.validate-consciousness-leap-token]
+verify_jwt = false
+
+[functions.submit-consciousness-leap-application]
+verify_jwt = false
