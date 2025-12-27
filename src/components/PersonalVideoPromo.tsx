@@ -1,12 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Video, Sparkles, ArrowLeft, Brain, Star } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Video, Sparkles, ArrowLeft, Brain, Star, CheckCircle, Clock, Infinity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const PersonalVideoPromo = () => {
   const navigate = useNavigate();
 
+  const benefits = [
+    "סרטון מותאם אישית לאתגרים שלך",
+    "נוצר על ידי דין אזולאי במיוחד עבורך",
+    "גישה לצמיתות באזור האישי",
+    "מוכן תוך 2 ימי עסקים",
+    "שיטה מוכחת לשינוי תת-מודע"
+  ];
+
   return (
-    <section className="relative py-20 overflow-hidden" dir="rtl">
+    <section id="personal-video" className="relative py-20 md:py-32 overflow-hidden" dir="rtl">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-background" />
       
@@ -15,70 +24,110 @@ const PersonalVideoPromo = () => {
       <div className="absolute bottom-10 left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
       
       <div className="container relative mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Badge */}
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30">
               <Sparkles className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium text-accent">מוצר חדש</span>
+              <span className="text-sm font-medium text-accent">מוצר דיגיטלי מותאם אישית</span>
             </div>
           </div>
           
           {/* Title */}
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 cyber-glow">
-            אימון תודעתי אישי
-            <span className="block text-accent mt-2">סרטון היפנוזה מותאם במיוחד עבורך</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6">
+            סרטון היפנוזה אישי
+            <span className="block text-accent mt-2 text-2xl md:text-3xl lg:text-4xl">מותאם במיוחד עבורך</span>
           </h2>
           
           {/* Description */}
-          <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mb-8">
-            קבל סרטון אימון תודעתי מותאם אישית לצרכים הספציפיים שלך - 
-            נוצר במיוחד עבורך על ידי דין אזולאי
+          <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mb-12">
+            קבל סרטון אימון תודעתי שנוצר במיוחד עבור האתגרים והמטרות הספציפיות שלך
           </p>
           
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            <div className="flex flex-col items-center text-center p-4 rounded-xl bg-card/50 border border-border/50">
-              <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mb-3">
-                <Brain className="h-6 w-6 text-accent" />
-              </div>
-              <h3 className="font-semibold mb-1">התאמה אישית</h3>
-              <p className="text-sm text-muted-foreground">סרטון שנוצר במיוחד עבור האתגרים והמטרות שלך</p>
+          {/* Content Grid */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Left side - Features */}
+            <div className="grid grid-cols-1 gap-4">
+              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Brain className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-1">התאמה אישית מלאה</h3>
+                  <p className="text-muted-foreground text-sm">סרטון שנוצר במיוחד עבור האתגרים והמטרות שלך</p>
+                </div>
+              </Card>
+              
+              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Infinity className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-1">גישה לצמיתות</h3>
+                  <p className="text-muted-foreground text-sm">הסרטון שלך נשאר באזור האישי שלך לתמיד</p>
+                </div>
+              </Card>
+              
+              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-1">מוכן במהירות</h3>
+                  <p className="text-muted-foreground text-sm">הסרטון שלך יהיה מוכן תוך 2 ימי עסקים</p>
+                </div>
+              </Card>
             </div>
             
-            <div className="flex flex-col items-center text-center p-4 rounded-xl bg-card/50 border border-border/50">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-3">
-                <Video className="h-6 w-6 text-primary" />
+            {/* Right side - Benefits & CTA */}
+            <Card className="bg-card/50 backdrop-blur border-accent/30 p-6 md:p-8">
+              <h3 className="text-xl font-bold mb-6 text-center">מה אתה מקבל?</h3>
+              
+              <ul className="space-y-3 mb-8">
+                {benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="text-center mb-6">
+                <div className="text-sm text-muted-foreground mb-1">מחיר מיוחד</div>
+                <div className="text-4xl font-bold text-accent">₪297</div>
+                <div className="text-sm text-muted-foreground mt-1">תשלום חד פעמי</div>
               </div>
-              <h3 className="font-semibold mb-1">גישה לצמיתות</h3>
-              <p className="text-sm text-muted-foreground">הסרטון שלך נשאר באזור האישי לתמיד</p>
-            </div>
-            
-            <div className="flex flex-col items-center text-center p-4 rounded-xl bg-card/50 border border-border/50">
-              <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mb-3">
-                <Star className="h-6 w-6 text-accent" />
-              </div>
-              <h3 className="font-semibold mb-1">תוצאות אמיתיות</h3>
-              <p className="text-sm text-muted-foreground">שיטה מוכחת לשינוי תת-מודע עמוק</p>
-            </div>
+              
+              <Button
+                size="lg"
+                className="w-full gap-3 text-lg py-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 shadow-lg shadow-accent/25"
+                onClick={() => navigate("/personal-hypnosis")}
+              >
+                הזמן את הסרטון שלך
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                שאלון קצר ← תשלום ← הסרטון אצלך תוך 48 שעות
+              </p>
+            </Card>
           </div>
           
-          {/* CTA Button */}
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              className="gap-3 text-lg px-8 py-6 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 shadow-lg shadow-accent/25"
-              onClick={() => navigate("/personal-hypnosis")}
-            >
-              גלה עוד ורכוש עכשיו
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+          {/* Features badges */}
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+              <Video className="h-4 w-4 text-accent" />
+              <span className="text-sm">סרטון HD איכותי</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+              <Star className="h-4 w-4 text-primary" />
+              <span className="text-sm">תוצאות מוכחות</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+              <Sparkles className="h-4 w-4 text-accent" />
+              <span className="text-sm">מותאם אישית 100%</span>
+            </div>
           </div>
-          
-          {/* Price hint */}
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            ₪297 בלבד | מוכן תוך 2 ימי עסקים
-          </p>
         </div>
       </div>
     </section>

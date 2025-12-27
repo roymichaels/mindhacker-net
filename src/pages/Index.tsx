@@ -5,27 +5,20 @@ import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 
-// Lazy load below-the-fold components to reduce main-thread work
-const WhatSection = lazy(() => import("@/components/WhatSection"));
-const HowSection = lazy(() => import("@/components/HowSection"));
+// Lazy load below-the-fold components
 const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
+const PersonalVideoPromo = lazy(() => import("@/components/PersonalVideoPromo"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
-const PersonalInvitation = lazy(() => import("@/components/PersonalInvitation"));
 const Footer = lazy(() => import("@/components/Footer"));
-const FloatingCTA = lazy(() => import("@/components/FloatingCTA"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
-const ChatWidget = lazy(() => import("@/components/ChatWidget"));
-const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
-const PersonalVideoPromo = lazy(() => import("@/components/PersonalVideoPromo"));
 
 const Index = () => {
-  // SEO Configuration
   useSEO({
-    title: "מיינד-האקר | אימון תודעתי עמוק עם דין אזולאי",
-    description: "אימון תודעתי עמוק עם דין אזולאי - תכנות תודעה מתקדם, היפנוזה מודעת, ו-Reframe לשינוי תת-מודע. קבע סשן אונליין היום והתחל את המסע לשינוי אמיתי.",
-    keywords: "אימון תודעתי, היפנוזה מודעת, שינוי תת-מודע, תכנות תודעה, דין אזולאי, קורסים דיגיטליים, פיתוח אישי",
+    title: "מיינד-האקר | דין אליהו - שינוי תודעתי עמוק",
+    description: "שני מסלולים לשינוי אמיתי: תהליך קפיצה לתודעה חדשה או סרטון היפנוזה אישי מותאם. בחר את המסלול שמתאים לך.",
+    keywords: "היפנוזה, שינוי תודעתי, דין אליהו, תהליך אישי, טרנספורמציה, סרטון היפנוזה",
     url: window.location.origin,
     type: "website",
     structuredData: [getOrganizationSchema(), getWebsiteSchema()],
@@ -46,24 +39,18 @@ const Index = () => {
       <main className="relative">
         <HeroSection />
         <Suspense fallback={null}>
-          <WhatSection />
-          <HowSection />
-          <PersonalVideoPromo />
           <ConsciousnessLeapPromo />
+          <PersonalVideoPromo />
           <AboutSection />
           <TestimonialsSection />
           <FAQSection />
-          <PersonalInvitation />
           <Footer />
         </Suspense>
       </main>
 
       {/* Floating Elements */}
       <Suspense fallback={null}>
-        <FloatingCTA />
         <WhatsAppButton />
-        <ChatWidget />
-        <ExitIntentPopup />
       </Suspense>
     </div>
   );
