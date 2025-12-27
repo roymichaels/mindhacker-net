@@ -35,6 +35,7 @@ const CourseWatch = lazy(() => import("./pages/CourseWatch"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 const Install = lazy(() => import("./pages/Install"));
 const AudioPlayer = lazy(() => import("./pages/AudioPlayer"));
+const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
 const PersonalHypnosisLanding = lazy(() => import("./pages/PersonalHypnosisLanding"));
 const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSuccess"));
 
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/install" element={<Install />} />
             <Route path="/audio/:token" element={<AudioPlayer />} />
+            <Route path="/video/:token" element={<VideoPlayer />} />
             <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
             
             {/* Protected user routes */}

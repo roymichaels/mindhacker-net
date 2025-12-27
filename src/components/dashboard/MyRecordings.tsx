@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Headphones, Play, Clock, Loader2, Mic } from "lucide-react";
+import { Headphones, Play, Clock, Loader2, Mic, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AudioAccess {
@@ -10,6 +10,19 @@ interface AudioAccess {
   access_token: string;
   granted_at: string;
   hypnosis_audios: {
+    id: string;
+    title: string;
+    description: string | null;
+    file_path: string;
+    duration_seconds: number | null;
+  };
+}
+
+interface VideoAccess {
+  id: string;
+  access_token: string;
+  granted_at: string;
+  hypnosis_videos: {
     id: string;
     title: string;
     description: string | null;
@@ -64,19 +77,57 @@ const AudioItem = ({ audio, token }: { audio: AudioAccess["hypnosis_audios"]; to
   );
 };
 
+const VideoItem = ({ video, token }: { video: VideoAccess["hypnosis_videos"]; token: string }) => {
+  const navigate = useNavigate();
+  
+  const formatDuration = (seconds: number | null) => {
+    if (!seconds) return "לא ידוע";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <Card className="group hover:border-primary/50 transition-colors">
+      <CardContent className="p-4 flex items-center gap-4">
+        <div className="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center shrink-0">
+          <Video className="h-6 w-6 text-accent" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium truncate">{video.title}</h4>
+          {video.description && (
+            <p className="text-sm text-muted-foreground truncate">{video.description}</p>
+          )}
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+            <Clock className="h-3 w-3" />
+            <span>{formatDuration(video.duration_seconds)}</span>
+          </div>
+        </div>
+        <Button
+          size="icon"
+          className="shrink-0"
+          onClick={() => navigate(`/video/${token}`)}
+        >
+          <Play className="h-4 w-4" />
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
 const PendingItem = ({ purchase }: { purchase: PendingPurchase }) => {
   return (
     <Card className="border-accent/30 bg-accent/5">
       <CardContent className="p-4 flex items-center gap-4">
         <div className="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center shrink-0 animate-pulse">
-          <Mic className="h-6 w-6 text-accent" />
+          <Video className="h-6 w-6 text-accent" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate">{purchase.content_products?.title || "הקלטה אישית"}</h4>
+          <h4 className="font-medium truncate">{purchase.content_products?.title || "סרטון אימון תודעתי"}</h4>
           <p className="text-sm text-accent">בהכנה...</p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
             <Clock className="h-3 w-3" />
-            <span>תהיה מוכנה תוך 2 ימי עסקים</span>
+            <span>יהיה מוכן תוך 2 ימי עסקים</span>
           </div>
         </div>
       </CardContent>
@@ -114,6 +165,35 @@ export const MyRecordings = () => {
     },
   });
 
+  const { data: videos, isLoading: loadingVideos } = useQuery({
+    queryKey: ["my-videos"],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
+        .from("user_video_access")
+        .select(`
+          id,
+          access_token,
+          granted_at,
+          hypnosis_videos (
+            id,
+            title,
+            description,
+            file_path,
+            duration_seconds
+          )
+        `)
+        .eq("user_id", user.user.id)
+        .eq("is_active", true)
+        .order("granted_at", { ascending: false });
+
+      if (error) throw error;
+      return data as unknown as VideoAccess[];
+    },
+  });
+
   const { data: pendingPurchases, isLoading: loadingPending } = useQuery({
     queryKey: ["my-pending-audio-purchases"],
     queryFn: async () => {
@@ -146,17 +226,19 @@ export const MyRecordings = () => {
     },
   });
 
-  const isLoading = loadingRecordings || loadingPending;
+  const isLoading = loadingRecordings || loadingPending || loadingVideos;
   const hasRecordings = recordings && recordings.length > 0;
+  const hasVideos = videos && videos.length > 0;
   const hasPending = pendingPurchases && pendingPurchases.length > 0;
+  const totalContent = (recordings?.length || 0) + (videos?.length || 0);
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Headphones className="h-5 w-5" />
-            ההקלטות שלי
+            <Video className="h-5 w-5" />
+            הסרטונים וההקלטות שלי
           </CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
@@ -166,16 +248,16 @@ export const MyRecordings = () => {
     );
   }
 
-  if (!hasRecordings && !hasPending) {
-    return null; // Don't show section if no recordings and no pending
+  if (!hasRecordings && !hasVideos && !hasPending) {
+    return null; // Don't show section if no content and no pending
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Headphones className="h-5 w-5 text-primary" />
-          ההקלטות שלי {hasRecordings && `(${recordings.length})`}
+          <Video className="h-5 w-5 text-primary" />
+          הסרטונים וההקלטות שלי {totalContent > 0 && `(${totalContent})`}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -184,6 +266,15 @@ export const MyRecordings = () => {
           <PendingItem key={purchase.id} purchase={purchase} />
         ))}
         
+        {/* Ready Videos */}
+        {hasVideos && videos.map((video) => (
+          <VideoItem
+            key={video.id}
+            video={video.hypnosis_videos}
+            token={video.access_token}
+          />
+        ))}
+
         {/* Ready Recordings */}
         {hasRecordings && recordings.map((recording) => (
           <AudioItem
