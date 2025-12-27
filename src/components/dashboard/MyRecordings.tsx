@@ -2,10 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Headphones, Play, Clock, Loader2 } from "lucide-react";
+import { Headphones, Play, Clock, Loader2, Mic } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useSignedUrl } from "@/hooks/useStorageUrl";
-import { useState, useRef, useEffect } from "react";
 
 interface AudioAccess {
   id: string;
@@ -18,6 +16,14 @@ interface AudioAccess {
     file_path: string;
     duration_seconds: number | null;
   };
+}
+
+interface PendingPurchase {
+  id: string;
+  purchase_date: string;
+  content_products: {
+    title: string;
+  } | null;
 }
 
 const AudioItem = ({ audio, token }: { audio: AudioAccess["hypnosis_audios"]; token: string }) => {
@@ -58,8 +64,28 @@ const AudioItem = ({ audio, token }: { audio: AudioAccess["hypnosis_audios"]; to
   );
 };
 
+const PendingItem = ({ purchase }: { purchase: PendingPurchase }) => {
+  return (
+    <Card className="border-accent/30 bg-accent/5">
+      <CardContent className="p-4 flex items-center gap-4">
+        <div className="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center shrink-0 animate-pulse">
+          <Mic className="h-6 w-6 text-accent" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium truncate">{purchase.content_products?.title || "הקלטה אישית"}</h4>
+          <p className="text-sm text-accent">בהכנה...</p>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+            <Clock className="h-3 w-3" />
+            <span>תהיה מוכנה תוך 2 ימי עסקים</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export const MyRecordings = () => {
-  const { data: recordings, isLoading } = useQuery({
+  const { data: recordings, isLoading: loadingRecordings } = useQuery({
     queryKey: ["my-recordings"],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
@@ -88,6 +114,42 @@ export const MyRecordings = () => {
     },
   });
 
+  const { data: pendingPurchases, isLoading: loadingPending } = useQuery({
+    queryKey: ["my-pending-audio-purchases"],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error("Not authenticated");
+
+      // Get audio product purchases where access is not yet granted
+      const { data, error } = await supabase
+        .from("content_purchases")
+        .select(`
+          id,
+          purchase_date,
+          content_products!content_purchases_product_id_fkey (
+            title,
+            slug
+          )
+        `)
+        .eq("user_id", user.user.id)
+        .eq("payment_status", "completed")
+        .is("access_granted_at", null);
+
+      if (error) throw error;
+      
+      // Filter to only include personal-hypnosis products
+      const filtered = (data || []).filter((p: any) => 
+        p.content_products?.slug?.includes("personal-hypnosis")
+      );
+      
+      return filtered as unknown as PendingPurchase[];
+    },
+  });
+
+  const isLoading = loadingRecordings || loadingPending;
+  const hasRecordings = recordings && recordings.length > 0;
+  const hasPending = pendingPurchases && pendingPurchases.length > 0;
+
   if (isLoading) {
     return (
       <Card>
@@ -104,8 +166,8 @@ export const MyRecordings = () => {
     );
   }
 
-  if (!recordings || recordings.length === 0) {
-    return null; // Don't show section if no recordings
+  if (!hasRecordings && !hasPending) {
+    return null; // Don't show section if no recordings and no pending
   }
 
   return (
@@ -113,11 +175,17 @@ export const MyRecordings = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Headphones className="h-5 w-5 text-primary" />
-          ההקלטות שלי ({recordings.length})
+          ההקלטות שלי {hasRecordings && `(${recordings.length})`}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {recordings.map((recording) => (
+        {/* Pending Orders */}
+        {hasPending && pendingPurchases.map((purchase) => (
+          <PendingItem key={purchase.id} purchase={purchase} />
+        ))}
+        
+        {/* Ready Recordings */}
+        {hasRecordings && recordings.map((recording) => (
           <AudioItem
             key={recording.id}
             audio={recording.hypnosis_audios}
