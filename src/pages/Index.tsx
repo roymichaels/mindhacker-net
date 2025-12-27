@@ -8,8 +8,7 @@ import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 // Lazy load below-the-fold components to reduce main-thread work
 const WhatSection = lazy(() => import("@/components/WhatSection"));
 const HowSection = lazy(() => import("@/components/HowSection"));
-const FreeDiscoveryCall = lazy(() => import("@/components/FreeDiscoveryCall"));
-const BookingSection = lazy(() => import("@/components/BookingSection"));
+const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
@@ -50,8 +49,7 @@ const Index = () => {
           <WhatSection />
           <HowSection />
           <PersonalVideoPromo />
-          <FreeDiscoveryCall />
-          <BookingSection />
+          <ConsciousnessLeapPromo />
           <AboutSection />
           <TestimonialsSection />
           <FAQSection />
