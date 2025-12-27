@@ -541,6 +541,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hypnosis_videos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_seconds: number | null
+          file_path: string
+          id: string
+          thumbnail_path: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_path: string
+          id?: string
+          thumbnail_path?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_path?: string
+          id?: string
+          thumbnail_path?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           contacted_at: string | null
@@ -1111,6 +1147,50 @@ export type Database = {
             columns: ["tier_id"]
             isOneToOne: false
             referencedRelation: "subscription_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_video_access: {
+        Row: {
+          access_token: string
+          expires_at: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          user_id: string | null
+          video_id: string
+        }
+        Insert: {
+          access_token?: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          user_id?: string | null
+          video_id: string
+        }
+        Update: {
+          access_token?: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          user_id?: string | null
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_video_access_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "hypnosis_videos"
             referencedColumns: ["id"]
           },
         ]

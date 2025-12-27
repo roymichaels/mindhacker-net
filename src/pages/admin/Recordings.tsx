@@ -3,7 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLibrary } from "@/components/admin/recordings/AudioLibrary";
 import { AudioAssignments } from "@/components/admin/recordings/AudioAssignments";
 import { PendingAudioOrders } from "@/components/admin/recordings/PendingAudioOrders";
-import { Headphones, Users, Clock } from "lucide-react";
+import { VideoLibrary } from "@/components/admin/recordings/VideoLibrary";
+import { Headphones, Users, Clock, Video } from "lucide-react";
 
 const Recordings = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -11,17 +12,21 @@ const Recordings = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold cyber-glow">הקלטות היפנוזה</h1>
+        <h1 className="text-3xl font-bold cyber-glow">הקלטות וסרטונים</h1>
         <p className="text-muted-foreground mt-2">
-          נהל הקלטות אודיו והקצה אותן למשתמשים
+          נהל הקלטות אודיו, סרטונים והקצה אותם למשתמשים
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4">
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             הזמנות ממתינות
+          </TabsTrigger>
+          <TabsTrigger value="videos" className="flex items-center gap-2">
+            <Video className="h-4 w-4" />
+            ספריית סרטונים
           </TabsTrigger>
           <TabsTrigger value="library" className="flex items-center gap-2">
             <Headphones className="h-4 w-4" />
@@ -35,6 +40,10 @@ const Recordings = () => {
 
         <TabsContent value="pending" className="mt-6">
           <PendingAudioOrders />
+        </TabsContent>
+
+        <TabsContent value="videos" className="mt-6">
+          <VideoLibrary />
         </TabsContent>
 
         <TabsContent value="library" className="mt-6">
