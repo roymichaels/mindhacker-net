@@ -78,17 +78,15 @@ const HeroSection = () => {
               
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-4">
                 <Sparkles className="w-3 h-3 text-primary" />
-                <span className="text-xs text-primary font-medium">תהליך מקיף</span>
+                <span className="text-xs text-primary font-medium">תהליך מקיף עם ליווי אישי</span>
               </div>
               
               <h3 className="text-2xl md:text-3xl font-bold mb-3 cyber-glow">קפיצה לתודעה חדשה</h3>
               
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-6">
                 תהליך טרנספורמציה אישית מעמיק עם ליווי צמוד. 
                 לאנשים שמוכנים לשינוי אמיתי ועמוק.
               </p>
-              
-              <div className="text-3xl font-bold text-primary mb-4">₪1,997</div>
               
               <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25 transition-all">
                 גלה אם זה מתאים לך
@@ -112,20 +110,18 @@ const HeroSection = () => {
               
               <div className="inline-flex items-center gap-2 bg-accent/10 rounded-full px-3 py-1 mb-4">
                 <Brain className="w-3 h-3 text-accent" />
-                <span className="text-xs text-accent font-medium">מוצר דיגיטלי</span>
+                <span className="text-xs text-accent font-medium">מותאם אישית ונשאר לצמיתות</span>
               </div>
               
               <h3 className="text-2xl md:text-3xl font-bold mb-3">סרטון היפנוזה אישי</h3>
               
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-6">
                 סרטון אימון תודעתי מותאם אישית לצרכים הספציפיים שלך. 
                 נשאר איתך לצמיתות.
               </p>
               
-              <div className="text-3xl font-bold text-accent mb-4">₪297</div>
-              
               <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground group-hover:shadow-lg group-hover:shadow-accent/25 transition-all">
-                הזמן את הסרטון שלך
+                גלה עוד
                 <ArrowLeft className="w-4 h-4 mr-2" />
               </Button>
             </div>
