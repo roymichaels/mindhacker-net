@@ -196,8 +196,9 @@ const ConsciousnessLeapLanding = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-primary/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <Link to="/" className="text-xl font-bold text-primary cyber-glow">
-              דין אליהו
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <img src="/icons/icon-96x96.png" alt="מיינד האקר" className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+              <span className="font-black text-lg cyber-glow">מיינד האקר</span>
             </Link>
             <Button onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               בוא נדבר
