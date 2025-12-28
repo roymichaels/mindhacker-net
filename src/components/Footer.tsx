@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Instagram, Send, Mail, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
+import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 
 const Footer = () => {
   const [socialLinks, setSocialLinks] = useState({
@@ -60,9 +60,6 @@ const Footer = () => {
     };
   }, []);
 
-  const scrollToBooking = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
@@ -80,14 +77,13 @@ const Footer = () => {
           <p className="text-secondary italic mb-8 text-sm md:text-base">
             "אני מאמין בך עוד לפני שפגשנו" — דין
           </p>
-          <Button 
-            onClick={scrollToBooking}
-            size="lg"
-            className="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
-          >
-            <Sparkles className="w-5 h-5" />
-            בוא נתחיל את המסע שלך
-          </Button>
+          <LeadCaptureDialog 
+            source="footer_cta"
+            triggerText="בוא נתחיל את המסע שלך"
+            triggerIcon={<Sparkles className="w-5 h-5" />}
+            triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105"
+            showPreferredTime={true}
+          />
         </div>
 
         <div className="flex justify-center gap-4 md:gap-8 mb-8 md:mb-12">
