@@ -540,6 +540,42 @@ export type Database = {
           },
         ]
       }
+      custom_forms: {
+        Row: {
+          access_token: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          settings: Json | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          settings?: Json | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          settings?: Json | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exit_intent_leads: {
         Row: {
           contacted_at: string | null
@@ -599,6 +635,91 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      form_fields: {
+        Row: {
+          created_at: string
+          form_id: string
+          id: string
+          is_required: boolean | null
+          label: string
+          options: Json | null
+          order_index: number | null
+          placeholder: string | null
+          type: string
+          updated_at: string
+          validation: Json | null
+        }
+        Insert: {
+          created_at?: string
+          form_id: string
+          id?: string
+          is_required?: boolean | null
+          label: string
+          options?: Json | null
+          order_index?: number | null
+          placeholder?: string | null
+          type: string
+          updated_at?: string
+          validation?: Json | null
+        }
+        Update: {
+          created_at?: string
+          form_id?: string
+          id?: string
+          is_required?: boolean | null
+          label?: string
+          options?: Json | null
+          order_index?: number | null
+          placeholder?: string | null
+          type?: string
+          updated_at?: string
+          validation?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_fields_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_submissions: {
+        Row: {
+          form_id: string
+          id: string
+          metadata: Json | null
+          responses: Json
+          status: string
+          submitted_at: string
+        }
+        Insert: {
+          form_id: string
+          id?: string
+          metadata?: Json | null
+          responses?: Json
+          status?: string
+          submitted_at?: string
+        }
+        Update: {
+          form_id?: string
+          id?: string
+          metadata?: Json | null
+          responses?: Json
+          status?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hypnosis_audios: {
         Row: {
