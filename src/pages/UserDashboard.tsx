@@ -18,6 +18,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
+import { useTranslation } from "@/hooks/useTranslation";
 
 
 interface Purchase {
@@ -39,16 +40,18 @@ interface Profile {
 }
 
 const UserDashboard = () => {
+  const { t, isRTL, language } = useTranslation();
+  
   // SEO Configuration
   useSEO({
-    title: "דאשבורד | מיינד-האקר",
-    description: "לוח הבקרה האישי שלך - גישה למוצרים הדיגיטליים, מנויים, ופגישות שרכשת",
+    title: t('seo.dashboardTitle'),
+    description: t('seo.dashboardDescription'),
     url: `${window.location.origin}/dashboard`,
     type: "website",
     structuredData: [
       getBreadcrumbSchema([
-        { name: "דף הבית", url: window.location.origin },
-        { name: "דאשבורד", url: `${window.location.origin}/dashboard` },
+        { name: t('seo.breadcrumbHome'), url: window.location.origin },
+        { name: t('seo.breadcrumbDashboard'), url: `${window.location.origin}/dashboard` },
       ]),
     ],
   });
@@ -60,6 +63,8 @@ const UserDashboard = () => {
   const [userEmail, setUserEmail] = useState("");
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
+
+  const dateLocale = language === 'he' ? 'he-IL' : 'en-US';
 
   useEffect(() => {
     fetchUserData();
@@ -98,7 +103,7 @@ const UserDashboard = () => {
 
       setPurchases(purchasesData || []);
     } catch (error: any) {
-      handleError(error, "לא ניתן לטעון את הנתונים", "UserDashboard.fetchUserData");
+      handleError(error, t('messages.loadError'), "UserDashboard.fetchUserData");
     } finally {
       setLoading(false);
     }
@@ -107,8 +112,8 @@ const UserDashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "התנתקת בהצלחה",
-      description: "להתראות!",
+      title: t('messages.logoutSuccess'),
+      description: t('messages.goodbye'),
     });
     navigate("/");
   };
@@ -121,26 +126,26 @@ const UserDashboard = () => {
   const getBookingStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="outline">ממתין לקביעה</Badge>;
+        return <Badge variant="outline">{t('sessions.statusPending')}</Badge>;
       case "scheduled":
-        return <Badge variant="default">קבוע</Badge>;
+        return <Badge variant="default">{t('sessions.statusScheduled')}</Badge>;
       case "completed":
-        return <Badge variant="secondary">הושלם</Badge>;
+        return <Badge variant="secondary">{t('sessions.statusCompleted')}</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">בוטל</Badge>;
+        return <Badge variant="destructive">{t('sessions.statusCancelled')}</Badge>;
       default:
-        return <Badge variant="outline">ממתין</Badge>;
+        return <Badge variant="outline">{t('sessions.statusPending')}</Badge>;
     }
   };
 
   const getPaymentStatusBadge = (status: string) => {
     switch (status) {
       case "pending_session":
-        return <Badge variant="outline">ממתין לפגישה</Badge>;
+        return <Badge variant="outline">{t('sessions.paymentPending')}</Badge>;
       case "completed":
-        return <Badge variant="default">שולם</Badge>;
+        return <Badge variant="default">{t('sessions.paymentCompleted')}</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">בוטל</Badge>;
+        return <Badge variant="destructive">{t('sessions.statusCancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -156,7 +161,7 @@ const UserDashboard = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="p-8" dir="rtl">
+        <div className="p-8" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="max-w-6xl mx-auto space-y-6">
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-40 w-full" />
@@ -171,39 +176,39 @@ const UserDashboard = () => {
     <div className="min-h-screen bg-background">
       <PullToRefreshIndicator {...pullToRefresh} />
       <Header />
-      <div className="p-4 md:p-8" dir="rtl">
+      <div className="p-4 md:p-8" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="glass-panel p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex-1 min-w-0 max-w-full">
             <h1 className="text-lg sm:text-xl md:text-2xl font-black cyber-glow mb-1.5 truncate">
-              שלום, <span className="truncate inline-block max-w-[140px] sm:max-w-[200px] md:max-w-sm align-bottom">{profile?.full_name || userEmail}</span>! 👋
+              {t('dashboard.welcome')}, <span className="truncate inline-block max-w-[140px] sm:max-w-[200px] md:max-w-sm align-bottom">{profile?.full_name || userEmail}</span>! 👋
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              ברוך הבא ללוח הבקרה האישי שלך
+              {t('dashboard.welcomeBack')}
             </p>
           </div>
           <Button variant="outline" onClick={handleLogout} className="w-full md:w-auto shrink-0">
-            <LogOut className="ml-2 h-4 w-4" />
-            התנתק
+            <LogOut className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+            {t('common.logout')}
           </Button>
         </div>
 
         {/* Dashboard Content - Organized with Tabs */}
-        <Tabs defaultValue="courses" className="w-full" dir="rtl">
+        <Tabs defaultValue="courses" className="w-full" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="overflow-x-auto pb-2 mb-6 sm:mb-8">
             <TabsList className="inline-flex min-w-full sm:grid sm:grid-cols-3 glass-panel h-auto">
               <TabsTrigger value="courses" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                המוצרים שלי
+                {t('dashboard.myProducts')}
               </TabsTrigger>
               <TabsTrigger value="subscriptions" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <Crown className="h-3 w-3 sm:h-4 sm:w-4" />
-                מנויים
+                {t('dashboard.mySubscriptions')}
               </TabsTrigger>
               <TabsTrigger value="sessions" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-                פגישות
+                {t('dashboard.mySessions')}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -226,10 +231,10 @@ const UserDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                   <Package className="h-5 w-5 md:h-6 md:w-6" />
-                  החבילות שלי
+                  {t('sessions.myPackages')}
                 </CardTitle>
                 <CardDescription>
-                  פגישות ומידע על הרכישות שלך
+                  {t('sessions.packagesSubtitle')}
                 </CardDescription>
               </CardHeader>
           <CardContent className="space-y-4">
@@ -237,13 +242,13 @@ const UserDashboard = () => {
               <div className="text-center py-12 space-y-4">
                 <Package className="h-16 w-16 mx-auto text-muted-foreground" />
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">אין לך חבילות עדיין</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('sessions.noPackages')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    קנה חבילה כדי להתחיל את המסע שלך
+                    {t('sessions.buyPackageBtn')}
                   </p>
                   <Button asChild>
                     <Link to="/#pricing">
-                      לרכישת חבילה
+                      {t('sessions.buyPackage')}
                     </Link>
                   </Button>
                 </div>
@@ -257,8 +262,8 @@ const UserDashboard = () => {
                         <div className="space-y-2 flex-1">
                           <CardTitle className="text-lg">
                             {purchase.package_type === "single" 
-                              ? "פגישה בודדת" 
-                              : "חבילת 4 פגישות"
+                              ? t('sessions.singleSession')
+                              : t('sessions.packageOf4')
                             }
                           </CardTitle>
                           <div className="flex flex-wrap gap-2">
@@ -266,10 +271,10 @@ const UserDashboard = () => {
                             {getPaymentStatusBadge(purchase.payment_status)}
                           </div>
                         </div>
-                        <div className="text-left space-y-1">
+                        <div className={`${isRTL ? 'text-left' : 'text-right'} space-y-1`}>
                           <p className="text-2xl font-black cyber-glow">₪{purchase.price}</p>
                           <p className="text-xs text-muted-foreground">
-                            נרכש ב-{new Date(purchase.purchase_date).toLocaleDateString('he-IL')}
+                            {t('sessions.purchasedOn')}{new Date(purchase.purchase_date).toLocaleDateString(dateLocale)}
                           </p>
                         </div>
                       </div>
@@ -277,11 +282,11 @@ const UserDashboard = () => {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="space-y-1">
-                          <p className="text-muted-foreground">סה"כ פגישות</p>
+                          <p className="text-muted-foreground">{t('sessions.totalSessions')}</p>
                           <p className="font-semibold text-lg">{purchase.sessions_total}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-muted-foreground">פגישות נותרו</p>
+                          <p className="text-muted-foreground">{t('sessions.remainingSessions')}</p>
                           <p className="font-semibold text-lg">{purchase.sessions_remaining}</p>
                         </div>
                       </div>
@@ -291,12 +296,12 @@ const UserDashboard = () => {
                         <div className="bg-primary/10 p-4 rounded-lg space-y-2">
                           <div className="flex items-center gap-2 font-semibold">
                             <CheckCircle className="h-4 w-4" />
-                            <span>הפגישה שלך</span>
+                            <span>{t('sessions.yourSession')}</span>
                           </div>
                           <div className="space-y-1 text-sm">
                             <p className="flex items-center gap-2">
                               <Calendar className="h-4 w-4" />
-                              {new Date(purchase.scheduled_date).toLocaleDateString('he-IL')}
+                              {new Date(purchase.scheduled_date).toLocaleDateString(dateLocale)}
                             </p>
                             <p className="flex items-center gap-2">
                               <Clock className="h-4 w-4" />
@@ -305,7 +310,7 @@ const UserDashboard = () => {
                           </div>
                           {purchase.booking_status === "pending" && (
                             <p className="text-xs text-muted-foreground">
-                              ממתין לאישור - נחזור אליך בהקדם
+                              {t('sessions.waitingApproval')}
                             </p>
                           )}
                         </div>
@@ -315,17 +320,17 @@ const UserDashboard = () => {
                           className="w-full"
                           variant="default"
                         >
-                          <Calendar className="ml-2 h-4 w-4" />
-                          קבע פגישה
+                          <Calendar className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                          {t('sessions.scheduleSession')}
                         </Button>
                       )}
 
                       {/* Payment Info */}
                       {purchase.payment_status === "pending_session" && (
                         <div className="bg-muted/50 p-3 rounded-lg text-xs space-y-1">
-                          <p className="font-semibold">💳 תשלום:</p>
-                          <p>התשלום יתבצע לאחר הפגישה הראשונה</p>
-                          <p>PayPal או העברה בנקאית</p>
+                          <p className="font-semibold">{t('sessions.paymentInfo')}</p>
+                          <p>{t('sessions.paymentAfterSession')}</p>
+                          <p>{t('sessions.paymentMethods')}</p>
                         </div>
                       )}
                     </CardContent>
@@ -343,19 +348,19 @@ const UserDashboard = () => {
           <CardHeader>
             <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
               <User className="h-5 w-5 md:h-6 md:w-6" />
-              הפרופיל שלי
+              {t('profile.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">שם מלא</p>
+                <p className="text-sm text-muted-foreground">{t('profile.fullName')}</p>
                 <p className="text-base md:text-lg font-semibold">
-                  {profile?.full_name || "לא הוגדר"}
+                  {profile?.full_name || t('profile.notDefined')}
                 </p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">אימייל</p>
+                <p className="text-sm text-muted-foreground">{t('profile.email')}</p>
                 <p className="text-base md:text-lg font-semibold">{userEmail}</p>
               </div>
             </div>

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FAQ {
   id: string;
@@ -16,6 +17,7 @@ interface FAQ {
 }
 
 const FAQSection = () => {
+  const { t, isRTL } = useTranslation();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
@@ -76,10 +78,10 @@ const FAQSection = () => {
   }
 
   return (
-    <section ref={sectionRef} id="faq" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section ref={sectionRef} id="faq" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : ''}`}>
-          שאלות נפוצות
+          {t('faq.sectionTitle')}
         </h2>
 
         <div className={`glass-panel p-4 md:p-8 ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
@@ -93,10 +95,10 @@ const FAQSection = () => {
                 }`}
                 style={{ animationDelay: `${0.2 + index * 0.05}s` }}
               >
-                <AccordionTrigger className="text-right text-base md:text-xl font-bold text-foreground hover:text-primary transition-colors">
+                <AccordionTrigger className={`${isRTL ? 'text-right' : 'text-left'} text-base md:text-xl font-bold text-foreground hover:text-primary transition-colors`}>
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-right text-sm md:text-lg text-muted-foreground leading-relaxed pt-3 md:pt-4">
+                <AccordionContent className={`${isRTL ? 'text-right' : 'text-left'} text-sm md:text-lg text-muted-foreground leading-relaxed pt-3 md:pt-4`}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

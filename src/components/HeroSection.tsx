@@ -5,22 +5,29 @@ import { Card } from "@/components/ui/card";
 import DecryptText from "./DecryptText";
 import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
-import { ArrowLeft, Zap, Video, Sparkles, Brain } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const words = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
+  const { t, isRTL } = useTranslation();
+  
+  const wordsHe = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
+  const wordsEn = ["Mind", "Consciousness", "Freedom", "Reality", "Identity", "Subconscious"];
+  const words = isRTL ? wordsHe : wordsEn;
+  
   const [currentWord, setCurrentWord] = useState(0);
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
     }, 4500);
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
 
   return (
-    <section className="relative min-h-screen flex items-start justify-center px-4 md:vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }}>
+    <section className="relative min-h-screen flex items-start justify-center px-4 md:vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* Radial glow overlay */}
       <div 
@@ -41,7 +48,7 @@ const HeroSection = () => {
       <div className="relative text-center max-w-5xl mx-auto">
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up">
-          <span className="text-foreground static-word-glow w-full md:w-auto text-center">האקר</span>
+          <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
           <DecryptText 
             text={words[currentWord]} 
             className="text-primary w-full md:w-auto text-center"
@@ -49,11 +56,11 @@ const HeroSection = () => {
         </h1>
 
         <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium opacity-0 animate-fade-in-up-delay-1">
-          אני מלווה אותך בתהליך עמוק — לא טיפול, לא פסיכולוגיה.
+          {t('hero.mainSubtitle')}
         </p>
 
         <p className="text-base sm:text-lg md:text-xl text-secondary mb-6 font-light opacity-0 animate-fade-in-up-delay-2">
-          שני מסלולים לשינוי אמיתי. בחר את זה שמתאים לך.
+          {t('hero.pathsSubtitle')}
         </p>
 
         {/* Personal Video Button */}
@@ -78,19 +85,18 @@ const HeroSection = () => {
               
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-4">
                 <Sparkles className="w-3 h-3 text-primary" />
-                <span className="text-xs text-primary font-medium">תהליך מקיף עם ליווי אישי</span>
+                <span className="text-xs text-primary font-medium">{t('hero.consciousnessLeapTag')}</span>
               </div>
               
-              <h3 className="text-2xl md:text-3xl font-bold mb-3 cyber-glow">קפיצה לתודעה חדשה</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-3 cyber-glow">{t('hero.consciousnessLeap')}</h3>
               
               <p className="text-muted-foreground mb-6">
-                תהליך טרנספורמציה אישית מעמיק עם ליווי צמוד. 
-                לאנשים שמוכנים לשינוי אמיתי ועמוק.
+                {t('hero.consciousnessLeapDesc')}
               </p>
               
               <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25 transition-all">
-                גלה אם זה מתאים לך
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t('hero.discoverIfRight')}
+                <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
           </Card>
@@ -110,19 +116,18 @@ const HeroSection = () => {
               
               <div className="inline-flex items-center gap-2 bg-accent/10 rounded-full px-3 py-1 mb-4">
                 <Brain className="w-3 h-3 text-accent" />
-                <span className="text-xs text-accent font-medium">מותאם אישית ונשאר לצמיתות</span>
+                <span className="text-xs text-accent font-medium">{t('hero.personalHypnosisTag')}</span>
               </div>
               
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">סרטון היפנוזה אישי</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">{t('hero.personalHypnosis')}</h3>
               
               <p className="text-muted-foreground mb-6">
-                סרטון אימון תודעתי מותאם אישית לצרכים הספציפיים שלך. 
-                נשאר איתך לצמיתות.
+                {t('hero.personalHypnosisDesc')}
               </p>
               
               <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground group-hover:shadow-lg group-hover:shadow-accent/25 transition-all">
-                גלה עוד
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t('hero.discoverMore')}
+                <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
           </Card>
@@ -133,7 +138,7 @@ const HeroSection = () => {
 
         {/* Bottom note */}
         <p className="text-muted-foreground text-sm max-w-lg mx-auto mt-6">
-          לא בטוח מה מתאים לך? גלול למטה כדי להבין יותר על כל אחד מהמסלולים
+          {t('hero.notSure')}
         </p>
       </div>
     </section>

@@ -3,8 +3,10 @@ import { User, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const AboutSection = () => {
+  const { t, isRTL } = useTranslation();
   const [imageUrl, setImageUrl] = useState<string>("");
   const [personalStory, setPersonalStory] = useState("");
   const [aboutVideoUrl, setAboutVideoUrl] = useState("");
@@ -48,7 +50,7 @@ const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section id="about" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-12">
           {/* Profile Image */}
@@ -58,7 +60,7 @@ const AboutSection = () => {
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
-                    alt="דין אושר אזולאי" 
+                    alt={t('about.name')} 
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -72,21 +74,21 @@ const AboutSection = () => {
           </div>
 
           <h2 className="text-3xl md:text-5xl font-black mb-4 text-center cyber-glow">
-            הכירו אותי
+            {t('about.sectionTitle')}
           </h2>
           
           <p className="text-center text-secondary text-lg md:text-xl mb-8">
-            דין אושר אזולאי
+            {t('about.name')}
           </p>
 
           {/* Personal Story */}
           <div className="text-center space-y-4 md:space-y-6 mb-8">
             <p className="text-base md:text-lg leading-relaxed text-muted-foreground max-w-2xl mx-auto">
-              {personalStory || "התחלתי את הדרך שלי אחרי שעברתי בעצמי תקופה של מאבק פנימי. גיליתי שהכלים הקונבנציונליים לא עבדו בשבילי — אז יצאתי לחפש משהו אחר. היום אני משלב היפנוזה מודעת, דמיון מודרך ו-Reframe כדי לעזור לאחרים לשחרר את מה שעוצר אותם."}
+              {personalStory || t('about.defaultStory')}
             </p>
 
             <p className="text-base md:text-lg text-foreground font-medium">
-              אני מאמין שכל אחד יכול לשנות את הקוד הפנימי שלו — וזה בדיוק מה שאני עושה יחד איתך.
+              {t('about.beliefStatement')}
             </p>
           </div>
 
@@ -100,7 +102,7 @@ const AboutSection = () => {
                 className="border-primary/50 text-primary hover:bg-primary/10 font-bold px-8 py-6 rounded-full transition-all duration-300 flex items-center gap-2 mx-auto"
               >
                 <Play className="w-5 h-5 fill-primary" />
-                צפה בסרטון הכרות
+                {t('about.watchVideo')}
               </Button>
             </div>
           )}
@@ -108,9 +110,9 @@ const AboutSection = () => {
           {/* Quote */}
           <div className="mt-8 pt-8 border-t border-primary/20 text-center">
             <p className="text-secondary italic text-base md:text-lg">
-              "לא טיפול, אלא חוויית תכנות תודעה."
+              {t('about.quote')}
             </p>
-            <p className="text-primary font-bold mt-2">— דין</p>
+            <p className="text-primary font-bold mt-2">— {isRTL ? 'דין' : 'Dean'}</p>
           </div>
         </div>
       </div>
