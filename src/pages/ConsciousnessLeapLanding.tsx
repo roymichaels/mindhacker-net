@@ -29,18 +29,18 @@ import {
   Shield,
   Star,
   ArrowRight,
+  ArrowLeft,
   Phone,
   ChevronDown,
   Users,
   Lightbulb,
   Compass,
   RefreshCw,
-  Loader2,
-  ArrowLeft
+  Loader2
 } from "lucide-react";
 
 const ConsciousnessLeapLanding = () => {
-  const { language } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatResonated, setWhatResonated] = useState("");
@@ -49,9 +49,9 @@ const ConsciousnessLeapLanding = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית עם דין אושר אזולאי",
-    description: "תהליך מקיף וממוקד לשינוי עמוק ובר-קיימא. 3-5 מפגשים שיביאו אותך לבהירות, כיוון ושחרור דפוסים ישנים.",
-    keywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, דין אושר אזולאי, טרנספורמציה",
+    title: t('consciousnessLeapLanding.seoTitle'),
+    description: t('consciousnessLeapLanding.seoDescription'),
+    keywords: t('consciousnessLeapLanding.seoKeywords'),
     url: `${window.location.origin}/consciousness-leap`,
   });
 
@@ -63,7 +63,7 @@ const ConsciousnessLeapLanding = () => {
     e.preventDefault();
     
     if (!name.trim() || !email.trim()) {
-      toast.error("נא למלא שם ואימייל");
+      toast.error(t('consciousnessLeapLanding.errorFillNameEmail'));
       return;
     }
 
@@ -77,10 +77,10 @@ const ConsciousnessLeapLanding = () => {
       if (error) throw error;
 
       setIsSubmitted(true);
-      toast.success("הפרטים נשלחו בהצלחה! נחזור אליך בהקדם");
+      toast.success(t('consciousnessLeapLanding.successSubmit'));
     } catch (error) {
       console.error("Error submitting lead:", error);
-      toast.error("שגיאה בשליחת הפרטים, נסו שוב");
+      toast.error(t('consciousnessLeapLanding.errorSubmit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -93,68 +93,70 @@ const ConsciousnessLeapLanding = () => {
   const painPoints = [
     {
       icon: RefreshCw,
-      title: "מרגיש שאתה מסתובב במעגלים?",
-      description: "אותן מחשבות, אותם דפוסים, אותן תוצאות. משהו עמוק יודע שהגיע הזמן לשינוי אמיתי."
+      title: t('consciousnessLeapLanding.painPoint1Title'),
+      description: t('consciousnessLeapLanding.painPoint1Desc')
     },
     {
       icon: Compass,
-      title: "עומד בצומת ולא יודע לאן?",
-      description: "החלטות גדולות מרגישות מכריעות. הייתי רוצה בהירות אמיתית לגבי הכיוון הנכון עבורי."
+      title: t('consciousnessLeapLanding.painPoint2Title'),
+      description: t('consciousnessLeapLanding.painPoint2Desc')
     },
     {
       icon: Lightbulb,
-      title: "יודע שמשהו צריך להשתנות?",
-      description: "תחושה עמוקה שיש עוד משהו, שאתה מסוגל ליותר - אבל לא יודע מה בדיוק חוסם."
+      title: t('consciousnessLeapLanding.painPoint3Title'),
+      description: t('consciousnessLeapLanding.painPoint3Desc')
     }
   ];
 
   const processSteps = [
-    { number: "01", title: "שיחת היכרות", description: "שיחה טלפונית קצרה כדי להבין את הצרכים שלך ולוודא התאמה הדדית" },
-    { number: "02", title: "מיפוי עומק", description: "מפגש ראשון לזיהוי הדפוסים, האמונות והחסמים שמונעים ממך להתקדם" },
-    { number: "03", title: "עבודה תודעתית", description: "3-5 מפגשים של טרנספורמציה עמוקה עם שילוב היפנוזה וטכניקות מתקדמות" },
-    { number: "04", title: "עתיד חדש", description: "סיום עם בהירות, כיוון ותוכנית פעולה להמשך הדרך" }
+    { number: t('consciousnessLeapLanding.processStep1Number'), title: t('consciousnessLeapLanding.processStep1Title'), description: t('consciousnessLeapLanding.processStep1Desc') },
+    { number: t('consciousnessLeapLanding.processStep2Number'), title: t('consciousnessLeapLanding.processStep2Title'), description: t('consciousnessLeapLanding.processStep2Desc') },
+    { number: t('consciousnessLeapLanding.processStep3Number'), title: t('consciousnessLeapLanding.processStep3Title'), description: t('consciousnessLeapLanding.processStep3Desc') },
+    { number: t('consciousnessLeapLanding.processStep4Number'), title: t('consciousnessLeapLanding.processStep4Title'), description: t('consciousnessLeapLanding.processStep4Desc') }
   ];
 
   const benefits = [
-    "שיחת אבחון והיכרות (30 דק')",
-    "3-5 מפגשי עומק (כל מפגש 90 דק')",
-    "הקלטות היפנוזה מותאמות אישית",
-    "תמיכה בווטסאפ לאורך כל התהליך",
-    "חומרים נלווים ותרגילים להמשך",
-    "מפגש סיכום ותוכנית להמשך"
+    t('consciousnessLeapLanding.benefit1'),
+    t('consciousnessLeapLanding.benefit2'),
+    t('consciousnessLeapLanding.benefit3'),
+    t('consciousnessLeapLanding.benefit4'),
+    t('consciousnessLeapLanding.benefit5'),
+    t('consciousnessLeapLanding.benefit6')
   ];
 
   const forWho = [
-    "אנשים בצומת משמעותית בחיים",
-    "מי שמוכן להשקיע בעצמו",
-    "מחפשי בהירות וכיוון",
-    "מוכנים לשינוי אמיתי ועמוק"
+    t('consciousnessLeapLanding.forWho1'),
+    t('consciousnessLeapLanding.forWho2'),
+    t('consciousnessLeapLanding.forWho3'),
+    t('consciousnessLeapLanding.forWho4')
   ];
 
   const notForWho = [
-    "מחפשי פתרון קסם מיידי",
-    "לא מוכנים לעבודה פנימית",
-    "מצפים שמישהו אחר יעשה את העבודה",
-    "לא פנויים להתחייב לתהליך"
+    t('consciousnessLeapLanding.notForWho1'),
+    t('consciousnessLeapLanding.notForWho2'),
+    t('consciousnessLeapLanding.notForWho3'),
+    t('consciousnessLeapLanding.notForWho4')
   ];
 
   const testimonials = [
-    { name: "מ.ל", role: "יזם", quote: "הגעתי לדין בתקופה שלא ידעתי לאן אני הולך. התהליך הזה נתן לי בהירות שלא חוויתי מעולם.", rating: 5 },
-    { name: "ש.כ", role: "מנהלת", quote: "אחרי שנים של להסתובב במעגלים, סוף סוף הבנתי מה באמת חוסם אותי. התהליך היה עמוק אבל עדין.", rating: 5 },
-    { name: "א.ר", role: "מטפל", quote: "חשבתי שאני מכיר את עצמי היטב, אבל התהליך הזה חשף שכבות שלא ידעתי שקיימות.", rating: 5 }
+    { name: t('consciousnessLeapLanding.testimonial1Name'), role: t('consciousnessLeapLanding.testimonial1Role'), quote: t('consciousnessLeapLanding.testimonial1Quote'), rating: 5 },
+    { name: t('consciousnessLeapLanding.testimonial2Name'), role: t('consciousnessLeapLanding.testimonial2Role'), quote: t('consciousnessLeapLanding.testimonial2Quote'), rating: 5 },
+    { name: t('consciousnessLeapLanding.testimonial3Name'), role: t('consciousnessLeapLanding.testimonial3Role'), quote: t('consciousnessLeapLanding.testimonial3Quote'), rating: 5 }
   ];
 
   const faqs = [
-    { question: "כמה זמן לוקח התהליך?", answer: "התהליך נמשך בדרך כלל בין 4-8 שבועות, תלוי בצרכים האישיים שלך. זה כולל 3-5 מפגשים עמוקים בנוסף לשיחות ליווי ותמיכה." },
-    { question: "האם זה מתאים לי אם כבר עברתי טיפולים אחרים?", answer: "בהחלט! הרבה אנשים מגיעים אלי אחרי שניסו גישות אחרות. התהליך הזה שונה כי הוא משלב עבודה תודעתית עמוקה עם כלים פרקטיים." },
-    { question: "מה קורה אחרי התהליך?", answer: "בסוף התהליך תקבל תוכנית ברורה להמשך, הקלטות היפנוזה שתוכל להמשיך להשתמש בהן, וכלים שישארו איתך לכל החיים." },
-    { question: "האם יש אחריות?", answer: "אני מאמין בעבודה משותפת. אם תגיע עם נכונות אמיתית ותעשה את העבודה, אני מתחייב ללוות אותך עד שתגיע לתוצאות." },
-    { question: "כמה עולה התהליך?", answer: `התהליך המלא עולה ${formatPrice(1997, language)}. זו השקעה בעצמך שתשתלם לאורך שנים. ניתן לפרוס לתשלומים.` }
+    { question: t('consciousnessLeapLanding.faq1Question'), answer: t('consciousnessLeapLanding.faq1Answer') },
+    { question: t('consciousnessLeapLanding.faq2Question'), answer: t('consciousnessLeapLanding.faq2Answer') },
+    { question: t('consciousnessLeapLanding.faq3Question'), answer: t('consciousnessLeapLanding.faq3Answer') },
+    { question: t('consciousnessLeapLanding.faq4Question'), answer: t('consciousnessLeapLanding.faq4Answer') },
+    { question: t('consciousnessLeapLanding.faq5Question'), answer: t('consciousnessLeapLanding.faq5Answer') }
   ];
+
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-background" dir="rtl">
+      <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="fixed inset-0 z-0">
           <MatrixRain />
           <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background" />
@@ -165,13 +167,13 @@ const ConsciousnessLeapLanding = () => {
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
                 <CheckCircle className="h-10 w-10 text-primary" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-6">תודה ששיתפת</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-6">{t('consciousnessLeapLanding.successTitle')}</h1>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                קיבלתי את הפרטים שלך ואחזור אליך בהקדם האפשרי לשיחת היכרות קצרה.
+                {t('consciousnessLeapLanding.successText')}
               </p>
               <Button variant="outline" onClick={() => navigate("/")} className="border-primary/50">
-                <ArrowLeft className="h-4 w-4 ml-2" />
-                חזרה לדף הבית
+                {isRTL ? <ArrowLeft className="h-4 w-4 ml-2" /> : <ArrowRight className="h-4 w-4 mr-2" />}
+                {t('consciousnessLeapLanding.successBackHome')}
               </Button>
             </Card>
           </div>
@@ -181,7 +183,7 @@ const ConsciousnessLeapLanding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden" dir="rtl">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Matrix Rain Background */}
       <div className="fixed inset-0 z-0">
         <MatrixRain />
@@ -200,11 +202,11 @@ const ConsciousnessLeapLanding = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src="/icons/icon-96x96.png" alt="מיינד האקר" className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-              <span className="font-black text-lg cyber-glow">מיינד האקר</span>
+              <img src="/icons/icon-96x96.png" alt={t('consciousnessLeapLanding.brandName')} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+              <span className="font-black text-lg cyber-glow">{t('consciousnessLeapLanding.brandName')}</span>
             </Link>
             <Button onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              בוא נדבר
+              {t('consciousnessLeapLanding.navCta')}
             </Button>
           </div>
         </div>
@@ -216,23 +218,23 @@ const ConsciousnessLeapLanding = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-8 animate-fade-in">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary">מקומות מוגבלים</span>
+              <span className="text-sm text-primary">{t('consciousnessLeapLanding.limitedSpots')}</span>
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-              <span className="text-primary cyber-glow">קפיצה</span>
+              <span className="text-primary cyber-glow">{t('consciousnessLeapLanding.heroTitle')}</span>
               <br />
-              <span className="text-foreground">לתודעה חדשה</span>
+              <span className="text-foreground">{t('consciousnessLeapLanding.heroTitleHighlight')}</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
-              תהליך טרנספורמציה אישית מעמיק שיביא אותך 
-              <span className="text-primary"> מבלבול לבהירות</span>, 
-              מדפוסים ישנים לחיים חדשים
+              {t('consciousnessLeapLanding.heroSubtitle')}
+              <span className="text-primary"> {t('consciousnessLeapLanding.heroSubtitleHighlight')}</span>
+              {t('consciousnessLeapLanding.heroSubtitleEnd')}
             </p>
 
             <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
+              <div className={`flex ${isRTL ? '-space-x-2 space-x-reverse' : '-space-x-2'}`}>
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-10 h-10 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center">
                     <Users className="w-5 h-5 text-primary" />
@@ -240,24 +242,24 @@ const ConsciousnessLeapLanding = () => {
                 ))}
               </div>
               <span className="text-muted-foreground">
-                <span className="text-primary font-bold">+50</span> אנשים כבר עברו את התהליך
+                <span className="text-primary font-bold">+50</span> {t('consciousnessLeapLanding.alreadyDone')}
               </span>
             </div>
 
             <div className="inline-block bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-6 mb-8 animate-fade-in">
-              <div className="text-sm text-muted-foreground mb-1">השקעה בעצמך</div>
-              <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">{formatPrice(1997, language)}</div>
-              <div className="text-sm text-muted-foreground mt-1">ניתן לפריסה לתשלומים</div>
+              <div className="text-sm text-muted-foreground mb-1">{t('consciousnessLeapLanding.investInYourself')}</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">{t('consciousnessLeapLanding.price')}</div>
+              <div className="text-sm text-muted-foreground mt-1">{t('consciousnessLeapLanding.installmentsAvailable')}</div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
               <Button size="lg" onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-xl shadow-lg shadow-primary/25">
-                אני רוצה להתחיל
-                <ArrowRight className="mr-2 w-5 h-5" />
+                {t('consciousnessLeapLanding.iWantToStart')}
+                <ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
               <Button size="lg" variant="outline" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="border-primary/50 text-primary hover:bg-primary/10 text-lg px-8 py-6 rounded-xl">
-                איך זה עובד?
-                <ChevronDown className="mr-2 w-5 h-5" />
+                {t('consciousnessLeapLanding.howDoesItWork')}
+                <ChevronDown className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
           </div>
@@ -271,8 +273,8 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 py-20 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">האם אתה מכיר את זה?</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">אם אחד מהמשפטים האלה מהדהד בך - אתה במקום הנכון</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.painPointsSectionTitle')}</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t('consciousnessLeapLanding.painPointsSectionSubtitle')}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {painPoints.map((point, index) => (
@@ -292,8 +294,8 @@ const ConsciousnessLeapLanding = () => {
       <section id="how-it-works" className="relative z-20 py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">איך התהליך <span className="text-primary">עובד?</span></h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">4 שלבים פשוטים לשינוי אמיתי</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.processSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.processSectionTitleHighlight')}</span></h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t('consciousnessLeapLanding.processSectionSubtitle')}</p>
           </div>
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
             {processSteps.map((step, index) => (
@@ -317,7 +319,7 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 py-20 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">מה כולל <span className="text-primary">התהליך?</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.includesSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.includesSectionTitleHighlight')}</span></h2>
           </div>
           <div className="max-w-3xl mx-auto">
             <Card className="bg-card/50 backdrop-blur border-primary/30 p-8">
@@ -330,9 +332,9 @@ const ConsciousnessLeapLanding = () => {
                 ))}
               </div>
               <div className="mt-8 pt-8 border-t border-primary/20 text-center">
-                <div className="text-sm text-muted-foreground mb-2">הכל במחיר אחד</div>
-                <div className="text-4xl font-bold text-primary cyber-glow">₪1,997</div>
-                <Button onClick={scrollToForm} className="mt-4 bg-primary hover:bg-primary/90">אני רוצה להתחיל</Button>
+                <div className="text-sm text-muted-foreground mb-2">{t('consciousnessLeapLanding.allIncludedPrice')}</div>
+                <div className="text-4xl font-bold text-primary cyber-glow">{t('consciousnessLeapLanding.price')}</div>
+                <Button onClick={scrollToForm} className="mt-4 bg-primary hover:bg-primary/90">{t('consciousnessLeapLanding.iWantToStart')}</Button>
               </div>
             </Card>
           </div>
@@ -343,13 +345,13 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">למי זה <span className="text-primary">מתאים?</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.forWhoSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.forWhoSectionTitleHighlight')}</span></h2>
           </div>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="bg-card/50 backdrop-blur border-primary/30 p-6">
               <div className="flex items-center gap-2 mb-6">
                 <CheckCircle className="w-6 h-6 text-primary" />
-                <h3 className="text-xl font-bold">מתאים לך אם:</h3>
+                <h3 className="text-xl font-bold">{t('consciousnessLeapLanding.forWhoTitle')}</h3>
               </div>
               <ul className="space-y-4">
                 {forWho.map((item, index) => (
@@ -363,7 +365,7 @@ const ConsciousnessLeapLanding = () => {
             <Card className="bg-card/50 backdrop-blur border-destructive/30 p-6">
               <div className="flex items-center gap-2 mb-6">
                 <XCircle className="w-6 h-6 text-destructive" />
-                <h3 className="text-xl font-bold">לא מתאים לך אם:</h3>
+                <h3 className="text-xl font-bold">{t('consciousnessLeapLanding.notForWhoTitle')}</h3>
               </div>
               <ul className="space-y-4">
                 {notForWho.map((item, index) => (
@@ -382,7 +384,7 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 py-20 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">מה אומרים <span className="text-primary">מי שעברו</span> את התהליך</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.testimonialsSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.testimonialsSectionTitleHighlight')}</span> {t('consciousnessLeapLanding.testimonialsSectionTitleEnd')}</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {testimonials.map((testimonial, index) => (
@@ -420,12 +422,12 @@ const ConsciousnessLeapLanding = () => {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-4">היי, אני <span className="text-primary">דין</span></h2>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-4">{t('consciousnessLeapLanding.aboutSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.aboutSectionTitleHighlight')}</span></h2>
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    בעשור האחרון ליוויתי מאות אנשים בתהליכי שינוי עמוקים. התמחיתי בהיפנוזה קלינית, NLP וטכניקות תודעה מתקדמות.
+                    {t('consciousnessLeapLanding.aboutText1')}
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    ה"קפיצה לתודעה חדשה" היא המסגרת שפיתחתי אחרי שנים של עבודה עם אנשים שהרגישו תקועים. זה תהליך שמביא תוצאות אמיתיות.
+                    {t('consciousnessLeapLanding.aboutText2')}
                   </p>
                 </div>
               </div>
@@ -438,13 +440,13 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 py-20 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">שאלות <span className="text-primary">נפוצות</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.faqSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.faqSectionTitleHighlight')}</span></h2>
           </div>
           <div className="max-w-3xl mx-auto">
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
                 <AccordionItem key={index} value={`item-${index}`} className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl px-6 data-[state=open]:border-primary/50">
-                  <AccordionTrigger className="text-right hover:no-underline py-4">
+                  <AccordionTrigger className={`${isRTL ? 'text-right' : 'text-left'} hover:no-underline py-4`}>
                     <span className="text-lg font-medium">{faq.question}</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground pb-4">{faq.answer}</AccordionContent>
@@ -463,36 +465,36 @@ const ConsciousnessLeapLanding = () => {
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-4">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary">ללא התחייבות</span>
+                  <span className="text-sm text-primary">{t('consciousnessLeapLanding.formSectionBadge')}</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">בוא נבדוק אם זה <span className="text-primary">מתאים לך</span></h2>
-                <p className="text-muted-foreground">השאר פרטים ואחזור אליך לשיחת היכרות קצרה</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">{t('consciousnessLeapLanding.formSectionTitle')} <span className="text-primary">{t('consciousnessLeapLanding.formSectionTitleHighlight')}</span></h2>
+                <p className="text-muted-foreground">{t('consciousnessLeapLanding.formSectionSubtitle')}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name">שם מלא</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="bg-background/50 border-primary/30 focus:border-primary" placeholder="איך קוראים לך?" />
+                  <Label htmlFor="name">{t('consciousnessLeapLanding.formNameLabel')}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="bg-background/50 border-primary/30 focus:border-primary" placeholder={t('consciousnessLeapLanding.formNamePlaceholder')} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">אימייל</Label>
+                  <Label htmlFor="email">{t('consciousnessLeapLanding.formEmailLabel')}</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-background/50 border-primary/30 focus:border-primary" placeholder="your@email.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="whatResonated">מה הדהד לך בדף הזה? (אופציונלי)</Label>
-                  <Textarea id="whatResonated" value={whatResonated} onChange={(e) => setWhatResonated(e.target.value)} className="bg-background/50 border-primary/30 focus:border-primary min-h-[100px]" placeholder="ספר לי קצת על מה שהביא אותך לכאן..." />
+                  <Label htmlFor="whatResonated">{t('consciousnessLeapLanding.formWhatResonatedLabel')}</Label>
+                  <Textarea id="whatResonated" value={whatResonated} onChange={(e) => setWhatResonated(e.target.value)} className="bg-background/50 border-primary/30 focus:border-primary min-h-[100px]" placeholder={t('consciousnessLeapLanding.formWhatResonatedPlaceholder')} />
                 </div>
                 <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg rounded-xl">
-                  {isSubmitting ? "שולח..." : (<>אני רוצה שיחת היכרות<Phone className="mr-2 w-5 h-5" /></>)}
+                  {isSubmitting ? t('consciousnessLeapLanding.formSubmitting') : (<>{t('consciousnessLeapLanding.formSubmitButton')}<Phone className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} /></>)}
                 </Button>
-                <p className="text-center text-sm text-muted-foreground">השיחה ללא התחייבות ובחינם</p>
+                <p className="text-center text-sm text-muted-foreground">{t('consciousnessLeapLanding.formFreeNote')}</p>
               </form>
             </Card>
 
             <div className="flex flex-wrap justify-center gap-6 mt-8 text-muted-foreground">
-              <div className="flex items-center gap-2"><Shield className="w-5 h-5 text-primary" /><span className="text-sm">100% דיסקרטי</span></div>
-              <div className="flex items-center gap-2"><Clock className="w-5 h-5 text-primary" /><span className="text-sm">מענה תוך 24 שעות</span></div>
-              <div className="flex items-center gap-2"><MessageCircle className="w-5 h-5 text-primary" /><span className="text-sm">ללא התחייבות</span></div>
+              <div className="flex items-center gap-2"><Shield className="w-5 h-5 text-primary" /><span className="text-sm">{t('consciousnessLeapLanding.formBadgeDiscrete')}</span></div>
+              <div className="flex items-center gap-2"><Clock className="w-5 h-5 text-primary" /><span className="text-sm">{t('consciousnessLeapLanding.formBadgeResponse')}</span></div>
+              <div className="flex items-center gap-2"><MessageCircle className="w-5 h-5 text-primary" /><span className="text-sm">{t('consciousnessLeapLanding.formBadgeNoObligation')}</span></div>
             </div>
           </div>
         </div>
@@ -501,32 +503,32 @@ const ConsciousnessLeapLanding = () => {
       {/* Final CTA Section */}
       <section className="relative z-20 py-20 bg-primary/5 border-t border-primary/20">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">מוכן <span className="text-primary">לקפוץ?</span></h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">הצעד הראשון הוא תמיד הכי קשה. אבל אני כאן ללוות אותך.</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('consciousnessLeapLanding.finalCtaTitle')} <span className="text-primary">{t('consciousnessLeapLanding.finalCtaTitleHighlight')}</span></h2>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">{t('consciousnessLeapLanding.finalCtaSubtitle')}</p>
           <div className="inline-block bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-8 mb-8">
-            <div className="text-sm text-muted-foreground mb-2">תהליך קפיצה לתודעה חדשה</div>
-            <div className="text-5xl font-bold text-primary cyber-glow mb-2">₪1,997</div>
-            <div className="text-sm text-muted-foreground">כולל הכל | ניתן לפריסה</div>
+            <div className="text-sm text-muted-foreground mb-2">{t('consciousnessLeapLanding.finalCtaProcessName')}</div>
+            <div className="text-5xl font-bold text-primary cyber-glow mb-2">{t('consciousnessLeapLanding.price')}</div>
+            <div className="text-sm text-muted-foreground">{t('consciousnessLeapLanding.finalCtaPriceNote')}</div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-lg px-10 py-6 rounded-xl shadow-lg shadow-primary/25">
-              בוא נדבר<ArrowRight className="mr-2 w-5 h-5" />
+              {t('consciousnessLeapLanding.finalCtaButton')}<ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
             </Button>
           </div>
-          <p className="mt-6 text-sm text-muted-foreground">מקומות מוגבלים | שיחת ההיכרות בחינם וללא התחייבות</p>
+          <p className="mt-6 text-sm text-muted-foreground">{t('consciousnessLeapLanding.finalCtaFooter')}</p>
         </div>
       </section>
 
       {/* WhatsApp Button */}
-      <a href="https://wa.me/972547390907?text=היי דין, אני מתעניין בתהליך קפיצה לתודעה חדשה" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 left-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+      <a href={`https://wa.me/972547390907?text=${encodeURIComponent(t('consciousnessLeapLanding.whatsappMessage'))}`} target="_blank" rel="noopener noreferrer" className={`fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110`}>
         <MessageCircle className="w-6 h-6" />
       </a>
 
       {/* Footer */}
       <footer className="relative z-20 py-8 border-t border-primary/20 bg-background/80">
         <div className="container mx-auto px-4 text-center">
-          <Link to="/" className="text-primary hover:underline">דין אושר אזולאי - היפנותרפיה ושינוי תודעתי</Link>
-          <p className="text-sm text-muted-foreground mt-2">© {new Date().getFullYear()} כל הזכויות שמורות</p>
+          <Link to="/" className="text-primary hover:underline">{t('consciousnessLeapLanding.footerName')}</Link>
+          <p className="text-sm text-muted-foreground mt-2">© {new Date().getFullYear()} {t('consciousnessLeapLanding.footerRights')}</p>
         </div>
       </footer>
     </div>
