@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, Lock, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const iconMap = [Shield, Lock, Heart];
 
 const TrustBadges = () => {
-  const [badges, setBadges] = useState([
-    "100% דיסקרטיות",
-    "ללא התחייבות",
-    "ליווי אישי",
-  ]);
+  const { t, isRTL } = useTranslation();
+  const defaultBadges = [
+    t('trustBadges.discretion'),
+    t('trustBadges.noCommitment'),
+    t('trustBadges.personalGuidance'),
+  ];
+  
+  const [badges, setBadges] = useState(defaultBadges);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,18 +48,18 @@ const TrustBadges = () => {
         }, {});
 
         setBadges([
-          badgesObj.trust_badge_1 || "100% דיסקרטיות",
-          badgesObj.trust_badge_2 || "ללא התחייבות",
-          badgesObj.trust_badge_4 || "ליווי אישי",
+          badgesObj.trust_badge_1 || t('trustBadges.discretion'),
+          badgesObj.trust_badge_2 || t('trustBadges.noCommitment'),
+          badgesObj.trust_badge_4 || t('trustBadges.personalGuidance'),
         ]);
       }
     };
 
     fetchBadges();
-  }, []);
+  }, [t]);
 
   return (
-    <div ref={containerRef} className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6">
+    <div ref={containerRef} className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {badges.map((label, index) => {
         const Icon = iconMap[index];
         return (

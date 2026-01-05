@@ -4,6 +4,7 @@ import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Lazy load below-the-fold components
 const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
@@ -15,10 +16,12 @@ const Footer = lazy(() => import("@/components/Footer"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 
 const Index = () => {
+  const { t } = useTranslation();
+
   useSEO({
-    title: "מיינד-האקר | דין אושר אזולאי - שינוי תודעתי עמוק",
-    description: "שני מסלולים לשינוי אמיתי: תהליך קפיצה לתודעה חדשה או סרטון היפנוזה אישי מותאם. בחר את המסלול שמתאים לך.",
-    keywords: "היפנוזה, שינוי תודעתי, דין אושר אזולאי, תהליך אישי, טרנספורמציה, סרטון היפנוזה",
+    title: t('seo.indexTitle'),
+    description: t('seo.indexDescription'),
+    keywords: t('seo.indexKeywords'),
     url: window.location.origin,
     type: "website",
     structuredData: [getOrganizationSchema(), getWebsiteSchema()],

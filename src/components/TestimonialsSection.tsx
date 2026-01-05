@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Testimonial {
   id: string;
@@ -17,6 +18,7 @@ interface Testimonial {
 }
 
 const TestimonialsSection = () => {
+  const { t, isRTL } = useTranslation();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -24,7 +26,7 @@ const TestimonialsSection = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true,
-      direction: "rtl",
+      direction: isRTL ? "rtl" : "ltr",
       align: "center"
     },
     [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })]
@@ -77,14 +79,14 @@ const TestimonialsSection = () => {
   }
 
   return (
-    <section id="testimonials" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section id="testimonials" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 cyber-glow">
-            קולות מתוך המטריקס
+            {t('testimonials.sectionTitle')}
           </h2>
           <p className="text-base md:text-xl text-muted-foreground mb-4">
-            אנשים שבחרו לשכתב את הקוד שלהם
+            {t('testimonials.sectionSubtitle')}
           </p>
           
           {/* Rating Summary */}
@@ -105,17 +107,17 @@ const TestimonialsSection = () => {
             variant="outline"
             size="icon"
             onClick={scrollPrev}
-            className="absolute right-0 md:-right-16 top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm"
+            className={`absolute ${isRTL ? 'right-0 md:-right-16' : 'left-0 md:-left-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm`}
           >
-            <ChevronRight className="w-5 h-5" />
+            {isRTL ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={scrollNext}
-            className="absolute left-0 md:-left-16 top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm"
+            className={`absolute ${isRTL ? 'left-0 md:-left-16' : 'right-0 md:-right-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm`}
           >
-            <ChevronLeft className="w-5 h-5" />
+            {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </Button>
 
           {/* Carousel Container */}
@@ -147,7 +149,7 @@ const TestimonialsSection = () => {
                     ? "bg-primary w-8" 
                     : "bg-primary/30 hover:bg-primary/50"
                 }`}
-                aria-label={`Go to testimonial ${index + 1}`}
+                aria-label={`${t('testimonials.goToTestimonial')} ${index + 1}`}
               />
             ))}
           </div>
@@ -157,7 +159,7 @@ const TestimonialsSection = () => {
         <div className="mt-8 md:mt-12 text-center">
           <div className="inline-flex items-center gap-2 text-muted-foreground text-xs md:text-sm">
             <div className="w-6 md:w-8 h-px bg-primary/30" />
-            <span>תוצאות אמיתיות · שינוי מודע</span>
+            <span>{t('testimonials.bottomNote')}</span>
             <div className="w-6 md:w-8 h-px bg-primary/30" />
           </div>
         </div>
