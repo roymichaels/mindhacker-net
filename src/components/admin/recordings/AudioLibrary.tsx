@@ -118,26 +118,44 @@ export const AudioLibrary = () => {
     setGeneratingLinkFor(audioId);
     try {
       const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user?.id) {
+        toast({ title: "יש להתחבר מחדש", variant: "destructive" });
+        return;
+      }
+      
       const { data, error } = await supabase
         .from("user_audio_access")
         .insert({
           audio_id: audioId,
           user_id: null, // No specific user - anonymous link
-          granted_by: user.user?.id,
+          granted_by: user.user.id,
           notes: "קישור מהיר",
         })
         .select("access_token")
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating audio access:", error);
+        toast({ title: "שגיאה ביצירת קישור", variant: "destructive" });
+        return;
+      }
 
       const link = `${window.location.origin}/audio/${data.access_token}`;
-      await navigator.clipboard.writeText(link);
-      setCopiedAudioId(audioId);
-      toast({ title: "הקישור הועתק ללוח! 🔗" });
-      setTimeout(() => setCopiedAudioId(null), 2000);
+      
+      try {
+        await navigator.clipboard.writeText(link);
+        setCopiedAudioId(audioId);
+        toast({ title: "הקישור הועתק ללוח! 🔗" });
+        setTimeout(() => setCopiedAudioId(null), 2000);
+      } catch (clipboardError) {
+        console.error("Clipboard error:", clipboardError);
+        prompt("הקישור נוצר בהצלחה! העתק אותו ידנית:", link);
+        toast({ title: "הקישור נוצר - העתק ידנית", description: "לא ניתן להעתיק ללוח אוטומטית" });
+      }
     } catch (err) {
-      toast({ title: "שגיאה ביצירת קישור", variant: "destructive" });
+      console.error("Unexpected error in generateQuickLink:", err);
+      toast({ title: "שגיאה לא צפויה", variant: "destructive" });
     } finally {
       setGeneratingLinkFor(null);
     }
