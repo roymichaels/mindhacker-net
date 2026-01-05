@@ -13,6 +13,8 @@ interface FAQ {
   id: string;
   question: string;
   answer: string;
+  question_en: string | null;
+  answer_en: string | null;
   order_index: number;
 }
 
@@ -95,11 +97,11 @@ const FAQSection = () => {
                 }`}
                 style={{ animationDelay: `${0.2 + index * 0.05}s` }}
               >
-                <AccordionTrigger className={`${isRTL ? 'text-right' : 'text-left'} text-base md:text-xl font-bold text-foreground hover:text-primary transition-colors`}>
-                  {faq.question}
+              <AccordionTrigger className={`${isRTL ? 'text-right' : 'text-left'} text-base md:text-xl font-bold text-foreground hover:text-primary transition-colors`}>
+                  {isRTL ? faq.question : (faq.question_en || faq.question)}
                 </AccordionTrigger>
                 <AccordionContent className={`${isRTL ? 'text-right' : 'text-left'} text-sm md:text-lg text-muted-foreground leading-relaxed pt-3 md:pt-4`}>
-                  {faq.answer}
+                  {isRTL ? faq.answer : (faq.answer_en || faq.answer)}
                 </AccordionContent>
               </AccordionItem>
             ))}

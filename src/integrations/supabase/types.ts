@@ -606,31 +606,37 @@ export type Database = {
       faqs: {
         Row: {
           answer: string
+          answer_en: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
           order_index: number | null
           question: string
+          question_en: string | null
           updated_at: string | null
           updated_by: string | null
         }
         Insert: {
           answer: string
+          answer_en?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           order_index?: number | null
           question: string
+          question_en?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
         Update: {
           answer?: string
+          answer_en?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           order_index?: number | null
           question?: string
+          question_en?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
