@@ -1,21 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Compass, ArrowLeft, Zap, CheckCircle, Brain, Heart, Target } from "lucide-react";
+import { Compass, ArrowLeft, ArrowRight, Zap, CheckCircle, Brain, Heart, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ConsciousnessLeapPromo = () => {
   const navigate = useNavigate();
+  const { t, isRTL } = useTranslation();
 
   const benefits = [
-    "שיחת אבחון והיכרות",
-    "3-5 מפגשי עומק (90 דק' כל אחד)",
-    "הקלטות היפנוזה מותאמות אישית",
-    "תמיכה בווטסאפ לאורך התהליך",
-    "מפגש סיכום ותוכנית להמשך"
+    t('consciousnessLeapPromo.benefit1'),
+    t('consciousnessLeapPromo.benefit2'),
+    t('consciousnessLeapPromo.benefit3'),
+    t('consciousnessLeapPromo.benefit4'),
+    t('consciousnessLeapPromo.benefit5'),
   ];
 
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
   return (
-    <section id="consciousness-leap" className="relative py-20 md:py-32 overflow-hidden" dir="rtl">
+    <section id="consciousness-leap" className="relative py-20 md:py-32 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
       
@@ -29,21 +33,21 @@ const ConsciousnessLeapPromo = () => {
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30">
               <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">תהליך טרנספורמציה מקיף</span>
+              <span className="text-sm font-medium text-primary">{t('consciousnessLeapPromo.badge')}</span>
             </div>
           </div>
           
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 cyber-glow">
-            קפיצה לתודעה חדשה
+            {t('consciousnessLeapPromo.title')}
           </h2>
           
           {/* Description */}
           <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mb-4">
-            תהליך אישי וממוקד לאנשים שמוכנים לשינוי אמיתי ועמוק
+            {t('consciousnessLeapPromo.subtitle')}
           </p>
           <p className="text-base text-muted-foreground/80 text-center max-w-xl mx-auto mb-12">
-            בהירות, כיוון, ושחרור דפוסים ישנים
+            {t('consciousnessLeapPromo.subtitleSmall')}
           </p>
           
           {/* Content Grid */}
@@ -55,8 +59,8 @@ const ConsciousnessLeapPromo = () => {
                   <Target className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1">מיפוי מעמיק</h3>
-                  <p className="text-muted-foreground text-sm">הבנה מדויקת של איפה אתה עומד ולאן אתה רוצה להגיע</p>
+                  <h3 className="font-bold text-lg mb-1">{t('consciousnessLeapPromo.deepMapping')}</h3>
+                  <p className="text-muted-foreground text-sm">{t('consciousnessLeapPromo.deepMappingDesc')}</p>
                 </div>
               </Card>
               
@@ -65,8 +69,8 @@ const ConsciousnessLeapPromo = () => {
                   <Brain className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1">עבודה תודעתית</h3>
-                  <p className="text-muted-foreground text-sm">שילוב של היפנוזה, דמיון מודרך וטכניקות מתקדמות</p>
+                  <h3 className="font-bold text-lg mb-1">{t('consciousnessLeapPromo.consciousnessWork')}</h3>
+                  <p className="text-muted-foreground text-sm">{t('consciousnessLeapPromo.consciousnessWorkDesc')}</p>
                 </div>
               </Card>
               
@@ -75,15 +79,15 @@ const ConsciousnessLeapPromo = () => {
                   <Heart className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1">ליווי אישי צמוד</h3>
-                  <p className="text-muted-foreground text-sm">תמיכה לאורך כל התהליך עד להשגת התוצאות</p>
+                  <h3 className="font-bold text-lg mb-1">{t('consciousnessLeapPromo.personalGuidance')}</h3>
+                  <p className="text-muted-foreground text-sm">{t('consciousnessLeapPromo.personalGuidanceDesc')}</p>
                 </div>
               </Card>
             </div>
             
             {/* Right side - Benefits & CTA */}
             <Card className="bg-card/50 backdrop-blur border-primary/30 p-6 md:p-8">
-              <h3 className="text-xl font-bold mb-6 text-center">מה כולל התהליך?</h3>
+              <h3 className="text-xl font-bold mb-6 text-center">{t('consciousnessLeapPromo.whatIncludes')}</h3>
               
               <ul className="space-y-3 mb-8">
                 {benefits.map((benefit, index) => (
@@ -95,9 +99,9 @@ const ConsciousnessLeapPromo = () => {
               </ul>
               
               <div className="text-center mb-6">
-                <div className="text-sm text-muted-foreground mb-1">השקעה בעצמך</div>
-                <div className="text-4xl font-bold text-primary cyber-glow">₪1,997</div>
-                <div className="text-sm text-muted-foreground mt-1">ניתן לפריסה לתשלומים</div>
+                <div className="text-sm text-muted-foreground mb-1">{t('consciousnessLeapPromo.investInYourself')}</div>
+                <div className="text-4xl font-bold text-primary cyber-glow">{t('consciousnessLeapPromo.price')}</div>
+                <div className="text-sm text-muted-foreground mt-1">{t('consciousnessLeapPromo.installments')}</div>
               </div>
               
               <Button
@@ -105,12 +109,12 @@ const ConsciousnessLeapPromo = () => {
                 className="w-full gap-3 text-lg py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
                 onClick={() => navigate("/consciousness-leap")}
               >
-                גלה אם זה מתאים לך
-                <ArrowLeft className="h-5 w-5" />
+                {t('consciousnessLeapPromo.cta')}
+                <ArrowIcon className="h-5 w-5" />
               </Button>
               
               <p className="text-center text-sm text-muted-foreground mt-4">
-                לא כל אחד מתאים לתהליך הזה — קודם נבדוק יחד
+                {t('consciousnessLeapPromo.notForEveryone')}
               </p>
             </Card>
           </div>
@@ -119,15 +123,15 @@ const ConsciousnessLeapPromo = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
               <Compass className="h-4 w-4 text-accent" />
-              <span className="text-sm">לאנשים בצומת משמעותית</span>
+              <span className="text-sm">{t('consciousnessLeapPromo.atCrossroads')}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
               <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm">מוכנים לשינוי אמיתי</span>
+              <span className="text-sm">{t('consciousnessLeapPromo.readyForChange')}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
               <Heart className="h-4 w-4 text-accent" />
-              <span className="text-sm">מחפשי בהירות וכיוון</span>
+              <span className="text-sm">{t('consciousnessLeapPromo.seekingClarity')}</span>
             </div>
           </div>
         </div>

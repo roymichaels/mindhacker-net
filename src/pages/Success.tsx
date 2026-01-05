@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import BookingCalendar from "@/components/BookingCalendar";
 import { handleError } from "@/lib/errorHandling";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Purchase {
   id: string;
@@ -32,6 +33,9 @@ const Success = () => {
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [calendlyLink, setCalendlyLink] = useState<string>("");
+  const { t, isRTL, language } = useTranslation();
+
+  const locale = language === 'he' ? 'he-IL' : 'en-US';
 
   useEffect(() => {
     fetchCalendlyLink();
@@ -60,7 +64,7 @@ const Success = () => {
         }
       }
     } catch (error) {
-      handleError(error, "שגיאה בטעינת קישור Calendly", "Success.fetchCalendlyLink");
+      handleError(error, t('success.calendlyLoadError'), "Success.fetchCalendlyLink");
     }
   };
 
@@ -81,17 +85,16 @@ const Success = () => {
         .single();
 
       if (error || !purchaseData) {
-        handleError(error, "לא ניתן לטעון את פרטי הרכישה", "Success.fetchPurchase");
+        handleError(error, t('messages.loadError'), "Success.fetchPurchase");
         setPurchase(null);
       } else {
         setPurchase(purchaseData);
-        // Check if booking already exists
         if (purchaseData.booking_status !== "pending" || purchaseData.scheduled_date) {
           setBookingSubmitted(true);
         }
       }
     } catch (error) {
-      handleError(error, "שגיאה בטעינת פרטי הרכישה", "Success.fetchPurchase");
+      handleError(error, t('messages.loadError'), "Success.fetchPurchase");
       setPurchase(null);
     } finally {
       setLoading(false);
@@ -117,14 +120,14 @@ const Success = () => {
       if (error) throw error;
 
       toast({
-        title: "🎉 בקשת הפגישה נשלחה בהצלחה!",
-        description: "נחזור אליך בהקדם עם אישור. נתראה בפגישה שתשנה הכל!",
+        title: t('success.bookingRequestSuccess'),
+        description: t('success.bookingRequestDesc'),
       });
 
       setBookingSubmitted(true);
-      fetchPurchase(); // Refresh the purchase data
+      fetchPurchase();
     } catch (error) {
-      handleError(error, "שגיאה בשליחת בקשת הפגישה", "Success.handleBookingSubmit");
+      handleError(error, t('success.bookingSubmitError'), "Success.handleBookingSubmit");
     } finally {
       setIsSubmittingBooking(false);
     }
@@ -145,22 +148,22 @@ const Success = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir={isRTL ? 'rtl' : 'ltr'}>
           <Card className="max-w-md w-full glass-panel">
             <CardHeader>
               <CardTitle className="text-2xl text-center cyber-glow">
-                ברוך הבא!
+                {t('success.welcome')}
               </CardTitle>
               <CardDescription className="text-center">
-                אין פרטי רכישה בכתובת זו
+                {t('success.noPurchaseId')}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <Button onClick={() => navigate("/dashboard")} className="w-full">
-                לצפייה בכל הרכישות שלי
+                {t('success.viewPurchases')}
               </Button>
               <Button onClick={() => navigate("/")} variant="outline" className="w-full">
-                חזור לדף הבית
+                {t('notFound.goHome')}
               </Button>
             </CardContent>
           </Card>
@@ -173,22 +176,22 @@ const Success = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir={isRTL ? 'rtl' : 'ltr'}>
           <Card className="max-w-md w-full glass-panel">
             <CardHeader>
               <CardTitle className="text-2xl text-center text-destructive">
-                שגיאה
+                {t('common.error')}
               </CardTitle>
               <CardDescription className="text-center">
-                לא נמצאו פרטי רכישה
+                {t('success.purchaseNotFound')}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <Button onClick={() => navigate("/dashboard")} className="w-full">
-                לצפייה בכל הרכישות שלי
+                {t('success.viewPurchases')}
               </Button>
               <Button onClick={() => navigate("/")} variant="outline" className="w-full">
-                חזור לדף הבית
+                {t('notFound.goHome')}
               </Button>
             </CardContent>
           </Card>
@@ -197,6 +200,10 @@ const Success = () => {
     );
   }
 
+  const packageTypeLabel = purchase.package_type === "single" 
+    ? t('sessions.singleSession') 
+    : t('sessions.packageOf4');
+
   return (
     <div className="min-h-screen bg-background relative">
       <MatrixRain />
@@ -204,7 +211,7 @@ const Success = () => {
       
       <Header />
       
-      <div className="relative z-10 flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir="rtl">
+      <div className="relative z-10 flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-full max-w-4xl space-y-6">
           {/* Success Header */}
           <Card className="glass-panel text-center">
@@ -215,10 +222,10 @@ const Success = () => {
                 </div>
               </div>
               <CardTitle className="text-3xl md:text-4xl cyber-glow">
-                🎉 מזל טוב! קיבלת את ההחלטה הנכונה
+                {t('success.congratulations')}
               </CardTitle>
               <CardDescription className="text-lg">
-                הצעד הראשון לשינוי כבר נעשה. המציאות שלך עומדת להשתנות לנצח.
+                {t('success.firstStep')}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -226,39 +233,37 @@ const Success = () => {
           {/* Purchase Details */}
           <Card className="glass-panel">
             <CardHeader>
-              <CardTitle className="text-2xl">פרטי החבילה שלך</CardTitle>
+              <CardTitle className="text-2xl">{t('success.packageDetails')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">סוג חבילה</p>
-                  <p className="text-lg font-semibold">
-                    {purchase.package_type === "single" ? "פגישה בודדת" : "חבילת 4 פגישות"}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t('success.packageType')}</p>
+                  <p className="text-lg font-semibold">{packageTypeLabel}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">מספר פגישות</p>
+                  <p className="text-sm text-muted-foreground">{t('success.sessionsCount')}</p>
                   <p className="text-lg font-semibold">{purchase.sessions_total}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">מחיר</p>
+                  <p className="text-sm text-muted-foreground">{t('success.price')}</p>
                   <p className="text-lg font-semibold cyber-glow">₪{purchase.price}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">תאריך רכישה</p>
+                  <p className="text-sm text-muted-foreground">{t('success.purchaseDate')}</p>
                   <p className="text-lg font-semibold">
-                    {new Date(purchase.purchase_date).toLocaleDateString('he-IL')}
+                    {new Date(purchase.purchase_date).toLocaleDateString(locale)}
                   </p>
                 </div>
               </div>
 
               <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                <p className="font-semibold">💳 לגבי התשלום:</p>
+                <p className="font-semibold">{t('success.paymentInfo')}</p>
                 <ul className="space-y-1 text-sm">
-                  <li>• התשלום יתבצע לאחר הפגישה הראשונה</li>
-                  <li>• ניתן לשלם דרך PayPal או העברה בנקאית</li>
-                  <li>• פרטי התשלום ישלחו אליך לאחר הפגישה</li>
-                  <li className="font-semibold mt-2">• המחיר הסופי: ₪{purchase.price}</li>
+                  <li>• {t('success.paymentAfterSession')}</li>
+                  <li>• {t('success.paymentMethods')}</li>
+                  <li>• {t('success.paymentDetailsSent')}</li>
+                  <li className="font-semibold mt-2">• {t('success.finalPrice')} ₪{purchase.price}</li>
                 </ul>
               </div>
             </CardContent>
@@ -269,10 +274,10 @@ const Success = () => {
             <Card className="glass-panel">
               <CardHeader>
                 <CardTitle className="text-2xl text-center cyber-glow">
-                  עכשיו בוא נקבע את הפגישה שתשנה הכל
+                  {t('success.scheduleSession')}
                 </CardTitle>
                 <CardDescription className="text-center text-base">
-                  {calendlyLink ? "לחץ על הכפתור למטה לקביעת פגישה ישירות" : "בחר את התאריך והשעה המועדפים עליך"}
+                  {calendlyLink ? t('success.scheduleNow') : t('success.selectPreferred')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -283,10 +288,10 @@ const Success = () => {
                       size="lg"
                       className="w-full max-w-md bg-primary hover:bg-primary/90 text-primary-foreground cyber-glow"
                     >
-                      📅 קבע פגישה עכשיו ב-Calendly
+                      {t('success.scheduleNow')}
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                      או השאר פרטים והמנטור יחזור אליך:
+                      {t('success.orLeaveDetails')}
                     </p>
                   </div>
                 )}
@@ -300,17 +305,17 @@ const Success = () => {
             <Card className="glass-panel">
               <CardHeader>
                 <CardTitle className="text-2xl text-center cyber-glow">
-                  ✅ בקשת הפגישה נקלטה!
+                  {t('success.requestReceived')}
                 </CardTitle>
                 <CardDescription className="text-center text-base">
-                  נחזור אליך בהקדם עם אישור הפגישה. נתראה בפגישה שתשנה הכל! 🚀
+                  {t('success.willContactSoon')}
                 </CardDescription>
               </CardHeader>
               {purchase.scheduled_date && purchase.scheduled_time && (
                 <CardContent>
                   <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
-                    <p className="font-semibold">הבקשה שלך:</p>
-                    <p>📅 {new Date(purchase.scheduled_date).toLocaleDateString('he-IL')}</p>
+                    <p className="font-semibold">{t('success.yourRequest')}</p>
+                    <p>📅 {new Date(purchase.scheduled_date).toLocaleDateString(locale)}</p>
                     <p>🕐 {purchase.scheduled_time}</p>
                   </div>
                 </CardContent>
@@ -326,8 +331,8 @@ const Success = () => {
               className="flex-1"
               size="lg"
             >
-              <LayoutDashboard className="ml-2 h-5 w-5" />
-              דאשבורד
+              <LayoutDashboard className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('common.dashboard')}
             </Button>
             <Button
               onClick={() => navigate("/")}
@@ -335,8 +340,8 @@ const Success = () => {
               className="flex-1"
               size="lg"
             >
-              <Home className="ml-2 h-5 w-5" />
-              חזור לדף הבית
+              <Home className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('notFound.goHome')}
             </Button>
           </div>
         </div>

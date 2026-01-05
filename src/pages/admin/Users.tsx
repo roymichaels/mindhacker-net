@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Loader2, Gift } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserData {
   id: string;
@@ -41,6 +42,9 @@ const Users = () => {
     email: string;
     full_name: string | null;
   } | null>(null);
+  const { t, isRTL, language } = useTranslation();
+
+  const locale = language === 'he' ? 'he-IL' : 'en-US';
 
   useEffect(() => {
     fetchUsers();
@@ -48,7 +52,6 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      // First get all profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select(`
@@ -59,17 +62,14 @@ const Users = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get purchases for each user
       const { data: purchasesData } = await supabase
         .from("purchases")
         .select("user_id, id, sessions_remaining");
 
-      // Get roles for each user
       const { data: rolesData } = await supabase
         .from("user_roles")
         .select("user_id, role");
 
-      // Function to get user email via Edge Function
       const getUserEmail = async (userId: string) => {
         try {
           const { data, error } = await supabase.functions.invoke('get-user-data', {
@@ -77,17 +77,15 @@ const Users = () => {
           });
 
           if (error) throw error;
-          return data.user?.email || "Unknown";
+          return data.user?.email || t('common.unknown');
         } catch (error) {
           console.error("Error fetching user email - ID:", generateErrorId());
-          return "Unknown";
+          return t('common.unknown');
         }
       };
 
-      // Combine the data
       const usersWithData = await Promise.all(
         (profilesData || []).map(async (profile) => {
-          // Get user email via Edge Function
           const email = await getUserEmail(profile.id);
           const userPurchases = purchasesData?.filter(p => p.user_id === profile.id) || [];
           const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
@@ -107,7 +105,7 @@ const Users = () => {
 
       setUsers(usersWithData);
     } catch (error: unknown) {
-      handleError(error, "לא ניתן לטעון משתמשים", "Users");
+      handleError(error, t('messages.loadError'), "Users");
     } finally {
       setLoading(false);
     }
@@ -138,22 +136,22 @@ const Users = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div>
-        <h1 className="text-3xl font-black cyber-glow mb-2">ניהול משתמשים</h1>
+        <h1 className="text-3xl font-black cyber-glow mb-2">{t('adminUsers.pageTitle')}</h1>
         <p className="text-muted-foreground">
-          צפה במשתמשים ובפעילותם במערכת
+          {t('adminUsers.pageSubtitle')}
         </p>
       </div>
 
       <div className="flex gap-4">
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-3 h-4 w-4 text-muted-foreground`} />
           <Input
-            placeholder="חפש לפי שם או אימייל..."
+            placeholder={t('adminUsers.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pr-10"
+            className={isRTL ? 'pr-10' : 'pl-10'}
           />
         </div>
       </div>
@@ -162,20 +160,20 @@ const Users = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-right">שם</TableHead>
-              <TableHead className="text-right">אימייל</TableHead>
-              <TableHead className="text-right">תאריך הצטרפות</TableHead>
-              <TableHead className="text-right">רכישות</TableHead>
-              <TableHead className="text-right">מפגשים פעילים</TableHead>
-              <TableHead className="text-right">תפקיד</TableHead>
-              <TableHead className="text-right">פעולות</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.name')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.email')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.joinDate')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.purchases')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.activeSessions')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.role')}</TableHead>
+              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
-                  לא נמצאו משתמשים
+                  {t('adminUsers.noUsersFound')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -190,11 +188,11 @@ const Users = () => {
                 return (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
-                      {user.profiles?.full_name || "לא מוגדר"}
+                      {user.profiles?.full_name || t('adminUsers.notDefined')}
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      {new Date(user.created_at).toLocaleDateString("he-IL")}
+                      {new Date(user.created_at).toLocaleDateString(locale)}
                     </TableCell>
                     <TableCell>{totalPurchases}</TableCell>
                     <TableCell>{activeSessions}</TableCell>
@@ -213,7 +211,7 @@ const Users = () => {
                         className="gap-1"
                       >
                         <Gift className="h-4 w-4" />
-                        הענק רכישה
+                        {t('adminUsers.grantPurchase')}
                       </Button>
                     </TableCell>
                   </TableRow>
