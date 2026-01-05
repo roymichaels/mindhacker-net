@@ -22,6 +22,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Gift, CreditCard, BookOpen, Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice, getCurrencySymbol } from "@/lib/currency";
 
 interface AdminGrantPurchaseDialogProps {
   open: boolean;
@@ -42,6 +44,7 @@ const AdminGrantPurchaseDialog = ({
   user,
   onSuccess,
 }: AdminGrantPurchaseDialogProps) => {
+  const { language } = useTranslation();
   const [grantType, setGrantType] = useState<GrantType>("sessions");
   const [loading, setLoading] = useState(false);
   
@@ -256,7 +259,7 @@ const AdminGrantPurchaseDialog = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>מחיר (₪)</Label>
+                  <Label>מחיר ({getCurrencySymbol(language)})</Label>
                   <Input
                     type="number"
                     min={0}
@@ -280,7 +283,7 @@ const AdminGrantPurchaseDialog = ({
                   <SelectContent>
                     {products?.map((product) => (
                       <SelectItem key={product.id} value={product.id}>
-                        {product.title} (₪{product.price})
+                        {product.title} ({formatPrice(product.price || 0, language)})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -288,7 +291,7 @@ const AdminGrantPurchaseDialog = ({
               </div>
 
               <div className="space-y-2">
-                <Label>מחיר ששולם (₪)</Label>
+                <Label>מחיר ששולם ({getCurrencySymbol(language)})</Label>
                 <Input
                   type="number"
                   min={0}
@@ -334,7 +337,7 @@ const AdminGrantPurchaseDialog = ({
 
               {selectedTierId && (
                 <div className="text-sm text-muted-foreground">
-                  מחיר: ₪{getSelectedTierPrice()}
+                  מחיר: {formatPrice(getSelectedTierPrice(), language)}
                 </div>
               )}
             </>

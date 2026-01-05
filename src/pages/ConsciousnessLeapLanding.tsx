@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 import MatrixRain from "@/components/MatrixRain";
 import {
   Accordion,
@@ -38,6 +40,7 @@ import {
 } from "lucide-react";
 
 const ConsciousnessLeapLanding = () => {
+  const { language } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatResonated, setWhatResonated] = useState("");
@@ -146,7 +149,7 @@ const ConsciousnessLeapLanding = () => {
     { question: "האם זה מתאים לי אם כבר עברתי טיפולים אחרים?", answer: "בהחלט! הרבה אנשים מגיעים אלי אחרי שניסו גישות אחרות. התהליך הזה שונה כי הוא משלב עבודה תודעתית עמוקה עם כלים פרקטיים." },
     { question: "מה קורה אחרי התהליך?", answer: "בסוף התהליך תקבל תוכנית ברורה להמשך, הקלטות היפנוזה שתוכל להמשיך להשתמש בהן, וכלים שישארו איתך לכל החיים." },
     { question: "האם יש אחריות?", answer: "אני מאמין בעבודה משותפת. אם תגיע עם נכונות אמיתית ותעשה את העבודה, אני מתחייב ללוות אותך עד שתגיע לתוצאות." },
-    { question: "כמה עולה התהליך?", answer: "התהליך המלא עולה ₪1,997. זו השקעה בעצמך שתשתלם לאורך שנים. ניתן לפרוס לתשלומים." }
+    { question: "כמה עולה התהליך?", answer: `התהליך המלא עולה ${formatPrice(1997, language)}. זו השקעה בעצמך שתשתלם לאורך שנים. ניתן לפרוס לתשלומים.` }
   ];
 
   if (isSubmitted) {
@@ -243,7 +246,7 @@ const ConsciousnessLeapLanding = () => {
 
             <div className="inline-block bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-6 mb-8 animate-fade-in">
               <div className="text-sm text-muted-foreground mb-1">השקעה בעצמך</div>
-              <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">₪1,997</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">{formatPrice(1997, language)}</div>
               <div className="text-sm text-muted-foreground mt-1">ניתן לפריסה לתשלומים</div>
             </div>
 

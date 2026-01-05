@@ -15,11 +15,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSwipeable } from "react-swipeable";
 import { useSEO } from "@/hooks/useSEO";
 import { getCourseSchema, getBreadcrumbSchema } from "@/lib/seo";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice, getCurrencyCode } from "@/lib/currency";
 
 const CourseDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, language, isRTL } = useTranslation();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Swipe to go back on mobile
@@ -123,9 +126,9 @@ const CourseDetail = () => {
 
   // Update SEO when course data is loaded
   useSEO({
-    title: course ? `${course.title} | מיינד-האקר` : "מוצר דיגיטלי | מיינד-האקר",
-    description: course?.description || "גלה מוצר דיגיטלי איכותי בתחום אימון התודעה והפיתוח האישי",
-    keywords: course ? `${course.title}, קורס אונליין, ${course.category}, ${course.difficulty_level}` : undefined,
+    title: course ? `${course.title} | ${language === 'en' ? 'Mind-Hacker' : 'מיינד-האקר'}` : (language === 'en' ? "Digital Product | Mind-Hacker" : "מוצר דיגיטלי | מיינד-האקר"),
+    description: course?.description || (language === 'en' ? "Discover quality digital products in consciousness training and personal development" : "גלה מוצר דיגיטלי איכותי בתחום אימון התודעה והפיתוח האישי"),
+    keywords: course ? `${course.title}, ${language === 'en' ? 'online course' : 'קורס אונליין'}, ${course.category}, ${course.difficulty_level}` : undefined,
     image: course?.thumbnail_url,
     url: `${window.location.origin}/courses/${slug}`,
     type: "product",
@@ -133,14 +136,14 @@ const CourseDetail = () => {
       getCourseSchema({
         name: course.title,
         description: course.description || "",
-        provider: "מיינד-האקר - דין אזולאי",
+        provider: language === 'en' ? "Mind-Hacker - Dean Azoulay" : "מיינד-האקר - דין אזולאי",
         image: course.thumbnail_url || undefined,
         price: course.price || undefined,
-        currency: "ILS",
+        currency: getCurrencyCode(language),
       }),
       getBreadcrumbSchema([
-        { name: "דף הבית", url: window.location.origin },
-        { name: "מוצרים דיגיטליים", url: `${window.location.origin}/courses` },
+        { name: language === 'en' ? "Home" : "דף הבית", url: window.location.origin },
+        { name: language === 'en' ? "Digital Products" : "מוצרים דיגיטליים", url: `${window.location.origin}/courses` },
         { name: course.title, url: `${window.location.origin}/courses/${slug}` },
       ]),
     ] : undefined,
@@ -167,9 +170,13 @@ const CourseDetail = () => {
     <div {...swipeHandlers} className="relative min-h-screen">
       <MatrixRain />
       <Header />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20 text-center" dir="rtl">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black cyber-glow mb-4">קורס לא נמצא</h1>
-          <Button onClick={() => navigate("/courses")} size="lg">חזור לקורסים</Button>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black cyber-glow mb-4">
+            {language === 'en' ? 'Course not found' : 'קורס לא נמצא'}
+          </h1>
+          <Button onClick={() => navigate("/courses")} size="lg">
+            {language === 'en' ? 'Back to courses' : 'חזור לקורסים'}
+          </Button>
         </div>
       </div>
     );
@@ -188,15 +195,15 @@ const CourseDetail = () => {
           variant="ghost"
           onClick={() => navigate("/courses")}
           className="mb-4 sm:mb-6 h-9 sm:h-10"
-          dir="rtl"
+          dir={isRTL ? 'rtl' : 'ltr'}
         >
-          <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="text-xs sm:text-sm">חזור למוצרים</span>
+          <ArrowRight className={`h-3 w-3 sm:h-4 sm:w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+          <span className="text-xs sm:text-sm">{language === 'en' ? 'Back to products' : 'חזור למוצרים'}</span>
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8" dir="rtl">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
             {/* Hero Section */}
             <div className="glass-panel p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
               {/* Thumbnail */}
@@ -215,13 +222,19 @@ const CourseDetail = () => {
                 <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                   <Badge variant="outline" className="text-xs">{course.content_type}</Badge>
                   {course.difficulty_level && (
-                    <Badge variant="outline" className="text-xs">רמה: {course.difficulty_level}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {language === 'en' ? 'Level:' : 'רמה:'} {course.difficulty_level}
+                    </Badge>
                   )}
                   {course.access_level === "free" && (
-                    <Badge className="bg-accent text-accent-foreground text-xs">חינם</Badge>
+                    <Badge className="bg-accent text-accent-foreground text-xs">
+                      {language === 'en' ? 'Free' : 'חינם'}
+                    </Badge>
                   )}
                   {course.is_featured && (
-                    <Badge className="cyber-glow text-xs">מומלץ</Badge>
+                    <Badge className="cyber-glow text-xs">
+                      {language === 'en' ? 'Featured' : 'מומלץ'}
+                    </Badge>
                   )}
                 </div>
 
@@ -231,7 +244,7 @@ const CourseDetail = () => {
 
                 {course.instructor_name && (
                   <p className="text-base sm:text-lg text-muted-foreground mb-3 sm:mb-4">
-                    מדריך: {course.instructor_name}
+                    {language === 'en' ? 'Instructor:' : 'מדריך:'} {course.instructor_name}
                   </p>
                 )}
 
@@ -240,17 +253,17 @@ const CourseDetail = () => {
                   {course.duration_minutes && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                      <span>{Math.floor(course.duration_minutes / 60)} שעות תוכן</span>
+                      <span>{Math.floor(course.duration_minutes / 60)} {language === 'en' ? 'hours of content' : 'שעות תוכן'}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                    <span>{course.enrollment_count || 0} משתתפים</span>
+                    <span>{course.enrollment_count || 0} {language === 'en' ? 'participants' : 'משתתפים'}</span>
                   </div>
                   {course.average_rating && course.average_rating > 0 && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <Star className="h-4 w-4 sm:h-5 sm:w-5 text-accent fill-accent flex-shrink-0" />
-                      <span>{course.average_rating.toFixed(1)} דירוג</span>
+                      <span>{course.average_rating.toFixed(1)} {language === 'en' ? 'rating' : 'דירוג'}</span>
                     </div>
                   )}
                 </div>
@@ -260,19 +273,18 @@ const CourseDetail = () => {
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 flex items-center gap-2">
                   <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                  אודות הקורס
+                  {language === 'en' ? 'About the Course' : 'אודות הקורס'}
                 </h2>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {course.description}
                 </p>
               </div>
 
-              {/* Learning Objectives */}
               {course.learning_objectives && course.learning_objectives.length > 0 && (
                 <div>
                   <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 flex items-center gap-2">
                     <Target className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                    מה תלמדו בקורס?
+                    {language === 'en' ? 'What will you learn?' : 'מה תלמדו בקורס?'}
                   </h2>
                   <ul className="space-y-2 sm:space-y-3">
                     {course.learning_objectives.map((objective, index) => (
@@ -288,7 +300,9 @@ const CourseDetail = () => {
               {/* Requirements */}
               {course.requirements && course.requirements.length > 0 && (
                 <div>
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3">דרישות מוקדמות</h2>
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3">
+                    {language === 'en' ? 'Prerequisites' : 'דרישות מוקדמות'}
+                  </h2>
                   <ul className="space-y-2 sm:space-y-3">
                     {course.requirements.map((requirement, index) => (
                       <li key={index} className="flex items-start gap-2 sm:gap-3">
@@ -312,13 +326,13 @@ const CourseDetail = () => {
 
           {/* Sidebar - Enrollment Card (Desktop) */}
           <div className="hidden lg:block lg:col-span-1">
-            <Card className="glass-panel sticky top-24" dir="rtl">
+            <Card className="glass-panel sticky top-24" dir={isRTL ? 'rtl' : 'ltr'}>
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="text-center">
                   {course.price && course.price > 0 ? (
-                    <div className="text-3xl sm:text-4xl font-black cyber-glow">₪{course.price}</div>
+                    <div className="text-3xl sm:text-4xl font-black cyber-glow">{formatPrice(course.price, language)}</div>
                   ) : (
-                    <div className="text-3xl sm:text-4xl font-black text-accent">חינם</div>
+                    <div className="text-3xl sm:text-4xl font-black text-accent">{language === 'en' ? 'Free' : 'חינם'}</div>
                   )}
                 </CardTitle>
               </CardHeader>
@@ -329,7 +343,7 @@ const CourseDetail = () => {
                     size="lg"
                     onClick={() => navigate(`/courses/${course.slug}/watch`)}
                   >
-                    המשך לצפייה
+                    {language === 'en' ? 'Continue watching' : 'המשך לצפייה'}
                   </Button>
                 ) : (
                   <>
@@ -338,10 +352,12 @@ const CourseDetail = () => {
                       size="lg"
                       onClick={handleEnroll}
                     >
-                      {course.price && course.price > 0 ? "רכוש עכשיו" : "הירשם חינם"}
+                      {course.price && course.price > 0 
+                        ? (language === 'en' ? 'Buy now' : 'רכוש עכשיו') 
+                        : (language === 'en' ? 'Enroll free' : 'הירשם חינם')}
                     </Button>
                     <p className="text-xs text-muted-foreground text-center">
-                      גישה מלאה לכל התוכן לכל החיים
+                      {language === 'en' ? 'Full lifetime access to all content' : 'גישה מלאה לכל התוכן לכל החיים'}
                     </p>
                   </>
                 )}
@@ -352,7 +368,7 @@ const CourseDetail = () => {
                 ) && (
                   <div className="pt-3 sm:pt-4 border-t border-border/30">
                     <p className="text-xs sm:text-sm text-center text-muted-foreground">
-                      ניתן לצפות בשיעורי התצוגה המקדימה ללא הרשמה
+                      {language === 'en' ? 'Preview lessons available without enrollment' : 'ניתן לצפות בשיעורי התצוגה המקדימה ללא הרשמה'}
                     </p>
                   </div>
                 )}
@@ -362,13 +378,13 @@ const CourseDetail = () => {
         </div>
 
         {/* Mobile Fixed CTA Bar */}
-        <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-background/95 backdrop-blur-sm border-t border-border/50 p-4 z-50" dir="rtl">
+        <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-background/95 backdrop-blur-sm border-t border-border/50 p-4 z-50" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="container mx-auto flex items-center justify-between gap-3">
             <div className="flex flex-col">
               {course.price && course.price > 0 ? (
-                <div className="text-xl sm:text-2xl font-black cyber-glow">₪{course.price}</div>
+                <div className="text-xl sm:text-2xl font-black cyber-glow">{formatPrice(course.price, language)}</div>
               ) : (
-                <div className="text-xl sm:text-2xl font-black text-accent">חינם</div>
+                <div className="text-xl sm:text-2xl font-black text-accent">{language === 'en' ? 'Free' : 'חינם'}</div>
               )}
             </div>
             {hasAccess ? (
@@ -377,7 +393,7 @@ const CourseDetail = () => {
                 size="lg"
                 onClick={() => navigate(`/courses/${course.slug}/watch`)}
               >
-                המשך לצפייה
+                {language === 'en' ? 'Continue watching' : 'המשך לצפייה'}
               </Button>
             ) : (
               <Button 
@@ -385,7 +401,9 @@ const CourseDetail = () => {
                 size="lg"
                 onClick={handleEnroll}
               >
-                {course.price && course.price > 0 ? "רכוש עכשיו" : "הירשם חינם"}
+                {course.price && course.price > 0 
+                  ? (language === 'en' ? 'Buy now' : 'רכוש עכשיו') 
+                  : (language === 'en' ? 'Enroll free' : 'הירשם חינם')}
               </Button>
             )}
           </div>

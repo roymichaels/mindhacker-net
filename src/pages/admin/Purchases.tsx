@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Search, Loader2, Edit, Trash2, Link as LinkIcon } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +42,7 @@ interface Purchase {
 }
 
 const Purchases = () => {
+  const { language } = useTranslation();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -252,7 +255,7 @@ const Purchases = () => {
                   <TableCell>
                     {purchase.sessions_remaining} / {purchase.sessions_total}
                   </TableCell>
-                  <TableCell>₪{purchase.price}</TableCell>
+                  <TableCell>{formatPrice(purchase.price, language)}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
