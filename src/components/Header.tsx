@@ -31,6 +31,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 interface MenuItem {
   id: string;
   label: string;
+  label_en: string | null;
   action_type: string;
   action_value: string;
   order_index: number;
@@ -43,7 +44,7 @@ const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { t, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
 
   const { data: menuItems = [] } = useQuery({
     queryKey: ["menu-items-public"],
@@ -72,19 +73,19 @@ const Header = () => {
         });
         setIsAdmin(hasAdminRole || false);
       } catch (error) {
-        handleError(error, "לא ניתן לבדוק הרשאות", "Header");
+        handleError(error, t('common.error'), "Header");
         setIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [user]);
+  }, [user, t]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "התנתקת בהצלחה",
-      description: "להתראות!",
+      title: t('messages.logoutSuccess'),
+      description: t('messages.goodbye'),
     });
     navigate("/");
   };
@@ -109,6 +110,10 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
+  const getMenuLabel = (item: MenuItem) => {
+    return language === 'en' && item.label_en ? item.label_en : item.label;
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -128,7 +133,7 @@ const Header = () => {
               onClick={() => handleMenuAction(item)}
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
-              {item.label}
+              {getMenuLabel(item)}
             </button>
           ))}
         </nav>
@@ -203,7 +208,7 @@ const Header = () => {
                     onClick={() => handleMenuAction(item)}
                     className={`${isRTL ? 'text-right' : 'text-left'} text-sm font-medium hover:text-primary transition-colors`}
                   >
-                    {item.label}
+                    {getMenuLabel(item)}
                   </button>
                 ))}
 
@@ -218,8 +223,8 @@ const Header = () => {
                       }}
                       className="w-full justify-start"
                     >
-                      <ShoppingBag className="ml-2 h-4 w-4" />
-                      דאשבורד
+                      <ShoppingBag className={isRTL ? "ml-2" : "mr-2"} />
+                      {t('common.dashboard')}
                     </Button>
                     {isAdmin && (
                       <Button
@@ -230,8 +235,8 @@ const Header = () => {
                         }}
                         className="w-full justify-start"
                       >
-                        <Settings className="ml-2 h-4 w-4" />
-                        פאנל ניהול
+                        <Settings className={isRTL ? "ml-2" : "mr-2"} />
+                        {t('header.adminPanel')}
                       </Button>
                     )}
                     <Button
@@ -242,8 +247,8 @@ const Header = () => {
                       }}
                       className="w-full justify-start text-destructive hover:text-destructive"
                     >
-                      <LogOut className="ml-2 h-4 w-4" />
-                      התנתק
+                      <LogOut className={isRTL ? "ml-2" : "mr-2"} />
+                      {t('common.logout')}
                     </Button>
                   </>
                 ) : (

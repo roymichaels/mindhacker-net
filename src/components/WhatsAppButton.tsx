@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const WhatsAppButton = () => {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isEnabled, setIsEnabled] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -29,7 +31,7 @@ const WhatsAppButton = () => {
 
   if (!isEnabled || !whatsappNumber) return null;
 
-  const message = "היי, אני מעוניין לשמוע עוד על אימון תודעתי 🙏";
+  const message = t('whatsapp.defaultMessage');
   const cleanedNumber = whatsappNumber.replace(/\D/g, "");
   const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodeURIComponent(message)}`;
 
@@ -47,7 +49,7 @@ const WhatsAppButton = () => {
       onClick={handleClick}
       className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 w-14 h-14 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 group animate-bounce-slow"
       style={{ animationDuration: "3s" }}
-      aria-label="צור קשר בוואטסאפ"
+      aria-label={t('whatsapp.ariaLabel')}
     >
       <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-white" />
       

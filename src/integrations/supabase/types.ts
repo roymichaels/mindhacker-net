@@ -840,6 +840,7 @@ export type Database = {
           id: string
           is_visible: boolean | null
           label: string
+          label_en: string | null
           order_index: number | null
           updated_at: string | null
         }
@@ -850,6 +851,7 @@ export type Database = {
           id?: string
           is_visible?: boolean | null
           label: string
+          label_en?: string | null
           order_index?: number | null
           updated_at?: string | null
         }
@@ -860,6 +862,7 @@ export type Database = {
           id?: string
           is_visible?: boolean | null
           label?: string
+          label_en?: string | null
           order_index?: number | null
           updated_at?: string | null
         }

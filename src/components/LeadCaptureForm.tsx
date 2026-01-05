@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, Phone, User, Mail, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface LeadCaptureFormProps {
   source: string;
@@ -31,6 +32,7 @@ const LeadCaptureForm = ({
   const [preferredTime, setPreferredTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { t, isRTL } = useTranslation();
   
   // Honeypot field - bots will fill this, humans won't see it
   const [honeypot, setHoneypot] = useState("");
@@ -65,8 +67,8 @@ const LeadCaptureForm = ({
     
     if (!name.trim() || !phone.trim()) {
       toast({
-        title: "שגיאה",
-        description: "נא למלא שם וטלפון",
+        title: t('leadForm.error'),
+        description: t('leadForm.fillNamePhone'),
         variant: "destructive",
       });
       return;
@@ -76,8 +78,8 @@ const LeadCaptureForm = ({
     const phoneRegex = /^[\d\-+() ]{9,15}$/;
     if (!phoneRegex.test(phone.trim())) {
       toast({
-        title: "מספר טלפון לא תקין",
-        description: "נא להזין מספר טלפון תקין",
+        title: t('leadForm.invalidPhone'),
+        description: t('leadForm.enterValidPhone'),
         variant: "destructive",
       });
       return;
@@ -107,8 +109,8 @@ const LeadCaptureForm = ({
 
       setIsSuccess(true);
       toast({
-        title: "הפרטים נשלחו בהצלחה! 🎉",
-        description: "אחזור אליך בהקדם",
+        title: t('leadForm.successSent'),
+        description: t('leadForm.willCallBack'),
       });
 
       onSuccess?.();
@@ -125,8 +127,8 @@ const LeadCaptureForm = ({
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({
-        title: "שגיאה",
-        description: "משהו השתבש, נסה שוב",
+        title: t('leadForm.error'),
+        description: t('leadForm.somethingWrong'),
         variant: "destructive",
       });
     } finally {
@@ -144,14 +146,16 @@ const LeadCaptureForm = ({
           <CheckCircle className="w-8 h-8 text-green-500" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-foreground mb-1">תודה רבה!</h3>
-          <p className="text-muted-foreground">אחזור אליך בהקדם האפשרי 🙏</p>
+          <h3 className="text-xl font-bold text-foreground mb-1">{t('leadForm.successTitle')}</h3>
+          <p className="text-muted-foreground">{t('leadForm.successMessage')}</p>
         </div>
       </div>
     );
   }
 
   const isCompact = variant === "compact";
+  const iconPosition = isRTL ? "right-3" : "left-3";
+  const inputPadding = isRTL ? "pr-10" : "pl-10";
 
   return (
     <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
@@ -181,16 +185,16 @@ const LeadCaptureForm = ({
       <div className={cn(isCompact ? "space-y-3" : "space-y-4")}>
         {/* Name */}
         <div className="space-y-1.5">
-          {!isCompact && <Label htmlFor="lead-name">שם מלא *</Label>}
+          {!isCompact && <Label htmlFor="lead-name">{t('leadForm.fullName')}</Label>}
           <div className="relative">
-            <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <User className={`absolute ${iconPosition} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
             <Input
               id="lead-name"
               type="text"
-              placeholder="השם שלך"
+              placeholder={t('leadForm.yourName')}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="pr-10 bg-background/50 border-border/50 focus:border-primary"
+              className={`${inputPadding} bg-background/50 border-border/50 focus:border-primary`}
               required
               disabled={isSubmitting}
             />
@@ -199,16 +203,16 @@ const LeadCaptureForm = ({
 
         {/* Phone */}
         <div className="space-y-1.5">
-          {!isCompact && <Label htmlFor="lead-phone">טלפון *</Label>}
+          {!isCompact && <Label htmlFor="lead-phone">{t('leadForm.phone')}</Label>}
           <div className="relative">
-            <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Phone className={`absolute ${iconPosition} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
             <Input
               id="lead-phone"
               type="tel"
               placeholder="050-0000000"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="pr-10 bg-background/50 border-border/50 focus:border-primary"
+              className={`${inputPadding} bg-background/50 border-border/50 focus:border-primary`}
               required
               disabled={isSubmitting}
               dir="ltr"
@@ -219,16 +223,16 @@ const LeadCaptureForm = ({
         {/* Email - optional */}
         {!isCompact && (
           <div className="space-y-1.5">
-            <Label htmlFor="lead-email">אימייל (אופציונלי)</Label>
+            <Label htmlFor="lead-email">{t('leadForm.emailOptional')}</Label>
             <div className="relative">
-              <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Mail className={`absolute ${iconPosition} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
               <Input
                 id="lead-email"
                 type="email"
                 placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pr-10 bg-background/50 border-border/50 focus:border-primary"
+                className={`${inputPadding} bg-background/50 border-border/50 focus:border-primary`}
                 disabled={isSubmitting}
                 dir="ltr"
               />
@@ -239,16 +243,16 @@ const LeadCaptureForm = ({
         {/* Preferred Time - optional */}
         {showPreferredTime && (
           <div className="space-y-1.5">
-            <Label htmlFor="lead-time">מתי נוח לך שאחזור? (אופציונלי)</Label>
+            <Label htmlFor="lead-time">{t('leadForm.preferredTime')}</Label>
             <div className="relative">
-              <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Clock className={`absolute ${iconPosition} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
               <Input
                 id="lead-time"
                 type="text"
-                placeholder="למשל: בערב, אחרי 18:00"
+                placeholder={t('leadForm.preferredTimePlaceholder')}
                 value={preferredTime}
                 onChange={(e) => setPreferredTime(e.target.value)}
-                className="pr-10 bg-background/50 border-border/50 focus:border-primary"
+                className={`${inputPadding} bg-background/50 border-border/50 focus:border-primary`}
                 disabled={isSubmitting}
               />
             </div>
@@ -266,19 +270,19 @@ const LeadCaptureForm = ({
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin ml-2" />
-            שולח...
+            <Loader2 className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
+            {t('leadForm.sending')}
           </>
         ) : (
           <>
-            <Phone className="w-4 h-4 ml-2" />
-            שלח ואחזור אליך
+            <Phone className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+            {t('leadForm.submitButton')}
           </>
         )}
       </Button>
 
       <p className="text-xs text-muted-foreground text-center">
-        * אחזור אליך תוך 24 שעות לכל היותר
+        {t('leadForm.footerNote')}
       </p>
     </form>
   );

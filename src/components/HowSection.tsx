@@ -1,8 +1,10 @@
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const HowSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -34,18 +36,18 @@ const HowSection = () => {
   const steps = [
     {
       number: "01",
-      title: "שיחה ראשונית",
-      description: "להבין את הקוד שלך.",
+      title: t('howSection.step1Title'),
+      description: t('howSection.step1Desc'),
     },
     {
       number: "02",
-      title: "סשן היפנוזה מודעת",
-      description: "כניסה לתכנות עמוק.",
+      title: t('howSection.step2Title'),
+      description: t('howSection.step2Desc'),
     },
     {
       number: "03",
-      title: "תרגול יומי קצר",
-      description: "מייצב את השינוי.",
+      title: t('howSection.step3Title'),
+      description: t('howSection.step3Desc'),
     },
   ];
 
@@ -53,7 +55,7 @@ const HowSection = () => {
     <section ref={sectionRef} id="how" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
       <div className="max-w-6xl mx-auto">
         <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : ''}`}>
-          איך זה עובד?
+          {t('howSection.title')}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
@@ -87,7 +89,7 @@ const HowSection = () => {
 
         <div className={`text-center mt-8 md:mt-12 ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.5s' }}>
           <p className="text-lg md:text-xl text-secondary font-medium">
-            תוצאות מורגשות מהמפגש הראשון.
+            {t('howSection.footer')}
           </p>
         </div>
       </div>
