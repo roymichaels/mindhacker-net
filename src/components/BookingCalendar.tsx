@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface BookingCalendarProps {
   onSubmit: (date: Date | undefined, time: string, notes: string) => void;
@@ -17,6 +18,9 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const { t, isRTL, language } = useTranslation();
+
+  const locale = language === 'he' ? 'he-IL' : 'en-US';
 
   useEffect(() => {
     const fetchAvailabilityHours = async () => {
@@ -37,7 +41,6 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
         }
         setTimeSlots(slots);
       } else {
-        // Default fallback
         setTimeSlots([
           "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", 
           "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
@@ -61,15 +64,15 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <Card className="glass-panel">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
-            בחר תאריך
+            {t('booking.selectDate')}
           </CardTitle>
           <CardDescription>
-            בחר את התאריך המועדף עליך לפגישה
+            {t('booking.selectDateDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
@@ -88,10 +91,10 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              בחר שעה
+              {t('booking.selectTime')}
             </CardTitle>
             <CardDescription>
-              בחר את השעה המועדפת עליך
+              {t('booking.selectTimeDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -114,27 +117,27 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
       {date && selectedTime && (
         <Card className="glass-panel">
           <CardHeader>
-            <CardTitle>הערות נוספות (אופציונלי)</CardTitle>
+            <CardTitle>{t('booking.additionalNotes')}</CardTitle>
             <CardDescription>
-              יש משהו שחשוב לנו לדעת לפני הפגישה?
+              {t('booking.anythingToKnow')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{t('booking.notes')}</Label>
               <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="למשל: נושאים ספציפיים שברצונך לדון בהם..."
+                placeholder={t('booking.notesPlaceholder')}
                 className="min-h-[100px]"
               />
             </div>
             
             <div className="bg-primary/10 p-4 rounded-lg space-y-2">
-              <p className="font-semibold text-sm">סיכום הבקשה שלך:</p>
-              <p className="text-sm">📅 תאריך: {date.toLocaleDateString('he-IL')}</p>
-              <p className="text-sm">🕐 שעה: {selectedTime}</p>
+              <p className="font-semibold text-sm">{t('booking.requestSummary')}</p>
+              <p className="text-sm">📅 {t('booking.date')}: {date.toLocaleDateString(locale)}</p>
+              <p className="text-sm">🕐 {t('booking.time')}: {selectedTime}</p>
             </div>
 
             <Button 
@@ -143,11 +146,11 @@ const BookingCalendar = ({ onSubmit, isSubmitting }: BookingCalendarProps) => {
               className="w-full"
               size="lg"
             >
-              {isSubmitting ? "שולח..." : "שלח בקשת פגישה"}
+              {isSubmitting ? t('booking.submitting') : t('booking.submitRequest')}
             </Button>
             
             <p className="text-xs text-muted-foreground text-center">
-              נחזור אליך בהקדם לאישור הפגישה
+              {t('booking.willContactSoon')}
             </p>
           </CardContent>
         </Card>

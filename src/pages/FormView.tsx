@@ -17,8 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Check, Loader2, Star, Sparkles, Video, X } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FormField {
   id: string;
@@ -51,6 +52,10 @@ const FormView = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [postSubmitAction, setPostSubmitAction] = useState<PostSubmitAction>("none");
+  const { t, isRTL } = useTranslation();
+
+  const ArrowNextIcon = isRTL ? ArrowLeft : ArrowRight;
+  const ArrowPrevIcon = isRTL ? ArrowRight : ArrowLeft;
 
   const { data: form, isLoading: formLoading, error: formError } = useQuery({
     queryKey: ["public-form", token],
@@ -92,7 +97,7 @@ const FormView = () => {
     const currentValue = responses[currentField.id];
     if (currentField.is_required) {
       if (!currentValue || (Array.isArray(currentValue) && currentValue.length === 0)) {
-        toast({ title: "נא למלא שדה זה", variant: "destructive" });
+        toast({ title: t('validation.fillField'), variant: "destructive" });
         return;
       }
     }
@@ -102,7 +107,7 @@ const FormView = () => {
     } else {
       handleSubmit();
     }
-  }, [currentField, responses, currentStep, fields.length]);
+  }, [currentField, responses, currentStep, fields.length, t]);
 
   const handlePrev = () => {
     if (currentStep > 0) {
@@ -129,7 +134,7 @@ const FormView = () => {
       setIsSubmitted(true);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast({ title: "שגיאה בשליחת הטופס", variant: "destructive" });
+      toast({ title: t('forms.submitError'), variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -164,11 +169,11 @@ const FormView = () => {
 
   if (formError || !form) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 text-center max-w-md">
-          <h1 className="text-2xl font-bold mb-4">הטופס לא נמצא</h1>
+          <h1 className="text-2xl font-bold mb-4">{t('forms.notFound')}</h1>
           <p className="text-muted-foreground">
-            הטופס אינו קיים או שאינו זמין יותר
+            {t('forms.notAvailable')}
           </p>
         </div>
       </div>
@@ -185,39 +190,37 @@ const FormView = () => {
         navigate("/personal-hypnosis");
         break;
       case "finish":
-        // Just show the final thank you
         break;
     }
   };
 
   if (isSubmitted) {
-    // Show action selection screen first
     if (postSubmitAction === "none") {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="glass-panel p-8 text-center max-w-2xl animate-fade-in-up">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
               <Check className="h-8 w-8 text-green-500" />
             </div>
             <h1 className="text-2xl font-bold mb-2">
-              {form.settings?.thank_you_message || "תודה על מילוי הטופס!"}
+              {form.settings?.thank_you_message || t('formComplete.submitted')}
             </h1>
             <p className="text-muted-foreground mb-8">
-              מה תרצה לעשות עכשיו?
+              {t('formComplete.whatNext')}
             </p>
 
             <div className="grid gap-4 sm:grid-cols-3">
               {/* Consciousness Leap Option */}
               <button
                 onClick={() => handlePostAction("consciousness-leap")}
-                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-right"
+                className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4">
                   <Sparkles className="h-6 w-6 text-purple-400" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">קפיצת תודעה</h3>
+                <h3 className="font-bold text-lg mb-2">{t('formComplete.consciousnessLeapOption')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  תהליך טרנספורמטיבי בן 4 מפגשים לשינוי עמוק
+                  {t('formComplete.consciousnessLeapDesc')}
                 </p>
                 <div className="absolute inset-0 rounded-xl border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
@@ -225,14 +228,14 @@ const FormView = () => {
               {/* Personal Hypnosis Option */}
               <button
                 onClick={() => handlePostAction("personal-hypnosis")}
-                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-right"
+                className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4">
                   <Video className="h-6 w-6 text-cyan-400" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">היפנוזה מותאמת אישית</h3>
+                <h3 className="font-bold text-lg mb-2">{t('formComplete.personalHypnosisOption')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  סרטון היפנוזה בהתאמה אישית עבורך
+                  {t('formComplete.personalHypnosisDesc')}
                 </p>
                 <div className="absolute inset-0 rounded-xl border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
@@ -240,14 +243,14 @@ const FormView = () => {
               {/* Just Finish Option */}
               <button
                 onClick={() => handlePostAction("finish")}
-                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-muted-foreground/50 transition-all text-right"
+                className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-muted-foreground/50 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                   <X className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">סיום</h3>
+                <h3 className="font-bold text-lg mb-2">{t('formComplete.finishOption')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  תודה, זה הכל לעכשיו
+                  {t('formComplete.finishDesc')}
                 </p>
               </button>
             </div>
@@ -256,21 +259,20 @@ const FormView = () => {
       );
     }
 
-    // Final thank you screen after choosing "finish"
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 text-center max-w-md animate-fade-in-up">
           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
             <Check className="h-8 w-8 text-green-500" />
           </div>
           <h1 className="text-2xl font-bold mb-4">
-            תודה רבה!
+            {t('formComplete.thankYou')}
           </h1>
           <p className="text-muted-foreground mb-6">
-            נחזור אליך בהקדם
+            {t('formComplete.weWillContact')}
           </p>
           <Button variant="outline" onClick={() => navigate("/")}>
-            חזרה לאתר
+            {t('formComplete.returnHome')}
           </Button>
         </div>
       </div>
@@ -279,17 +281,17 @@ const FormView = () => {
 
   if (fields.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 text-center max-w-md">
           <h1 className="text-2xl font-bold mb-4">{form.title}</h1>
-          <p className="text-muted-foreground">הטופס ריק - אין שדות להצגה</p>
+          <p className="text-muted-foreground">{t('forms.empty')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5" dir="rtl">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Progress bar */}
       {showProgress && (
         <div className="fixed top-0 left-0 right-0 z-50">
@@ -316,6 +318,7 @@ const FormView = () => {
               field={currentField}
               value={responses[currentField.id]}
               onChange={(value) => updateResponse(currentField.id, value)}
+              isRTL={isRTL}
             />
           </div>
 
@@ -327,8 +330,8 @@ const FormView = () => {
               disabled={currentStep === 0}
               className="gap-2"
             >
-              <ArrowRight className="h-4 w-4 rotate-180" />
-              הקודם
+              <ArrowPrevIcon className="h-4 w-4" />
+              {t('common.previous')}
             </Button>
 
             <div className="text-sm text-muted-foreground">
@@ -343,11 +346,11 @@ const FormView = () => {
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : currentStep === fields.length - 1 ? (
-                "שלח"
+                t('forms.send')
               ) : (
                 <>
-                  הבא
-                  <ArrowRight className="h-4 w-4" />
+                  {t('common.next')}
+                  <ArrowNextIcon className="h-4 w-4" />
                 </>
               )}
             </Button>
@@ -355,7 +358,7 @@ const FormView = () => {
 
           {/* Keyboard hint */}
           <p className="text-center text-xs text-muted-foreground mt-4">
-            לחץ Enter להמשך
+            {t('forms.pressEnter')}
           </p>
         </div>
       </div>
@@ -367,9 +370,10 @@ interface FieldRendererProps {
   field: FormField;
   value: string | string[] | undefined;
   onChange: (value: string | string[]) => void;
+  isRTL: boolean;
 }
 
-const FieldRenderer = ({ field, value, onChange }: FieldRendererProps) => {
+const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) => {
   const renderField = () => {
     switch (field.type) {
       case "text":
@@ -402,7 +406,7 @@ const FieldRenderer = ({ field, value, onChange }: FieldRendererProps) => {
         return (
           <Select value={(value as string) || ""} onValueChange={onChange}>
             <SelectTrigger className="text-lg py-6 bg-background/50">
-              <SelectValue placeholder={field.placeholder || "בחר..."} />
+              <SelectValue placeholder={field.placeholder || "..."} />
             </SelectTrigger>
             <SelectContent>
               {field.options.map((option) => (
@@ -518,9 +522,9 @@ const FieldRenderer = ({ field, value, onChange }: FieldRendererProps) => {
 
   return (
     <div className="space-y-6">
-      <Label className="text-2xl sm:text-3xl font-bold block text-center">
+      <Label className="text-xl sm:text-2xl font-medium block text-center">
         {field.label}
-        {field.is_required && <span className="text-destructive mr-1">*</span>}
+        {field.is_required && <span className="text-destructive"> *</span>}
       </Label>
       {renderField()}
     </div>
