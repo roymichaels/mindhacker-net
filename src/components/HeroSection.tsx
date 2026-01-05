@@ -48,11 +48,23 @@ const HeroSection = () => {
       <div className="relative text-center max-w-5xl mx-auto">
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up">
-          <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
-          <DecryptText 
-            text={words[currentWord]} 
-            className="text-primary w-full md:w-auto text-center"
-          />
+          {isRTL ? (
+            <>
+              <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
+              <DecryptText 
+                text={words[currentWord]} 
+                className="text-primary w-full md:w-auto text-center"
+              />
+            </>
+          ) : (
+            <>
+              <DecryptText 
+                text={words[currentWord]} 
+                className="text-primary w-full md:w-auto text-center"
+              />
+              <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
+            </>
+          )}
         </h1>
 
         <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium opacity-0 animate-fade-in-up-delay-1">
