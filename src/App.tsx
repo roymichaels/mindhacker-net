@@ -41,6 +41,8 @@ const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSucce
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
+const Forms = lazy(() => import("./pages/admin/Forms"));
+const FormView = lazy(() => import("./pages/FormView"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -74,6 +76,7 @@ const App = () => (
             <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
             <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
             <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
+            <Route path="/form/:token" element={<FormView />} />
             
             {/* Protected user routes */}
             <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
@@ -103,6 +106,7 @@ const App = () => (
               <Route path="menu" element={<MenuManagement />} />
               <Route path="recordings" element={<Recordings />} />
               <Route path="consciousness-leap" element={<ConsciousnessLeap />} />
+              <Route path="forms" element={<Forms />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
