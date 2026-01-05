@@ -9,37 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { useSEO } from "@/hooks/useSEO";
-
-const signUpSchema = z.object({
-  fullName: z.string()
-    .trim()
-    .min(2, "השם חייב להכיל לפחות 2 תווים")
-    .max(100, "השם חייב להכיל פחות מ-100 תווים")
-    .regex(/^[\u0590-\u05FFa-zA-Z\s'-]+$/, "השם מכיל תווים לא חוקיים"),
-  
-  email: z.string()
-    .trim()
-    .email("כתובת אימייל לא חוקית")
-    .max(255, "כתובת אימייל ארוכה מדי")
-    .toLowerCase(),
-  
-  password: z.string()
-    .min(10, "הסיסמה חייבת להכיל לפחות 10 תווים")
-    .max(128, "הסיסמה ארוכה מדי")
-    .regex(/[A-Z]/, "הסיסמה חייבת להכיל לפחות אות גדולה אחת")
-    .regex(/[a-z]/, "הסיסמה חייבת להכיל לפחות אות קטנה אחת")
-    .regex(/[0-9]/, "הסיסמה חייבת להכיל לפחות מספר אחד")
-    .regex(/[^A-Za-z0-9]/, "הסיסמה חייבת להכיל לפחות תו מיוחד אחד"),
-  
-  confirmPassword: z.string(),
-  
-  agreeTerms: z.literal(true, {
-    errorMap: () => ({ message: "עליך לאשר את תנאי השימוש" })
-  })
-}).refine(data => data.password === data.confirmPassword, {
-  message: "הסיסמאות אינן תואמות",
-  path: ["confirmPassword"]
-});
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Validate redirect path to prevent open redirect attacks
 const ALLOWED_REDIRECT_PREFIXES = [
@@ -69,11 +39,13 @@ const validateRedirectPath = (redirect: string | null): string => {
 };
 
 const SignUp = () => {
+  const { t, isRTL } = useTranslation();
+
   // SEO Configuration
   useSEO({
-    title: "הרשמה | מיינד-האקר",
-    description: "הירשם למיינד-האקר וקבל גישה למוצרים דיגיטליים, קורסים אונליין, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
-    keywords: "הרשמה, יצירת חשבון, רישום, קורסים אונליין",
+    title: t('seo.signupTitle'),
+    description: t('seo.signupDescription'),
+    keywords: t('seo.signupKeywords'),
     url: `${window.location.origin}/signup`,
     type: "website",
   });
@@ -89,6 +61,38 @@ const SignUp = () => {
     agreeTerms: false,
   });
 
+  // Create schema with translated messages
+  const signUpSchema = z.object({
+    fullName: z.string()
+      .trim()
+      .min(2, t('validation.nameMinLength'))
+      .max(100, t('validation.nameMaxLength'))
+      .regex(/^[\u0590-\u05FFa-zA-Z\s'-]+$/, t('validation.nameInvalidChars')),
+    
+    email: z.string()
+      .trim()
+      .email(t('validation.invalidEmail'))
+      .max(255, t('validation.emailTooLong'))
+      .toLowerCase(),
+    
+    password: z.string()
+      .min(10, t('validation.passwordMinLength'))
+      .max(128, t('validation.passwordTooLong'))
+      .regex(/[A-Z]/, t('validation.passwordUppercase'))
+      .regex(/[a-z]/, t('validation.passwordLowercase'))
+      .regex(/[0-9]/, t('validation.passwordNumber'))
+      .regex(/[^A-Za-z0-9]/, t('validation.passwordSpecial')),
+    
+    confirmPassword: z.string(),
+    
+    agreeTerms: z.literal(true, {
+      errorMap: () => ({ message: t('validation.mustAgreeTerms') })
+    })
+  }).refine(data => data.password === data.confirmPassword, {
+    message: t('validation.passwordMismatch'),
+    path: ["confirmPassword"]
+  });
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -98,7 +102,7 @@ const SignUp = () => {
     if (!result.success) {
       const firstError = result.error.errors[0];
       toast({
-        title: "שגיאת אימות",
+        title: t('validation.validationError'),
         description: firstError.message,
         variant: "destructive",
       });
@@ -122,7 +126,7 @@ const SignUp = () => {
 
     if (error) {
       toast({
-        title: "שגיאה ברישום",
+        title: t('auth.signupError'),
         description: error.message,
         variant: "destructive",
       });
@@ -131,8 +135,8 @@ const SignUp = () => {
 
     if (data.user) {
       toast({
-        title: "חשבון נוצר בהצלחה!",
-        description: "ברוך הבא למיינד האקר",
+        title: t('messages.signupSuccess'),
+        description: t('messages.welcomeNew'),
       });
 
       // Validate redirect to prevent open redirect attacks
@@ -143,38 +147,38 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md">
         <div className="glass-panel p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
               <UserPlus className="h-10 w-10 md:h-12 md:w-12 text-primary cyber-glow" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-black cyber-glow">הרשמה</h1>
+            <h1 className="text-2xl md:text-3xl font-black cyber-glow">{t('auth.signupTitle')}</h1>
             <p className="text-sm md:text-base text-muted-foreground">
-              צור חשבון חדש כדי להתחיל את המסע שלך
+              {t('auth.signupSubtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">שם מלא</Label>
+              <Label htmlFor="fullName">{t('auth.fullName')}</Label>
               <Input
                 id="fullName"
                 type="text"
-                placeholder="הכנס שם מלא"
+                placeholder={t('auth.enterFullName')}
                 value={formData.fullName}
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -185,43 +189,43 @@ const SignUp = () => {
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">סיסמה</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="לפחות 10 תווים עם אותיות גדולות, קטנות, מספר ותו מיוחד"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">אימות סיסמה</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="הכנס סיסמה שוב"
+                placeholder={t('auth.confirmPasswordPlaceholder')}
                 value={formData.confirmPassword}
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
-            <div className="flex items-center space-x-2 space-x-reverse">
+            <div className={`flex items-center gap-2 ${isRTL ? '' : 'flex-row-reverse justify-end'}`}>
               <Checkbox
                 id="terms"
                 checked={formData.agreeTerms}
@@ -234,7 +238,7 @@ const SignUp = () => {
                 htmlFor="terms"
                 className="text-sm font-normal cursor-pointer"
               >
-                אני מסכים לתנאים וההגבלות
+                {t('auth.termsAgree')}
               </Label>
             </div>
 
@@ -246,30 +250,30 @@ const SignUp = () => {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  יוצר חשבון...
+                  <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {t('common.creatingAccount')}
                 </>
               ) : (
-                "הרשם"
+                t('common.signup')
               )}
             </Button>
           </form>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              יש לך כבר חשבון?{" "}
+              {t('auth.hasAccount')}{" "}
               <Link
                 to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                 className="text-primary hover:underline font-medium"
               >
-                התחבר
+                {t('auth.loginNow')}
               </Link>
             </p>
             <Link
               to="/"
               className="text-sm text-muted-foreground hover:text-foreground block"
             >
-              חזור לעמוד הראשי
+              {t('auth.backToHome')}
             </Link>
           </div>
         </div>
