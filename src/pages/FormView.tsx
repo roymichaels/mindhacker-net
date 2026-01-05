@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Check, Loader2, Star } from "lucide-react";
+import { ArrowRight, Check, Loader2, Star, Sparkles, Video, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FormField {
@@ -41,12 +41,16 @@ interface Form {
   status: string;
 }
 
+type PostSubmitAction = "none" | "consciousness-leap" | "personal-hypnosis" | "finish";
+
 const FormView = () => {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, string | string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [postSubmitAction, setPostSubmitAction] = useState<PostSubmitAction>("none");
 
   const { data: form, isLoading: formLoading, error: formError } = useQuery({
     queryKey: ["public-form", token],
@@ -171,7 +175,88 @@ const FormView = () => {
     );
   }
 
+  const handlePostAction = (action: PostSubmitAction) => {
+    setPostSubmitAction(action);
+    switch (action) {
+      case "consciousness-leap":
+        navigate("/consciousness-leap");
+        break;
+      case "personal-hypnosis":
+        navigate("/personal-hypnosis");
+        break;
+      case "finish":
+        // Just show the final thank you
+        break;
+    }
+  };
+
   if (isSubmitted) {
+    // Show action selection screen first
+    if (postSubmitAction === "none") {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
+          <div className="glass-panel p-8 text-center max-w-2xl animate-fade-in-up">
+            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+              <Check className="h-8 w-8 text-green-500" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">
+              {form.settings?.thank_you_message || "תודה על מילוי הטופס!"}
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              מה תרצה לעשות עכשיו?
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {/* Consciousness Leap Option */}
+              <button
+                onClick={() => handlePostAction("consciousness-leap")}
+                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-right"
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4">
+                  <Sparkles className="h-6 w-6 text-purple-400" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">קפיצת תודעה</h3>
+                <p className="text-sm text-muted-foreground">
+                  תהליך טרנספורמטיבי בן 4 מפגשים לשינוי עמוק
+                </p>
+                <div className="absolute inset-0 rounded-xl border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+
+              {/* Personal Hypnosis Option */}
+              <button
+                onClick={() => handlePostAction("personal-hypnosis")}
+                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-right"
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4">
+                  <Video className="h-6 w-6 text-cyan-400" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">היפנוזה מותאמת אישית</h3>
+                <p className="text-sm text-muted-foreground">
+                  סרטון היפנוזה בהתאמה אישית עבורך
+                </p>
+                <div className="absolute inset-0 rounded-xl border-2 border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+
+              {/* Just Finish Option */}
+              <button
+                onClick={() => handlePostAction("finish")}
+                className="group relative p-6 rounded-xl border border-border bg-background/50 hover:border-muted-foreground/50 transition-all text-right"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                  <X className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">סיום</h3>
+                <p className="text-sm text-muted-foreground">
+                  תודה, זה הכל לעכשיו
+                </p>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Final thank you screen after choosing "finish"
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir="rtl">
         <div className="glass-panel p-8 text-center max-w-md animate-fade-in-up">
@@ -179,8 +264,14 @@ const FormView = () => {
             <Check className="h-8 w-8 text-green-500" />
           </div>
           <h1 className="text-2xl font-bold mb-4">
-            {form.settings?.thank_you_message || "תודה על מילוי הטופס!"}
+            תודה רבה!
           </h1>
+          <p className="text-muted-foreground mb-6">
+            נחזור אליך בהקדם
+          </p>
+          <Button variant="outline" onClick={() => navigate("/")}>
+            חזרה לאתר
+          </Button>
         </div>
       </div>
     );
