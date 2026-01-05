@@ -25,6 +25,8 @@ import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
 import { UserNotificationBell } from "./UserNotificationBell";
 import { NotificationBell } from "./admin/NotificationBell";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MenuItem {
   id: string;
@@ -41,6 +43,7 @@ const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { t, isRTL } = useTranslation();
 
   const { data: menuItems = [] } = useQuery({
     queryKey: ["menu-items-public"],
@@ -111,9 +114,9 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <img src={logo} alt="מיינד האקר" className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+          <img src={logo} alt={t('header.brandName')} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
           <span className="font-black text-lg cyber-glow">
-            מיינד האקר
+            {t('header.brandName')}
           </span>
         </Link>
 
@@ -131,33 +134,34 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           {loading ? (
             <div className="h-9 w-20 animate-pulse bg-muted rounded" />
           ) : user ? (
             <>
               {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
-              <DropdownMenu dir="rtl">
+              <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="gap-2">
                     <User className="h-4 w-4" />
-                    <span className="hidden sm:inline">חשבון</span>
+                    <span className="hidden sm:inline">{t('common.account')}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 bg-background">
                   <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                    <ShoppingBag className="ml-2 h-4 w-4" />
-                    דאשבורד
+                    <ShoppingBag className={isRTL ? "ml-2" : "mr-2"} />
+                    {t('common.dashboard')}
                   </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate("/admin")}>
-                      <Settings className="ml-2 h-4 w-4" />
-                      פאנל ניהול
+                      <Settings className={isRTL ? "ml-2" : "mr-2"} />
+                      {t('header.adminPanel')}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                    <LogOut className="ml-2 h-4 w-4" />
-                    התנתק
+                    <LogOut className={isRTL ? "ml-2" : "mr-2"} />
+                    {t('common.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -170,13 +174,13 @@ const Header = () => {
                 onClick={() => navigate("/login")}
                 className="hidden sm:inline-flex"
               >
-                התחבר
+                {t('common.login')}
               </Button>
               <Button
                 size="sm"
                 onClick={() => navigate("/signup")}
               >
-                הרשמה
+                {t('common.signup')}
               </Button>
             </>
           )}
@@ -188,16 +192,16 @@ const Header = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" dir="rtl">
+            <SheetContent side={isRTL ? "right" : "left"} dir={isRTL ? "rtl" : "ltr"}>
               <SheetHeader>
-                <SheetTitle>תפריט ניווט</SheetTitle>
+                <SheetTitle>{t('header.navigationMenu')}</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-8">
                 {menuItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleMenuAction(item)}
-                    className="text-right text-sm font-medium hover:text-primary transition-colors"
+                    className={`${isRTL ? 'text-right' : 'text-left'} text-sm font-medium hover:text-primary transition-colors`}
                   >
                     {item.label}
                   </button>
@@ -252,7 +256,7 @@ const Header = () => {
                       }}
                       className="w-full"
                     >
-                      התחבר
+                      {t('common.login')}
                     </Button>
                     <Button
                       onClick={() => {
@@ -261,7 +265,7 @@ const Header = () => {
                       }}
                       className="w-full"
                     >
-                      הרשמה
+                      {t('common.signup')}
                     </Button>
                   </>
                 )}

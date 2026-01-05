@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LanguagePrompt } from "@/components/LanguagePrompt";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
@@ -52,10 +54,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <LanguagePrompt />
+          <BrowserRouter>
         <Suspense fallback={
           <div className="min-h-screen flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -114,9 +118,10 @@ const App = () => (
           </Routes>
           <PWAInstallBanner />
           <NotificationPermissionPrompt />
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
+      </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
