@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import LeadCaptureForm from "./LeadCaptureForm";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ExitIntentPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasShown, setHasShown] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const { t, isRTL } = useTranslation();
 
   useEffect(() => {
     // Fetch about image for personal touch
@@ -63,13 +65,13 @@ const ExitIntentPopup = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md border-primary/30 bg-background/95 backdrop-blur-xl">
+      <DialogContent className="sm:max-w-md border-primary/30 bg-background/95 backdrop-blur-xl" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader className="text-center pt-4">
           <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center overflow-hidden ring-4 ring-primary/20">
             {imageUrl ? (
               <img 
                 src={imageUrl} 
-                alt="דין" 
+                alt={t('exitPopup.imageAlt')} 
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -78,23 +80,23 @@ const ExitIntentPopup = () => {
             )}
           </div>
           <DialogTitle className="text-2xl font-black text-center cyber-glow">
-            רגע! בוא נבדוק אם אני יכול לעזור 🎯
+            {t('exitPopup.title')}
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground pt-2">
-            אני לא עובד עם כל אחד — השאר פרטים ונדבר 30 דקות לבדוק אם זה מתאים
+            {t('exitPopup.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              ✅ שיחת ייעוץ ללא עלות
+              {t('exitPopup.benefit1')}
             </p>
             <p className="text-sm text-muted-foreground">
-              ✅ נבדוק אם מתאים לנו
+              {t('exitPopup.benefit2')}
             </p>
             <p className="text-sm text-muted-foreground">
-              ✅ תקבל תשובה תוך 24 שעות
+              {t('exitPopup.benefit3')}
             </p>
           </div>
 
@@ -108,7 +110,7 @@ const ExitIntentPopup = () => {
             onClick={() => setIsOpen(false)}
             className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            לא תודה, אולי בפעם אחרת
+            {t('exitPopup.dismiss')}
           </button>
         </div>
       </DialogContent>

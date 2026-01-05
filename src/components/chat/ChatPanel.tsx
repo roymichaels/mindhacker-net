@@ -3,6 +3,7 @@ import { X, Trash2, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,15 +18,16 @@ interface ChatPanelProps {
 const STORAGE_KEY = "mind-hacker-chat-history";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
 
-const GREETING_MESSAGE: Message = {
-  role: "assistant",
-  content: "היי! 👋 אני כאן לעזור. רוצה לשאול משהו על אימון תודעתי או להכיר את הגישה של דין?"
-};
-
 const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+
+  const getGreetingMessage = (): Message => ({
+    role: "assistant",
+    content: t('chat.greeting')
+  });
 
   // Load messages from localStorage
   useEffect(() => {
@@ -33,12 +35,12 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setMessages(parsed.length > 0 ? parsed : [GREETING_MESSAGE]);
+        setMessages(parsed.length > 0 ? parsed : [getGreetingMessage()]);
       } catch {
-        setMessages([GREETING_MESSAGE]);
+        setMessages([getGreetingMessage()]);
       }
     } else {
-      setMessages([GREETING_MESSAGE]);
+      setMessages([getGreetingMessage()]);
     }
   }, []);
 
@@ -55,7 +57,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   }, [messages]);
 
   const clearChat = () => {
-    setMessages([GREETING_MESSAGE]);
+    setMessages([getGreetingMessage()]);
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -80,6 +82,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
     };
 
     try {
+      const greetingContent = t('chat.greeting');
       const response = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -87,7 +90,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: [...messages, userMessage].filter(m => m.content !== GREETING_MESSAGE.content || m.role === "user")
+          messages: [...messages, userMessage].filter(m => m.content !== greetingContent || m.role === "user")
         }),
       });
 
@@ -131,7 +134,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
       console.error("Chat error:", error);
       setMessages(prev => [...prev, { 
         role: "assistant", 
-        content: "סליחה, משהו השתבש. נסה שוב בבקשה 🙏" 
+        content: t('chat.errorMessage')
       }]);
     } finally {
       setIsLoading(false);
@@ -149,8 +152,8 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-medium text-foreground">העוזר של דין</h3>
-            <p className="text-xs text-muted-foreground">כאן לעזור 24/7</p>
+            <h3 className="font-medium text-foreground">{t('chat.assistantName')}</h3>
+            <p className="text-xs text-muted-foreground">{t('chat.assistantSubtitle')}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">

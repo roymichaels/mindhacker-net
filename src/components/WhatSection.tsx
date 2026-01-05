@@ -1,9 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { Code2, Sparkles, Zap } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const WhatSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -33,9 +35,9 @@ const WhatSection = () => {
   }, [isVisible]);
 
   const features = [
-    { icon: Code2, label: "קוד פנימי" },
-    { icon: Sparkles, label: "תודעה מורחבת" },
-    { icon: Zap, label: "שינוי מיידי" },
+    { icon: Code2, label: t('whatSection.feature1') },
+    { icon: Sparkles, label: t('whatSection.feature2') },
+    { icon: Zap, label: t('whatSection.feature3') },
   ];
 
   return (
@@ -43,15 +45,15 @@ const WhatSection = () => {
       <div className="max-w-4xl mx-auto">
         <div className={`glass-panel p-6 md:p-12 ${isVisible ? 'animate-fade-in-up' : ''}`}>
           <h2 className="text-3xl md:text-5xl font-black mb-6 md:mb-8 text-center cyber-glow">
-            מה זה אימון תודעתי?
+            {t('whatSection.title')}
           </h2>
 
           <div className="text-center mb-8 md:mb-12">
             <p className={`text-lg md:text-2xl leading-relaxed text-foreground mb-4 md:mb-6 ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
-              התודעה שלך היא מערכת הפעלה.
+              {t('whatSection.mainText')}
             </p>
             <p className={`text-base md:text-xl leading-relaxed text-muted-foreground ${isVisible ? 'animate-fade-in-up' : ''}`} style={{ animationDelay: '0.2s' }}>
-              אימון תודעתי הוא עדכון גרסה — שינוי קוד פנימי, שכתוב הרגלים, פתיחת גישה לחופש אמיתי.
+              {t('whatSection.description')}
             </p>
           </div>
 
