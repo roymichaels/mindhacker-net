@@ -46,9 +46,9 @@ const ConsciousnessLeapLanding = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית עם דין אליהו",
+    title: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית עם דין אושר אזולאי",
     description: "תהליך מקיף וממוקד לשינוי עמוק ובר-קיימא. 3-5 מפגשים שיביאו אותך לבהירות, כיוון ושחרור דפוסים ישנים.",
-    keywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, דין אזולאי, טרנספורמציה",
+    keywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, דין אושר אזולאי, טרנספורמציה",
     url: `${window.location.origin}/consciousness-leap`,
   });
 
@@ -522,7 +522,7 @@ const ConsciousnessLeapLanding = () => {
       {/* Footer */}
       <footer className="relative z-20 py-8 border-t border-primary/20 bg-background/80">
         <div className="container mx-auto px-4 text-center">
-          <Link to="/" className="text-primary hover:underline">דין אליהו - היפנותרפיה ושינוי תודעתי</Link>
+          <Link to="/" className="text-primary hover:underline">דין אושר אזולאי - היפנותרפיה ושינוי תודעתי</Link>
           <p className="text-sm text-muted-foreground mt-2">© {new Date().getFullYear()} כל הזכויות שמורות</p>
         </div>
       </footer>

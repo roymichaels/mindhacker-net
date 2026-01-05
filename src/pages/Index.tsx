@@ -16,9 +16,9 @@ const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 
 const Index = () => {
   useSEO({
-    title: "מיינד-האקר | דין אליהו - שינוי תודעתי עמוק",
+    title: "מיינד-האקר | דין אושר אזולאי - שינוי תודעתי עמוק",
     description: "שני מסלולים לשינוי אמיתי: תהליך קפיצה לתודעה חדשה או סרטון היפנוזה אישי מותאם. בחר את המסלול שמתאים לך.",
-    keywords: "היפנוזה, שינוי תודעתי, דין אליהו, תהליך אישי, טרנספורמציה, סרטון היפנוזה",
+    keywords: "היפנוזה, שינוי תודעתי, דין אושר אזולאי, תהליך אישי, טרנספורמציה, סרטון היפנוזה",
     url: window.location.origin,
     type: "website",
     structuredData: [getOrganizationSchema(), getWebsiteSchema()],
