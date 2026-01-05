@@ -16,6 +16,8 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, UserPlus, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { handleError } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 interface PackageData {
   id: "single" | "package_4";
@@ -42,6 +44,7 @@ interface DemoPurchase {
 
 const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) => {
   const navigate = useNavigate();
+  const { language } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -168,7 +171,7 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
               </div>
               <div className="flex justify-between items-center text-lg">
                 <span className="text-muted-foreground">סה"כ לתשלום:</span>
-                <span className="font-black cyber-glow">₪{packageData.price}</span>
+                <span className="font-black cyber-glow">{formatPrice(packageData.price, language)}</span>
               </div>
             </div>
 
@@ -212,7 +215,7 @@ const CheckoutDialog = ({ isOpen, onClose, packageData }: CheckoutDialogProps) =
                 <h3 className="text-xl font-bold">פרטי החבילה</h3>
                 <div className="flex justify-center items-baseline gap-2">
                   <span className="text-4xl font-black cyber-glow">
-                    ₪{packageData.price}
+                    {formatPrice(packageData.price, language)}
                   </span>
                 </div>
                 <p className="text-lg font-semibold">

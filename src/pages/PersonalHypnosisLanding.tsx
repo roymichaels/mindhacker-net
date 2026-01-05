@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PersonalHypnosisCheckoutDialog } from "@/components/checkout/PersonalHypnosisCheckoutDialog";
 import { useSEO } from "@/hooks/useSEO";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 import { 
   Brain, 
   Sparkles, 
@@ -25,6 +27,7 @@ const PersonalHypnosisLanding = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { language } = useTranslation();
 
   useSEO({
     title: "אימון תודעתי אישי - סרטון היפנוזה בהתאמה אישית | מיינד-האקר",
@@ -91,9 +94,11 @@ const PersonalHypnosisLanding = () => {
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up-delay-3">
               <Button size="lg" onClick={handlePurchase} className="text-lg px-8 py-6 pulse-glow">
-                רכוש עכשיו ב-297₪
+                {language === 'en' ? `Buy now for ${formatPrice(297, language)}` : `רכוש עכשיו ב-${formatPrice(297, language)}`}
               </Button>
-              <span className="text-sm text-muted-foreground">תשלום מאובטח • גישה לצמיתות</span>
+              <span className="text-sm text-muted-foreground">
+                {language === 'en' ? 'Secure payment • Lifetime access' : 'תשלום מאובטח • גישה לצמיתות'}
+              </span>
             </div>
           </div>
         </section>
@@ -198,8 +203,8 @@ const PersonalHypnosisLanding = () => {
               </p>
               
               <div className="mb-6">
-                <span className="text-4xl font-bold text-primary">₪297</span>
-                <span className="text-muted-foreground mr-2">תשלום חד פעמי</span>
+                <span className="text-4xl font-bold text-primary">{formatPrice(297, language)}</span>
+                <span className="text-muted-foreground mr-2">{language === 'en' ? 'One-time payment' : 'תשלום חד פעמי'}</span>
               </div>
               
               <Button size="lg" onClick={handlePurchase} className="text-lg px-10 py-6 w-full sm:w-auto pulse-glow">

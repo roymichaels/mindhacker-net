@@ -5,6 +5,8 @@ import LeadCaptureDialog from "./LeadCaptureDialog";
 import GuaranteeBadge from "./GuaranteeBadge";
 import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 interface PricingOption {
   id: "single" | "package_4";
@@ -18,6 +20,7 @@ interface PricingOption {
 }
 
 const PricingCards = () => {
+  const { t, language, isRTL } = useTranslation();
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
@@ -73,17 +76,44 @@ const PricingCards = () => {
         const pricePerSession = packagePrice / 4;
         const savings = singlePrice * 4 - packagePrice;
 
+        // Translated features based on language
+        const singleFeatures = language === 'en' 
+          ? [
+              settings.single_session_description || "One 90-minute session",
+              "Immediate scheduling",
+              "Full personal guidance",
+            ]
+          : [
+              settings.single_session_description || "מפגש אחד של 90 דקות",
+              "תיאום מיידי",
+              "ליווי אישי מלא",
+            ];
+
+        const packageFeatures = language === 'en'
+          ? [
+              "🎁 First session on us!",
+              "3 follow-up sessions (90 min each)",
+              "Ongoing support throughout the process",
+              "WhatsApp support between sessions",
+              "Session recordings",
+              "Customized exercises",
+            ]
+          : [
+              "🎁 המפגש הראשון - עלינו!",
+              "3 מפגשי המשך של 90 דק' כ\"א",
+              "ליווי מתמשך לאורך כל התהליך",
+              "ליווי בוואטסאפ בין המפגשים",
+              "הקלטת המפגשים",
+              "תרגילים מותאמים אישית",
+            ];
+
         setPricingOptions([
           {
             id: "single",
             sessions: 1,
             price: singlePrice,
             pricePerSession: singlePrice,
-            features: [
-              settings.single_session_description || "מפגש אחד של 90 דקות",
-              "תיאום מיידי",
-              "ליווי אישי מלא",
-            ],
+            features: singleFeatures,
           },
           {
             id: "package_4",
@@ -93,14 +123,7 @@ const PricingCards = () => {
             savings,
             recommended: true,
             originalPrice: singlePrice * 4,
-            features: [
-              "🎁 המפגש הראשון - עלינו!",
-              "3 מפגשי המשך של 90 דק' כ\"א",
-              "ליווי מתמשך לאורך כל התהליך",
-              "ליווי בוואטסאפ בין המפגשים",
-              "הקלטת המפגשים",
-              "תרגילים מותאמים אישית",
-            ],
+            features: packageFeatures,
           },
         ]);
       }
@@ -108,7 +131,7 @@ const PricingCards = () => {
     };
 
     fetchPricing();
-  }, []);
+  }, [language]);
 
   if (loading) {
     return (
@@ -118,19 +141,27 @@ const PricingCards = () => {
     );
   }
 
-  // Feature comparison data
-  const comparisonFeatures = [
-    { name: "משך מפגש", single: "90 דק'", package: "90 דק'" },
-    { name: "ליווי בוואטסאפ", single: false, package: true },
-    { name: "הקלטת המפגש", single: false, package: true },
-    { name: "תרגילים מותאמים", single: true, package: true },
-    { name: "מעקב התקדמות", single: false, package: true },
-  ];
+  // Feature comparison data - translated based on language
+  const comparisonFeatures = language === 'en' 
+    ? [
+        { name: "Session Duration", single: "90 min", package: "90 min" },
+        { name: "WhatsApp Support", single: false, package: true },
+        { name: "Session Recording", single: false, package: true },
+        { name: "Custom Exercises", single: true, package: true },
+        { name: "Progress Tracking", single: false, package: true },
+      ]
+    : [
+        { name: "משך מפגש", single: "90 דק'", package: "90 דק'" },
+        { name: "ליווי בוואטסאפ", single: false, package: true },
+        { name: "הקלטת המפגש", single: false, package: true },
+        { name: "תרגילים מותאמים", single: true, package: true },
+        { name: "מעקב התקדמות", single: false, package: true },
+      ];
 
   return (
     <div ref={containerRef}>
       <CountdownTimer />
-      <div className="grid md:grid-cols-2 gap-6 mt-8" dir="rtl">
+      <div className="grid md:grid-cols-2 gap-6 mt-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {pricingOptions.map((option, index) => (
           <div
             key={option.id}
@@ -145,7 +176,7 @@ const PricingCards = () => {
               <div className="absolute -top-4 right-4 md:right-6 flex items-center gap-2">
                 <Badge className="bg-primary text-primary-foreground cyber-glow text-xs md:text-sm px-3 py-1 flex items-center gap-1 animate-attention-pulse">
                   <Crown className="w-3 h-3" />
-                  הכי פופולרי
+                  {language === 'en' ? 'Most Popular' : 'הכי פופולרי'}
                 </Badge>
               </div>
             )}
@@ -159,21 +190,23 @@ const PricingCards = () => {
             </div>
 
             <h3 className="text-2xl md:text-3xl font-bold text-center mb-2">
-              {option.sessions === 1 ? "מפגש בודד" : "3 מפגשים + 1 במתנה 🎁"}
+              {option.sessions === 1 
+                ? (language === 'en' ? "Single Session" : "מפגש בודד") 
+                : (language === 'en' ? "3 Sessions + 1 Free 🎁" : "3 מפגשים + 1 במתנה 🎁")}
             </h3>
 
             <div className="text-center mb-6">
               {option.originalPrice && (
                 <div className="text-muted-foreground line-through text-lg mb-1">
-                  ₪{option.originalPrice}
+                  {formatPrice(option.originalPrice, language)}
                 </div>
               )}
               <div className="text-5xl font-black cyber-glow mb-2">
-                ₪{option.price}
+                {formatPrice(option.price, language)}
               </div>
               {option.recommended && (
                 <div className="inline-block bg-gradient-to-r from-accent/30 via-accent/50 to-accent/30 bg-[length:200%_100%] text-accent text-sm font-bold px-4 py-1.5 rounded-full animate-gift-bounce shadow-lg shadow-accent/20 border border-accent/40">
-                  🎁 המפגש הראשון עלינו!
+                  {language === 'en' ? '🎁 First session on us!' : '🎁 המפגש הראשון עלינו!'}
                 </div>
               )}
             </div>
@@ -187,7 +220,7 @@ const PricingCards = () => {
                   }`}
                   style={{ animationDelay: `${0.3 + featureIndex * 0.05}s` }}
                 >
-                  <span className="text-primary ml-2">✓</span>
+                  <span className={`text-primary ${isRTL ? 'ml-2' : 'mr-2'}`}>✓</span>
                   <span>{feature}</span>
                 </li>
               ))}
@@ -195,7 +228,7 @@ const PricingCards = () => {
 
             <LeadCaptureDialog 
               source={`pricing_${option.id}`}
-              triggerText="קבע שיחת ייעוץ בחינם"
+              triggerText={language === 'en' ? "Book Free Consultation" : "קבע שיחת ייעוץ בחינם"}
               triggerVariant="default"
               triggerClassName={`w-full transition-all duration-300 ${
                 option.recommended
@@ -207,7 +240,7 @@ const PricingCards = () => {
             />
 
             <p className="text-center text-xs text-muted-foreground mt-3">
-              לא ניתן לרכוש ישירות - נדבר קודם
+              {language === 'en' ? "Cannot purchase directly - let's talk first" : "לא ניתן לרכוש ישירות - נדבר קודם"}
             </p>
           </div>
         ))}
@@ -217,16 +250,24 @@ const PricingCards = () => {
       <div 
         className={`mt-12 glass-panel p-6 rounded-xl overflow-hidden ${isVisible ? 'animate-fade-in-up' : ''}`}
         style={{ animationDelay: '0.4s' }}
-        dir="rtl"
+        dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <h4 className="text-lg md:text-xl font-bold text-center mb-6 cyber-glow">השוואת חבילות</h4>
+        <h4 className="text-lg md:text-xl font-bold text-center mb-6 cyber-glow">
+          {language === 'en' ? 'Package Comparison' : 'השוואת חבילות'}
+        </h4>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-primary/30">
-                <th className="py-3 px-4 text-right font-semibold text-muted-foreground">תכונה</th>
-                <th className="py-3 px-4 text-center font-semibold text-muted-foreground">מפגש בודד</th>
-                <th className="py-3 px-4 text-center font-semibold text-primary">חבילת 4</th>
+                <th className={`py-3 px-4 ${isRTL ? 'text-right' : 'text-left'} font-semibold text-muted-foreground`}>
+                  {language === 'en' ? 'Feature' : 'תכונה'}
+                </th>
+                <th className="py-3 px-4 text-center font-semibold text-muted-foreground">
+                  {language === 'en' ? 'Single Session' : 'מפגש בודד'}
+                </th>
+                <th className="py-3 px-4 text-center font-semibold text-primary">
+                  {language === 'en' ? 'Package of 4' : 'חבילת 4'}
+                </th>
               </tr>
             </thead>
             <tbody>

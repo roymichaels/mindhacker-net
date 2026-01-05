@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EngagementMetrics } from "@/components/admin/analytics/EngagementMetrics";
 import { RealTimeActivity } from "@/components/admin/analytics/RealTimeActivity";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface AnalyticsStats {
   totalEnrollments: number;
@@ -299,7 +300,7 @@ const Analytics = () => {
             <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">₪{stats.totalRevenue.toFixed(0)}</div>
+            <div className="text-xl sm:text-2xl font-bold">{getCurrencySymbol(language)}{stats.totalRevenue.toFixed(0)}</div>
             <p className="text-[10px] sm:text-xs text-muted-foreground">{t('adminAnalytics.totalRevenueDesc')}</p>
           </CardContent>
         </Card>
@@ -408,7 +409,7 @@ const Analytics = () => {
                         border: "1px solid hsl(var(--border))",
                         borderRadius: "var(--radius)",
                       }}
-                      formatter={(value: number) => `₪${value.toFixed(0)}`}
+                      formatter={(value: number) => `${getCurrencySymbol(language)}${value.toFixed(0)}`}
                     />
                     <Area 
                       type="monotone" 
@@ -465,7 +466,7 @@ const Analytics = () => {
                   <Bar 
                     dataKey="revenue" 
                     fill="hsl(var(--accent))"
-                    name={`${t('adminAnalytics.revenue')} (₪)`}
+                    name={`${t('adminAnalytics.revenue')} (${getCurrencySymbol(language)})`}
                     radius={[0, 8, 8, 0]}
                   />
                 </BarChart>

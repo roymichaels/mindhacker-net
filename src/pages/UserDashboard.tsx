@@ -19,6 +19,7 @@ import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 
 interface Purchase {
@@ -272,7 +273,7 @@ const UserDashboard = () => {
                           </div>
                         </div>
                         <div className={`${isRTL ? 'text-left' : 'text-right'} space-y-1`}>
-                          <p className="text-2xl font-black cyber-glow">₪{purchase.price}</p>
+                          <p className="text-2xl font-black cyber-glow">{formatPrice(purchase.price, language)}</p>
                           <p className="text-xs text-muted-foreground">
                             {t('sessions.purchasedOn')}{new Date(purchase.purchase_date).toLocaleDateString(dateLocale)}
                           </p>

@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -23,6 +25,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language } = useTranslation();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("instant_success");
   const [isProcessing, setIsProcessing] = useState(false);
   const [purchaseComplete, setPurchaseComplete] = useState(false);
@@ -157,7 +160,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
                     </div>
                     <div className="text-left">
                       <div className="text-2xl font-bold cyber-glow">
-                        ₪{course.price}
+                        {formatPrice(course.price || 0, language)}
                       </div>
                     </div>
                   </div>

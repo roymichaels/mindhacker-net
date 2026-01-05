@@ -10,6 +10,7 @@ import BookingCalendar from "@/components/BookingCalendar";
 import { handleError } from "@/lib/errorHandling";
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 interface Purchase {
   id: string;
@@ -247,7 +248,7 @@ const Success = () => {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">{t('success.price')}</p>
-                  <p className="text-lg font-semibold cyber-glow">₪{purchase.price}</p>
+                  <p className="text-lg font-semibold cyber-glow">{formatPrice(purchase.price, language)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">{t('success.purchaseDate')}</p>
@@ -263,7 +264,7 @@ const Success = () => {
                   <li>• {t('success.paymentAfterSession')}</li>
                   <li>• {t('success.paymentMethods')}</li>
                   <li>• {t('success.paymentDetailsSent')}</li>
-                  <li className="font-semibold mt-2">• {t('success.finalPrice')} ₪{purchase.price}</li>
+                  <li className="font-semibold mt-2">• {t('success.finalPrice')} {formatPrice(purchase.price, language)}</li>
                 </ul>
               </div>
             </CardContent>

@@ -8,8 +8,11 @@ import { CheckCircle2, Zap, Lock } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 const Subscriptions = () => {
+  const { language } = useTranslation();
   // SEO Configuration
   useSEO({
     title: "מנויים | מיינד-האקר",
@@ -101,9 +104,9 @@ const Subscriptions = () => {
 
               <div className="mt-6">
                 <div className="text-6xl md:text-7xl font-black cyber-glow mb-2">
-                  ₪97
+                  {formatPrice(97, language)}
                 </div>
-                <div className="text-lg text-muted-foreground">לחודש</div>
+                <div className="text-lg text-muted-foreground">{language === 'en' ? 'per month' : 'לחודש'}</div>
                 <div className="text-sm text-primary mt-2">
                   מחיר מיוחד למצטרפים הראשונים!
                 </div>
@@ -143,7 +146,7 @@ const Subscriptions = () => {
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xl py-6 cyber-glow"
               >
-                הצטרף עכשיו ב-₪97 לחודש
+                {language === 'en' ? `Join now for ${formatPrice(97, language)}/month` : `הצטרף עכשיו ב-${formatPrice(97, language)} לחודש`}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
                 בלחיצה על הכפתור אתה מסכים לתנאי השימוש ומדיניות הפרטיות

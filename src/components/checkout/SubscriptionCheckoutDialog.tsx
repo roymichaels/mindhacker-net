@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
+import { useTranslation } from "@/hooks/useTranslation";
+import { formatPrice } from "@/lib/currency";
 
 interface SubscriptionCheckoutDialogProps {
   open: boolean;
@@ -24,6 +26,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language } = useTranslation();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("instant_success");
   const [isProcessing, setIsProcessing] = useState(false);
   const [subscriptionComplete, setSubscriptionComplete] = useState(false);
@@ -192,7 +195,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
                       </div>
                       <div className="text-left">
                         <div className="text-2xl font-bold cyber-glow">
-                          ₪{price}
+                          {formatPrice(price, language)}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           /{getBillingCycleText()}
