@@ -12,19 +12,22 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Courses = () => {
+  const { t, isRTL } = useTranslation();
+
   // SEO Configuration
   useSEO({
-    title: "מוצרים דיגיטליים | מיינד-האקר",
-    description: "גלה את מגוון המוצרים הדיגיטליים והקורסים המקוונים שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי בתחום אימון התודעה והפיתוח האישי.",
-    keywords: "קורסים דיגיטליים, קורסים אונליין, פיתוח אישי, אימון תודעתי, מוצרים דיגיטליים, קורסי וידאו",
+    title: t('seo.coursesTitle'),
+    description: t('seo.coursesDescription'),
+    keywords: t('seo.coursesKeywords'),
     url: `${window.location.origin}/courses`,
     type: "website",
     structuredData: [
       getBreadcrumbSchema([
-        { name: "דף הבית", url: window.location.origin },
-        { name: "מוצרים דיגיטליים", url: `${window.location.origin}/courses` },
+        { name: t('seo.breadcrumbHome'), url: window.location.origin },
+        { name: t('seo.breadcrumbCourses'), url: `${window.location.origin}/courses` },
       ]),
     ],
   });
@@ -100,25 +103,25 @@ const Courses = () => {
       
       <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-16 sm:mt-20">
         {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12" dir="rtl">
+        <div className="text-center mb-8 sm:mb-12" dir={isRTL ? 'rtl' : 'ltr'}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black cyber-glow mb-3 sm:mb-4">
-            המוצרים הדיגיטליים שלנו
+            {t('courses.pageTitle')}
           </h1>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
-            גלה את מגוון המוצרים הדיגיטליים והתוכן שלנו. לימוד מתקדם, הדרכה מקצועית, ותוכן איכותי
+            {t('courses.pageSubtitle')}
           </p>
         </div>
 
         {/* Search Bar */}
         <div className="relative mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/95 backdrop-blur-sm py-2">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
+          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5`} />
           <Input
             type="text"
-            placeholder="חפש מוצר..."
+            placeholder={t('courses.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-9 sm:pr-10 glass-panel text-right h-10 sm:h-11"
-            dir="rtl"
+            className={`${isRTL ? 'pr-9 sm:pr-10 text-right' : 'pl-9 sm:pl-10 text-left'} glass-panel h-10 sm:h-11`}
+            dir={isRTL ? 'rtl' : 'ltr'}
           />
         </div>
 
@@ -151,9 +154,9 @@ const Courses = () => {
               <CourseCard key={course.id} course={course} />
             ))
           ) : (
-            <div className="col-span-full text-center py-12" dir="rtl">
+            <div className="col-span-full text-center py-12" dir={isRTL ? 'rtl' : 'ltr'}>
               <p className="text-base sm:text-xl text-muted-foreground">
-                לא נמצאו מוצרים התואמים את החיפוש
+                {t('courses.noResults')}
               </p>
             </div>
           )}

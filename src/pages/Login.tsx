@@ -8,18 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, LogIn } from "lucide-react";
 import { z } from "zod";
 import { useSEO } from "@/hooks/useSEO";
-
-const loginSchema = z.object({
-  email: z.string()
-    .trim()
-    .email("כתובת אימייל לא חוקית")
-    .max(255, "כתובת אימייל ארוכה מדי")
-    .toLowerCase(),
-  
-  password: z.string()
-    .min(1, "נא להזין סיסמה")
-    .max(128, "סיסמה ארוכה מדי")
-});
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Validate redirect path to prevent open redirect attacks
 const ALLOWED_REDIRECT_PREFIXES = [
@@ -49,10 +38,12 @@ const validateRedirectPath = (redirect: string | null): string => {
 };
 
 const Login = () => {
+  const { t, isRTL } = useTranslation();
+  
   // SEO Configuration
   useSEO({
-    title: "התחברות | מיינד-האקר",
-    description: "התחבר לחשבון שלך במיינד-האקר וקבל גישה למוצרים הדיגיטליים, הקורסים והסדנאות שרכשת.",
+    title: t('seo.loginTitle'),
+    description: t('seo.loginDescription'),
     url: `${window.location.origin}/login`,
     type: "website",
   });
@@ -65,6 +56,19 @@ const Login = () => {
     password: "",
   });
 
+  // Create schema with translated messages
+  const loginSchema = z.object({
+    email: z.string()
+      .trim()
+      .email(t('validation.invalidEmail'))
+      .max(255, t('validation.emailTooLong'))
+      .toLowerCase(),
+    
+    password: z.string()
+      .min(1, t('validation.passwordRequired'))
+      .max(128, t('validation.passwordTooLong'))
+  });
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -74,7 +78,7 @@ const Login = () => {
     if (!result.success) {
       const firstError = result.error.errors[0];
       toast({
-        title: "שגיאת אימות",
+        title: t('validation.validationError'),
         description: firstError.message,
         variant: "destructive",
       });
@@ -92,9 +96,9 @@ const Login = () => {
 
     if (error) {
       toast({
-        title: "שגיאה בהתחברות",
+        title: t('auth.loginError'),
         description: error.message === "Invalid login credentials" 
-          ? "אימייל או סיסמה שגויים"
+          ? t('messages.wrongCredentials')
           : error.message,
         variant: "destructive",
       });
@@ -103,8 +107,8 @@ const Login = () => {
 
     if (data.user) {
       toast({
-        title: "התחברת בהצלחה!",
-        description: "ברוך הבא חזרה",
+        title: t('messages.loginSuccess'),
+        description: t('messages.welcomeBack'),
       });
 
       // Validate redirect to prevent open redirect attacks
@@ -115,22 +119,22 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md">
         <div className="glass-panel p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
               <LogIn className="h-10 w-10 md:h-12 md:w-12 text-primary cyber-glow" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-black cyber-glow">התחברות</h1>
+            <h1 className="text-2xl md:text-3xl font-black cyber-glow">{t('auth.loginTitle')}</h1>
             <p className="text-sm md:text-base text-muted-foreground">
-              התחבר לחשבון שלך
+              {t('auth.loginSubtitle')}
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -141,23 +145,23 @@ const Login = () => {
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">סיסמה</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="הכנס סיסמה"
+                placeholder={t('auth.enterPassword')}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
                 required
                 disabled={isLoading}
-                className="text-right"
+                className={isRTL ? "text-right" : "text-left"}
               />
             </div>
 
@@ -169,30 +173,30 @@ const Login = () => {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  מתחבר...
+                  <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {t('common.loggingIn')}
                 </>
               ) : (
-                "התחבר"
+                t('common.login')
               )}
             </Button>
           </form>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              אין לך חשבון?{" "}
+              {t('auth.noAccount')}{" "}
               <Link
                 to={`/signup${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
                 className="text-primary hover:underline font-medium"
               >
-                הרשם עכשיו
+                {t('auth.signupNow')}
               </Link>
             </p>
             <Link
               to="/"
               className="text-sm text-muted-foreground hover:text-foreground block"
             >
-              חזור לעמוד הראשי
+              {t('auth.backToHome')}
             </Link>
           </div>
         </div>

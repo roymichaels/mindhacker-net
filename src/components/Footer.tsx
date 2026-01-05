@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Instagram, Send, Mail, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LeadCaptureDialog from "@/components/LeadCaptureDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Footer = () => {
+  const { t, isRTL } = useTranslation();
   const [socialLinks, setSocialLinks] = useState({
     instagram_url: "https://instagram.com",
     instagram_enabled: true,
@@ -62,24 +64,24 @@ const Footer = () => {
 
 
   return (
-    <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }}>
+    <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto text-center">
         
         {/* Final CTA Section - More personal */}
         <div className="mb-12 glass-panel p-8 md:p-12 rounded-2xl">
-          <p className="text-sm md:text-base text-secondary mb-2">🚀 הצעד הראשון הוא הקשה ביותר</p>
+          <p className="text-sm md:text-base text-secondary mb-2">{t('footer.firstStepNote')}</p>
           <p className="text-2xl md:text-4xl font-black mb-4 cyber-glow">
-            אבל אתה כבר כאן. אני מחכה לך.
+            {t('footer.ctaTitle')}
           </p>
           <p className="text-muted-foreground mb-6">
-            הקוד שלך מחכה שתפעיל אותו. בוא נעשה את זה יחד.
+            {t('footer.ctaSubtitle')}
           </p>
           <p className="text-secondary italic mb-8 text-sm md:text-base">
-            "אני מאמין בך עוד לפני שפגשנו" — דין
+            {t('footer.quote')}
           </p>
           <LeadCaptureDialog 
             source="footer_cta"
-            triggerText="בוא נתחיל את המסע שלך"
+            triggerText={t('footer.ctaButton')}
             triggerIcon={<Sparkles className="w-5 h-5" />}
             triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105"
             showPreferredTime={true}
@@ -118,7 +120,7 @@ const Footer = () => {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          <p>© 2025 האקר תודעה. כל הזכויות שמורות.</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
 
