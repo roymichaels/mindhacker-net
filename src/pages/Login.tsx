@@ -9,6 +9,7 @@ import { Loader2, LogIn } from "lucide-react";
 import { z } from "zod";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
+import MatrixRain from "@/components/MatrixRain";
 
 // Validate redirect path to prevent open redirect attacks
 const ALLOWED_REDIRECT_PREFIXES = [
@@ -121,8 +122,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
+      <MatrixRain />
+      <div className="w-full max-w-md relative z-10">
         <div className="glass-panel p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">

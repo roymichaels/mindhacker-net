@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, LogOut, Package, User, Clock, CheckCircle, BookOpen, Crown } from "lucide-react";
 import Header from "@/components/Header";
+import MatrixRain from "@/components/MatrixRain";
 import BookingDialog from "@/components/BookingDialog";
 import MyCourses from "@/components/dashboard/MyCourses";
 import MySubscriptions from "@/components/dashboard/MySubscriptions";
@@ -174,7 +175,8 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <MatrixRain />
       <PullToRefreshIndicator {...pullToRefresh} />
       <Header />
       <div className="p-4 md:p-8" dir={isRTL ? 'rtl' : 'ltr'}>

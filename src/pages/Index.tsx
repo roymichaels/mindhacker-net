@@ -33,9 +33,6 @@ const Index = () => {
       {/* Matrix rain background effect */}
       <MatrixRain />
       
-      {/* Scanline overlay */}
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.01)_50%)] bg-[length:100%_4px] opacity-10" style={{ zIndex: 1 }} />
-      
       {/* Header */}
       <Header />
       

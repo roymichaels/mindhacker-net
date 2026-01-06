@@ -208,7 +208,6 @@ const Success = () => {
   return (
     <div className="min-h-screen bg-background relative">
       <MatrixRain />
-      <div className="scanlines" />
       
       <Header />
       

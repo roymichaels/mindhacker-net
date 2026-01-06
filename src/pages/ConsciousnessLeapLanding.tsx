@@ -176,10 +176,7 @@ const ConsciousnessLeapLanding = () => {
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="fixed inset-0 z-0">
-          <MatrixRain />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background" />
-        </div>
+      <MatrixRain />
         <main className="relative z-20 pt-24 pb-20 px-4">
           <div className="container max-w-2xl mx-auto text-center">
             <Card className="bg-card/80 backdrop-blur border-primary/30 p-8 md:p-12">
@@ -204,17 +201,7 @@ const ConsciousnessLeapLanding = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Matrix Rain Background */}
-      <div className="fixed inset-0 z-0">
-        <MatrixRain />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background" />
-      </div>
-
-      {/* Scanline Effect */}
-      <div className="fixed inset-0 pointer-events-none z-10 opacity-[0.03]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
-        }} />
-      </div>
+      <MatrixRain />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-primary/20">
