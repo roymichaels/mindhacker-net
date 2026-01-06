@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Phone } from "lucide-react";
 import LeadCaptureDialog from "./LeadCaptureDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const PersonalInvitation = () => {
+  const { t, isRTL } = useTranslation();
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [message, setMessage] = useState("אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -28,8 +30,11 @@ const PersonalInvitation = () => {
     fetchSettings();
   }, []);
 
+  // Use translation as fallback if no custom message is set
+  const displayMessage = message || t('personalInvitation.defaultMessage');
+
   return (
-    <section className="relative py-16 md:py-24 px-4" style={{ zIndex: 2 }}>
+    <section className="relative py-16 md:py-24 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto">
         <div className="glass-panel p-8 md:p-12 text-center relative overflow-hidden">
           {/* Decorative glow */}
@@ -42,7 +47,7 @@ const PersonalInvitation = () => {
                 {imageUrl ? (
                   <img 
                     src={imageUrl} 
-                    alt="דין אושר אזולאי" 
+                    alt={t('about.name')} 
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -54,30 +59,30 @@ const PersonalInvitation = () => {
 
             {/* Personal message */}
             <p className="text-xl md:text-2xl text-foreground mb-2 font-medium">
-              הודעה אישית מדין
+              {t('personalInvitation.title')}
             </p>
             
             <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed max-w-xl mx-auto">
-              "{message}"
+              "{displayMessage}"
             </p>
 
             {/* Signature */}
             <p className="text-primary font-bold text-lg mb-8">
-              — דין אושר אזולאי
+              — {t('personalInvitation.signature')}
             </p>
 
             {/* CTA Button */}
             <div className="flex flex-col items-center gap-3">
               <LeadCaptureDialog 
                 source="invitation"
-                triggerText="קבע שיחת ייעוץ חינם"
+                triggerText={t('personalInvitation.ctaButton')}
                 triggerIcon={<Phone className="w-5 h-5" />}
                 triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full cyber-border pulse-glow transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
                 showPreferredTime
               />
               
               <p className="text-sm text-muted-foreground">
-                30 דקות — לבדוק אם מתאים לנו לעבוד יחד
+                {t('personalInvitation.ctaSubtext')}
               </p>
             </div>
           </div>

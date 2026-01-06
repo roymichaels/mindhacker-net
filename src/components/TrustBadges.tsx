@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, Lock, Heart } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const iconMap = [Shield, Lock, Heart];
 
 const TrustBadges = () => {
   const { t, isRTL } = useTranslation();
+  const { settings, loading } = useSiteSettings();
+  
+  // Use admin settings if available, otherwise use translations
   const badges = [
-    t('trustBadges.discretion'),
-    t('trustBadges.noCommitment'),
-    t('trustBadges.personalGuidance'),
+    settings.trust_badge_1 || t('trustBadges.discretion'),
+    settings.trust_badge_2 || t('trustBadges.noCommitment'),
+    settings.trust_badge_3 || t('trustBadges.personalGuidance'),
   ];
   
   const [isVisible, setIsVisible] = useState(false);

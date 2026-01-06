@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Star, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CounterProps {
   end: number;
@@ -59,6 +60,7 @@ const AnimatedCounter = ({ end, suffix = "", duration = 2000 }: CounterProps) =>
 };
 
 const SocialProofCounter = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     successRate: 94,
     habitBreak: 87,
@@ -120,7 +122,7 @@ const SocialProofCounter = () => {
         <Star className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />
         <div className="flex flex-col">
           <AnimatedCounter end={stats.successRate} suffix="%" />
-          <span className="text-xs md:text-sm text-muted-foreground">שינוי מהמפגש הראשון</span>
+          <span className="text-xs md:text-sm text-muted-foreground">{t('socialProof.changeFromFirst')}</span>
         </div>
       </div>
       
@@ -133,7 +135,7 @@ const SocialProofCounter = () => {
         <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-primary" />
         <div className="flex flex-col">
           <AnimatedCounter end={stats.habitBreak} suffix="%" />
-          <span className="text-xs md:text-sm text-muted-foreground">שברו הרגלים תוך 4 מפגשים</span>
+          <span className="text-xs md:text-sm text-muted-foreground">{t('socialProof.brokeHabits')}</span>
         </div>
       </div>
     </div>

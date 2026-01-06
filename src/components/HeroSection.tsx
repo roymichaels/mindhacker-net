@@ -7,11 +7,16 @@ import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
 import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift, Sparkle } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import heroPortrait from "@/assets/hero-portrait.png";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
+  const { settings } = useSiteSettings();
+  
+  // Get introspection form URL from settings or use default
+  const introspectionFormUrl = settings.introspection_form_url || "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
   
   const wordsHe = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const wordsEn = ["Mind", "Consciousness", "Freedom", "Reality", "Identity", "Subconscious"];
@@ -115,7 +120,7 @@ const HeroSection = () => {
           
           {/* Option 1: Free Introspection Form (FIRST - Entry Point) */}
           <Card className="group relative bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/40 hover:border-amber-500/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
-            onClick={() => navigate("/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e")}>
+            onClick={() => navigate(introspectionFormUrl)}>
             {/* Animated glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             

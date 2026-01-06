@@ -3,12 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Gift, Sparkles, ArrowLeft, ArrowRight, FileText, Clock, Download, Lock, Eye, Repeat, Target, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const IntrospectionPromo = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
+  const { settings } = useSiteSettings();
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+  const introspectionFormUrl = settings.introspection_form_url || "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
 
   const features = [
     { icon: FileText, text: t('introspectionPromo.feature1') },
@@ -97,7 +100,7 @@ const IntrospectionPromo = () => {
               <Button
                 size="lg"
                 className="w-full gap-3 text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold shadow-lg shadow-amber-500/30 relative overflow-hidden group"
-                onClick={() => navigate("/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e")}
+                onClick={() => navigate(introspectionFormUrl)}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <Sparkles className="w-5 h-5" />

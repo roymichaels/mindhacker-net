@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Gift, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CountdownTimer = () => {
+  const { t, isRTL } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(true);
-  const [promoText, setPromoText] = useState("קנה 3 מפגשים - קבל את הראשון במתנה! 🎁");
-  const [promoSubtext, setPromoSubtext] = useState("ברכישת תהליך מלא של 4 מפגשים - המפגש הראשון עלינו");
+  const [promoText, setPromoText] = useState("");
+  const [promoSubtext, setPromoSubtext] = useState("");
 
   useEffect(() => {
     const fetchPromoSettings = async () => {
@@ -39,7 +41,7 @@ const CountdownTimer = () => {
 
   if (loading) {
     return (
-      <div className="glass-panel p-4 md:p-6 mb-8 text-center animate-fade-in" dir="rtl">
+      <div className="glass-panel p-4 md:p-6 mb-8 text-center animate-fade-in" dir={isRTL ? 'rtl' : 'ltr'}>
         <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
       </div>
     );
@@ -50,7 +52,7 @@ const CountdownTimer = () => {
   }
 
   return (
-    <div className="glass-panel p-4 md:p-6 mb-8 text-center animate-fade-in border-accent/40" dir="rtl">
+    <div className="glass-panel p-4 md:p-6 mb-8 text-center animate-fade-in border-accent/40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-center gap-2 mb-3">
         <Gift className="w-6 h-6 text-accent animate-pulse" />
         <h3 className="text-xl md:text-2xl font-bold text-foreground cyber-glow">
@@ -65,7 +67,7 @@ const CountdownTimer = () => {
       
       <div className="mt-4 flex items-center justify-center gap-2 text-sm">
         <span className="inline-flex items-center gap-1 bg-accent/20 text-accent font-medium px-3 py-1 rounded-full">
-          ✨ ללא סיכון · ללא התחייבות
+          ✨ {t('countdown.noCatchBadge')}
         </span>
       </div>
     </div>

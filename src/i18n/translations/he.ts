@@ -384,6 +384,38 @@ export const he = {
     noCommitment: "ללא התחייבות",
     personalGuidance: "ליווי אישי",
   },
+  guarantee: {
+    title: "התחייבות שביעות רצון",
+    subtitle: "לא מרוצה מהמפגש הראשון? נחזיר לך את הכסף",
+  },
+  heroVideo: {
+    watchPersonalMessage: "צפה בהודעה אישית מדין",
+  },
+  socialProof: {
+    changeFromFirst: "שינוי מהמפגש הראשון",
+    brokeHabits: "שברו הרגלים תוך 4 מפגשים",
+  },
+  countdown: {
+    noCatchBadge: "ללא סיכון · ללא התחייבות",
+  },
+  personalInvitation: {
+    title: "הודעה אישית מדין",
+    defaultMessage: "אם הגעת עד לכאן, סימן שמשהו בפנים שלך מזמין אותך לשינוי. אני מחכה לשיחה הראשונה שלנו.",
+    signature: "דין אושר אזולאי",
+    ctaButton: "קבע שיחת ייעוץ חינם",
+    ctaSubtext: "30 דקות — לבדוק אם מתאים לנו לעבוד יחד",
+  },
+  freeDiscovery: {
+    badge: "שיחת ייעוץ ללא עלות",
+    title: "אני בררן לגבי הלקוחות שלי 🎯",
+    subtitle: "לא כל אחד מתאים לתהליך הזה — ולא אני לכל אחד. לפני שנתחיל, נדבר 30 דקות כדי לבדוק אם זה בכלל נכון לנו.",
+    duration: "30 דקות שיחה",
+    callType: "שיחת וידאו או טלפון",
+    discretion: "100% דיסקרטיות",
+    leaveDetails: "השאר פרטים ואחזור אליך",
+    scheduleYourself: "או קבע בעצמך",
+    responseTime: "* אני עונה לכל בקשה תוך 24 שעות",
+  },
   subscriptions: {
     mySubscription: "המנוי שלי",
     noActiveSubscription: "אין לך מנוי פעיל כרגע",

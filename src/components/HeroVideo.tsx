@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const HeroVideo = () => {
+  const { t } = useTranslation();
   const [videoUrl, setVideoUrl] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +54,7 @@ const HeroVideo = () => {
             <Play className="w-5 h-5 text-primary fill-primary" />
           </div>
           <span className="text-sm md:text-base text-foreground font-medium">
-            צפה בהודעה אישית מדין
+            {t('heroVideo.watchPersonalMessage')}
           </span>
         </div>
         
