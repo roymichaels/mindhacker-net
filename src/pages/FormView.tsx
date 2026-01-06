@@ -515,7 +515,7 @@ const FormView = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex flex-col relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Progress bar */}
       {showProgress && (
         <div className="fixed top-0 left-0 right-0 z-50">
