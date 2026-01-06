@@ -60,14 +60,60 @@ type PostSubmitAction = "none" | "consciousness-leap" | "personal-hypnosis" | "f
 const FormView = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const [showIntro, setShowIntro] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [responses, setResponses] = useState<Record<string, string | string[]>>({});
+  const { t, isRTL } = useTranslation();
+  
+  // Storage key for persisting form progress
+  const storageKey = `form-progress-${token}`;
+  
+  // Initialize state from sessionStorage
+  const [showIntro, setShowIntro] = useState(() => {
+    const saved = sessionStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.showIntro ?? true;
+      } catch { return true; }
+    }
+    return true;
+  });
+  
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = sessionStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.currentStep ?? 0;
+      } catch { return 0; }
+    }
+    return 0;
+  });
+  
+  const [responses, setResponses] = useState<Record<string, string | string[]>>(() => {
+    const saved = sessionStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.responses ?? {};
+      } catch { return {}; }
+    }
+    return {};
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [postSubmitAction, setPostSubmitAction] = useState<PostSubmitAction>("none");
   const [showAnswerReview, setShowAnswerReview] = useState(false);
-  const { t, isRTL } = useTranslation();
+  
+  // Persist form state to sessionStorage
+  useEffect(() => {
+    if (!isSubmitted && token) {
+      sessionStorage.setItem(storageKey, JSON.stringify({
+        currentStep,
+        responses,
+        showIntro
+      }));
+    }
+  }, [currentStep, responses, showIntro, isSubmitted, token, storageKey]);
 
   const ArrowNextIcon = isRTL ? ArrowLeft : ArrowRight;
   const ArrowPrevIcon = isRTL ? ArrowRight : ArrowLeft;
@@ -85,6 +131,8 @@ const FormView = () => {
       return data as Form;
     },
     enabled: !!token,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: fields = [] } = useQuery({
@@ -100,6 +148,8 @@ const FormView = () => {
       return data as FormField[];
     },
     enabled: !!form?.id,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Check if intro should be shown
@@ -150,6 +200,7 @@ const FormView = () => {
 
       if (error) throw error;
       setIsSubmitted(true);
+      sessionStorage.removeItem(storageKey); // Clear saved progress on successful submission
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({ title: t('forms.submitError'), variant: "destructive" });
