@@ -47,7 +47,7 @@ const HeroSection = () => {
 
       <div className="relative text-center max-w-5xl mx-auto">
         {/* Main Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
           {isRTL ? (
             <>
               <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
@@ -67,21 +67,21 @@ const HeroSection = () => {
           )}
         </h1>
 
-        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium opacity-0 animate-fade-in-up-delay-1">
+        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
           {t('hero.mainSubtitle')}
         </p>
 
-        <p className="text-base sm:text-lg md:text-xl text-secondary mb-6 font-light opacity-0 animate-fade-in-up-delay-2">
+        <p className="text-base sm:text-lg md:text-xl text-secondary mb-6 font-light animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           {t('hero.pathsSubtitle')}
         </p>
 
         {/* Personal Video Button */}
-        <div className="opacity-0 animate-fade-in-up-delay-3 mb-10">
+        <div className="animate-fade-in-up mb-10" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <HeroVideo />
         </div>
 
         {/* Three Options Cards - Reordered: Free → Recording → Process */}
-        <div className="grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 opacity-0 animate-fade-in-up-delay-3">
+        <div className="grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           
           {/* Option 1: Free Introspection Form (FIRST - Entry Point) */}
           <Card className="group relative bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/40 hover:border-amber-500/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
