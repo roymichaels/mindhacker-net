@@ -1,0 +1,128 @@
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Gift, Sparkles, ArrowLeft, ArrowRight, FileText, Clock, Download, Lock, Eye, Repeat, Target, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
+
+const IntrospectionPromo = () => {
+  const navigate = useNavigate();
+  const { t, isRTL } = useTranslation();
+
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
+  const features = [
+    { icon: FileText, text: t('introspectionPromo.feature1') },
+    { icon: Clock, text: t('introspectionPromo.feature2') },
+    { icon: Download, text: t('introspectionPromo.feature3') },
+    { icon: Lock, text: t('introspectionPromo.feature4') },
+  ];
+
+  const discoveries = [
+    { icon: Eye, text: t('introspectionPromo.discover1') },
+    { icon: Repeat, text: t('introspectionPromo.discover2') },
+    { icon: Target, text: t('introspectionPromo.discover3') },
+    { icon: Heart, text: t('introspectionPromo.discover4') },
+  ];
+
+  return (
+    <section id="introspection" className="relative py-20 md:py-32 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Warm gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-background to-background" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-20 left-1/4 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl animate-breathe" />
+      <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl" />
+      
+      {/* Sacred geometry */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-amber-500/10 rounded-full pointer-events-none" />
+      
+      <div className="container relative mx-auto px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Badge */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-500/40 shadow-lg shadow-amber-500/10">
+              <Gift className="h-5 w-5 text-amber-500 animate-pulse" />
+              <span className="text-sm font-bold text-amber-500">{t('introspectionPromo.badge')}</span>
+            </div>
+          </div>
+          
+          {/* Title */}
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4">
+            <span className="text-amber-500">{t('introspectionPromo.title')}</span>
+          </h2>
+          
+          {/* Subtitle */}
+          <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mb-4">
+            {t('introspectionPromo.subtitle')}
+          </p>
+          
+          <p className="text-base text-muted-foreground/80 text-center max-w-xl mx-auto mb-12">
+            {t('introspectionPromo.description')}
+          </p>
+          
+          {/* Content Grid */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Left side - What You'll Discover */}
+            <Card className="bg-card/50 backdrop-blur border-amber-500/20 p-6 md:p-8">
+              <h3 className="text-xl font-bold mb-6 text-center text-amber-500">{t('introspectionPromo.whatDiscover')}</h3>
+              
+              <ul className="space-y-4">
+                {discoveries.map((item, index) => (
+                  <li key={index} className="flex items-center gap-4 group">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/30 transition-colors">
+                      <item.icon className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <span className="text-foreground">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+            
+            {/* Right side - Features & CTA */}
+            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/30 p-6 md:p-8 relative overflow-hidden">
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent -skew-x-12 animate-shimmer" />
+              
+              <h3 className="text-xl font-bold mb-6 text-center relative">{t('introspectionPromo.journeyDetails')}</h3>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8 relative">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3 bg-background/50 rounded-lg p-3">
+                    <feature.icon className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-sm">{feature.text}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <Button
+                size="lg"
+                className="w-full gap-3 text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold shadow-lg shadow-amber-500/30 relative overflow-hidden group"
+                onClick={() => navigate("/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e")}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  {t('introspectionPromo.cta')}
+                  <ArrowIcon className="h-5 w-5" />
+                </span>
+              </Button>
+              
+              <p className="text-center text-sm text-muted-foreground mt-4 relative">
+                {t('introspectionPromo.noSignup')}
+              </p>
+            </Card>
+          </div>
+          
+          {/* Quote */}
+          <div className="text-center">
+            <p className="text-lg md:text-xl italic text-amber-500/80 font-medium">
+              "{t('introspectionPromo.quote')}"
+            </p>
+            <p className="text-muted-foreground mt-2">— {t('about.name')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default IntrospectionPromo;

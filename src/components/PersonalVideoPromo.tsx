@@ -97,9 +97,7 @@ const PersonalVideoPromo = () => {
               </ul>
               
               <div className="text-center mb-6">
-                <div className="text-sm text-muted-foreground mb-1">{t('personalVideoPromo.specialPrice')}</div>
-                <div className="text-4xl font-bold text-accent">{t('personalVideoPromo.price')}</div>
-                <div className="text-sm text-muted-foreground mt-1">{t('personalVideoPromo.oneTimePayment')}</div>
+                <div className="text-lg font-medium text-accent">{t('personalVideoPromo.valueStatement')}</div>
               </div>
               
               <Button
