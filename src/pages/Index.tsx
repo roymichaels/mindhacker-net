@@ -6,9 +6,10 @@ import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 
-// Lazy load below-the-fold components
-const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
+// Lazy load below-the-fold components - ordered by journey progression
+const IntrospectionPromo = lazy(() => import("@/components/IntrospectionPromo"));
 const PersonalVideoPromo = lazy(() => import("@/components/PersonalVideoPromo"));
+const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
@@ -38,12 +39,13 @@ const Index = () => {
       {/* Header */}
       <Header />
       
-      {/* Main content */}
+      {/* Main content - Journey order: Free → Recording → Process */}
       <main className="relative">
         <HeroSection />
         <Suspense fallback={null}>
-          <ConsciousnessLeapPromo />
+          <IntrospectionPromo />
           <PersonalVideoPromo />
+          <ConsciousnessLeapPromo />
           <AboutSection />
           <TestimonialsSection />
           <FAQSection />

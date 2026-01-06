@@ -99,9 +99,7 @@ const ConsciousnessLeapPromo = () => {
               </ul>
               
               <div className="text-center mb-6">
-                <div className="text-sm text-muted-foreground mb-1">{t('consciousnessLeapPromo.investInYourself')}</div>
-                <div className="text-4xl font-bold text-primary cyber-glow">{t('consciousnessLeapPromo.price')}</div>
-                <div className="text-sm text-muted-foreground mt-1">{t('consciousnessLeapPromo.installments')}</div>
+                <div className="text-lg font-medium text-primary cyber-glow">{t('consciousnessLeapPromo.valueStatement')}</div>
               </div>
               
               <Button

@@ -80,40 +80,52 @@ const HeroSection = () => {
           <HeroVideo />
         </div>
 
-        {/* Three Options Cards */}
+        {/* Three Options Cards - Reordered: Free → Recording → Process */}
         <div className="grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 opacity-0 animate-fade-in-up-delay-3">
-          {/* Option 1: Consciousness Leap */}
-          <Card className="group relative bg-card/50 backdrop-blur border-primary/30 hover:border-primary/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 cursor-pointer overflow-hidden"
-            onClick={() => navigate("/consciousness-leap")}>
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Option 1: Free Introspection Form (FIRST - Entry Point) */}
+          <Card className="group relative bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/40 hover:border-amber-500/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
+            onClick={() => navigate("/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e")}>
+            {/* Animated glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
-            <div className="relative">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -skew-x-12 group-hover:animate-shimmer" />
+            
+            {/* Free badge - prominent */}
+            <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-amber-500/40 animate-pulse">
+                {t('hero.freeGift')}
+              </div>
+            </div>
+            
+            <div className="relative mt-6">
               <div className="flex justify-center mb-3">
-                <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-7 h-7 text-primary" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-400/20 border-2 border-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-amber-500/20">
+                  <Gift className="w-8 h-8 text-amber-500" />
                 </div>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-3">
-                <Sparkles className="w-3 h-3 text-primary" />
-                <span className="text-xs text-primary font-medium">{t('hero.consciousnessLeapTag')}</span>
+              <div className="inline-flex items-center gap-2 bg-amber-500/15 rounded-full px-3 py-1 mb-3">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span className="text-xs text-amber-500 font-medium">{t('hero.introspectionFormTag')}</span>
               </div>
               
-              <h3 className="text-xl md:text-2xl font-bold mb-2 cyber-glow">{t('hero.consciousnessLeap')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2 text-amber-500">{t('hero.introspectionForm')}</h3>
               
               <p className="text-muted-foreground mb-4 text-sm">
-                {t('hero.consciousnessLeapDesc')}
+                {t('hero.introspectionFormDesc')}
               </p>
               
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25 transition-all">
-                {t('hero.discoverIfRight')}
+              <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold group-hover:shadow-lg group-hover:shadow-amber-500/40 transition-all">
+                <Sparkles className="w-4 h-4 mr-2" />
+                {t('hero.startFree')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
           </Card>
 
-          {/* Option 2: Personal Hypnosis Video */}
+          {/* Option 2: Personal Hypnosis Video (SECOND - Low barrier) */}
           <Card className="group relative bg-card/50 backdrop-blur border-accent/30 hover:border-accent/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 cursor-pointer overflow-hidden"
             onClick={() => navigate("/personal-hypnosis")}>
             {/* Glow effect on hover */}
@@ -144,37 +156,32 @@ const HeroSection = () => {
             </div>
           </Card>
 
-          {/* Option 3: Free Introspection Form */}
-          <Card className="group relative bg-card/50 backdrop-blur border-amber-500/30 hover:border-amber-500/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-amber-500/20 cursor-pointer overflow-hidden"
-            onClick={() => navigate("/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e")}>
+          {/* Option 3: Consciousness Leap (THIRD - Full commitment) */}
+          <Card className="group relative bg-card/50 backdrop-blur border-primary/30 hover:border-primary/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 cursor-pointer overflow-hidden"
+            onClick={() => navigate("/consciousness-leap")}>
             {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            {/* Free badge */}
-            <div className="absolute top-3 left-3 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-              {t('hero.freeGift')}
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             <div className="relative">
-              <div className="flex justify-center mb-3 mt-4">
-                <div className="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Gift className="w-7 h-7 text-amber-500" />
+              <div className="flex justify-center mb-3">
+                <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-7 h-7 text-primary" />
                 </div>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 rounded-full px-3 py-1 mb-3">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span className="text-xs text-amber-500 font-medium">{t('hero.introspectionFormTag')}</span>
+              <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-3">
+                <Sparkles className="w-3 h-3 text-primary" />
+                <span className="text-xs text-primary font-medium">{t('hero.consciousnessLeapTag')}</span>
               </div>
               
-              <h3 className="text-xl md:text-2xl font-bold mb-2 text-amber-500">{t('hero.introspectionForm')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2 cyber-glow">{t('hero.consciousnessLeap')}</h3>
               
               <p className="text-muted-foreground mb-4 text-sm">
-                {t('hero.introspectionFormDesc')}
+                {t('hero.consciousnessLeapDesc')}
               </p>
               
-              <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold group-hover:shadow-lg group-hover:shadow-amber-500/25 transition-all">
-                {t('hero.startFree')}
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25 transition-all">
+                {t('hero.discoverIfRight')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
