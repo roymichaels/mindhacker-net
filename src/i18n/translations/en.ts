@@ -164,6 +164,11 @@ export const en: TranslationKeys = {
     discoverIfRight: "Discover if it's right for you",
     discoverMore: "Discover more",
     notSure: "Not sure what's right for you? Scroll down to learn more about each path",
+    freeGift: "🎁 FREE",
+    introspectionForm: "Deep Introspection Journey",
+    introspectionFormDesc: "A profound questionnaire to help you know yourself better. No cost, no commitment.",
+    introspectionFormTag: "Start your journey",
+    startFree: "Start Now - Free",
   },
   courses: {
     pageTitle: "Our Digital Products",
