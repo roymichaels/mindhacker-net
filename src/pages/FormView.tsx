@@ -525,7 +525,7 @@ const FormView = () => {
 
       {/* Main content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-2xl glass-panel p-6 sm:p-8 rounded-2xl">
           {/* Form title - show only on first question */}
           {currentStep === 0 && (
             <div className="mb-8 text-center animate-fade-in-up">
