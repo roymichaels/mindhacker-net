@@ -17,19 +17,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
   title: z.string().min(1, "נא להזין כותרת"),
   description: z.string().optional(),
   thank_you_message: z.string().optional(),
+  show_intro: z.boolean().default(true),
+  intro_title: z.string().optional(),
+  intro_subtitle: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+interface FormSettings {
+  thank_you_message?: string;
+  show_progress?: boolean;
+  show_intro?: boolean;
+  intro_title?: string;
+  intro_subtitle?: string;
+}
 
 interface FormDialogProps {
   open: boolean;
@@ -50,6 +63,9 @@ const FormDialog = ({
       title: "",
       description: "",
       thank_you_message: "תודה על מילוי הטופס!",
+      show_intro: true,
+      intro_title: "",
+      intro_subtitle: "",
     },
   });
 
@@ -70,20 +86,28 @@ const FormDialog = ({
 
   useEffect(() => {
     if (existingForm) {
-      const settings = existingForm.settings as { thank_you_message?: string } | null;
+      const settings = existingForm.settings as FormSettings | null;
       form.reset({
         title: existingForm.title,
         description: existingForm.description || "",
         thank_you_message: settings?.thank_you_message || "תודה על מילוי הטופס!",
+        show_intro: settings?.show_intro !== false,
+        intro_title: settings?.intro_title || "",
+        intro_subtitle: settings?.intro_subtitle || "",
       });
     } else if (!formId) {
       form.reset({
         title: "",
         description: "",
         thank_you_message: "תודה על מילוי הטופס!",
+        show_intro: true,
+        intro_title: "",
+        intro_subtitle: "",
       });
     }
   }, [existingForm, formId, form]);
+
+  const showIntro = form.watch("show_intro");
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -95,6 +119,9 @@ const FormDialog = ({
         settings: {
           thank_you_message: values.thank_you_message || "תודה על מילוי הטופס!",
           show_progress: true,
+          show_intro: values.show_intro,
+          intro_title: values.intro_title || "",
+          intro_subtitle: values.intro_subtitle || "",
         },
       };
 
@@ -123,7 +150,7 @@ const FormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{formId ? "עריכת טופס" : "טופס חדש"}</DialogTitle>
         </DialogHeader>
@@ -161,6 +188,69 @@ const FormDialog = ({
                 </FormItem>
               )}
             />
+
+            {/* Intro Screen Settings */}
+            <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+              <FormField
+                control={form.control}
+                name="show_intro"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel>מסך פתיחה</FormLabel>
+                      <FormDescription>
+                        הצג מסך פתיחה לפני תחילת הטופס
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {showIntro && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="intro_title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>כותרת מסך פתיחה (אופציונלי)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="השאר ריק לשימוש בכותרת הטופס"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="intro_subtitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>תת-כותרת / משפט השראה (אופציונלי)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="משפט מעורר השראה או הסבר קצר..."
+                            rows={2}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+            </div>
 
             <FormField
               control={form.control}

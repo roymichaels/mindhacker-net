@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -16,10 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X, FileText, Download, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { generateFormPDF } from "@/lib/pdfGenerator";
 
 interface FormField {
   id: string;
@@ -31,14 +39,19 @@ interface FormField {
   order_index: number;
 }
 
+interface FormSettings {
+  thank_you_message?: string;
+  show_progress?: boolean;
+  intro_title?: string;
+  intro_subtitle?: string;
+  show_intro?: boolean;
+}
+
 interface Form {
   id: string;
   title: string;
   description: string | null;
-  settings: {
-    thank_you_message?: string;
-    show_progress?: boolean;
-  } | null;
+  settings: FormSettings | null;
   status: string;
 }
 
@@ -47,11 +60,13 @@ type PostSubmitAction = "none" | "consciousness-leap" | "personal-hypnosis" | "f
 const FormView = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const [showIntro, setShowIntro] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, string | string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [postSubmitAction, setPostSubmitAction] = useState<PostSubmitAction>("none");
+  const [showAnswerReview, setShowAnswerReview] = useState(false);
   const { t, isRTL } = useTranslation();
 
   const ArrowNextIcon = isRTL ? ArrowLeft : ArrowRight;
@@ -86,6 +101,9 @@ const FormView = () => {
     },
     enabled: !!form?.id,
   });
+
+  // Check if intro should be shown
+  const shouldShowIntro = form?.settings?.show_intro !== false;
 
   const currentField = fields[currentStep];
   const progress = fields.length > 0 ? ((currentStep + 1) / fields.length) * 100 : 0;
@@ -146,18 +164,34 @@ const FormView = () => {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (showIntro && shouldShowIntro) return; // Don't handle enter on intro screen
       if (e.key === "Enter" && !e.shiftKey && currentField?.type !== "textarea") {
         e.preventDefault();
         handleNext();
       }
     },
-    [handleNext, currentField?.type]
+    [handleNext, currentField?.type, showIntro, shouldShowIntro]
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
+
+  const handleDownloadPDF = () => {
+    if (!form) return;
+    
+    const formResponses = fields.map(field => ({
+      question: field.label,
+      answer: responses[field.id] || "",
+    }));
+
+    generateFormPDF(form.title, formResponses, new Date(), isRTL);
+  };
+
+  const handleStartForm = () => {
+    setShowIntro(false);
+  };
 
   if (formLoading) {
     return (
@@ -194,10 +228,110 @@ const FormView = () => {
     }
   };
 
+  // Intro Screen
+  if (showIntro && shouldShowIntro && !isSubmitted && fields.length > 0) {
+    const introTitle = form.settings?.intro_title || form.title;
+    const introSubtitle = form.settings?.intro_subtitle || form.description || t('formIntro.letsStart');
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="max-w-2xl w-full text-center animate-fade-in-up">
+          {/* Sparkle Icon */}
+          <div className="relative mx-auto mb-8 w-24 h-24">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 animate-pulse" />
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center">
+              <Sparkles className="h-10 w-10 text-primary animate-pulse" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text">
+            {introTitle}
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-lg mx-auto leading-relaxed">
+            {introSubtitle}
+          </p>
+
+          {/* Begin Button */}
+          <Button
+            onClick={handleStartForm}
+            size="lg"
+            className="gap-3 text-lg px-8 py-6 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            <Sparkles className="h-5 w-5" />
+            {t('formIntro.begin')}
+            <ArrowNextIcon className="h-5 w-5" />
+          </Button>
+
+          {/* Progress hint */}
+          <p className="text-sm text-muted-foreground mt-8">
+            {fields.length} {isRTL ? 'שאלות' : 'questions'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Answer Review Dialog
+  const AnswerReviewDialog = () => (
+    <Dialog open={showAnswerReview} onOpenChange={setShowAnswerReview}>
+      <DialogContent className="max-w-2xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            {t('formComplete.yourResponses')}
+          </DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="h-[60vh] pr-4">
+          <div className="space-y-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="p-4 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium">
+                    {index + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-muted-foreground mb-1">
+                      {field.label}
+                    </p>
+                    <p className="text-foreground">
+                      {Array.isArray(responses[field.id]) 
+                        ? (responses[field.id] as string[]).join(", ") 
+                        : responses[field.id] || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+        <div className="flex gap-3 pt-4 border-t">
+          <Button
+            variant="outline"
+            onClick={handleDownloadPDF}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {t('formComplete.downloadPdf')}
+          </Button>
+          <Button
+            onClick={() => setShowAnswerReview(false)}
+            className="flex-1"
+          >
+            {t('formComplete.closeReview')}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (isSubmitted) {
     if (postSubmitAction === "none") {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+          <AnswerReviewDialog />
           <div className="glass-panel p-8 text-center max-w-2xl animate-fade-in-up">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
               <Check className="h-8 w-8 text-green-500" />
@@ -205,9 +339,29 @@ const FormView = () => {
             <h1 className="text-2xl font-bold mb-2">
               {form.settings?.thank_you_message || t('formComplete.submitted')}
             </h1>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-6">
               {t('formComplete.whatNext')}
             </p>
+
+            {/* View Answers & Download PDF buttons */}
+            <div className="flex gap-3 justify-center mb-8">
+              <Button
+                variant="outline"
+                onClick={() => setShowAnswerReview(true)}
+                className="gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                {t('formComplete.viewAnswers')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDownloadPDF}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                {t('formComplete.downloadPdf')}
+              </Button>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
               {/* Consciousness Leap Option */}
@@ -261,6 +415,7 @@ const FormView = () => {
 
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <AnswerReviewDialog />
         <div className="glass-panel p-8 text-center max-w-md animate-fade-in-up">
           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
             <Check className="h-8 w-8 text-green-500" />
@@ -271,6 +426,24 @@ const FormView = () => {
           <p className="text-muted-foreground mb-6">
             {t('formComplete.weWillContact')}
           </p>
+          <div className="flex gap-3 justify-center mb-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowAnswerReview(true)}
+              className="gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              {t('formComplete.viewAnswers')}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDownloadPDF}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              {t('formComplete.downloadPdf')}
+            </Button>
+          </div>
           <Button variant="outline" onClick={() => navigate("/")}>
             {t('formComplete.returnHome')}
           </Button>

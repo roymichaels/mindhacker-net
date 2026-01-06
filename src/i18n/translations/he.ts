@@ -267,6 +267,18 @@ export const he = {
     finishDesc: "תודה, זה הכל לעכשיו",
     returnHome: "חזרה לאתר",
     weWillContact: "נחזור אליך בהקדם",
+    viewAnswers: "צפייה בתשובות שלי",
+    downloadPdf: "הורדה כ-PDF",
+    yourResponses: "התשובות שלך",
+    closeReview: "סגור",
+    question: "שאלה",
+    answer: "תשובה",
+  },
+  formIntro: {
+    begin: "בואו נתחיל",
+    startJourney: "התחל את המסע שלך",
+    welcome: "ברוכים הבאים",
+    letsStart: "בואו נתחיל את המסע הזה יחד",
   },
   success: {
     congratulations: "🎉 מזל טוב! קיבלת את ההחלטה הנכונה",
