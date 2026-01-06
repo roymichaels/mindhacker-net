@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { User, Play } from "lucide-react";
+import { Play, Sparkle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/useTranslation";
+import heroPortrait from "@/assets/hero-portrait.png";
 
 const AboutSection = () => {
   const { t, isRTL } = useTranslation();
-  const [imageUrl, setImageUrl] = useState<string>("");
   const [personalStory, setPersonalStory] = useState("");
   const [aboutVideoUrl, setAboutVideoUrl] = useState("");
   const [aboutVideoEnabled, setAboutVideoEnabled] = useState(false);
@@ -18,13 +18,10 @@ const AboutSection = () => {
       const { data } = await supabase
         .from("site_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["about_image_url", "personal_story", "about_video_url", "about_video_enabled"]);
+        .in("setting_key", ["personal_story", "about_video_url", "about_video_enabled"]);
       
       if (data) {
         data.forEach(item => {
-          if (item.setting_key === "about_image_url" && item.setting_value) {
-            setImageUrl(item.setting_value);
-          }
           if (item.setting_key === "personal_story" && item.setting_value) {
             setPersonalStory(item.setting_value);
           }
@@ -55,21 +52,23 @@ const AboutSection = () => {
         <div className="glass-panel p-6 md:p-12">
           {/* Profile Image */}
           <div className="flex justify-center mb-6 md:mb-8">
-            <div className="relative">
+            <div className="relative animate-float-gentle">
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center cyber-border overflow-hidden ring-4 ring-primary/20">
-                {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
-                    alt={t('about.name')} 
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <User className="w-14 h-14 md:w-18 md:h-18 text-primary-foreground" />
-                )}
+                <img 
+                  src={heroPortrait} 
+                  alt={t('about.name')} 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
               {/* Decorative ring */}
               <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-breathe scale-110" />
+              
+              {/* Sparkle effects */}
+              <Sparkle className="absolute -top-1 -right-1 w-3 h-3 text-primary animate-sparkle" />
+              <Sparkle className="absolute top-1/4 -left-2 w-2 h-2 text-accent animate-sparkle-delay-1" />
+              <Sparkle className="absolute -bottom-1 right-1/4 w-2 h-2 text-primary animate-sparkle-delay-2" />
+              <Sparkle className="absolute bottom-1/4 -right-1 w-2 h-2 text-accent animate-sparkle-delay-3" />
             </div>
           </div>
 

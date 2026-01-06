@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import DecryptText from "./DecryptText";
 import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
-import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift, Sparkle } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import heroPortrait from "@/assets/hero-portrait.png";
 
@@ -49,7 +49,7 @@ const HeroSection = () => {
       <div className="relative text-center max-w-5xl mx-auto">
         {/* Hero Portrait */}
         <div className="relative mx-auto mb-4 md:mb-6 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto">
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto animate-float-gentle">
             {/* Glow effect behind image */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-accent/30 to-primary/20 blur-2xl scale-125" />
             {/* Image with mask for seamless blend */}
@@ -64,6 +64,14 @@ const HeroSection = () => {
             />
             {/* Subtle ring */}
             <div className="absolute inset-0 rounded-full border border-primary/30 pointer-events-none" />
+            
+            {/* Sparkle effects */}
+            <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-primary animate-sparkle" />
+            <Sparkle className="absolute top-1/4 -left-3 w-3 h-3 text-accent animate-sparkle-delay-1" />
+            <Sparkle className="absolute -bottom-1 right-1/4 w-3 h-3 text-primary animate-sparkle-delay-2" />
+            <Sparkle className="absolute top-0 left-1/3 w-2 h-2 text-secondary animate-sparkle-delay-3" />
+            <Sparkle className="absolute bottom-1/4 -right-2 w-3 h-3 text-accent animate-sparkle-delay-4" />
+            <Sparkle className="absolute -bottom-3 left-1/3 w-2 h-2 text-primary animate-sparkle-delay-5" />
           </div>
         </div>
 
