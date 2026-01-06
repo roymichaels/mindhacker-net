@@ -162,6 +162,11 @@ export const he = {
     discoverIfRight: "גלה אם זה מתאים לך",
     discoverMore: "גלה עוד",
     notSure: "לא בטוח מה מתאים לך? גלול למטה כדי להבין יותר על כל אחד מהמסלולים",
+    freeGift: "🎁 חינם",
+    introspectionForm: "מסע התבוננות עצמית",
+    introspectionFormDesc: "שאלון עמוק שיעזור לך להכיר את עצמך טוב יותר. ללא עלות, ללא התחייבות.",
+    introspectionFormTag: "התחל את המסע שלך",
+    startFree: "התחל עכשיו - בחינם",
   },
   courses: {
     pageTitle: "המוצרים הדיגיטליים שלנו",
