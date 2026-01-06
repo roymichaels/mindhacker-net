@@ -46,6 +46,7 @@ const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply
 const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
 const Forms = lazy(() => import("./pages/admin/Forms"));
 const FormView = lazy(() => import("./pages/FormView"));
+const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -123,6 +124,7 @@ const App = () => (
               <Route path="recordings" element={<Recordings />} />
               <Route path="consciousness-leap" element={<ConsciousnessLeap />} />
               <Route path="forms" element={<Forms />} />
+              <Route path="homepage" element={<HomepageSections />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
