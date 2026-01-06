@@ -62,6 +62,12 @@ const settingsSchema = z.object({
   about_video_enabled: z.boolean().optional(),
   free_call_calendly_link: z.string().optional(),
   free_call_enabled: z.boolean().optional(),
+  introspection_form_url: z.string().optional(),
+  guarantee_title: z.string().optional(),
+  guarantee_subtitle: z.string().optional(),
+  promo_enabled: z.boolean().optional(),
+  promo_text: z.string().optional(),
+  promo_subtext: z.string().optional(),
 });
 
 const Settings = () => {
@@ -114,6 +120,12 @@ const Settings = () => {
     about_video_enabled: false,
     free_call_calendly_link: "",
     free_call_enabled: true,
+    introspection_form_url: "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",
+    guarantee_title: "",
+    guarantee_subtitle: "",
+    promo_enabled: true,
+    promo_text: "",
+    promo_subtext: "",
   });
 
   useEffect(() => {
@@ -180,6 +192,12 @@ const Settings = () => {
         about_video_enabled: settingsObj.about_video_enabled ?? false,
         free_call_calendly_link: settingsObj.free_call_calendly_link || "",
         free_call_enabled: settingsObj.free_call_enabled ?? true,
+        introspection_form_url: settingsObj.introspection_form_url || "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",
+        guarantee_title: settingsObj.guarantee_title || "",
+        guarantee_subtitle: settingsObj.guarantee_subtitle || "",
+        promo_enabled: settingsObj.promo_enabled ?? true,
+        promo_text: settingsObj.promo_text || "",
+        promo_subtext: settingsObj.promo_subtext || "",
       });
     } catch (error: any) {
       handleError(error, "לא ניתן לטעון את ההגדרות", "Settings.fetchSettings");

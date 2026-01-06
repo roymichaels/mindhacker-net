@@ -727,6 +727,54 @@ export type Database = {
           },
         ]
       }
+      homepage_sections: {
+        Row: {
+          content_en: string | null
+          content_he: string | null
+          created_at: string | null
+          id: string
+          is_visible: boolean | null
+          metadata: Json | null
+          order_index: number | null
+          section_key: string
+          subtitle_en: string | null
+          subtitle_he: string | null
+          title_en: string | null
+          title_he: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content_en?: string | null
+          content_he?: string | null
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          section_key: string
+          subtitle_en?: string | null
+          subtitle_he?: string | null
+          title_en?: string | null
+          title_he?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content_en?: string | null
+          content_he?: string | null
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          section_key?: string
+          subtitle_en?: string | null
+          subtitle_he?: string | null
+          title_en?: string | null
+          title_he?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hypnosis_audios: {
         Row: {
           created_at: string

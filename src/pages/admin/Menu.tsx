@@ -15,6 +15,7 @@ import { toast } from "sonner";
 interface MenuItem {
   id: string;
   label: string;
+  label_en: string | null;
   action_type: string;
   action_value: string;
   order_index: number;
@@ -27,6 +28,7 @@ const MenuManagement = () => {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [formData, setFormData] = useState({
     label: "",
+    label_en: "",
     action_type: "scroll",
     action_value: "",
     order_index: 0,
@@ -98,6 +100,7 @@ const MenuManagement = () => {
   const resetForm = () => {
     setFormData({
       label: "",
+      label_en: "",
       action_type: "scroll",
       action_value: "",
       order_index: 0,
@@ -111,6 +114,7 @@ const MenuManagement = () => {
     setEditingItem(item);
     setFormData({
       label: item.label,
+      label_en: item.label_en || "",
       action_type: item.action_type,
       action_value: item.action_value,
       order_index: item.order_index,
@@ -144,13 +148,23 @@ const MenuManagement = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="label">שם הפריט</Label>
+                <Label htmlFor="label">שם הפריט (עברית)</Label>
                 <Input
                   id="label"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                   placeholder="לדוגמה: אודות"
                   required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="label_en">שם הפריט (אנגלית)</Label>
+                <Input
+                  id="label_en"
+                  value={formData.label_en}
+                  onChange={(e) => setFormData({ ...formData, label_en: e.target.value })}
+                  placeholder="e.g., About"
+                  dir="ltr"
                 />
               </div>
               <div className="space-y-2">
@@ -230,7 +244,8 @@ const MenuManagement = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12"></TableHead>
-                  <TableHead>שם</TableHead>
+                  <TableHead>שם (עברית)</TableHead>
+                  <TableHead>שם (אנגלית)</TableHead>
                   <TableHead>סוג</TableHead>
                   <TableHead>ערך</TableHead>
                   <TableHead>סדר</TableHead>
@@ -245,6 +260,7 @@ const MenuManagement = () => {
                       <GripVertical className="h-4 w-4 text-muted-foreground" />
                     </TableCell>
                     <TableCell className="font-medium">{item.label}</TableCell>
+                    <TableCell className="text-muted-foreground">{item.label_en || "-"}</TableCell>
                     <TableCell>
                       {item.action_type === "scroll" ? "גלילה" : "ניווט"}
                     </TableCell>
