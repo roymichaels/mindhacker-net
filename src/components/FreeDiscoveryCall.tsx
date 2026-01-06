@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, Clock, CheckCircle, Heart, Calendar, ArrowLeft } from "lucide-react";
+import { Phone, Clock, CheckCircle, Heart, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
 import LeadCaptureDialog from "./LeadCaptureDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const FreeDiscoveryCall = () => {
+  const { t, isRTL } = useTranslation();
   const [calendlyLink, setCalendlyLink] = useState("");
   const [enabled, setEnabled] = useState(true);
+
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -32,36 +36,36 @@ const FreeDiscoveryCall = () => {
   if (!enabled) return null;
 
   return (
-    <section id="free-call" className="relative py-12 md:py-20 px-4" style={{ zIndex: 2 }}>
+    <section id="free-call" className="relative py-12 md:py-20 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-10 border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 bg-secondary/20 text-secondary px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Heart className="w-4 h-4" />
-              שיחת ייעוץ ללא עלות
+              {t('freeDiscovery.badge')}
             </div>
             
             <h3 className="text-2xl md:text-3xl font-black mb-3 cyber-glow">
-              אני בררן לגבי הלקוחות שלי 🎯
+              {t('freeDiscovery.title')}
             </h3>
             
             <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto">
-              לא כל אחד מתאים לתהליך הזה — ולא אני לכל אחד. לפני שנתחיל, נדבר 30 דקות כדי לבדוק אם זה בכלל נכון לנו.
+              {t('freeDiscovery.subtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="flex items-center gap-3 justify-center md:justify-start">
               <Clock className="w-5 h-5 text-secondary" />
-              <span className="text-sm text-muted-foreground">30 דקות שיחה</span>
+              <span className="text-sm text-muted-foreground">{t('freeDiscovery.duration')}</span>
             </div>
             <div className="flex items-center gap-3 justify-center">
               <Phone className="w-5 h-5 text-secondary" />
-              <span className="text-sm text-muted-foreground">שיחת וידאו או טלפון</span>
+              <span className="text-sm text-muted-foreground">{t('freeDiscovery.callType')}</span>
             </div>
             <div className="flex items-center gap-3 justify-center md:justify-end">
               <CheckCircle className="w-5 h-5 text-secondary" />
-              <span className="text-sm text-muted-foreground">100% דיסקרטיות</span>
+              <span className="text-sm text-muted-foreground">{t('freeDiscovery.discretion')}</span>
             </div>
           </div>
 
@@ -69,7 +73,7 @@ const FreeDiscoveryCall = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
             <LeadCaptureDialog 
               source="discovery"
-              triggerText="השאר פרטים ואחזור אליך"
+              triggerText={t('freeDiscovery.leaveDetails')}
               triggerVariant="default"
               triggerClassName="bg-primary hover:bg-primary-glow text-primary-foreground font-bold text-lg px-8 py-6 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
               triggerIcon={<Phone className="w-5 h-5" />}
@@ -84,14 +88,14 @@ const FreeDiscoveryCall = () => {
                 className="border-secondary/50 text-secondary hover:bg-secondary/10 font-bold text-lg px-8 py-6 rounded-full transition-all duration-300 flex items-center gap-2"
               >
                 <Calendar className="w-5 h-5" />
-                או קבע בעצמך
-                <ArrowLeft className="w-4 h-4" />
+                {t('freeDiscovery.scheduleYourself')}
+                <ArrowIcon className="w-4 h-4" />
               </Button>
             )}
           </div>
 
           <p className="text-xs text-muted-foreground mt-6 text-center">
-            * אני עונה לכל בקשה תוך 24 שעות
+            {t('freeDiscovery.responseTime')}
           </p>
         </div>
       </div>

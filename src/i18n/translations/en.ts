@@ -386,6 +386,38 @@ export const en: TranslationKeys = {
     noCommitment: "No Commitment",
     personalGuidance: "Personal Guidance",
   },
+  guarantee: {
+    title: "Satisfaction Guarantee",
+    subtitle: "Not happy with the first session? We'll refund you",
+  },
+  heroVideo: {
+    watchPersonalMessage: "Watch a personal message from Dean",
+  },
+  socialProof: {
+    changeFromFirst: "Change from the first session",
+    brokeHabits: "Broke habits within 4 sessions",
+  },
+  countdown: {
+    noCatchBadge: "No risk · No commitment",
+  },
+  personalInvitation: {
+    title: "A Personal Message from Dean",
+    defaultMessage: "If you've made it this far, something inside you is calling for change. I'm waiting for our first conversation.",
+    signature: "Dean Osher Azoulay",
+    ctaButton: "Schedule a Free Consultation",
+    ctaSubtext: "30 minutes — to see if we're a good fit to work together",
+  },
+  freeDiscovery: {
+    badge: "Free Consultation Call",
+    title: "I'm selective about my clients 🎯",
+    subtitle: "Not everyone is right for this process — and I'm not right for everyone. Before we start, let's talk for 30 minutes to see if this is right for us.",
+    duration: "30 minute call",
+    callType: "Video or phone call",
+    discretion: "100% discretion",
+    leaveDetails: "Leave details and I'll get back to you",
+    scheduleYourself: "Or schedule yourself",
+    responseTime: "* I respond to every request within 24 hours",
+  },
   subscriptions: {
     mySubscription: "My Subscription",
     noActiveSubscription: "You don't have an active subscription",
