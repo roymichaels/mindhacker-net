@@ -3,11 +3,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLibrary } from "@/components/admin/recordings/AudioLibrary";
 import { AudioAssignments } from "@/components/admin/recordings/AudioAssignments";
 import { PendingAudioOrders } from "@/components/admin/recordings/PendingAudioOrders";
+import { PendingPayments } from "@/components/admin/recordings/PendingPayments";
 import { VideoLibrary } from "@/components/admin/recordings/VideoLibrary";
-import { Headphones, Users, Clock, Video } from "lucide-react";
+import { Headphones, Users, Clock, Video, CreditCard } from "lucide-react";
 
 const Recordings = () => {
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("payments");
 
   return (
     <div className="space-y-6">
@@ -19,7 +20,11 @@ const Recordings = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <TabsList className="grid w-full max-w-3xl grid-cols-5">
+          <TabsTrigger value="payments" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            אישור תשלום
+          </TabsTrigger>
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             הזמנות ממתינות
@@ -37,6 +42,10 @@ const Recordings = () => {
             הקצאות למשתמשים
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="payments" className="mt-6">
+          <PendingPayments />
+        </TabsContent>
 
         <TabsContent value="pending" className="mt-6">
           <PendingAudioOrders />

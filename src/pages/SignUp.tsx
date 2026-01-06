@@ -19,6 +19,8 @@ const ALLOWED_REDIRECT_PREFIXES = [
   '/success',
   '/subscriptions',
   '/install',
+  '/personal-hypnosis',
+  '/consciousness-leap',
   '/'
 ];
 
