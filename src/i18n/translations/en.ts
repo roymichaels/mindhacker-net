@@ -39,6 +39,8 @@ export const en: TranslationKeys = {
     adminPanel: "Admin Panel",
     myDashboard: "My Dashboard",
     notifications: "Notifications",
+    startChangeNow: "Start Change Now",
+    chooseYourPath: "Choose Your Path",
   },
   auth: {
     loginTitle: "Login",

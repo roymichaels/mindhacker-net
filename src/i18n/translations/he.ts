@@ -37,6 +37,8 @@ export const he = {
     adminPanel: "פאנל ניהול",
     myDashboard: "הדאשבורד שלי",
     notifications: "התראות",
+    startChangeNow: "התחל שינוי עכשיו",
+    chooseYourPath: "בחר את המסלול שלך",
   },
   auth: {
     loginTitle: "התחברות",

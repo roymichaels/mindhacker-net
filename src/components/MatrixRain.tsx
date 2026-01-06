@@ -1,8 +1,7 @@
-import { useEffect, useRef, memo, useState } from "react";
+import { useEffect, useRef, memo } from "react";
 
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [debugStatus, setDebugStatus] = useState<string>("initializing");
 
   useEffect(() => {
     console.log("[MatrixRain] Component mounted");
@@ -10,18 +9,15 @@ const MatrixRain = () => {
     const canvas = canvasRef.current;
     if (!canvas) {
       console.error("[MatrixRain] Canvas ref is null");
-      setDebugStatus("no canvas");
       return;
     }
 
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) {
       console.error("[MatrixRain] Failed to get 2D context");
-      setDebugStatus("no ctx");
       return;
     }
 
-    setDebugStatus("running");
     console.log("[MatrixRain] Canvas and context ready, starting animation");
 
     // Handle DPI scaling for crisp rendering
@@ -187,26 +183,14 @@ const MatrixRain = () => {
   }, []);
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 pointer-events-none"
-        style={{ 
-          zIndex: 1,
-          opacity: 1
-        }}
-      />
-      {/* Temporary debug badge - remove after confirming visibility */}
-      <div 
-        className="fixed top-2 left-2 z-[9999] px-2 py-1 text-xs font-mono rounded"
-        style={{ 
-          background: debugStatus === "running" ? "rgba(0,255,100,0.9)" : "rgba(255,0,0,0.9)",
-          color: "#000"
-        }}
-      >
-        Matrix: {debugStatus}
-      </div>
-    </>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none"
+      style={{ 
+        zIndex: 1,
+        opacity: 1
+      }}
+    />
   );
 };
 
