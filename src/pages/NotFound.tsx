@@ -28,7 +28,6 @@ const NotFound = () => {
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <MatrixRain />
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.01)_50%)] bg-[length:100%_4px] opacity-10" style={{ zIndex: 1 }} />
       
       <div className="relative z-10 text-center px-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 md:p-12 max-w-2xl mx-auto">
