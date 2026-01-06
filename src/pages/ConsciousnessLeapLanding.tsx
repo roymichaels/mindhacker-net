@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -47,6 +47,7 @@ const ConsciousnessLeapLanding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useSEO({
     title: t('consciousnessLeapLanding.seoTitle'),
@@ -57,7 +58,18 @@ const ConsciousnessLeapLanding = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Auto-scroll to form if returning from login with action=apply
+    const action = searchParams.get('action');
+    if (action === 'apply') {
+      setTimeout(() => {
+        document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+      // Clear the action parameter from URL
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
