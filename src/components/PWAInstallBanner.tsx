@@ -2,16 +2,16 @@ import { useState, useEffect } from 'react';
 import { usePWA } from '@/hooks/usePWA';
 import { Button } from '@/components/ui/button';
 import { X, Download, Smartphone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { PWAInstallModal } from './PWAInstallModal';
 
 const DISMISSED_KEY = 'pwa-install-banner-dismissed';
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export const PWAInstallBanner = () => {
-  const navigate = useNavigate();
   const { isInstalled, isInstallable, isIOS, isAndroid, canPromptInstall, promptInstall } = usePWA();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Check if already dismissed
@@ -50,51 +50,51 @@ export const PWAInstallBanner = () => {
         setIsVisible(false);
       }
     } else {
-      navigate('/install');
+      setShowModal(true);
     }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) return (
+    <PWAInstallModal open={showModal} onOpenChange={setShowModal} />
+  );
 
   return (
-    <div 
-      className={`fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 z-40 transition-all duration-300 ${
-        isAnimating ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-      }`}
-    >
-      <div className="bg-gradient-to-r from-background/95 to-background/90 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-4 shadow-xl shadow-cyan-500/10">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-            <Smartphone className="w-6 h-6 text-white" />
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1">התקן כאפליקציה</h3>
-            <p className="text-xs text-muted-foreground mb-3">
-              גישה מהירה מהמסך הראשי + התראות על תוכן חדש
-            </p>
-            
-            <div className="flex gap-2">
-              <Button
-                onClick={handleInstall}
-                size="sm"
-                className="flex-1 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-xs h-8"
-              >
-                <Download className="w-3.5 h-3.5 ml-1.5" />
-                {canPromptInstall ? 'התקן' : 'הוראות'}
-              </Button>
-              <Button
-                onClick={handleDismiss}
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+    <>
+      <div 
+        className={`fixed top-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-40 transition-all duration-300 ${
+          isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
+        }`}
+      >
+        <div className="bg-background/95 backdrop-blur-xl border border-cyan-500/30 rounded-full px-3 py-2 shadow-lg shadow-cyan-500/10">
+          <div className="flex items-center gap-2">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+              <Smartphone className="w-3.5 h-3.5 text-white" />
             </div>
+            
+            <span className="text-xs font-medium flex-1 truncate">התקן כאפליקציה</span>
+            
+            <Button
+              onClick={handleInstall}
+              size="sm"
+              className="h-6 px-2.5 text-xs bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-full"
+            >
+              <Download className="w-3 h-3 ml-1" />
+              {canPromptInstall ? 'התקן' : 'הוראות'}
+            </Button>
+            
+            <Button
+              onClick={handleDismiss}
+              size="sm"
+              variant="ghost"
+              className="h-6 w-6 p-0 rounded-full hover:bg-muted"
+            >
+              <X className="w-3.5 h-3.5" />
+            </Button>
           </div>
         </div>
       </div>
-    </div>
+      
+      <PWAInstallModal open={showModal} onOpenChange={setShowModal} />
+    </>
   );
 };
