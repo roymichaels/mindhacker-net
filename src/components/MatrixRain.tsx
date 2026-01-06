@@ -201,8 +201,8 @@ const MatrixRain = () => {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{ 
-        zIndex: 1,
-        opacity: 0.15
+        zIndex: 0,
+        opacity: 0.4
       }}
     />
   );

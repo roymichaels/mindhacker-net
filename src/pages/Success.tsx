@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Home, LayoutDashboard } from "lucide-react";
-import MatrixRain from "@/components/MatrixRain";
 import Header from "@/components/Header";
 import BookingCalendar from "@/components/BookingCalendar";
 import { handleError } from "@/lib/errorHandling";
@@ -206,9 +205,7 @@ const Success = () => {
     : t('sessions.packageOf4');
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <MatrixRain />
-      
+    <div className="min-h-screen relative">
       <Header />
       
       <div className="relative z-10 flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir={isRTL ? 'rtl' : 'ltr'}>

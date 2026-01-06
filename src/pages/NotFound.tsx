@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowRight, ArrowLeft } from "lucide-react";
-import MatrixRain from "@/components/MatrixRain";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -27,8 +26,6 @@ const NotFound = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
-      <MatrixRain />
-      
       <div className="relative z-10 text-center px-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 md:p-12 max-w-2xl mx-auto">
           <h1 className="text-8xl md:text-9xl font-black cyber-glow mb-4">{t('notFound.title')}</h1>

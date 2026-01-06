@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import MatrixRain from "@/components/MatrixRain";
 import CourseCard from "@/components/courses/CourseCard";
 import CourseFilters from "@/components/courses/CourseFilters";
 import { Input } from "@/components/ui/input";
@@ -96,7 +95,6 @@ const Courses = () => {
   return (
     <div className="relative min-h-screen">
       <PullToRefreshIndicator {...pullToRefresh} />
-      <MatrixRain />
       
       <Header />
       

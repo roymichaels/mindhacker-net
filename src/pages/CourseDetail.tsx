@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
-import MatrixRain from "@/components/MatrixRain";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -153,7 +152,6 @@ const CourseDetail = () => {
   if (courseLoading) {
     return (
       <div className="relative min-h-screen">
-        <MatrixRain />
         <Header />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 mt-16 sm:mt-20">
           <Skeleton className="h-64 sm:h-80 lg:h-96 w-full mb-6 sm:mb-8" />
@@ -168,7 +166,6 @@ const CourseDetail = () => {
   if (!course) {
   return (
     <div {...swipeHandlers} className="relative min-h-screen">
-      <MatrixRain />
       <Header />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black cyber-glow mb-4">
@@ -184,8 +181,6 @@ const CourseDetail = () => {
 
   return (
     <div className="relative min-h-screen">
-      <MatrixRain />
-      
       <Header />
       
       <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 mt-16 sm:mt-20 pb-32 lg:pb-8">

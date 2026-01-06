@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
-import MatrixRain from "@/components/MatrixRain";
 import { CheckCircle2, Clock, Bell, Video, ArrowLeft } from "lucide-react";
 
 const PersonalHypnosisSuccess = () => {
@@ -37,8 +36,6 @@ const PersonalHypnosisSuccess = () => {
 
   return (
     <div className="relative min-h-screen">
-      <MatrixRain />
-      
       <Header />
       
       <main className="relative pt-32 pb-20 px-4">

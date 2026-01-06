@@ -1,6 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
-import MatrixRain from "@/components/MatrixRain";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,8 +63,6 @@ const Subscriptions = () => {
 
   return (
     <div className="relative min-h-screen">
-      <MatrixRain />
-      
       <Header />
       
       <main className="relative container mx-auto px-4 py-8 mt-20" style={{ zIndex: 2 }}>
