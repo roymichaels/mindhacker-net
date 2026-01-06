@@ -269,6 +269,18 @@ export const en: TranslationKeys = {
     finishDesc: "Thanks, that's all for now",
     returnHome: "Return to site",
     weWillContact: "We'll get back to you soon",
+    viewAnswers: "View My Answers",
+    downloadPdf: "Download PDF",
+    yourResponses: "Your Responses",
+    closeReview: "Close",
+    question: "Question",
+    answer: "Answer",
+  },
+  formIntro: {
+    begin: "Begin",
+    startJourney: "Start Your Journey",
+    welcome: "Welcome",
+    letsStart: "Let's start this journey together",
   },
   success: {
     congratulations: "🎉 Congratulations! You made the right decision",
