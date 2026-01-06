@@ -492,6 +492,8 @@ const FormView = () => {
               value={responses[currentField.id]}
               onChange={(value) => updateResponse(currentField.id, value)}
               isRTL={isRTL}
+              questionNumber={currentStep + 1}
+              totalQuestions={fields.length}
             />
           </div>
 
@@ -539,15 +541,84 @@ const FormView = () => {
   );
 };
 
+// Parse long-form labels into structured content
+interface ParsedLabel {
+  title: string;
+  sections: { type: 'text' | 'divider' | 'prompt'; content: string }[];
+  isMultiParagraph: boolean;
+}
+
+const parseFormLabel = (label: string): ParsedLabel => {
+  const lines = label.split('\n').map(l => l.trim());
+  
+  // Get the title (first non-empty line, remove numbering like "1." or "1)")
+  let title = '';
+  let startIndex = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i]) {
+      title = lines[i].replace(/^\d+[\.\)]\s*/, '');
+      startIndex = i + 1;
+      break;
+    }
+  }
+  
+  const sections: { type: 'text' | 'divider' | 'prompt'; content: string }[] = [];
+  let currentParagraph: string[] = [];
+  
+  const flushParagraph = (isPrompt = false) => {
+    if (currentParagraph.length > 0) {
+      sections.push({
+        type: isPrompt ? 'prompt' : 'text',
+        content: currentParagraph.join('\n')
+      });
+      currentParagraph = [];
+    }
+  };
+  
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Check for divider
+    if (line === '---' || line === '—' || line === '---') {
+      flushParagraph();
+      sections.push({ type: 'divider', content: '' });
+      continue;
+    }
+    
+    // Empty line = paragraph break
+    if (!line) {
+      flushParagraph();
+      continue;
+    }
+    
+    currentParagraph.push(line);
+  }
+  
+  // Flush remaining - treat as prompt if it's after a divider or short
+  const lastSectionIsDivider = sections.length > 0 && sections[sections.length - 1].type === 'divider';
+  flushParagraph(lastSectionIsDivider || currentParagraph.length <= 2);
+  
+  return {
+    title,
+    sections,
+    isMultiParagraph: sections.length > 1 || sections.some(s => s.content.includes('\n'))
+  };
+};
+
 interface FieldRendererProps {
   field: FormField;
   value: string | string[] | undefined;
   onChange: (value: string | string[]) => void;
   isRTL: boolean;
+  questionNumber: number;
+  totalQuestions: number;
 }
 
-const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) => {
-  const renderField = () => {
+const FieldRenderer = ({ field, value, onChange, isRTL, questionNumber, totalQuestions }: FieldRendererProps) => {
+  const parsed = parseFormLabel(field.label);
+  
+  const renderInput = () => {
     switch (field.type) {
       case "text":
       case "email":
@@ -559,7 +630,7 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder || ""}
-            className="text-lg py-6 text-center bg-background/50"
+            className="text-lg py-6 bg-muted/30 border-border/50 focus:border-primary/50 transition-colors"
             autoFocus
           />
         );
@@ -569,8 +640,8 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
           <Textarea
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={field.placeholder || ""}
-            className="text-lg min-h-[150px] bg-background/50"
+            placeholder={field.placeholder || "הקלד כאן את תשובתך..."}
+            className="text-lg min-h-[180px] bg-muted/30 border-border/50 focus:border-primary/50 transition-colors resize-none leading-relaxed"
             autoFocus
           />
         );
@@ -578,7 +649,7 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
       case "select":
         return (
           <Select value={(value as string) || ""} onValueChange={onChange}>
-            <SelectTrigger className="text-lg py-6 bg-background/50">
+            <SelectTrigger className="text-lg py-6 bg-muted/30 border-border/50">
               <SelectValue placeholder={field.placeholder || "..."} />
             </SelectTrigger>
             <SelectContent>
@@ -602,10 +673,10 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
               <label
                 key={option}
                 className={cn(
-                  "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
+                  "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
                   value === option
                     ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/50 bg-background/50"
+                    : "border-border/50 hover:border-primary/30 bg-muted/20"
                 )}
               >
                 <RadioGroupItem value={option} />
@@ -623,10 +694,10 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
               <label
                 key={option}
                 className={cn(
-                  "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
+                  "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
                   selectedValues.includes(option)
                     ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/50 bg-background/50"
+                    : "border-border/50 hover:border-primary/30 bg-muted/20"
                 )}
               >
                 <Checkbox
@@ -648,7 +719,7 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
       case "rating":
         const rating = parseInt((value as string) || "0");
         return (
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-3">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -660,8 +731,8 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
                   className={cn(
                     "h-10 w-10 transition-colors",
                     star <= rating
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-muted-foreground"
+                      ? "fill-accent text-accent"
+                      : "text-muted-foreground/40"
                   )}
                 />
               </button>
@@ -675,7 +746,7 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
             type="date"
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value)}
-            className="text-lg py-6 text-center bg-background/50"
+            className="text-lg py-6 bg-muted/30 border-border/50"
             autoFocus
           />
         );
@@ -686,20 +757,90 @@ const FieldRenderer = ({ field, value, onChange, isRTL }: FieldRendererProps) =>
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder || ""}
-            className="text-lg py-6 text-center bg-background/50"
+            className="text-lg py-6 bg-muted/30 border-border/50"
             autoFocus
           />
         );
     }
   };
 
+  // Simple field (name, email, etc.) - compact layout
+  if (!parsed.isMultiParagraph && parsed.sections.length === 0) {
+    return (
+      <div className="space-y-6 max-w-lg mx-auto">
+        <div className="text-center space-y-2">
+          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+            {questionNumber}
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+            {parsed.title}
+            {field.is_required && <span className="text-destructive/70 text-lg"> *</span>}
+          </h2>
+        </div>
+        {renderInput()}
+      </div>
+    );
+  }
+
+  // Complex field (introspection questions) - beautiful hierarchy
   return (
-    <div className="space-y-6">
-      <Label className="text-xl sm:text-2xl font-medium block text-center">
-        {field.label}
-        {field.is_required && <span className="text-destructive"> *</span>}
-      </Label>
-      {renderField()}
+    <div className="max-w-2xl mx-auto">
+      {/* Question container with subtle glass effect */}
+      <div className="relative rounded-2xl border border-border/30 bg-muted/10 backdrop-blur-sm overflow-hidden">
+        {/* Question number badge */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20">
+            {questionNumber}/{totalQuestions}
+          </span>
+        </div>
+        
+        <div className="p-6 sm:p-8 pt-14 sm:pt-12 space-y-5">
+          {/* Title - large and prominent */}
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+            {parsed.title}
+            {field.is_required && <span className="text-destructive/60 text-base"> *</span>}
+          </h2>
+          
+          {/* Content sections */}
+          <div className="space-y-4">
+            {parsed.sections.map((section, idx) => {
+              if (section.type === 'divider') {
+                return (
+                  <div key={idx} className="flex items-center gap-4 py-2">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                    <Sparkles className="h-4 w-4 text-primary/40" />
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                  </div>
+                );
+              }
+              
+              if (section.type === 'prompt') {
+                return (
+                  <div key={idx} className="text-lg sm:text-xl font-medium text-foreground/90 leading-relaxed">
+                    {section.content.split('\n').map((line, i) => (
+                      <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
+                    ))}
+                  </div>
+                );
+              }
+              
+              // Regular text - context/instructions
+              return (
+                <div key={idx} className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                  {section.content.split('\n').map((line, i) => (
+                    <p key={i} className={i > 0 ? 'mt-3' : ''}>{line}</p>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Input area */}
+          <div className="pt-4">
+            {renderInput()}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
