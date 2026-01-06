@@ -40,6 +40,7 @@ const AudioPlayer = lazy(() => import("./pages/AudioPlayer"));
 const VideoPlayer = lazy(() => import("./pages/VideoPlayer"));
 const PersonalHypnosisLanding = lazy(() => import("./pages/PersonalHypnosisLanding"));
 const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSuccess"));
+const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPending"));
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
@@ -84,6 +85,7 @@ const App = () => (
             
             {/* Protected user routes */}
             <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
+            <Route path="/personal-hypnosis/pending" element={<ProtectedRoute><PersonalHypnosisPending /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
             
