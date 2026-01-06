@@ -49,6 +49,7 @@ const FormView = lazy(() => import("./pages/FormView"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
+import MatrixRain from "@/components/MatrixRain";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +63,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <MatrixRain />
     <AuthProvider>
       <LanguageProvider>
         <TooltipProvider>

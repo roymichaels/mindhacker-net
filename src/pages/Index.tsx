@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import Header from "@/components/Header";
-import MatrixRain from "@/components/MatrixRain";
 import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
@@ -30,9 +29,6 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen">
-      {/* Matrix rain background effect */}
-      <MatrixRain />
-      
       {/* Header */}
       <Header />
       

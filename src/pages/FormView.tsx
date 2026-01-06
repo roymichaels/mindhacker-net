@@ -28,7 +28,6 @@ import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X, FileTe
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { generateFormPDF } from "@/lib/pdfGenerator";
-import MatrixRain from "@/components/MatrixRain";
 
 interface FormField {
   id: string;
@@ -247,8 +246,7 @@ const FormView = () => {
 
   if (formLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background relative">
-        <MatrixRain />
+      <div className="min-h-screen flex items-center justify-center relative">
         <Loader2 className="h-8 w-8 animate-spin text-primary relative z-10" />
       </div>
     );
@@ -256,8 +254,7 @@ const FormView = () => {
 
   if (formError || !form) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
-        <MatrixRain />
+      <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 text-center max-w-md relative z-10">
           <h1 className="text-2xl font-bold mb-4">{t('forms.notFound')}</h1>
           <p className="text-muted-foreground">
@@ -288,8 +285,7 @@ const FormView = () => {
     const introSubtitle = form.settings?.intro_subtitle || form.description || t('formIntro.letsStart');
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
-        <MatrixRain />
+      <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="max-w-2xl w-full text-center animate-fade-in-up relative z-10">
           {/* Sparkle Icon */}
           <div className="relative mx-auto mb-8 w-24 h-24">
@@ -385,8 +381,7 @@ const FormView = () => {
   if (isSubmitted) {
     if (postSubmitAction === "none") {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
-          <MatrixRain />
+        <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
           <AnswerReviewDialog />
           <div className="glass-panel p-8 text-center max-w-2xl animate-fade-in-up relative z-10">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
@@ -470,8 +465,7 @@ const FormView = () => {
     }
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
-        <MatrixRain />
+      <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
         <AnswerReviewDialog />
         <div className="glass-panel p-8 text-center max-w-md animate-fade-in-up relative z-10">
           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
@@ -511,8 +505,7 @@ const FormView = () => {
 
   if (fields.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
-        <MatrixRain />
+      <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="glass-panel p-8 text-center max-w-md relative z-10">
           <h1 className="text-2xl font-bold mb-4">{form.title}</h1>
           <p className="text-muted-foreground">{t('forms.empty')}</p>
@@ -522,8 +515,7 @@ const FormView = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative" dir={isRTL ? 'rtl' : 'ltr'}>
-      <MatrixRain />
+    <div className="min-h-screen flex flex-col relative" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Progress bar */}
       {showProgress && (
         <div className="fixed top-0 left-0 right-0 z-50">
