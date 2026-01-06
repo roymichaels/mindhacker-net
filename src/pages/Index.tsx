@@ -33,7 +33,7 @@ const Index = () => {
       <Header />
       
       {/* Main content - Journey order: Free → Recording → Process */}
-      <main className="relative">
+      <main className="relative z-10">
         <HeroSection />
         <Suspense fallback={null}>
           <IntrospectionPromo />
