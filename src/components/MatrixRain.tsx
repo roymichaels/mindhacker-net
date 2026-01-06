@@ -4,21 +4,11 @@ const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    console.log("[MatrixRain] Component mounted");
-
     const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error("[MatrixRain] Canvas ref is null");
-      return;
-    }
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) {
-      console.error("[MatrixRain] Failed to get 2D context");
-      return;
-    }
-
-    console.log("[MatrixRain] Canvas and context ready, starting animation");
+    if (!ctx) return;
 
     // Handle DPI scaling for crisp rendering
     const dpr = window.devicePixelRatio || 1;
@@ -97,9 +87,8 @@ const MatrixRain = () => {
 
     let animationFrameId: number;
     let lastFrameTime = 0;
-    const frameInterval = isMobile ? 100 : 50; // Faster: 10 FPS mobile, 20 FPS desktop
+    const frameInterval = isMobile ? 100 : 50;
     let isVisible = true;
-    let frameCount = 0;
 
     const handleVisibilityChange = () => {
       isVisible = !document.hidden;
@@ -118,15 +107,9 @@ const MatrixRain = () => {
         return;
       }
       lastFrameTime = currentTime;
-      frameCount++;
 
-      // Log first few frames to confirm drawing
-      if (frameCount <= 3) {
-        console.log(`[MatrixRain] Drawing frame ${frameCount}`);
-      }
-
-      // Lighter fade for more visible trails
-      ctx.fillStyle = "rgba(2, 6, 12, 0.15)";
+      // Lighter fade for subtle background effect
+      ctx.fillStyle = "rgba(2, 6, 12, 0.08)";
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       // Draw each layer
@@ -187,8 +170,8 @@ const MatrixRain = () => {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{ 
-        zIndex: 1,
-        opacity: 1
+        zIndex: 0,
+        opacity: 0.4
       }}
     />
   );
