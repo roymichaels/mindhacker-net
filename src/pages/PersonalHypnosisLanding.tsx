@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import MatrixRain from "@/components/MatrixRain";
@@ -27,6 +27,7 @@ const PersonalHypnosisLanding = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, language, isRTL } = useTranslation();
 
   useSEO({
@@ -36,9 +37,20 @@ const PersonalHypnosisLanding = () => {
     url: `${window.location.origin}/personal-hypnosis`,
   });
 
+  // Auto-open checkout if returning from login with action=checkout
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'checkout' && user) {
+      setCheckoutOpen(true);
+      // Clear the action parameter from URL
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [user, searchParams, setSearchParams]);
+
   const handlePurchase = () => {
     if (!user) {
-      navigate("/login?redirect=/personal-hypnosis");
+      navigate("/login?redirect=/personal-hypnosis?action=checkout");
       return;
     }
     setCheckoutOpen(true);
