@@ -146,7 +146,7 @@ export const en: TranslationKeys = {
   },
   landing: {
     heroTitle: "Deep Consciousness Change",
-    heroSubtitle: "Two paths to real transformation",
+    heroSubtitle: "Three paths to real transformation",
     ctaButton: "Start Now",
     learnMore: "Learn More",
     testimonials: "What people say",
@@ -156,7 +156,7 @@ export const en: TranslationKeys = {
   hero: {
     hackerWord: "Hacker",
     mainSubtitle: "I guide you through a deep process — not therapy, not psychology.",
-    pathsSubtitle: "Two paths to real change. Choose what's right for you.",
+    pathsSubtitle: "Three paths to real change. Choose what's right for you.",
     consciousnessLeap: "Consciousness Leap",
     consciousnessLeapDesc: "Deep personal transformation process with close guidance. For people ready for real, profound change.",
     consciousnessLeapTag: "Comprehensive process with personal guidance",
@@ -361,7 +361,7 @@ export const en: TranslationKeys = {
     breadcrumbDashboard: "Dashboard",
     breadcrumbCourses: "Digital Products",
     indexTitle: "Mind-Hacker | Dean Osher Azoulay - Deep Consciousness Change",
-    indexDescription: "Two paths to real change: Consciousness Leap process or personalized hypnosis video. Choose the path that's right for you.",
+    indexDescription: "Three paths to real change: Free Introspection Journey, Personalized Hypnosis Video, or Consciousness Leap process. Choose the path that's right for you.",
     indexKeywords: "hypnosis, consciousness change, Dean Osher Azoulay, personal process, transformation, hypnosis video",
   },
   about: {
