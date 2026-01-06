@@ -233,23 +233,9 @@ const ConsciousnessLeapLanding = () => {
               {t('consciousnessLeapLanding.heroSubtitleEnd')}
             </p>
 
-            <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in">
-              <div className={`flex ${isRTL ? '-space-x-2 space-x-reverse' : '-space-x-2'}`}>
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                ))}
-              </div>
-              <span className="text-muted-foreground">
-                <span className="text-primary font-bold">+50</span> {t('consciousnessLeapLanding.alreadyDone')}
-              </span>
-            </div>
-
             <div className="inline-block bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-6 mb-8 animate-fade-in">
               <div className="text-sm text-muted-foreground mb-1">{t('consciousnessLeapLanding.investInYourself')}</div>
               <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">{t('consciousnessLeapLanding.price')}</div>
-              <div className="text-sm text-muted-foreground mt-1">{t('consciousnessLeapLanding.installmentsAvailable')}</div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
