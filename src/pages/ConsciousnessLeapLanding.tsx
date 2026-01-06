@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -56,18 +56,25 @@ const ConsciousnessLeapLanding = () => {
     url: `${window.location.origin}/consciousness-leap`,
   });
 
+  // Track if we've processed the action to prevent re-triggers
+  const hasProcessedAction = useRef(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    if (hasProcessedAction.current) return;
     
     // Auto-scroll to form if returning from login with action=apply
     const action = searchParams.get('action');
     if (action === 'apply') {
+      hasProcessedAction.current = true;
       setTimeout(() => {
         document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
       }, 500);
       // Clear the action parameter from URL
-      searchParams.delete('action');
-      setSearchParams(searchParams, { replace: true });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
 
