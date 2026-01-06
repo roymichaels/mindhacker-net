@@ -62,8 +62,9 @@ const HeroSection = () => {
                 WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
               }}
             />
-            {/* Subtle ring */}
-            <div className="absolute inset-0 rounded-full border border-primary/30 pointer-events-none" />
+            {/* Pulsing glow ring */}
+            <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ring-pulse pointer-events-none" />
+            <div className="absolute -inset-2 rounded-full border border-primary/20 animate-ring-pulse pointer-events-none" style={{ animationDelay: '0.5s' }} />
             
             {/* Sparkle effects */}
             <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-primary animate-sparkle" />
