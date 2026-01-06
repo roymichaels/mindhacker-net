@@ -523,6 +523,17 @@ const FormView = () => {
         </div>
       )}
 
+      {/* Exit button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => navigate('/')}
+        className="fixed top-4 left-4 z-50 text-muted-foreground hover:text-foreground"
+        aria-label={t('common.close')}
+      >
+        <X className="h-5 w-5" />
+      </Button>
+
       {/* Main content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-2xl glass-panel p-6 sm:p-8 rounded-2xl">
