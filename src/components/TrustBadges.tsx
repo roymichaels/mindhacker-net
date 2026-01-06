@@ -1,19 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, Lock, Heart } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const iconMap = [Shield, Lock, Heart];
 
 const TrustBadges = () => {
   const { t, isRTL } = useTranslation();
-  const defaultBadges = [
+  const badges = [
     t('trustBadges.discretion'),
     t('trustBadges.noCommitment'),
     t('trustBadges.personalGuidance'),
   ];
   
-  const [badges, setBadges] = useState(defaultBadges);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,30 +31,6 @@ const TrustBadges = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    const fetchBadges = async () => {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("setting_key, setting_value")
-        .in("setting_key", ["trust_badge_1", "trust_badge_2", "trust_badge_4"]);
-
-      if (data && data.length > 0) {
-        const badgesObj = data.reduce((acc: any, item) => {
-          acc[item.setting_key] = item.setting_value;
-          return acc;
-        }, {});
-
-        setBadges([
-          badgesObj.trust_badge_1 || t('trustBadges.discretion'),
-          badgesObj.trust_badge_2 || t('trustBadges.noCommitment'),
-          badgesObj.trust_badge_4 || t('trustBadges.personalGuidance'),
-        ]);
-      }
-    };
-
-    fetchBadges();
-  }, [t]);
 
   return (
     <div ref={containerRef} className="flex flex-wrap justify-center gap-3 md:gap-6 mt-6" dir={isRTL ? 'rtl' : 'ltr'}>
