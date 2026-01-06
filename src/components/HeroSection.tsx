@@ -7,6 +7,7 @@ import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
 import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import heroPortrait from "@/assets/hero-portrait.png";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -46,8 +47,28 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-5xl mx-auto">
+        {/* Hero Portrait */}
+        <div className="relative mx-auto mb-4 md:mb-6 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto">
+            {/* Glow effect behind image */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-accent/30 to-primary/20 blur-2xl scale-125" />
+            {/* Image with mask for seamless blend */}
+            <img 
+              src={heroPortrait} 
+              alt="Mind Hacker" 
+              className="relative w-full h-full object-cover rounded-full"
+              style={{
+                maskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
+              }}
+            />
+            {/* Subtle ring */}
+            <div className="absolute inset-0 rounded-full border border-primary/30 pointer-events-none" />
+          </div>
+        </div>
+
         {/* Main Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight mt-4 md:mt-8 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
           {isRTL ? (
             <>
               <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
