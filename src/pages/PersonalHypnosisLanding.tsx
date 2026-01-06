@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
@@ -37,14 +37,21 @@ const PersonalHypnosisLanding = () => {
     url: `${window.location.origin}/personal-hypnosis`,
   });
 
+  // Track if we've processed the checkout action to prevent re-triggers
+  const hasProcessedAction = useRef(false);
+
   // Auto-open checkout if returning from login with action=checkout
   useEffect(() => {
+    if (hasProcessedAction.current) return;
+    
     const action = searchParams.get('action');
     if (action === 'checkout' && user) {
+      hasProcessedAction.current = true;
       setCheckoutOpen(true);
       // Clear the action parameter from URL
-      searchParams.delete('action');
-      setSearchParams(searchParams, { replace: true });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams, { replace: true });
     }
   }, [user, searchParams, setSearchParams]);
 
