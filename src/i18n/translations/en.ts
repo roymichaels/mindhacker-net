@@ -915,4 +915,20 @@ export const en: TranslationKeys = {
     pathSelectionDescription: "Choose the path that's right for you",
     menuItemDescription: "Edit menu item",
   },
+  notificationPrompt: {
+    enableTitle: "Enable Notifications",
+    description: "Get updates about new content, important messages and reminders",
+    enableButton: "Enable",
+    enabling: "Enabling...",
+    notNow: "Not now",
+    successToast: "Notifications enabled! You'll receive updates about new content",
+    errorToast: "Could not enable notifications. Please try again later",
+  },
+  urgencyBadge: {
+    spotsAvailableThisWeek: "{count} spots available this week",
+    spotsAvailableOnly: "🔥 Only {count} spots available this week",
+  },
+  personalQuote: {
+    signature: "— Din",
+  },
 };

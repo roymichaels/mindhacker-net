@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quote } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PersonalQuoteProps {
   settingKey: string;
@@ -10,6 +11,7 @@ interface PersonalQuoteProps {
 
 const PersonalQuote = ({ settingKey, defaultQuote = "", className = "" }: PersonalQuoteProps) => {
   const [quote, setQuote] = useState(defaultQuote);
+  const { t, isRTL } = useTranslation();
 
   useEffect(() => {
     const fetchQuote = async () => {
@@ -29,10 +31,10 @@ const PersonalQuote = ({ settingKey, defaultQuote = "", className = "" }: Person
   if (!quote) return null;
 
   return (
-    <div className={`flex items-center justify-center gap-2 text-secondary italic ${className}`}>
+    <div dir={isRTL ? 'rtl' : 'ltr'} className={`flex items-center justify-center gap-2 text-secondary italic ${className}`}>
       <Quote className="w-4 h-4 text-primary/60 rotate-180" />
       <span className="text-sm md:text-base">{quote}</span>
-      <span className="text-primary font-bold not-italic">— דין</span>
+      <span className="text-primary font-bold not-italic">{t('personalQuote.signature')}</span>
       <Quote className="w-4 h-4 text-primary/60" />
     </div>
   );
