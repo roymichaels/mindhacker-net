@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Shield } from "lucide-react";
+import { ArrowRight, ArrowLeft, Shield, Building2, Globe } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -41,6 +41,20 @@ const PrivacyPolicy = () => {
 
         {/* Content sections */}
         <div className="space-y-6">
+          {/* Company Info */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl border border-primary/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Building2 className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-bold text-primary">{t('legal.company.title')}</h2>
+            </div>
+            <div className="space-y-2 text-muted-foreground">
+              <p className="font-semibold">{t('legal.company.name')}</p>
+              <p>{t('legal.company.country')}</p>
+              <p className="text-sm">{t('legal.company.registrationNote')}</p>
+              <p className="text-sm">{t('legal.company.contact')}</p>
+            </div>
+          </section>
+
           {/* Introduction */}
           <section className="glass-panel p-6 md:p-8 rounded-xl">
             <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.privacy.introTitle')}</h2>
@@ -61,6 +75,19 @@ const PrivacyPolicy = () => {
               <li className="list-disc">{t('legal.privacy.dataPhone')}</li>
               <li className="list-disc">{t('legal.privacy.dataPayment')}</li>
               <li className="list-disc">{t('legal.privacy.dataUsage')}</li>
+            </ul>
+          </section>
+
+          {/* Legal Basis */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl">
+            <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.privacy.legalBasisTitle')}</h2>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {t('legal.privacy.legalBasisIntro')}
+            </p>
+            <ul className={`space-y-2 text-muted-foreground ${isRTL ? 'pr-6' : 'pl-6'}`}>
+              <li className="list-disc">{t('legal.privacy.legalBasisConsent')}</li>
+              <li className="list-disc">{t('legal.privacy.legalBasisContract')}</li>
+              <li className="list-disc">{t('legal.privacy.legalBasisLegal')}</li>
             </ul>
           </section>
 
@@ -86,8 +113,16 @@ const PrivacyPolicy = () => {
             </p>
           </section>
 
-          {/* Your Rights */}
+          {/* Data Retention */}
           <section className="glass-panel p-6 md:p-8 rounded-xl">
+            <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.privacy.retentionTitle')}</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              {t('legal.privacy.retentionText')}
+            </p>
+          </section>
+
+          {/* Your Rights (GDPR) */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl border border-primary/30">
             <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.privacy.rightsTitle')}</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
               {t('legal.privacy.rightsIntro')}
@@ -97,7 +132,20 @@ const PrivacyPolicy = () => {
               <li className="list-disc">{t('legal.privacy.rightsCorrect')}</li>
               <li className="list-disc">{t('legal.privacy.rightsDelete')}</li>
               <li className="list-disc">{t('legal.privacy.rightsObject')}</li>
+              <li className="list-disc">{t('legal.privacy.rightsPortability')}</li>
+              <li className="list-disc">{t('legal.privacy.rightsRestrict')}</li>
             </ul>
+          </section>
+
+          {/* International Transfers */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Globe className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-bold text-primary">{t('legal.privacy.internationalTitle')}</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              {t('legal.privacy.internationalText')}
+            </p>
           </section>
 
           {/* Cookies */}

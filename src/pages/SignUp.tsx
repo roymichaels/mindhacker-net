@@ -199,28 +199,41 @@ const SignUp = () => {
               />
             </div>
 
-            <div className={`flex items-center gap-2 ${isRTL ? '' : 'flex-row-reverse justify-end'}`}>
-              <Checkbox
-                id="terms"
-                checked={formData.agreeTerms}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, agreeTerms: checked as boolean })
-                }
-                disabled={isLoading}
-              />
-              <Label
-                htmlFor="terms"
-                className="text-sm font-normal cursor-pointer"
-              >
-                {t('auth.termsAgreePrefix')}{' '}
-                <Link 
-                  to="/terms-of-service" 
-                  className="text-primary hover:underline"
-                  target="_blank"
+            <div className="space-y-3">
+              <div className={`flex items-center gap-2 ${isRTL ? '' : 'flex-row-reverse justify-end'}`}>
+                <Checkbox
+                  id="terms"
+                  checked={formData.agreeTerms}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, agreeTerms: checked as boolean })
+                  }
+                  disabled={isLoading}
+                />
+                <Label
+                  htmlFor="terms"
+                  className="text-sm font-normal cursor-pointer"
                 >
-                  {t('auth.termsLink')}
-                </Link>
-              </Label>
+                  {t('auth.termsAgreePrefix')}{' '}
+                  <Link 
+                    to="/terms-of-service" 
+                    className="text-primary hover:underline"
+                    target="_blank"
+                  >
+                    {t('auth.termsLink')}
+                  </Link>
+                  {' '}&{' '}
+                  <Link 
+                    to="/privacy-policy" 
+                    className="text-primary hover:underline"
+                    target="_blank"
+                  >
+                    {t('footer.privacyPolicy')}
+                  </Link>
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('legal.terms.userAcknowledgment')}
+              </p>
             </div>
 
             <Button
