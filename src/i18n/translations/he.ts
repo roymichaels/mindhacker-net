@@ -913,6 +913,22 @@ export const he = {
     pathSelectionDescription: "בחר את המסלול המתאים לך",
     menuItemDescription: "עריכת פריט בתפריט",
   },
+  notificationPrompt: {
+    enableTitle: "הפעל התראות",
+    description: "קבל עדכונים כשיש תוכן חדש, הודעות חשובות ותזכורות",
+    enableButton: "הפעל",
+    enabling: "מפעיל...",
+    notNow: "לא עכשיו",
+    successToast: "התראות הופעלו! תקבל עדכונים על תוכן חדש",
+    errorToast: "לא הצלחנו להפעיל התראות. נסה שוב מאוחר יותר",
+  },
+  urgencyBadge: {
+    spotsAvailableThisWeek: "{count} מקומות פנויים השבוע",
+    spotsAvailableOnly: "🔥 {count} מקומות פנויים השבוע בלבד",
+  },
+  personalQuote: {
+    signature: "— דין",
+  },
 };
 
 export type TranslationKeys = typeof he;
