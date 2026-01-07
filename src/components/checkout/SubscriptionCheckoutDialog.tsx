@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
+import { debug } from "@/lib/debug";
 
 interface SubscriptionCheckoutDialogProps {
   open: boolean;
@@ -26,7 +27,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("instant_success");
   const [isProcessing, setIsProcessing] = useState(false);
   const [subscriptionComplete, setSubscriptionComplete] = useState(false);
@@ -56,8 +57,8 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
   const handleSubscribe = async () => {
     if (!user) {
       toast({
-        title: "נדרש להתחבר",
-        description: "יש להתחבר כדי להירשם למנוי",
+        title: t("subscription.loginRequired"),
+        description: t("subscription.loginRequiredDesc"),
         variant: "destructive",
       });
       navigate("/login");
@@ -72,8 +73,8 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
 
       if (paymentStatus === "failed") {
         toast({
-          title: "התשלום נכשל",
-          description: "אנא נסה שוב או בחר אמצעי תשלום אחר",
+          title: t("subscription.paymentFailed"),
+          description: t("subscription.paymentFailedDesc"),
           variant: "destructive",
         });
         setIsProcessing(false);
@@ -131,10 +132,10 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
       setSubscriptionComplete(true);
 
       toast({
-        title: paymentStatus === "instant_success" ? "המנוי הופעל בהצלחה!" : "התשלום ממתין לאישור",
+        title: paymentStatus === "instant_success" ? t("subscription.activated") : t("subscription.pending"),
         description: paymentStatus === "instant_success" 
-          ? `כעת תוכל לגשת לכל התוכן ברמת ${tier.name}`
-          : "נודיע לך ברגע שהתשלום יאושר",
+          ? `${t("subscription.accessGranted")} ${tier.name}`
+          : t("subscription.pendingDesc"),
       });
 
       if (paymentStatus === "instant_success") {
@@ -143,10 +144,10 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
         }, 1500);
       }
     } catch (error) {
-      console.error("Subscription error:", error);
+      debug.error("Subscription error:", error);
       toast({
-        title: "שגיאה במנוי",
-        description: "אירעה שגיאה בעת הפעלת המנוי. אנא נסה שוב.",
+        title: t("subscription.error"),
+        description: t("subscription.errorDesc"),
         variant: "destructive",
       });
     } finally {

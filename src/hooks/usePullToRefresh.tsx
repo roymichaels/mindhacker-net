@@ -57,8 +57,8 @@ export const usePullToRefresh = ({
 
         try {
           await onRefresh();
-        } catch (error) {
-          console.error("Refresh failed:", error);
+        } catch {
+          // Refresh failed silently
         } finally {
           setTimeout(() => {
             setIsRefreshing(false);

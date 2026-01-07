@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Download, FileIcon, Loader2 } from "lucide-react";
 import { getSignedUrl } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { debug } from "@/lib/debug";
 
 interface ResourcesDownloadProps {
   resources: string[];
@@ -15,11 +17,15 @@ interface ResourcesDownloadProps {
 export const ResourcesDownload = ({
   resources,
   bucket = "content-resources",
-  title = "משאבים להורדה",
-  description = "קבצים נוספים לפרק זה",
+  title,
+  description,
 }: ResourcesDownloadProps) => {
   const [downloading, setDownloading] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
+  
+  const displayTitle = title || t("resources.downloadTitle");
+  const displayDescription = description || t("resources.downloadDescription");
 
   if (!resources || resources.length === 0) {
     return null;
@@ -33,7 +39,7 @@ export const ResourcesDownload = ({
       const signedUrl = await getSignedUrl(bucket, resourcePath, 60); // 60 seconds
 
       if (!signedUrl) {
-        throw new Error("לא ניתן ליצור קישור להורדה");
+        throw new Error(t("resources.downloadLinkError"));
       }
 
       // Download file
@@ -54,12 +60,12 @@ export const ResourcesDownload = ({
       document.body.removeChild(a);
 
       toast({
-        title: "הקובץ הורד בהצלחה",
+        title: t("resources.downloadSuccess"),
       });
     } catch (error: any) {
-      console.error("Download error:", error);
+      debug.error("Download error:", error);
       toast({
-        title: "שגיאה בהורדת הקובץ",
+        title: t("resources.downloadError"),
         description: error.message,
         variant: "destructive",
       });
@@ -73,13 +79,13 @@ export const ResourcesDownload = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileIcon className="w-5 h-5" />
-          {title}
+          {displayTitle}
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>{displayDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         {resources.map((resource, index) => {
-          const fileName = resource.split("/").pop() || `קובץ ${index + 1}`;
+          const fileName = resource.split("/").pop() || `${t("resources.file")} ${index + 1}`;
           const isDownloading = downloading === resource;
 
           return (
@@ -97,15 +103,15 @@ export const ResourcesDownload = ({
                 onClick={() => handleDownload(resource)}
                 disabled={isDownloading}
               >
-                {isDownloading ? (
+              {isDownloading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    מוריד...
+                    {t("resources.downloading")}
                   </>
                 ) : (
                   <>
                     <Download className="w-4 h-4 mr-2" />
-                    הורד
+                    {t("resources.download")}
                   </>
                 )}
               </Button>

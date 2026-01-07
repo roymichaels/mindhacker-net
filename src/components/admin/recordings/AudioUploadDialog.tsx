@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { debug } from "@/lib/debug";
 import { Loader2, Upload } from "lucide-react";
 
 interface AudioUploadDialogProps {
@@ -36,6 +38,7 @@ export const AudioUploadDialog = ({
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -65,11 +68,11 @@ export const AudioUploadDialog = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hypnosis-audios"] });
-      toast({ title: "ההקלטה הועלתה בהצלחה" });
+      toast({ title: t("admin.recordingsPage.audioUploaded") });
       onOpenChange(false);
     },
     onError: () => {
-      toast({ title: "שגיאה בהעלאת ההקלטה", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.audioUploadError"), variant: "destructive" });
     },
   });
 
@@ -84,11 +87,11 @@ export const AudioUploadDialog = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hypnosis-audios"] });
-      toast({ title: "ההקלטה עודכנה בהצלחה" });
+      toast({ title: t("admin.recordingsPage.audioUpdated") });
       onOpenChange(false);
     },
     onError: () => {
-      toast({ title: "שגיאה בעדכון ההקלטה", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.audioUpdateError"), variant: "destructive" });
     },
   });
 
@@ -101,7 +104,7 @@ export const AudioUploadDialog = ({
     }
 
     if (!file) {
-      toast({ title: "יש לבחור קובץ אודיו", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.selectAudioFile"), variant: "destructive" });
       return;
     }
 
@@ -129,7 +132,7 @@ export const AudioUploadDialog = ({
           audio.onerror = () => resolve();
         });
       } catch {
-        console.log("Could not get audio duration");
+        debug.log("Could not get audio duration");
       }
 
       createMutation.mutate({
@@ -138,8 +141,8 @@ export const AudioUploadDialog = ({
         file_path: fileName,
         duration_seconds: duration,
       });
-    } catch (error) {
-      toast({ title: "שגיאה בהעלאת הקובץ", variant: "destructive" });
+    } catch {
+      toast({ title: t("admin.recordingsPage.audioUploadError"), variant: "destructive" });
     } finally {
       setUploading(false);
     }

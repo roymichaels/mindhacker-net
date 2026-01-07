@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Eye, Video } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface EpisodesListProps {
@@ -15,6 +16,7 @@ interface EpisodesListProps {
 const EpisodesList = ({ episodes, onEdit }: EpisodesListProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -28,13 +30,13 @@ const EpisodesList = ({ episodes, onEdit }: EpisodesListProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-episodes"] });
       toast({
-        title: "הפרק נמחק בהצלחה",
+        title: t("admin.episodes.deleted"),
       });
       setDeleteId(null);
     },
     onError: (error) => {
       toast({
-        title: "שגיאה במחיקת הפרק",
+        title: t("admin.episodes.deleteError"),
         description: error.message,
         variant: "destructive",
       });

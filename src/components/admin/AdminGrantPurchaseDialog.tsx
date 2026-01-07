@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { debug } from "@/lib/debug";
 import {
   Dialog,
   DialogContent,
@@ -44,7 +45,7 @@ const AdminGrantPurchaseDialog = ({
   user,
   onSuccess,
 }: AdminGrantPurchaseDialogProps) => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const [grantType, setGrantType] = useState<GrantType>("sessions");
   const [loading, setLoading] = useState(false);
   
@@ -118,18 +119,18 @@ const AdminGrantPurchaseDialog = ({
       if (error) throw error;
 
       toast({
-        title: "הרכישה הוענקה בהצלחה",
-        description: `הזמנה מנהלתית נוצרה עבור ${user.full_name || user.email}`,
+        title: t("admin.grantPurchase.success"),
+        description: `${t("admin.grantPurchase.successDesc")} ${user.full_name || user.email}`,
       });
 
       onOpenChange(false);
       onSuccess?.();
       resetForm();
     } catch (error: any) {
-      console.error("Error granting purchase:", error);
+      debug.error("Error granting purchase:", error);
       toast({
-        title: "שגיאה בהענקת רכישה",
-        description: error.message || "נסה שוב מאוחר יותר",
+        title: t("admin.grantPurchase.error"),
+        description: error.message || t("admin.grantPurchase.errorDesc"),
         variant: "destructive",
       });
     } finally {

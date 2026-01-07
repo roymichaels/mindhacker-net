@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { debug } from "@/lib/debug";
 import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, UserPlus, Link, Check, Copy } from "lucide-react";
 import { AudioUploadDialog } from "./AudioUploadDialog";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { he, enUS } from "date-fns/locale";
 import { Slider } from "@/components/ui/slider";
 import {
   AlertDialog,
@@ -50,7 +52,9 @@ export const AudioLibrary = () => {
   const [generatingLinkFor, setGeneratingLinkFor] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
+  const { t, language } = useTranslation();
   const queryClient = useQueryClient();
+  const dateLocale = language === 'he' ? he : enUS;
 
   const { data: audios, isLoading } = useQuery({
     queryKey: ["hypnosis-audios"],
@@ -75,11 +79,11 @@ export const AudioLibrary = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hypnosis-audios"] });
-      toast({ title: "ההקלטה נמחקה בהצלחה" });
+      toast({ title: t("admin.recordingsPage.audioDeleted") });
       setDeletingId(null);
     },
     onError: () => {
-      toast({ title: "שגיאה במחיקת ההקלטה", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.audioDeleteError"), variant: "destructive" });
     },
   });
 
@@ -108,8 +112,8 @@ export const AudioLibrary = () => {
       setAudioUrl(data.signedUrl);
       setCurrentTime(0);
       setIsPlaying(false);
-    } catch (err) {
-      toast({ title: "שגיאה בטעינת ההקלטה", variant: "destructive" });
+    } catch {
+      toast({ title: t("admin.recordingsPage.audioLoadError"), variant: "destructive" });
     }
   };
 
@@ -120,7 +124,7 @@ export const AudioLibrary = () => {
       const { data: user } = await supabase.auth.getUser();
       
       if (!user.user?.id) {
-        toast({ title: "יש להתחבר מחדש", variant: "destructive" });
+        toast({ title: t("auth.loginError"), variant: "destructive" });
         return;
       }
       
@@ -146,16 +150,16 @@ export const AudioLibrary = () => {
       try {
         await navigator.clipboard.writeText(link);
         setCopiedAudioId(audioId);
-        toast({ title: "הקישור הועתק ללוח! 🔗" });
+        toast({ title: t("admin.recordingsPage.linkCopied") });
         setTimeout(() => setCopiedAudioId(null), 2000);
       } catch (clipboardError) {
-        console.error("Clipboard error:", clipboardError);
-        prompt("הקישור נוצר בהצלחה! העתק אותו ידנית:", link);
-        toast({ title: "הקישור נוצר - העתק ידנית", description: "לא ניתן להעתיק ללוח אוטומטית" });
+        debug.error("Clipboard error:", clipboardError);
+        prompt(t("admin.recordingsPage.linkGenerated"), link);
+        toast({ title: t("admin.recordingsPage.linkGenerated"), description: t("admin.recordingsPage.linkCopyError") });
       }
     } catch (err) {
-      console.error("Unexpected error in generateQuickLink:", err);
-      toast({ title: "שגיאה לא צפויה", variant: "destructive" });
+      debug.error("Unexpected error in generateQuickLink:", err);
+      toast({ title: t("admin.recordingsPage.unexpectedError"), variant: "destructive" });
     } finally {
       setGeneratingLinkFor(null);
     }
@@ -282,7 +286,7 @@ export const AudioLibrary = () => {
                   {audio.created_at && (
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {format(new Date(audio.created_at), "d MMM yyyy", { locale: he })}
+                      {format(new Date(audio.created_at), "d MMM yyyy", { locale: dateLocale })}
                     </span>
                   )}
                 </div>
