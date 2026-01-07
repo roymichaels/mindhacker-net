@@ -183,14 +183,46 @@ const FormView = () => {
     }
   };
 
+  // Extract email from responses if any field is of type email
+  const getEmailFromResponses = (): string | null => {
+    // First check if any field is explicitly an email type
+    const emailField = fields.find(f => f.type === 'email');
+    if (emailField && responses[emailField.id]) {
+      return responses[emailField.id] as string;
+    }
+    
+    // Otherwise, look for fields with "email" or "אימייל" in the label
+    for (const field of fields) {
+      const label = field.label.toLowerCase();
+      if (label.includes('email') || label.includes('אימייל') || label.includes('מייל') || label.includes('דוא"ל')) {
+        const value = responses[field.id];
+        if (typeof value === 'string' && value.includes('@')) {
+          return value;
+        }
+      }
+    }
+    
+    // Last resort: check all text responses for something that looks like an email
+    for (const [fieldId, value] of Object.entries(responses)) {
+      if (typeof value === 'string' && value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        return value;
+      }
+    }
+    
+    return null;
+  };
+
   const handleSubmit = async () => {
     if (!form?.id) return;
     setIsSubmitting(true);
 
     try {
+      const email = getEmailFromResponses();
+      
       const { error } = await supabase.from("form_submissions").insert({
         form_id: form.id,
         responses,
+        email, // Store extracted email for future account linking
         metadata: {
           user_agent: navigator.userAgent,
           referrer: document.referrer,
