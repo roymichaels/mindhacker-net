@@ -1,7 +1,8 @@
 import { usePWA } from '@/hooks/usePWA';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, Bell, Check, Smartphone, Share, MoreVertical, Plus, Zap, Wifi, BellRing } from 'lucide-react';
 
@@ -11,6 +12,7 @@ interface PWAInstallModalProps {
 }
 
 export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) => {
+  const { t, isRTL } = useTranslation();
   const { 
     isInstalled, 
     isInstallable, 
@@ -46,16 +48,17 @@ export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) =>
   const isAppInstalled = isInstalled || isStandalone;
 
   const benefits = [
-    { icon: Zap, title: 'גישה מהירה', description: 'פתיחה ישירה מהמסך הראשי' },
-    { icon: Wifi, title: 'עובד אופליין', description: 'גישה גם ללא אינטרנט' },
-    { icon: BellRing, title: 'התראות', description: 'קבלת עדכונים על תוכן חדש' },
+    { icon: Zap, title: t('pwa.quickAccess'), description: t('pwa.quickAccessDesc') },
+    { icon: Wifi, title: t('pwa.worksOffline'), description: t('pwa.worksOfflineDesc') },
+    { icon: BellRing, title: t('pwa.notifications'), description: t('pwa.notificationsDesc') },
   ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="text-xl text-center">התקנת האפליקציה</DialogTitle>
+          <DialogTitle className="text-xl text-center">{t('pwa.installTitle')}</DialogTitle>
+          <DialogDescription className="sr-only">{t('pwa.installDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -64,13 +67,13 @@ export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) =>
             <CardContent className="pt-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-5 h-5 text-cyan-400" />
-                <h3 className="font-semibold">התקנה במכשיר</h3>
+                <h3 className="font-semibold">{t('pwa.deviceInstall')}</h3>
               </div>
               
               {isAppInstalled ? (
                 <div className="flex items-center gap-2 text-green-400 text-sm">
                   <Check className="w-4 h-4" />
-                  <span>האפליקציה מותקנת!</span>
+                  <span>{t('pwa.appInstalled')}</span>
                 </div>
               ) : canPromptInstall ? (
                 <Button 
@@ -78,8 +81,8 @@ export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) =>
                   className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600"
                   size="sm"
                 >
-                  <Download className="w-4 h-4 ml-2" />
-                  התקן עכשיו
+                  <Download className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {t('pwa.installNow')}
                 </Button>
               ) : (
                 <div className="space-y-2 text-sm">
@@ -109,17 +112,17 @@ export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) =>
             <CardContent className="pt-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-cyan-400" />
-                <h3 className="font-semibold">התראות</h3>
+                <h3 className="font-semibold">{t('pwa.notifications')}</h3>
               </div>
               
               {isSubscribed ? (
                 <div className="flex items-center gap-2 text-green-400 text-sm">
                   <Check className="w-4 h-4" />
-                  <span>התראות מופעלות!</span>
+                  <span>{t('pwa.notificationsEnabled')}</span>
                 </div>
               ) : permission === 'denied' ? (
                 <p className="text-sm text-muted-foreground">
-                  ההתראות חסומות. יש לאפשר בהגדרות הדפדפן.
+                  {t('pwa.notificationsBlocked')}
                 </p>
               ) : (
                 <Button 
@@ -129,8 +132,8 @@ export const PWAInstallModal = ({ open, onOpenChange }: PWAInstallModalProps) =>
                   size="sm"
                   className="w-full border-cyan-500/30"
                 >
-                  <Bell className="w-4 h-4 ml-2" />
-                  {isPushLoading ? 'מפעיל...' : 'הפעל התראות'}
+                  <Bell className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {isPushLoading ? t('pwa.enabling') : t('pwa.enableNotifications')}
                 </Button>
               )}
             </CardContent>

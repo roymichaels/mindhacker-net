@@ -885,6 +885,34 @@ export const he = {
     downloading: "מוריד...",
     download: "הורד",
   },
+  pwa: {
+    installTitle: "התקנת האפליקציה",
+    installDescription: "התקן את האפליקציה לגישה מהירה והתראות",
+    deviceInstall: "התקנה במכשיר",
+    appInstalled: "האפליקציה מותקנת!",
+    installNow: "התקן עכשיו",
+    notifications: "התראות",
+    notificationsEnabled: "התראות מופעלות!",
+    notificationsBlocked: "ההתראות חסומות. יש לאפשר בהגדרות הדפדפן.",
+    enableNotifications: "הפעל התראות",
+    enabling: "מפעיל...",
+    quickAccess: "גישה מהירה",
+    quickAccessDesc: "פתיחה ישירה מהמסך הראשי",
+    worksOffline: "עובד אופליין",
+    worksOfflineDesc: "גישה גם ללא אינטרנט",
+    notificationsDesc: "קבלת עדכונים על תוכן חדש",
+  },
+  leadCapture: {
+    dialogTitle: "בוא נדבר! 🤝",
+    dialogDescription: "השאר פרטים ואחזור אליך בהקדם לשיחת היכרות קצרה",
+    dialogFooter: "15 דקות בלבד, ללא התחייבות",
+    leaveDetails: "השאר פרטים",
+  },
+  dialogs: {
+    videoDescription: "צפייה בסרטון",
+    pathSelectionDescription: "בחר את המסלול המתאים לך",
+    menuItemDescription: "עריכת פריט בתפריט",
+  },
 };
 
 export type TranslationKeys = typeof he;
