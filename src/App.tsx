@@ -9,6 +9,7 @@ import { LanguagePrompt } from "@/components/LanguagePrompt";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import AnalyticsProvider from "@/components/AnalyticsProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SignUp from "./pages/SignUp";
@@ -77,6 +78,7 @@ const App = () => (
             <Sonner />
             <LanguagePrompt />
             <BrowserRouter>
+              <AnalyticsProvider>
           <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -141,6 +143,7 @@ const App = () => (
           <NotificationPermissionPrompt />
           <CookieConsent />
           </Suspense>
+              </AnalyticsProvider>
           </BrowserRouter>
         </TooltipProvider>
         </LanguageProvider>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { z } from "zod";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
 import { validateRedirectPath } from "@/lib/auth";
+import { trackSignupStart, trackSignupComplete, trackEvent } from "@/hooks/useAnalytics";
 
 const SignUp = () => {
   const { t, isRTL } = useTranslation();
@@ -27,6 +28,11 @@ const SignUp = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Track signup page view
+  useEffect(() => {
+    trackSignupStart();
+  }, []);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -108,6 +114,7 @@ const SignUp = () => {
     }
 
     if (data.user) {
+      trackSignupComplete();
       toast({
         title: t('messages.signupSuccess'),
         description: t('messages.welcomeNew'),

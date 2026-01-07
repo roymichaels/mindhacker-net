@@ -493,6 +493,45 @@ export type Database = {
           },
         ]
       }
+      conversion_events: {
+        Row: {
+          conversion_value: number | null
+          created_at: string | null
+          event_category: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          page_path: string | null
+          session_id: string
+          source: string | null
+          user_id: string | null
+        }
+        Insert: {
+          conversion_value?: number | null
+          created_at?: string | null
+          event_category?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page_path?: string | null
+          session_id: string
+          source?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          conversion_value?: number | null
+          created_at?: string | null
+          event_category?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page_path?: string | null
+          session_id?: string
+          source?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -925,6 +964,48 @@ export type Database = {
           label_en?: string | null
           order_index?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          entered_at: string | null
+          exited_at: string | null
+          id: string
+          is_bounce: boolean | null
+          page_path: string
+          page_title: string | null
+          referrer_path: string | null
+          scroll_depth_percent: number | null
+          session_id: string
+          time_on_page_seconds: number | null
+          user_id: string | null
+        }
+        Insert: {
+          entered_at?: string | null
+          exited_at?: string | null
+          id?: string
+          is_bounce?: boolean | null
+          page_path: string
+          page_title?: string | null
+          referrer_path?: string | null
+          scroll_depth_percent?: number | null
+          session_id: string
+          time_on_page_seconds?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          entered_at?: string | null
+          exited_at?: string | null
+          id?: string
+          is_bounce?: boolean | null
+          page_path?: string
+          page_title?: string | null
+          referrer_path?: string | null
+          scroll_depth_percent?: number | null
+          session_id?: string
+          time_on_page_seconds?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1470,6 +1551,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      visitor_sessions: {
+        Row: {
+          browser: string | null
+          country: string | null
+          device_type: string | null
+          first_seen: string | null
+          id: string
+          is_returning: boolean | null
+          landing_page: string | null
+          language: string | null
+          last_seen: string | null
+          os: string | null
+          page_views: number | null
+          referrer: string | null
+          screen_size: string | null
+          session_id: string
+          total_time_seconds: number | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          browser?: string | null
+          country?: string | null
+          device_type?: string | null
+          first_seen?: string | null
+          id?: string
+          is_returning?: boolean | null
+          landing_page?: string | null
+          language?: string | null
+          last_seen?: string | null
+          os?: string | null
+          page_views?: number | null
+          referrer?: string | null
+          screen_size?: string | null
+          session_id: string
+          total_time_seconds?: number | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          browser?: string | null
+          country?: string | null
+          device_type?: string | null
+          first_seen?: string | null
+          id?: string
+          is_returning?: boolean | null
+          landing_page?: string | null
+          language?: string | null
+          last_seen?: string | null
+          os?: string | null
+          page_views?: number | null
+          referrer?: string | null
+          screen_size?: string | null
+          session_id?: string
+          total_time_seconds?: number | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
