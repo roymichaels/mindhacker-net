@@ -1,24 +1,36 @@
 import { jsPDF } from "jspdf";
+import { loadHebrewFont } from "./fonts/hebrewFont";
 
 interface FormResponse {
   question: string;
   answer: string | string[];
 }
 
-export const generateFormPDF = (
+export const generateFormPDF = async (
   formTitle: string,
   responses: FormResponse[],
   submissionDate: Date,
   isRTL: boolean = true
-): void => {
+): Promise<void> => {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
     format: "a4",
   });
 
-  // Set font that supports Hebrew if RTL
-  doc.setFont("helvetica", "normal");
+  // Load and register Hebrew font if RTL
+  if (isRTL) {
+    const hebrewFontBase64 = await loadHebrewFont();
+    if (hebrewFontBase64) {
+      doc.addFileToVFS("NotoSansHebrew-Regular.ttf", hebrewFontBase64);
+      doc.addFont("NotoSansHebrew-Regular.ttf", "NotoSansHebrew", "normal");
+      doc.setFont("NotoSansHebrew", "normal");
+    } else {
+      doc.setFont("helvetica", "normal");
+    }
+  } else {
+    doc.setFont("helvetica", "normal");
+  }
   
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
