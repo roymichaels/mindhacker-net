@@ -469,8 +469,8 @@ export const en: TranslationKeys = {
   },
   trustBadges: {
     discretion: "100% Discretion",
-    noCommitment: "No Commitment",
-    personalGuidance: "Personal Guidance",
+    freeFirstCall: "Free First Call",
+    personalApproach: "Personalized Approach",
   },
   guarantee: {
     title: "Satisfaction Guarantee",
