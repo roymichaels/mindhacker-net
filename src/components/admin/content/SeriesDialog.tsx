@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SeriesDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface SeriesDialogProps {
 
 const SeriesDialog = ({ open, onOpenChange, series, productId }: SeriesDialogProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   
   const form = useForm({
@@ -67,14 +69,14 @@ const SeriesDialog = ({ open, onOpenChange, series, productId }: SeriesDialogPro
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-series"] });
       toast({
-        title: series ? "הסדרה עודכנה בהצלחה" : "הסדרה נוצרה בהצלחה",
+        title: series ? t('admin.series.updated') : t('admin.series.created'),
       });
       onOpenChange(false);
       form.reset();
     },
     onError: (error) => {
       toast({
-        title: "שגיאה",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -86,7 +88,7 @@ const SeriesDialog = ({ open, onOpenChange, series, productId }: SeriesDialogPro
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl font-black">
-            {series ? "עריכת סדרה" : "יצירת סדרה חדשה"}
+            {series ? t('admin.series.editTitle') : t('admin.series.newTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -95,7 +97,7 @@ const SeriesDialog = ({ open, onOpenChange, series, productId }: SeriesDialogPro
             <FormField
               control={form.control}
               name="title"
-              rules={{ required: "שדה חובה" }}
+              rules={{ required: t('validation.fillField') }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>כותרת</FormLabel>
@@ -158,10 +160,10 @@ const SeriesDialog = ({ open, onOpenChange, series, productId }: SeriesDialogPro
 
             <div className="flex gap-2 justify-end pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                ביטול
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "שומר..." : series ? "עדכן" : "צור"}
+                {mutation.isPending ? t('common.loading') : series ? t('common.save') : t('common.add')}
               </Button>
             </div>
           </form>

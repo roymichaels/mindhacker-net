@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
+import { debug } from "@/lib/debug";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type DbNotification = Database['public']['Tables']['admin_notifications']['Row'];
 
@@ -34,6 +36,7 @@ interface NotificationFilters {
 }
 
 export const useAdminNotifications = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -68,10 +71,10 @@ export const useAdminNotifications = () => {
       setNotifications(convertedData);
       updateUnreadCount(convertedData);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      debug.error('Error fetching notifications:', error);
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון הודעות",
+        title: t('common.error'),
+        description: t('admin.loadError'),
         variant: "destructive",
       });
     } finally {
@@ -98,7 +101,7 @@ export const useAdminNotifications = () => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      debug.error('Error marking notification as read:', error);
     }
   };
 
@@ -121,14 +124,14 @@ export const useAdminNotifications = () => {
       setUnreadCount(0);
 
       toast({
-        title: "הצלחה",
-        description: "כל ההודעות סומנו כנקראו",
+        title: t('common.success'),
+        description: t('admin.markAllSuccess'),
       });
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      debug.error('Error marking all as read:', error);
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לסמן את כל ההודעות",
+        title: t('common.error'),
+        description: t('admin.markAllError'),
         variant: "destructive",
       });
     }
@@ -145,7 +148,7 @@ export const useAdminNotifications = () => {
 
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      debug.error('Error deleting notification:', error);
     }
   };
 
