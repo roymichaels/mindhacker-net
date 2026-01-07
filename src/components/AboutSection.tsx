@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Play, Sparkle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import heroPortrait from "@/assets/hero-portrait.png";
 
@@ -119,6 +119,8 @@ const AboutSection = () => {
       {/* Video Dialog */}
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
         <DialogContent className="max-w-4xl p-0 bg-black border-primary/30 overflow-hidden">
+          <DialogTitle className="sr-only">{t('about.watchVideo')}</DialogTitle>
+          <DialogDescription className="sr-only">{t('dialogs.videoDescription')}</DialogDescription>
           <div className="aspect-video w-full">
             <iframe
               src={getEmbedUrl(aboutVideoUrl)}

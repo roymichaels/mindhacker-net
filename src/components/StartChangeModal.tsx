@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Gift, Video, Zap } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -74,6 +75,9 @@ const StartChangeModal = ({ open, onOpenChange }: StartChangeModalProps) => {
           <DialogTitle className="text-2xl font-bold text-center">
             {t("header.chooseYourPath")}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("dialogs.pathSelectionDescription")}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">

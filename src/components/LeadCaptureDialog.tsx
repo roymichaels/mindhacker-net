@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import LeadCaptureForm from "./LeadCaptureForm";
 import { Phone, Heart } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface LeadCaptureDialogProps {
   source: string;
@@ -25,7 +26,7 @@ interface LeadCaptureDialogProps {
 
 const LeadCaptureDialog = ({ 
   source, 
-  triggerText = "השאר פרטים",
+  triggerText,
   triggerIcon,
   triggerVariant = "default",
   triggerClassName,
@@ -33,11 +34,14 @@ const LeadCaptureDialog = ({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: LeadCaptureDialogProps) => {
+  const { t, isRTL } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
   const onOpenChange = isControlled ? controlledOnOpenChange! : setInternalOpen;
+
+  const buttonText = triggerText ?? t('leadCapture.leaveDetails');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -47,19 +51,19 @@ const LeadCaptureDialog = ({
           className={triggerClassName}
         >
           {triggerIcon}
-          {triggerText}
+          {buttonText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader className="text-center pb-2">
           <div className="mx-auto w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center mb-3">
             <Phone className="w-7 h-7 text-primary" />
           </div>
           <DialogTitle className="text-2xl font-black">
-            בוא נדבר! 🤝
+            {t('leadCapture.dialogTitle')}
           </DialogTitle>
           <DialogDescription className="text-base">
-            השאר פרטים ואחזור אליך בהקדם לשיחת היכרות קצרה
+            {t('leadCapture.dialogDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +80,7 @@ const LeadCaptureDialog = ({
 
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-2 border-t border-border/50">
           <Heart className="w-4 h-4 text-secondary" />
-          <span>15 דקות בלבד, ללא התחייבות</span>
+          <span>{t('leadCapture.dialogFooter')}</span>
         </div>
       </DialogContent>
     </Dialog>
