@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Clock, Video, CheckCircle2, Mail } from "lucide-react";
+import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
 
 interface PersonalHypnosisCheckoutDialogProps {
   open: boolean;
@@ -31,6 +32,13 @@ export const PersonalHypnosisCheckoutDialog = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Track checkout start when dialog opens
+  useEffect(() => {
+    if (open) {
+      trackDialogOpen("personal_hypnosis_checkout");
+      trackCheckoutStart("personal_hypnosis", PRODUCT_PRICE);
+    }
+  }, [open]);
   const purchaseMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("לא מחובר");
@@ -74,12 +82,14 @@ export const PersonalHypnosisCheckoutDialog = ({
       return { productId: product.id };
     },
     onSuccess: () => {
+      trackPurchaseComplete("personal_hypnosis", PRODUCT_PRICE);
       queryClient.invalidateQueries({ queryKey: ["my-purchases"] });
       queryClient.invalidateQueries({ queryKey: ["pending-audio-orders"] });
       onOpenChange(false);
       navigate("/personal-hypnosis/pending");
     },
     onError: (error: Error) => {
+      trackEvent("purchase_failed", "purchase", "personal_hypnosis", { error: error.message });
       toast({
         title: "שגיאה בהזמנה",
         description: error.message,
@@ -88,8 +98,15 @@ export const PersonalHypnosisCheckoutDialog = ({
     },
   });
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      trackDialogClose("personal_hypnosis_checkout");
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent dir="rtl" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl">אימון תודעתי אישי - סרטון היפנוזה</DialogTitle>
