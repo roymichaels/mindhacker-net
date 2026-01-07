@@ -12,8 +12,8 @@ const TrustBadges = () => {
   // Use admin settings if available, otherwise use translations
   const badges = [
     settings.trust_badge_1 || t('trustBadges.discretion'),
-    settings.trust_badge_2 || t('trustBadges.noCommitment'),
-    settings.trust_badge_3 || t('trustBadges.personalGuidance'),
+    settings.trust_badge_2 || t('trustBadges.freeFirstCall'),
+    settings.trust_badge_3 || t('trustBadges.personalApproach'),
   ];
   
   const [isVisible, setIsVisible] = useState(false);

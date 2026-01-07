@@ -467,8 +467,8 @@ export const he = {
   },
   trustBadges: {
     discretion: "100% דיסקרטיות",
-    noCommitment: "ללא התחייבות",
-    personalGuidance: "ליווי אישי",
+    freeFirstCall: "שיחה ראשונה חינם",
+    personalApproach: "גישה אישית מותאמת",
   },
   guarantee: {
     title: "התחייבות שביעות רצון",
