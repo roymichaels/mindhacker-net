@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
+import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -29,6 +30,14 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("instant_success");
   const [isProcessing, setIsProcessing] = useState(false);
   const [purchaseComplete, setPurchaseComplete] = useState(false);
+
+  // Track checkout start when dialog opens
+  useEffect(() => {
+    if (open) {
+      trackDialogOpen("checkout");
+      trackCheckoutStart("course", course.price || 0);
+    }
+  }, [open, course.price]);
 
   const handlePurchase = async () => {
     if (!user) {
@@ -89,6 +98,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
         .eq("id", course.id);
 
       setPurchaseComplete(true);
+      trackPurchaseComplete("course", course.price || 0);
 
       toast({
         title: paymentStatus === "instant_success" ? "הרכישה בוצעה בהצלחה!" : "התשלום ממתין לאישור",
@@ -104,6 +114,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
       }
     } catch (error) {
       console.error("Purchase error:", error);
+      trackEvent("purchase_failed", "purchase", "course", { error: String(error) });
       toast({
         title: "שגיאה ברכישה",
         description: "אירעה שגיאה בעת ביצוע הרכישה. אנא נסה שוב.",
@@ -114,8 +125,15 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      trackDialogClose("checkout");
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]" dir="rtl">
         {purchaseComplete ? (
           <div className="flex flex-col items-center justify-center py-8 space-y-4">

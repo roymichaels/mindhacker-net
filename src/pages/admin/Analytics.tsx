@@ -329,9 +329,10 @@ const Analytics = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="realtime" className="space-y-4">
+      <Tabs defaultValue="conversions" className="space-y-4">
         <div className="overflow-x-auto pb-2">
           <TabsList className="inline-flex min-w-full sm:w-auto">
+            <TabsTrigger value="conversions" className="text-xs sm:text-sm whitespace-nowrap">המרות</TabsTrigger>
             <TabsTrigger value="realtime" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabRealtime')}</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabTrends')}</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabEngagement')}</TabsTrigger>
@@ -340,6 +341,11 @@ const Analytics = () => {
             <TabsTrigger value="activity" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabActivity')}</TabsTrigger>
           </TabsList>
         </div>
+
+        {/* Conversion Metrics */}
+        <TabsContent value="conversions">
+          <ConversionMetrics />
+        </TabsContent>
 
         {/* Real-Time Activity */}
         <TabsContent value="realtime">
