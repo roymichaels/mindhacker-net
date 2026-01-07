@@ -27,8 +27,8 @@ if ('serviceWorker' in navigator) {
           });
         }
       });
-    } catch (error) {
-      console.log('SW registration failed:', error);
+    } catch {
+      // SW registration failed silently in production
     }
   });
   

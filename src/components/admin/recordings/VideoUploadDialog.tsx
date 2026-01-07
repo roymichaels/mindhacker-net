@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { debug } from "@/lib/debug";
 import { Loader2, Upload, Video } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -38,6 +40,7 @@ export const VideoUploadDialog = ({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -68,11 +71,11 @@ export const VideoUploadDialog = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hypnosis-videos"] });
-      toast({ title: "הסרטון הועלה בהצלחה" });
+      toast({ title: t("admin.recordingsPage.videoUploaded") });
       onOpenChange(false);
     },
     onError: () => {
-      toast({ title: "שגיאה בהעלאת הסרטון", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.videoUploadError"), variant: "destructive" });
     },
   });
 
@@ -87,11 +90,11 @@ export const VideoUploadDialog = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hypnosis-videos"] });
-      toast({ title: "הסרטון עודכן בהצלחה" });
+      toast({ title: t("admin.recordingsPage.videoUpdated") });
       onOpenChange(false);
     },
     onError: () => {
-      toast({ title: "שגיאה בעדכון הסרטון", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.videoUpdateError"), variant: "destructive" });
     },
   });
 
@@ -104,7 +107,7 @@ export const VideoUploadDialog = ({
     }
 
     if (!file) {
-      toast({ title: "יש לבחור קובץ וידאו", variant: "destructive" });
+      toast({ title: t("admin.recordingsPage.selectVideoFile"), variant: "destructive" });
       return;
     }
 
@@ -142,7 +145,7 @@ export const VideoUploadDialog = ({
           video.onerror = () => resolve();
         });
       } catch {
-        console.log("Could not get video duration");
+        debug.log("Could not get video duration");
       }
 
       setUploadProgress(100);
@@ -153,8 +156,8 @@ export const VideoUploadDialog = ({
         file_path: fileName,
         duration_seconds: duration,
       });
-    } catch (error) {
-      toast({ title: "שגיאה בהעלאת הקובץ", variant: "destructive" });
+    } catch {
+      toast({ title: t("admin.recordingsPage.videoUploadError"), variant: "destructive" });
     } finally {
       setUploading(false);
     }

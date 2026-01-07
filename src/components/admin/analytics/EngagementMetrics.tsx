@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { debug } from "@/lib/debug";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Clock, 
@@ -231,7 +232,7 @@ export const EngagementMetrics = () => {
       setDropOffPoints(dropOffData);
       setSessionDurations(durationData);
     } catch (error) {
-      console.error("Error fetching engagement data:", error);
+      debug.error("Error fetching engagement data:", error);
     } finally {
       setLoading(false);
     }
