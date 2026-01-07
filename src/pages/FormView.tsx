@@ -261,7 +261,7 @@ const FormView = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!form) return;
     
     const formResponses = fields.map(field => ({
@@ -269,7 +269,7 @@ const FormView = () => {
       answer: responses[field.id] || "",
     }));
 
-    generateFormPDF(form.title, formResponses, new Date(), isRTL);
+    await generateFormPDF(form.title, formResponses, new Date(), isRTL);
   };
 
   const handleStartForm = () => {
