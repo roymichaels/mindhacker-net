@@ -212,7 +212,14 @@ const SignUp = () => {
                 htmlFor="terms"
                 className="text-sm font-normal cursor-pointer"
               >
-                {t('auth.termsAgree')}
+                {t('auth.termsAgreePrefix')}{' '}
+                <Link 
+                  to="/terms-of-service" 
+                  className="text-primary hover:underline"
+                  target="_blank"
+                >
+                  {t('auth.termsLink')}
+                </Link>
               </Label>
             </div>
 
