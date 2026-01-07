@@ -48,10 +48,13 @@ const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
 const Forms = lazy(() => import("./pages/admin/Forms"));
 const FormView = lazy(() => import("./pages/FormView"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import MatrixRain from "@/components/MatrixRain";
+import CookieConsent from "@/components/CookieConsent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +98,8 @@ const App = () => (
             <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
             <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
             <Route path="/form/:token" element={<FormView />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             
             {/* Protected user routes */}
             <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
@@ -134,6 +139,7 @@ const App = () => (
           </Routes>
           <PWAInstallBanner />
           <NotificationPermissionPrompt />
+          <CookieConsent />
           </Suspense>
           </BrowserRouter>
         </TooltipProvider>

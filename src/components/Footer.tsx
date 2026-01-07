@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Instagram, Send, Mail, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LeadCaptureDialog from "@/components/LeadCaptureDialog";
@@ -117,6 +118,23 @@ const Footer = () => {
               <Mail className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:text-primary-glow transition-colors" />
             </a>
           )}
+        </div>
+
+        {/* Legal Links */}
+        <div className="flex justify-center gap-4 md:gap-6 mb-4 text-sm">
+          <Link 
+            to="/privacy-policy" 
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            {t('legal.privacy.title')}
+          </Link>
+          <span className="text-muted-foreground/30">|</span>
+          <Link 
+            to="/terms-of-service" 
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            {t('legal.terms.title')}
+          </Link>
         </div>
 
         <div className="text-sm text-muted-foreground">
