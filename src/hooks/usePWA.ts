@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { debug } from '@/lib/debug';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -63,7 +64,7 @@ export const usePWA = () => {
       setIsInstalled(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
-      console.log('PWA was installed');
+      debug.log('PWA was installed');
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
@@ -77,7 +78,7 @@ export const usePWA = () => {
 
   const promptInstall = useCallback(async (): Promise<boolean> => {
     if (!deferredPrompt) {
-      console.log('No install prompt available');
+      debug.log('No install prompt available');
       return false;
     }
 
@@ -93,7 +94,7 @@ export const usePWA = () => {
       setDeferredPrompt(null);
       return outcome === 'accepted';
     } catch (error) {
-      console.error('Error prompting install:', error);
+      debug.error('Error prompting install:', error);
       return false;
     }
   }, [deferredPrompt]);

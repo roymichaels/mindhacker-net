@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { handleError } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ interface AdminRouteProps {
 const AdminRoute = ({ children }: AdminRouteProps) => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -30,7 +32,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
         setIsAdmin(hasAdminRole || false);
       } catch (error) {
-        handleError(error, "לא ניתן לבדוק הרשאות מנהל", "AdminRoute");
+        handleError(error, t('messages.adminCheckError'), "AdminRoute", t('common.error'));
         setIsAdmin(false);
       } finally {
         setLoading(false);

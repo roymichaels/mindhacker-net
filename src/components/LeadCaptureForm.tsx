@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, Phone, User, Mail, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { debug } from "@/lib/debug";
 
 interface LeadCaptureFormProps {
   source: string;
@@ -50,7 +51,7 @@ const LeadCaptureForm = ({
     // Anti-spam check 1: Honeypot field should be empty
     if (honeypot) {
       // Silently reject - don't tell the bot it failed
-      console.log("Spam detected: honeypot filled");
+      debug.log("Spam detected: honeypot filled");
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 3000);
       return;
@@ -59,7 +60,7 @@ const LeadCaptureForm = ({
     // Anti-spam check 2: Form submitted too quickly
     const timeTaken = Date.now() - formLoadTime.current;
     if (timeTaken < MIN_FORM_TIME_MS) {
-      console.log("Spam detected: form submitted too quickly", timeTaken);
+      debug.log("Spam detected: form submitted too quickly", timeTaken);
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 3000);
       return;
