@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { debug } from '@/lib/debug';
 
 const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -83,7 +84,7 @@ export const usePushNotifications = () => {
           setVapidKey(data.vapidKey);
         }
       } catch (error) {
-        console.error('Failed to fetch VAPID key:', error);
+        debug.warn('Failed to fetch VAPID key:', error);
       }
     };
 
@@ -114,7 +115,7 @@ export const usePushNotifications = () => {
           setIsSubscribed(false);
         }
       } catch (error) {
-        console.error('Error checking subscription:', error);
+        debug.warn('Error checking subscription:', error);
       }
     };
 
@@ -123,7 +124,7 @@ export const usePushNotifications = () => {
 
   const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
     if (!isSupported) {
-      console.warn('Push notifications not supported');
+      debug.warn('Push notifications not supported');
       return 'denied';
     }
 
@@ -132,17 +133,17 @@ export const usePushNotifications = () => {
       setPermission(result);
       return result;
     } catch (error) {
-      console.error('Error requesting permission:', error);
+      debug.error('Error requesting permission:', error);
       return 'denied';
     }
   }, [isSupported]);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
-    console.log('[Push] Starting subscribe process...');
-    console.log('[Push] isSupported:', isSupported, 'user:', !!user, 'vapidKey:', !!vapidKey);
+    debug.log('[Push] Starting subscribe process...');
+    debug.log('[Push] isSupported:', isSupported, 'user:', !!user, 'vapidKey:', !!vapidKey);
     
     if (!isSupported || !user || !vapidKey) {
-      console.warn('[Push] Cannot subscribe: missing requirements');
+      debug.warn('[Push] Cannot subscribe: missing requirements');
       return false;
     }
 
@@ -151,25 +152,25 @@ export const usePushNotifications = () => {
     try {
       // iOS Safari requires ALWAYS calling requestPermission in gesture context
       // Even if already granted - this refreshes the gesture association
-      console.log('[Push] Requesting permission (iOS fix: always request)...');
+      debug.log('[Push] Requesting permission (iOS fix: always request)...');
       const permissionResult = await Notification.requestPermission();
-      console.log('[Push] Permission result:', permissionResult);
+      debug.log('[Push] Permission result:', permissionResult);
       
       if (permissionResult !== 'granted') {
-        console.warn('[Push] Permission not granted');
+        debug.warn('[Push] Permission not granted');
         setIsLoading(false);
         return false;
       }
       setPermission(permissionResult);
 
       // Get service worker registration
-      console.log('[Push] Getting service worker registration...');
+      debug.log('[Push] Getting service worker registration...');
       const registration = await navigator.serviceWorker.ready;
-      console.log('[Push] Service worker ready, active state:', registration.active?.state);
+      debug.log('[Push] Service worker ready, active state:', registration.active?.state);
       
       // Wait for service worker to be fully activated (iOS fix)
       if (registration.active && registration.active.state !== 'activated') {
-        console.log('[Push] Waiting for service worker to activate...');
+        debug.log('[Push] Waiting for service worker to activate...');
         await new Promise<void>((resolve) => {
           if (registration.active?.state === 'activated') {
             resolve();
@@ -183,25 +184,25 @@ export const usePushNotifications = () => {
             registration.active?.addEventListener('statechange', handleStateChange);
             // Timeout fallback
             setTimeout(() => {
-              console.log('[Push] SW activation timeout, proceeding anyway');
+              debug.log('[Push] SW activation timeout, proceeding anyway');
               resolve();
             }, 2000);
           }
         });
-        console.log('[Push] Service worker now activated');
+        debug.log('[Push] Service worker now activated');
       }
 
       // Subscribe to push - pass Uint8Array directly for iOS compatibility
       const keyArray = urlBase64ToUint8Array(vapidKey);
-      console.log('[Push] Attempting pushManager.subscribe with keyArray length:', keyArray.length);
+      debug.log('[Push] Attempting pushManager.subscribe with keyArray length:', keyArray.length);
       
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: keyArray as BufferSource
       });
       
-      console.log('[Push] Subscription created successfully!');
-      console.log('[Push] Endpoint:', subscription.endpoint.substring(0, 50) + '...');
+      debug.log('[Push] Subscription created successfully!');
+      debug.log('[Push] Endpoint:', subscription.endpoint.substring(0, 50) + '...');
 
       const subscriptionJson = subscription.toJSON();
       
@@ -210,7 +211,7 @@ export const usePushNotifications = () => {
       }
 
       // Save subscription to edge function
-      console.log('[Push] Saving subscription to server...');
+      debug.log('[Push] Saving subscription to server...');
       const { error } = await supabase.functions.invoke('push-notifications', {
         body: {
           action: 'subscribe',
@@ -225,15 +226,15 @@ export const usePushNotifications = () => {
       });
 
       if (error) {
-        console.error('[Push] Server save error:', error);
+        debug.error('[Push] Server save error:', error);
         throw error;
       }
 
       setIsSubscribed(true);
-      console.log('[Push] ✅ Push subscription complete and saved!');
+      debug.log('[Push] ✅ Push subscription complete and saved!');
       return true;
     } catch (error) {
-      console.error('[Push] ❌ Push subscription failed:', error);
+      debug.error('[Push] ❌ Push subscription failed:', error);
       return false;
     } finally {
       setIsLoading(false);
@@ -263,10 +264,10 @@ export const usePushNotifications = () => {
       }
 
       setIsSubscribed(false);
-      console.log('Push unsubscription successful');
+      debug.log('Push unsubscription successful');
       return true;
     } catch (error) {
-      console.error('Push unsubscription failed:', error);
+      debug.error('Push unsubscription failed:', error);
       return false;
     } finally {
       setIsLoading(false);

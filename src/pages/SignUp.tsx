@@ -10,35 +10,7 @@ import { Loader2, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
-
-// Validate redirect path to prevent open redirect attacks
-const ALLOWED_REDIRECT_PREFIXES = [
-  '/dashboard',
-  '/courses',
-  '/admin',
-  '/success',
-  '/subscriptions',
-  '/install',
-  '/personal-hypnosis',
-  '/consciousness-leap',
-  '/'
-];
-
-const validateRedirectPath = (redirect: string | null): string => {
-  if (!redirect) return '/dashboard';
-  
-  // Must start with single / and not // (prevents protocol-relative URLs)
-  if (!redirect.startsWith('/') || redirect.startsWith('//')) {
-    return '/dashboard';
-  }
-  
-  // Check against whitelist of allowed prefixes
-  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(prefix => 
-    redirect === prefix || redirect.startsWith(prefix + '/') || redirect.startsWith(prefix + '?')
-  );
-  
-  return isAllowed ? redirect : '/dashboard';
-};
+import { validateRedirectPath } from "@/lib/auth";
 
 const SignUp = () => {
   const { t, isRTL } = useTranslation();
