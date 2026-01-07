@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowLeft, FileText, AlertTriangle } from "lucide-react";
+import { ArrowRight, ArrowLeft, FileText, AlertTriangle, Building2, Scale } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -41,6 +41,20 @@ const TermsOfService = () => {
 
         {/* Content sections */}
         <div className="space-y-6">
+          {/* Company Info */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl border border-primary/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Building2 className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-bold text-primary">{t('legal.company.title')}</h2>
+            </div>
+            <div className="space-y-2 text-muted-foreground">
+              <p className="font-semibold">{t('legal.company.name')}</p>
+              <p>{t('legal.company.country')}</p>
+              <p className="text-sm">{t('legal.company.registrationNote')}</p>
+              <p className="text-sm">{t('legal.company.contact')}</p>
+            </div>
+          </section>
+
           {/* Acceptance */}
           <section className="glass-panel p-6 md:p-8 rounded-xl">
             <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.terms.acceptanceTitle')}</h2>
@@ -81,6 +95,7 @@ const TermsOfService = () => {
               <li className="list-disc">{t('legal.terms.responsibilitiesSecure')}</li>
               <li className="list-disc">{t('legal.terms.responsibilitiesLawful')}</li>
               <li className="list-disc">{t('legal.terms.responsibilitiesRespect')}</li>
+              <li className="list-disc">{t('legal.terms.responsibilitiesHealth')}</li>
             </ul>
           </section>
 
@@ -108,6 +123,17 @@ const TermsOfService = () => {
             <h2 className="text-xl font-bold mb-4 text-primary">{t('legal.terms.liabilityTitle')}</h2>
             <p className="text-muted-foreground leading-relaxed">
               {t('legal.terms.liabilityText')}
+            </p>
+          </section>
+
+          {/* Arbitration */}
+          <section className="glass-panel p-6 md:p-8 rounded-xl border-2 border-primary/50">
+            <div className="flex items-center gap-3 mb-4">
+              <Scale className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-bold text-primary">{t('legal.terms.arbitrationTitle')}</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              {t('legal.terms.arbitrationText')}
             </p>
           </section>
 
