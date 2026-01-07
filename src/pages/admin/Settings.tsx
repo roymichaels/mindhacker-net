@@ -100,7 +100,7 @@ const Settings = () => {
     // Trust badges
     trust_badge_1: "100% דיסקרטיות",
     trust_badge_2: "ללא התחייבות",
-    trust_badge_3: "10+ שנות ניסיון",
+    trust_badge_3: "תוצאות מוכחות",
     trust_badge_4: "ליווי אישי",
     // WhatsApp
     whatsapp_number: "",
@@ -172,7 +172,7 @@ const Settings = () => {
         // Trust badges
         trust_badge_1: settingsObj.trust_badge_1 || "100% דיסקרטיות",
         trust_badge_2: settingsObj.trust_badge_2 || "ללא התחייבות",
-        trust_badge_3: settingsObj.trust_badge_3 || "10+ שנות ניסיון",
+        trust_badge_3: settingsObj.trust_badge_3 || "תוצאות מוכחות",
         trust_badge_4: settingsObj.trust_badge_4 || "ליווי אישי",
         // WhatsApp
         whatsapp_number: settingsObj.whatsapp_number || "",
@@ -706,7 +706,7 @@ const Settings = () => {
                 <Label htmlFor="trust_badge_3">תג אמון 3</Label>
                 <Input
                   id="trust_badge_3"
-                  placeholder="10+ שנות ניסיון"
+                  placeholder="תוצאות מוכחות"
                   value={settings.trust_badge_3}
                   onChange={(e) => setSettings(prev => ({ ...prev, trust_badge_3: e.target.value }))}
                 />
