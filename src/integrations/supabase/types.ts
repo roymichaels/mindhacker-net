@@ -694,28 +694,34 @@ export type Database = {
       }
       form_submissions: {
         Row: {
+          email: string | null
           form_id: string
           id: string
           metadata: Json | null
           responses: Json
           status: string
           submitted_at: string
+          user_id: string | null
         }
         Insert: {
+          email?: string | null
           form_id: string
           id?: string
           metadata?: Json | null
           responses?: Json
           status?: string
           submitted_at?: string
+          user_id?: string | null
         }
         Update: {
+          email?: string | null
           form_id?: string
           id?: string
           metadata?: Json | null
           responses?: Json
           status?: string
           submitted_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
