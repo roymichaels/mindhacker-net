@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -142,14 +140,8 @@ const ConsciousnessLeap = () => {
   const approvedCount = applications?.filter(a => a.status === "approved").length || 0;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-      
-      <div className="flex-1 flex flex-col">
-        <AdminHeader />
-        
-        <main className="flex-1 p-6">
-          <h1 className="text-2xl font-bold mb-6">קפיצה לתודעה חדשה</h1>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">קפיצה לתודעה חדשה</h1>
 
           {/* Stats */}
           <div className="grid gap-4 md:grid-cols-4 mb-6">
@@ -240,8 +232,6 @@ const ConsciousnessLeap = () => {
               )}
             </CardContent>
           </Card>
-        </main>
-      </div>
 
       {/* Application Detail Dialog */}
       <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
