@@ -17,10 +17,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Download, Inbox, Trash2, ChevronDown, ChevronUp, Mail, User, Calendar, Clock, CheckCircle2, Eye } from "lucide-react";
+import { Download, Inbox, Trash2, ChevronDown, ChevronUp, Mail, User, Calendar, Clock, CheckCircle2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { generateFormPDF } from "@/lib/pdfGenerator";
 
 interface FormSubmission {
   id: string;
@@ -402,6 +403,28 @@ const FormSubmissionsViewer = ({
                                   סמן כטופל
                                 </Button>
                               )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const formResponses = fields.map(field => ({
+                                    question: field.label,
+                                    answer: submission.responses[field.id] || "",
+                                  }));
+                                  await generateFormPDF(
+                                    form?.title || "טופס",
+                                    formResponses,
+                                    new Date(submission.submitted_at),
+                                    true
+                                  );
+                                  toast({ title: "PDF הורד בהצלחה!" });
+                                }}
+                                className="gap-2"
+                              >
+                                <FileText className="h-4 w-4" />
+                                הורד PDF
+                              </Button>
                             </div>
                             <Button
                               variant="ghost"
