@@ -16,6 +16,7 @@ import {
   SkipForward
 } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AudioData {
   title: string;
@@ -25,6 +26,7 @@ interface AudioData {
 }
 
 const AudioPlayer = () => {
+  const { t, isRTL } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -40,27 +42,26 @@ const AudioPlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
 
   useSEO({
-    title: audioData?.title || "הקלטה",
-    description: audioData?.description || "הקלטת היפנוזה מותאמת אישית",
+    title: audioData?.title || t('audioVideoPlayer.seoAudioTitle'),
+    description: audioData?.description || t('audioVideoPlayer.seoAudioDesc'),
   });
 
   useEffect(() => {
     const fetchAudio = async () => {
       if (!token) {
-        setError("קישור לא תקין");
+        setError(t('audioVideoPlayer.invalidLink'));
         setLoading(false);
         return;
       }
 
       try {
-        // Call the edge function to get audio data securely
         const { data, error: fnError } = await supabase.functions.invoke('get-audio-by-token', {
           body: { token }
         });
 
         if (fnError) {
           console.error("Edge function error:", fnError);
-          setError("שגיאה בטעינת ההקלטה");
+          setError(t('audioVideoPlayer.audioLoadError'));
           setLoading(false);
           return;
         }
@@ -74,14 +75,14 @@ const AudioPlayer = () => {
         setAudioData(data);
       } catch (err) {
         console.error("Error fetching audio:", err);
-        setError("שגיאה בטעינת ההקלטה");
+        setError(t('audioVideoPlayer.audioLoadError'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchAudio();
-  }, [token]);
+  }, [token, t]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -156,7 +157,7 @@ const AudioPlayer = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">טוען הקלטה...</p>
+          <p className="text-muted-foreground">{t('audioVideoPlayer.loadingAudio')}</p>
         </div>
       </div>
     );
@@ -167,16 +168,16 @@ const AudioPlayer = () => {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="max-w-md w-full text-center p-8">
           <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
-          <h1 className="text-xl font-bold mb-2">שגיאה</h1>
+          <h1 className="text-xl font-bold mb-2">{t('audioVideoPlayer.error')}</h1>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <Button onClick={() => navigate("/")}>חזרה לדף הבית</Button>
+          <Button onClick={() => navigate("/")}>{t('audioVideoPlayer.backHome')}</Button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="metadata" />
       
       <Card className="max-w-lg w-full overflow-hidden">
@@ -214,6 +215,7 @@ const AudioPlayer = () => {
               variant="ghost"
               onClick={() => skip(-15)}
               className="h-12 w-12"
+              aria-label="Skip back 15 seconds"
             >
               <SkipBack className="h-5 w-5" />
             </Button>
@@ -222,11 +224,12 @@ const AudioPlayer = () => {
               size="icon"
               onClick={togglePlay}
               className="h-16 w-16 rounded-full"
+              aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
                 <Pause className="h-8 w-8" />
               ) : (
-                <Play className="h-8 w-8 mr-[-2px]" />
+                <Play className={`h-8 w-8 ${isRTL ? 'ml-[-2px]' : 'mr-[-2px]'}`} />
               )}
             </Button>
             
@@ -235,6 +238,7 @@ const AudioPlayer = () => {
               variant="ghost"
               onClick={() => skip(15)}
               className="h-12 w-12"
+              aria-label="Skip forward 15 seconds"
             >
               <SkipForward className="h-5 w-5" />
             </Button>
@@ -242,7 +246,7 @@ const AudioPlayer = () => {
 
           {/* Volume control */}
           <div className="flex items-center gap-3">
-            <Button size="icon" variant="ghost" onClick={toggleMute}>
+            <Button size="icon" variant="ghost" onClick={toggleMute} aria-label={isMuted ? "Unmute" : "Mute"}>
               {isMuted ? (
                 <VolumeX className="h-5 w-5" />
               ) : (
@@ -260,7 +264,7 @@ const AudioPlayer = () => {
 
           {/* Tip */}
           <p className="text-center text-xs text-muted-foreground">
-            💡 מומלץ להאזין עם אוזניות במקום שקט
+            {t('audioVideoPlayer.audioTip')}
           </p>
         </CardContent>
       </Card>

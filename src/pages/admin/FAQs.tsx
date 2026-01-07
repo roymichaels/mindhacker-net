@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Edit, Trash2, ArrowUp, ArrowDown } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { z } from "zod";
 import { handleError } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FAQ {
   id: string;
@@ -21,26 +22,27 @@ interface FAQ {
   is_active: boolean;
 }
 
-const faqSchema = z.object({
-  question: z.string()
-    .trim()
-    .min(5, "שאלה חייבת להכיל לפחות 5 תווים")
-    .max(500, "שאלה ארוכה מדי"),
-  answer: z.string()
-    .trim()
-    .min(10, "תשובה חייבת להכיל לפחות 10 תווים")
-    .max(2000, "תשובה ארוכה מדי"),
-  is_active: z.boolean(),
-  order_index: z.number().int().nonnegative()
-});
-
 const FAQs = () => {
+  const { t, isRTL } = useTranslation();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [formData, setFormData] = useState({ question: "", answer: "", order_index: 0, is_active: true });
   const { toast } = useToast();
+
+  const faqSchema = z.object({
+    question: z.string()
+      .trim()
+      .min(5, t('adminFaqs.validationError'))
+      .max(500, t('adminFaqs.validationError')),
+    answer: z.string()
+      .trim()
+      .min(10, t('adminFaqs.validationError'))
+      .max(2000, t('adminFaqs.validationError')),
+    is_active: z.boolean(),
+    order_index: z.number().int().nonnegative()
+  });
 
   useEffect(() => {
     fetchFAQs();
@@ -56,19 +58,18 @@ const FAQs = () => {
       if (error) throw error;
       setFaqs(data || []);
     } catch (error: any) {
-      handleError(error, "לא ניתן לטעון את השאלות", "FAQs.fetchFAQs");
+      handleError(error, t('adminFaqs.loadError'), "FAQs.fetchFAQs");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSubmit = async () => {
-    // Validate form data
     const result = faqSchema.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
       toast({
-        title: "שגיאת אימות",
+        title: t('adminFaqs.validationError'),
         description: firstError.message,
         variant: "destructive",
       });
@@ -85,14 +86,14 @@ const FAQs = () => {
           .eq("id", editingFaq.id);
 
         if (error) throw error;
-        toast({ title: "השאלה עודכנה בהצלחה" });
+        toast({ title: t('adminFaqs.questionUpdated') });
       } else {
         const { error } = await supabase
           .from("faqs")
           .insert([{ ...formData, updated_by: user?.id }]);
 
         if (error) throw error;
-        toast({ title: "השאלה נוספה בהצלחה" });
+        toast({ title: t('adminFaqs.questionAdded') });
       }
 
       setDialogOpen(false);
@@ -100,7 +101,7 @@ const FAQs = () => {
       setFormData({ question: "", answer: "", order_index: 0, is_active: true });
       fetchFAQs();
     } catch (error: any) {
-      handleError(error, "לא ניתן לשמור את השאלה", "FAQs.handleSubmit");
+      handleError(error, t('adminFaqs.saveError'), "FAQs.handleSubmit");
     }
   };
 
@@ -108,10 +109,10 @@ const FAQs = () => {
     try {
       const { error } = await supabase.from("faqs").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "השאלה נמחקה בהצלחה" });
+      toast({ title: t('adminFaqs.questionDeleted') });
       fetchFAQs();
     } catch (error: any) {
-      handleError(error, "לא ניתן למחוק את השאלה", "FAQs.handleDelete");
+      handleError(error, t('adminFaqs.deleteError'), "FAQs.handleDelete");
     }
   };
 
@@ -132,7 +133,7 @@ const FAQs = () => {
       fetchFAQs();
     } catch (error: any) {
       toast({
-        title: "שגיאה בשינוי סדר",
+        title: t('adminFaqs.reorderError'),
         description: error.message,
         variant: "destructive",
       });
@@ -148,52 +149,53 @@ const FAQs = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black cyber-glow mb-2">שאלות נפוצות</h1>
-          <p className="text-muted-foreground">נהל את השאלות והתשובות באתר</p>
+          <h1 className="text-4xl font-black cyber-glow mb-2">{t('adminFaqs.pageTitle')}</h1>
+          <p className="text-muted-foreground">{t('adminFaqs.pageSubtitle')}</p>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => { setEditingFaq(null); setFormData({ question: "", answer: "", order_index: faqs.length, is_active: true }); }}>
-              <Plus className="ml-2 h-4 w-4" />
-              הוסף שאלה
+              <Plus className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+              {t('adminFaqs.addQuestion')}
             </Button>
           </DialogTrigger>
           <DialogContent className="glass-panel">
             <DialogHeader>
-              <DialogTitle>{editingFaq ? "ערוך שאלה" : "הוסף שאלה חדשה"}</DialogTitle>
+              <DialogTitle>{editingFaq ? t('adminFaqs.editQuestion') : t('adminFaqs.newQuestion')}</DialogTitle>
+              <DialogDescription>{t('adminFaqs.dialogDescription')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>שאלה</Label>
+                <Label>{t('adminFaqs.question')}</Label>
                 <Textarea
                   value={formData.question}
                   onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder="הכנס את השאלה..."
-                  className="text-right"
+                  placeholder={t('adminFaqs.enterQuestion')}
+                  className={isRTL ? "text-right" : "text-left"}
                 />
               </div>
               <div className="space-y-2">
-                <Label>תשובה</Label>
+                <Label>{t('adminFaqs.answer')}</Label>
                 <Textarea
                   value={formData.answer}
                   onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                  placeholder="הכנס את התשובה..."
-                  className="text-right min-h-32"
+                  placeholder={t('adminFaqs.enterAnswer')}
+                  className={isRTL ? "text-right min-h-32" : "text-left min-h-32"}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label>פעיל</Label>
+                <Label>{t('adminFaqs.active')}</Label>
                 <Switch
                   checked={formData.is_active}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                 />
               </div>
               <Button onClick={handleSubmit} className="w-full">
-                {editingFaq ? "עדכן" : "הוסף"}
+                {editingFaq ? t('adminFaqs.update') : t('adminFaqs.add')}
               </Button>
             </div>
           </DialogContent>
@@ -204,28 +206,29 @@ const FAQs = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-right">שאלה</TableHead>
-              <TableHead className="text-right">סטטוס</TableHead>
-              <TableHead className="text-right">סדר</TableHead>
-              <TableHead className="text-right">פעולות</TableHead>
+              <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.question')}</TableHead>
+              <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.status')}</TableHead>
+              <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.order')}</TableHead>
+              <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {faqs.map((faq, index) => (
               <TableRow key={faq.id}>
-                <TableCell className="text-right max-w-md truncate">{faq.question}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className={`${isRTL ? "text-right" : "text-left"} max-w-md truncate`}>{faq.question}</TableCell>
+                <TableCell className={isRTL ? "text-right" : "text-left"}>
                   <span className={`px-2 py-1 rounded-full text-xs ${faq.is_active ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'}`}>
-                    {faq.is_active ? 'פעיל' : 'לא פעיל'}
+                    {faq.is_active ? t('adminFaqs.active') : t('adminFaqs.inactive')}
                   </span>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className={isRTL ? "text-right" : "text-left"}>
                   <div className="flex gap-1">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleReorder(faq.id, "up")}
                       disabled={index === 0}
+                      aria-label="Move up"
                     >
                       <ArrowUp className="h-4 w-4" />
                     </Button>
@@ -234,12 +237,13 @@ const FAQs = () => {
                       variant="ghost"
                       onClick={() => handleReorder(faq.id, "down")}
                       disabled={index === faqs.length - 1}
+                      aria-label="Move down"
                     >
                       <ArrowDown className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className={isRTL ? "text-right" : "text-left"}>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -249,25 +253,26 @@ const FAQs = () => {
                         setFormData(faq);
                         setDialogOpen(true);
                       }}
+                      aria-label={t('adminFaqs.editQuestion')}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="ghost" className="text-destructive">
+                        <Button size="sm" variant="ghost" className="text-destructive" aria-label={t('common.delete')}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="glass-panel">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>למחוק שאלה זו?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('adminFaqs.deleteTitle')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            פעולה זו לא ניתנת לביטול. השאלה תימחק לצמיתות.
+                            {t('adminFaqs.deleteDescription')}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>ביטול</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(faq.id)}>מחק</AlertDialogAction>
+                          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(faq.id)}>{t('common.delete')}</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

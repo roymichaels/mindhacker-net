@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -105,6 +105,9 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
           <DialogTitle className="text-2xl font-black">
             {product ? t('admin.product.editTitle') : t('admin.product.newTitle')}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {product ? t('admin.product.editTitle') : t('admin.product.newTitle')}
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

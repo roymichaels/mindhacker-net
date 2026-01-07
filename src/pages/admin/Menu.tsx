@@ -8,9 +8,11 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2, GripVertical, Menu } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MenuItem {
   id: string;
@@ -23,9 +25,11 @@ interface MenuItem {
 }
 
 const MenuManagement = () => {
+  const { t, isRTL } = useTranslation();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     label: "",
     label_en: "",
@@ -62,11 +66,11 @@ const MenuManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["menu-items"] });
-      toast.success(editingItem ? "הפריט עודכן בהצלחה" : "הפריט נוסף בהצלחה");
+      toast.success(editingItem ? t('adminMenu.itemUpdated') : t('adminMenu.itemAdded'));
       resetForm();
     },
     onError: () => {
-      toast.error("שגיאה בשמירת הפריט");
+      toast.error(t('adminMenu.saveError'));
     },
   });
 
@@ -77,10 +81,11 @@ const MenuManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["menu-items"] });
-      toast.success("הפריט נמחק בהצלחה");
+      toast.success(t('adminMenu.itemDeleted'));
+      setDeleteId(null);
     },
     onError: () => {
-      toast.error("שגיאה במחיקת הפריט");
+      toast.error(t('adminMenu.deleteError'));
     },
   });
 
@@ -129,37 +134,37 @@ const MenuManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">ניהול תפריט</h1>
-          <p className="text-muted-foreground">ניהול פריטי התפריט הראשי של האתר</p>
+          <h1 className="text-2xl font-bold">{t('adminMenu.pageTitle')}</h1>
+          <p className="text-muted-foreground">{t('adminMenu.pageSubtitle')}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
-              <Plus className="h-4 w-4 ml-2" />
-              הוסף פריט
+              <Plus className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('adminMenu.addItem')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingItem ? "עריכת פריט" : "הוספת פריט חדש"}</DialogTitle>
-              <DialogDescription className="sr-only">עריכת פריט בתפריט</DialogDescription>
+              <DialogTitle>{editingItem ? t('adminMenu.editItem') : t('adminMenu.newItem')}</DialogTitle>
+              <DialogDescription>{t('adminMenu.dialogDescription')}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="label">שם הפריט (עברית)</Label>
+                <Label htmlFor="label">{t('adminMenu.labelHe')}</Label>
                 <Input
                   id="label"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                  placeholder="לדוגמה: אודות"
+                  placeholder={isRTL ? "לדוגמה: אודות" : "e.g., About"}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="label_en">שם הפריט (אנגלית)</Label>
+                <Label htmlFor="label_en">{t('adminMenu.labelEn')}</Label>
                 <Input
                   id="label_en"
                   value={formData.label_en}
@@ -169,7 +174,7 @@ const MenuManagement = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="action_type">סוג פעולה</Label>
+                <Label htmlFor="action_type">{t('adminMenu.actionType')}</Label>
                 <Select
                   value={formData.action_type}
                   onValueChange={(value) => setFormData({ ...formData, action_type: value })}
@@ -178,25 +183,25 @@ const MenuManagement = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="scroll">גלילה לסקשן</SelectItem>
-                    <SelectItem value="navigate">ניווט לעמוד</SelectItem>
+                    <SelectItem value="scroll">{t('adminMenu.scrollToSection')}</SelectItem>
+                    <SelectItem value="navigate">{t('adminMenu.navigateToPage')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="action_value">
-                  {formData.action_type === "scroll" ? "מזהה סקשן" : "נתיב העמוד"}
+                  {formData.action_type === "scroll" ? t('adminMenu.sectionId') : t('adminMenu.pagePath')}
                 </Label>
                 <Input
                   id="action_value"
                   value={formData.action_value}
                   onChange={(e) => setFormData({ ...formData, action_value: e.target.value })}
-                  placeholder={formData.action_type === "scroll" ? "לדוגמה: about" : "לדוגמה: /courses"}
+                  placeholder={formData.action_type === "scroll" ? "about" : "/courses"}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="order_index">סדר תצוגה</Label>
+                <Label htmlFor="order_index">{t('adminMenu.orderIndex')}</Label>
                 <Input
                   id="order_index"
                   type="number"
@@ -210,14 +215,14 @@ const MenuManagement = () => {
                   checked={formData.is_visible}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_visible: checked })}
                 />
-                <Label htmlFor="is_visible">הצג בתפריט</Label>
+                <Label htmlFor="is_visible">{t('adminMenu.showInMenu')}</Label>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={resetForm}>
-                  ביטול
+                  {t('adminMenu.cancel')}
                 </Button>
                 <Button type="submit" disabled={saveMutation.isPending}>
-                  {saveMutation.isPending ? "שומר..." : "שמור"}
+                  {saveMutation.isPending ? t('adminMenu.saving') : t('adminMenu.save')}
                 </Button>
               </div>
             </form>
@@ -229,29 +234,29 @@ const MenuManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Menu className="h-5 w-5" />
-            פריטי תפריט
+            {t('adminMenu.menuItems')}
           </CardTitle>
           <CardDescription>
-            הפריטים מוצגים לפי סדר התצוגה. ניתן לערוך, להסתיר או למחוק כל פריט.
+            {t('adminMenu.menuItemsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">טוען...</div>
+            <div className="text-center py-8 text-muted-foreground">{t('adminMenu.loading')}</div>
           ) : !menuItems?.length ? (
-            <div className="text-center py-8 text-muted-foreground">אין פריטי תפריט</div>
+            <div className="text-center py-8 text-muted-foreground">{t('adminMenu.noItems')}</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12"></TableHead>
-                  <TableHead>שם (עברית)</TableHead>
-                  <TableHead>שם (אנגלית)</TableHead>
-                  <TableHead>סוג</TableHead>
-                  <TableHead>ערך</TableHead>
-                  <TableHead>סדר</TableHead>
-                  <TableHead>מוצג</TableHead>
-                  <TableHead className="w-24">פעולות</TableHead>
+                  <TableHead>{t('adminMenu.nameHe')}</TableHead>
+                  <TableHead>{t('adminMenu.nameEn')}</TableHead>
+                  <TableHead>{t('adminMenu.type')}</TableHead>
+                  <TableHead>{t('adminMenu.value')}</TableHead>
+                  <TableHead>{t('adminMenu.order')}</TableHead>
+                  <TableHead>{t('adminMenu.visible')}</TableHead>
+                  <TableHead className="w-24">{t('adminMenu.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -263,7 +268,7 @@ const MenuManagement = () => {
                     <TableCell className="font-medium">{item.label}</TableCell>
                     <TableCell className="text-muted-foreground">{item.label_en || "-"}</TableCell>
                     <TableCell>
-                      {item.action_type === "scroll" ? "גלילה" : "ניווט"}
+                      {item.action_type === "scroll" ? t('adminMenu.scroll') : t('adminMenu.navigate')}
                     </TableCell>
                     <TableCell className="font-mono text-sm">{item.action_value}</TableCell>
                     <TableCell>{item.order_index}</TableCell>
@@ -281,17 +286,15 @@ const MenuManagement = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => openEditDialog(item)}
+                          aria-label={t('common.edit')}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            if (confirm("האם למחוק את הפריט?")) {
-                              deleteMutation.mutate(item.id);
-                            }
-                          }}
+                          onClick={() => setDeleteId(item.id)}
+                          aria-label={t('common.delete')}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -304,6 +307,24 @@ const MenuManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('adminMenu.deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('adminMenu.deleteDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteId && deleteMutation.mutate(deleteId)}>
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
