@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pencil, Eye, EyeOff, Layout } from "lucide-react";
+import { Pencil, Layout } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HomepageSection {
   id: string;
@@ -27,6 +28,7 @@ interface HomepageSection {
 }
 
 const HomepageSections = () => {
+  const { t, isRTL } = useTranslation();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<HomepageSection | null>(null);
@@ -61,11 +63,11 @@ const HomepageSections = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
-      toast.success("הסקשן עודכן בהצלחה");
+      toast.success(t('adminHomepage.sectionUpdated'));
       setIsDialogOpen(false);
     },
     onError: () => {
-      toast.error("שגיאה בעדכון הסקשן");
+      toast.error(t('adminHomepage.updateError'));
     },
   });
 
@@ -79,7 +81,7 @@ const HomepageSections = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
-      toast.success("הנראות עודכנה");
+      toast.success(t('adminHomepage.visibilityUpdated'));
     },
   });
 
@@ -108,48 +110,48 @@ const HomepageSections = () => {
 
   const getSectionLabel = (key: string) => {
     const labels: Record<string, string> = {
-      what: "מה זה היפנוזה",
-      how: "איך זה עובד",
-      about: "אודות",
-      booking: "הזמנה / מחירון",
-      testimonials: "המלצות",
-      faq: "שאלות נפוצות",
+      what: t('adminHomepage.sectionWhat'),
+      how: t('adminHomepage.sectionHow'),
+      about: t('adminHomepage.sectionAbout'),
+      booking: t('adminHomepage.sectionBooking'),
+      testimonials: t('adminHomepage.sectionTestimonials'),
+      faq: t('adminHomepage.sectionFaq'),
     };
     return labels[key] || key;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div>
-        <h1 className="text-2xl font-bold">ניהול סקשנים בעמוד הבית</h1>
-        <p className="text-muted-foreground">עריכת כותרות ותוכן הסקשנים בעמוד הראשי</p>
+        <h1 className="text-2xl font-bold">{t('adminHomepage.pageTitle')}</h1>
+        <p className="text-muted-foreground">{t('adminHomepage.pageSubtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Layout className="h-5 w-5" />
-            סקשנים בעמוד הבית
+            {t('adminHomepage.cardTitle')}
           </CardTitle>
           <CardDescription>
-            ערוך את הכותרות, תתי-כותרות והתוכן של כל סקשן. התוכן תומך בעברית ואנגלית.
+            {t('adminHomepage.cardDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">טוען...</div>
+            <div className="text-center py-8 text-muted-foreground">{t('adminHomepage.loading')}</div>
           ) : !sections?.length ? (
-            <div className="text-center py-8 text-muted-foreground">אין סקשנים</div>
+            <div className="text-center py-8 text-muted-foreground">{t('adminHomepage.noSections')}</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>סקשן</TableHead>
-                  <TableHead>כותרת (עברית)</TableHead>
-                  <TableHead>כותרת (אנגלית)</TableHead>
-                  <TableHead>סדר</TableHead>
-                  <TableHead>נראות</TableHead>
-                  <TableHead className="w-24">פעולות</TableHead>
+                  <TableHead>{t('adminHomepage.section')}</TableHead>
+                  <TableHead>{t('adminHomepage.titleHe')}</TableHead>
+                  <TableHead>{t('adminHomepage.titleEn')}</TableHead>
+                  <TableHead>{t('adminHomepage.order')}</TableHead>
+                  <TableHead>{t('adminHomepage.visibility')}</TableHead>
+                  <TableHead className="w-24">{t('adminHomepage.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -172,6 +174,7 @@ const HomepageSections = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => openEditDialog(section)}
+                        aria-label={t('common.edit')}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -188,39 +191,40 @@ const HomepageSections = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              עריכת סקשן: {editingSection ? getSectionLabel(editingSection.section_key) : ""}
+              {t('adminHomepage.editSection')} {editingSection ? getSectionLabel(editingSection.section_key) : ""}
             </DialogTitle>
+            <DialogDescription>{t('adminHomepage.editDescription')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             <Tabs defaultValue="hebrew" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="hebrew">עברית</TabsTrigger>
-                <TabsTrigger value="english">English</TabsTrigger>
+                <TabsTrigger value="hebrew">{t('adminHomepage.tabHebrew')}</TabsTrigger>
+                <TabsTrigger value="english">{t('adminHomepage.tabEnglish')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="hebrew" className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label>כותרת (עברית)</Label>
+                  <Label>{t('adminHomepage.sectionTitle')}</Label>
                   <Input
                     value={formData.title_he}
                     onChange={(e) => setFormData({ ...formData, title_he: e.target.value })}
-                    placeholder="כותרת הסקשן"
+                    placeholder={t('adminHomepage.sectionTitle')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>תת-כותרת (עברית)</Label>
+                  <Label>{t('adminHomepage.subtitle')}</Label>
                   <Input
                     value={formData.subtitle_he}
                     onChange={(e) => setFormData({ ...formData, subtitle_he: e.target.value })}
-                    placeholder="תת-כותרת"
+                    placeholder={t('adminHomepage.subtitlePlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>תוכן (עברית)</Label>
+                  <Label>{t('adminHomepage.content')}</Label>
                   <Textarea
                     value={formData.content_he}
                     onChange={(e) => setFormData({ ...formData, content_he: e.target.value })}
-                    placeholder="תוכן נוסף (אופציונלי)"
+                    placeholder={t('adminHomepage.contentPlaceholder')}
                     rows={4}
                   />
                 </div>
@@ -260,10 +264,10 @@ const HomepageSections = () => {
 
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                ביטול
+                {t('adminHomepage.cancel')}
               </Button>
               <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? "שומר..." : "שמור"}
+                {updateMutation.isPending ? t('adminHomepage.saving') : t('adminHomepage.save')}
               </Button>
             </div>
           </form>

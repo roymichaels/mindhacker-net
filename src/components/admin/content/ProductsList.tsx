@@ -8,7 +8,7 @@ import { Edit, Trash2, FolderOpen, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import SeriesManager from "./SeriesManager";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface ProductsListProps {
   products: any[];
@@ -153,6 +153,10 @@ const ProductsList = ({ products, onEdit }: ProductsListProps) => {
 
       <Dialog open={!!selectedProductId} onOpenChange={() => setSelectedProductId(null)}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>ניהול סדרות</DialogTitle>
+            <DialogDescription>ניהול סדרות ופרקים</DialogDescription>
+          </DialogHeader>
           {selectedProductId && (
             <SeriesManager productId={selectedProductId} />
           )}
