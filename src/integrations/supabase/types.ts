@@ -1523,6 +1523,10 @@ export type Database = {
         | "new_testimonial"
         | "new_faq_needed"
         | "system_alert"
+        | "new_form_submission"
+        | "new_consciousness_leap_application"
+        | "new_personal_hypnosis_order"
+        | "new_lead"
       subscription_status:
         | "active"
         | "cancelled"
@@ -1677,6 +1681,10 @@ export const Constants = {
         "new_testimonial",
         "new_faq_needed",
         "system_alert",
+        "new_form_submission",
+        "new_consciousness_leap_application",
+        "new_personal_hypnosis_order",
+        "new_lead",
       ],
       subscription_status: [
         "active",
