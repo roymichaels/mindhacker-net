@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { trackCTAClick } from "@/hooks/useAnalytics";
 
 const FloatingCTA = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,6 +19,7 @@ const FloatingCTA = () => {
   }, []);
 
   const scrollToFreeCall = () => {
+    trackCTAClick("floating_cta", "#free-call");
     document.getElementById("free-call")?.scrollIntoView({ behavior: "smooth" });
   };
 

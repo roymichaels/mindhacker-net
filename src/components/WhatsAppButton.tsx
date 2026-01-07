@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { trackWhatsAppClick } from "@/hooks/useAnalytics";
 
 const WhatsAppButton = () => {
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -36,6 +37,8 @@ const WhatsAppButton = () => {
   const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodeURIComponent(message)}`;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Track analytics
+    trackWhatsAppClick();
     // Use window.open to avoid iframe navigation issues and always open a new tab
     e.preventDefault();
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");

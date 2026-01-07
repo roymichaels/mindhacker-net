@@ -8,6 +8,7 @@ import { Loader2, CheckCircle, Phone, User, Mail, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { debug } from "@/lib/debug";
+import { trackFormView, trackFormStart, trackFormSubmit } from "@/hooks/useAnalytics";
 
 interface LeadCaptureFormProps {
   source: string;
@@ -40,10 +41,13 @@ const LeadCaptureForm = ({
   
   // Track when form was rendered to detect too-fast submissions
   const formLoadTime = useRef<number>(Date.now());
+  const hasStartedFilling = useRef(false);
   
   useEffect(() => {
     formLoadTime.current = Date.now();
-  }, []);
+    // Track form view when component mounts
+    trackFormView(source);
+  }, [source]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +113,7 @@ const LeadCaptureForm = ({
       }
 
       setIsSuccess(true);
+      trackFormSubmit(source, true, { email: !!email.trim() });
       toast({
         title: t('leadForm.successSent'),
         description: t('leadForm.willCallBack'),
@@ -127,6 +132,7 @@ const LeadCaptureForm = ({
 
     } catch (error) {
       console.error("Error submitting lead:", error);
+      trackFormSubmit(source, false);
       toast({
         title: t('leadForm.error'),
         description: t('leadForm.somethingWrong'),
@@ -195,6 +201,12 @@ const LeadCaptureForm = ({
               placeholder={t('leadForm.yourName')}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onFocus={() => {
+                if (!hasStartedFilling.current) {
+                  hasStartedFilling.current = true;
+                  trackFormStart(source);
+                }
+              }}
               className={`${inputPadding} bg-background/50 border-border/50 focus:border-primary`}
               required
               disabled={isSubmitting}

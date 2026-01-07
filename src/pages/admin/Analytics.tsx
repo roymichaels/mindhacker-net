@@ -29,6 +29,7 @@ import { format, startOfMonth, subMonths } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EngagementMetrics } from "@/components/admin/analytics/EngagementMetrics";
 import { RealTimeActivity } from "@/components/admin/analytics/RealTimeActivity";
+import ConversionMetrics from "@/components/admin/analytics/ConversionMetrics";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getCurrencySymbol } from "@/lib/currency";
 

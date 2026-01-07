@@ -10,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import LeadCaptureForm from "./LeadCaptureForm";
 import { useTranslation } from "@/hooks/useTranslation";
+import { trackExitIntent, trackDialogOpen, trackDialogClose } from "@/hooks/useAnalytics";
 
 const ExitIntentPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,6 +43,8 @@ const ExitIntentPopup = () => {
     const handleMouseLeave = (e: MouseEvent) => {
       // Only trigger when mouse leaves through the top of the page
       if (e.clientY <= 0 && !hasShown) {
+        trackExitIntent();
+        trackDialogOpen("exit_popup");
         setIsOpen(true);
         setHasShown(true);
         sessionStorage.setItem("exitIntentShown", "true");
@@ -63,8 +66,15 @@ const ExitIntentPopup = () => {
     setIsOpen(false);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      trackDialogClose("exit_popup");
+    }
+    setIsOpen(open);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md border-primary/30 bg-background/95 backdrop-blur-xl" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader className="text-center pt-4">
           <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center overflow-hidden ring-4 ring-primary/20">
