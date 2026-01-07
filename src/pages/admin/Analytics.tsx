@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,13 +25,17 @@ import {
   Legend
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { format, startOfMonth, subMonths } from "date-fns";
+import { format, startOfMonth, subMonths, subDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EngagementMetrics } from "@/components/admin/analytics/EngagementMetrics";
 import { RealTimeActivity } from "@/components/admin/analytics/RealTimeActivity";
 import ConversionMetrics from "@/components/admin/analytics/ConversionMetrics";
+import PagePerformance from "@/components/admin/analytics/PagePerformance";
+import UserJourney from "@/components/admin/analytics/UserJourney";
+import DateRangePicker, { DateRange } from "@/components/admin/analytics/DateRangePicker";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getCurrencySymbol } from "@/lib/currency";
+import { toast } from "sonner";
 
 interface AnalyticsStats {
   totalEnrollments: number;
@@ -70,6 +74,7 @@ interface CourseCompletion {
 
 const Analytics = () => {
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange>("30d");
   const [stats, setStats] = useState<AnalyticsStats>({
     totalEnrollments: 0,
     totalRevenue: 0,
@@ -86,6 +91,16 @@ const Analytics = () => {
 
   useEffect(() => {
     fetchAnalytics();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setLoading(true);
+    fetchAnalytics();
+    toast.success("נתונים עודכנו");
+  }, []);
+
+  const handleExport = useCallback((format: "csv" | "pdf") => {
+    toast.success(`ייצוא ל-${format.toUpperCase()} יתחיל בקרוב`);
   }, []);
 
   const fetchAnalytics = async () => {
@@ -277,9 +292,18 @@ const Analytics = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">{t('adminAnalytics.pageTitle')}</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">{t('adminAnalytics.pageSubtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">{t('adminAnalytics.pageTitle')}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{t('adminAnalytics.pageSubtitle')}</p>
+        </div>
+        <DateRangePicker
+          selectedRange={dateRange}
+          onRangeChange={setDateRange}
+          onRefresh={handleRefresh}
+          onExport={handleExport}
+          isLoading={loading}
+        />
       </div>
 
       {/* Stats Cards */}
@@ -333,11 +357,12 @@ const Analytics = () => {
         <div className="overflow-x-auto pb-2">
           <TabsList className="inline-flex min-w-full sm:w-auto">
             <TabsTrigger value="conversions" className="text-xs sm:text-sm whitespace-nowrap">המרות</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm whitespace-nowrap">ביצועים</TabsTrigger>
+            <TabsTrigger value="journey" className="text-xs sm:text-sm whitespace-nowrap">מסע משתמש</TabsTrigger>
             <TabsTrigger value="realtime" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabRealtime')}</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabTrends')}</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabEngagement')}</TabsTrigger>
             <TabsTrigger value="courses" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabCourses')}</TabsTrigger>
-            <TabsTrigger value="completions" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabCompletions')}</TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabActivity')}</TabsTrigger>
           </TabsList>
         </div>
@@ -345,6 +370,16 @@ const Analytics = () => {
         {/* Conversion Metrics */}
         <TabsContent value="conversions">
           <ConversionMetrics />
+        </TabsContent>
+
+        {/* Page Performance */}
+        <TabsContent value="performance">
+          <PagePerformance />
+        </TabsContent>
+
+        {/* User Journey */}
+        <TabsContent value="journey">
+          <UserJourney />
         </TabsContent>
 
         {/* Real-Time Activity */}
