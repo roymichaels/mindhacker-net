@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { FileUpload } from "../FileUpload";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface ProductDialogProps {
 
 const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   
   const form = useForm({
@@ -82,14 +84,14 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
       toast({
-        title: product ? "המוצר עודכן בהצלחה" : "המוצר נוצר בהצלחה",
+        title: product ? t('admin.product.updated') : t('admin.product.created'),
       });
       onOpenChange(false);
       form.reset();
     },
     onError: (error) => {
       toast({
-        title: "שגיאה",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -101,7 +103,7 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black">
-            {product ? "עריכת מוצר" : "יצירת מוצר חדש"}
+            {product ? t('admin.product.editTitle') : t('admin.product.newTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -110,7 +112,7 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
             <FormField
               control={form.control}
               name="title"
-              rules={{ required: "שדה חובה" }}
+              rules={{ required: t('validation.fillField') }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>כותרת</FormLabel>
@@ -125,7 +127,7 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
             <FormField
               control={form.control}
               name="slug"
-              rules={{ required: "שדה חובה" }}
+              rules={{ required: t('validation.fillField') }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Slug (באנגלית)</FormLabel>
@@ -336,10 +338,10 @@ const ProductDialog = ({ open, onOpenChange, product }: ProductDialogProps) => {
 
             <div className="flex gap-2 justify-end pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                ביטול
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "שומר..." : product ? "עדכן" : "צור"}
+                {mutation.isPending ? t('common.loading') : product ? t('common.save') : t('common.add')}
               </Button>
             </div>
           </form>

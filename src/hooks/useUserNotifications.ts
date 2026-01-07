@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleError } from "@/lib/errorHandling";
+import { debug } from "@/lib/debug";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface UserNotification {
   id: string;
@@ -26,9 +28,9 @@ const sendPushNotification = async (userId: string, title: string, body: string,
         url: url || '/dashboard'
       }
     });
-    console.log('Push notification sent successfully');
+    debug.log('Push notification sent successfully');
   } catch (error) {
-    console.error('Failed to send push notification:', error);
+    debug.error('Failed to send push notification:', error);
   }
 };
 
@@ -45,6 +47,7 @@ const updateAppBadge = (count: number) => {
 };
 
 export const useUserNotifications = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -71,7 +74,7 @@ export const useUserNotifications = () => {
       setUnreadCount(newUnreadCount);
       updateAppBadge(newUnreadCount);
     } catch (error) {
-      handleError(error, "שגיאה בטעינת התראות", "useUserNotifications");
+      handleError(error, t('messages.notificationLoadError'), "useUserNotifications", t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -101,7 +104,7 @@ export const useUserNotifications = () => {
         return newCount;
       });
     } catch (error) {
-      handleError(error, "שגיאה בסימון התראה כנקראה", "useUserNotifications");
+      handleError(error, t('messages.notificationMarkError'), "useUserNotifications", t('common.error'));
     }
   };
 
@@ -124,7 +127,7 @@ export const useUserNotifications = () => {
       setUnreadCount(0);
       updateAppBadge(0);
     } catch (error) {
-      handleError(error, "שגיאה בסימון כל ההתראות כנקראות", "useUserNotifications");
+      handleError(error, t('messages.notificationMarkAllError'), "useUserNotifications", t('common.error'));
     }
   };
 
@@ -155,7 +158,7 @@ export const useUserNotifications = () => {
             // Trigger push notification for ALL notification types
             // This sends push to the user's devices when they receive any notification
             if (user) {
-              console.log('Sending push notification for:', newNotification.type, newNotification.title);
+              debug.log('Sending push notification for:', newNotification.type, newNotification.title);
               sendPushNotification(
                 user.id,
                 newNotification.title,

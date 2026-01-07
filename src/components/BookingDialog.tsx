@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
 import BookingCalendar from "./BookingCalendar";
 
 interface BookingDialogProps {
@@ -13,6 +14,7 @@ interface BookingDialogProps {
 }
 
 const BookingDialog = ({ isOpen, onClose, purchaseId, onBookingSuccess }: BookingDialogProps) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBookingSubmit = async (date: Date | undefined, time: string, notes: string) => {
@@ -35,14 +37,14 @@ const BookingDialog = ({ isOpen, onClose, purchaseId, onBookingSuccess }: Bookin
       if (error) throw error;
 
       toast({
-        title: "🎉 בקשת הפגישה נשלחה בהצלחה!",
-        description: "נחזור אליך בהקדם עם אישור",
+        title: t('success.bookingRequestSuccess'),
+        description: t('success.bookingRequestDesc'),
       });
 
       onBookingSuccess?.();
       onClose();
     } catch (error) {
-      handleError(error, "שגיאה בשליחת בקשת הפגישה", "BookingDialog");
+      handleError(error, t('messages.bookingError'), "BookingDialog", t('common.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -53,10 +55,10 @@ const BookingDialog = ({ isOpen, onClose, purchaseId, onBookingSuccess }: Bookin
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl cyber-glow text-center">
-            קבע את הפגישה שלך
+            {t('success.scheduleSession')}
           </DialogTitle>
           <DialogDescription className="text-center text-base">
-            הצעד הראשון לשינוי כבר נעשה. עכשיו בוא נקבע את הפגישה שתשנה הכל.
+            {t('success.firstStep')}
           </DialogDescription>
         </DialogHeader>
 

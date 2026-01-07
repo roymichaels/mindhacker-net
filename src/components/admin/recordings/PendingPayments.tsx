@@ -8,6 +8,7 @@ import { Loader2, CreditCard, User, Calendar, CheckCircle2, XCircle } from "luci
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ interface PendingPayment {
 }
 
 export const PendingPayments = () => {
+  const { t, language } = useTranslation();
   const queryClient = useQueryClient();
   const [confirmDialog, setConfirmDialog] = useState<{ order: PendingPayment; action: 'approve' | 'reject' } | null>(null);
 
@@ -84,14 +86,14 @@ export const PendingPayments = () => {
       queryClient.invalidateQueries({ queryKey: ["pending-payments"] });
       queryClient.invalidateQueries({ queryKey: ["pending-audio-orders"] });
       toast({
-        title: "התשלום אושר",
+        title: t('admin.paymentApproved'),
         description: "ההזמנה הועברה לטיפול - יש להקצות סרטון",
       });
       setConfirmDialog(null);
     },
     onError: (error: Error) => {
       toast({
-        title: "שגיאה",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -110,14 +112,14 @@ export const PendingPayments = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-payments"] });
       toast({
-        title: "ההזמנה בוטלה",
+        title: t('admin.orderCancelled'),
         description: "ההזמנה סומנה כמבוטלת",
       });
       setConfirmDialog(null);
     },
     onError: (error: Error) => {
       toast({
-        title: "שגיאה",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -166,7 +168,7 @@ export const PendingPayments = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <User className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">
-                        {order.profiles?.full_name || "משתמש ללא שם"}
+                        {order.profiles?.full_name || t('common.unknown')}
                       </span>
                       <Badge variant="outline" className="text-amber-500 border-amber-500/50">
                         ממתין לתשלום
@@ -178,7 +180,7 @@ export const PendingPayments = () => {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(order.purchase_date), "dd/MM/yyyy HH:mm", { locale: he })}
+                        {format(new Date(order.purchase_date), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
                       </span>
                       <span className="font-bold text-primary">₪{order.price_paid}</span>
                     </div>
@@ -192,7 +194,7 @@ export const PendingPayments = () => {
                     onClick={() => setConfirmDialog({ order, action: 'reject' })}
                   >
                     <XCircle className="h-4 w-4 ml-1" />
-                    בטל
+                    {t('common.cancel')}
                   </Button>
                   <Button 
                     size="sm"
@@ -217,13 +219,13 @@ export const PendingPayments = () => {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog?.action === 'approve' 
-                ? `האם לאשר את התשלום עבור ${confirmDialog?.order.profiles?.full_name || 'המשתמש'}? לאחר האישור ההזמנה תעבור לטיפול.`
-                : `האם לבטל את ההזמנה של ${confirmDialog?.order.profiles?.full_name || 'המשתמש'}?`
+                ? `האם לאשר את התשלום עבור ${confirmDialog?.order.profiles?.full_name || t('common.unknown')}? לאחר האישור ההזמנה תעבור לטיפול.`
+                : `האם לבטל את ההזמנה של ${confirmDialog?.order.profiles?.full_name || t('common.unknown')}?`
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (confirmDialog?.action === 'approve') {
