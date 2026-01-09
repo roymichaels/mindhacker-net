@@ -32,6 +32,7 @@ import { RealTimeActivity } from "@/components/admin/analytics/RealTimeActivity"
 import ConversionMetrics from "@/components/admin/analytics/ConversionMetrics";
 import PagePerformance from "@/components/admin/analytics/PagePerformance";
 import UserJourney from "@/components/admin/analytics/UserJourney";
+import VideoAnalytics from "@/components/admin/analytics/VideoAnalytics";
 import DateRangePicker, { DateRange } from "@/components/admin/analytics/DateRangePicker";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getCurrencySymbol } from "@/lib/currency";
@@ -356,9 +357,10 @@ const Analytics = () => {
       <Tabs defaultValue="conversions" className="space-y-4">
         <div className="overflow-x-auto pb-2">
           <TabsList className="inline-flex min-w-full sm:w-auto">
-            <TabsTrigger value="conversions" className="text-xs sm:text-sm whitespace-nowrap">המרות</TabsTrigger>
-            <TabsTrigger value="performance" className="text-xs sm:text-sm whitespace-nowrap">ביצועים</TabsTrigger>
-            <TabsTrigger value="journey" className="text-xs sm:text-sm whitespace-nowrap">מסע משתמש</TabsTrigger>
+            <TabsTrigger value="conversions" className="text-xs sm:text-sm whitespace-nowrap">{t('analytics.conversions')}</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm whitespace-nowrap">{t('analytics.performance')}</TabsTrigger>
+            <TabsTrigger value="journey" className="text-xs sm:text-sm whitespace-nowrap">{t('analytics.userJourney')}</TabsTrigger>
+            <TabsTrigger value="video" className="text-xs sm:text-sm whitespace-nowrap">{t('analytics.videoTab')}</TabsTrigger>
             <TabsTrigger value="realtime" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabRealtime')}</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabTrends')}</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs sm:text-sm whitespace-nowrap">{t('adminAnalytics.tabEngagement')}</TabsTrigger>
@@ -380,6 +382,11 @@ const Analytics = () => {
         {/* User Journey */}
         <TabsContent value="journey">
           <UserJourney />
+        </TabsContent>
+
+        {/* Video Analytics */}
+        <TabsContent value="video">
+          <VideoAnalytics dateRange={dateRange} />
         </TabsContent>
 
         {/* Real-Time Activity */}
