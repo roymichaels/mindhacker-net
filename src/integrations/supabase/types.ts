@@ -56,6 +56,30 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_reports: {
+        Row: {
+          created_at: string | null
+          id: string
+          report_data: Json
+          report_date: string
+          sent_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          report_data?: Json
+          report_date: string
+          sent_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          report_data?: Json
+          report_date?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
       consciousness_leap_applications: {
         Row: {
           admin_notes: string | null
