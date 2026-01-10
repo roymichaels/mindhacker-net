@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, BarChart3, Bell, Mail, Menu, Headphones, Sparkles, FileEdit, Layout } from "lucide-react";
+import { Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, BarChart3, Bell, Mail, Menu, Headphones, Sparkles, FileEdit, Layout, Newspaper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +32,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
     { to: "/admin/content", icon: Library, label: t('admin.content') },
     { to: "/admin/recordings", icon: Headphones, label: t('admin.recordings') },
     { to: "/admin/forms", icon: FileEdit, label: t('admin.forms') },
+    { to: "/admin/newsletter", icon: Newspaper, label: t('admin.newsletter') },
     { to: "/admin/users", icon: Users, label: t('admin.users') },
     { to: "/admin/purchases", icon: ShoppingBag, label: t('admin.purchases') },
     { to: "/admin/leads", icon: Mail, label: t('admin.leads') },
