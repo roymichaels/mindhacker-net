@@ -47,6 +47,7 @@ const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLan
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
 const Forms = lazy(() => import("./pages/admin/Forms"));
+const Newsletter = lazy(() => import("./pages/admin/Newsletter"));
 const FormView = lazy(() => import("./pages/FormView"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -135,6 +136,7 @@ const App = () => (
               <Route path="recordings" element={<Recordings />} />
               <Route path="consciousness-leap" element={<ConsciousnessLeap />} />
               <Route path="forms" element={<Forms />} />
+              <Route path="newsletter" element={<Newsletter />} />
               <Route path="homepage" element={<HomepageSections />} />
             </Route>
 
