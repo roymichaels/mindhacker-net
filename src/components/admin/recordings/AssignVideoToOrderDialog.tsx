@@ -46,7 +46,7 @@ export const AssignVideoToOrderDialog = ({
   onOpenChange,
   order,
 }: AssignVideoToOrderDialogProps) => {
-  const { t, language } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
@@ -67,7 +67,7 @@ export const AssignVideoToOrderDialog = ({
   // Assign video mutation
   const assignMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedVideoId) throw new Error("נא לבחור סרטון");
+      if (!selectedVideoId) throw new Error(t('admin.recordingsPage.selectVideoRequired'));
 
       // Create video access record
       const { error: accessError } = await supabase
@@ -92,11 +92,16 @@ export const AssignVideoToOrderDialog = ({
       if (orderError) throw orderError;
 
       // Create user notification
+      const notificationTitle = language === 'he' ? 'הסרטון שלך מוכן!' : 'Your video is ready!';
+      const notificationMessage = language === 'he' 
+        ? 'סרטון האימון התודעתי האישי שלך מוכן לצפייה. לחץ כדי לצפות.'
+        : 'Your personal consciousness coaching video is ready to watch. Click to view.';
+      
       await supabase.rpc('create_user_notification', {
         p_user_id: order.user_id,
         p_type: 'video_ready',
-        p_title: 'הסרטון שלך מוכן!',
-        p_message: 'סרטון האימון התודעתי האישי שלך מוכן לצפייה. לחץ כדי לצפות.',
+        p_title: notificationTitle,
+        p_message: notificationMessage,
         p_link: '/dashboard',
       });
     },
@@ -105,7 +110,7 @@ export const AssignVideoToOrderDialog = ({
       queryClient.invalidateQueries({ queryKey: ["hypnosis-videos"] });
       toast({
         title: t('common.success'),
-        description: "הסרטון הוקצה בהצלחה והמשתמש קיבל התראה",
+        description: t('admin.recordingsPage.videoAssigned'),
       });
       onOpenChange(false);
     },
@@ -127,11 +132,11 @@ export const AssignVideoToOrderDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent dir={isRTL ? 'rtl' : 'ltr'} className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>הקצה סרטון להזמנה</DialogTitle>
+          <DialogTitle>{t('admin.recordingsPage.assignVideoTitle')}</DialogTitle>
           <DialogDescription>
-            בחר סרטון עבור {order.profiles?.full_name || "המשתמש"}
+            {t('admin.recordingsPage.assignVideoDescription')} {order.profiles?.full_name || t('common.unknown')}
           </DialogDescription>
         </DialogHeader>
 
@@ -155,7 +160,7 @@ export const AssignVideoToOrderDialog = ({
 
         {/* Video Selection */}
         <div className="flex-1 overflow-y-auto space-y-3">
-          <Label>בחר סרטון:</Label>
+          <Label>{t('admin.recordingsPage.selectVideo')}</Label>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -198,15 +203,15 @@ export const AssignVideoToOrderDialog = ({
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-4">
-              אין סרטונים זמינים. העלה סרטון קודם.
+              {t('admin.recordingsPage.noVideosAvailable')}
             </p>
           )}
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label>הערות (אופציונלי):</Label>
+            <Label>{t('admin.recordingsPage.notesOptional')}</Label>
             <Textarea
-              placeholder="הערות פנימיות..."
+              placeholder={t('admin.recordingsPage.notesPlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -223,7 +228,7 @@ export const AssignVideoToOrderDialog = ({
             disabled={!selectedVideoId || assignMutation.isPending}
           >
             {assignMutation.isPending && <Loader2 className="h-4 w-4 animate-spin ml-1" />}
-            הקצה סרטון
+            {t('admin.recordingsPage.assignVideo')}
           </Button>
         </div>
       </DialogContent>
