@@ -31,7 +31,9 @@ import {
 
 interface VideoSetting {
   key: string;
+  keyEn: string;
   enabledKey: string;
+  enabledKeyEn: string;
   titleKey: string;
   descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -40,35 +42,45 @@ interface VideoSetting {
 const videoSettings: VideoSetting[] = [
   {
     key: "hero_video_url",
+    keyEn: "hero_video_url_en",
     enabledKey: "hero_video_enabled",
+    enabledKeyEn: "hero_video_enabled_en",
     titleKey: "admin.videosPage.heroVideo",
     descriptionKey: "admin.videosPage.heroVideoDesc",
     icon: Layout,
   },
   {
     key: "about_video_url",
+    keyEn: "about_video_url_en",
     enabledKey: "about_video_enabled",
+    enabledKeyEn: "about_video_enabled_en",
     titleKey: "admin.videosPage.aboutVideo",
     descriptionKey: "admin.videosPage.aboutVideoDesc",
     icon: User,
   },
   {
     key: "introspection_promo_video_url",
+    keyEn: "introspection_promo_video_url_en",
     enabledKey: "introspection_promo_video_enabled",
+    enabledKeyEn: "introspection_promo_video_enabled_en",
     titleKey: "admin.videosPage.introspectionVideo",
     descriptionKey: "admin.videosPage.introspectionVideoDesc",
     icon: Gift,
   },
   {
     key: "personal_hypnosis_promo_video_url",
+    keyEn: "personal_hypnosis_promo_video_url_en",
     enabledKey: "personal_hypnosis_promo_video_enabled",
+    enabledKeyEn: "personal_hypnosis_promo_video_enabled_en",
     titleKey: "admin.videosPage.personalHypnosisVideo",
     descriptionKey: "admin.videosPage.personalHypnosisVideoDesc",
     icon: Brain,
   },
   {
     key: "consciousness_leap_promo_video_url",
+    keyEn: "consciousness_leap_promo_video_url_en",
     enabledKey: "consciousness_leap_promo_video_enabled",
+    enabledKeyEn: "consciousness_leap_promo_video_enabled_en",
     titleKey: "admin.videosPage.consciousnessLeapVideo",
     descriptionKey: "admin.videosPage.consciousnessLeapVideoDesc",
     icon: Rocket,
@@ -81,42 +93,52 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
   const { t, isRTL } = useTranslation();
   const { toast } = useToast();
   const { settings, loading } = useSiteSettings();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeLanguage, setActiveLanguage] = useState<'he' | 'en'>('he');
   
-  const [videoPath, setVideoPath] = useState("");
-  const [enabled, setEnabled] = useState(false);
+  // Hebrew video state
+  const fileInputRefHe = useRef<HTMLInputElement>(null);
+  const [videoPathHe, setVideoPathHe] = useState("");
+  const [enabledHe, setEnabledHe] = useState(false);
+  
+  // English video state
+  const fileInputRefEn = useRef<HTMLInputElement>(null);
+  const [videoPathEn, setVideoPathEn] = useState("");
+  const [enabledEn, setEnabledEn] = useState(false);
+  
+  // Shared state
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLanguage, setDeleteLanguage] = useState<'he' | 'en'>('he');
   const [saving, setSaving] = useState(false);
 
   // Initialize from settings when loaded
   useEffect(() => {
     if (!loading) {
       const settingsAny = settings as any;
-      setVideoPath(settingsAny[setting.key] || "");
-      setEnabled(settingsAny[setting.enabledKey] === true || settingsAny[setting.enabledKey] === "true");
+      setVideoPathHe(settingsAny[setting.key] || "");
+      setEnabledHe(settingsAny[setting.enabledKey] === true || settingsAny[setting.enabledKey] === "true");
+      setVideoPathEn(settingsAny[setting.keyEn] || "");
+      setEnabledEn(settingsAny[setting.enabledKeyEn] === true || settingsAny[setting.enabledKeyEn] === "true");
     }
-  }, [loading, settings, setting.key, setting.enabledKey]);
+  }, [loading, settings, setting]);
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, language: 'he' | 'en') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     setUploadProgress(0);
 
+    const urlKey = language === 'he' ? setting.key : setting.keyEn;
+    const currentPath = language === 'he' ? videoPathHe : videoPathEn;
+
     try {
       // Generate unique filename
       const fileExt = file.name.split(".").pop();
-      const fileName = `${setting.key.replace(/_url$/, "")}-${Date.now()}.${fileExt}`;
+      const fileName = `${urlKey.replace(/_url$/, "").replace(/_en$/, "")}-${language}-${Date.now()}.${fileExt}`;
 
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -124,8 +146,8 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
       }, 300);
 
       // Delete old file if exists
-      if (videoPath) {
-        await supabase.storage.from(STORAGE_BUCKET).remove([videoPath]);
+      if (currentPath) {
+        await supabase.storage.from(STORAGE_BUCKET).remove([currentPath]);
       }
 
       // Upload new file
@@ -142,11 +164,16 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
       await supabase
         .from("site_settings")
         .upsert(
-          { setting_key: setting.key, setting_value: fileName },
+          { setting_key: urlKey, setting_value: fileName },
           { onConflict: "setting_key" }
         );
 
-      setVideoPath(fileName);
+      if (language === 'he') {
+        setVideoPathHe(fileName);
+      } else {
+        setVideoPathEn(fileName);
+      }
+      
       clearSettingsCache();
       toast({ title: t("admin.videosPage.uploaded") || "הסרטון הועלה בהצלחה" });
     } catch (error) {
@@ -155,20 +182,29 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
     } finally {
       setUploading(false);
       setUploadProgress(0);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      if (language === 'he' && fileInputRefHe.current) {
+        fileInputRefHe.current.value = "";
+      } else if (language === 'en' && fileInputRefEn.current) {
+        fileInputRefEn.current.value = "";
       }
     }
   };
 
-  const handleToggle = async (newEnabled: boolean) => {
-    setEnabled(newEnabled);
+  const handleToggle = async (newEnabled: boolean, language: 'he' | 'en') => {
+    const enabledKey = language === 'he' ? setting.enabledKey : setting.enabledKeyEn;
+    
+    if (language === 'he') {
+      setEnabledHe(newEnabled);
+    } else {
+      setEnabledEn(newEnabled);
+    }
+    
     setSaving(true);
     try {
       await supabase
         .from("site_settings")
         .upsert(
-          { setting_key: setting.enabledKey, setting_value: newEnabled.toString() },
+          { setting_key: enabledKey, setting_value: newEnabled.toString() },
           { onConflict: "setting_key" }
         );
       clearSettingsCache();
@@ -180,7 +216,8 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
     }
   };
 
-  const handlePreview = async () => {
+  const handlePreview = async (language: 'he' | 'en') => {
+    const videoPath = language === 'he' ? videoPathHe : videoPathEn;
     if (!videoPath) return;
     
     try {
@@ -193,6 +230,9 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
   };
 
   const handleDelete = async () => {
+    const videoPath = deleteLanguage === 'he' ? videoPathHe : videoPathEn;
+    const urlKey = deleteLanguage === 'he' ? setting.key : setting.keyEn;
+    
     if (!videoPath) return;
 
     try {
@@ -200,11 +240,16 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
       await supabase
         .from("site_settings")
         .upsert(
-          { setting_key: setting.key, setting_value: "" },
+          { setting_key: urlKey, setting_value: "" },
           { onConflict: "setting_key" }
         );
       
-      setVideoPath("");
+      if (deleteLanguage === 'he') {
+        setVideoPathHe("");
+      } else {
+        setVideoPathEn("");
+      }
+      
       clearSettingsCache();
       toast({ title: t("admin.videosPage.deleted") || "הסרטון נמחק" });
     } catch (error) {
@@ -216,104 +261,140 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
 
   const Icon = setting.icon;
 
+  const renderVideoUploadArea = (language: 'he' | 'en') => {
+    const videoPath = language === 'he' ? videoPathHe : videoPathEn;
+    const enabled = language === 'he' ? enabledHe : enabledEn;
+    const fileInputRef = language === 'he' ? fileInputRefHe : fileInputRefEn;
+    const inputId = `file-${setting.key}-${language}`;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label htmlFor={`switch-${setting.key}-${language}`} className="text-sm text-muted-foreground">
+            {enabled ? (t("common.on") || "מופעל") : (t("common.off") || "כבוי")}
+          </Label>
+          <Switch
+            id={`switch-${setting.key}-${language}`}
+            checked={enabled}
+            onCheckedChange={(val) => handleToggle(val, language)}
+            disabled={saving}
+          />
+        </div>
+
+        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors relative">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/mp4,video/mov,video/webm,video/avi,.mp4,.mov,.webm,.avi"
+            onChange={(e) => handleFileSelect(e, language)}
+            className="hidden"
+            id={inputId}
+            disabled={uploading}
+          />
+          
+          {uploading && activeLanguage === language ? (
+            <div className="space-y-3">
+              <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin" />
+              <p className="text-sm text-muted-foreground">{t("admin.videosPage.uploading") || "מעלה..."}</p>
+              <Progress value={uploadProgress} className="h-2 max-w-xs mx-auto" />
+              <p className="text-xs text-muted-foreground">{uploadProgress}%</p>
+            </div>
+          ) : videoPath ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2">
+                <Check className="h-6 w-6 text-green-500" />
+                <Video className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-sm font-medium text-green-600">{t("admin.videosPage.videoUploaded") || "סרטון הועלה"}</p>
+              <p className="text-xs text-muted-foreground truncate max-w-xs mx-auto">{videoPath}</p>
+              <div className="flex gap-2 justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePreview(language)}
+                  className="gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  {t("admin.videosPage.preview")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setActiveLanguage(language);
+                    fileInputRef.current?.click();
+                  }}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {t("admin.videosPage.replace") || "החלף"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDeleteLanguage(language);
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="gap-2 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <label htmlFor={inputId} className="cursor-pointer" onClick={() => setActiveLanguage(language)}>
+              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">
+                {t("admin.videosPage.dropOrClick") || "לחץ לבחירת קובץ או גרור לכאן"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                MP4, MOV, WebM, AVI
+              </p>
+            </label>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Card className="glass-panel">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{t(setting.titleKey)}</CardTitle>
-                <CardDescription className="text-sm">
-                  {t(setting.descriptionKey)}
-                </CardDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Icon className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor={`switch-${setting.key}`} className="text-sm text-muted-foreground">
-                {enabled ? (t("common.on") || "מופעל") : (t("common.off") || "כבוי")}
-              </Label>
-              <Switch
-                id={`switch-${setting.key}`}
-                checked={enabled}
-                onCheckedChange={handleToggle}
-                disabled={saving}
-              />
+            <div>
+              <CardTitle className="text-lg">{t(setting.titleKey)}</CardTitle>
+              <CardDescription className="text-sm">
+                {t(setting.descriptionKey)}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Upload Area */}
-          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors relative">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/mp4,video/mov,video/webm,video/avi,.mp4,.mov,.webm,.avi"
-              onChange={handleFileSelect}
-              className="hidden"
-              id={`file-${setting.key}`}
-              disabled={uploading}
-            />
-            
-            {uploading ? (
-              <div className="space-y-3">
-                <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">{t("admin.videosPage.uploading") || "מעלה..."}</p>
-                <Progress value={uploadProgress} className="h-2 max-w-xs mx-auto" />
-                <p className="text-xs text-muted-foreground">{uploadProgress}%</p>
-              </div>
-            ) : videoPath ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-center gap-2">
-                  <Check className="h-6 w-6 text-green-500" />
-                  <Video className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-sm font-medium text-green-600">{t("admin.videosPage.videoUploaded") || "סרטון הועלה"}</p>
-                <p className="text-xs text-muted-foreground truncate max-w-xs mx-auto">{videoPath}</p>
-                <div className="flex gap-2 justify-center pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePreview}
-                    className="gap-2"
-                  >
-                    <Play className="h-4 w-4" />
-                    {t("admin.videosPage.preview")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="gap-2"
-                  >
-                    <Upload className="h-4 w-4" />
-                    {t("admin.videosPage.replace") || "החלף"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDeleteDialogOpen(true)}
-                    className="gap-2 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <label htmlFor={`file-${setting.key}`} className="cursor-pointer">
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  {t("admin.videosPage.dropOrClick") || "לחץ לבחירת קובץ או גרור לכאן"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  MP4, MOV, WebM, AVI
-                </p>
-              </label>
-            )}
-          </div>
+        <CardContent>
+          <Tabs defaultValue="he" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="he" className="gap-2">
+                🇮🇱 {t('admin.hebrew') || 'עברית'}
+                {videoPathHe && <Check className="h-3 w-3 text-green-500" />}
+              </TabsTrigger>
+              <TabsTrigger value="en" className="gap-2">
+                🇺🇸 {t('admin.english') || 'English'}
+                {videoPathEn && <Check className="h-3 w-3 text-green-500" />}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="he">
+              {renderVideoUploadArea('he')}
+            </TabsContent>
+
+            <TabsContent value="en">
+              {renderVideoUploadArea('en')}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 

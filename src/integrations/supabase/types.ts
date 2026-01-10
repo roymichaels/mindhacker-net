@@ -1353,18 +1353,21 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          preferred_language: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           full_name?: string | null
           id: string
+          preferred_language?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          preferred_language?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1573,9 +1576,12 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           name: string
+          name_en: string | null
           order_index: number | null
           quote: string
+          quote_en: string | null
           role: string | null
+          role_en: string | null
           updated_at: string | null
           updated_by: string | null
         }
@@ -1587,9 +1593,12 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           name: string
+          name_en?: string | null
           order_index?: number | null
           quote: string
+          quote_en?: string | null
           role?: string | null
+          role_en?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -1601,9 +1610,12 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           name?: string
+          name_en?: string | null
           order_index?: number | null
           quote?: string
+          quote_en?: string | null
           role?: string | null
+          role_en?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }

@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Edit, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, ArrowUp, ArrowDown, Globe } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import { handleError } from "@/lib/errorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -17,7 +18,9 @@ import { useTranslation } from "@/hooks/useTranslation";
 interface FAQ {
   id: string;
   question: string;
+  question_en: string | null;
   answer: string;
+  answer_en: string | null;
   order_index: number;
   is_active: boolean;
 }
@@ -28,7 +31,14 @@ const FAQs = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
-  const [formData, setFormData] = useState({ question: "", answer: "", order_index: 0, is_active: true });
+  const [formData, setFormData] = useState({ 
+    question: "", 
+    question_en: "",
+    answer: "", 
+    answer_en: "",
+    order_index: 0, 
+    is_active: true 
+  });
   const { toast } = useToast();
 
   const faqSchema = z.object({
@@ -36,10 +46,20 @@ const FAQs = () => {
       .trim()
       .min(5, t('adminFaqs.validationError'))
       .max(500, t('adminFaqs.validationError')),
+    question_en: z.string()
+      .trim()
+      .max(500, "Question too long")
+      .optional()
+      .or(z.literal("")),
     answer: z.string()
       .trim()
       .min(10, t('adminFaqs.validationError'))
       .max(2000, t('adminFaqs.validationError')),
+    answer_en: z.string()
+      .trim()
+      .max(2000, "Answer too long")
+      .optional()
+      .or(z.literal("")),
     is_active: z.boolean(),
     order_index: z.number().int().nonnegative()
   });
@@ -98,7 +118,7 @@ const FAQs = () => {
 
       setDialogOpen(false);
       setEditingFaq(null);
-      setFormData({ question: "", answer: "", order_index: 0, is_active: true });
+      setFormData({ question: "", question_en: "", answer: "", answer_en: "", order_index: 0, is_active: true });
       fetchFAQs();
     } catch (error: any) {
       handleError(error, t('adminFaqs.saveError'), "FAQs.handleSubmit");
@@ -140,6 +160,10 @@ const FAQs = () => {
     }
   };
 
+  const hasEnglishTranslation = (faq: FAQ) => {
+    return Boolean(faq.question_en && faq.answer_en);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -158,35 +182,76 @@ const FAQs = () => {
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingFaq(null); setFormData({ question: "", answer: "", order_index: faqs.length, is_active: true }); }}>
+            <Button onClick={() => { 
+              setEditingFaq(null); 
+              setFormData({ question: "", question_en: "", answer: "", answer_en: "", order_index: faqs.length, is_active: true }); 
+            }}>
               <Plus className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
               {t('adminFaqs.addQuestion')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="glass-panel">
+          <DialogContent className="glass-panel max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingFaq ? t('adminFaqs.editQuestion') : t('adminFaqs.newQuestion')}</DialogTitle>
               <DialogDescription>{t('adminFaqs.dialogDescription')}</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t('adminFaqs.question')}</Label>
-                <Textarea
-                  value={formData.question}
-                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder={t('adminFaqs.enterQuestion')}
-                  className={isRTL ? "text-right" : "text-left"}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('adminFaqs.answer')}</Label>
-                <Textarea
-                  value={formData.answer}
-                  onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                  placeholder={t('adminFaqs.enterAnswer')}
-                  className={isRTL ? "text-right min-h-32" : "text-left min-h-32"}
-                />
-              </div>
+            
+            <Tabs defaultValue="hebrew" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="hebrew" className="gap-2">
+                  🇮🇱 {t('admin.hebrew') || 'עברית'}
+                </TabsTrigger>
+                <TabsTrigger value="english" className="gap-2">
+                  🇺🇸 {t('admin.english') || 'English'}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="hebrew" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{t('adminFaqs.question')}</Label>
+                  <Textarea
+                    value={formData.question}
+                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                    placeholder={t('adminFaqs.enterQuestion')}
+                    className={isRTL ? "text-right" : "text-left"}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('adminFaqs.answer')}</Label>
+                  <Textarea
+                    value={formData.answer}
+                    onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                    placeholder={t('adminFaqs.enterAnswer')}
+                    className={isRTL ? "text-right min-h-32" : "text-left min-h-32"}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="english" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Question (English)</Label>
+                  <Textarea
+                    value={formData.question_en}
+                    onChange={(e) => setFormData({ ...formData, question_en: e.target.value })}
+                    placeholder="Enter the question in English..."
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Answer (English)</Label>
+                  <Textarea
+                    value={formData.answer_en}
+                    onChange={(e) => setFormData({ ...formData, answer_en: e.target.value })}
+                    placeholder="Enter the answer in English..."
+                    className="text-left min-h-32"
+                    dir="ltr"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="space-y-4 pt-4 border-t">
               <div className="flex items-center justify-between">
                 <Label>{t('adminFaqs.active')}</Label>
                 <Switch
@@ -207,6 +272,7 @@ const FAQs = () => {
           <TableHeader>
             <TableRow>
               <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.question')}</TableHead>
+              <TableHead className={isRTL ? "text-right" : "text-left"}>{t('admin.translation') || 'תרגום'}</TableHead>
               <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.status')}</TableHead>
               <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.order')}</TableHead>
               <TableHead className={isRTL ? "text-right" : "text-left"}>{t('adminFaqs.actions')}</TableHead>
@@ -216,6 +282,16 @@ const FAQs = () => {
             {faqs.map((faq, index) => (
               <TableRow key={faq.id}>
                 <TableCell className={`${isRTL ? "text-right" : "text-left"} max-w-md truncate`}>{faq.question}</TableCell>
+                <TableCell className={isRTL ? "text-right" : "text-left"}>
+                  {hasEnglishTranslation(faq) ? (
+                    <span className="flex items-center gap-1 text-green-500">
+                      <Globe className="h-4 w-4" />
+                      <span className="text-xs">{t('admin.hasEnglish') || 'EN'}</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{t('admin.noEnglish') || 'חסר'}</span>
+                  )}
+                </TableCell>
                 <TableCell className={isRTL ? "text-right" : "text-left"}>
                   <span className={`px-2 py-1 rounded-full text-xs ${faq.is_active ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'}`}>
                     {faq.is_active ? t('adminFaqs.active') : t('adminFaqs.inactive')}
@@ -250,7 +326,14 @@ const FAQs = () => {
                       variant="ghost"
                       onClick={() => {
                         setEditingFaq(faq);
-                        setFormData(faq);
+                        setFormData({
+                          question: faq.question,
+                          question_en: faq.question_en || "",
+                          answer: faq.answer,
+                          answer_en: faq.answer_en || "",
+                          order_index: faq.order_index,
+                          is_active: faq.is_active
+                        });
                         setDialogOpen(true);
                       }}
                       aria-label={t('adminFaqs.editQuestion')}

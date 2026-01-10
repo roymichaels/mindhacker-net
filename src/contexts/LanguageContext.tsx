@@ -63,19 +63,25 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     initLanguage();
   }, []);
 
-  // Sync with user profile when logged in
+  // Sync with user profile when logged in - load saved preference
   useEffect(() => {
     const syncWithProfile = async () => {
       if (user && isInitialized) {
         // Try to get user's preferred language from profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('*')
+          .select('preferred_language')
           .eq('id', user.id)
           .maybeSingle();
 
-        // If profile has a different language preference and we haven't stored one locally
-        // we could sync here, but for now we prioritize local storage
+        // If profile has a language preference and no local storage, use profile's language
+        const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (profile?.preferred_language && !storedLanguage) {
+          const profileLang = profile.preferred_language as Language;
+          setLanguageState(profileLang);
+          updateDocumentDirection(profileLang);
+          localStorage.setItem(LANGUAGE_STORAGE_KEY, profileLang);
+        }
       }
     };
 
@@ -97,7 +103,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       try {
         await supabase
           .from('profiles')
-          .update({ updated_at: new Date().toISOString() })
+          .update({ 
+            preferred_language: lang,
+            updated_at: new Date().toISOString() 
+          })
           .eq('id', user.id);
       } catch (error) {
         console.error('Failed to sync language preference:', error);
