@@ -47,13 +47,15 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
   return (
     <aside className={cn(
       "w-64 glass-panel flex flex-col",
-      isMobile ? "h-full border-r border-primary/20" : "h-screen border-l border-primary/20"
+      isMobile 
+        ? "h-full border-l rtl:border-l-0 rtl:border-r border-primary/20" 
+        : "h-screen border-r rtl:border-r-0 rtl:border-l border-primary/20"
     )} dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="p-6 border-b border-primary/20">
+      <div className="p-6 border-b border-primary/20 flex-shrink-0">
         <h2 className="text-2xl font-black cyber-glow">{t('admin.panelTitle')}</h2>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
