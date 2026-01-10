@@ -62,6 +62,7 @@ const Newsletter = lazy(() => import("./pages/admin/Newsletter"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 const ChatAssistant = lazy(() => import("./pages/admin/ChatAssistant"));
 const Videos = lazy(() => import("./pages/admin/Videos"));
+const AdminProducts = lazy(() => import("./pages/admin/Products"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,6 +145,7 @@ const App = () => (
                       <Route path="newsletter" element={<Newsletter />} />
                       <Route path="homepage" element={<HomepageSections />} />
                       <Route path="chat-assistant" element={<ChatAssistant />} />
+                      <Route path="products" element={<AdminProducts />} />
                     </Route>
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
