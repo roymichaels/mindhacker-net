@@ -506,11 +506,6 @@ const ConsciousnessLeapLanding = () => {
         </div>
       </section>
 
-      {/* WhatsApp Button */}
-      <a href={`https://wa.me/972547390907?text=${encodeURIComponent(t('consciousnessLeapLanding.whatsappMessage'))}`} target="_blank" rel="noopener noreferrer" className={`fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110`}>
-        <MessageCircle className="w-6 h-6" />
-      </a>
-
       {/* Footer */}
       <footer className="relative z-20 py-8 border-t border-primary/20 bg-background/80">
         <div className="container mx-auto px-4 text-center">
