@@ -34,6 +34,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StartChangeModal from "./StartChangeModal";
+import { AuthModal } from "./AuthModal";
 
 const Header = () => {
   const { user, loading } = useAuth();
@@ -41,6 +42,8 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [startModalOpen, setStartModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
   const { t, isRTL } = useTranslation();
   const { language, setLanguage } = useLanguage();
 
@@ -181,14 +184,20 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate("/login")}
+                  onClick={() => {
+                    setAuthModalMode("login");
+                    setAuthModalOpen(true);
+                  }}
                   className="hidden sm:inline-flex"
                 >
                   {t('common.login')}
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => navigate("/signup")}
+                  onClick={() => {
+                    setAuthModalMode("signup");
+                    setAuthModalOpen(true);
+                  }}
                 >
                   {t('common.signup')}
                 </Button>
@@ -263,8 +272,9 @@ const Header = () => {
                       <Button
                         variant="outline"
                         onClick={() => {
-                          navigate("/login");
                           setMobileMenuOpen(false);
+                          setAuthModalMode("login");
+                          setAuthModalOpen(true);
                         }}
                         className="w-full"
                       >
@@ -272,8 +282,9 @@ const Header = () => {
                       </Button>
                       <Button
                         onClick={() => {
-                          navigate("/signup");
                           setMobileMenuOpen(false);
+                          setAuthModalMode("signup");
+                          setAuthModalOpen(true);
                         }}
                         className="w-full"
                       >
@@ -289,6 +300,11 @@ const Header = () => {
       </header>
 
       <StartChangeModal open={startModalOpen} onOpenChange={setStartModalOpen} />
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen} 
+        defaultMode={authModalMode}
+      />
     </>
   );
 };
