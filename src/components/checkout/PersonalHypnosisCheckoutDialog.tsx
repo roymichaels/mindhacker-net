@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ export const PersonalHypnosisCheckoutDialog = ({
   onOpenChange,
 }: PersonalHypnosisCheckoutDialogProps) => {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -100,19 +102,32 @@ export const PersonalHypnosisCheckoutDialog = ({
 
       if (orderError) throw orderError;
 
-      // Send email notification to admin
-      try {
-        await supabase.functions.invoke("send-order-notification", {
+      // Send email notifications (admin + customer) in parallel
+      const emailPromises = [
+        supabase.functions.invoke("send-order-notification", {
           body: {
             orderId: newOrder.id,
             userEmail: user.email,
             productName: "אימון תודעתי אישי - סרטון היפנוזה",
             amount: product.price,
           },
-        });
+        }),
+        supabase.functions.invoke("send-order-confirmation", {
+          body: {
+            orderId: newOrder.id,
+            userEmail: user.email,
+            productName: language === 'he' ? "אימון תודעתי אישי - סרטון היפנוזה" : "Personal Hypnosis Video",
+            amount: product.price,
+            language,
+          },
+        }),
+      ];
+
+      try {
+        await Promise.all(emailPromises);
       } catch (emailError) {
-        // Don't fail the order if email fails
-        console.error("Failed to send order notification email:", emailError);
+        // Don't fail the order if emails fail
+        console.error("Failed to send order emails:", emailError);
       }
 
       return { productId: product.id };
