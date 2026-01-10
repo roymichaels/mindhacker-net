@@ -57,47 +57,35 @@ export const LiveActivityFeed = () => {
   const [currentViewers, setCurrentViewers] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Initialize viewer count
+  // Initialize viewer count - always 1 for boutique feel
   useEffect(() => {
-    const baseViewers = Math.floor(Math.random() * 3) + 1; // 1-3 viewers
-    setCurrentViewers(baseViewers);
+    setCurrentViewers(1);
     
     // Show after 3 seconds
     const showTimer = setTimeout(() => setIsVisible(true), 3000);
-    
-    // Periodically update viewer count
-    const viewerInterval = setInterval(() => {
-      setCurrentViewers(prev => {
-        const change = Math.random() > 0.5 ? 1 : -1;
-        return Math.max(1, Math.min(3, prev + change));
-      });
-    }, 15000);
 
     return () => {
       clearTimeout(showTimer);
-      clearInterval(viewerInterval);
     };
   }, []);
 
-  // Generate random activities
+  // Generate random activities - very infrequent (once every 3-10 minutes)
   useEffect(() => {
     const generateActivity = () => {
-      if (Math.random() > 0.8) { // 20% chance to show activity
-        const newActivity = generateRandomActivity(language);
-        setActivities(prev => [newActivity, ...prev].slice(0, 1)); // Max 1 activity
-        
-        // Remove after 6 seconds
-        setTimeout(() => {
-          setActivities(prev => prev.filter(a => a.id !== newActivity.id));
-        }, 6000);
-      }
+      const newActivity = generateRandomActivity(language);
+      setActivities([newActivity]); // Only 1 activity max
+      
+      // Remove after 6 seconds
+      setTimeout(() => {
+        setActivities([]);
+      }, 6000);
     };
 
-    // First activity after 30 seconds
-    const firstTimer = setTimeout(generateActivity, 30000);
+    // First activity after 3 minutes (180 seconds)
+    const firstTimer = setTimeout(generateActivity, 180000);
     
-    // Then every 80-160 seconds
-    const interval = setInterval(generateActivity, 80000 + Math.random() * 80000);
+    // Then every 3-10 minutes (180-600 seconds)
+    const interval = setInterval(generateActivity, 180000 + Math.random() * 420000);
 
     return () => {
       clearTimeout(firstTimer);
