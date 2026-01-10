@@ -33,7 +33,7 @@ const HeroSection = () => {
   }, [words.length]);
 
   return (
-    <section className="relative min-h-screen flex items-start justify-center px-4 md:vignette pt-24 md:pt-32 pb-20 md:pb-24" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="relative min-h-screen flex items-start justify-center px-3 sm:px-4 md:vignette pt-20 sm:pt-24 md:pt-32 pb-16 sm:pb-20 md:pb-24" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* Radial glow overlay */}
       <div 
@@ -43,20 +43,20 @@ const HeroSection = () => {
         }}
       />
 
-      {/* Consciousness pulse behind headline */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] h-[600px] md:h-[900px] border border-primary/30 rounded-full consciousness-pulse pointer-events-none" />
+      {/* Consciousness pulse behind headline - smaller on mobile */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] md:w-[900px] h-[400px] sm:h-[600px] md:h-[900px] border border-primary/30 rounded-full consciousness-pulse pointer-events-none" />
 
       {/* Sacred geometry background */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 left-1/4 w-32 md:w-64 h-32 md:h-64 border border-primary rounded-full animate-breathe" />
+        <div className="absolute top-1/4 left-1/4 w-24 sm:w-32 md:w-64 h-24 sm:h-32 md:h-64 border border-primary rounded-full animate-breathe" />
       </div>
 
       <div className="relative text-center max-w-5xl mx-auto">
-        {/* Hero Portrait */}
-        <div className="relative mx-auto mb-4 md:mb-6 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto animate-float-gentle">
+        {/* Hero Portrait - smaller on mobile */}
+        <div className="relative mx-auto mb-3 sm:mb-4 md:mb-6 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+          <div className="relative w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 mx-auto animate-float-gentle">
             {/* Glow effect behind image */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-accent/30 to-primary/20 blur-2xl scale-125" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-accent/30 to-primary/20 blur-xl sm:blur-2xl scale-125" />
             {/* Image with mask for seamless blend */}
             <img 
               src={heroPortrait} 
@@ -69,20 +69,19 @@ const HeroSection = () => {
             />
             {/* Pulsing glow ring */}
             <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ring-pulse pointer-events-none" />
-            <div className="absolute -inset-2 rounded-full border border-primary/20 animate-ring-pulse pointer-events-none" style={{ animationDelay: '0.5s' }} />
+            <div className="absolute -inset-1 sm:-inset-2 rounded-full border border-primary/20 animate-ring-pulse pointer-events-none" style={{ animationDelay: '0.5s' }} />
             
-            {/* Sparkle effects */}
-            <Sparkle className="absolute -top-2 -right-2 w-4 h-4 text-primary animate-sparkle" />
-            <Sparkle className="absolute top-1/4 -left-3 w-3 h-3 text-accent animate-sparkle-delay-1" />
-            <Sparkle className="absolute -bottom-1 right-1/4 w-3 h-3 text-primary animate-sparkle-delay-2" />
-            <Sparkle className="absolute top-0 left-1/3 w-2 h-2 text-secondary animate-sparkle-delay-3" />
-            <Sparkle className="absolute bottom-1/4 -right-2 w-3 h-3 text-accent animate-sparkle-delay-4" />
-            <Sparkle className="absolute -bottom-3 left-1/3 w-2 h-2 text-primary animate-sparkle-delay-5" />
+            {/* Sparkle effects - fewer and smaller on mobile */}
+            <Sparkle className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-3 h-3 sm:w-4 sm:h-4 text-primary animate-sparkle" />
+            <Sparkle className="hidden sm:block absolute top-1/4 -left-3 w-3 h-3 text-accent animate-sparkle-delay-1" />
+            <Sparkle className="absolute -bottom-1 right-1/4 w-2 h-2 sm:w-3 sm:h-3 text-primary animate-sparkle-delay-2" />
+            <Sparkle className="hidden sm:block absolute top-0 left-1/3 w-2 h-2 text-secondary animate-sparkle-delay-3" />
+            <Sparkle className="hidden sm:block absolute bottom-1/4 -right-2 w-3 h-3 text-accent animate-sparkle-delay-4" />
           </div>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 md:mb-8 leading-tight flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
+        {/* Main Headline - more compact on mobile */}
+        <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-black mb-3 sm:mb-6 md:mb-8 leading-tight flex flex-col md:flex-row items-center justify-center gap-1 sm:gap-2 md:gap-4 pb-1 sm:pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
           {isRTL ? (
             <>
               <span className="text-foreground static-word-glow w-full md:w-auto text-center">{t('hero.hackerWord')}</span>
@@ -102,21 +101,46 @@ const HeroSection = () => {
           )}
         </h1>
 
-        <p className="text-lg sm:text-2xl md:text-3xl text-muted-foreground mb-4 font-medium animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+        <p className="text-base sm:text-xl md:text-3xl text-muted-foreground mb-2 sm:mb-4 font-medium animate-fade-in-up px-2" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
           {t('hero.mainSubtitle')}
         </p>
 
-        <p className="text-base sm:text-lg md:text-xl text-secondary mb-6 font-light animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+        <p className="text-sm sm:text-base md:text-xl text-secondary mb-4 sm:mb-6 font-light animate-fade-in-up px-2" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           {t('hero.pathsSubtitle')}
         </p>
 
-        {/* Personal Video Button */}
-        <div className="animate-fade-in-up mb-10" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+        {/* Personal Video Button - smaller margin on mobile */}
+        <div className="animate-fade-in-up mb-6 sm:mb-10" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <HeroVideo />
         </div>
 
-        {/* Three Options Cards - Reordered: Free → Recording → Process */}
-        <div className="grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+        {/* Mobile-First: Show Free Gift card prominently first on mobile */}
+        <div className="md:hidden mb-4 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+          <Card className="group relative bg-gradient-to-br from-amber-500/15 to-amber-400/10 backdrop-blur border-2 border-amber-500/60 p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
+            onClick={() => navigate(introspectionFormUrl)}>
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -skew-x-12 animate-shimmer" />
+            
+            <div className="relative flex items-center gap-4">
+              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-400/20 border-2 border-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <Gift className="w-7 h-7 text-amber-500" />
+              </div>
+              
+              <div className="flex-1 min-w-0 text-start">
+                <div className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+                  {t('hero.freeGift')}
+                </div>
+                <h3 className="text-lg font-bold text-amber-500 truncate">{t('hero.introspectionForm')}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-1">{t('hero.introspectionFormTag')}</p>
+              </div>
+              
+              <ArrowIcon className="w-5 h-5 text-amber-500 flex-shrink-0" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Three Options Cards - Desktop layout */}
+        <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           
           {/* Option 1: Free Introspection Form (FIRST - Entry Point) */}
           <Card className="group relative bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/40 hover:border-amber-500/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
@@ -223,11 +247,38 @@ const HeroSection = () => {
           </Card>
         </div>
 
+        {/* Mobile: Compact cards for other options */}
+        <div className="md:hidden grid grid-cols-2 gap-3 mb-6 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+          {/* Personal Hypnosis - Mobile */}
+          <Card className="group relative bg-card/50 backdrop-blur border-accent/30 p-3 transition-all cursor-pointer"
+            onClick={() => navigate("/personal-hypnosis")}>
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-full bg-accent/20 border border-accent mx-auto mb-2 flex items-center justify-center">
+                <Video className="w-5 h-5 text-accent" />
+              </div>
+              <h3 className="text-sm font-bold mb-1">{t('hero.personalHypnosis')}</h3>
+              <p className="text-[10px] text-muted-foreground line-clamp-2">{t('hero.personalHypnosisTag')}</p>
+            </div>
+          </Card>
+          
+          {/* Consciousness Leap - Mobile */}
+          <Card className="group relative bg-card/50 backdrop-blur border-primary/30 p-3 transition-all cursor-pointer"
+            onClick={() => navigate("/consciousness-leap")}>
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary mx-auto mb-2 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="text-sm font-bold mb-1 cyber-glow">{t('hero.consciousnessLeap')}</h3>
+              <p className="text-[10px] text-muted-foreground line-clamp-2">{t('hero.consciousnessLeapTag')}</p>
+            </div>
+          </Card>
+        </div>
+
         {/* Trust Badges */}
         <TrustBadges />
 
-        {/* Bottom note */}
-        <p className="text-muted-foreground text-sm max-w-lg mx-auto mt-6">
+        {/* Bottom note - hide on mobile for cleaner look */}
+        <p className="hidden sm:block text-muted-foreground text-sm max-w-lg mx-auto mt-6">
           {t('hero.notSure')}
         </p>
       </div>
