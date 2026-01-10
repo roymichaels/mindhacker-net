@@ -22,8 +22,8 @@ interface Order {
   id: string;
   user_id: string;
   product_id: string;
-  price_paid: number;
-  purchase_date: string;
+  amount: number;
+  order_date: string;
   profiles: { full_name: string | null } | null;
   products: { title: string; slug: string } | null;
 }
@@ -143,10 +143,10 @@ export const AssignVideoToOrderDialog = ({
               <div>
                 <p className="font-medium">{order.profiles?.full_name || t('common.unknown')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {order.products?.title} • ₪{order.price_paid}
+                  {order.products?.title} • ₪{order.amount}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {format(new Date(order.purchase_date), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
+                  {format(new Date(order.order_date), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
                 </p>
               </div>
             </div>
