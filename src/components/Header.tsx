@@ -8,6 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
@@ -16,7 +21,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { LogOut, Menu, Settings, ShoppingBag, Sparkles, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut, Menu, Settings, ShoppingBag, Sparkles, Globe } from "lucide-react";
 // Use the icon from public folder which has transparent background
 const logo = "/icons/icon-96x96.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +32,7 @@ import { UserNotificationBell } from "./UserNotificationBell";
 import { NotificationBell } from "./admin/NotificationBell";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import StartChangeModal from "./StartChangeModal";
 
 const Header = () => {
@@ -35,6 +42,14 @@ const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [startModalOpen, setStartModalOpen] = useState(false);
   const { t, isRTL } = useTranslation();
+  const { language, setLanguage } = useLanguage();
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    const email = user.email;
+    return email.charAt(0).toUpperCase();
+  };
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -89,33 +104,73 @@ const Header = () => {
           </Button>
 
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
+            {/* Language switcher only shown for non-logged in users */}
+            {!user && <LanguageSwitcher />}
             {loading ? (
-              <div className="h-9 w-20 animate-pulse bg-muted rounded" />
+              <div className="h-9 w-9 animate-pulse bg-muted rounded-full" />
             ) : user ? (
               <>
                 {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <User className="h-4 w-4" />
-                      <span className="hidden sm:inline">{t('common.account')}</span>
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
+                      <Avatar className="h-9 w-9 border-2 border-primary/30">
+                        <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ''} />
+                        <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-background">
+                  <DropdownMenuContent align="end" className="w-56 bg-background border border-border shadow-lg z-50">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{t('common.account')}</p>
+                        <p className="text-xs leading-none text-muted-foreground truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                      <ShoppingBag className={isRTL ? "ml-2" : "mr-2"} />
+                      <ShoppingBag className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
                       {t('common.dashboard')}
                     </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem onClick={() => navigate("/admin")}>
-                        <Settings className={isRTL ? "ml-2" : "mr-2"} />
+                        <Settings className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
                         {t('header.adminPanel')}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                      <LogOut className={isRTL ? "ml-2" : "mr-2"} />
+                    {/* Language Switcher Sub-menu */}
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        {t('common.language')}
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent className="bg-background border border-border shadow-lg z-50">
+                          <DropdownMenuItem 
+                            onClick={() => setLanguage('he')}
+                            className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
+                          >
+                            <span className={isRTL ? "ml-2" : "mr-2"}>🇮🇱</span>
+                            עברית
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setLanguage('en')}
+                            className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
+                          >
+                            <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
+                            English
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                      <LogOut className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
                       {t('common.logout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>

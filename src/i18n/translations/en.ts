@@ -38,6 +38,7 @@ export const en: TranslationKeys = {
     status: "Status",
     saveChanges: "Save Changes",
     email: "Email",
+    language: "Language",
   },
   header: {
     brandName: "Mind Hacker",
