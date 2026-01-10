@@ -113,6 +113,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       colorClass: 'text-purple-400',
       items: [
         { to: "/admin/content", icon: Library, label: t('admin.content') },
+        { to: "/admin/videos", icon: FileVideo, label: t('admin.videos') },
         { to: "/admin/recordings", icon: Headphones, label: t('admin.recordings') },
         { to: "/admin/forms", icon: FileEdit, label: t('admin.forms') },
       ]
