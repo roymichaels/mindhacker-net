@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { 
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
-  BarChart3, Bell, Mail, Headphones, Sparkles, FileEdit, Layout, 
+  BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, 
   FileVideo, Globe, Plus, Bot
 } from "lucide-react";
@@ -102,7 +102,6 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       items: [
         { to: "/admin/newsletter", icon: Newspaper, label: t('admin.newsletter'), badge: draftCampaignsCount },
         { to: "/admin/leads", icon: Mail, label: t('admin.leads'), badge: newLeadsCount },
-        { to: "/admin/consciousness-leap", icon: Sparkles, label: t('admin.consciousnessLeap') },
         { to: "/admin/products", icon: ShoppingBag, label: t('admin.products') },
         { to: "/admin/purchases", icon: ShoppingBag, label: t('admin.purchases') },
       ]

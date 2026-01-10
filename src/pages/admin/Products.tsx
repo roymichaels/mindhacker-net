@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -26,9 +26,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Loader2, ShoppingBag, Package, Edit, User, Calendar, 
-  CheckCircle2, XCircle, CreditCard, Clock, Video, AlertCircle 
+  CheckCircle2, XCircle, CreditCard, Clock, Video, AlertCircle,
+  Sparkles, Eye, FileText
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -64,6 +72,39 @@ interface Order {
   products: { title: string; slug: string } | null;
 }
 
+interface Application {
+  id: string;
+  lead_id: string;
+  current_life_situation: string;
+  what_feels_stuck: string;
+  what_to_understand: string;
+  why_now: string;
+  openness_to_process: string;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+  lead: {
+    name: string;
+    email: string;
+    what_resonated: string | null;
+    created_at: string;
+  };
+}
+
+const statusColors: Record<string, string> = {
+  pending: "bg-yellow-500/20 text-yellow-400",
+  reviewed: "bg-blue-500/20 text-blue-400",
+  approved: "bg-green-500/20 text-green-400",
+  rejected: "bg-red-500/20 text-red-400",
+};
+
+const statusLabels: Record<string, string> = {
+  pending: "ממתין",
+  reviewed: "נבדק",
+  approved: "אושר",
+  rejected: "נדחה",
+};
+
 const Products = () => {
   const { t, language, isRTL } = useTranslation();
   const queryClient = useQueryClient();
@@ -71,6 +112,9 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ order: Order; action: 'approve' | 'reject' } | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [newStatus, setNewStatus] = useState("");
 
   // Fetch products
   const { data: products, isLoading: loadingProducts } = useQuery({
@@ -119,6 +163,23 @@ const Products = () => {
         .order("payment_approved_at", { ascending: true });
       if (error) throw error;
       return data as unknown as Order[];
+    },
+  });
+
+  // Fetch consciousness leap applications
+  const { data: applications, isLoading: loadingApplications } = useQuery({
+    queryKey: ["consciousness-leap-applications"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("consciousness_leap_applications")
+        .select(`
+          *,
+          lead:consciousness_leap_leads(name, email, what_resonated, created_at)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Application[];
     },
   });
 
@@ -191,12 +252,51 @@ const Products = () => {
     },
   });
 
+  // Update application mutation
+  const updateApplicationMutation = useMutation({
+    mutationFn: async ({ id, status, notes }: { id: string; status: string; notes: string }) => {
+      const { error } = await supabase
+        .from("consciousness_leap_applications")
+        .update({ 
+          status, 
+          admin_notes: notes,
+          reviewed_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consciousness-leap-applications"] });
+      toast({ title: t('common.success'), description: "הבקשה עודכנה בהצלחה" });
+      setSelectedApplication(null);
+    },
+    onError: () => {
+      toast({ title: t('common.error'), description: "שגיאה בעדכון הבקשה", variant: "destructive" });
+    },
+  });
+
+  const handleOpenApplication = (app: Application) => {
+    setSelectedApplication(app);
+    setAdminNotes(app.admin_notes || "");
+    setNewStatus(app.status);
+  };
+
+  const handleUpdateApplication = () => {
+    if (!selectedApplication) return;
+    updateApplicationMutation.mutate({
+      id: selectedApplication.id,
+      status: newStatus,
+      notes: adminNotes,
+    });
+  };
+
   const getDaysSinceOrder = (orderDate: string) => {
     const diff = Date.now() - new Date(orderDate).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24));
   };
 
-  const isLoading = loadingProducts || loadingPendingPayments || loadingPendingFulfillment;
+  const isLoading = loadingProducts || loadingPendingPayments || loadingPendingFulfillment || loadingApplications;
 
   if (isLoading) {
     return (
@@ -208,6 +308,7 @@ const Products = () => {
 
   const totalPendingPayments = pendingPaymentOrders?.length || 0;
   const totalPendingFulfillment = pendingFulfillmentOrders?.length || 0;
+  const pendingApplicationsCount = applications?.filter(a => a.status === "pending").length || 0;
 
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -219,7 +320,7 @@ const Products = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-2xl grid-cols-3">
+        <TabsList className="grid w-full max-w-3xl grid-cols-4">
           <TabsTrigger value="products" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             {t('admin.productsTab')}
@@ -236,6 +337,13 @@ const Products = () => {
             {t('admin.pendingFulfillment')}
             {totalPendingFulfillment > 0 && (
               <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{totalPendingFulfillment}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="applications" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            {t('admin.applications')}
+            {pendingApplicationsCount > 0 && (
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{pendingApplicationsCount}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -396,6 +504,64 @@ const Products = () => {
             </div>
           )}
         </TabsContent>
+
+        {/* Applications Tab */}
+        <TabsContent value="applications" className="mt-6">
+          {!applications || applications.length === 0 ? (
+            <Card className="glass-panel">
+              <CardContent className="py-12 text-center">
+                <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <h3 className="text-lg font-medium mb-2">{t('admin.noApplications')}</h3>
+                <p className="text-muted-foreground">{t('admin.noApplicationsDescription')}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <span className="font-medium">{applications.length} {t('admin.totalApplications')}</span>
+              </div>
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle>{t('admin.consciousnessLeapApplications')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {applications.map((app) => (
+                      <div 
+                        key={app.id}
+                        className="flex items-center justify-between p-4 rounded-lg bg-card/50 border border-border/50"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="font-medium">{app.lead?.name}</span>
+                            <Badge className={statusColors[app.status]}>
+                              {statusLabels[app.status]}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {app.lead?.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(app.created_at), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenApplication(app)}
+                        >
+                          <Eye className="h-4 w-4 ml-2" />
+                          {t('common.view')}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Edit Product Dialog */}
@@ -531,6 +697,114 @@ const Products = () => {
           }}
         />
       )}
+
+      {/* Application Detail Dialog */}
+      <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle>
+              {t('admin.applicationFrom')} {selectedApplication?.lead?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {t('admin.reviewApplicationDescription')}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedApplication && (
+            <div className="space-y-6">
+              {/* Lead Info */}
+              <div className="p-4 rounded-lg bg-card/50 border border-border/50">
+                <h3 className="font-medium mb-2">{t('admin.leadDetails')}</h3>
+                <p className="text-sm"><strong>{t('common.email')}:</strong> {selectedApplication.lead?.email}</p>
+                <p className="text-sm"><strong>{t('admin.registeredAt')}:</strong> {format(new Date(selectedApplication.lead?.created_at), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}</p>
+                {selectedApplication.lead?.what_resonated && (
+                  <p className="text-sm mt-2">
+                    <strong>{t('admin.whatResonated')}:</strong>
+                    <br />
+                    {selectedApplication.lead.what_resonated}
+                  </p>
+                )}
+              </div>
+
+              {/* Application Answers */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-primary mb-1">{t('admin.currentSituation')}</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedApplication.current_life_situation}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-primary mb-1">{t('admin.whatFeelsStuck')}</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedApplication.what_feels_stuck}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-primary mb-1">{t('admin.whatToUnderstand')}</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedApplication.what_to_understand}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-primary mb-1">{t('admin.whyNow')}</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedApplication.why_now}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-primary mb-1">{t('admin.opennessToProcess')}</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {selectedApplication.openness_to_process}
+                  </p>
+                </div>
+              </div>
+
+              {/* Admin Actions */}
+              <div className="space-y-4 pt-4 border-t border-border/50">
+                <div className="flex items-center gap-4">
+                  <label className="font-medium">{t('common.status')}:</label>
+                  <Select value={newStatus} onValueChange={setNewStatus}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">{statusLabels.pending}</SelectItem>
+                      <SelectItem value="reviewed">{statusLabels.reviewed}</SelectItem>
+                      <SelectItem value="approved">{statusLabels.approved}</SelectItem>
+                      <SelectItem value="rejected">{statusLabels.rejected}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="font-medium block mb-2">{t('admin.adminNotes')}:</label>
+                  <Textarea
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    placeholder={t('admin.internalNotes')}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button onClick={handleUpdateApplication} disabled={updateApplicationMutation.isPending}>
+                    {updateApplicationMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4 ml-2" />
+                    )}
+                    {t('common.saveChanges')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setSelectedApplication(null)}>
+                    {t('common.close')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

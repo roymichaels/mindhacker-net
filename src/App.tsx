@@ -56,7 +56,6 @@ const Leads = lazy(() => import("./pages/admin/Leads"));
 const Content = lazy(() => import("./pages/admin/Content"));
 const MenuManagement = lazy(() => import("./pages/admin/Menu"));
 const Recordings = lazy(() => import("./pages/admin/Recordings"));
-const ConsciousnessLeap = lazy(() => import("./pages/admin/ConsciousnessLeap"));
 const Forms = lazy(() => import("./pages/admin/Forms"));
 const Newsletter = lazy(() => import("./pages/admin/Newsletter"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
@@ -140,7 +139,6 @@ const App = () => (
                       <Route path="menu" element={<MenuManagement />} />
                       <Route path="videos" element={<Videos />} />
                       <Route path="recordings" element={<Recordings />} />
-                      <Route path="consciousness-leap" element={<ConsciousnessLeap />} />
                       <Route path="forms" element={<Forms />} />
                       <Route path="newsletter" element={<Newsletter />} />
                       <Route path="homepage" element={<HomepageSections />} />
