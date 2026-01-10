@@ -16,9 +16,20 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -28,7 +39,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, Calendar, Search, Loader2, CheckCircle, Clock, UserCheck, Users } from "lucide-react";
+import { Mail, Phone, Calendar, Search, Loader2, CheckCircle, Clock, UserCheck, Users, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -86,8 +97,11 @@ const Leads = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedExitLead, setSelectedExitLead] = useState<ExitLead | null>(null);
+  const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
+  const [exitLeadToDelete, setExitLeadToDelete] = useState<ExitLead | null>(null);
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -229,6 +243,52 @@ const Leads = () => {
       toast({ title: "שגיאה בשמירת הערות", variant: "destructive" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteLead = async () => {
+    if (!leadToDelete) return;
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("leads")
+        .delete()
+        .eq("id", leadToDelete.id);
+
+      if (error) throw error;
+
+      setLeads((prev) => prev.filter((l) => l.id !== leadToDelete.id));
+      toast({ title: "ליד נמחק בהצלחה" });
+      setLeadToDelete(null);
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      toast({ title: "שגיאה במחיקת ליד", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deleteExitLead = async () => {
+    if (!exitLeadToDelete) return;
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("exit_intent_leads")
+        .delete()
+        .eq("id", exitLeadToDelete.id);
+
+      if (error) throw error;
+
+      setExitLeads((prev) => prev.filter((l) => l.id !== exitLeadToDelete.id));
+      toast({ title: "ליד נמחק בהצלחה" });
+      setExitLeadToDelete(null);
+    } catch (error) {
+      console.error("Error deleting exit lead:", error);
+      toast({ title: "שגיאה במחיקת ליד", variant: "destructive" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -452,16 +512,27 @@ const Leads = () => {
                           </Select>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedLead(lead);
-                              setNotes(lead.notes || "");
-                            }}
-                          >
-                            הערות
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedLead(lead);
+                                setNotes(lead.notes || "");
+                              }}
+                            >
+                              הערות
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => setLeadToDelete(lead)}
+                              aria-label="מחק ליד"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -528,6 +599,15 @@ const Leads = () => {
                               }}
                             >
                               הערות
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => setExitLeadToDelete(lead)}
+                              aria-label="מחק ליד"
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -597,6 +677,54 @@ const Leads = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Lead AlertDialog */}
+      <AlertDialog open={!!leadToDelete} onOpenChange={(open) => !open && setLeadToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת ליד</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את הליד של {leadToDelete?.name}?
+              פעולה זו אינה הפיכה.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteLead}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              מחק
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Exit Lead AlertDialog */}
+      <AlertDialog open={!!exitLeadToDelete} onOpenChange={(open) => !open && setExitLeadToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת ליד</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את הליד {exitLeadToDelete?.email}?
+              פעולה זו אינה הפיכה.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteExitLead}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              מחק
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
