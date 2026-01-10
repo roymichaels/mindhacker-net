@@ -639,6 +639,54 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          bounced_at: string | null
+          clicked_at: string | null
+          created_at: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          recipient_email: string
+          recipient_user_id: string | null
+          resend_id: string | null
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          bounced_at?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          recipient_email: string
+          recipient_user_id?: string | null
+          resend_id?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          bounced_at?: string | null
+          clicked_at?: string | null
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          recipient_email?: string
+          recipient_user_id?: string | null
+          resend_id?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
       exit_intent_leads: {
         Row: {
           contacted_at: string | null
@@ -988,6 +1036,114 @@ export type Database = {
           label_en?: string | null
           order_index?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_campaigns: {
+        Row: {
+          content_html_en: string | null
+          content_html_he: string
+          content_text_en: string | null
+          content_text_he: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          scheduled_for: string | null
+          sent_at: string | null
+          stats: Json | null
+          status: string | null
+          subject_en: string | null
+          subject_he: string
+          target_audience: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_html_en?: string | null
+          content_html_he: string
+          content_text_en?: string | null
+          content_text_he?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          stats?: Json | null
+          status?: string | null
+          subject_en?: string | null
+          subject_he: string
+          target_audience?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_html_en?: string | null
+          content_html_he?: string
+          content_text_en?: string | null
+          content_text_he?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          stats?: Json | null
+          status?: string | null
+          subject_en?: string | null
+          subject_he?: string
+          target_audience?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          language: string | null
+          metadata: Json | null
+          name: string | null
+          preferences: Json | null
+          source: string | null
+          status: string | null
+          subscribed_at: string | null
+          unsubscribe_token: string | null
+          unsubscribed_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          language?: string | null
+          metadata?: Json | null
+          name?: string | null
+          preferences?: Json | null
+          source?: string | null
+          status?: string | null
+          subscribed_at?: string | null
+          unsubscribe_token?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          language?: string | null
+          metadata?: Json | null
+          name?: string | null
+          preferences?: Json | null
+          source?: string | null
+          status?: string | null
+          subscribed_at?: string | null
+          unsubscribe_token?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
