@@ -8,7 +8,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
 import MatrixRain from "@/components/MatrixRain";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -17,6 +16,9 @@ import ChatWidget from "@/components/ChatWidget";
 import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import { PageSkeleton } from "@/components/ui/skeleton";
+import LiveActivityFeed from "@/components/LiveActivityFeed";
+import ProgressiveEngagement from "@/components/ProgressiveEngagement";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -83,14 +85,10 @@ const App = () => (
             <Toaster />
             <Sonner />
             <LanguagePrompt />
-            <BrowserRouter>
-              <AnalyticsProvider>
-                <Suspense fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                }>
-                  <Routes>
+              <BrowserRouter>
+                <AnalyticsProvider>
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/signup" element={<SignUp />} />
@@ -153,6 +151,8 @@ const App = () => (
                   <NotificationPermissionPrompt />
                   <CookieConsent />
                   <ChatWidget />
+                  <LiveActivityFeed />
+                  <ProgressiveEngagement />
                 </Suspense>
               </AnalyticsProvider>
             </BrowserRouter>

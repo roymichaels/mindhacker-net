@@ -1569,6 +1569,28 @@ export const he = {
     toHome: "חזרה לעמוד הבית",
     contactNote: "יש לך שאלות? ניתן ליצור קשר דרך וואטסאפ או המייל.",
   },
+  liveActivity: {
+    viewingNow: "אנשים צופים עכשיו",
+    justNow: "עכשיו",
+  },
+  progressiveEngagement: {
+    welcomeTitle: "ברוכים הבאים למיינד האקר",
+    welcomeMessage: "אני דין, ואני שמח שהגעת. יש לי מתנה מיוחדת שמחכה לך — משהו שיכול לשנות את הדרך שבה אתה רואה את עצמך.",
+    discoverGift: "גלה את המתנה שלך",
+    maybeLater: "אולי אחר כך",
+    freeGiftBadge: "🎁 המתנה שלך",
+    giftTitle: "מסע התבוננות עמוקה",
+    giftDescription: "15 שאלות חזקות שיעזרו לך לגלות דפוסים נסתרים, רצונות אמיתיים, ומה באמת מעכב אותך.",
+    benefit1: "גלה דפוסים שלא היית מודע אליהם",
+    benefit2: "הבן מה אתה באמת רוצה",
+    benefit3: "מצא את המפתח לשינוי שלך",
+    claimGift: "התחל את המסע שלי",
+    noSpam: "100% חינם • ללא הרשמה • 10 דקות",
+  },
+  theme: {
+    switchToLight: "עבור למצב בהיר",
+    switchToDark: "עבור למצב כהה",
+  },
 };
 
 export type TranslationKeys = typeof he;
