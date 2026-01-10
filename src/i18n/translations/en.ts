@@ -1518,4 +1518,26 @@ export const en: TranslationKeys = {
     toHome: "Back to Home",
     contactNote: "Have questions? Contact us via WhatsApp or email.",
   },
+  liveActivity: {
+    viewingNow: "people viewing now",
+    justNow: "just now",
+  },
+  progressiveEngagement: {
+    welcomeTitle: "Welcome to Mind Hacker",
+    welcomeMessage: "I'm Dean, and I'm excited you're here. I have a special gift waiting for you — something that can change how you see yourself.",
+    discoverGift: "Discover Your Gift",
+    maybeLater: "Maybe later",
+    freeGiftBadge: "🎁 Your Free Gift",
+    giftTitle: "Deep Introspection Journey",
+    giftDescription: "15 powerful questions that will help you discover hidden patterns, true desires, and what's really holding you back.",
+    benefit1: "Discover patterns you weren't aware of",
+    benefit2: "Understand what you truly want",
+    benefit3: "Find the key to your transformation",
+    claimGift: "Start My Journey",
+    noSpam: "100% free • No registration required • 10 minutes",
+  },
+  theme: {
+    switchToLight: "Switch to light mode",
+    switchToDark: "Switch to dark mode",
+  },
 };
