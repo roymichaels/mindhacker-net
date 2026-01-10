@@ -1,49 +1,29 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `אתה העוזר האישי של דין אושר אזולאי מאתר מיינד-האקר.
+const DEFAULT_SYSTEM_PROMPT = `אתה העוזר האישי של דין אושר אזולאי מאתר מיינד-האקר.
 אתה עוזר בחמימות ובאמפתיה, בדיוק כמו שדין היה מדבר עם מישהו שפונה אליו.
 
 הגישה שלך:
 - אתה לא מוכר כלום - אתה עוזר, מקשיב, ומכוון
 - אם מישהו שואל על השירותים, אתה מסביר בנחת ומזמין לשיחת היכרות חינם
-- אתה מבין שאנשים שמגיעים לאתר הזה מחפשים שינוי אמיתי, לא פתרונות קסם
 - אתה משתמש בשפה פשוטה, חמה, ולא פורמלית
-- אתה לא דוחף לקנות, לא יוצר לחץ, ולא משתמש בטריקים שיווקיים
-
-מה אתה יודע על דין והגישה שלו:
-- דין הוא מאמן תודעתי שמתמחה בעבודה עם התת-מודע
-- הגישה שלו משלבת היפנוזה מודעת, דמיון מודרך, ו-Reframe
-- זה לא טיפול פסיכולוגי - זו עבודה פרקטית על דפוסי חשיבה והתנהגות
-- התהליך מתמקד בשינוי אמיתי ומהיר, לא בשנים של טיפול
-- הכל מתנהל אונליין, בפרטיות ובנוחות מהבית
-
-מה אתה יודע על השירותים:
-- סשן בודד: ₪250 - מפגש של כשעה וחצי
-- חבילת 4 מפגשים: ₪800 (בעצם 3+1 במתנה) - התהליך המומלץ
-- שיחת היכרות של 15 דקות - חינם וללא התחייבות
-- התוצאות מורגשות כבר מהמפגש הראשון
-- יש אחריות מלאה - לא מרוצה, מקבל החזר
-
-למי זה מתאים:
-- אנשים שמרגישים תקועים עם הרגלים או דפוסים שלא משרתים אותם
-- מי שרוצה להפסיק לעשן, להתמודד עם חרדות, לשפר ביטחון עצמי
-- אנשים שכבר ניסו דברים אחרים ומחפשים משהו שונה
-- כל מי שמוכן לעשות עבודה פנימית ולהשתנות
+- אתה לא דוחף לקנות, לא יוצר לחץ
 
 כשעונה:
 - תהיה קצר וענייני, אבל חם ואמפתי
-- אם מישהו לא בטוח - הזמן אותו לשיחת היכרות חינם, בלי לחץ
-- אל תדחוף, תן מרחב לחשוב
+- אם מישהו לא בטוח - הזמן אותו לשיחת היכרות חינם
 - השתמש באימוג'ים במידה 🙏
-- אם שואלים שאלות שלא קשורות לתחום - ענה בקצרה והחזר לנושא
-- אם מישהו מספר על קושי - תן מקום, תהיה אמפתי, ואז הצע עזרה
+- דבר בעברית, אלא אם פונים באנגלית - אז ענה באנגלית
 
-תמיד ענה בעברית.`;
+השתמש במידע מבסיס הידע כדי לענות על שאלות ספציפיות.`;
+
+const DEFAULT_MODEL = "google/gemini-2.5-flash";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -51,10 +31,71 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase client with service role for database access
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // ========== FETCH DYNAMIC SETTINGS ==========
+    const { data: settingsData, error: settingsError } = await supabase
+      .from('chat_assistant_settings')
+      .select('setting_key, setting_value');
+
+    if (settingsError) {
+      console.error("Error fetching settings:", settingsError);
+    }
+
+    // Build settings map
+    const settingsMap = new Map<string, string>();
+    if (settingsData) {
+      for (const setting of settingsData) {
+        settingsMap.set(setting.setting_key, setting.setting_value || '');
+      }
+    }
+
+    // Check if assistant is enabled
+    const isEnabled = settingsMap.get('enabled') !== 'false'; // Default to enabled
+    if (!isEnabled) {
+      return new Response(
+        JSON.stringify({ error: "העוזר אינו זמין כרגע" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get configured model or use default
+    const model = settingsMap.get('model') || DEFAULT_MODEL;
+    
+    // Get system prompt from database or use default
+    const systemPromptBase = settingsMap.get('system_prompt') || DEFAULT_SYSTEM_PROMPT;
+
+    // ========== FETCH KNOWLEDGE BASE ==========
+    const { data: knowledgeData, error: knowledgeError } = await supabase
+      .from('chat_knowledge_base')
+      .select('title, content')
+      .eq('is_active', true)
+      .order('order_index', { ascending: true });
+
+    if (knowledgeError) {
+      console.error("Error fetching knowledge base:", knowledgeError);
+    }
+
+    // Build full prompt with knowledge base
+    let fullSystemPrompt = systemPromptBase;
+    
+    if (knowledgeData && knowledgeData.length > 0) {
+      fullSystemPrompt += '\n\n## בסיס ידע - מידע עדכני\n';
+      for (const entry of knowledgeData) {
+        fullSystemPrompt += `\n### ${entry.title}\n${entry.content}\n`;
+      }
+    }
+
+    console.log("Using model:", model);
+    console.log("Knowledge entries loaded:", knowledgeData?.length || 0);
+
+    // ========== PROCESS REQUEST ==========
     const { messages } = await req.json();
     
-    // ========== INPUT VALIDATION ==========
-    // 1. Validate messages is an array
+    // Validate messages is an array
     if (!Array.isArray(messages) || messages.length === 0) {
       console.warn("Invalid messages format received");
       return new Response(
@@ -63,7 +104,7 @@ serve(async (req) => {
       );
     }
 
-    // 2. Limit number of messages to prevent DoS
+    // Limit number of messages to prevent DoS
     const MAX_MESSAGES = 20;
     if (messages.length > MAX_MESSAGES) {
       console.warn(`Too many messages: ${messages.length}`);
@@ -73,12 +114,11 @@ serve(async (req) => {
       );
     }
 
-    // 3. Validate and sanitize each message
+    // Validate and sanitize each message
     const MAX_CONTENT_LENGTH = 2000;
     const validatedMessages = [];
     
     for (const msg of messages) {
-      // Check message structure
       if (!msg || typeof msg !== 'object' || !msg.role || !msg.content || typeof msg.content !== "string") {
         console.warn("Invalid message format:", msg);
         return new Response(
@@ -87,7 +127,6 @@ serve(async (req) => {
         );
       }
       
-      // Only allow user and assistant roles from client (filter out system injection attempts)
       if (msg.role !== "user" && msg.role !== "assistant") {
         console.warn("Invalid message role:", msg.role);
         return new Response(
@@ -96,7 +135,6 @@ serve(async (req) => {
         );
       }
       
-      // Limit content length per message
       if (msg.content.length > MAX_CONTENT_LENGTH) {
         console.warn(`Message content too long: ${msg.content.length} chars`);
         return new Response(
@@ -105,13 +143,11 @@ serve(async (req) => {
         );
       }
 
-      // Sanitize: trim content and add to validated array
       validatedMessages.push({
         role: msg.role,
         content: msg.content.trim()
       });
     }
-    // ========== END VALIDATION ==========
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -128,9 +164,9 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: model,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: fullSystemPrompt },
           ...validatedMessages,
         ],
         stream: true,
