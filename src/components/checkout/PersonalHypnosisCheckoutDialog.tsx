@@ -87,16 +87,33 @@ export const PersonalHypnosisCheckoutDialog = ({
       }
 
       // Create order in the new orders table with PENDING status
-      const { error: orderError } = await supabase
+      const { data: newOrder, error: orderError } = await supabase
         .from("orders")
         .insert({
           user_id: user.id,
           product_id: product.id,
           amount: product.price,
           payment_status: "pending",
-        });
+        })
+        .select("id")
+        .single();
 
       if (orderError) throw orderError;
+
+      // Send email notification to admin
+      try {
+        await supabase.functions.invoke("send-order-notification", {
+          body: {
+            orderId: newOrder.id,
+            userEmail: user.email,
+            productName: "אימון תודעתי אישי - סרטון היפנוזה",
+            amount: product.price,
+          },
+        });
+      } catch (emailError) {
+        // Don't fail the order if email fails
+        console.error("Failed to send order notification email:", emailError);
+      }
 
       return { productId: product.id };
     },
