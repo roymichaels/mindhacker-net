@@ -32,3 +32,12 @@ verify_jwt = false
 
 [functions.generate-analytics-report]
 verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.send-form-pdf-email]
+verify_jwt = false
+
+[functions.send-newsletter]
+verify_jwt = false

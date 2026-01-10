@@ -51,6 +51,7 @@ const FormView = lazy(() => import("./pages/FormView"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -102,6 +103,7 @@ const App = () => (
             <Route path="/form/:token" element={<FormView />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             
             {/* Protected user routes */}
             <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
