@@ -108,7 +108,7 @@ const Testimonials = () => {
       if (error) throw error;
       setTestimonials(data || []);
     } catch (error: any) {
-      handleError(error, t('admin.testimonials.loadError') || "לא ניתן לטעון את ההמלצות", "Testimonials.fetchTestimonials");
+      handleError(error, t('adminTestimonials.loadError'), "Testimonials.fetchTestimonials");
     } finally {
       setLoading(false);
     }
@@ -130,8 +130,8 @@ const Testimonials = () => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: t('common.error') || "שגיאה",
-        description: t('admin.testimonials.imageOnlyError') || "יש להעלות קובץ תמונה בלבד",
+        title: t('common.error'),
+        description: t('adminTestimonials.imageOnlyError'),
         variant: "destructive",
       });
       event.target.value = '';
@@ -141,8 +141,8 @@ const Testimonials = () => {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: t('common.error') || "שגיאה",
-        description: t('admin.testimonials.fileSizeError') || "גודל הקובץ חייב להיות קטן מ-5MB",
+        title: t('common.error'),
+        description: t('adminTestimonials.fileSizeError'),
         variant: "destructive",
       });
       event.target.value = '';
@@ -180,13 +180,13 @@ const Testimonials = () => {
       setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
 
       toast({
-        title: t('admin.testimonials.imageUploaded') || "התמונה הועלתה בהצלחה",
+        title: t('adminTestimonials.imageUploaded'),
       });
       
       // Clear the input
       event.target.value = '';
     } catch (error: any) {
-      handleError(error, t('admin.testimonials.uploadError') || "לא ניתן להעלות את התמונה", "Testimonials.handleImageUpload");
+      handleError(error, t('adminTestimonials.uploadError'), "Testimonials.handleImageUpload");
       event.target.value = '';
     } finally {
       setUploading(false);
@@ -203,7 +203,7 @@ const Testimonials = () => {
     if (!result.success) {
       const firstError = result.error.errors[0];
       toast({
-        title: t('admin.validationError') || "שגיאת אימות",
+        title: t('common.error'),
         description: firstError.message,
         variant: "destructive",
       });
@@ -225,14 +225,14 @@ const Testimonials = () => {
           .eq("id", editingTestimonial.id);
 
         if (error) throw error;
-        toast({ title: t('admin.testimonials.updated') || "ההמלצה עודכנה בהצלחה" });
+        toast({ title: t('adminTestimonials.testimonialUpdated') });
       } else {
         const { error } = await supabase
           .from("testimonials")
           .insert([dataToSubmit]);
 
         if (error) throw error;
-        toast({ title: t('admin.testimonials.added') || "ההמלצה נוספה בהצלחה" });
+        toast({ title: t('adminTestimonials.testimonialAdded') });
       }
 
       setDialogOpen(false);
@@ -252,7 +252,7 @@ const Testimonials = () => {
       });
       fetchTestimonials();
     } catch (error: any) {
-      handleError(error, t('admin.testimonials.saveError') || "לא ניתן לשמור את ההמלצה", "Testimonials.handleSubmit");
+      handleError(error, t('adminTestimonials.saveError'), "Testimonials.handleSubmit");
     }
   };
 
@@ -260,10 +260,10 @@ const Testimonials = () => {
     try {
       const { error } = await supabase.from("testimonials").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: t('admin.testimonials.deleted') || "ההמלצה נמחקה בהצלחה" });
+      toast({ title: t('adminTestimonials.testimonialDeleted') });
       fetchTestimonials();
     } catch (error: any) {
-      handleError(error, t('admin.testimonials.deleteError') || "לא ניתן למחוק את ההמלצה", "Testimonials.handleDelete");
+      handleError(error, t('adminTestimonials.deleteError'), "Testimonials.handleDelete");
     }
   };
 
@@ -275,11 +275,11 @@ const Testimonials = () => {
         .eq("id", id);
 
       if (error) throw error;
-      toast({ title: currentFeatured ? (t('admin.testimonials.unfeatured') || "הוסר ממומלצים") : (t('admin.testimonials.featured') || "סומן כמומלץ") });
+      toast({ title: currentFeatured ? t('adminTestimonials.unmarkedFeatured') : t('adminTestimonials.markedFeatured') });
       fetchTestimonials();
     } catch (error: any) {
       toast({
-        title: t('common.error') || "שגיאה",
+        title: t('common.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -302,8 +302,8 @@ const Testimonials = () => {
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black cyber-glow mb-2">{t('admin.testimonials.pageTitle') || 'המלצות'}</h1>
-          <p className="text-muted-foreground">{t('admin.testimonials.pageSubtitle') || 'נהל את ההמלצות המוצגות באתר'}</p>
+          <h1 className="text-4xl font-black cyber-glow mb-2">{t('adminTestimonials.pageTitle')}</h1>
+          <p className="text-muted-foreground">{t('adminTestimonials.pageSubtitle')}</p>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -325,29 +325,29 @@ const Testimonials = () => {
               });
             }}>
               <Plus className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-              {t('admin.testimonials.addButton') || 'הוסף המלצה'}
+              {t('adminTestimonials.addTestimonial')}
             </Button>
           </DialogTrigger>
           <DialogContent className="glass-panel max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingTestimonial ? (t('admin.testimonials.editTitle') || "ערוך המלצה") : (t('admin.testimonials.addTitle') || "הוסף המלצה חדשה")}</DialogTitle>
-              <DialogDescription>{t('admin.testimonials.dialogDesc') || 'הוסף את פרטי ההמלצה בעברית ובאנגלית'}</DialogDescription>
+              <DialogTitle>{editingTestimonial ? t('adminTestimonials.editTestimonial') : t('adminTestimonials.newTestimonial')}</DialogTitle>
+              <DialogDescription>{t('adminTestimonials.dialogDescription')}</DialogDescription>
             </DialogHeader>
             
             <Tabs defaultValue="hebrew" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="hebrew" className="gap-2">
-                  🇮🇱 {t('admin.hebrew') || 'עברית'}
+                  🇮🇱 {isRTL ? 'עברית' : 'Hebrew'}
                 </TabsTrigger>
                 <TabsTrigger value="english" className="gap-2">
-                  🇺🇸 {t('admin.english') || 'English'}
+                  🇺🇸 English
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="hebrew" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>{t('admin.testimonials.name') || 'שם מלא'}</Label>
+                    <Label>{t('adminTestimonials.fullName')}</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -356,22 +356,22 @@ const Testimonials = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>{t('admin.testimonials.role') || 'תפקיד'}</Label>
+                    <Label>{t('adminTestimonials.role')}</Label>
                     <Input
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                      placeholder="תפקיד או תואר"
+                      placeholder={t('adminTestimonials.rolePlaceholder')}
                       className="text-right"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{t('admin.testimonials.quote') || 'המלצה'}</Label>
+                  <Label>{t('adminTestimonials.testimonial')}</Label>
                   <Textarea
                     value={formData.quote}
                     onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
-                    placeholder="הכנס את ההמלצה..."
+                    placeholder={t('adminTestimonials.enterTestimonial')}
                     className="text-right min-h-32"
                   />
                 </div>
@@ -416,7 +416,7 @@ const Testimonials = () => {
 
             <div className="space-y-4 pt-4 border-t">
               <div className="space-y-2">
-                <Label>{t('admin.testimonials.avatar') || 'תמונת פרופיל (אופציונלי)'}</Label>
+                <Label>{t('adminTestimonials.profileImage')}</Label>
                 {formData.avatar_url ? (
                   <div className="space-y-2">
                     <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
@@ -447,12 +447,12 @@ const Testimonials = () => {
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  {t('admin.testimonials.avatarHint') || 'אם לא תעלה תמונה, יוצגו ראשי תיבות (מקסימום 5MB)'}
+                  {t('adminTestimonials.noImageNote')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>{t('admin.testimonials.initials') || 'ראשי תיבות (יתמלא אוטומטית אם ריק)'}</Label>
+                <Label>{t('adminTestimonials.initials')}</Label>
                 <Input
                   value={formData.initials}
                   onChange={(e) => setFormData({ ...formData, initials: e.target.value })}
@@ -464,14 +464,14 @@ const Testimonials = () => {
 
               <div className="flex gap-4">
                 <div className="flex items-center justify-between flex-1">
-                  <Label>{t('admin.testimonials.active') || 'פעיל'}</Label>
+                  <Label>{t('adminTestimonials.active')}</Label>
                   <Switch
                     checked={formData.is_active}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between flex-1">
-                  <Label>{t('admin.testimonials.featuredLabel') || 'מומלץ'}</Label>
+                  <Label>{t('adminTestimonials.featured')}</Label>
                   <Switch
                     checked={formData.is_featured}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
