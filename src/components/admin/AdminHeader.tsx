@@ -43,13 +43,11 @@ const AdminHeader = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] sm:w-[320px] p-0 h-full" dir="rtl">
-              <div className="h-full overflow-hidden">
-                <AdminSidebar 
-                  isMobile={true} 
-                  onNavigate={() => setMobileMenuOpen(false)} 
-                />
-              </div>
+            <SheetContent side="right" className="w-[280px] sm:w-[320px] p-0 h-full overflow-hidden" dir="rtl">
+              <AdminSidebar 
+                isMobile={true} 
+                onNavigate={() => setMobileMenuOpen(false)} 
+              />
             </SheetContent>
           </Sheet>
         </div>
