@@ -108,12 +108,12 @@ export const LiveActivityFeed = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-24 z-40" style={{ [isRTL ? 'right' : 'left']: '1rem' }}>
+    <div className="fixed bottom-32 z-30 pointer-events-none" style={{ [isRTL ? 'left' : 'left']: '1rem' }}>
       {/* Viewer count badge */}
       <motion.div
-        initial={{ opacity: 0, x: isRTL ? 50 : -50 }}
+        initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
-        className="glass-panel px-3 py-2 mb-2 flex items-center gap-2 text-sm"
+        className="glass-panel px-3 py-2 mb-2 flex items-center gap-2 text-sm pointer-events-auto"
       >
         <div className="relative">
           <Users className="h-4 w-4 text-primary" />
@@ -133,11 +133,11 @@ export const LiveActivityFeed = () => {
         {activities.map((activity) => (
           <motion.div
             key={activity.id}
-            initial={{ opacity: 0, x: isRTL ? 100 : -100, scale: 0.8 }}
+            initial={{ opacity: 0, x: -100, scale: 0.8 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: isRTL ? 100 : -100, scale: 0.8 }}
+            exit={{ opacity: 0, x: -100, scale: 0.8 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="glass-panel px-4 py-3 mb-2 max-w-[280px] border-primary/30"
+            className="glass-panel px-4 py-3 mb-2 max-w-[280px] border-primary/30 pointer-events-auto"
           >
             <div className="flex items-start gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 animate-pulse flex-shrink-0" />
