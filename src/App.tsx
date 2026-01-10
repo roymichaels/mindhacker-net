@@ -9,6 +9,7 @@ import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 import MatrixRain from "@/components/MatrixRain";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
@@ -152,6 +153,7 @@ const App = () => (
                   <CookieConsent />
                   <ChatWidget />
                   <LiveActivityFeed />
+                  <WhatsAppButton />
                   <ProgressiveEngagement />
                 </Suspense>
               </AnalyticsProvider>

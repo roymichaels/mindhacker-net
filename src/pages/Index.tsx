@@ -13,7 +13,6 @@ const AboutSection = lazy(() => import("@/components/AboutSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const Footer = lazy(() => import("@/components/Footer"));
-const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 
 const Index = () => {
   const { t } = useTranslation();
@@ -46,10 +45,6 @@ const Index = () => {
         </Suspense>
       </main>
 
-      {/* Floating Elements */}
-      <Suspense fallback={null}>
-        <WhatsAppButton />
-      </Suspense>
     </div>
   );
 };
