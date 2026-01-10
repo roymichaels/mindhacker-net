@@ -32,6 +32,8 @@ export const en: TranslationKeys = {
     loggingIn: "Logging in...",
     creatingAccount: "Creating account...",
     unknown: "Unknown",
+    on: "Enabled",
+    off: "Disabled",
   },
   header: {
     brandName: "Mind Hacker",
