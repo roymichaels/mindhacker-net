@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,6 +104,7 @@ const Leads = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     fetchAllLeads();
@@ -159,6 +161,8 @@ const Leads = () => {
         )
       );
 
+      // Invalidate sidebar badge cache when status changes
+      queryClient.invalidateQueries({ queryKey: ['admin-new-leads'] });
       toast({ title: `סטטוס עודכן ל-${statusLabels[newStatus]}` });
     } catch (error) {
       console.error("Error updating lead:", error);
@@ -259,6 +263,8 @@ const Leads = () => {
       if (error) throw error;
 
       setLeads((prev) => prev.filter((l) => l.id !== leadToDelete.id));
+      // Invalidate sidebar badge cache
+      queryClient.invalidateQueries({ queryKey: ['admin-new-leads'] });
       toast({ title: "ליד נמחק בהצלחה" });
       setLeadToDelete(null);
     } catch (error) {
@@ -282,6 +288,8 @@ const Leads = () => {
       if (error) throw error;
 
       setExitLeads((prev) => prev.filter((l) => l.id !== exitLeadToDelete.id));
+      // Invalidate sidebar badge cache
+      queryClient.invalidateQueries({ queryKey: ['admin-new-leads'] });
       toast({ title: "ליד נמחק בהצלחה" });
       setExitLeadToDelete(null);
     } catch (error) {
