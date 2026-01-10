@@ -61,6 +61,7 @@ const Forms = lazy(() => import("./pages/admin/Forms"));
 const Newsletter = lazy(() => import("./pages/admin/Newsletter"));
 const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 const ChatAssistant = lazy(() => import("./pages/admin/ChatAssistant"));
+const Videos = lazy(() => import("./pages/admin/Videos"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -136,6 +137,7 @@ const App = () => (
                       <Route path="leads" element={<Leads />} />
                       <Route path="content" element={<Content />} />
                       <Route path="menu" element={<MenuManagement />} />
+                      <Route path="videos" element={<Videos />} />
                       <Route path="recordings" element={<Recordings />} />
                       <Route path="consciousness-leap" element={<ConsciousnessLeap />} />
                       <Route path="forms" element={<Forms />} />
