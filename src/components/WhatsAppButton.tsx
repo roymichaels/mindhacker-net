@@ -98,11 +98,10 @@ const WhatsAppButton = () => {
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 w-14 h-14 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 group animate-bounce-slow"
-      style={{ animationDuration: "3s" }}
+      className="fixed bottom-4 right-4 md:bottom-8 md:right-28 z-50 w-12 h-12 md:w-16 md:h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 group"
       aria-label={t('whatsapp.ariaLabel')}
     >
-      <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-white" />
+      <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-white" />
       
       {/* Pulse ring */}
       <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
