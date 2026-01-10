@@ -82,22 +82,22 @@ export const LiveActivityFeed = () => {
   // Generate random activities
   useEffect(() => {
     const generateActivity = () => {
-      if (Math.random() > 0.4) { // 60% chance to show activity
+      if (Math.random() > 0.6) { // 40% chance to show activity (reduced from 60%)
         const newActivity = generateRandomActivity(language);
-        setActivities(prev => [newActivity, ...prev].slice(0, 3));
+        setActivities(prev => [newActivity, ...prev].slice(0, 2)); // Max 2 activities
         
-        // Remove after 5 seconds
+        // Remove after 6 seconds
         setTimeout(() => {
           setActivities(prev => prev.filter(a => a.id !== newActivity.id));
-        }, 5000);
+        }, 6000);
       }
     };
 
-    // First activity after 8 seconds
-    const firstTimer = setTimeout(generateActivity, 8000);
+    // First activity after 15 seconds (increased from 8)
+    const firstTimer = setTimeout(generateActivity, 15000);
     
-    // Then every 20-40 seconds
-    const interval = setInterval(generateActivity, 20000 + Math.random() * 20000);
+    // Then every 40-80 seconds (doubled from 20-40)
+    const interval = setInterval(generateActivity, 40000 + Math.random() * 40000);
 
     return () => {
       clearTimeout(firstTimer);
