@@ -11,14 +11,17 @@ import { useTranslation } from "@/hooks/useTranslation";
 interface Testimonial {
   id: string;
   name: string;
+  name_en: string | null;
   role: string | null;
+  role_en: string | null;
   quote: string;
+  quote_en: string | null;
   avatar_url: string | null;
   initials: string | null;
 }
 
 const TestimonialsSection = () => {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -67,6 +70,16 @@ const TestimonialsSection = () => {
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
+
+  // Helper function to get localized content
+  const getLocalizedContent = (testimonial: Testimonial) => {
+    const isEnglish = language === 'en';
+    return {
+      name: (isEnglish && testimonial.name_en) ? testimonial.name_en : testimonial.name,
+      role: (isEnglish && testimonial.role_en) ? testimonial.role_en : testimonial.role,
+      quote: (isEnglish && testimonial.quote_en) ? testimonial.quote_en : testimonial.quote,
+    };
+  };
 
   if (loading) {
     return (
@@ -123,18 +136,26 @@ const TestimonialsSection = () => {
           {/* Carousel Container */}
           <div ref={emblaRef} className="overflow-hidden px-8 md:px-0">
             <div className="flex">
-              {testimonials.map((testimonial, index) => (
-                <div 
-                  key={testimonial.id} 
-                  className={`flex-[0_0_100%] min-w-0 px-2 md:px-4 transition-all duration-700 ease-out ${
-                    selectedIndex === index 
-                      ? "opacity-100 scale-100" 
-                      : "opacity-0 scale-95"
-                  }`}
-                >
-                  <TestimonialCard testimonial={testimonial} />
-                </div>
-              ))}
+              {testimonials.map((testimonial, index) => {
+                const localized = getLocalizedContent(testimonial);
+                return (
+                  <div 
+                    key={testimonial.id} 
+                    className={`flex-[0_0_100%] min-w-0 px-2 md:px-4 transition-all duration-700 ease-out ${
+                      selectedIndex === index 
+                        ? "opacity-100 scale-100" 
+                        : "opacity-0 scale-95"
+                    }`}
+                  >
+                    <TestimonialCard 
+                      testimonial={testimonial} 
+                      name={localized.name}
+                      role={localized.role}
+                      quote={localized.quote}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -168,7 +189,17 @@ const TestimonialsSection = () => {
   );
 };
 
-const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
+interface TestimonialCardProps {
+  testimonial: {
+    avatar_url: string | null;
+    initials: string | null;
+  };
+  name: string;
+  role: string | null;
+  quote: string;
+}
+
+const TestimonialCard = ({ testimonial, name, role, quote }: TestimonialCardProps) => (
   <Card className="glass-panel border-primary/30 hover:border-primary/60 transition-all duration-500 cyber-border max-w-2xl mx-auto">
     <CardContent className="p-8 md:p-12">
       <div className="flex flex-col items-center text-center space-y-6">
@@ -186,18 +217,18 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
         <Avatar className="w-20 h-20 md:w-24 md:h-24 border-2 border-primary/50">
           <AvatarImage 
             src={testimonial.avatar_url || undefined} 
-            alt={testimonial.name}
+            alt={name}
             loading="lazy"
             decoding="async"
           />
           <AvatarFallback className="bg-primary/20 text-primary text-xl md:text-2xl font-bold">
-            {testimonial.initials || testimonial.name.charAt(0)}
+            {testimonial.initials || name.charAt(0)}
           </AvatarFallback>
         </Avatar>
 
         {/* Quote */}
         <p className="text-lg md:text-xl leading-relaxed text-foreground/90 italic max-w-xl">
-          "{testimonial.quote}"
+          "{quote}"
         </p>
 
         {/* Divider */}
@@ -206,10 +237,10 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
         {/* Name & Role */}
         <div>
           <p className="font-bold text-xl md:text-2xl text-foreground">
-            {testimonial.name}
+            {name}
           </p>
           <p className="text-sm md:text-base text-secondary">
-            {testimonial.role}
+            {role}
           </p>
         </div>
       </div>

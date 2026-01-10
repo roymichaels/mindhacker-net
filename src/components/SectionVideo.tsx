@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const STORAGE_BUCKET = "site-videos";
 
@@ -27,6 +28,7 @@ export const SectionVideo = ({
   buttonText,
   sectionName,
 }: SectionVideoProps) => {
+  const { language } = useLanguage();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -36,22 +38,45 @@ export const SectionVideo = ({
 
   useEffect(() => {
     const fetchVideoSettings = async () => {
+      // Determine which keys to use based on language
+      const urlKey = language === 'en' ? `${settingKeyUrl}_en` : settingKeyUrl;
+      const enabledKey = language === 'en' ? `${settingKeyEnabled}_en` : settingKeyEnabled;
+      
+      // Also fetch the fallback (Hebrew) version in case English isn't available
+      const keysToFetch = language === 'en' 
+        ? [urlKey, enabledKey, settingKeyUrl, settingKeyEnabled] 
+        : [urlKey, enabledKey];
+
       const { data } = await supabase
         .from("site_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", [settingKeyUrl, settingKeyEnabled]);
+        .in("setting_key", keysToFetch);
 
       if (data) {
         const settings = Object.fromEntries(
           data.map((s) => [s.setting_key, s.setting_value])
         );
-        setVideoUrl(settings[settingKeyUrl] || null);
-        setIsEnabled(settings[settingKeyEnabled] === "true");
+        
+        // For English, try language-specific first, then fall back to Hebrew
+        if (language === 'en') {
+          const hasEnglishVideo = settings[urlKey] && settings[enabledKey] === "true";
+          if (hasEnglishVideo) {
+            setVideoUrl(settings[urlKey] || null);
+            setIsEnabled(true);
+          } else {
+            // Fallback to Hebrew video
+            setVideoUrl(settings[settingKeyUrl] || null);
+            setIsEnabled(settings[settingKeyEnabled] === "true");
+          }
+        } else {
+          setVideoUrl(settings[urlKey] || null);
+          setIsEnabled(settings[enabledKey] === "true");
+        }
       }
     };
 
     fetchVideoSettings();
-  }, [settingKeyUrl, settingKeyEnabled]);
+  }, [settingKeyUrl, settingKeyEnabled, language]);
 
   // Resolve the video URL (storage file vs external URL)
   useEffect(() => {
@@ -103,10 +128,11 @@ export const SectionVideo = ({
       trackEvent("video_play", "engagement", sectionName, {
         videoUrl,
         sectionName,
+        language,
       });
       setHasTrackedPlay(true);
     }
-  }, [hasTrackedPlay, sectionName, videoUrl]);
+  }, [hasTrackedPlay, sectionName, videoUrl, language]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -116,10 +142,11 @@ export const SectionVideo = ({
       trackEvent("video_close", "engagement", sectionName, {
         watchTimeSeconds: watchTime,
         sectionName,
+        language,
       });
       videoStartTime.current = null;
     }
-  }, [sectionName]);
+  }, [sectionName, language]);
 
   if (!isEnabled || !resolvedUrl) {
     return null;

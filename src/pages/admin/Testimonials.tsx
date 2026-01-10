@@ -5,29 +5,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Edit, Trash2, Star, Upload, X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, Plus, Edit, Trash2, Star, Upload, X, Globe } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import { handleError } from "@/lib/errorHandling";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const testimonialSchema = z.object({
   name: z.string()
     .trim()
     .min(2, "שם חייב להכיל לפחות 2 תווים")
     .max(100, "שם ארוך מדי"),
+  name_en: z.string()
+    .trim()
+    .max(100, "Name too long")
+    .optional()
+    .or(z.literal("")),
   role: z.string()
     .trim()
     .max(100, "תפקיד ארוך מדי")
+    .optional()
+    .or(z.literal("")),
+  role_en: z.string()
+    .trim()
+    .max(100, "Role too long")
     .optional()
     .or(z.literal("")),
   quote: z.string()
     .trim()
     .min(10, "ציטוט חייב להכיל לפחות 10 תווים")
     .max(1000, "ציטוט ארוך מדי"),
+  quote_en: z.string()
+    .trim()
+    .max(1000, "Quote too long")
+    .optional()
+    .or(z.literal("")),
   avatar_url: z.string()
     .optional()
     .or(z.literal("")),
@@ -43,8 +60,11 @@ const testimonialSchema = z.object({
 interface Testimonial {
   id: string;
   name: string;
+  name_en: string | null;
   role: string | null;
+  role_en: string | null;
   quote: string;
+  quote_en: string | null;
   avatar_url: string | null;
   initials: string | null;
   order_index: number;
@@ -53,6 +73,7 @@ interface Testimonial {
 }
 
 const Testimonials = () => {
+  const { t, isRTL } = useTranslation();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -60,8 +81,11 @@ const Testimonials = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [formData, setFormData] = useState({
     name: "",
+    name_en: "",
     role: "",
+    role_en: "",
     quote: "",
+    quote_en: "",
     avatar_url: "",
     initials: "",
     order_index: 0,
@@ -84,7 +108,7 @@ const Testimonials = () => {
       if (error) throw error;
       setTestimonials(data || []);
     } catch (error: any) {
-      handleError(error, "לא ניתן לטעון את ההמלצות", "Testimonials.fetchTestimonials");
+      handleError(error, t('admin.testimonials.loadError') || "לא ניתן לטעון את ההמלצות", "Testimonials.fetchTestimonials");
     } finally {
       setLoading(false);
     }
@@ -106,8 +130,8 @@ const Testimonials = () => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "שגיאה",
-        description: "יש להעלות קובץ תמונה בלבד",
+        title: t('common.error') || "שגיאה",
+        description: t('admin.testimonials.imageOnlyError') || "יש להעלות קובץ תמונה בלבד",
         variant: "destructive",
       });
       event.target.value = '';
@@ -117,8 +141,8 @@ const Testimonials = () => {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "שגיאה",
-        description: "גודל הקובץ חייב להיות קטן מ-5MB",
+        title: t('common.error') || "שגיאה",
+        description: t('admin.testimonials.fileSizeError') || "גודל הקובץ חייב להיות קטן מ-5MB",
         variant: "destructive",
       });
       event.target.value = '';
@@ -156,14 +180,13 @@ const Testimonials = () => {
       setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
 
       toast({
-        title: "התמונה הועלתה בהצלחה",
-        description: "התמונה נוספה להמלצה",
+        title: t('admin.testimonials.imageUploaded') || "התמונה הועלתה בהצלחה",
       });
       
       // Clear the input
       event.target.value = '';
     } catch (error: any) {
-      handleError(error, "לא ניתן להעלות את התמונה", "Testimonials.handleImageUpload");
+      handleError(error, t('admin.testimonials.uploadError') || "לא ניתן להעלות את התמונה", "Testimonials.handleImageUpload");
       event.target.value = '';
     } finally {
       setUploading(false);
@@ -180,7 +203,7 @@ const Testimonials = () => {
     if (!result.success) {
       const firstError = result.error.errors[0];
       toast({
-        title: "שגיאת אימות",
+        title: t('admin.validationError') || "שגיאת אימות",
         description: firstError.message,
         variant: "destructive",
       });
@@ -202,22 +225,25 @@ const Testimonials = () => {
           .eq("id", editingTestimonial.id);
 
         if (error) throw error;
-        toast({ title: "ההמלצה עודכנה בהצלחה" });
+        toast({ title: t('admin.testimonials.updated') || "ההמלצה עודכנה בהצלחה" });
       } else {
         const { error } = await supabase
           .from("testimonials")
           .insert([dataToSubmit]);
 
         if (error) throw error;
-        toast({ title: "ההמלצה נוספה בהצלחה" });
+        toast({ title: t('admin.testimonials.added') || "ההמלצה נוספה בהצלחה" });
       }
 
       setDialogOpen(false);
       setEditingTestimonial(null);
       setFormData({
         name: "",
+        name_en: "",
         role: "",
+        role_en: "",
         quote: "",
+        quote_en: "",
         avatar_url: "",
         initials: "",
         order_index: 0,
@@ -226,7 +252,7 @@ const Testimonials = () => {
       });
       fetchTestimonials();
     } catch (error: any) {
-      handleError(error, "לא ניתן לשמור את ההמלצה", "Testimonials.handleSubmit");
+      handleError(error, t('admin.testimonials.saveError') || "לא ניתן לשמור את ההמלצה", "Testimonials.handleSubmit");
     }
   };
 
@@ -234,10 +260,10 @@ const Testimonials = () => {
     try {
       const { error } = await supabase.from("testimonials").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "ההמלצה נמחקה בהצלחה" });
+      toast({ title: t('admin.testimonials.deleted') || "ההמלצה נמחקה בהצלחה" });
       fetchTestimonials();
     } catch (error: any) {
-      handleError(error, "לא ניתן למחוק את ההמלצה", "Testimonials.handleDelete");
+      handleError(error, t('admin.testimonials.deleteError') || "לא ניתן למחוק את ההמלצה", "Testimonials.handleDelete");
     }
   };
 
@@ -249,15 +275,19 @@ const Testimonials = () => {
         .eq("id", id);
 
       if (error) throw error;
-      toast({ title: currentFeatured ? "הוסר ממומלצים" : "סומן כמומלץ" });
+      toast({ title: currentFeatured ? (t('admin.testimonials.unfeatured') || "הוסר ממומלצים") : (t('admin.testimonials.featured') || "סומן כמומלץ") });
       fetchTestimonials();
     } catch (error: any) {
       toast({
-        title: "שגיאה",
+        title: t('common.error') || "שגיאה",
         description: error.message,
         variant: "destructive",
       });
     }
+  };
+
+  const hasEnglishTranslation = (testimonial: Testimonial) => {
+    return Boolean(testimonial.name_en && testimonial.quote_en);
   };
 
   if (loading) {
@@ -269,11 +299,11 @@ const Testimonials = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black cyber-glow mb-2">המלצות</h1>
-          <p className="text-muted-foreground">נהל את ההמלצות המוצגות באתר</p>
+          <h1 className="text-4xl font-black cyber-glow mb-2">{t('admin.testimonials.pageTitle') || 'המלצות'}</h1>
+          <p className="text-muted-foreground">{t('admin.testimonials.pageSubtitle') || 'נהל את ההמלצות המוצגות באתר'}</p>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -282,8 +312,11 @@ const Testimonials = () => {
               setEditingTestimonial(null);
               setFormData({
                 name: "",
+                name_en: "",
                 role: "",
+                role_en: "",
                 quote: "",
+                quote_en: "",
                 avatar_url: "",
                 initials: "",
                 order_index: testimonials.length,
@@ -291,48 +324,99 @@ const Testimonials = () => {
                 is_featured: false,
               });
             }}>
-              <Plus className="ml-2 h-4 w-4" />
-              הוסף המלצה
+              <Plus className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+              {t('admin.testimonials.addButton') || 'הוסף המלצה'}
             </Button>
           </DialogTrigger>
-          <DialogContent className="glass-panel max-w-2xl">
+          <DialogContent className="glass-panel max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingTestimonial ? "ערוך המלצה" : "הוסף המלצה חדשה"}</DialogTitle>
+              <DialogTitle>{editingTestimonial ? (t('admin.testimonials.editTitle') || "ערוך המלצה") : (t('admin.testimonials.addTitle') || "הוסף המלצה חדשה")}</DialogTitle>
+              <DialogDescription>{t('admin.testimonials.dialogDesc') || 'הוסף את פרטי ההמלצה בעברית ובאנגלית'}</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            
+            <Tabs defaultValue="hebrew" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="hebrew" className="gap-2">
+                  🇮🇱 {t('admin.hebrew') || 'עברית'}
+                </TabsTrigger>
+                <TabsTrigger value="english" className="gap-2">
+                  🇺🇸 {t('admin.english') || 'English'}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="hebrew" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.testimonials.name') || 'שם מלא'}</Label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="שם מלא"
+                      className="text-right"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.testimonials.role') || 'תפקיד'}</Label>
+                    <Input
+                      value={formData.role}
+                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      placeholder="תפקיד או תואר"
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label>שם מלא</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="שם מלא"
-                    className="text-right"
+                  <Label>{t('admin.testimonials.quote') || 'המלצה'}</Label>
+                  <Textarea
+                    value={formData.quote}
+                    onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
+                    placeholder="הכנס את ההמלצה..."
+                    className="text-right min-h-32"
                   />
                 </div>
+              </TabsContent>
+
+              <TabsContent value="english" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name (English)</Label>
+                    <Input
+                      value={formData.name_en}
+                      onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                      placeholder="Full name in English"
+                      className="text-left"
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Role (English)</Label>
+                    <Input
+                      value={formData.role_en}
+                      onChange={(e) => setFormData({ ...formData, role_en: e.target.value })}
+                      placeholder="Role or title"
+                      className="text-left"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label>תפקיד</Label>
-                  <Input
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    placeholder="תפקיד או תואר"
-                    className="text-right"
+                  <Label>Testimonial (English)</Label>
+                  <Textarea
+                    value={formData.quote_en}
+                    onChange={(e) => setFormData({ ...formData, quote_en: e.target.value })}
+                    placeholder="Enter the testimonial in English..."
+                    className="text-left min-h-32"
+                    dir="ltr"
                   />
                 </div>
-              </div>
+              </TabsContent>
+            </Tabs>
 
+            <div className="space-y-4 pt-4 border-t">
               <div className="space-y-2">
-                <Label>המלצה</Label>
-                <Textarea
-                  value={formData.quote}
-                  onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
-                  placeholder="הכנס את ההמלצה..."
-                  className="text-right min-h-32"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>תמונת פרופיל (אופציונלי)</Label>
+                <Label>{t('admin.testimonials.avatar') || 'תמונת פרופיל (אופציונלי)'}</Label>
                 {formData.avatar_url ? (
                   <div className="space-y-2">
                     <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
@@ -357,37 +441,37 @@ const Testimonials = () => {
                       accept="image/*"
                       onChange={handleImageUpload}
                       disabled={uploading}
-                      className="text-right"
+                      className={isRTL ? "text-right" : "text-left"}
                     />
                     {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  אם לא תעלה תמונה, יוצגו ראשי תיבות (מקסימום 5MB)
+                  {t('admin.testimonials.avatarHint') || 'אם לא תעלה תמונה, יוצגו ראשי תיבות (מקסימום 5MB)'}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>ראשי תיבות (יתמלא אוטומטית אם ריק)</Label>
+                <Label>{t('admin.testimonials.initials') || 'ראשי תיבות (יתמלא אוטומטית אם ריק)'}</Label>
                 <Input
                   value={formData.initials}
                   onChange={(e) => setFormData({ ...formData, initials: e.target.value })}
                   placeholder="א.ב"
-                  className="text-right"
+                  className={isRTL ? "text-right" : "text-left"}
                   maxLength={3}
                 />
               </div>
 
               <div className="flex gap-4">
                 <div className="flex items-center justify-between flex-1">
-                  <Label>פעיל</Label>
+                  <Label>{t('admin.testimonials.active') || 'פעיל'}</Label>
                   <Switch
                     checked={formData.is_active}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between flex-1">
-                  <Label>מומלץ</Label>
+                  <Label>{t('admin.testimonials.featuredLabel') || 'מומלץ'}</Label>
                   <Switch
                     checked={formData.is_featured}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
@@ -396,7 +480,7 @@ const Testimonials = () => {
               </div>
 
               <Button onClick={handleSubmit} className="w-full">
-                {editingTestimonial ? "עדכן" : "הוסף"}
+                {editingTestimonial ? (t('common.update') || "עדכן") : (t('common.add') || "הוסף")}
               </Button>
             </div>
           </DialogContent>
@@ -408,7 +492,14 @@ const Testimonials = () => {
           <Card key={testimonial.id} className="glass-panel border-primary/20 relative">
             <CardContent className="p-6">
               {testimonial.is_featured && (
-                <Star className="absolute top-4 left-4 h-5 w-5 text-yellow-500 fill-yellow-500" />
+                <Star className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} h-5 w-5 text-yellow-500 fill-yellow-500`} />
+              )}
+              
+              {/* Translation indicator */}
+              {hasEnglishTranslation(testimonial) && (
+                <span title={t('admin.testimonials.hasEnglish') || 'Has English translation'}>
+                  <Globe className={`absolute top-4 ${isRTL ? 'left-12' : 'right-12'} h-4 w-4 text-green-500`} />
+                </span>
               )}
               
               <div className="flex items-start gap-4 mb-4">
@@ -420,6 +511,9 @@ const Testimonials = () => {
                 </Avatar>
                 <div className="flex-1">
                   <h3 className="font-bold">{testimonial.name}</h3>
+                  {testimonial.name_en && (
+                    <p className="text-xs text-muted-foreground" dir="ltr">{testimonial.name_en}</p>
+                  )}
                   {testimonial.role && (
                     <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                   )}
@@ -430,14 +524,15 @@ const Testimonials = () => {
 
               <div className="flex gap-2 items-center">
                 <span className={`px-2 py-1 rounded-full text-xs ${testimonial.is_active ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'}`}>
-                  {testimonial.is_active ? 'פעיל' : 'לא פעיל'}
+                  {testimonial.is_active ? (t('common.active') || 'פעיל') : (t('common.inactive') || 'לא פעיל')}
                 </span>
                 
-                <div className="flex gap-2 mr-auto">
+                <div className={`flex gap-2 ${isRTL ? 'mr-auto' : 'ml-auto'}`}>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => toggleFeatured(testimonial.id, testimonial.is_featured)}
+                    aria-label={t('admin.testimonials.toggleFeatured') || 'Toggle featured'}
                   >
                     <Star className={`h-4 w-4 ${testimonial.is_featured ? 'fill-yellow-500 text-yellow-500' : ''}`} />
                   </Button>
@@ -446,28 +541,41 @@ const Testimonials = () => {
                     variant="ghost"
                     onClick={() => {
                       setEditingTestimonial(testimonial);
-                      setFormData(testimonial);
+                      setFormData({
+                        name: testimonial.name,
+                        name_en: testimonial.name_en || "",
+                        role: testimonial.role || "",
+                        role_en: testimonial.role_en || "",
+                        quote: testimonial.quote,
+                        quote_en: testimonial.quote_en || "",
+                        avatar_url: testimonial.avatar_url || "",
+                        initials: testimonial.initials || "",
+                        order_index: testimonial.order_index,
+                        is_active: testimonial.is_active,
+                        is_featured: testimonial.is_featured,
+                      });
                       setDialogOpen(true);
                     }}
+                    aria-label={t('common.edit') || 'Edit'}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="ghost" className="text-destructive">
+                      <Button size="sm" variant="ghost" className="text-destructive" aria-label={t('common.delete') || 'Delete'}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="glass-panel">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>למחוק המלצה זו?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('admin.testimonials.deleteTitle') || 'למחוק המלצה זו?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          פעולה זו לא ניתנת לביטול. ההמלצה תימחק לצמיתות.
+                          {t('admin.testimonials.deleteDesc') || 'פעולה זו לא ניתנת לביטול. ההמלצה תימחק לצמיתות.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>ביטול</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>מחק</AlertDialogAction>
+                        <AlertDialogCancel>{t('common.cancel') || 'ביטול'}</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('common.delete') || 'מחק'}</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
