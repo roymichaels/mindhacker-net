@@ -36,6 +36,7 @@ export const he = {
     status: "סטטוס",
     saveChanges: "שמור שינויים",
     email: "אימייל",
+    language: "שפה",
   },
   header: {
     brandName: "מיינד האקר",
