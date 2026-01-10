@@ -4,11 +4,14 @@ import { Play, X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/useTranslation";
 
+const STORAGE_BUCKET = "site-videos";
+
 const HeroVideo = () => {
   const { t } = useTranslation();
   const [videoUrl, setVideoUrl] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [resolvedUrl, setResolvedUrl] = useState("");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -31,7 +34,29 @@ const HeroVideo = () => {
     fetchSettings();
   }, []);
 
-  if (!enabled || !videoUrl) return null;
+  // Resolve the video URL (storage file vs external URL)
+  useEffect(() => {
+    if (!videoUrl) {
+      setResolvedUrl("");
+      return;
+    }
+
+    // Check if it's an external URL (YouTube, Vimeo, or any http(s))
+    if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
+      setResolvedUrl(videoUrl);
+    } else {
+      // It's a storage path - get public URL
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(videoUrl);
+      setResolvedUrl(data.publicUrl);
+    }
+  }, [videoUrl]);
+
+  if (!enabled || !resolvedUrl) return null;
+
+  // Check if it's a YouTube/Vimeo URL
+  const isExternalEmbed = resolvedUrl.includes("youtube.com") || 
+                          resolvedUrl.includes("youtu.be") || 
+                          resolvedUrl.includes("vimeo.com");
 
   // Convert YouTube URL to embed format
   const getEmbedUrl = (url: string) => {
@@ -39,6 +64,11 @@ const HeroVideo = () => {
     const match = url.match(youtubeRegex);
     if (match) {
       return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
+    }
+    // Vimeo
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
     }
     return url;
   };
@@ -71,12 +101,21 @@ const HeroVideo = () => {
             <X className="w-5 h-5 text-white" />
           </button>
           <div className="aspect-video w-full">
-            <iframe
-              src={getEmbedUrl(videoUrl)}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {isExternalEmbed ? (
+              <iframe
+                src={getEmbedUrl(resolvedUrl)}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={resolvedUrl}
+                className="w-full h-full"
+                controls
+                autoPlay
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>

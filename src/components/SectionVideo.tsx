@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
+const STORAGE_BUCKET = "site-videos";
+
 interface SectionVideoProps {
   settingKeyUrl: string;
   settingKeyEnabled: string;
@@ -26,6 +28,7 @@ export const SectionVideo = ({
   sectionName,
 }: SectionVideoProps) => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [hasTrackedPlay, setHasTrackedPlay] = useState(false);
@@ -49,6 +52,30 @@ export const SectionVideo = ({
 
     fetchVideoSettings();
   }, [settingKeyUrl, settingKeyEnabled]);
+
+  // Resolve the video URL (storage file vs external URL)
+  useEffect(() => {
+    if (!videoUrl) {
+      setResolvedUrl(null);
+      return;
+    }
+
+    // Check if it's an external URL (YouTube, Vimeo, or any http(s))
+    if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
+      setResolvedUrl(videoUrl);
+    } else {
+      // It's a storage path - get public URL
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(videoUrl);
+      setResolvedUrl(data.publicUrl);
+    }
+  }, [videoUrl]);
+
+  // Check if it's a YouTube/Vimeo URL
+  const isExternalEmbed = resolvedUrl && (
+    resolvedUrl.includes("youtube.com") || 
+    resolvedUrl.includes("youtu.be") || 
+    resolvedUrl.includes("vimeo.com")
+  );
 
   const getEmbedUrl = (url: string): string => {
     // Convert YouTube URLs to embed format
@@ -94,7 +121,7 @@ export const SectionVideo = ({
     }
   }, [sectionName]);
 
-  if (!isEnabled || !videoUrl) {
+  if (!isEnabled || !resolvedUrl) {
     return null;
   }
 
@@ -122,13 +149,22 @@ export const SectionVideo = ({
             <X className="w-5 h-5 text-white" />
           </button>
           <div className="relative aspect-video w-full">
-            <iframe
-              src={getEmbedUrl(videoUrl)}
-              className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title={title}
-            />
+            {isExternalEmbed ? (
+              <iframe
+                src={getEmbedUrl(resolvedUrl)}
+                className="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={title}
+              />
+            ) : (
+              <video
+                src={resolvedUrl}
+                className="absolute inset-0 w-full h-full"
+                controls
+                autoPlay
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>

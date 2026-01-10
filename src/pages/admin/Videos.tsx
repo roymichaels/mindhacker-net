@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useSiteSettings, clearSettingsCache } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { VideoLibrary } from "@/components/admin/recordings/VideoLibrary";
-import { Video, Layout, Play, Loader2, User, Gift, Brain, Rocket, Youtube, Check, ExternalLink } from "lucide-react";
+import { Video, Layout, Play, Loader2, User, Gift, Brain, Rocket, Upload, Check, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface VideoSetting {
   key: string;
@@ -65,44 +75,103 @@ const videoSettings: VideoSetting[] = [
   },
 ];
 
+const STORAGE_BUCKET = "site-videos";
+
 const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
   const { t, isRTL } = useTranslation();
   const { toast } = useToast();
   const { settings, loading } = useSiteSettings();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [url, setUrl] = useState("");
+  const [videoPath, setVideoPath] = useState("");
   const [enabled, setEnabled] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Initialize from settings when loaded
   useEffect(() => {
     if (!loading) {
       const settingsAny = settings as any;
-      setUrl(settingsAny[setting.key] || "");
+      setVideoPath(settingsAny[setting.key] || "");
       setEnabled(settingsAny[setting.enabledKey] === true || settingsAny[setting.enabledKey] === "true");
     }
   }, [loading, settings, setting.key, setting.enabledKey]);
 
-  const handleSave = async () => {
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${setting.key.replace(/_url$/, "")}-${Date.now()}.${fileExt}`;
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => Math.min(prev + 5, 90));
+      }, 300);
+
+      // Delete old file if exists
+      if (videoPath) {
+        await supabase.storage.from(STORAGE_BUCKET).remove([videoPath]);
+      }
+
+      // Upload new file
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(fileName, file, { upsert: true });
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      if (uploadError) throw uploadError;
+
+      // Save the path to settings
+      await supabase
+        .from("site_settings")
+        .upsert(
+          { setting_key: setting.key, setting_value: fileName },
+          { onConflict: "setting_key" }
+        );
+
+      setVideoPath(fileName);
+      clearSettingsCache();
+      toast({ title: t("admin.videosPage.uploaded") || "הסרטון הועלה בהצלחה" });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({ title: t("admin.videosPage.uploadError") || "שגיאה בהעלאה", variant: "destructive" });
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleToggle = async (newEnabled: boolean) => {
+    setEnabled(newEnabled);
     setSaving(true);
     try {
-      // Upsert URL setting
       await supabase
         .from("site_settings")
         .upsert(
-          { setting_key: setting.key, setting_value: url },
+          { setting_key: setting.enabledKey, setting_value: newEnabled.toString() },
           { onConflict: "setting_key" }
         );
-
-      // Upsert enabled setting
-      await supabase
-        .from("site_settings")
-        .upsert(
-          { setting_key: setting.enabledKey, setting_value: enabled.toString() },
-          { onConflict: "setting_key" }
-        );
-
+      clearSettingsCache();
       toast({ title: t("admin.videosPage.saved") });
     } catch (error) {
       toast({ title: t("admin.videosPage.saveError"), variant: "destructive" });
@@ -111,22 +180,38 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
     }
   };
 
-  const getEmbedUrl = (videoUrl: string) => {
-    if (!videoUrl) return "";
+  const handlePreview = async () => {
+    if (!videoPath) return;
     
-    // YouTube
-    const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (ytMatch) {
-      return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`;
+    try {
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(videoPath);
+      setPreviewUrl(data.publicUrl);
+      setPreviewOpen(true);
+    } catch (error) {
+      toast({ title: "שגיאה בטעינת הסרטון", variant: "destructive" });
     }
-    
-    // Vimeo
-    const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+  };
+
+  const handleDelete = async () => {
+    if (!videoPath) return;
+
+    try {
+      await supabase.storage.from(STORAGE_BUCKET).remove([videoPath]);
+      await supabase
+        .from("site_settings")
+        .upsert(
+          { setting_key: setting.key, setting_value: "" },
+          { onConflict: "setting_key" }
+        );
+      
+      setVideoPath("");
+      clearSettingsCache();
+      toast({ title: t("admin.videosPage.deleted") || "הסרטון נמחק" });
+    } catch (error) {
+      toast({ title: "שגיאה במחיקה", variant: "destructive" });
+    } finally {
+      setDeleteDialogOpen(false);
     }
-    
-    return videoUrl;
   };
 
   const Icon = setting.icon;
@@ -149,91 +234,134 @@ const VideoSettingsCard = ({ setting }: { setting: VideoSetting }) => {
             </div>
             <div className="flex items-center gap-2">
               <Label htmlFor={`switch-${setting.key}`} className="text-sm text-muted-foreground">
-                {enabled ? t("common.on") || "מופעל" : t("common.off") || "כבוי"}
+                {enabled ? (t("common.on") || "מופעל") : (t("common.off") || "כבוי")}
               </Label>
               <Switch
                 id={`switch-${setting.key}`}
                 checked={enabled}
-                onCheckedChange={setEnabled}
+                onCheckedChange={handleToggle}
+                disabled={saving}
               />
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Youtube className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder={t("admin.videosPage.urlPlaceholder")}
-                className={isRTL ? "pr-10" : "pl-10"}
-                dir="ltr"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPreviewOpen(true)}
-              disabled={!url}
-              className="gap-2"
-            >
-              <Play className="h-4 w-4" />
-              {t("admin.videosPage.preview")}
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={saving}
-              className="gap-2"
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Check className="h-4 w-4" />
-              )}
-              {t("common.save")}
-            </Button>
+          {/* Upload Area */}
+          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors relative">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/mp4,video/mov,video/webm,video/avi,.mp4,.mov,.webm,.avi"
+              onChange={handleFileSelect}
+              className="hidden"
+              id={`file-${setting.key}`}
+              disabled={uploading}
+            />
+            
+            {uploading ? (
+              <div className="space-y-3">
+                <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin" />
+                <p className="text-sm text-muted-foreground">{t("admin.videosPage.uploading") || "מעלה..."}</p>
+                <Progress value={uploadProgress} className="h-2 max-w-xs mx-auto" />
+                <p className="text-xs text-muted-foreground">{uploadProgress}%</p>
+              </div>
+            ) : videoPath ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Check className="h-6 w-6 text-green-500" />
+                  <Video className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-green-600">{t("admin.videosPage.videoUploaded") || "סרטון הועלה"}</p>
+                <p className="text-xs text-muted-foreground truncate max-w-xs mx-auto">{videoPath}</p>
+                <div className="flex gap-2 justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePreview}
+                    className="gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    {t("admin.videosPage.preview")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {t("admin.videosPage.replace") || "החלף"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    className="gap-2 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <label htmlFor={`file-${setting.key}`} className="cursor-pointer">
+                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {t("admin.videosPage.dropOrClick") || "לחץ לבחירת קובץ או גרור לכאן"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  MP4, MOV, WebM, AVI
+                </p>
+              </label>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl" dir={isRTL ? "rtl" : "ltr"}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon className="h-5 w-5" />
               {t(setting.titleKey)}
             </DialogTitle>
+            <DialogDescription>
+              {t("admin.videosPage.previewDescription") || "תצוגה מקדימה של הסרטון"}
+            </DialogDescription>
           </DialogHeader>
           <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
-            {previewOpen && url && (
-              <iframe
-                src={getEmbedUrl(url)}
+            {previewOpen && previewUrl && (
+              <video
+                src={previewUrl}
+                controls
+                autoPlay
                 className="w-full h-full"
-                allow="autoplay; fullscreen"
-                allowFullScreen
               />
             )}
           </div>
-          {url && (
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(url, "_blank")}
-                className="gap-2"
-              >
-                <ExternalLink className="h-4 w-4" />
-                {t("common.openInNewTab") || "פתח בחלון חדש"}
-              </Button>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent dir={isRTL ? "rtl" : "ltr"}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("admin.deleteConfirm")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin.videosPage.deleteWarning") || "האם למחוק את הסרטון? פעולה זו לא ניתנת לביטול."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={isRTL ? "flex-row-reverse gap-2" : "gap-2"}>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
