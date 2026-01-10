@@ -18,8 +18,8 @@ const hebrewNames = [
 ];
 
 const englishNames = [
-  "Sarah", "Daniel", "Noah", "Michael", "Emily", "David", "Emma", "James", "Sophie", "Alex",
-  "Rachel", "Tom", "Hannah", "Ben", "Mia", "Jack", "Leah", "Ryan", "Olivia", "Ethan"
+  "Yoav", "Noa", "Tamar", "Oren", "Maya", "Gal", "Shira", "Eitan", "Lior", "Amit",
+  "Yael", "Rotem", "Hila", "Ido", "Talia", "Omer", "Dana", "Ariel", "Shani", "Tomer"
 ];
 
 const generateRandomActivity = (language: string): Activity => {
@@ -59,7 +59,7 @@ export const LiveActivityFeed = () => {
 
   // Initialize viewer count
   useEffect(() => {
-    const baseViewers = Math.floor(Math.random() * 8) + 3; // 3-10 viewers
+    const baseViewers = Math.floor(Math.random() * 3) + 1; // 1-3 viewers
     setCurrentViewers(baseViewers);
     
     // Show after 3 seconds
@@ -69,7 +69,7 @@ export const LiveActivityFeed = () => {
     const viewerInterval = setInterval(() => {
       setCurrentViewers(prev => {
         const change = Math.random() > 0.5 ? 1 : -1;
-        return Math.max(2, Math.min(15, prev + change));
+        return Math.max(1, Math.min(3, prev + change));
       });
     }, 15000);
 
