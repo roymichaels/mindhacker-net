@@ -30,6 +30,8 @@ export const he = {
     loggingIn: "מתחבר...",
     creatingAccount: "יוצר חשבון...",
     unknown: "לא ידוע",
+    on: "מופעל",
+    off: "כבוי",
   },
   header: {
     brandName: "מיינד האקר",
