@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -28,6 +27,7 @@ import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X, FileTe
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { generateFormPDF } from "@/lib/pdfGenerator";
+import FormProgressBar from "@/components/FormProgressBar";
 
 interface FormField {
   id: string;
@@ -548,10 +548,13 @@ const FormView = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Progress bar */}
+      {/* Enhanced Progress bar with milestones */}
       {showProgress && (
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <Progress value={progress} className="h-1 rounded-none" />
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm pt-2 pb-4 px-4">
+          <FormProgressBar 
+            currentStep={currentStep} 
+            totalSteps={fields.length} 
+          />
         </div>
       )}
 
@@ -566,8 +569,8 @@ const FormView = () => {
         <X className="h-5 w-5" />
       </Button>
 
-      {/* Main content */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+      {/* Main content - add top padding to account for progress bar */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 pt-24 sm:pt-28">
         <div className="w-full max-w-2xl glass-panel p-6 sm:p-8 rounded-2xl">
           {/* Form title - show only on first question */}
           {currentStep === 0 && (
