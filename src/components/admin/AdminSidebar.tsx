@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
   BarChart3, Bell, Mail, Headphones, Sparkles, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, 
-  FileVideo, Globe, Plus
+  FileVideo, Globe, Plus, Bot
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -135,6 +135,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       colorClass: 'text-gray-400',
       items: [
         { to: "/admin/users", icon: Users, label: t('admin.users') },
+        { to: "/admin/chat-assistant", icon: Bot, label: t('admin.chatAssistant.title') },
         { to: "/admin/settings", icon: Settings, label: t('admin.settings') },
       ]
     },
