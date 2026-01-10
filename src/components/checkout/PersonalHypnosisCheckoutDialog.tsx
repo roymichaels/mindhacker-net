@@ -20,7 +20,7 @@ interface PersonalHypnosisCheckoutDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PRODUCT_SLUG = "personal-hypnosis";
+const PRODUCT_SLUG = "personal-hypnosis-video";
 const PRODUCT_PRICE = 297;
 
 export const PersonalHypnosisCheckoutDialog = ({
@@ -43,48 +43,48 @@ export const PersonalHypnosisCheckoutDialog = ({
     mutationFn: async () => {
       if (!user) throw new Error("לא מחובר");
 
-      // Get product ID by slug
+      // Get product from the new products table
       const { data: product, error: productError } = await supabase
-        .from("content_products")
-        .select("id")
+        .from("products")
+        .select("id, price")
         .eq("slug", PRODUCT_SLUG)
-        .single();
+        .maybeSingle();
 
       if (productError || !product) {
         throw new Error("המוצר לא נמצא");
       }
 
-      // Check if already purchased
-      const { data: existingPurchase } = await supabase
-        .from("content_purchases")
+      // Check if already has an active order
+      const { data: existingOrder } = await supabase
+        .from("orders")
         .select("id")
         .eq("user_id", user.id)
         .eq("product_id", product.id)
-        .single();
+        .in("payment_status", ["pending", "completed"])
+        .maybeSingle();
 
-      if (existingPurchase) {
-        throw new Error("כבר רכשת מוצר זה");
+      if (existingOrder) {
+        throw new Error("כבר יש לך הזמנה פעילה למוצר זה");
       }
 
-      // Create purchase record with PENDING status - requires admin approval
-      const { error: purchaseError } = await supabase
-        .from("content_purchases")
+      // Create order in the new orders table with PENDING status
+      const { error: orderError } = await supabase
+        .from("orders")
         .insert({
           user_id: user.id,
           product_id: product.id,
-          price_paid: PRODUCT_PRICE,
-          payment_status: "pending", // Changed from "completed" to "pending"
-          access_granted_at: null, // Will be set when admin approves payment and assigns recording
+          amount: product.price,
+          payment_status: "pending",
         });
 
-      if (purchaseError) throw purchaseError;
+      if (orderError) throw orderError;
 
       return { productId: product.id };
     },
     onSuccess: () => {
       trackPurchaseComplete("personal_hypnosis", PRODUCT_PRICE);
-      queryClient.invalidateQueries({ queryKey: ["my-purchases"] });
-      queryClient.invalidateQueries({ queryKey: ["pending-audio-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-orders-pending-payments"] });
       onOpenChange(false);
       navigate("/personal-hypnosis/pending");
     },

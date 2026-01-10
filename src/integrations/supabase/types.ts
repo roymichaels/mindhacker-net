@@ -1201,6 +1201,56 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string | null
+          fulfilled_at: string | null
+          id: string
+          notes: string | null
+          order_date: string | null
+          payment_approved_at: string | null
+          payment_status: string | null
+          product_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          fulfilled_at?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          payment_approved_at?: string | null
+          payment_status?: string | null
+          product_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          fulfilled_at?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          payment_approved_at?: string | null
+          payment_status?: string | null
+          product_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_views: {
         Row: {
           entered_at: string | null
@@ -1240,6 +1290,54 @@ export type Database = {
           session_id?: string
           time_on_page_seconds?: number | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          id: string
+          price: number
+          price_usd: number | null
+          product_type: string
+          settings: Json | null
+          slug: string
+          status: string | null
+          title: string
+          title_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          price: number
+          price_usd?: number | null
+          product_type: string
+          settings?: Json | null
+          slug: string
+          status?: string | null
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          price?: number
+          price_usd?: number | null
+          product_type?: string
+          settings?: Json | null
+          slug?: string
+          status?: string | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

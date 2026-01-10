@@ -103,6 +103,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         { to: "/admin/newsletter", icon: Newspaper, label: t('admin.newsletter'), badge: draftCampaignsCount },
         { to: "/admin/leads", icon: Mail, label: t('admin.leads'), badge: newLeadsCount },
         { to: "/admin/consciousness-leap", icon: Sparkles, label: t('admin.consciousnessLeap') },
+        { to: "/admin/products", icon: ShoppingBag, label: t('admin.products') },
         { to: "/admin/purchases", icon: ShoppingBag, label: t('admin.purchases') },
       ]
     },
