@@ -17,7 +17,7 @@ const Content = () => {
   const queryClient = useQueryClient();
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["admin-products"],
+    queryKey: ["admin-content-products"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("content_products")

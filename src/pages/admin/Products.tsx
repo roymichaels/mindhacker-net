@@ -524,8 +524,8 @@ const Products = () => {
             id: selectedOrder.id,
             user_id: selectedOrder.user_id,
             product_id: selectedOrder.product_id,
-            price_paid: selectedOrder.amount,
-            purchase_date: selectedOrder.order_date,
+            amount: selectedOrder.amount,
+            order_date: selectedOrder.order_date,
             profiles: selectedOrder.profiles,
             products: selectedOrder.products,
           }}

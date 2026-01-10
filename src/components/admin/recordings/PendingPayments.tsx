@@ -24,13 +24,13 @@ interface PendingPayment {
   id: string;
   user_id: string;
   product_id: string;
-  price_paid: number;
-  purchase_date: string;
+  amount: number;
+  order_date: string;
   payment_status: string;
   profiles: {
     full_name: string | null;
   } | null;
-  content_products: {
+  products: {
     title: string;
     slug: string;
   } | null;
@@ -44,26 +44,26 @@ export const PendingPayments = () => {
   const { data: pendingPayments, isLoading } = useQuery({
     queryKey: ["pending-payments"],
     queryFn: async () => {
-      // Get all purchases with pending payment status
+      // Get all orders with pending payment status from the new orders table
       const { data, error } = await supabase
-        .from("content_purchases")
+        .from("orders")
         .select(`
           id,
           user_id,
           product_id,
-          price_paid,
-          purchase_date,
+          amount,
+          order_date,
           payment_status,
-          profiles!content_purchases_user_id_fkey (
+          profiles!orders_user_id_fkey (
             full_name
           ),
-          content_products!content_purchases_product_id_fkey (
+          products!orders_product_id_fkey (
             title,
             slug
           )
         `)
         .eq("payment_status", "pending")
-        .order("purchase_date", { ascending: true });
+        .order("order_date", { ascending: true });
 
       if (error) throw error;
       return data as unknown as PendingPayment[];
@@ -73,10 +73,10 @@ export const PendingPayments = () => {
   const approveMutation = useMutation({
     mutationFn: async (orderId: string) => {
       const { error } = await supabase
-        .from("content_purchases")
+        .from("orders")
         .update({ 
           payment_status: "completed",
-          access_granted_at: null // Still null - will be set when admin assigns video
+          payment_approved_at: new Date().toISOString()
         })
         .eq("id", orderId);
 
@@ -103,7 +103,7 @@ export const PendingPayments = () => {
   const rejectMutation = useMutation({
     mutationFn: async (orderId: string) => {
       const { error } = await supabase
-        .from("content_purchases")
+        .from("orders")
         .update({ payment_status: "cancelled" })
         .eq("id", orderId);
 
@@ -175,14 +175,14 @@ export const PendingPayments = () => {
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mb-1">
-                      {order.content_products?.title}
+                      {order.products?.title}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(order.purchase_date), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
+                        {format(new Date(order.order_date), "dd/MM/yyyy HH:mm", { locale: language === 'he' ? he : undefined })}
                       </span>
-                      <span className="font-bold text-primary">₪{order.price_paid}</span>
+                      <span className="font-bold text-primary">₪{order.amount}</span>
                     </div>
                   </div>
                 </div>
