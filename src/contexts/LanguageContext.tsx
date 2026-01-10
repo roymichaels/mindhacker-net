@@ -72,7 +72,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         // If profile has a different language preference and we haven't stored one locally
         // we could sync here, but for now we prioritize local storage

@@ -43,6 +43,25 @@ export const PersonalHypnosisCheckoutDialog = ({
     mutationFn: async () => {
       if (!user) throw new Error("לא מחובר");
 
+      // Ensure profile exists before creating order (FK constraint)
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        // Create profile if missing
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({ id: user.id, full_name: user.email });
+        
+        if (profileError) {
+          console.error("Failed to create profile:", profileError);
+          throw new Error("שגיאה ביצירת פרופיל");
+        }
+      }
+
       // Get product from the new products table
       const { data: product, error: productError } = await supabase
         .from("products")

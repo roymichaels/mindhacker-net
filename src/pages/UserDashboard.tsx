@@ -87,7 +87,7 @@ const UserDashboard = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         setProfile(profileData);
