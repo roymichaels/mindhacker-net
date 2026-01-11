@@ -41,9 +41,21 @@ registerRoute(
   })
 );
 
-// Cache Supabase API requests with NetworkFirst strategy
+// CRITICAL: Do NOT cache storage media (audio/video) - let browser handle Range requests directly
+const { NetworkOnly } = workbox.strategies;
+
 registerRoute(
-  ({ url }) => url.hostname.includes('supabase.co'),
+  ({ url }) => url.hostname.includes('supabase.co') && 
+               (url.pathname.includes('/storage/v1/object/') || 
+                url.pathname.includes('/storage/v1/render/')),
+  new NetworkOnly()
+);
+
+// Cache Supabase API requests with NetworkFirst strategy (excluding storage)
+registerRoute(
+  ({ url }) => url.hostname.includes('supabase.co') && 
+               !url.pathname.includes('/storage/v1/object/') &&
+               !url.pathname.includes('/storage/v1/render/'),
   new NetworkFirst({
     cacheName: 'supabase-api',
     plugins: [

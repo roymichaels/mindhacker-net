@@ -35,9 +35,10 @@ const AudioPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<AudioData | null>(null);
+  const [streamError, setStreamError] = useState(false);
   
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false); // Start false, set true only when actually buffering
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -95,14 +96,31 @@ const AudioPlayer = () => {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audioData?.audio_url) return;
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      setIsBuffering(false);
+    };
     const handleEnded = () => setIsPlaying(false);
     const handleCanPlay = () => setIsBuffering(false);
     const handleWaiting = () => setIsBuffering(true);
-    const handlePlaying = () => setIsBuffering(false);
+    const handlePlaying = () => {
+      setIsBuffering(false);
+      setIsPlaying(true);
+    };
+    const handlePause = () => setIsPlaying(false);
+    const handleError = () => {
+      console.error("Audio stream error");
+      setStreamError(true);
+      setIsBuffering(false);
+      setIsPlaying(false);
+    };
+    const handleStalled = () => {
+      console.warn("Audio stream stalled");
+      setIsBuffering(true);
+    };
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
@@ -110,6 +128,9 @@ const AudioPlayer = () => {
     audio.addEventListener("canplay", handleCanPlay);
     audio.addEventListener("waiting", handleWaiting);
     audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("error", handleError);
+    audio.addEventListener("stalled", handleStalled);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
@@ -118,17 +139,39 @@ const AudioPlayer = () => {
       audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("waiting", handleWaiting);
       audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("error", handleError);
+      audio.removeEventListener("stalled", handleStalled);
     };
   }, [audioData?.audio_url]);
 
-  const togglePlay = () => {
-    if (!audioRef.current) return;
+  const togglePlay = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
     if (isPlaying) {
-      audioRef.current.pause();
+      audio.pause();
     } else {
-      audioRef.current.play();
+      setIsBuffering(true);
+      try {
+        await audio.play();
+        // State will be updated by 'playing' event
+      } catch (err) {
+        console.error("Play failed:", err);
+        setIsBuffering(false);
+        setStreamError(true);
+      }
     }
-    setIsPlaying(!isPlaying);
+  };
+
+  const retryStream = () => {
+    const audio = audioRef.current;
+    if (!audio || !audioData?.audio_url) return;
+    
+    setStreamError(false);
+    setIsBuffering(true);
+    audio.src = audioData.audio_url;
+    audio.load();
   };
 
   const handleSeek = (value: number[]) => {
@@ -215,7 +258,7 @@ const AudioPlayer = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="auto" />
+      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="metadata" />
       
       <Card className="max-w-lg w-full overflow-hidden">
         {/* Header with gradient */}
@@ -257,21 +300,31 @@ const AudioPlayer = () => {
               <SkipBack className="h-5 w-5" />
             </Button>
             
-            <Button
-              size="icon"
-              onClick={togglePlay}
-              className="h-16 w-16 rounded-full"
-              aria-label={isPlaying ? "Pause" : "Play"}
-              disabled={isBuffering}
-            >
-              {isBuffering ? (
-                <Loader2 className="h-8 w-8 animate-spin" />
-              ) : isPlaying ? (
-                <Pause className="h-8 w-8" />
-              ) : (
-                <Play className={`h-8 w-8 ${isRTL ? 'ml-[-2px]' : 'mr-[-2px]'}`} />
-              )}
-            </Button>
+            {streamError ? (
+              <Button
+                size="icon"
+                onClick={retryStream}
+                className="h-16 w-16 rounded-full bg-destructive hover:bg-destructive/90"
+                aria-label="Retry"
+              >
+                <AlertCircle className="h-8 w-8" />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                onClick={togglePlay}
+                className="h-16 w-16 rounded-full"
+                aria-label={isPlaying ? "Pause" : "Play"}
+              >
+                {isBuffering ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="h-8 w-8" />
+                ) : (
+                  <Play className={`h-8 w-8 ${isRTL ? 'ml-[-2px]' : 'mr-[-2px]'}`} />
+                )}
+              </Button>
+            )}
             
             <Button
               size="icon"
