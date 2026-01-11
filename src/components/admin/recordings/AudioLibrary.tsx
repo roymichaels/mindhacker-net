@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { debug } from "@/lib/debug";
-import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, UserPlus, Link, Check, Copy } from "lucide-react";
+import { Plus, Trash2, Edit2, Music, Clock, Calendar, Play, Pause, UserPlus, Link, Check, Loader2 } from "lucide-react";
 import { AudioUploadDialog } from "./AudioUploadDialog";
 import { format } from "date-fns";
 import { he, enUS } from "date-fns/locale";
@@ -45,6 +45,7 @@ export const AudioLibrary = () => {
   const [playingAudio, setPlayingAudio] = useState<HypnosisAudio | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [assigningAudioId, setAssigningAudioId] = useState<string | null>(null);
@@ -172,6 +173,7 @@ export const AudioLibrary = () => {
     setPlayingAudio(null);
     setAudioUrl(null);
     setIsPlaying(false);
+    setIsBuffering(true);
     setCurrentTime(0);
   };
 
@@ -198,15 +200,28 @@ export const AudioLibrary = () => {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
+    const handleCanPlay = () => {
+      setIsBuffering(false);
+      // Auto-play when ready
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    };
+    const handleWaiting = () => setIsBuffering(true);
+    const handlePlaying = () => setIsBuffering(false);
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("canplay", handleCanPlay);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("playing", handlePlaying);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("playing", handlePlaying);
     };
   }, [audioUrl]);
 
@@ -342,7 +357,7 @@ export const AudioLibrary = () => {
           </DialogHeader>
           
           {audioUrl && (
-            <audio ref={audioRef} src={audioUrl} preload="metadata" />
+            <audio ref={audioRef} src={audioUrl} preload="auto" />
           )}
           
           <div className="space-y-6 py-4">
@@ -367,8 +382,11 @@ export const AudioLibrary = () => {
                 size="icon"
                 onClick={togglePlay}
                 className="h-16 w-16 rounded-full"
+                disabled={isBuffering}
               >
-                {isPlaying ? (
+                {isBuffering ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : isPlaying ? (
                   <Pause className="h-8 w-8" />
                 ) : (
                   <Play className="h-8 w-8 mr-[-2px]" />
