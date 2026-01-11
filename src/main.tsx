@@ -32,9 +32,13 @@ if ('serviceWorker' in navigator) {
     }
   });
   
-  // Listen for controller change (when new SW takes over)
+  // Reload on controller change ONLY once per session to prevent loops
+  let hasReloaded = sessionStorage.getItem('sw-reloaded');
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
+    if (!hasReloaded) {
+      sessionStorage.setItem('sw-reloaded', 'true');
+      window.location.reload();
+    }
   });
 }
 
