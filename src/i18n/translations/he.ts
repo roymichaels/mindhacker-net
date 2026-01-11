@@ -1355,6 +1355,7 @@ export const he = {
     seoAudioDesc: "הקלטת היפנוזה מותאמת אישית",
     seoVideoTitle: "סרטון",
     seoVideoDesc: "סרטון אימון תודעתי מותאם אישית",
+    download: "הורדה",
   },
   adminForms: {
     noForms: "אין טפסים עדיין",
