@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Headphones,
   SkipBack,
-  SkipForward
+  SkipForward,
+  Download
 } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -163,6 +164,25 @@ const AudioPlayer = () => {
     );
   };
 
+  const handleDownload = async () => {
+    if (!audioData?.audio_url) return;
+    
+    try {
+      const response = await fetch(audioData.audio_url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${audioData.title || 'audio'}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -264,22 +284,35 @@ const AudioPlayer = () => {
             </Button>
           </div>
 
-          {/* Volume control */}
-          <div className="flex items-center gap-3">
-            <Button size="icon" variant="ghost" onClick={toggleMute} aria-label={isMuted ? "Unmute" : "Mute"}>
-              {isMuted ? (
-                <VolumeX className="h-5 w-5" />
-              ) : (
-                <Volume2 className="h-5 w-5" />
-              )}
+          {/* Volume control and Download */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button size="icon" variant="ghost" onClick={toggleMute} aria-label={isMuted ? "Unmute" : "Mute"}>
+                {isMuted ? (
+                  <VolumeX className="h-5 w-5" />
+                ) : (
+                  <Volume2 className="h-5 w-5" />
+                )}
+              </Button>
+              <Slider
+                value={[isMuted ? 0 : volume]}
+                max={1}
+                step={0.01}
+                onValueChange={handleVolumeChange}
+                className="w-24"
+              />
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              className="gap-2"
+              disabled={!audioData?.audio_url}
+            >
+              <Download className="h-4 w-4" />
+              {t('audioVideoPlayer.download')}
             </Button>
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              max={1}
-              step={0.01}
-              onValueChange={handleVolumeChange}
-              className="w-32"
-            />
           </div>
 
           {/* Tip */}

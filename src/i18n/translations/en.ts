@@ -1357,6 +1357,7 @@ export const en: TranslationKeys = {
     seoAudioDesc: "Custom hypnosis recording",
     seoVideoTitle: "Video",
     seoVideoDesc: "Custom consciousness training video",
+    download: "Download",
   },
   adminForms: {
     noForms: "No forms yet",
