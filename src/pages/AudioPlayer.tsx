@@ -48,6 +48,8 @@ const AudioPlayer = () => {
   });
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchAudio = async () => {
       if (!token) {
         setError(t('audioVideoPlayer.invalidLink'));
@@ -59,6 +61,8 @@ const AudioPlayer = () => {
         const { data, error: fnError } = await supabase.functions.invoke('get-audio-by-token', {
           body: { token }
         });
+
+        if (!isMounted) return;
 
         if (fnError) {
           console.error("Edge function error:", fnError);
@@ -75,15 +79,18 @@ const AudioPlayer = () => {
 
         setAudioData(data);
       } catch (err) {
+        if (!isMounted) return;
         console.error("Error fetching audio:", err);
         setError(t('audioVideoPlayer.audioLoadError'));
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchAudio();
-  }, [token, t]);
+    
+    return () => { isMounted = false; };
+  }, [token]); // Only depend on token, not t
 
   useEffect(() => {
     const audio = audioRef.current;
