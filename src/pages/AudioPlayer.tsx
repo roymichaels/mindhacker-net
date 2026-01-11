@@ -36,6 +36,7 @@ const AudioPlayer = () => {
   const [audioData, setAudioData] = useState<AudioData | null>(null);
   
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -91,15 +92,24 @@ const AudioPlayer = () => {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
+    const handleCanPlay = () => setIsBuffering(false);
+    const handleWaiting = () => setIsBuffering(true);
+    const handlePlaying = () => setIsBuffering(false);
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("canplay", handleCanPlay);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("playing", handlePlaying);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("playing", handlePlaying);
     };
   }, [audioData?.audio_url]);
 
@@ -178,7 +188,7 @@ const AudioPlayer = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="metadata" />
+      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="auto" />
       
       <Card className="max-w-lg w-full overflow-hidden">
         {/* Header with gradient */}
@@ -225,8 +235,11 @@ const AudioPlayer = () => {
               onClick={togglePlay}
               className="h-16 w-16 rounded-full"
               aria-label={isPlaying ? "Pause" : "Play"}
+              disabled={isBuffering}
             >
-              {isPlaying ? (
+              {isBuffering ? (
+                <Loader2 className="h-8 w-8 animate-spin" />
+              ) : isPlaying ? (
                 <Pause className="h-8 w-8" />
               ) : (
                 <Play className={`h-8 w-8 ${isRTL ? 'ml-[-2px]' : 'mr-[-2px]'}`} />
