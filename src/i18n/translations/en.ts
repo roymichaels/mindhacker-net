@@ -1358,6 +1358,8 @@ export const en: TranslationKeys = {
     seoVideoTitle: "Video",
     seoVideoDesc: "Custom consciousness training video",
     download: "Download",
+    tryAgain: "Try Again",
+    audioLoadErrorDescription: "There may be a temporary issue. Click 'Try Again' or contact support.",
   },
   adminForms: {
     noForms: "No forms yet",

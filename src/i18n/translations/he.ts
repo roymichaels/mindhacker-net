@@ -1356,6 +1356,8 @@ export const he = {
     seoVideoTitle: "סרטון",
     seoVideoDesc: "סרטון אימון תודעתי מותאם אישית",
     download: "הורדה",
+    tryAgain: "נסה שוב",
+    audioLoadErrorDescription: "ייתכן שיש בעיה זמנית. לחץ 'נסה שוב' או פנה לתמיכה.",
   },
   adminForms: {
     noForms: "אין טפסים עדיין",
