@@ -111,8 +111,9 @@ const AudioPlayer = () => {
       setIsPlaying(true);
     };
     const handlePause = () => setIsPlaying(false);
-    const handleError = () => {
-      console.error("Audio stream error");
+    const handleError = (e: Event) => {
+      const audioElement = e.target as HTMLAudioElement;
+      console.error("Audio stream error:", audioElement.error?.code, audioElement.error?.message);
       setStreamError(true);
       setIsBuffering(false);
       setIsPlaying(false);
@@ -164,14 +165,26 @@ const AudioPlayer = () => {
     }
   };
 
-  const retryStream = () => {
+  const retryStream = async () => {
     const audio = audioRef.current;
     if (!audio || !audioData?.audio_url) return;
     
     setStreamError(false);
     setIsBuffering(true);
+    
+    // Clear and reload
+    audio.pause();
+    audio.currentTime = 0;
     audio.src = audioData.audio_url;
     audio.load();
+    
+    try {
+      await audio.play();
+    } catch (err) {
+      console.error("Retry play failed:", err);
+      setStreamError(true);
+      setIsBuffering(false);
+    }
   };
 
   const handleSeek = (value: number[]) => {
@@ -245,12 +258,16 @@ const AudioPlayer = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
         <Card className="max-w-md w-full text-center p-8">
           <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h1 className="text-xl font-bold mb-2">{t('audioVideoPlayer.error')}</h1>
-          <p className="text-muted-foreground mb-6">{error}</p>
-          <Button onClick={() => navigate("/")}>{t('audioVideoPlayer.backHome')}</Button>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <p className="text-sm text-muted-foreground mb-6">{t('audioVideoPlayer.audioLoadErrorDescription')}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button onClick={() => window.location.reload()}>{t('audioVideoPlayer.tryAgain')}</Button>
+            <Button variant="outline" onClick={() => navigate("/")}>{t('audioVideoPlayer.backHome')}</Button>
+          </div>
         </Card>
       </div>
     );
@@ -258,7 +275,7 @@ const AudioPlayer = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="metadata" />
+      <audio ref={audioRef} src={audioData?.audio_url || undefined} preload="auto" />
       
       <Card className="max-w-lg w-full overflow-hidden">
         {/* Header with gradient */}
