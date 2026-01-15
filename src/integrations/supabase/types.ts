@@ -56,6 +56,168 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_payouts: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          payment_method: string
+          processed_by: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_method: string
+          processed_by?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          processed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_payouts_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_payouts_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          approved_at: string | null
+          commission_amount: number
+          created_at: string
+          id: string
+          order_amount: number
+          order_id: string | null
+          paid_at: string | null
+          referred_user_id: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          approved_at?: string | null
+          commission_amount: number
+          created_at?: string
+          id?: string
+          order_amount: number
+          order_id?: string | null
+          paid_at?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          approved_at?: string | null
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          order_amount?: number
+          order_id?: string | null
+          paid_at?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          affiliate_code: string
+          commission_rate: number
+          created_at: string
+          id: string
+          payment_details: Json | null
+          payment_method: string | null
+          status: string
+          total_earnings: number
+          total_paid: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_code: string
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status?: string
+          total_earnings?: number
+          total_paid?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate_code?: string
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status?: string
+          total_earnings?: number
+          total_paid?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_reports: {
         Row: {
           created_at: string | null
@@ -1203,6 +1365,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          affiliate_code: string | null
           amount: number
           created_at: string | null
           fulfilled_at: string | null
@@ -1216,6 +1379,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_code?: string | null
           amount: number
           created_at?: string | null
           fulfilled_at?: string | null
@@ -1229,6 +1393,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_code?: string | null
           amount?: number
           created_at?: string | null
           fulfilled_at?: string | null
@@ -2037,6 +2202,8 @@ export type Database = {
         | "new_consciousness_leap_application"
         | "new_personal_hypnosis_order"
         | "new_lead"
+        | "new_affiliate"
+        | "affiliate_referral"
       subscription_status:
         | "active"
         | "cancelled"
@@ -2195,6 +2362,8 @@ export const Constants = {
         "new_consciousness_leap_application",
         "new_personal_hypnosis_order",
         "new_lead",
+        "new_affiliate",
+        "affiliate_referral",
       ],
       subscription_status: [
         "active",

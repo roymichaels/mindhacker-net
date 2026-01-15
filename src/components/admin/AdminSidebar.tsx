@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
   BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
-  Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, 
+  Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, UserPlus,
   FileVideo, Globe, Plus, Bot
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,6 +104,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         { to: "/admin/leads", icon: Mail, label: t('admin.leads'), badge: newLeadsCount },
         { to: "/admin/products", icon: ShoppingBag, label: t('admin.products') },
         { to: "/admin/purchases", icon: ShoppingBag, label: t('admin.purchases') },
+        { to: "/admin/affiliates", icon: UserPlus, label: t('admin.affiliates') },
       ]
     },
     {

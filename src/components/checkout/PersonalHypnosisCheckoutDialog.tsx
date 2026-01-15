@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Clock, Video, CheckCircle2, Mail } from "lucide-react";
 import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
 
 interface PersonalHypnosisCheckoutDialogProps {
   open: boolean;
@@ -88,6 +89,9 @@ export const PersonalHypnosisCheckoutDialog = ({
         throw new Error("כבר יש לך הזמנה פעילה למוצר זה");
       }
 
+      // Get affiliate code if exists
+      const affiliateCode = getStoredAffiliateCode();
+
       // Create order in the new orders table with PENDING status
       const { data: newOrder, error: orderError } = await supabase
         .from("orders")
@@ -96,11 +100,15 @@ export const PersonalHypnosisCheckoutDialog = ({
           product_id: product.id,
           amount: product.price,
           payment_status: "pending",
+          affiliate_code: affiliateCode,
         })
         .select("id")
         .single();
 
       if (orderError) throw orderError;
+      
+      // Clear affiliate code after successful order
+      if (affiliateCode) clearAffiliateCode();
 
       // Send email notifications (admin + customer) in parallel
       const emailPromises = [

@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAffiliateTracking } from "@/hooks/useAffiliateTracking";
 
 // Lazy load below-the-fold components - ordered by journey progression
 const IntrospectionPromo = lazy(() => import("@/components/IntrospectionPromo"));
@@ -16,6 +17,9 @@ const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const { t } = useTranslation();
+  
+  // Track affiliate referrals from URL params
+  useAffiliateTracking();
 
   useSEO({
     title: t('seo.indexTitle'),
