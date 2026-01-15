@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, LogOut, Package, User, Clock, CheckCircle, BookOpen, Crown } from "lucide-react";
+import { Calendar, LogOut, Package, User, Clock, CheckCircle, BookOpen, Crown, TrendingUp } from "lucide-react";
 import Header from "@/components/Header";
 import BookingDialog from "@/components/BookingDialog";
 import MyCourses from "@/components/dashboard/MyCourses";
@@ -199,7 +199,7 @@ const UserDashboard = () => {
         {/* Dashboard Content - Organized with Tabs */}
         <Tabs defaultValue="courses" className="w-full" dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="overflow-x-auto pb-2 mb-6 sm:mb-8">
-            <TabsList className="inline-flex min-w-full sm:grid sm:grid-cols-3 glass-panel h-auto">
+            <TabsList className="inline-flex min-w-full sm:grid sm:grid-cols-4 glass-panel h-auto">
               <TabsTrigger value="courses" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                 {t('dashboard.myProducts')}
@@ -212,6 +212,10 @@ const UserDashboard = () => {
                 <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                 {t('dashboard.mySessions')}
               </TabsTrigger>
+              <TabsTrigger value="affiliate" className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-3 sm:px-4">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                {t('affiliate.title')}
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -219,7 +223,6 @@ const UserDashboard = () => {
           <TabsContent value="courses" className="space-y-6">
             <MyCourses />
             <MyRecordings />
-            <MyAffiliatePanel />
           </TabsContent>
 
           {/* My Subscriptions Tab */}
@@ -343,6 +346,11 @@ const UserDashboard = () => {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* Affiliate Tab */}
+          <TabsContent value="affiliate" className="space-y-6">
+            <MyAffiliatePanel />
           </TabsContent>
         </Tabs>
 

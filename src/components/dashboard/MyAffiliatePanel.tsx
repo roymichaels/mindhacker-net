@@ -73,7 +73,25 @@ const MyAffiliatePanel = () => {
   }
 
   if (!affiliate) {
-    return null; // Don't show panel if user is not an affiliate
+    // Show join affiliate program option
+    return (
+      <Card className="glass-panel">
+        <CardContent className="pt-6 text-center py-12 space-y-4">
+          <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground" />
+          <div>
+            <h3 className="text-xl font-semibold mb-2">{t('affiliate.notAffiliate')}</h3>
+            <p className="text-muted-foreground mb-4">
+              {t('affiliate.programDescription')}
+            </p>
+            <Button asChild>
+              <a href="/affiliate-signup">
+                {t('affiliate.joinProgram')}
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const referralLink = `${window.location.origin}${selectedPage}?ref=${affiliate.affiliate_code}`;
