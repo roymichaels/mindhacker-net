@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getStoredAffiliateCode } from "@/hooks/useAffiliateTracking";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -88,8 +89,9 @@ const ConsciousnessLeapLanding = () => {
     setIsSubmitting(true);
 
     try {
+      const affiliateCode = getStoredAffiliateCode();
       const { error } = await supabase.functions.invoke('submit-consciousness-leap-lead', {
-        body: { name, email, whatResonated }
+        body: { name, email, whatResonated, affiliateCode }
       });
 
       if (error) throw error;

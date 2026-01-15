@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,13 +7,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Copy, DollarSign, Users, TrendingUp, ExternalLink } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 
+const LANDING_PAGES = [
+  { value: '/', labelKey: 'affiliate.landingHome' },
+  { value: '/personal-hypnosis', labelKey: 'affiliate.landingPersonalHypnosis' },
+  { value: '/consciousness-leap', labelKey: 'affiliate.landingConsciousnessLeap' },
+  { value: '/courses', labelKey: 'affiliate.landingCourses' },
+];
+
 const MyAffiliatePanel = () => {
   const { user } = useAuth();
   const { t, language, isRTL } = useTranslation();
+  const [selectedPage, setSelectedPage] = useState('/');
 
   const { data: affiliate, isLoading } = useQuery({
     queryKey: ['my-affiliate', user?.id],
@@ -66,7 +76,7 @@ const MyAffiliatePanel = () => {
     return null; // Don't show panel if user is not an affiliate
   }
 
-  const referralLink = `${window.location.origin}?ref=${affiliate.affiliate_code}`;
+  const referralLink = `${window.location.origin}${selectedPage}?ref=${affiliate.affiliate_code}`;
   const pendingEarnings = referrals?.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.commission_amount, 0) || 0;
   const approvedEarnings = referrals?.filter(r => r.status === 'approved').reduce((sum, r) => sum + r.commission_amount, 0) || 0;
   const totalReferrals = referrals?.length || 0;
@@ -121,8 +131,25 @@ const MyAffiliatePanel = () => {
         </div>
 
         {/* Referral Link */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <label className="text-sm font-medium">{t('affiliate.yourLink')}</label>
+          
+          {/* Landing Page Selector */}
+          <div className="flex gap-2 items-center">
+            <Select value={selectedPage} onValueChange={setSelectedPage}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANDING_PAGES.map((page) => (
+                  <SelectItem key={page.value} value={page.value}>
+                    {t(page.labelKey)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="flex gap-2">
             <input
               type="text"
