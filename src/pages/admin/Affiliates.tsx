@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Users, DollarSign, TrendingUp, CheckCircle2, Clock, 
   AlertCircle, Loader2, Search, MoreHorizontal, Ban, Check,
-  CreditCard
+  CreditCard, Plus, UserPlus
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -35,6 +35,9 @@ const AdminAffiliates = () => {
   const [selectedAffiliate, setSelectedAffiliate] = useState<any>(null);
   const [payoutAmount, setPayoutAmount] = useState("");
   const [payoutNotes, setPayoutNotes] = useState("");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
 
   // Fetch affiliates with profiles
   const { data: affiliates = [], isLoading } = useQuery({
@@ -49,6 +52,27 @@ const AdminAffiliates = () => {
       return data;
     },
   });
+
+  // Fetch all users (for creating affiliates)
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["admin-all-users"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .order("full_name", { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Filter out users who are already affiliates
+  const availableUsers = allUsers.filter(
+    user => !affiliates.some(a => a.user_id === user.id)
+  ).filter(
+    user => (user.full_name || '').toLowerCase().includes(userSearchTerm.toLowerCase())
+  );
 
   // Fetch all referrals
   const { data: referrals = [] } = useQuery({
@@ -161,7 +185,49 @@ const AdminAffiliates = () => {
     },
   });
 
-  const filteredAffiliates = affiliates.filter(a => 
+  // Generate unique affiliate code
+  const generateAffiliateCode = (name: string) => {
+    const baseName = (name || 'affiliate').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8);
+    const randomNum = Math.floor(Math.random() * 100);
+    return `${baseName}${randomNum}`;
+  };
+
+  // Create affiliate mutation
+  const createAffiliateMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedUserId) throw new Error("No user selected");
+      
+      const selectedUser = allUsers.find(u => u.id === selectedUserId);
+      const affiliateCode = generateAffiliateCode(selectedUser?.full_name || '');
+      
+      const { error } = await supabase
+        .from("affiliates")
+        .insert({
+          user_id: selectedUserId,
+          affiliate_code: affiliateCode,
+          commission_rate: 20,
+          status: 'active',
+        });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-affiliates"] });
+      setCreateDialogOpen(false);
+      setSelectedUserId("");
+      setUserSearchTerm("");
+      toast({ title: t('common.success'), description: t('admin.affiliate.created') });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: t('common.error'), 
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  const filteredAffiliates = affiliates.filter(a =>
     a.affiliate_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (a.profiles?.full_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -205,6 +271,10 @@ const AdminAffiliates = () => {
           <h1 className="text-3xl font-bold">{t('admin.affiliate.title')}</h1>
           <p className="text-muted-foreground">{t('admin.affiliate.subtitle')}</p>
         </div>
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <UserPlus className="h-4 w-4 me-2" />
+          {t('admin.affiliate.createAffiliate')}
+        </Button>
       </div>
 
       {/* Stats */}
@@ -487,6 +557,76 @@ const AdminAffiliates = () => {
                 <CreditCard className="h-4 w-4 me-2" />
               )}
               {t('admin.affiliate.confirmPayout')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Affiliate Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle>{t('admin.affiliate.createAffiliate')}</DialogTitle>
+            <DialogDescription>
+              {t('admin.affiliate.createAffiliateDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{t('admin.affiliate.selectUser')}</Label>
+              <div className="mt-2 space-y-2">
+                <div className="relative">
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t('common.search')}
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    className="ps-9"
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto border rounded-md">
+                  {availableUsers.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground text-sm">
+                      {t('admin.affiliate.noUsersAvailable')}
+                    </div>
+                  ) : (
+                    availableUsers.slice(0, 20).map((user) => (
+                      <div 
+                        key={user.id}
+                        onClick={() => setSelectedUserId(user.id)}
+                        className={`p-3 cursor-pointer hover:bg-muted transition-colors border-b last:border-b-0 ${
+                          selectedUserId === user.id ? 'bg-primary/10 border-primary' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {selectedUserId === user.id && <Check className="h-4 w-4 text-primary" />}
+                          <span className="font-medium">{user.full_name || t('common.unknown')}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setCreateDialogOpen(false);
+              setSelectedUserId("");
+              setUserSearchTerm("");
+            }}>
+              {t('common.cancel')}
+            </Button>
+            <Button 
+              onClick={() => createAffiliateMutation.mutate()} 
+              disabled={!selectedUserId || createAffiliateMutation.isPending}
+            >
+              {createAffiliateMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin me-2" />
+              ) : (
+                <UserPlus className="h-4 w-4 me-2" />
+              )}
+              {t('admin.affiliate.create')}
             </Button>
           </DialogFooter>
         </DialogContent>

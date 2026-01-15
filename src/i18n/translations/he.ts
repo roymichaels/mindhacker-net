@@ -402,6 +402,12 @@ export const he = {
       statusUpdated: "הסטטוס עודכן",
       referralUpdated: "ההפניה עודכנה",
       payoutCreated: "התשלום נוצר בהצלחה",
+      createAffiliate: "צור שותף חדש",
+      createAffiliateDesc: "בחר משתמש להפוך לשותף. קוד הפניה ייחודי ייווצר אוטומטית.",
+      selectUser: "בחר משתמש",
+      noUsersAvailable: "אין משתמשים זמינים",
+      create: "צור שותף",
+      created: "השותף נוצר בהצלחה",
     },
   },
   landing: {

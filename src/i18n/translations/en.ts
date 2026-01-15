@@ -404,6 +404,12 @@ export const en: TranslationKeys = {
       statusUpdated: "Status updated",
       referralUpdated: "Referral updated",
       payoutCreated: "Payout created successfully",
+      createAffiliate: "Create Affiliate",
+      createAffiliateDesc: "Select a user to become an affiliate. A unique referral code will be generated automatically.",
+      selectUser: "Select User",
+      noUsersAvailable: "No users available",
+      create: "Create Affiliate",
+      created: "Affiliate created successfully",
     },
   },
   landing: {
