@@ -46,6 +46,8 @@ const PersonalHypnosisSuccess = lazy(() => import("./pages/PersonalHypnosisSucce
 const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPending"));
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
+const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
@@ -65,6 +67,7 @@ const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
 const ChatAssistant = lazy(() => import("./pages/admin/ChatAssistant"));
 const Videos = lazy(() => import("./pages/admin/Videos"));
 const AdminProducts = lazy(() => import("./pages/admin/Products"));
+const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +110,8 @@ const App = () => (
                     <Route path="/form/:token" element={<FormView />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+                    <Route path="/affiliate-dashboard" element={<ProtectedRoute><AffiliateDashboard /></ProtectedRoute>} />
                     <Route path="/unsubscribe" element={<Unsubscribe />} />
                     
                     {/* Protected user routes */}
@@ -143,6 +148,7 @@ const App = () => (
                       <Route path="homepage" element={<HomepageSections />} />
                       <Route path="chat-assistant" element={<ChatAssistant />} />
                       <Route path="products" element={<AdminProducts />} />
+                      <Route path="affiliates" element={<AdminAffiliates />} />
                     </Route>
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
