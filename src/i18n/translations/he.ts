@@ -1719,6 +1719,11 @@ export const he = {
     benefit3Title: "תשלום מהיר",
     benefit3Desc: "קבל את העמלות שלך מדי חודש",
     viewFullDashboard: "צפה בדאשבורד המלא",
+    selectLandingPage: "בחר דף נחיתה",
+    landingHome: "דף הבית",
+    landingPersonalHypnosis: "סרטון היפנוזה אישי",
+    landingConsciousnessLeap: "קפיצה לתודעה חדשה",
+    landingCourses: "קורסים",
   },
 };
 

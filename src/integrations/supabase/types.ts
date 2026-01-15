@@ -354,6 +354,7 @@ export type Database = {
       }
       consciousness_leap_leads: {
         Row: {
+          affiliate_code: string | null
           application_token: string
           created_at: string
           email: string
@@ -365,6 +366,7 @@ export type Database = {
           what_resonated: string | null
         }
         Insert: {
+          affiliate_code?: string | null
           application_token?: string
           created_at?: string
           email: string
@@ -376,6 +378,7 @@ export type Database = {
           what_resonated?: string | null
         }
         Update: {
+          affiliate_code?: string | null
           application_token?: string
           created_at?: string
           email?: string
@@ -1179,6 +1182,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          affiliate_code: string | null
           contacted_at: string | null
           contacted_by: string | null
           created_at: string
@@ -1192,6 +1196,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          affiliate_code?: string | null
           contacted_at?: string | null
           contacted_by?: string | null
           created_at?: string
@@ -1205,6 +1210,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          affiliate_code?: string | null
           contacted_at?: string | null
           contacted_by?: string | null
           created_at?: string

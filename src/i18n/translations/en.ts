@@ -1668,5 +1668,10 @@ export const en: TranslationKeys = {
     benefit3Title: "Fast Payment",
     benefit3Desc: "Get your commissions monthly",
     viewFullDashboard: "View Full Dashboard",
+    selectLandingPage: "Select Landing Page",
+    landingHome: "Home Page",
+    landingPersonalHypnosis: "Personal Hypnosis Video",
+    landingConsciousnessLeap: "Consciousness Leap",
+    landingCourses: "Courses",
   },
 };

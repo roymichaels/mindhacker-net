@@ -13,6 +13,7 @@ interface LeadRequest {
   name: string;
   email: string;
   whatResonated?: string;
+  affiliateCode?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -26,7 +27,7 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { name, email, whatResonated }: LeadRequest = await req.json();
+    const { name, email, whatResonated, affiliateCode }: LeadRequest = await req.json();
 
     if (!name || !email) {
       return new Response(
@@ -35,7 +36,7 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Processing consciousness leap lead: ${email}`);
+    console.log(`Processing consciousness leap lead: ${email}${affiliateCode ? ` (via affiliate: ${affiliateCode})` : ''}`);
 
     // Insert lead and get the application token
     const { data: lead, error: insertError } = await supabase
@@ -44,6 +45,7 @@ serve(async (req: Request): Promise<Response> => {
         name,
         email,
         what_resonated: whatResonated || null,
+        affiliate_code: affiliateCode || null,
       })
       .select("id, application_token")
       .single();

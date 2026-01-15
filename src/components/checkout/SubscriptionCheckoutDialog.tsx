@@ -13,6 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
 import { debug } from "@/lib/debug";
+import { getStoredAffiliateCode } from "@/hooks/useAffiliateTracking";
 
 interface SubscriptionCheckoutDialogProps {
   open: boolean;
@@ -115,6 +116,9 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
           .eq("id", existingSub.id);
       }
 
+      // Get affiliate code if exists
+      const affiliateCode = getStoredAffiliateCode();
+
       // Create new subscription
       const { error: subscriptionError } = await supabase
         .from("user_subscriptions")
@@ -126,6 +130,29 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
           start_date: now.toISOString(),
           next_billing_date: nextBillingDate.toISOString(),
         });
+
+      // If affiliate code exists, create affiliate referral for this subscription
+      if (affiliateCode) {
+        const { data: affiliate } = await supabase
+          .from("affiliates")
+          .select("id, commission_rate")
+          .eq("affiliate_code", affiliateCode)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (affiliate) {
+          const price = getPrice();
+          const commissionAmount = (price * affiliate.commission_rate) / 100;
+          
+          await supabase.from("affiliate_referrals").insert({
+            affiliate_id: affiliate.id,
+            referred_user_id: user.id,
+            order_amount: price,
+            commission_amount: commissionAmount,
+            status: "pending",
+          });
+        }
+      }
 
       if (subscriptionError) throw subscriptionError;
 

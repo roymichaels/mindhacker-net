@@ -13,12 +13,20 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Copy, Link, DollarSign, Users, TrendingUp, CheckCircle2, 
   Clock, AlertCircle, Loader2, ExternalLink 
 } from "lucide-react";
 import { format } from "date-fns";
+
+const LANDING_PAGES = [
+  { value: '/', labelKey: 'affiliate.landingHome' },
+  { value: '/personal-hypnosis', labelKey: 'affiliate.landingPersonalHypnosis' },
+  { value: '/consciousness-leap', labelKey: 'affiliate.landingConsciousnessLeap' },
+  { value: '/courses', labelKey: 'affiliate.landingCourses' },
+];
 
 const AffiliateDashboard = () => {
   const { user } = useAuth();
@@ -27,6 +35,7 @@ const AffiliateDashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [selectedPage, setSelectedPage] = useState('/');
 
   // Fetch affiliate data
   const { data: affiliate, isLoading: affiliateLoading } = useQuery({
@@ -80,7 +89,7 @@ const AffiliateDashboard = () => {
   });
 
   const affiliateLink = affiliate 
-    ? `${window.location.origin}?ref=${affiliate.affiliate_code}` 
+    ? `${window.location.origin}${selectedPage}?ref=${affiliate.affiliate_code}` 
     : "";
 
   const copyLink = () => {
@@ -231,7 +240,24 @@ const AffiliateDashboard = () => {
               </CardTitle>
               <CardDescription>{t('affiliate.shareToEarn')}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              {/* Landing Page Selector */}
+              <div className="space-y-2">
+                <Label>{t('affiliate.selectLandingPage')}</Label>
+                <Select value={selectedPage} onValueChange={setSelectedPage}>
+                  <SelectTrigger className="w-full md:w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANDING_PAGES.map((page) => (
+                      <SelectItem key={page.value} value={page.value}>
+                        {t(page.labelKey)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="flex gap-2">
                 <Input
                   readOnly
@@ -243,7 +269,7 @@ const AffiliateDashboard = () => {
                   {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground">
                 {t('affiliate.commissionRate')}: <span className="font-bold text-primary">{affiliate.commission_rate}%</span>
               </p>
             </CardContent>

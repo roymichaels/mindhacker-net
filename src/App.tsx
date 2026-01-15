@@ -9,6 +9,7 @@ import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 import MatrixRain from "@/components/MatrixRain";
+import AffiliateTracker from "@/components/AffiliateTracker";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -90,6 +91,7 @@ const App = () => (
             <Sonner />
             <LanguagePrompt />
               <BrowserRouter>
+                <AffiliateTracker />
                 <AnalyticsProvider>
                   <Suspense fallback={<PageSkeleton />}>
                     <Routes>
