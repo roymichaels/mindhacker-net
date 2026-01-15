@@ -13,6 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
 import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -96,6 +97,36 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
         .from("content_products")
         .update({ enrollment_count: (course.enrollment_count || 0) + 1 })
         .eq("id", course.id);
+
+      // Handle affiliate tracking
+      const affiliateCode = getStoredAffiliateCode();
+      if (affiliateCode && paymentStatus === "instant_success") {
+        const { data: affiliate } = await supabase
+          .from("affiliates")
+          .select("id, commission_rate")
+          .eq("affiliate_code", affiliateCode)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (affiliate) {
+          const commissionAmount = ((course.price || 0) * affiliate.commission_rate) / 100;
+          await supabase.from("affiliate_referrals").insert({
+            affiliate_id: affiliate.id,
+            referred_user_id: user.id,
+            order_amount: course.price || 0,
+            commission_amount: commissionAmount,
+            status: "approved",
+          });
+          
+          // Update affiliate total earnings
+          await supabase
+            .from("affiliates")
+            .update({ total_earnings: affiliate.commission_rate + commissionAmount })
+            .eq("id", affiliate.id);
+          
+          clearAffiliateCode();
+        }
+      }
 
       setPurchaseComplete(true);
       trackPurchaseComplete("course", course.price || 0);
