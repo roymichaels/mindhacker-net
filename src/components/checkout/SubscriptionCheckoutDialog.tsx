@@ -13,7 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
 import { debug } from "@/lib/debug";
-import { getStoredAffiliateCode } from "@/hooks/useAffiliateTracking";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
 
 interface SubscriptionCheckoutDialogProps {
   open: boolean;
@@ -151,6 +151,9 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
             commission_amount: commissionAmount,
             status: "pending",
           });
+          
+          // Clear affiliate code after successful referral creation
+          clearAffiliateCode();
         }
       }
 

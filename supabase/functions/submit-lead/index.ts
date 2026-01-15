@@ -98,7 +98,7 @@ serve(async (req) => {
       cleanupOldEntries();
     }
 
-    const { name, phone, email, preferred_time, source, honeypot, form_load_time } = await req.json();
+    const { name, phone, email, preferred_time, source, honeypot, form_load_time, affiliate_code } = await req.json();
     
     // Server-side honeypot check
     if (honeypot) {
@@ -150,6 +150,7 @@ serve(async (req) => {
         email: email?.trim() || null,
         preferred_time: preferred_time?.trim() || null,
         source: source || 'unknown',
+        affiliate_code: affiliate_code || null,
       });
 
     if (error) {

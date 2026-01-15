@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { debug } from "@/lib/debug";
 import { trackFormView, trackFormStart, trackFormSubmit } from "@/hooks/useAnalytics";
+import { getStoredAffiliateCode } from "@/hooks/useAffiliateTracking";
 
 interface LeadCaptureFormProps {
   source: string;
@@ -93,6 +94,9 @@ const LeadCaptureForm = ({
     setIsSubmitting(true);
 
     try {
+      // Get affiliate code if exists
+      const affiliateCode = getStoredAffiliateCode();
+      
       // Call Edge Function with rate limiting
       const { data, error } = await supabase.functions.invoke('submit-lead', {
         body: {
@@ -103,6 +107,7 @@ const LeadCaptureForm = ({
           source,
           honeypot, // Send honeypot for server-side check
           form_load_time: formLoadTime.current, // Send timing for server-side check
+          affiliate_code: affiliateCode, // Send affiliate code if exists
         },
       });
 
