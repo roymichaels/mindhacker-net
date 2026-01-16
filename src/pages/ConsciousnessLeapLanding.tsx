@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAffiliateCode } from "@/components/AffiliateTracker";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -202,20 +204,7 @@ const ConsciousnessLeapLanding = () => {
 
   return (
     <div className="min-h-screen text-foreground overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-primary/20">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src="/icons/icon-96x96.png" alt={t('consciousnessLeapLanding.brandName')} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-              <span className="font-black text-lg cyber-glow">{t('consciousnessLeapLanding.brandName')}</span>
-            </Link>
-            <Button onClick={scrollToForm} className={`${colors.button} ${colors.buttonText}`}>
-              {t('consciousnessLeapLanding.navCta')}
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero Section */}
       <section className="relative z-20 min-h-screen flex items-center justify-center pt-20 pb-16">
@@ -510,13 +499,7 @@ const ConsciousnessLeapLanding = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-20 py-8 border-t border-primary/20 bg-background/80">
-        <div className="container mx-auto px-4 text-center">
-          <Link to="/" className="text-primary hover:underline">{t('consciousnessLeapLanding.footerName')}</Link>
-          <p className="text-sm text-muted-foreground mt-2">© {new Date().getFullYear()} {t('consciousnessLeapLanding.footerRights')}</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
