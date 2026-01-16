@@ -8,7 +8,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
-import { useTheme } from "next-themes";
 import MatrixRain from "@/components/MatrixRain";
 import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -99,32 +98,12 @@ const BackgroundEffect = () => {
   }
 };
 
-// Readability overlay for light mode with background effects
-const ReadabilityOverlay = () => {
-  const { theme } = useThemeSettings();
-  const { resolvedTheme } = useTheme();
-  const hasEffect = theme.background_effect && theme.background_effect !== 'none';
-  const isLightMode = resolvedTheme === 'light';
-  
-  if (!hasEffect || !isLightMode) return null;
-  
-  return (
-    <div 
-      className="fixed inset-0 pointer-events-none z-[1]"
-      style={{
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(248,250,252,0.90) 100%)',
-      }}
-      aria-hidden="true"
-    />
-  );
-};
 
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BackgroundEffect />
-        <ReadabilityOverlay />
         <div className="relative z-10">
           <AuthProvider>
             <LanguageProvider>
