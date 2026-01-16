@@ -9,6 +9,7 @@ import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 import MatrixRain from "@/components/MatrixRain";
+import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
@@ -87,10 +88,14 @@ const queryClient = new QueryClient({
 const BackgroundEffect = () => {
   const { theme } = useThemeSettings();
   
-  // Show Matrix Rain only if background_effect is 'matrix_rain'
-  if (theme.background_effect !== 'matrix_rain') return null;
-  
-  return <MatrixRain />;
+  switch (theme.background_effect) {
+    case 'matrix_rain':
+      return <MatrixRain />;
+    case 'consciousness_field':
+      return <ConsciousnessField />;
+    default:
+      return null;
+  }
 };
 
 const App = () => (

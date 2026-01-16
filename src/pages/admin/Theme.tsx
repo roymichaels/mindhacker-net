@@ -322,7 +322,7 @@ const Theme = () => {
               {/* Background Effect Selector */}
               <div className="space-y-2">
                 <Label>{isRTL ? "אפקט רקע" : "Background Effect"}</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => handleChange('background_effect', 'none')}
@@ -361,17 +361,37 @@ const Theme = () => {
                       </p>
                     </div>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('background_effect', 'consciousness_field')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.background_effect === 'consciousness_field' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded bg-gradient-to-br from-[#0a1628] to-[#1e3a5f] flex items-center justify-center text-[#3d7a8c]">
+                        ∞ ◌
+                      </div>
+                      <p className="font-medium">{isRTL ? "שדה תודעתי" : "Consciousness Field"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "שקט ומרפא" : "Calm & healing"}
+                      </p>
+                    </div>
+                  </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {isRTL ? "אפקטים נוספים יגיעו בקרוב..." : "More effects coming soon..."}
-                </p>
               </div>
               
               {/* Matrix Rain settings - only show when selected */}
               {localTheme.background_effect === 'matrix_rain' && (
-                <>
+                <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <span className="text-primary font-mono">01</span>
+                    {isRTL ? "הגדרות גשם מטריקס" : "Matrix Rain Settings"}
+                  </h4>
                   <div className="space-y-2">
-                    <Label>{isRTL ? "צבע גשם מטריקס" : "Matrix Rain Color"}</Label>
+                    <Label>{isRTL ? "צבע" : "Color"}</Label>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -389,7 +409,7 @@ const Theme = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>{isRTL ? "שקיפות גשם מטריקס" : "Matrix Rain Opacity"}</Label>
+                    <Label>{isRTL ? "שקיפות" : "Opacity"}</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -400,7 +420,111 @@ const Theme = () => {
                       placeholder="0.15"
                     />
                   </div>
-                </>
+                </div>
+              )}
+
+              {/* Consciousness Field settings - only show when selected */}
+              {localTheme.background_effect === 'consciousness_field' && (
+                <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <span className="text-[#3d7a8c]">∞</span>
+                    {isRTL ? "הגדרות שדה תודעתי" : "Consciousness Field Settings"}
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>{isRTL ? "צבע רקע עמוק" : "Deep Background Color"}</Label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={localTheme.consciousness_field_primary_color}
+                          onChange={(e) => handleChange('consciousness_field_primary_color', e.target.value)}
+                          className="w-12 h-12 rounded cursor-pointer"
+                        />
+                        <Input
+                          value={localTheme.consciousness_field_primary_color}
+                          onChange={(e) => handleChange('consciousness_field_primary_color', e.target.value)}
+                          placeholder="#0a1628"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>{isRTL ? "צבע הילה" : "Accent Glow Color"}</Label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={localTheme.consciousness_field_accent_color}
+                          onChange={(e) => handleChange('consciousness_field_accent_color', e.target.value)}
+                          className="w-12 h-12 rounded cursor-pointer"
+                        />
+                        <Input
+                          value={localTheme.consciousness_field_accent_color}
+                          onChange={(e) => handleChange('consciousness_field_accent_color', e.target.value)}
+                          placeholder="#3d7a8c"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>{isRTL ? "צפיפות חלקיקים" : "Particle Density"}</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="0.3"
+                        max="1"
+                        value={localTheme.consciousness_field_particle_density}
+                        onChange={(e) => handleChange('consciousness_field_particle_density', e.target.value)}
+                        placeholder="0.6"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "0.3 (מינימלי) עד 1 (צפוף)" : "0.3 (minimal) to 1 (dense)"}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>{isRTL ? "מהירות נשימה (שניות)" : "Breathing Speed (seconds)"}</Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        min="5"
+                        max="20"
+                        value={localTheme.consciousness_field_breathing_speed}
+                        onChange={(e) => handleChange('consciousness_field_breathing_speed', e.target.value)}
+                        placeholder="10"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "5 (מהיר) עד 20 (איטי מאוד)" : "5 (fast) to 20 (very slow)"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                    <div>
+                      <Label>{isRTL ? "אינטראקציה עם עכבר/מגע" : "Mouse/Touch Interaction"}</Label>
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "החלקיקים מגיבים לתנועת העכבר" : "Particles respond to mouse movement"}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={localTheme.consciousness_field_interaction}
+                      onCheckedChange={(checked) => handleChange('consciousness_field_interaction', checked)}
+                    />
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#0a1628]/50 border border-[#3d7a8c]/20">
+                    <p className="text-sm text-center text-muted-foreground italic">
+                      {isRTL 
+                        ? '"זה לא רקע טכנולוגי. זה שדה תודעתי עשוי קוד."'
+                        : '"This isn\'t a technological background. It\'s a consciousness field made of code."'
+                      }
+                    </p>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
