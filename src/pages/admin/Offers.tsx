@@ -273,14 +273,14 @@ const Offers = () => {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title={t("admin.offers.title")}
-        subtitle={t("admin.offers.subtitle")}
-        action={
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="w-4 h-4" />
-            {t("admin.offers.create")}
-          </Button>
-        }
+        titleKey="admin.offers.title"
+        subtitleKey="admin.offers.subtitle"
+        icon={Sparkles}
+        action={{
+          labelKey: "admin.offers.create",
+          onClick: () => handleOpenDialog(),
+          icon: Plus
+        }}
       />
 
       {isLoading ? (
