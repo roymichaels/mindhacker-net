@@ -61,7 +61,7 @@ export const PWAInstallBanner = () => {
   return (
     <>
       <div 
-        className={`fixed top-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-40 transition-all duration-300 ${
+        className={`fixed top-20 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-40 transition-all duration-300 ${
           isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
         }`}
       >
