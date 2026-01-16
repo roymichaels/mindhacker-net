@@ -1,5 +1,6 @@
 import { useEffect, useRef, memo } from "react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { hslToRgb } from "@/lib/colorUtils";
 
 // Abstract glyphs for consciousness field effect
 const GLYPHS = [
@@ -10,17 +11,6 @@ const GLYPHS = [
   '░', '▒',                            // Gradients
   '◇', '△', '▽', '○',                 // Geometric
 ];
-
-// Convert hex to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return { r: 10, g: 22, b: 40 };
-  return {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  };
-};
 
 interface Particle {
   x: number;
@@ -52,9 +42,19 @@ const ConsciousnessField = () => {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // Get settings from theme
-    const primaryColor = hexToRgb(theme.consciousness_field_primary_color || "#0a1628");
-    const accentColor = hexToRgb(theme.consciousness_field_accent_color || "#3d7a8c");
+    // Derive colors from theme HSL values
+    // Background/primary: use background HSL (darkened)
+    const bgH = parseFloat(theme.background_h) || 220;
+    const bgS = parseFloat(theme.background_s) || 60;
+    const bgL = Math.max((parseFloat(theme.background_l) || 8) - 3, 3);
+    const primaryColor = hslToRgb(bgH, bgS, bgL);
+
+    // Accent: use primary theme color HSL
+    const primaryH = parseFloat(theme.primary_h) || 174;
+    const primaryS = parseFloat(theme.primary_s) || 100;
+    const primaryL = parseFloat(theme.primary_l) || 42;
+    const accentColor = hslToRgb(primaryH, primaryS, primaryL);
+
     const particleDensity = parseFloat(theme.consciousness_field_particle_density || "0.6");
     const breathingSpeed = parseFloat(theme.consciousness_field_breathing_speed || "10");
     const interactionEnabled = theme.consciousness_field_interaction !== false;
@@ -276,8 +276,12 @@ const ConsciousnessField = () => {
     };
   }, [
     loading,
-    theme.consciousness_field_primary_color,
-    theme.consciousness_field_accent_color,
+    theme.background_h,
+    theme.background_s,
+    theme.background_l,
+    theme.primary_h,
+    theme.primary_s,
+    theme.primary_l,
     theme.consciousness_field_particle_density,
     theme.consciousness_field_breathing_speed,
     theme.consciousness_field_interaction
