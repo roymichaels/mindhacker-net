@@ -194,6 +194,7 @@ export const he = {
     notifications: "התראות",
     menu: "ניהול תפריט",
     homepage: "סקשנים בעמוד הבית",
+    theme: "עיצוב ומיתוג",
     consciousnessLeap: "קפיצה לתודעה",
     newsletter: "ניוזלטר",
     panelTitle: "מרכז שליטה",
