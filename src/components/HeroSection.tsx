@@ -10,6 +10,8 @@ import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift } from "lucide
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useProductsColors } from "@/hooks/useProductBranding";
+import { getProductColors } from "@/lib/productColors";
 import heroPortrait from "@/assets/hero-portrait.png";
 
 const HeroSection = () => {
@@ -17,6 +19,13 @@ const HeroSection = () => {
   const { t, isRTL } = useTranslation();
   const { settings } = useSiteSettings();
   const { theme } = useThemeSettings();
+  const { data: products } = useProductsColors();
+  
+  // Get product colors from database
+  const personalHypnosisProduct = products?.find(p => p.slug === 'personal-hypnosis-video');
+  const consciousnessLeapProduct = products?.find(p => p.slug === 'consciousness-leap');
+  const personalHypnosisColors = getProductColors(personalHypnosisProduct?.brand_color);
+  const consciousnessLeapColors = getProductColors(consciousnessLeapProduct?.brand_color);
   
   // Get brand name for alt text from theme settings
   const brandNameAlt = isRTL ? theme.brand_name : theme.brand_name_en;
@@ -169,22 +178,22 @@ const HeroSection = () => {
             </div>
           </Card>
 
-          {/* Option 2: Personal Hypnosis Video (SECOND - Low barrier) - Emerald/Teal */}
-          <Card className="group relative bg-card border border-border shadow-md hover:border-emerald-500/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden"
+          {/* Option 2: Personal Hypnosis Video (SECOND - Low barrier) - Data-driven color */}
+          <Card className={`group relative bg-card border border-border shadow-md ${personalHypnosisColors.borderHover} p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden`}
             onClick={() => navigate("/personal-hypnosis")}>
             {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className={`absolute inset-0 bg-gradient-to-br ${personalHypnosisColors.gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             
             <div className="relative">
               <div className="flex justify-center mb-3">
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Video className="w-7 h-7 text-emerald-500" />
+                <div className={`w-14 h-14 rounded-full ${personalHypnosisColors.bgMedium} border-2 ${personalHypnosisColors.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <Video className={`w-7 h-7 ${personalHypnosisColors.text}`} />
                 </div>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-emerald-500/10 rounded-full px-3 py-1 mb-3">
-                <Brain className="w-3 h-3 text-emerald-500" />
-                <span className="text-xs text-emerald-500 font-medium">{t('hero.personalHypnosisTag')}</span>
+              <div className={`inline-flex items-center gap-2 ${personalHypnosisColors.bgLight} rounded-full px-3 py-1 mb-3`}>
+                <Brain className={`w-3 h-3 ${personalHypnosisColors.text}`} />
+                <span className={`text-xs ${personalHypnosisColors.text} font-medium`}>{t('hero.personalHypnosisTag')}</span>
               </div>
               
               <h3 className="text-xl md:text-2xl font-bold mb-2">{t('hero.personalHypnosis')}</h3>
@@ -193,29 +202,29 @@ const HeroSection = () => {
                 {t('hero.personalHypnosisDesc')}
               </p>
               
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all">
+              <Button className={`w-full ${personalHypnosisColors.button} ${personalHypnosisColors.buttonText} group-hover:shadow-lg group-hover:${personalHypnosisColors.shadow} transition-all`}>
                 {t('hero.discoverMore')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
             </div>
           </Card>
 
-          {/* Option 3: Consciousness Leap (THIRD - Full commitment) - Purple/Indigo */}
-          <Card className="group relative bg-card border border-border shadow-md hover:border-purple-500/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden"
+          {/* Option 3: Consciousness Leap (THIRD - Full commitment) - Data-driven color */}
+          <Card className={`group relative bg-card border border-border shadow-md ${consciousnessLeapColors.borderHover} p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden`}
             onClick={() => navigate("/consciousness-leap")}>
             {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className={`absolute inset-0 bg-gradient-to-br ${consciousnessLeapColors.gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             
             <div className="relative">
               <div className="flex justify-center mb-3">
-                <div className="w-14 h-14 rounded-full bg-purple-500/20 border-2 border-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-7 h-7 text-purple-500" />
+                <div className={`w-14 h-14 rounded-full ${consciousnessLeapColors.bgMedium} border-2 ${consciousnessLeapColors.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <Zap className={`w-7 h-7 ${consciousnessLeapColors.text}`} />
                 </div>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 rounded-full px-3 py-1 mb-3">
-                <Sparkles className="w-3 h-3 text-purple-500" />
-                <span className="text-xs text-purple-500 font-medium">{t('hero.consciousnessLeapTag')}</span>
+              <div className={`inline-flex items-center gap-2 ${consciousnessLeapColors.bgLight} rounded-full px-3 py-1 mb-3`}>
+                <Sparkles className={`w-3 h-3 ${consciousnessLeapColors.text}`} />
+                <span className={`text-xs ${consciousnessLeapColors.text} font-medium`}>{t('hero.consciousnessLeapTag')}</span>
               </div>
               
               <h3 className="text-xl md:text-2xl font-bold mb-2">{t('hero.consciousnessLeap')}</h3>
@@ -224,7 +233,7 @@ const HeroSection = () => {
                 {t('hero.consciousnessLeapDesc')}
               </p>
               
-              <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all">
+              <Button className={`w-full ${consciousnessLeapColors.button} ${consciousnessLeapColors.buttonText} group-hover:shadow-lg group-hover:${consciousnessLeapColors.shadow} transition-all`}>
                 {t('hero.discoverIfRight')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
@@ -234,24 +243,24 @@ const HeroSection = () => {
 
         {/* Mobile: Compact cards for other options */}
         <div className="md:hidden grid grid-cols-2 gap-3 mb-6 px-1 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-          {/* Personal Hypnosis - Mobile - Emerald/Teal */}
-          <Card className="group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer hover:border-emerald-500/60"
+          {/* Personal Hypnosis - Mobile - Data-driven color */}
+          <Card className={`group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer ${personalHypnosisColors.borderHover}`}
             onClick={() => navigate("/personal-hypnosis")}>
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/25 border-2 border-emerald-500 mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Video className="w-6 h-6 text-emerald-500" />
+              <div className={`w-12 h-12 rounded-full ${personalHypnosisColors.bgMedium} border-2 ${personalHypnosisColors.border} mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                <Video className={`w-6 h-6 ${personalHypnosisColors.text}`} />
               </div>
               <h3 className="text-sm font-bold mb-1">{t('hero.personalHypnosis')}</h3>
               <p className="text-[11px] text-muted-foreground line-clamp-2">{t('hero.personalHypnosisTag')}</p>
             </div>
           </Card>
           
-          {/* Consciousness Leap - Mobile - Purple/Indigo */}
-          <Card className="group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer hover:border-purple-500/60"
+          {/* Consciousness Leap - Mobile - Data-driven color */}
+          <Card className={`group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer ${consciousnessLeapColors.borderHover}`}
             onClick={() => navigate("/consciousness-leap")}>
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-purple-500/25 border-2 border-purple-500 mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Zap className="w-6 h-6 text-purple-500" />
+              <div className={`w-12 h-12 rounded-full ${consciousnessLeapColors.bgMedium} border-2 ${consciousnessLeapColors.border} mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                <Zap className={`w-6 h-6 ${consciousnessLeapColors.text}`} />
               </div>
               <h3 className="text-sm font-bold mb-1">{t('hero.consciousnessLeap')}</h3>
               <p className="text-[11px] text-muted-foreground line-clamp-2">{t('hero.consciousnessLeapTag')}</p>

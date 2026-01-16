@@ -169,6 +169,8 @@ export const he = {
     priceILS: "מחיר (₪)",
     priceUSD: "מחיר ($)",
     productActive: "מוצר פעיל",
+    brandColor: "צבע מותג",
+    brandColorDesc: "צבע זה יוצג בכרטיסי המוצר ובדפי הנחיתה",
     applications: "בקשות",
     noApplications: "אין בקשות עדיין",
     noApplicationsDescription: "בקשות לתהליך קפיצה לתודעה חדשה יופיעו כאן",

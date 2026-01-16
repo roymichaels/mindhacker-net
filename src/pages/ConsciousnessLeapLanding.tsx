@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useProductBranding } from "@/hooks/useProductBranding";
 import { formatPrice } from "@/lib/currency";
 import {
   Accordion,
@@ -41,6 +42,7 @@ import {
 
 const ConsciousnessLeapLanding = () => {
   const { t, language, isRTL } = useTranslation();
+  const { colors } = useProductBranding('consciousness-leap');
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatResonated, setWhatResonated] = useState("");
@@ -179,9 +181,9 @@ const ConsciousnessLeapLanding = () => {
       <div className="min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
         <main className="relative z-20 pt-24 pb-20 px-4">
           <div className="container max-w-2xl mx-auto text-center">
-            <Card className="bg-card/80 backdrop-blur border-primary/30 p-8 md:p-12">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-primary" />
+            <Card className={`bg-card/80 backdrop-blur ${colors.border}/30 p-8 md:p-12`}>
+              <div className={`w-20 h-20 mx-auto mb-6 rounded-full ${colors.bgMedium} flex items-center justify-center`}>
+                <CheckCircle className={`h-10 w-10 ${colors.text}`} />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-6">{t('consciousnessLeapLanding.successTitle')}</h1>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
@@ -208,7 +210,7 @@ const ConsciousnessLeapLanding = () => {
               <img src="/icons/icon-96x96.png" alt={t('consciousnessLeapLanding.brandName')} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
               <span className="font-black text-lg cyber-glow">{t('consciousnessLeapLanding.brandName')}</span>
             </Link>
-            <Button onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button onClick={scrollToForm} className={`${colors.button} ${colors.buttonText}`}>
               {t('consciousnessLeapLanding.navCta')}
             </Button>
           </div>
@@ -219,34 +221,34 @@ const ConsciousnessLeapLanding = () => {
       <section className="relative z-20 min-h-screen flex items-center justify-center pt-20 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-8 animate-fade-in">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary">{t('consciousnessLeapLanding.limitedSpots')}</span>
+            <div className={`inline-flex items-center gap-2 ${colors.bgLight} border ${colors.border}/30 rounded-full px-4 py-2 mb-8 animate-fade-in`}>
+              <Sparkles className={`w-4 h-4 ${colors.text}`} />
+              <span className={`text-sm ${colors.text}`}>{t('consciousnessLeapLanding.limitedSpots')}</span>
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-              <span className="text-primary cyber-glow">{t('consciousnessLeapLanding.heroTitle')}</span>
+              <span className={`${colors.text} cyber-glow`}>{t('consciousnessLeapLanding.heroTitle')}</span>
               <br />
               <span className="text-foreground">{t('consciousnessLeapLanding.heroTitleHighlight')}</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
               {t('consciousnessLeapLanding.heroSubtitle')}
-              <span className="text-primary"> {t('consciousnessLeapLanding.heroSubtitleHighlight')}</span>
+              <span className={colors.text}> {t('consciousnessLeapLanding.heroSubtitleHighlight')}</span>
               {t('consciousnessLeapLanding.heroSubtitleEnd')}
             </p>
 
-            <div className="inline-block bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-6 mb-8 animate-fade-in">
+            <div className={`inline-block bg-card/50 backdrop-blur border ${colors.border}/30 rounded-2xl p-6 mb-8 animate-fade-in`}>
               <div className="text-sm text-muted-foreground mb-1">{t('consciousnessLeapLanding.investInYourself')}</div>
-              <div className="text-4xl md:text-5xl font-bold text-primary cyber-glow">{t('consciousnessLeapLanding.price')}</div>
+              <div className={`text-4xl md:text-5xl font-bold ${colors.text} cyber-glow`}>{t('consciousnessLeapLanding.price')}</div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button size="lg" onClick={scrollToForm} className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-xl shadow-lg shadow-primary/25">
+              <Button size="lg" onClick={scrollToForm} className={`${colors.button} ${colors.buttonText} text-lg px-8 py-6 rounded-xl shadow-lg ${colors.shadow}`}>
                 {t('consciousnessLeapLanding.iWantToStart')}
                 <ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="border-primary/50 text-primary hover:bg-primary/10 text-lg px-8 py-6 rounded-xl">
+              <Button size="lg" variant="outline" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className={`${colors.border}/50 ${colors.text} hover:${colors.bgLight} text-lg px-8 py-6 rounded-xl`}>
                 {t('consciousnessLeapLanding.howDoesItWork')}
                 <ChevronDown className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
