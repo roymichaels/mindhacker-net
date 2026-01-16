@@ -29,29 +29,29 @@ const IntrospectionPromo = () => {
 
   return (
     <section id="introspection" className="relative py-20 md:py-32 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Warm gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-background to-background" />
+      {/* Warm gradient background - using theme accent */}
+      <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-background" />
       
       {/* Decorative elements */}
-      <div className="absolute top-20 left-1/4 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl animate-breathe" />
-      <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-breathe" />
+      <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-accent/10 rounded-full blur-3xl" />
       
       {/* Sacred geometry */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-amber-500/10 rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-accent/10 rounded-full pointer-events-none" />
       
       <div className="container relative mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           {/* Badge */}
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-500/40 shadow-lg shadow-amber-500/10">
-              <Gift className="h-5 w-5 text-amber-500 animate-pulse" />
-              <span className="text-sm font-bold text-amber-500">{t('introspectionPromo.badge')}</span>
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-accent/20 to-accent/10 border border-accent/40 shadow-lg shadow-accent/10">
+              <Gift className="h-5 w-5 text-accent animate-pulse" />
+              <span className="text-sm font-bold text-accent">{t('introspectionPromo.badge')}</span>
             </div>
           </div>
           
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4">
-            <span className="text-amber-500">{t('introspectionPromo.title')}</span>
+            <span className="text-accent">{t('introspectionPromo.title')}</span>
           </h2>
           
           {/* Subtitle */}
@@ -66,14 +66,14 @@ const IntrospectionPromo = () => {
           {/* Content Grid */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Left side - What You'll Discover */}
-            <Card className="bg-card/50 backdrop-blur border-amber-500/20 p-6 md:p-8">
-              <h3 className="text-xl font-bold mb-6 text-center text-amber-500">{t('introspectionPromo.whatDiscover')}</h3>
+            <Card className="bg-card/50 backdrop-blur border-accent/20 p-6 md:p-8">
+              <h3 className="text-xl font-bold mb-6 text-center text-accent">{t('introspectionPromo.whatDiscover')}</h3>
               
               <ul className="space-y-4">
                 {discoveries.map((item, index) => (
                   <li key={index} className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/30 transition-colors">
-                      <item.icon className="w-5 h-5 text-amber-500" />
+                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                      <item.icon className="w-5 h-5 text-accent" />
                     </div>
                     <span className="text-foreground">{item.text}</span>
                   </li>
@@ -82,16 +82,16 @@ const IntrospectionPromo = () => {
             </Card>
             
             {/* Right side - Features & CTA */}
-            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/30 p-6 md:p-8 relative overflow-hidden">
+            <Card className="bg-gradient-to-br from-accent/10 to-accent/5 backdrop-blur border-accent/30 p-6 md:p-8 relative overflow-hidden">
               {/* Shimmer effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent -skew-x-12 animate-shimmer" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent -skew-x-12 animate-shimmer" />
               
               <h3 className="text-xl font-bold mb-6 text-center relative">{t('introspectionPromo.journeyDetails')}</h3>
               
               <div className="grid grid-cols-2 gap-4 mb-8 relative">
                 {features.map((feature, index) => (
                   <div key={index} className="flex items-center gap-3 bg-background/50 rounded-lg p-3">
-                    <feature.icon className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                    <feature.icon className="w-5 h-5 text-accent flex-shrink-0" />
                     <span className="text-sm">{feature.text}</span>
                   </div>
                 ))}
@@ -99,7 +99,7 @@ const IntrospectionPromo = () => {
               
               <Button
                 size="lg"
-                className="w-full gap-3 text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold shadow-lg shadow-amber-500/30 relative overflow-hidden group"
+                className="w-full gap-3 text-lg py-6 bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-lg shadow-accent/30 relative overflow-hidden group"
                 onClick={() => navigate(introspectionFormUrl)}
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -117,7 +117,7 @@ const IntrospectionPromo = () => {
           
           {/* Quote */}
           <div className="text-center">
-            <p className="text-lg md:text-xl italic text-amber-500/80 font-medium">
+            <p className="text-lg md:text-xl italic text-accent/80 font-medium">
               "{t('introspectionPromo.quote')}"
             </p>
             <p className="text-muted-foreground mt-2">— {t('about.name')}</p>

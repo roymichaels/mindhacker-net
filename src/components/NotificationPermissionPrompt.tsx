@@ -84,7 +84,7 @@ export const NotificationPermissionPrompt = () => {
         isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
       }`}
     >
-      <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-4 shadow-xl">
+      <div className="bg-gradient-to-br from-accent/10 to-accent/5 backdrop-blur-xl border border-accent/30 rounded-2xl p-4 shadow-xl">
         <button
           onClick={handleDismiss}
           className={`absolute top-2 ${isRTL ? 'left-2' : 'right-2'} p-1.5 rounded-lg hover:bg-white/10 transition-colors`}
@@ -93,8 +93,8 @@ export const NotificationPermissionPrompt = () => {
         </button>
 
         <div className={`flex gap-3 ${isRTL ? 'pr-2' : 'pl-2'}`}>
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-            <BellRing className="w-5 h-5 text-white" />
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+            <BellRing className="w-5 h-5 text-accent-foreground" />
           </div>
           
           <div className="flex-1">
@@ -108,7 +108,7 @@ export const NotificationPermissionPrompt = () => {
                 onClick={handleEnable}
                 disabled={isLoading}
                 size="sm"
-                className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-xs h-8"
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground text-xs h-8"
               >
                 {isLoading ? (
                   <span className="animate-pulse">{t('notificationPrompt.enabling')}</span>
