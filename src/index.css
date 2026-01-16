@@ -17,8 +17,11 @@
   /* 
    * LIGHT MODE (Default - Clean SaaS)
    * Following best practices: white backgrounds, subtle shadows, clear contrast
+   * Applied to both :root and html.light for explicit light mode support
    */
-  :root {
+  :root,
+  html.light,
+  .light {
     /* Backgrounds - clean whites and light grays */
     --background: 0 0% 100%;
     --background-end: 220 14% 96%;
@@ -78,7 +81,9 @@
   /* 
    * DARK MODE (Cyber aesthetic)
    * Deep blues, neon accents, glowing effects
+   * Applied to html.dark for next-themes compatibility
    */
+  html.dark,
   .dark {
     --background: 215 100% 2%;
     --background-end: 215 60% 6%;
@@ -133,11 +138,18 @@
   }
 
   body {
-    @apply bg-background text-foreground font-['Heebo'] overflow-x-hidden antialiased;
+    @apply text-foreground font-['Heebo'] overflow-x-hidden antialiased;
+    background-color: hsl(var(--background));
+  }
+
+  /* Light mode - clean white background */
+  html.light body,
+  html:not(.dark) body {
+    background: hsl(var(--background));
   }
 
   /* Dark mode gradient background */
-  .dark body {
+  html.dark body {
     background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end)) 100%);
   }
   
@@ -176,6 +188,7 @@
     @apply bg-card border border-border rounded-2xl shadow-sm;
   }
 
+  html.dark .glass-panel,
   .dark .glass-panel {
     background: hsl(var(--glass-bg) / 0.8);
     backdrop-filter: blur(12px);
@@ -190,6 +203,7 @@
     @apply text-primary;
   }
   
+  html.dark .cyber-glow,
   .dark .cyber-glow {
     text-shadow: 0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary-glow));
   }
@@ -198,6 +212,7 @@
     @apply border border-border shadow-md;
   }
 
+  html.dark .cyber-border,
   .dark .cyber-border {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.5), inset 0 0 20px hsl(var(--primary) / 0.1);
   }
@@ -206,6 +221,7 @@
     @apply shadow-sm;
   }
 
+  html.dark .pulse-glow,
   .dark .pulse-glow {
     animation: pulse-glow 3s ease-in-out infinite;
   }
@@ -224,6 +240,7 @@
     @apply ring-2 ring-primary/30;
   }
 
+  html.dark .animate-ring-pulse,
   .dark .animate-ring-pulse {
     animation: ring-pulse 2.5s ease-in-out infinite;
   }
@@ -246,11 +263,13 @@
     box-shadow: none;
   }
 
+  html.dark .vignette,
   .dark .vignette {
     box-shadow: inset 0 0 200px 80px rgba(1, 4, 9, 0.3);
   }
 
   @media (max-width: 768px) {
+    html.dark .vignette,
     .dark .vignette {
       box-shadow: none;
     }
@@ -261,6 +280,7 @@
     @apply text-foreground font-bold;
   }
 
+  html.dark .static-word-glow,
   .dark .static-word-glow {
     text-shadow: 
       0 0 30px rgba(255, 255, 255, 0.8),
@@ -272,6 +292,7 @@
     @apply text-muted-foreground;
   }
 
+  html.dark .decrypt-glow-scramble,
   .dark .decrypt-glow-scramble {
     text-shadow: 
       0 0 15px hsl(var(--primary) / 0.8),
@@ -283,6 +304,7 @@
     @apply text-primary font-semibold;
   }
 
+  html.dark .decrypt-glow-locked,
   .dark .decrypt-glow-locked {
     text-shadow: 
       0 0 20px hsl(var(--primary)),
@@ -300,6 +322,7 @@
     @apply -translate-y-1 shadow-lg;
   }
 
+  html.dark .hover-lift:hover,
   .dark .hover-lift:hover {
     box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
   }
@@ -312,6 +335,7 @@
     @apply shadow-lg;
   }
 
+  html.dark .hover-glow:hover,
   .dark .hover-glow:hover {
     box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
   }
@@ -530,6 +554,8 @@
     @apply hidden;
   }
 
+  html.dark .consciousness-pulse,
+  html.dark .animate-breathe,
   .dark .consciousness-pulse,
   .dark .animate-breathe {
     @apply block;
@@ -571,10 +597,12 @@
     background: hsl(var(--muted-foreground) / 0.5);
   }
 
+  html.dark .scrollbar-thin::-webkit-scrollbar-thumb,
   .dark .scrollbar-thin::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.3);
   }
 
+  html.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover,
   .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.5);
   }

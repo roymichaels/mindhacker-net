@@ -53,6 +53,8 @@ const ThemeProvider = ({ children }: ThemeProviderProps) => {
       enableSystem={false}
       disableTransitionOnChange={false}
       storageKey="theme-preference"
+      forcedTheme={undefined}
+      themes={["light", "dark"]}
     >
       <ThemeSettingsApplier>
         {children}
