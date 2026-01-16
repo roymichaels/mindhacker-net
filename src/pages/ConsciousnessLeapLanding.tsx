@@ -204,7 +204,7 @@ const ConsciousnessLeapLanding = () => {
 
   return (
     <div className="min-h-screen text-foreground overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-      <Header />
+      <Header brandColors={colors} />
 
       {/* Hero Section */}
       <section className="relative z-20 min-h-screen flex items-center justify-center pt-20 pb-16">
