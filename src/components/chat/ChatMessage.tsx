@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
-import logo from "@/assets/logo-small.webp";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
+
+// Default logo from public folder (same as Header)
+const defaultLogo = "/icons/icon-96x96.png";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -9,6 +12,8 @@ interface ChatMessageProps {
 }
 
 const ChatMessage = ({ role, content, isStreaming }: ChatMessageProps) => {
+  const { theme } = useThemeSettings();
+  const logoUrl = theme.logo_url || defaultLogo;
   const isUser = role === "user";
 
   return (
@@ -20,15 +25,15 @@ const ChatMessage = ({ role, content, isStreaming }: ChatMessageProps) => {
         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
         isUser 
           ? "bg-primary/20 text-primary" 
-          : "bg-accent/20 text-accent"
+          : "bg-accent/20"
       )}>
-        {isUser ? <User className="w-4 h-4" /> : <img src={logo} alt="דין" className="w-5 h-5" />}
+        {isUser ? <User className="w-4 h-4" /> : <img src={logoUrl} alt="Assistant" className="w-5 h-5" />}
       </div>
       <div className={cn(
         "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
         isUser 
           ? "bg-primary text-primary-foreground rounded-br-md" 
-          : "bg-muted text-foreground rounded-bl-md"
+          : "bg-muted/80 text-foreground rounded-bl-md border border-border/50"
       )}>
         {content}
         {isStreaming && (

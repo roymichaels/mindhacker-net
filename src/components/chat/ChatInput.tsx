@@ -19,14 +19,14 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-3 border-t border-border/50">
+    <form onSubmit={handleSubmit} className="flex gap-2 p-3 border-t border-border bg-muted/30">
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="כתוב הודעה..."
         disabled={disabled}
-        className="flex-1 bg-muted/50 border border-border/50 rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+        className="flex-1 bg-background border border-border rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
         dir="rtl"
       />
       <Button
