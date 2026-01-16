@@ -29,6 +29,7 @@ import { handleError } from "@/lib/errorHandling";
 import { UserNotificationBell } from "./UserNotificationBell";
 import { NotificationBell } from "./admin/NotificationBell";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
@@ -156,6 +157,9 @@ const Header = ({ variant = "public" }: HeaderProps) => {
                 <Home className="h-5 w-5" />
               </Button>
             )}
+
+            {/* Theme Toggle - Available for all users */}
+            <ThemeToggle />
 
             {/* Language switcher only shown for non-logged in users */}
             {!user && !isAdminMode && <LanguageSwitcher />}

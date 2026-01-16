@@ -1,6 +1,7 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, memo, useState } from "react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { hslToRgb } from "@/lib/colorUtils";
+import { THEME_MODE_CHANGED_EVENT } from "./ThemeToggle";
 
 // Convert RGB object to string
 const rgbToString = (rgb: { r: number; g: number; b: number }): string => {
@@ -22,9 +23,22 @@ const darkenRgb = (rgb: string, amount: number): string => {
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { theme, loading } = useThemeSettings();
+  const [isLightMode, setIsLightMode] = useState(() => 
+    typeof document !== "undefined" && document.documentElement.classList.contains("light")
+  );
 
-  // Don't render if Matrix Rain is disabled
-  if (!theme.matrix_rain_enabled) {
+  // Listen for theme mode changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setIsLightMode(document.documentElement.classList.contains("light"));
+    };
+    
+    window.addEventListener(THEME_MODE_CHANGED_EVENT, handleThemeChange);
+    return () => window.removeEventListener(THEME_MODE_CHANGED_EVENT, handleThemeChange);
+  }, []);
+
+  // Don't render if Matrix Rain is disabled OR if in light mode
+  if (!theme.matrix_rain_enabled || isLightMode) {
     return null;
   }
 
