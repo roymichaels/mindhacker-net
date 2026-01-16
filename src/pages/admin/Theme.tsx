@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Palette, Type, Sparkles, Image, Globe, Check, Loader2 } from "lucide-react";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 const Theme = () => {
   const { t, language } = useTranslation();
@@ -689,28 +690,25 @@ const Theme = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>{isRTL ? "כתובת URL ללוגו" : "Logo URL"}</Label>
-                <Input
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ImageUpload
+                  label={isRTL ? "לוגו" : "Logo"}
+                  description={isRTL ? "לוגו המותג שלך" : "Your brand logo"}
                   value={localTheme.logo_url}
-                  onChange={(e) => handleChange('logo_url', e.target.value)}
-                  placeholder="https://..."
+                  onChange={(url) => handleChange('logo_url', url)}
+                  folder="logos"
+                  maxSizeMB={5}
+                  aspectHint="1:1"
                 />
-                <p className="text-xs text-muted-foreground">
-                  {isRTL ? "העלה לוגו לאחסון והדבק את הקישור כאן" : "Upload logo to storage and paste the URL here"}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>{isRTL ? "תמונת פורטרט" : "Hero Portrait URL"}</Label>
-                <Input
+                <ImageUpload
+                  label={isRTL ? "תמונת פורטרט" : "Hero Portrait"}
+                  description={isRTL ? "תמונת הפורטרט שמופיעה בעמוד הראשי" : "Portrait image on homepage"}
                   value={localTheme.hero_portrait_url}
-                  onChange={(e) => handleChange('hero_portrait_url', e.target.value)}
-                  placeholder="https://..."
+                  onChange={(url) => handleChange('hero_portrait_url', url)}
+                  folder="portraits"
+                  maxSizeMB={10}
+                  aspectHint="1:1"
                 />
-                <p className="text-xs text-muted-foreground">
-                  {isRTL ? "תמונת הפורטרט שמופיעה בעמוד הראשי" : "Portrait image shown on the homepage"}
-                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
