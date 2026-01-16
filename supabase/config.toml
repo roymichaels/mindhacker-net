@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.send-order-confirmation]
 verify_jwt = false
+
+[functions.analyze-introspection-form]
+verify_jwt = false

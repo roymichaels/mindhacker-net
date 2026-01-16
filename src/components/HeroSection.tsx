@@ -33,9 +33,9 @@ const HeroSection = () => {
   // Use theme portrait or fallback to asset
   const portraitUrl = theme.hero_portrait_url || heroPortrait;
   
-  // Get introspection form URL from settings or use theme form ID
-  const formId = theme.introspection_form_id || "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308";
-  const introspectionFormUrl = settings.introspection_form_url || `/form/${formId}`;
+  // Get introspection form URL from settings or use access token
+  const formAccessToken = theme.introspection_form_id || "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
+  const introspectionFormUrl = settings.introspection_form_url || `/form/${formAccessToken}`;
   
   const wordsHe = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const wordsEn = ["Mind", "Consciousness", "Freedom", "Reality", "Identity", "Subconscious"];

@@ -135,7 +135,7 @@ const defaultTheme: ThemeSettings = {
   site_url: "https://mind-hacker.net",
   hero_portrait_url: "",
   pwa_icon_url: "",
-  introspection_form_id: "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308",
+  introspection_form_id: "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",
   default_language: "he",
 };
 

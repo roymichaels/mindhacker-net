@@ -1796,6 +1796,22 @@ export const he = {
     landingConsciousnessLeap: "קפיצה לתודעה חדשה",
     landingCourses: "קורסים",
   },
+  consciousnessAnalysis: {
+    analyzing: "מנתח את התשובות שלך...",
+    analysisReady: "ניתוח התודעה שלך מוכן!",
+    summary: "תקציר",
+    patterns: "דפוסים שזוהו",
+    potential: "פוטנציאל שינוי",
+    recommendation: "המלצה אישית",
+    retryAnalysis: "נסה שוב",
+    analysisFailed: "הניתוח נכשל, אך התשובות שלך נשמרו",
+    poweredByAI: "מופעל ע\"י בינה מלאכותית",
+    learnMore: "גלה עוד",
+    personalizedInsights: "תובנות מותאמות אישית",
+    yourJourneyBegins: "המסע שלך מתחיל כאן",
+    continueToProduct: "המשך למוצר המומלץ",
+    exploreOptions: "חקור את האפשרויות",
+  },
 };
 
 export type TranslationKeys = typeof he;

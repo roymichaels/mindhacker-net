@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X, FileText, Download, Eye } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Loader2, Star, Sparkles, Video, X, FileText, Download, Eye, Brain, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { generateFormPDF } from "@/lib/pdfGenerator";
@@ -103,6 +103,21 @@ const FormView = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [postSubmitAction, setPostSubmitAction] = useState<PostSubmitAction>("none");
   const [showAnswerReview, setShowAnswerReview] = useState(false);
+  
+  // AI Analysis state
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<{
+    summary: string;
+    patterns: string[];
+    transformation_potential: string;
+    recommendation: string;
+    recommended_product: "personal-hypnosis" | "consciousness-leap";
+  } | null>(null);
+  const [analysisError, setAnalysisError] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  
+  // Check if this is the introspection form (by checking the token)
+  const isIntrospectionForm = token === "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
   
   // Persist form state to sessionStorage
   useEffect(() => {
@@ -219,7 +234,7 @@ const FormView = () => {
     try {
       const email = getEmailFromResponses();
       
-      const { error } = await supabase.from("form_submissions").insert({
+      const { data: submissionData, error } = await supabase.from("form_submissions").insert({
         form_id: form.id,
         responses,
         email, // Store extracted email for future account linking
@@ -228,16 +243,65 @@ const FormView = () => {
           referrer: document.referrer,
           submitted_at_local: new Date().toISOString(),
         },
-      });
+      }).select('id').single();
 
       if (error) throw error;
+      
+      setSubmissionId(submissionData?.id || null);
       setIsSubmitted(true);
       sessionStorage.removeItem(storageKey); // Clear saved progress on successful submission
+      
+      // Trigger AI analysis for introspection form
+      if (isIntrospectionForm && submissionData?.id) {
+        triggerAIAnalysis(submissionData.id);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({ title: t('forms.submitError'), variant: "destructive" });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  
+  // AI Analysis function
+  const triggerAIAnalysis = async (formSubmissionId: string) => {
+    setIsAnalyzing(true);
+    setAnalysisError(false);
+    
+    try {
+      const formResponses = fields.map(field => ({
+        question: field.label,
+        answer: responses[field.id] || "",
+      }));
+      
+      const response = await supabase.functions.invoke('analyze-introspection-form', {
+        body: {
+          form_submission_id: formSubmissionId,
+          responses: formResponses,
+          language: isRTL ? 'he' : 'en',
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      if (response.data?.analysis) {
+        setAnalysis(response.data.analysis);
+      } else {
+        throw new Error("No analysis returned");
+      }
+    } catch (error) {
+      console.error("AI Analysis error:", error);
+      setAnalysisError(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  
+  const retryAnalysis = () => {
+    if (submissionId) {
+      triggerAIAnalysis(submissionId);
     }
   };
 
@@ -411,6 +475,200 @@ const FormView = () => {
   );
 
   if (isSubmitted) {
+    // Show AI analysis for introspection form
+    if (isIntrospectionForm && postSubmitAction === "none") {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
+          <AnswerReviewDialog />
+          <div className="glass-panel p-6 sm:p-8 text-center max-w-3xl w-full animate-fade-in-up relative z-10">
+            {/* Analyzing State */}
+            {isAnalyzing && (
+              <div className="py-12">
+                <div className="w-20 h-20 mx-auto mb-6 relative">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 animate-pulse" />
+                  <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                    <Brain className="h-10 w-10 text-primary animate-pulse" />
+                  </div>
+                </div>
+                <h2 className="text-2xl font-bold mb-3">{t('consciousnessAnalysis.analyzing')}</h2>
+                <p className="text-muted-foreground">{t('consciousnessAnalysis.personalizedInsights')}</p>
+                <div className="mt-6 flex justify-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0s' }} />
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.4s' }} />
+                </div>
+              </div>
+            )}
+            
+            {/* Analysis Ready */}
+            {!isAnalyzing && analysis && (
+              <div className="space-y-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center mx-auto">
+                  <Sparkles className="h-8 w-8 text-primary" />
+                </div>
+                
+                <h1 className="text-2xl sm:text-3xl font-bold">{t('consciousnessAnalysis.analysisReady')}</h1>
+                
+                {/* Summary */}
+                <div className={`p-5 rounded-xl bg-primary/5 border border-primary/20 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-primary" />
+                    {t('consciousnessAnalysis.summary')}
+                  </h3>
+                  <p className="text-foreground leading-relaxed">{analysis.summary}</p>
+                </div>
+                
+                {/* Patterns */}
+                <div className={`p-5 rounded-xl bg-secondary/5 border border-secondary/20 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-secondary" />
+                    {t('consciousnessAnalysis.patterns')}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {analysis.patterns.map((pattern, i) => (
+                      <span key={i} className="px-3 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
+                        {pattern}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Transformation Potential */}
+                <div className={`p-5 rounded-xl bg-accent/5 border border-accent/20 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-accent" />
+                    {t('consciousnessAnalysis.potential')}
+                  </h3>
+                  <p className="text-foreground leading-relaxed">{analysis.transformation_potential}</p>
+                </div>
+                
+                {/* Recommendation */}
+                <div className={`p-5 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    {t('consciousnessAnalysis.recommendation')}
+                  </h3>
+                  <p className="text-foreground leading-relaxed">{analysis.recommendation}</p>
+                </div>
+                
+                {/* CTA Buttons */}
+                <div className="pt-4 space-y-3">
+                  <Button
+                    size="lg"
+                    className="w-full gap-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground"
+                    onClick={() => navigate(analysis.recommended_product === 'consciousness-leap' ? '/consciousness-leap' : '/personal-hypnosis')}
+                  >
+                    {analysis.recommended_product === 'consciousness-leap' ? <Zap className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+                    {t('consciousnessAnalysis.continueToProduct')}
+                  </Button>
+                  
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAnswerReview(true)}
+                      className="flex-1 gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      {t('formComplete.viewAnswers')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleDownloadPDF}
+                      className="flex-1 gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      {t('formComplete.downloadPdf')}
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/')}
+                    className="w-full text-muted-foreground"
+                  >
+                    {t('formComplete.returnHome')}
+                  </Button>
+                </div>
+                
+                <p className="text-xs text-muted-foreground">{t('consciousnessAnalysis.poweredByAI')}</p>
+              </div>
+            )}
+            
+            {/* Analysis Error */}
+            {!isAnalyzing && analysisError && (
+              <div className="py-8">
+                <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+                  <Check className="h-8 w-8 text-green-500" />
+                </div>
+                <h1 className="text-2xl font-bold mb-2">
+                  {form.settings?.thank_you_message || t('formComplete.submitted')}
+                </h1>
+                <p className="text-muted-foreground mb-4">
+                  {t('consciousnessAnalysis.analysisFailed')}
+                </p>
+                
+                <Button
+                  variant="outline"
+                  onClick={retryAnalysis}
+                  className="gap-2 mb-6"
+                >
+                  <Brain className="h-4 w-4" />
+                  {t('consciousnessAnalysis.retryAnalysis')}
+                </Button>
+                
+                <div className="flex gap-3 justify-center mb-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAnswerReview(true)}
+                    className="gap-2"
+                  >
+                    <Eye className="h-4 w-4" />
+                    {t('formComplete.viewAnswers')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadPDF}
+                    className="gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    {t('formComplete.downloadPdf')}
+                  </Button>
+                </div>
+                
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <button
+                    onClick={() => handlePostAction("consciousness-leap")}
+                    className={`group relative p-5 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-3">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-bold mb-1">{t('formComplete.consciousnessLeapOption')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('formComplete.consciousnessLeapDesc')}</p>
+                  </button>
+                  
+                  <button
+                    onClick={() => handlePostAction("personal-hypnosis")}
+                    className={`group relative p-5 rounded-xl border border-border bg-background/50 hover:border-accent/50 hover:bg-accent/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center mb-3">
+                      <Video className="h-5 w-5 text-accent" />
+                    </div>
+                    <h3 className="font-bold mb-1">{t('formComplete.personalHypnosisOption')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('formComplete.personalHypnosisDesc')}</p>
+                  </button>
+                </div>
+                
+                <Button variant="ghost" onClick={() => navigate('/')} className="mt-4">
+                  {t('formComplete.returnHome')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
     if (postSubmitAction === "none") {
       return (
         <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>

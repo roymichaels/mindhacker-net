@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Gift, Sparkles, ArrowLeft, ArrowRight, FileText, Clock, Download, Lock, Eye, Repeat, Target, Heart } from "lucide-react";
+import { Gift, Sparkles, ArrowLeft, ArrowRight, FileText, Clock, Download, Lock, Eye, Repeat, Target, Heart, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -17,7 +17,7 @@ const IntrospectionPromo = () => {
     { icon: FileText, text: t('introspectionPromo.feature1') },
     { icon: Clock, text: t('introspectionPromo.feature2') },
     { icon: Download, text: t('introspectionPromo.feature3') },
-    { icon: Lock, text: t('introspectionPromo.feature4') },
+    { icon: Brain, text: isRTL ? "ניתוח תודעה אישי מבוסס AI" : "AI-powered consciousness analysis" },
   ];
 
   const discoveries = [

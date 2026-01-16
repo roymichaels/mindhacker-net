@@ -35,8 +35,9 @@ export const ProgressiveEngagement = () => {
 
   const handleStartJourney = () => {
     setIsVisible(false);
-    const formId = theme.introspection_form_id || "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308";
-    navigate(`/form/${formId}`);
+    // Use access_token instead of form ID
+    const formAccessToken = theme.introspection_form_id || "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
+    navigate(`/form/${formAccessToken}`);
   };
 
   const handleNext = () => {
