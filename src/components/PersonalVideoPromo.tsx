@@ -20,12 +20,12 @@ const PersonalVideoPromo = () => {
 
   return (
     <section id="personal-video" className="relative py-20 md:py-32 overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-background" />
+      {/* Background gradient - dark mode only */}
+      <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-accent/5 dark:via-background dark:to-background" />
       
-      {/* Decorative elements */}
-      <div className="absolute top-10 right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+      {/* Decorative elements - reduced in light mode */}
+      <div className="absolute top-10 right-10 w-32 h-32 bg-accent/5 dark:bg-accent/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 left-10 w-40 h-40 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl" />
       
       <div className="container relative mx-auto px-4">
         <div className="max-w-5xl mx-auto">
@@ -52,7 +52,7 @@ const PersonalVideoPromo = () => {
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Left side - Features */}
             <div className="grid grid-cols-1 gap-4">
-              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+              <Card className="bg-card dark:bg-card/50 dark:backdrop-blur border-accent/20 shadow-sm p-5 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
                   <Brain className="h-6 w-6 text-accent" />
                 </div>
@@ -62,7 +62,7 @@ const PersonalVideoPromo = () => {
                 </div>
               </Card>
               
-              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+              <Card className="bg-card dark:bg-card/50 dark:backdrop-blur border-accent/20 shadow-sm p-5 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <Infinity className="h-6 w-6 text-primary" />
                 </div>
@@ -72,7 +72,7 @@ const PersonalVideoPromo = () => {
                 </div>
               </Card>
               
-              <Card className="bg-card/50 backdrop-blur border-accent/20 p-5 flex items-start gap-4">
+              <Card className="bg-card dark:bg-card/50 dark:backdrop-blur border-accent/20 shadow-sm p-5 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
                   <Clock className="h-6 w-6 text-accent" />
                 </div>
@@ -84,7 +84,7 @@ const PersonalVideoPromo = () => {
             </div>
             
             {/* Right side - Benefits & CTA */}
-            <Card className="bg-card/50 backdrop-blur border-accent/30 p-6 md:p-8">
+            <Card className="bg-card dark:bg-card/50 dark:backdrop-blur border-accent/30 shadow-md p-6 md:p-8">
               <h3 className="text-xl font-bold mb-6 text-center">{t('personalVideoPromo.whatYouGet')}</h3>
               
               <ul className="space-y-3 mb-8">
@@ -117,15 +117,15 @@ const PersonalVideoPromo = () => {
           
           {/* Features badges */}
           <div className="flex flex-wrap justify-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card dark:bg-card/50 border border-border shadow-sm">
               <Video className="h-4 w-4 text-accent" />
               <span className="text-sm">{t('personalVideoPromo.hdVideo')}</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card dark:bg-card/50 border border-border shadow-sm">
               <Star className="h-4 w-4 text-primary" />
               <span className="text-sm">{t('personalVideoPromo.provenResults')}</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card dark:bg-card/50 border border-border shadow-sm">
               <Sparkles className="h-4 w-4 text-accent" />
               <span className="text-sm">{t('personalVideoPromo.fullyCustomized')}</span>
             </div>

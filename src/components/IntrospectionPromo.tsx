@@ -29,15 +29,15 @@ const IntrospectionPromo = () => {
 
   return (
     <section id="introspection" className="relative py-20 md:py-32 overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Warm gradient background - using theme accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-background" />
+      {/* Warm gradient background - dark mode only */}
+      <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-accent/5 dark:via-background dark:to-background" />
       
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-breathe" />
-      <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-accent/10 rounded-full blur-3xl" />
+      {/* Decorative elements - reduced in light mode */}
+      <div className="absolute top-20 left-1/4 w-64 h-64 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl" />
       
-      {/* Sacred geometry */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-accent/10 rounded-full pointer-events-none" />
+      {/* Sacred geometry - dark mode only */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-accent/10 dark:border-accent/10 rounded-full pointer-events-none hidden dark:block" />
       
       <div className="container relative mx-auto px-4">
         <div className="max-w-5xl mx-auto">
@@ -66,7 +66,7 @@ const IntrospectionPromo = () => {
           {/* Content Grid */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Left side - What You'll Discover */}
-            <Card className="bg-card/50 backdrop-blur border-accent/20 p-6 md:p-8">
+            <Card className="bg-card dark:bg-card/50 dark:backdrop-blur border-accent/20 shadow-md p-6 md:p-8">
               <h3 className="text-xl font-bold mb-6 text-center text-accent">{t('introspectionPromo.whatDiscover')}</h3>
               
               <ul className="space-y-4">
@@ -82,7 +82,7 @@ const IntrospectionPromo = () => {
             </Card>
             
             {/* Right side - Features & CTA */}
-            <Card className="bg-gradient-to-br from-accent/10 to-accent/5 backdrop-blur border-accent/30 p-6 md:p-8 relative overflow-hidden">
+            <Card className="bg-card dark:bg-gradient-to-br dark:from-accent/10 dark:to-accent/5 dark:backdrop-blur border-accent/30 shadow-md p-6 md:p-8 relative overflow-hidden">
               {/* Shimmer effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent -skew-x-12 animate-shimmer" />
               
