@@ -1,14 +1,46 @@
 import { useEffect, useRef, memo } from "react";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
+
+// Convert hex color to RGB
+const hexToRgb = (hex: string): string => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return "0, 255, 200";
+  return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
+};
+
+// Lighten RGB color
+const lightenRgb = (rgb: string, amount: number): string => {
+  const parts = rgb.split(',').map(p => parseInt(p.trim()));
+  return parts.map(p => Math.min(255, p + amount)).join(', ');
+};
+
+// Darken RGB color
+const darkenRgb = (rgb: string, amount: number): string => {
+  const parts = rgb.split(',').map(p => parseInt(p.trim()));
+  return parts.map(p => Math.max(0, p - amount)).join(', ');
+};
 
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme, loading } = useThemeSettings();
+
+  // Don't render if Matrix Rain is disabled
+  if (!theme.matrix_rain_enabled) {
+    return null;
+  }
 
   useEffect(() => {
+    if (loading) return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
+
+    // Get color from theme settings
+    const baseColor = hexToRgb(theme.matrix_rain_color || "#00d4ff");
+    const opacity = parseFloat(theme.matrix_rain_opacity) || 0.4;
 
     // Handle DPI scaling for crisp rendering
     const dpr = window.devicePixelRatio || 1;
@@ -35,13 +67,13 @@ const MatrixRain = () => {
     const columnDensity = isMobile ? 2 : 1;
     const columns = Math.floor(window.innerWidth / fontSize / columnDensity);
     
-    // BRIGHTER colors for visibility
+    // Dynamic colors based on theme
     const layers = isMobile ? [
       {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.4,
         opacity: 0.8,
-        color: "0, 255, 200", // Bright cyan-green
+        color: baseColor,
         fontSize: 14,
         blur: 0,
         chars: hebrewChars + symbols.substring(0, 2)
@@ -50,7 +82,7 @@ const MatrixRain = () => {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.7,
         opacity: 1,
-        color: "100, 255, 218", // Bright mint
+        color: lightenRgb(baseColor, 80),
         fontSize: 16,
         blur: 0,
         chars: chars
@@ -60,7 +92,7 @@ const MatrixRain = () => {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.2,
         opacity: 0.4,
-        color: "0, 180, 150", // Teal
+        color: darkenRgb(baseColor, 60),
         fontSize: 14,
         blur: 1,
         chars: hebrewChars
@@ -69,7 +101,7 @@ const MatrixRain = () => {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.4,
         opacity: 0.7,
-        color: "0, 255, 200", // Bright cyan
+        color: baseColor,
         fontSize: 16,
         blur: 0,
         chars: hebrewChars + symbols.substring(0, 2)
@@ -78,7 +110,7 @@ const MatrixRain = () => {
         drops: Array(columns).fill(0).map(() => Math.random() * -100),
         speed: 0.7,
         opacity: 1,
-        color: "150, 255, 230", // Bright white-cyan
+        color: lightenRgb(baseColor, 100),
         fontSize: 18,
         blur: 0,
         chars: chars
@@ -114,7 +146,7 @@ const MatrixRain = () => {
 
       // Draw each layer
       layers.forEach((layer) => {
-        ctx.font = `${layer.fontSize}px Heebo, sans-serif`;
+        ctx.font = `${layer.fontSize}px ${theme.font_family_primary || 'Heebo'}, sans-serif`;
         ctx.filter = layer.blur > 0 ? `blur(${layer.blur}px)` : "none";
         
         // Glow effect
@@ -163,7 +195,7 @@ const MatrixRain = () => {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [loading, theme.matrix_rain_color, theme.matrix_rain_opacity, theme.font_family_primary]);
 
   return (
     <canvas
@@ -171,7 +203,7 @@ const MatrixRain = () => {
       className="fixed inset-0 pointer-events-none"
       style={{ 
         zIndex: 0,
-        opacity: 0.4
+        opacity: parseFloat(theme.matrix_rain_opacity) || 0.4
       }}
     />
   );

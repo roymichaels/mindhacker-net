@@ -8,12 +8,17 @@ import HeroVideo from "./HeroVideo";
 import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift, Sparkle } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import heroPortrait from "@/assets/hero-portrait.png";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { settings } = useSiteSettings();
+  const { theme } = useThemeSettings();
+  
+  // Get brand name for alt text from theme settings
+  const brandNameAlt = isRTL ? theme.brand_name : theme.brand_name_en;
   
   // Get introspection form URL from settings or use default
   const introspectionFormUrl = settings.introspection_form_url || "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
@@ -60,7 +65,7 @@ const HeroSection = () => {
             {/* Image with mask for seamless blend */}
             <img 
               src={heroPortrait} 
-              alt="Mind Hacker" 
+              alt={brandNameAlt}
               className="relative w-full h-full object-cover rounded-full"
               style={{
                 maskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
