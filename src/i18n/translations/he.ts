@@ -198,6 +198,22 @@ export const he = {
     consciousnessLeap: "קפיצה לתודעה",
     newsletter: "ניוזלטר",
     panelTitle: "מרכז שליטה",
+    login: {
+      subtitle: "התחבר עם פרטי המנהל שלך",
+      loading: "מתחבר...",
+      noPermission: "אין הרשאות מנהל",
+      noPermissionDesc: "אין לך הרשאות גישה לפאנל הניהול",
+      success: "התחברות הצליחה",
+      successDesc: "ברוך הבא לפאנל הניהול",
+      error: "שגיאת התחברות",
+      errorDesc: "אימייל או סיסמה שגויים",
+    },
+    contentManagement: {
+      title: "ניהול תוכן",
+      subtitle: "נהל קורסים, סדרות ופרקים",
+      products: "מוצרי תוכן",
+      createProduct: "יצירת מוצר חדש",
+    },
     groups: {
       commandCenter: "מרכז בקרה",
       campaigns: "קמפיינים ומכירות",

@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Plus, Loader2, Library } from "lucide-react";
 import ProductsList from "@/components/admin/content/ProductsList";
 import ProductDialog from "@/components/admin/content/ProductDialog";
-import SeriesDialog from "@/components/admin/content/SeriesDialog";
-import EpisodeDialog from "@/components/admin/content/EpisodeDialog";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Content = () => {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { t, isRTL } = useTranslation();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-content-products"],
@@ -49,22 +46,20 @@ const Content = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black cyber-glow">ניהול תוכן</h1>
-          <p className="text-muted-foreground mt-2">
-            נהל קורסים, סדרות ופרקים
-          </p>
-        </div>
-        <Button onClick={handleCreateProduct} className="gap-2">
-          <Plus className="w-4 h-4" />
-          יצירת מוצר חדש
-        </Button>
-      </div>
+      <AdminPageHeader
+        titleKey="admin.contentManagement.title"
+        subtitleKey="admin.contentManagement.subtitle"
+        icon={Library}
+        action={{
+          labelKey: "admin.contentManagement.createProduct",
+          onClick: handleCreateProduct,
+          icon: Plus,
+        }}
+      />
 
-      <Tabs defaultValue="products" className="space-y-6" dir="rtl">
+      <Tabs defaultValue="products" className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
         <TabsList className="grid w-full grid-cols-1 max-w-md">
-          <TabsTrigger value="products">מוצרי תוכן</TabsTrigger>
+          <TabsTrigger value="products">{t('admin.contentManagement.products')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="space-y-4">

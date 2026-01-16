@@ -200,6 +200,22 @@ export const en: TranslationKeys = {
     consciousnessLeap: "Consciousness Leap",
     newsletter: "Newsletter",
     panelTitle: "Command Center",
+    login: {
+      subtitle: "Login with your admin credentials",
+      loading: "Logging in...",
+      noPermission: "No admin permissions",
+      noPermissionDesc: "You don't have access to the admin panel",
+      success: "Login successful",
+      successDesc: "Welcome to the admin panel",
+      error: "Login error",
+      errorDesc: "Invalid email or password",
+    },
+    contentManagement: {
+      title: "Content Management",
+      subtitle: "Manage courses, series and episodes",
+      products: "Content Products",
+      createProduct: "Create New Product",
+    },
     groups: {
       commandCenter: "Command Center",
       campaigns: "Campaigns & Sales",

@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
+
+const defaultLogo = "/icons/icon-96x96.png";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +17,10 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, isRTL } = useTranslation();
+  const { theme } = useThemeSettings();
+
+  const logoUrl = theme.logo_url || defaultLogo;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +46,8 @@ const AdminLogin = () => {
         if (!hasAdminRole) {
           await supabase.auth.signOut();
           toast({
-            title: "אין הרשאות מנהל",
-            description: "אין לך הרשאות גישה לפאנל הניהול",
+            title: t('admin.login.noPermission'),
+            description: t('admin.login.noPermissionDesc'),
             variant: "destructive",
           });
           setLoading(false);
@@ -47,15 +55,15 @@ const AdminLogin = () => {
         }
 
         toast({
-          title: "התחברות הצליחה",
-          description: "ברוך הבא לפאנל הניהול",
+          title: t('admin.login.success'),
+          description: t('admin.login.successDesc'),
         });
         navigate("/admin");
       }
     } catch (error: any) {
       toast({
-        title: "שגיאת התחברות",
-        description: error.message || "אימייל או סיסמה שגויים",
+        title: t('admin.login.error'),
+        description: error.message || t('admin.login.errorDesc'),
         variant: "destructive",
       });
     } finally {
@@ -64,25 +72,25 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background" dir={isRTL ? "rtl" : "ltr"}>
       <div className="w-full max-w-md">
         <div className="glass-panel p-8">
           <div className="flex items-center justify-center mb-6 md:mb-8">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <Lock className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/20 flex items-center justify-center">
+              <img src={logoUrl} alt={t('admin.panelTitle')} className="w-10 h-10 md:w-12 md:h-12 object-contain" />
             </div>
           </div>
           
           <h1 className="text-2xl md:text-3xl font-black text-center mb-2 cyber-glow">
-            פאנל ניהול
+            {t('admin.panelTitle')}
           </h1>
           <p className="text-center text-sm md:text-base text-muted-foreground mb-6 md:mb-8">
-            התחבר עם פרטי המנהל שלך
+            {t('admin.login.subtitle')}
           </p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">{t('common.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -91,12 +99,11 @@ const AdminLogin = () => {
                 placeholder="admin@example.com"
                 required
                 disabled={loading}
-                className="text-right"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">סיסמה</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -105,7 +112,6 @@ const AdminLogin = () => {
                 placeholder="••••••••"
                 required
                 disabled={loading}
-                className="text-right"
               />
             </div>
 
@@ -116,11 +122,11 @@ const AdminLogin = () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  מתחבר...
+                  <Loader2 className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4 animate-spin`} />
+                  {t('admin.login.loading')}
                 </>
               ) : (
-                "התחבר"
+                t('common.login')
               )}
             </Button>
           </form>
