@@ -36,17 +36,15 @@ const ConsciousnessField = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // Check if should render (hide in light mode)
+  const shouldRender = !(mounted && resolvedTheme === 'light');
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Hide in light mode
-  if (mounted && resolvedTheme === 'light') {
-    return null;
-  }
-
   useEffect(() => {
-    if (loading || !mounted) return;
+    if (loading || !mounted || !shouldRender) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -289,6 +287,7 @@ const ConsciousnessField = () => {
   }, [
     loading,
     mounted,
+    shouldRender,
     themeSettings.background_h,
     themeSettings.background_s,
     themeSettings.background_l,
@@ -299,6 +298,11 @@ const ConsciousnessField = () => {
     themeSettings.consciousness_field_breathing_speed,
     themeSettings.consciousness_field_interaction
   ]);
+
+  // Hide in light mode - must be after all hooks
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <canvas
