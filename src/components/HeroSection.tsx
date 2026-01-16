@@ -170,7 +170,7 @@ const HeroSection = () => {
           </Card>
 
           {/* Option 2: Personal Hypnosis Video (SECOND - Low barrier) */}
-          <Card className="group relative bg-card/50 backdrop-blur border-accent/30 hover:border-accent/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 cursor-pointer overflow-hidden"
+          <Card className="group relative bg-card border border-border shadow-md hover:border-accent/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden"
             onClick={() => navigate("/personal-hypnosis")}>
             {/* Glow effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -201,7 +201,7 @@ const HeroSection = () => {
           </Card>
 
           {/* Option 3: Consciousness Leap (THIRD - Full commitment) */}
-          <Card className="group relative bg-card/50 backdrop-blur border-primary/30 hover:border-primary/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 cursor-pointer overflow-hidden"
+          <Card className="group relative bg-card border border-border shadow-md hover:border-primary/60 p-5 md:p-6 transition-all duration-500 hover:shadow-xl cursor-pointer overflow-hidden"
             onClick={() => navigate("/consciousness-leap")}>
             {/* Glow effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -235,7 +235,7 @@ const HeroSection = () => {
         {/* Mobile: Compact cards for other options */}
         <div className="md:hidden grid grid-cols-2 gap-3 mb-6 px-1 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
           {/* Personal Hypnosis - Mobile */}
-          <Card className="group relative bg-card/60 backdrop-blur-sm border-accent/40 rounded-xl p-3.5 transition-all cursor-pointer hover:border-accent/60"
+          <Card className="group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer hover:border-accent/60"
             onClick={() => navigate("/personal-hypnosis")}>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-accent/25 border-2 border-accent mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -247,7 +247,7 @@ const HeroSection = () => {
           </Card>
           
           {/* Consciousness Leap - Mobile */}
-          <Card className="group relative bg-card/60 backdrop-blur-sm border-primary/40 rounded-xl p-3.5 transition-all cursor-pointer hover:border-primary/60"
+          <Card className="group relative bg-card border border-border shadow-sm rounded-xl p-3.5 transition-all cursor-pointer hover:border-primary/60"
             onClick={() => navigate("/consciousness-leap")}>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-primary/25 border-2 border-primary mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">

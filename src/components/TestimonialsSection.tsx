@@ -120,7 +120,7 @@ const TestimonialsSection = () => {
             variant="outline"
             size="icon"
             onClick={scrollPrev}
-            className={`absolute ${isRTL ? 'right-0 md:-right-16' : 'left-0 md:-left-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm`}
+            className={`absolute ${isRTL ? 'right-0 md:-right-16' : 'left-0 md:-left-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-border hover:bg-muted bg-card shadow-sm`}
           >
             {isRTL ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </Button>
@@ -128,7 +128,7 @@ const TestimonialsSection = () => {
             variant="outline"
             size="icon"
             onClick={scrollNext}
-            className={`absolute ${isRTL ? 'left-0 md:-left-16' : 'right-0 md:-right-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-primary/50 hover:bg-primary/20 bg-background/80 backdrop-blur-sm`}
+            className={`absolute ${isRTL ? 'left-0 md:-left-16' : 'right-0 md:-right-16'} top-1/2 -translate-y-1/2 z-10 rounded-full border-border hover:bg-muted bg-card shadow-sm`}
           >
             {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </Button>

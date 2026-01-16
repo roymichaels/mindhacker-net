@@ -22,7 +22,7 @@ export const LanguagePrompt = () => {
   return (
     <Dialog open={isFirstVisit} onOpenChange={() => {}}>
       <DialogContent 
-        className="sm:max-w-md border-primary/30 bg-background/95 backdrop-blur-xl"
+        className="sm:max-w-md border-border bg-card shadow-xl"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >

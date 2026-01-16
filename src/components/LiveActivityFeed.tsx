@@ -144,7 +144,7 @@ export const LiveActivityFeed = () => {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => setIsExpanded(!isExpanded)}
-          className="glass-panel px-2.5 py-1.5 flex items-center gap-1.5 text-xs pointer-events-auto cursor-pointer"
+          className="bg-card border border-border shadow-md rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 text-xs pointer-events-auto cursor-pointer"
         >
           <div className="relative">
             <Users className="h-3.5 w-3.5 text-primary" />
@@ -162,7 +162,7 @@ export const LiveActivityFeed = () => {
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9 }}
-              className="glass-panel px-3 py-2 mt-1 max-w-[220px] border-primary/30 pointer-events-auto"
+              className="bg-card border border-border shadow-md rounded-xl px-3 py-2 mt-1 max-w-[220px] pointer-events-auto"
             >
               {activities.length > 0 ? (
                 <div className="flex items-start gap-1.5">
@@ -185,7 +185,7 @@ export const LiveActivityFeed = () => {
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          className="glass-panel px-3 py-2 mb-2 flex items-center gap-2 text-sm pointer-events-auto"
+          className="bg-card border border-border shadow-md rounded-xl px-3 py-2 mb-2 flex items-center gap-2 text-sm pointer-events-auto"
         >
           <div className="relative">
             <Users className="h-4 w-4 text-primary" />
@@ -207,7 +207,7 @@ export const LiveActivityFeed = () => {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -100, scale: 0.8 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="glass-panel px-4 py-3 mb-2 max-w-[280px] border-primary/30 pointer-events-auto"
+              className="bg-card border border-border shadow-md rounded-xl px-4 py-3 mb-2 max-w-[280px] pointer-events-auto"
             >
               <div className="flex items-start gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 animate-pulse flex-shrink-0" />
