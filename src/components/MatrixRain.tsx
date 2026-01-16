@@ -1,20 +1,19 @@
 import { useEffect, useRef, memo } from "react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { hslToRgb } from "@/lib/colorUtils";
 
-// Convert hex color to RGB
-const hexToRgb = (hex: string): string => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return "0, 255, 200";
-  return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
+// Convert RGB object to string
+const rgbToString = (rgb: { r: number; g: number; b: number }): string => {
+  return `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 };
 
-// Lighten RGB color
+// Lighten RGB color string
 const lightenRgb = (rgb: string, amount: number): string => {
   const parts = rgb.split(',').map(p => parseInt(p.trim()));
   return parts.map(p => Math.min(255, p + amount)).join(', ');
 };
 
-// Darken RGB color
+// Darken RGB color string
 const darkenRgb = (rgb: string, amount: number): string => {
   const parts = rgb.split(',').map(p => parseInt(p.trim()));
   return parts.map(p => Math.max(0, p - amount)).join(', ');
@@ -38,8 +37,12 @@ const MatrixRain = () => {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // Get color from theme settings
-    const baseColor = hexToRgb(theme.matrix_rain_color || "#00d4ff");
+    // Derive color from theme primary HSL values
+    const primaryH = parseFloat(theme.primary_h) || 174;
+    const primaryS = parseFloat(theme.primary_s) || 100;
+    const primaryL = parseFloat(theme.primary_l) || 42;
+    const primaryRgb = hslToRgb(primaryH, primaryS, primaryL);
+    const baseColor = rgbToString(primaryRgb);
     const opacity = parseFloat(theme.matrix_rain_opacity) || 0.4;
 
     // Handle DPI scaling for crisp rendering
@@ -195,7 +198,7 @@ const MatrixRain = () => {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [loading, theme.matrix_rain_color, theme.matrix_rain_opacity, theme.font_family_primary]);
+  }, [loading, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
 
   return (
     <canvas
