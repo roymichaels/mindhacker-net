@@ -26,17 +26,15 @@ const MatrixRain = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // Check if should render
+  const shouldRender = theme.matrix_rain_enabled && !(mounted && resolvedTheme === "light");
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Don't render if Matrix Rain is disabled OR if in light mode
-  if (!theme.matrix_rain_enabled || (mounted && resolvedTheme === "light")) {
-    return null;
-  }
-
   useEffect(() => {
-    if (loading || !mounted) return;
+    if (loading || !mounted || !shouldRender) return;
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -204,7 +202,12 @@ const MatrixRain = () => {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [loading, mounted, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
+  }, [loading, mounted, shouldRender, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
+
+  // Don't render if disabled or in light mode
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <canvas
