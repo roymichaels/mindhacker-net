@@ -108,9 +108,9 @@ const Header = ({ variant = "public" }: HeaderProps) => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
-        <div className="container flex h-16 items-center justify-between px-4">
+        <div className="container grid grid-cols-3 h-16 items-center px-4">
           {/* Left side: Logo and Admin panel title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 justify-start">
             {/* Mobile Admin Sidebar Trigger */}
             {isAdminMode && (
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -133,18 +133,21 @@ const Header = ({ variant = "public" }: HeaderProps) => {
             </Link>
           </div>
 
-          {!isAdminMode && (
-            <Button
-              onClick={() => setStartModalOpen(true)}
-              className="flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('header.startChangeNow')}</span>
-              <span className="sm:hidden">{t('header.startShort')}</span>
-            </Button>
-          )}
+          {/* Center CTA Button - Only for public mode */}
+          <div className="flex justify-center">
+            {!isAdminMode && (
+              <Button
+                onClick={() => setStartModalOpen(true)}
+                className="flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('header.startChangeNow')}</span>
+                <span className="sm:hidden">{t('header.startShort')}</span>
+              </Button>
+            )}
+          </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 justify-end">
             {/* Home button - Only for admin mode */}
             {isAdminMode && (
               <Button
@@ -177,7 +180,7 @@ const Header = ({ variant = "public" }: HeaderProps) => {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-background border border-border shadow-lg z-50">
+                  <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{t('common.account')}</p>
@@ -205,7 +208,7 @@ const Header = ({ variant = "public" }: HeaderProps) => {
                         {t('common.language')}
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
-                        <DropdownMenuSubContent className="bg-background border border-border shadow-lg z-50">
+                        <DropdownMenuSubContent className="bg-card dark:bg-card border border-border shadow-xl z-50">
                           <DropdownMenuItem 
                             onClick={() => setLanguage('he')}
                             className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
