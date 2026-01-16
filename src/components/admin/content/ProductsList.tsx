@@ -48,7 +48,7 @@ const ProductsList = ({ products, onEdit }: ProductsListProps) => {
   const statusColors = {
     draft: "bg-yellow-500/20 text-yellow-300",
     published: "bg-green-500/20 text-green-300",
-    archived: "bg-gray-500/20 text-gray-300",
+    archived: "bg-muted/50 text-muted-foreground",
   };
 
   const accessColors = {

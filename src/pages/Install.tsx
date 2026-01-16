@@ -167,7 +167,7 @@ const Install = () => {
                             <div className="mt-6 p-4 bg-background rounded-lg border">
                               <div className="flex items-center justify-center gap-6 text-4xl">
                                 <div className="flex flex-col items-center gap-1">
-                                  <MoreVertical className="w-8 h-8 text-gray-400" />
+                                  <MoreVertical className="w-8 h-8 text-muted-foreground" />
                                   <span className="text-xs text-muted-foreground">תפריט</span>
                                 </div>
                                 <span className="text-muted-foreground">→</span>
