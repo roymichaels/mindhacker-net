@@ -42,10 +42,17 @@ export interface ThemeSettings {
   font_family_secondary: string;
   
   // Effects (selection-based)
-  background_effect: 'none' | 'matrix_rain';
+  background_effect: 'none' | 'matrix_rain' | 'consciousness_field';
   matrix_rain_enabled: boolean; // Legacy - derived from background_effect
   matrix_rain_color: string;
   matrix_rain_opacity: string;
+  
+  // Consciousness Field Effect
+  consciousness_field_primary_color: string;
+  consciousness_field_accent_color: string;
+  consciousness_field_particle_density: string;
+  consciousness_field_breathing_speed: string;
+  consciousness_field_interaction: boolean;
   
   // Assets
   logo_url: string;
@@ -109,6 +116,11 @@ const defaultTheme: ThemeSettings = {
   matrix_rain_enabled: true,
   matrix_rain_color: "#00d4ff",
   matrix_rain_opacity: "0.15",
+  consciousness_field_primary_color: "#0a1628",
+  consciousness_field_accent_color: "#3d7a8c",
+  consciousness_field_particle_density: "0.6",
+  consciousness_field_breathing_speed: "10",
+  consciousness_field_interaction: true,
   logo_url: "",
   favicon_url: "",
   og_image_url: "",
