@@ -20,8 +20,12 @@ const HeroSection = () => {
   // Get brand name for alt text from theme settings
   const brandNameAlt = isRTL ? theme.brand_name : theme.brand_name_en;
   
-  // Get introspection form URL from settings or use default
-  const introspectionFormUrl = settings.introspection_form_url || "/form/866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
+  // Use theme portrait or fallback to asset
+  const portraitUrl = theme.hero_portrait_url || heroPortrait;
+  
+  // Get introspection form URL from settings or use theme form ID
+  const formId = theme.introspection_form_id || "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308";
+  const introspectionFormUrl = settings.introspection_form_url || `/form/${formId}`;
   
   const wordsHe = ["מוח", "תודעה", "חופש", "מציאות", "זהות", "תת־מודע"];
   const wordsEn = ["Mind", "Consciousness", "Freedom", "Reality", "Identity", "Subconscious"];
@@ -64,7 +68,7 @@ const HeroSection = () => {
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 via-accent/40 to-primary/30 blur-2xl scale-150" />
             {/* Image with mask for seamless blend */}
             <img 
-              src={heroPortrait} 
+              src={portraitUrl} 
               alt={brandNameAlt}
               className="relative w-full h-full object-cover rounded-full"
               style={{

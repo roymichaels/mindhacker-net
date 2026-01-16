@@ -11,6 +11,8 @@ export interface ThemeSettings {
   // Founder info
   founder_name: string;
   founder_name_en: string;
+  founder_short_name: string;
+  founder_short_name_en: string;
   founder_title: string;
   founder_title_en: string;
   
@@ -39,8 +41,9 @@ export interface ThemeSettings {
   font_family_primary: string;
   font_family_secondary: string;
   
-  // Effects
-  matrix_rain_enabled: boolean;
+  // Effects (selection-based)
+  background_effect: 'none' | 'matrix_rain';
+  matrix_rain_enabled: boolean; // Legacy - derived from background_effect
   matrix_rain_color: string;
   matrix_rain_opacity: string;
   
@@ -49,6 +52,11 @@ export interface ThemeSettings {
   favicon_url: string;
   og_image_url: string;
   site_url: string;
+  hero_portrait_url: string;
+  pwa_icon_url: string;
+  
+  // Forms
+  introspection_form_id: string;
   
   // Localization
   default_language: string;
@@ -72,6 +80,8 @@ const defaultTheme: ThemeSettings = {
   company_country: "Estonia",
   founder_name: "דין אושר אזולאי",
   founder_name_en: "Dean Osher Azulay",
+  founder_short_name: "דין",
+  founder_short_name_en: "Dean",
   founder_title: "מאמן תודעה",
   founder_title_en: "Consciousness Coach",
   primary_h: "187",
@@ -95,6 +105,7 @@ const defaultTheme: ThemeSettings = {
   muted_l: "15%",
   font_family_primary: "Heebo",
   font_family_secondary: "inherit",
+  background_effect: "matrix_rain",
   matrix_rain_enabled: true,
   matrix_rain_color: "#00d4ff",
   matrix_rain_opacity: "0.15",
@@ -102,6 +113,9 @@ const defaultTheme: ThemeSettings = {
   favicon_url: "",
   og_image_url: "",
   site_url: "https://mind-hacker.net",
+  hero_portrait_url: "",
+  pwa_icon_url: "",
+  introspection_form_id: "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308",
   default_language: "he",
 };
 

@@ -4,14 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import heroPortrait from "@/assets/hero-portrait.png";
 
 const AboutSection = () => {
   const { t, isRTL } = useTranslation();
+  const { theme } = useThemeSettings();
   const [personalStory, setPersonalStory] = useState("");
   const [aboutVideoUrl, setAboutVideoUrl] = useState("");
   const [aboutVideoEnabled, setAboutVideoEnabled] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  
+  // Use theme portrait or fallback to asset
+  const portraitUrl = theme.hero_portrait_url || heroPortrait;
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -55,8 +60,8 @@ const AboutSection = () => {
             <div className="relative animate-float-gentle">
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center cyber-border overflow-hidden ring-4 ring-primary/20">
                 <img 
-                  src={heroPortrait} 
-                  alt={t('about.name')} 
+                  src={portraitUrl} 
+                  alt={isRTL ? theme.founder_name : theme.founder_name_en} 
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
@@ -111,7 +116,7 @@ const AboutSection = () => {
             <p className="text-secondary italic text-base md:text-lg">
               {t('about.quote')}
             </p>
-            <p className="text-primary font-bold mt-2">— {isRTL ? 'דין' : 'Dean'}</p>
+            <p className="text-primary font-bold mt-2">— {isRTL ? theme.founder_short_name : theme.founder_short_name_en}</p>
           </div>
         </div>
       </div>
