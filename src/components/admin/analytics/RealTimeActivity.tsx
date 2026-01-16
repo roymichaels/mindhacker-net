@@ -228,20 +228,19 @@ export const RealTimeActivity = () => {
   };
 
   const fetchRecentActivities = async () => {
-    // Fetch recent enrollments
+    // Fetch recent enrollments (without profile join to avoid 400 error)
     const { data: enrollments } = await supabase
       .from('course_enrollments')
       .select(`
         id,
         user_id,
         enrolled_at,
-        profiles(full_name),
         content_products(title)
       `)
       .order('enrolled_at', { ascending: false })
       .limit(10);
 
-    // Fetch recent purchases
+    // Fetch recent purchases (without profile join)
     const { data: purchases } = await supabase
       .from('content_purchases')
       .select(`
@@ -249,16 +248,29 @@ export const RealTimeActivity = () => {
         user_id,
         price_paid,
         purchase_date,
-        profiles(full_name),
         content_products(title)
       `)
       .order('purchase_date', { ascending: false })
       .limit(10);
 
+    // Collect all user IDs and fetch profiles separately
+    const allUserIds = [
+      ...(enrollments?.map(e => e.user_id) || []),
+      ...(purchases?.map(p => p.user_id) || [])
+    ].filter(Boolean);
+    
+    const { data: profiles } = allUserIds.length > 0
+      ? await supabase.from('profiles').select('id, full_name').in('id', allUserIds)
+      : { data: [] };
+    
+    const profileMap = new Map<string, string>(
+      (profiles || []).map(p => [p.id, p.full_name || ''] as [string, string])
+    );
+
     const enrollmentActivities: ActivityItem[] = (enrollments || []).map(e => ({
       id: e.id,
       type: 'enrollment' as const,
-      title: `${(e.profiles as any)?.full_name || 'משתמש'} נרשם לקורס`,
+      title: `${profileMap.get(e.user_id) || 'משתמש'} נרשם לקורס`,
       subtitle: (e.content_products as any)?.title || 'קורס',
       timestamp: e.enrolled_at || '',
       icon: BookOpen,
@@ -268,7 +280,7 @@ export const RealTimeActivity = () => {
     const purchaseActivities: ActivityItem[] = (purchases || []).map(p => ({
       id: p.id,
       type: 'purchase' as const,
-      title: `${(p.profiles as any)?.full_name || 'משתמש'} רכש קורס`,
+      title: `${profileMap.get(p.user_id) || 'משתמש'} רכש קורס`,
       subtitle: (p.content_products as any)?.title || 'קורס',
       amount: p.price_paid,
       timestamp: p.purchase_date || '',
