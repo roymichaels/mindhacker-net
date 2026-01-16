@@ -13,7 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
 import { debug } from "@/lib/debug";
-import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/components/AffiliateTracker";
 
 interface SubscriptionCheckoutDialogProps {
   open: boolean;
@@ -119,7 +119,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
       // Get affiliate code if exists
       const affiliateCode = getStoredAffiliateCode();
 
-      // Create new subscription
+      // Create new subscription (with affiliate_code for tracking)
       const { error: subscriptionError } = await supabase
         .from("user_subscriptions")
         .insert({
@@ -129,6 +129,7 @@ const SubscriptionCheckoutDialog = ({ open, onOpenChange, tier, billingCycle }: 
           billing_cycle: billingCycle,
           start_date: now.toISOString(),
           next_billing_date: nextBillingDate.toISOString(),
+          affiliate_code: affiliateCode,
         });
 
       // If affiliate code exists, create affiliate referral for this subscription

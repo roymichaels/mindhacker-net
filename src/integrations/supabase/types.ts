@@ -611,6 +611,7 @@ export type Database = {
         Row: {
           access_expires_at: string | null
           access_granted_at: string | null
+          affiliate_code: string | null
           id: string
           payment_status: string | null
           price_paid: number
@@ -621,6 +622,7 @@ export type Database = {
         Insert: {
           access_expires_at?: string | null
           access_granted_at?: string | null
+          affiliate_code?: string | null
           id?: string
           payment_status?: string | null
           price_paid: number
@@ -631,6 +633,7 @@ export type Database = {
         Update: {
           access_expires_at?: string | null
           access_granted_at?: string | null
+          affiliate_code?: string | null
           id?: string
           payment_status?: string | null
           price_paid?: number
@@ -1976,6 +1979,7 @@ export type Database = {
       }
       user_subscriptions: {
         Row: {
+          affiliate_code: string | null
           billing_cycle: string
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -1991,6 +1995,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_code?: string | null
           billing_cycle?: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -2006,6 +2011,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_code?: string | null
           billing_cycle?: string
           cancellation_reason?: string | null
           cancelled_at?: string | null

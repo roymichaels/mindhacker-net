@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Clock, Video, CheckCircle2, Mail } from "lucide-react";
 import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
-import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/components/AffiliateTracker";
 
 interface PersonalHypnosisCheckoutDialogProps {
   open: boolean;

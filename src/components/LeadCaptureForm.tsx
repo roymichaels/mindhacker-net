@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { debug } from "@/lib/debug";
 import { trackFormView, trackFormStart, trackFormSubmit } from "@/hooks/useAnalytics";
-import { getStoredAffiliateCode } from "@/hooks/useAffiliateTracking";
+import { getStoredAffiliateCode } from "@/components/AffiliateTracker";
 
 interface LeadCaptureFormProps {
   source: string;
