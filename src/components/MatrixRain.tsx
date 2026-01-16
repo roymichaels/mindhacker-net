@@ -26,8 +26,9 @@ const MatrixRain = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Check if should render
-  const shouldRender = theme.matrix_rain_enabled && !(mounted && resolvedTheme === "light");
+  // Check if should render - show in both light and dark modes
+  const shouldRender = theme.matrix_rain_enabled;
+  const isLightMode = mounted && resolvedTheme === "light";
 
   useEffect(() => {
     setMounted(true);
@@ -59,8 +60,8 @@ const MatrixRain = () => {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // Initialize with dark background
-      ctx.fillStyle = "rgb(2, 6, 12)";
+      // Initialize with appropriate background
+      ctx.fillStyle = isLightMode ? "rgb(255, 255, 255)" : "rgb(2, 6, 12)";
       ctx.fillRect(0, 0, width, height);
     };
     updateCanvasSize();
@@ -150,8 +151,9 @@ const MatrixRain = () => {
       }
       lastFrameTime = currentTime;
 
-      // Lighter fade for subtle background effect
-      ctx.fillStyle = "rgba(2, 6, 12, 0.08)";
+      // Lighter fade - use appropriate colors for theme
+      const fadeColor = isLightMode ? "rgba(255, 255, 255, 0.08)" : "rgba(2, 6, 12, 0.08)";
+      ctx.fillStyle = fadeColor;
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       // Draw each layer
@@ -205,7 +207,7 @@ const MatrixRain = () => {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [loading, mounted, shouldRender, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
+  }, [loading, mounted, shouldRender, isLightMode, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
 
   // Don't render if disabled or in light mode
   if (!shouldRender) {
