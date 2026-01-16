@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
 interface ThemeProviderProps {
@@ -6,13 +7,9 @@ interface ThemeProviderProps {
 }
 
 /**
- * ThemeProvider component that fetches theme settings from database
- * and applies them as CSS custom properties to the document root.
- * 
- * This ensures all components use the dynamically configured theme
- * without needing to pass props or use context for individual values.
+ * Inner component that applies dynamic theme settings from database
  */
-const ThemeProvider = ({ children }: ThemeProviderProps) => {
+const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
   const { theme, loading } = useThemeSettings();
 
   useEffect(() => {
@@ -38,9 +35,30 @@ const ThemeProvider = ({ children }: ThemeProviderProps) => {
     }
   }, [loading, theme.favicon_url]);
 
-  // Theme is applied via CSS custom properties in useThemeSettings hook
-  // No need to block rendering while loading - defaults are already applied
   return <>{children}</>;
+};
+
+/**
+ * ThemeProvider component that wraps next-themes for light/dark mode
+ * and applies dynamic theme settings from database.
+ * 
+ * Uses next-themes with class attribute for Tailwind CSS dark mode.
+ * Default theme is "dark" to match the cyber aesthetic.
+ */
+const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      disableTransitionOnChange={false}
+      storageKey="theme-preference"
+    >
+      <ThemeSettingsApplier>
+        {children}
+      </ThemeSettingsApplier>
+    </NextThemesProvider>
+  );
 };
 
 export default ThemeProvider;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, memo, useState } from "react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { hslToRgb } from "@/lib/colorUtils";
-import { THEME_MODE_CHANGED_EVENT } from "./ThemeToggle";
+import { useTheme } from "next-themes";
 
 // Convert RGB object to string
 const rgbToString = (rgb: { r: number; g: number; b: number }): string => {
@@ -23,27 +23,20 @@ const darkenRgb = (rgb: string, amount: number): string => {
 const MatrixRain = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { theme, loading } = useThemeSettings();
-  const [isLightMode, setIsLightMode] = useState(() => 
-    typeof document !== "undefined" && document.documentElement.classList.contains("light")
-  );
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  // Listen for theme mode changes
   useEffect(() => {
-    const handleThemeChange = () => {
-      setIsLightMode(document.documentElement.classList.contains("light"));
-    };
-    
-    window.addEventListener(THEME_MODE_CHANGED_EVENT, handleThemeChange);
-    return () => window.removeEventListener(THEME_MODE_CHANGED_EVENT, handleThemeChange);
+    setMounted(true);
   }, []);
 
   // Don't render if Matrix Rain is disabled OR if in light mode
-  if (!theme.matrix_rain_enabled || isLightMode) {
+  if (!theme.matrix_rain_enabled || (mounted && resolvedTheme === "light")) {
     return null;
   }
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !mounted) return;
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -57,7 +50,6 @@ const MatrixRain = () => {
     const primaryL = parseFloat(theme.primary_l) || 42;
     const primaryRgb = hslToRgb(primaryH, primaryS, primaryL);
     const baseColor = rgbToString(primaryRgb);
-    const opacity = parseFloat(theme.matrix_rain_opacity) || 0.4;
 
     // Handle DPI scaling for crisp rendering
     const dpr = window.devicePixelRatio || 1;
@@ -212,7 +204,7 @@ const MatrixRain = () => {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [loading, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
+  }, [loading, mounted, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
 
   return (
     <canvas

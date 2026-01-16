@@ -1,41 +1,45 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useTheme } from "next-themes";
 
-const THEME_STORAGE_KEY = "theme-preference";
-
-// Event for other components to listen to theme mode changes
-export const THEME_MODE_CHANGED_EVENT = "theme-mode-changed";
-
-export const useThemeMode = () => {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    return stored ? stored === "dark" : true;
-  });
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("light", !isDark);
-  }, [isDark]);
-
-  const toggleTheme = useCallback(() => {
-    setIsDark(prev => {
-      const newValue = !prev;
-      localStorage.setItem(THEME_STORAGE_KEY, newValue ? "dark" : "light");
-      document.documentElement.classList.toggle("light", !newValue);
-      window.dispatchEvent(new CustomEvent(THEME_MODE_CHANGED_EVENT, { detail: { isDark: newValue } }));
-      return newValue;
-    });
-  }, []);
-
-  return { isDark, toggleTheme };
-};
-
+/**
+ * ThemeToggle component using next-themes for proper light/dark mode switching.
+ * 
+ * Uses the class strategy which adds "light" or "dark" class to <html>,
+ * making Tailwind's dark: variants work correctly.
+ */
 export const ThemeToggle = () => {
   const { t } = useTranslation();
-  const { isDark, toggleTheme } = useThemeMode();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative w-9 h-9 rounded-full"
+        aria-label="Toggle theme"
+        disabled
+      >
+        <Moon className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    );
+  }
+
+  const isDark = resolvedTheme === "dark";
+
+  const toggleTheme = () => {
+    setTheme(isDark ? "light" : "dark");
+  };
 
   return (
     <Button
@@ -62,6 +66,23 @@ export const ThemeToggle = () => {
       </AnimatePresence>
     </Button>
   );
+};
+
+// Export hook for other components to check theme
+export const useThemeMode = () => {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return {
+    isDark: mounted ? resolvedTheme === "dark" : true,
+    theme: mounted ? resolvedTheme : "dark",
+    setTheme,
+    mounted,
+  };
 };
 
 export default ThemeToggle;
