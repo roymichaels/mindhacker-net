@@ -143,8 +143,14 @@
     background: transparent;
   }
   
-  /* Light mode keeps solid background */
-  html.light body {
+  /* Light mode with background effect enabled - make transparent */
+  html.light[data-bg-effect-enabled="true"] body {
+    background: transparent;
+  }
+  
+  /* Light mode without effect - solid background */
+  html.light[data-bg-effect-enabled="false"] body,
+  html.light:not([data-bg-effect-enabled]) body {
     background-color: hsl(var(--background));
   }
   
@@ -165,6 +171,12 @@
   
   .dark .page-bg,
   .dark .bg-background {
+    background-color: transparent !important;
+  }
+  
+  /* Light mode with effect enabled - make page backgrounds transparent */
+  html.light[data-bg-effect-enabled="true"] .page-bg,
+  html.light[data-bg-effect-enabled="true"] .bg-background {
     background-color: transparent !important;
   }
 

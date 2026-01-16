@@ -24,6 +24,15 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
     }
   }, [loading, theme.font_family_primary]);
 
+  // Set data-bg-effect attribute on html for CSS conditional styling
+  useEffect(() => {
+    if (loading) return;
+    
+    const effect = theme.background_effect || 'none';
+    document.documentElement.dataset.bgEffect = effect;
+    document.documentElement.dataset.bgEffectEnabled = effect !== 'none' ? 'true' : 'false';
+  }, [loading, theme.background_effect]);
+
   // Ensure the html class ALWAYS matches the resolved theme.
   // (We enforce this because other runtime effects and the SSR-less Vite entry can
   // occasionally leave both classes or none, which breaks CSS.)
