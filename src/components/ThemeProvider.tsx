@@ -51,9 +51,13 @@ const ThemeProvider = ({ children }: ThemeProviderProps) => {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      disableTransitionOnChange={false}
+      disableTransitionOnChange
       storageKey="theme-preference"
       themes={["light", "dark"]}
+      value={{
+        light: "light",
+        dark: "dark"
+      }}
     >
       <ThemeSettingsApplier>
         {children}
