@@ -321,8 +321,8 @@ const FormView = () => {
         <div className="max-w-2xl w-full text-center animate-fade-in-up relative z-10">
           {/* Sparkle Icon */}
           <div className="relative mx-auto mb-8 w-24 h-24">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 animate-pulse" />
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 animate-pulse" />
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
               <Sparkles className="h-10 w-10 text-primary animate-pulse" />
             </div>
           </div>
@@ -341,7 +341,7 @@ const FormView = () => {
           <Button
             onClick={handleStartForm}
             size="lg"
-            className="gap-3 text-lg px-8 py-6 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            className="gap-3 text-lg px-8 py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
             <Sparkles className="h-5 w-5" />
             {t('formIntro.begin')}
@@ -452,8 +452,8 @@ const FormView = () => {
                 onClick={() => handlePostAction("consciousness-leap")}
                 className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4">
-                  <Sparkles className="h-6 w-6 text-purple-400" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-4">
+                  <Sparkles className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">{t('formComplete.consciousnessLeapOption')}</h3>
                 <p className="text-sm text-muted-foreground">
@@ -465,10 +465,10 @@ const FormView = () => {
               {/* Personal Hypnosis Option */}
               <button
                 onClick={() => handlePostAction("personal-hypnosis")}
-                className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`group relative p-6 rounded-xl border border-border bg-background/50 hover:border-accent/50 hover:bg-accent/5 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4">
-                  <Video className="h-6 w-6 text-cyan-400" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center mb-4">
+                  <Video className="h-6 w-6 text-accent" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">{t('formComplete.personalHypnosisOption')}</h3>
                 <p className="text-sm text-muted-foreground">

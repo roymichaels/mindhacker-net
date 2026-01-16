@@ -88,7 +88,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       id: 'command-center',
       label: t('admin.groups.commandCenter'),
       icon: LayoutDashboard,
-      colorClass: 'text-cyan-400',
+      colorClass: 'text-primary',
       items: [
         { to: "/admin/analytics", icon: BarChart3, label: t('admin.analytics') },
         { to: "/admin/notifications", icon: Bell, label: t('admin.notifications'), badge: unreadCount },
@@ -98,7 +98,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       id: 'campaigns',
       label: t('admin.groups.campaigns'),
       icon: Target,
-      colorClass: 'text-orange-400',
+      colorClass: 'text-accent',
       items: [
         { to: "/admin/newsletter", icon: Newspaper, label: t('admin.newsletter'), badge: draftCampaignsCount },
         { to: "/admin/leads", icon: Mail, label: t('admin.leads'), badge: newLeadsCount },
@@ -111,7 +111,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       id: 'content',
       label: t('admin.groups.content'),
       icon: FileVideo,
-      colorClass: 'text-purple-400',
+      colorClass: 'text-secondary',
       items: [
         { to: "/admin/content", icon: Library, label: t('admin.content') },
         { to: "/admin/videos", icon: FileVideo, label: t('admin.videos') },
@@ -135,7 +135,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       id: 'system',
       label: t('admin.groups.system'),
       icon: Settings,
-      colorClass: 'text-gray-400',
+      colorClass: 'text-muted-foreground',
       items: [
         { to: "/admin/users", icon: Users, label: t('admin.users') },
         { to: "/admin/chat-assistant", icon: Bot, label: t('admin.chatAssistant.title') },

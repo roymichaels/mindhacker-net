@@ -64,8 +64,8 @@ const Install = () => {
       <div className="container max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-cyan-600 mb-6 shadow-lg shadow-cyan-500/25">
-            <span className="text-3xl font-bold text-white">מ</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary mb-6 shadow-lg shadow-primary/25">
+            <span className="text-3xl font-bold text-primary-foreground">מ</span>
           </div>
           <h1 className="text-3xl font-bold mb-4">מיינד האקר</h1>
           <p className="text-muted-foreground text-lg">
@@ -78,14 +78,14 @@ const Install = () => {
           {/* Installation Card */}
           <Card className="border-2 border-border/50">
             <CardHeader>
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {isIOS ? (
-                    <Smartphone className="w-6 h-6 text-cyan-400" />
+                    <Smartphone className="w-6 h-6 text-primary" />
                   ) : isAndroid ? (
                     <Smartphone className="w-6 h-6 text-green-400" />
                   ) : (
-                    <Monitor className="w-6 h-6 text-blue-400" />
+                    <Monitor className="w-6 h-6 text-primary" />
                   )}
                   <CardTitle className="text-xl">התקנת האפליקציה</CardTitle>
                 </div>
@@ -115,7 +115,7 @@ const Install = () => {
                     <Button 
                       onClick={handleInstall} 
                       size="lg" 
-                      className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
+                      className="w-full bg-primary hover:bg-primary/90"
                     >
                       <Download className="w-5 h-5 ml-2" />
                       התקן עכשיו
@@ -137,7 +137,7 @@ const Install = () => {
                           <ol className="space-y-3">
                             {instructions.steps.map((step, index) => (
                               <li key={index} className="flex gap-3">
-                                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm font-medium">
+                                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
                                   {index + 1}
                                 </span>
                                 <span className="text-muted-foreground pt-0.5">{step}</span>
@@ -150,12 +150,12 @@ const Install = () => {
                             <div className="mt-6 p-4 bg-background rounded-lg border">
                               <div className="flex items-center justify-center gap-6 text-4xl">
                                 <div className="flex flex-col items-center gap-1">
-                                  <Share2 className="w-8 h-8 text-blue-400" />
+                                  <Share2 className="w-8 h-8 text-primary" />
                                   <span className="text-xs text-muted-foreground">שתף</span>
                                 </div>
                                 <span className="text-muted-foreground">→</span>
                                 <div className="flex flex-col items-center gap-1">
-                                  <Plus className="w-8 h-8 text-cyan-400" />
+                                  <Plus className="w-8 h-8 text-primary" />
                                   <span className="text-xs text-muted-foreground">הוסף</span>
                                 </div>
                               </div>
@@ -192,7 +192,7 @@ const Install = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <BellRing className="w-6 h-6 text-yellow-400" />
+                  <BellRing className="w-6 h-6 text-accent" />
                   <CardTitle className="text-xl">התראות Push</CardTitle>
                 </div>
                 {isSubscribed && (
@@ -208,7 +208,7 @@ const Install = () => {
             </CardHeader>
             <CardContent>
               {!isSupported ? (
-                <div className="text-amber-400 flex items-center gap-2">
+                <div className="text-accent flex items-center gap-2">
                   <Bell className="w-5 h-5" />
                   <span>הדפדפן שלך לא תומך בהתראות Push</span>
                 </div>
@@ -220,7 +220,7 @@ const Install = () => {
               ) : (
                 <div className="space-y-4">
                   {isIOS && !isPWA && (
-                    <div className="text-amber-400 text-sm bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
+                    <div className="text-accent text-sm bg-accent/10 rounded-lg p-3 border border-accent/20">
                       <strong>שים לב:</strong> באייפון, יש להתקין את האפליקציה למסך הבית לפני הפעלת התראות
                     </div>
                   )}
@@ -235,7 +235,7 @@ const Install = () => {
                       disabled={isLoading || (isIOS && !isPWA)}
                       size="lg"
                       variant="outline"
-                      className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
+                      className="w-full border-accent/30 hover:bg-accent/10"
                     >
                       {isLoading ? (
                         <span className="animate-pulse">מפעיל...</span>
@@ -253,23 +253,23 @@ const Install = () => {
           </Card>
 
           {/* Benefits */}
-          <div className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 rounded-xl p-6 border border-cyan-500/20">
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6 border border-primary/20">
             <h3 className="font-semibold mb-4 text-lg">למה להתקין?</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground">גישה מהירה מהמסך הראשי - בלחיצה אחת</span>
               </li>
               <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground">חוויה מלאה במסך מלא - בלי סרגלי דפדפן</span>
               </li>
               <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground">טעינה מהירה יותר - גם כשהאינטרנט איטי</span>
               </li>
               <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <span className="text-muted-foreground">התראות על תוכן חדש - לא תפספס עדכונים</span>
               </li>
             </ul>

@@ -84,31 +84,31 @@ const HeroPortraitEffect = ({ portraitUrl, alt }: HeroPortraitEffectProps) => {
             }}
           />
           
-          {/* Soft breathing ring */}
+          {/* Soft breathing ring - using theme primary */}
           <div 
-            className="absolute inset-0 rounded-full border border-[#3d7a8c]/40 pointer-events-none"
+            className="absolute inset-0 rounded-full border border-primary/40 pointer-events-none"
             style={{ animation: `breathe ${animationDuration.breathe} ease-in-out infinite` }}
           />
           <div 
-            className="absolute -inset-3 sm:-inset-4 rounded-full border border-[#3d7a8c]/20 pointer-events-none"
+            className="absolute -inset-3 sm:-inset-4 rounded-full border border-primary/20 pointer-events-none"
             style={{ animation: `breathe ${animationDuration.breathe} ease-in-out infinite`, animationDelay: '2s' }}
           />
           
-          {/* Floating consciousness symbols */}
+          {/* Floating consciousness symbols - using theme primary */}
           <span 
-            className="absolute -top-4 -right-2 text-[#3d7a8c]/60 text-lg sm:text-xl"
+            className="absolute -top-4 -right-2 text-primary/60 text-lg sm:text-xl"
             style={{ animation: `sparkle ${animationDuration.sparkle} ease-in-out infinite` }}
           >∞</span>
           <span 
-            className="absolute top-1/3 -left-5 text-[#3d7a8c]/50 text-sm sm:text-base"
+            className="absolute top-1/3 -left-5 text-primary/50 text-sm sm:text-base"
             style={{ animation: `sparkle ${animationDuration.sparkle} ease-in-out infinite`, animationDelay: '0.5s' }}
           >◌</span>
           <span 
-            className="absolute -bottom-3 right-1/4 text-[#3d7a8c]/50 text-sm"
+            className="absolute -bottom-3 right-1/4 text-primary/50 text-sm"
             style={{ animation: `sparkle ${animationDuration.sparkle} ease-in-out infinite`, animationDelay: '1s' }}
           >∴</span>
           <span 
-            className="absolute bottom-1/3 -right-4 text-[#3d7a8c]/40 text-xs sm:text-sm"
+            className="absolute bottom-1/3 -right-4 text-primary/40 text-xs sm:text-sm"
             style={{ animation: `sparkle ${animationDuration.sparkle} ease-in-out infinite`, animationDelay: '1.5s' }}
           >○</span>
         </div>

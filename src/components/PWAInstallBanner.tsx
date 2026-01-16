@@ -65,10 +65,10 @@ export const PWAInstallBanner = () => {
           isAnimating ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
         }`}
       >
-        <div className="bg-background/95 backdrop-blur-xl border border-cyan-500/30 rounded-full px-3 py-2 shadow-lg shadow-cyan-500/10">
+        <div className="bg-background/95 backdrop-blur-xl border border-primary/30 rounded-full px-3 py-2 shadow-lg shadow-primary/10">
           <div className="flex items-center gap-2">
-            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-              <Smartphone className="w-3.5 h-3.5 text-white" />
+            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+              <Smartphone className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
             
             <span className="text-xs font-medium flex-1 truncate">התקן כאפליקציה</span>
@@ -76,7 +76,7 @@ export const PWAInstallBanner = () => {
             <Button
               onClick={handleInstall}
               size="sm"
-              className="h-6 px-2.5 text-xs bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-full"
+              className="h-6 px-2.5 text-xs bg-primary hover:bg-primary/90 rounded-full"
             >
               <Download className="w-3 h-3 ml-1" />
               {canPromptInstall ? 'התקן' : 'הוראות'}

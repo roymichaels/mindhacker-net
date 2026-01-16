@@ -101,25 +101,25 @@ const HeroSection = () => {
 
         {/* Mobile-First: Show Free Gift card prominently first on mobile */}
         <div className="md:hidden mb-5 animate-fade-in-up px-1" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-          <Card className="group relative bg-gradient-to-br from-amber-500/20 to-amber-400/10 backdrop-blur-sm border-2 border-amber-500/70 rounded-2xl p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/40 cursor-pointer overflow-hidden"
+          <Card className="group relative bg-gradient-to-br from-accent/20 to-accent/10 backdrop-blur-sm border-2 border-accent/70 rounded-2xl p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-accent/40 cursor-pointer overflow-hidden"
             onClick={() => navigate(introspectionFormUrl)}>
             {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/15 to-transparent -skew-x-12 animate-shimmer" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/15 to-transparent -skew-x-12 animate-shimmer" />
             
             <div className="relative flex items-center gap-4">
-              <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/40 to-amber-400/25 border-2 border-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-105 transition-transform">
-                <Gift className="w-8 h-8 text-amber-500" />
+              <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-accent/40 to-accent/25 border-2 border-accent flex items-center justify-center shadow-lg shadow-accent/30 group-hover:scale-105 transition-transform">
+                <Gift className="w-8 h-8 text-accent" />
               </div>
               
               <div className="flex-1 min-w-0 text-start">
-                <div className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[11px] font-bold px-2.5 py-1 rounded-full mb-1.5 shadow-md">
+                <div className="inline-flex items-center gap-1 bg-accent text-accent-foreground text-[11px] font-bold px-2.5 py-1 rounded-full mb-1.5 shadow-md">
                   {t('hero.freeGift')}
                 </div>
-                <h3 className="text-lg font-bold text-amber-400">{t('hero.introspectionForm')}</h3>
+                <h3 className="text-lg font-bold text-accent">{t('hero.introspectionForm')}</h3>
                 <p className="text-xs text-muted-foreground">{t('hero.introspectionFormTag')}</p>
               </div>
               
-              <ArrowIcon className="w-6 h-6 text-amber-500 flex-shrink-0 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+              <ArrowIcon className="w-6 h-6 text-accent flex-shrink-0 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
             </div>
           </Card>
         </div>
@@ -128,40 +128,40 @@ const HeroSection = () => {
         <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           
           {/* Option 1: Free Introspection Form (FIRST - Entry Point) */}
-          <Card className="group relative bg-gradient-to-br from-amber-500/10 to-amber-400/5 backdrop-blur border-amber-500/40 hover:border-amber-500/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden"
+          <Card className="group relative bg-gradient-to-br from-accent/10 to-accent/5 backdrop-blur border-accent/40 hover:border-accent/70 p-5 md:p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-accent/30 cursor-pointer overflow-hidden"
             onClick={() => navigate(introspectionFormUrl)}>
             {/* Animated glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -skew-x-12 group-hover:animate-shimmer" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent -skew-x-12 group-hover:animate-shimmer" />
             
             {/* Free badge - prominent */}
             <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-amber-500/40 animate-pulse">
+              <div className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-accent/40 animate-pulse">
                 {t('hero.freeGift')}
               </div>
             </div>
             
             <div className="relative mt-6">
               <div className="flex justify-center mb-3">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-400/20 border-2 border-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-amber-500/20">
-                  <Gift className="w-8 h-8 text-amber-500" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent/30 to-accent/20 border-2 border-accent flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-accent/20">
+                  <Gift className="w-8 h-8 text-accent" />
                 </div>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-amber-500/15 rounded-full px-3 py-1 mb-3">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span className="text-xs text-amber-500 font-medium">{t('hero.introspectionFormTag')}</span>
+              <div className="inline-flex items-center gap-2 bg-accent/15 rounded-full px-3 py-1 mb-3">
+                <Sparkles className="w-3 h-3 text-accent" />
+                <span className="text-xs text-accent font-medium">{t('hero.introspectionFormTag')}</span>
               </div>
               
-              <h3 className="text-xl md:text-2xl font-bold mb-2 text-amber-500">{t('hero.introspectionForm')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2 text-accent">{t('hero.introspectionForm')}</h3>
               
               <p className="text-muted-foreground mb-4 text-sm">
                 {t('hero.introspectionFormDesc')}
               </p>
               
-              <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold group-hover:shadow-lg group-hover:shadow-amber-500/40 transition-all">
+              <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold group-hover:shadow-lg group-hover:shadow-accent/40 transition-all">
                 <Sparkles className="w-4 h-4 mr-2" />
                 {t('hero.startFree')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
