@@ -77,7 +77,7 @@ const AboutSection = () => {
             </div>
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-black mb-4 text-center cyber-glow">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 text-center text-foreground">
             {t('about.sectionTitle')}
           </h2>
           

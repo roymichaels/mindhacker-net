@@ -71,7 +71,7 @@ const Footer = () => {
         {/* Final CTA Section - More personal */}
         <div className="mb-12 glass-panel p-8 md:p-12 rounded-2xl">
           <p className="text-sm md:text-base text-secondary mb-2">{t('footer.firstStepNote')}</p>
-          <p className="text-2xl md:text-4xl font-black mb-4 cyber-glow">
+          <p className="text-2xl md:text-4xl font-black mb-4 text-foreground">
             {t('footer.ctaTitle')}
           </p>
           <p className="text-muted-foreground mb-6">
