@@ -20,14 +20,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft } from "lucide-react";
+import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
 import { UserNotificationBell } from "./UserNotificationBell";
 import { NotificationBell } from "./admin/NotificationBell";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import ThemeToggle from "./ThemeToggle";
+import { useTheme } from "next-themes";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
@@ -53,11 +53,13 @@ const Header = ({ variant = "public" }: HeaderProps) => {
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
   const { t, isRTL } = useTranslation();
   const { language, setLanguage } = useLanguage();
-  const { theme } = useThemeSettings();
+  const { theme: brandTheme } = useThemeSettings();
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   // Get brand name from theme settings based on language
-  const brandName = isRTL ? theme.brand_name : theme.brand_name_en;
-  const logoUrl = theme.logo_url || defaultLogo;
+  const brandName = isRTL ? brandTheme.brand_name : brandTheme.brand_name_en;
+  const logoUrl = brandTheme.logo_url || defaultLogo;
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -125,20 +127,20 @@ const Header = ({ variant = "public" }: HeaderProps) => {
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-              <span className="font-black text-lg text-foreground">
+              <span className="hidden sm:inline font-black text-lg text-foreground">
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
           </div>
 
-          {/* Center CTA Button - Only for public mode */}
           {!isAdminMode && (
             <Button
               onClick={() => setStartModalOpen(true)}
               className="flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
             >
               <Sparkles className="h-4 w-4" />
-              {t('header.startChangeNow')}
+              <span className="hidden sm:inline">{t('header.startChangeNow')}</span>
+              <span className="sm:hidden">{t('header.startShort')}</span>
             </Button>
           )}
 
@@ -155,9 +157,6 @@ const Header = ({ variant = "public" }: HeaderProps) => {
                 <Home className="h-5 w-5" />
               </Button>
             )}
-
-            {/* Theme Toggle - Available for all users */}
-            <ThemeToggle />
 
             {/* Language switcher only shown for non-logged in users */}
             {!user && !isAdminMode && <LanguageSwitcher />}
@@ -224,6 +223,15 @@ const Header = ({ variant = "public" }: HeaderProps) => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
+                    {/* Theme Toggle in dropdown */}
+                    <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+                      {isDark ? (
+                        <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                      ) : (
+                        <Moon className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                      )}
+                      {isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                       <LogOut className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
