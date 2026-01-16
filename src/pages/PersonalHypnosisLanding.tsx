@@ -87,7 +87,7 @@ const PersonalHypnosisLanding = () => {
 
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      <Header />
+      <Header brandColors={colors} />
       
       <main className="relative pt-20">
         {/* Hero Section */}

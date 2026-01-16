@@ -34,15 +34,17 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
+import { ProductColorClasses } from "@/lib/productColors";
 
 // Default logo from public folder
 const defaultLogo = "/icons/icon-96x96.png";
 
 export interface HeaderProps {
   variant?: "public" | "admin";
+  brandColors?: ProductColorClasses;
 }
 
-const Header = ({ variant = "public" }: HeaderProps) => {
+const Header = ({ variant = "public", brandColors }: HeaderProps) => {
   const isAdminMode = variant === "admin";
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -127,7 +129,7 @@ const Header = ({ variant = "public" }: HeaderProps) => {
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-              <span className="hidden sm:inline font-black text-lg text-foreground">
+              <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
@@ -138,7 +140,7 @@ const Header = ({ variant = "public" }: HeaderProps) => {
             {!isAdminMode && (
               <Button
                 onClick={() => setStartModalOpen(true)}
-                className="flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
+                className={`flex gap-2 transition-all ${brandColors ? `${brandColors.button} ${brandColors.buttonText} ${brandColors.shadow}` : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40'}`}
               >
                 <Sparkles className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('header.startChangeNow')}</span>
