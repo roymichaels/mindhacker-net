@@ -45,19 +45,19 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-start justify-center px-3 sm:px-4 md:vignette pt-20 sm:pt-24 md:pt-32 pb-16 sm:pb-20 md:pb-24 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       
-      {/* Radial glow overlay */}
+      {/* Radial glow overlay - dark mode only */}
       <div 
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none hidden dark:block"
         style={{
           background: "radial-gradient(circle at center, hsl(var(--primary) / 0.03) 0%, transparent 70%)"
         }}
       />
 
-      {/* Consciousness pulse behind headline - smaller on mobile */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] md:w-[900px] h-[400px] sm:h-[600px] md:h-[900px] border border-primary/30 rounded-full consciousness-pulse pointer-events-none" />
+      {/* Consciousness pulse behind headline - dark mode only */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] md:w-[900px] h-[400px] sm:h-[600px] md:h-[900px] border border-primary/30 rounded-full consciousness-pulse pointer-events-none hidden dark:block" />
 
-      {/* Sacred geometry background */}
-      <div className="absolute inset-0 opacity-5">
+      {/* Sacred geometry background - dark mode only */}
+      <div className="absolute inset-0 opacity-5 hidden dark:block">
         <div className="absolute top-1/4 left-1/4 w-24 sm:w-32 md:w-64 h-24 sm:h-32 md:h-64 border border-primary rounded-full animate-breathe" />
       </div>
 
