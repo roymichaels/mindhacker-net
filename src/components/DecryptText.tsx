@@ -78,9 +78,7 @@ const DecryptText = ({ text, className = "" }: DecryptTextProps) => {
 
   return (
     <span
-      className={`${className} ${
-        isDecrypting ? "decrypt-glow-scramble" : "decrypt-glow-locked"
-      } transition-all duration-100`}
+      className={`${className} font-black transition-all duration-100`}
     >
       {displayText}
     </span>

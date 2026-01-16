@@ -127,7 +127,7 @@ const Header = ({ variant = "public" }: HeaderProps) => {
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-              <span className="font-black text-lg cyber-glow">
+              <span className="font-black text-lg text-foreground">
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>

@@ -69,7 +69,7 @@ const HeroSection = () => {
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 md:mb-8 leading-tight flex flex-col md:flex-row items-center justify-center gap-0 md:gap-4 pb-1 sm:pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
           {isRTL ? (
             <>
-              <span className="text-foreground static-word-glow">{t('hero.hackerWord')}</span>
+              <span className="text-foreground font-black">{t('hero.hackerWord')}</span>
               <DecryptText 
                 text={words[currentWord]} 
                 className="text-primary"
@@ -81,7 +81,7 @@ const HeroSection = () => {
                 text={words[currentWord]} 
                 className="text-primary"
               />
-              <span className="text-foreground static-word-glow">{t('hero.hackerWord')}</span>
+              <span className="text-foreground font-black">{t('hero.hackerWord')}</span>
             </>
           )}
         </h1>
@@ -218,7 +218,7 @@ const HeroSection = () => {
                 <span className="text-xs text-primary font-medium">{t('hero.consciousnessLeapTag')}</span>
               </div>
               
-              <h3 className="text-xl md:text-2xl font-bold mb-2 cyber-glow">{t('hero.consciousnessLeap')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">{t('hero.consciousnessLeap')}</h3>
               
               <p className="text-muted-foreground mb-4 text-sm">
                 {t('hero.consciousnessLeapDesc')}
@@ -253,7 +253,7 @@ const HeroSection = () => {
               <div className="w-12 h-12 rounded-full bg-primary/25 border-2 border-primary mx-auto mb-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Zap className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-sm font-bold mb-1 cyber-glow">{t('hero.consciousnessLeap')}</h3>
+              <h3 className="text-sm font-bold mb-1">{t('hero.consciousnessLeap')}</h3>
               <p className="text-[11px] text-muted-foreground line-clamp-2">{t('hero.consciousnessLeapTag')}</p>
             </div>
           </Card>

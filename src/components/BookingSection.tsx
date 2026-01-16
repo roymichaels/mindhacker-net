@@ -13,7 +13,7 @@ const BookingSection = () => {
     <section id="pricing" className="relative py-16 md:py-32 px-4 bg-background" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-12">
-          <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 text-center cyber-glow">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 text-center text-foreground">
             {title || t('booking.sectionTitle')}
           </h2>
 
@@ -31,7 +31,7 @@ const BookingSection = () => {
           <PricingCards />
 
           <div className="text-center mt-8 space-y-2">
-            <p className="text-lg font-semibold cyber-glow">
+            <p className="text-lg font-semibold text-foreground">
               {t('booking.selectiveTitle')}
             </p>
             <p className="text-sm text-muted-foreground">
