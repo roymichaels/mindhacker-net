@@ -733,14 +733,14 @@ const Theme = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>{isRTL ? "מזהה טופס התבוננות" : "Introspection Form ID"}</Label>
+                <Label>{isRTL ? "טוקן טופס התבוננות" : "Introspection Form Token"}</Label>
                 <Input
                   value={localTheme.introspection_form_id}
                   onChange={(e) => handleChange('introspection_form_id', e.target.value)}
-                  placeholder="45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308"
+                  placeholder="866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {isRTL ? "מזהה הטופס של המתנה החינמית" : "Form ID for the free gift questionnaire"}
+                  {isRTL ? "הטוקן (access_token) של המתנה החינמית" : "The access_token for the free gift questionnaire"}
                 </p>
               </div>
 
