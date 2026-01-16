@@ -144,9 +144,9 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 z-50 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] flex flex-col rounded-2xl border border-border/40 shadow-2xl animate-scale-in overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="fixed bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 z-50 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] flex flex-col rounded-2xl border border-border shadow-2xl animate-scale-in overflow-hidden bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50 bg-background/80">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Bot className="w-5 h-5 text-white" />
@@ -177,7 +177,7 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px] max-h-[50vh] bg-background/80">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px] max-h-[50vh] bg-background">
         {messages.map((message, index) => (
           <ChatMessage 
             key={index} 
