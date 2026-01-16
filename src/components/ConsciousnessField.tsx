@@ -38,7 +38,6 @@ const ConsciousnessField = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Check if should render - show in both light and dark modes
   const shouldRender = true;
   const isLightMode = mounted && resolvedTheme === 'light';
 
@@ -52,17 +51,16 @@ const ConsciousnessField = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    // Use alpha: true so we can have transparent background
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     // Derive colors from theme HSL values
-    // Background/primary: use background HSL (darkened)
     const bgH = parseFloat(themeSettings.background_h) || 220;
     const bgS = parseFloat(themeSettings.background_s) || 60;
     const bgL = Math.max((parseFloat(themeSettings.background_l) || 8) - 3, 3);
     const primaryColor = hslToRgb(bgH, bgS, bgL);
 
-    // Accent: use primary theme color HSL
     const primaryH = parseFloat(themeSettings.primary_h) || 174;
     const primaryS = parseFloat(themeSettings.primary_s) || 100;
     const primaryL = parseFloat(themeSettings.primary_l) || 42;
@@ -101,8 +99,8 @@ const ConsciousnessField = () => {
           y: Math.random() * height,
           baseX: Math.random() * width,
           baseY: Math.random() * height,
-          size: layer === 0 ? 8 : layer === 1 ? 12 : 16,
-          opacity: layer === 0 ? 0.15 : layer === 1 ? 0.3 : 0.5,
+          size: layer === 0 ? 10 : layer === 1 ? 14 : 18,
+          opacity: layer === 0 ? 0.2 : layer === 1 ? 0.4 : 0.6,
           phase: Math.random() * Math.PI * 2,
           speed: 0.0002 + Math.random() * 0.0003,
           glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
@@ -135,7 +133,7 @@ const ConsciousnessField = () => {
     let animationFrameId: number;
     let lastFrameTime = 0;
     const isMobile = window.innerWidth < 768;
-    const frameInterval = isMobile ? 50 : 33; // 20fps mobile, 30fps desktop
+    const frameInterval = isMobile ? 50 : 33;
     let isVisible = true;
 
     const handleVisibilityChange = () => {
@@ -158,35 +156,34 @@ const ConsciousnessField = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      // Clear with appropriate gradient based on theme
-      const gradient = ctx.createRadialGradient(
-        width / 2, height / 2, 0,
-        width / 2, height / 2, Math.max(width, height) * 0.8
-      );
-      
+      // Clear canvas - use appropriate background
       if (isLightMode) {
-        // Light mode: white/light gray gradient
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(1, 'rgba(245, 247, 250, 1)');
+        // Light mode: semi-transparent light background
+        ctx.fillStyle = 'rgba(248, 250, 252, 0.92)';
       } else {
-        // Dark mode: deep blue gradient
+        // Dark mode: deep gradient
+        const gradient = ctx.createRadialGradient(
+          width / 2, height / 2, 0,
+          width / 2, height / 2, Math.max(width, height) * 0.8
+        );
         gradient.addColorStop(0, `rgba(${primaryColor.r + 10}, ${primaryColor.g + 15}, ${primaryColor.b + 25}, 1)`);
         gradient.addColorStop(1, `rgba(${primaryColor.r}, ${primaryColor.g}, ${primaryColor.b}, 1)`);
+        ctx.fillStyle = gradient;
       }
-      
-      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      // Update breathing phase (very slow)
+      // Update breathing phase
       if (!prefersReducedMotion) {
         breathPhaseRef.current += (Math.PI * 2) / (breathingSpeed * 60);
       }
       const breathFactor = Math.sin(breathPhaseRef.current) * 0.5 + 0.5;
 
-      // Draw flow lines (subtle curved paths) - adjust opacity for light mode
-      const lineOpacity = isLightMode ? 0.08 + breathFactor * 0.04 : 0.03 + breathFactor * 0.02;
-      ctx.strokeStyle = `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, ${lineOpacity})`;
-      ctx.lineWidth = 1;
+      // Draw flow lines - much more visible in light mode
+      const lineOpacity = isLightMode ? 0.15 + breathFactor * 0.08 : 0.04 + breathFactor * 0.02;
+      ctx.strokeStyle = isLightMode
+        ? `rgba(${clamp255(accentColor.r - 60)}, ${clamp255(accentColor.g - 60)}, ${clamp255(accentColor.b - 60)}, ${lineOpacity})`
+        : `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, ${lineOpacity})`;
+      ctx.lineWidth = isLightMode ? 1.5 : 1;
       
       for (let i = 0; i < 5; i++) {
         ctx.beginPath();
@@ -202,8 +199,8 @@ const ConsciousnessField = () => {
         ctx.stroke();
       }
 
-      // Draw particles with breathing and interaction
-      particlesRef.current.forEach((particle, index) => {
+      // Draw particles
+      particlesRef.current.forEach((particle) => {
         if (prefersReducedMotion) {
           particle.x = particle.baseX;
           particle.y = particle.baseY;
@@ -214,7 +211,7 @@ const ConsciousnessField = () => {
           particle.x = particle.baseX + Math.sin(time + particle.phase) * driftRadius;
           particle.y = particle.baseY + Math.cos(time + particle.phase * 0.7) * driftRadius;
 
-          // Mouse interaction (gentle gravitational pull)
+          // Mouse interaction
           if (interactionEnabled) {
             const dx = mouseRef.current.x - particle.x;
             const dy = mouseRef.current.y - particle.y;
@@ -235,38 +232,29 @@ const ConsciousnessField = () => {
           if (particle.y > height + 50) particle.baseY -= height + 100;
         }
 
-        // Breathing opacity - increase for light mode visibility
-        const baseOpacity = particle.opacity * (0.7 + breathFactor * 0.3) * (isLightMode ? 1.5 : 1);
+        // Breathing opacity - higher base for light mode
+        const baseOpacity = particle.opacity * (0.7 + breathFactor * 0.3) * (isLightMode ? 2.0 : 1);
 
-        // Layer-based coloring - adjust for light mode
+        // Layer-based coloring
         let color: string;
         if (isLightMode) {
-          // Light mode: darker glyphs on light background
-          const c0 = {
-            r: clamp255(accentColor.r - 120),
-            g: clamp255(accentColor.g - 120),
-            b: clamp255(accentColor.b - 120),
+          // Light mode: much darker glyphs for contrast
+          const darken = 140;
+          const c = {
+            r: clamp255(accentColor.r - darken),
+            g: clamp255(accentColor.g - darken),
+            b: clamp255(accentColor.b - darken),
           };
-          const c1 = {
-            r: clamp255(accentColor.r - 80),
-            g: clamp255(accentColor.g - 80),
-            b: clamp255(accentColor.b - 80),
-          };
-          const c2 = {
-            r: clamp255(accentColor.r - 20),
-            g: clamp255(accentColor.g - 20),
-            b: clamp255(accentColor.b - 20),
-          };
-
+          
           if (particle.layer === 0) {
-            color = `rgba(${c0.r}, ${c0.g}, ${c0.b}, ${baseOpacity * 0.25})`;
+            color = `rgba(${c.r}, ${c.g}, ${c.b}, ${baseOpacity * 0.4})`;
           } else if (particle.layer === 1) {
-            color = `rgba(${c1.r}, ${c1.g}, ${c1.b}, ${baseOpacity * 0.45})`;
+            color = `rgba(${c.r + 20}, ${c.g + 20}, ${c.b + 20}, ${baseOpacity * 0.6})`;
           } else {
-            color = `rgba(${c2.r}, ${c2.g}, ${c2.b}, ${baseOpacity * 0.7})`;
+            color = `rgba(${c.r + 40}, ${c.g + 40}, ${c.b + 40}, ${baseOpacity * 0.85})`;
           }
         } else {
-          // Dark mode: original colors
+          // Dark mode: original bright colors
           if (particle.layer === 0) {
             color = `rgba(${primaryColor.r + 30}, ${primaryColor.g + 40}, ${primaryColor.b + 60}, ${baseOpacity * 0.5})`;
           } else if (particle.layer === 1) {
@@ -280,40 +268,28 @@ const ConsciousnessField = () => {
         ctx.font = `${particle.size}px "Heebo", sans-serif`;
         ctx.fillStyle = color;
 
-        // Add subtle glow for front layer
+        // Add glow for front layer
         if (particle.layer === 2 && !isMobile) {
-          ctx.shadowBlur = isLightMode ? 0 : 8;
-          ctx.shadowColor = `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, 0.4)`;
+          ctx.shadowBlur = isLightMode ? 3 : 8;
+          ctx.shadowColor = isLightMode
+            ? `rgba(${clamp255(accentColor.r - 80)}, ${clamp255(accentColor.g - 80)}, ${clamp255(accentColor.b - 80)}, 0.3)`
+            : `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, 0.4)`;
         }
 
         ctx.fillText(particle.glyph, particle.x, particle.y);
-
-        // Reset shadow
-        ctx.shadowBlur = 0;
-
-        // Draw glyph
-        ctx.font = `${particle.size}px "Heebo", sans-serif`;
-        ctx.fillStyle = color;
-        
-        // Add subtle glow for front layer
-        if (particle.layer === 2 && !isMobile) {
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, 0.4)`;
-        }
-        
-        ctx.fillText(particle.glyph, particle.x, particle.y);
-        
-        // Reset shadow
         ctx.shadowBlur = 0;
       });
 
-      // Draw subtle center vignette - adjust for theme
+      // Draw subtle center vignette
       const centerGlow = ctx.createRadialGradient(
         width / 2, height / 2, 0,
         width / 2, height / 2, Math.min(width, height) * 0.5
       );
-      const vignetteOpacity = isLightMode ? 0.04 + breathFactor * 0.02 : 0.02 + breathFactor * 0.01;
-      centerGlow.addColorStop(0, `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, ${vignetteOpacity})`);
+      const vignetteOpacity = isLightMode ? 0.06 + breathFactor * 0.03 : 0.02 + breathFactor * 0.01;
+      centerGlow.addColorStop(0, isLightMode
+        ? `rgba(${clamp255(accentColor.r - 60)}, ${clamp255(accentColor.g - 60)}, ${clamp255(accentColor.b - 60)}, ${vignetteOpacity})`
+        : `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, ${vignetteOpacity})`
+      );
       centerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = centerGlow;
       ctx.fillRect(0, 0, width, height);
@@ -354,7 +330,6 @@ const ConsciousnessField = () => {
     (themeSettings as any).consciousness_field_interaction
   ]);
 
-  // Hide in light mode - must be after all hooks
   if (!shouldRender) {
     return null;
   }

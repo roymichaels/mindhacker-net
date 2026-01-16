@@ -26,7 +26,7 @@ const MatrixRain = () => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Check if should render - show in both light and dark modes
+  // Check if should render
   const shouldRender = theme.matrix_rain_enabled;
   const isLightMode = mounted && resolvedTheme === "light";
 
@@ -40,7 +40,7 @@ const MatrixRain = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     // Derive color from theme primary HSL values
@@ -61,7 +61,12 @@ const MatrixRain = () => {
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // Initialize with appropriate background
-      ctx.fillStyle = isLightMode ? "rgb(255, 255, 255)" : "rgb(2, 6, 12)";
+      if (isLightMode) {
+        // Light mode: slightly tinted off-white for better character visibility
+        ctx.fillStyle = "rgba(248, 250, 252, 1)";
+      } else {
+        ctx.fillStyle = "rgb(2, 6, 12)";
+      }
       ctx.fillRect(0, 0, width, height);
     };
     updateCanvasSize();
@@ -73,15 +78,15 @@ const MatrixRain = () => {
     const symbols = "✶◇△⊙✦";
     const chars = hebrewChars + symbols;
     
-    // Mobile optimizations - improved visibility
+    // Mobile optimizations
     const fontSize = isMobile ? 14 : 16;
     const columnDensity = isMobile ? 2 : 1;
     const columns = Math.floor(window.innerWidth / fontSize / columnDensity);
     
-    // Dynamic colors based on theme
-    const lightDim = darkenRgb(baseColor, 190);
-    const lightMid = darkenRgb(baseColor, 140);
-    const lightBright = darkenRgb(baseColor, 80);
+    // Dynamic colors based on theme - much darker for light mode visibility
+    const lightDim = darkenRgb(baseColor, 200);    // Very dark for background layer
+    const lightMid = darkenRgb(baseColor, 150);    // Dark for mid layer
+    const lightBright = darkenRgb(baseColor, 80);  // Medium-dark for front layer
 
     const layers = isMobile
       ? [
@@ -90,7 +95,7 @@ const MatrixRain = () => {
               .fill(0)
               .map(() => Math.random() * -100),
             speed: 0.4,
-            opacity: isLightMode ? 0.35 : 0.8,
+            opacity: isLightMode ? 0.5 : 0.8,
             color: isLightMode ? lightMid : baseColor,
             fontSize: 14,
             blur: 0,
@@ -101,7 +106,7 @@ const MatrixRain = () => {
               .fill(0)
               .map(() => Math.random() * -100),
             speed: 0.7,
-            opacity: isLightMode ? 0.55 : 1,
+            opacity: isLightMode ? 0.75 : 1,
             color: isLightMode ? lightBright : lightenRgb(baseColor, 80),
             fontSize: 16,
             blur: 0,
@@ -114,7 +119,7 @@ const MatrixRain = () => {
               .fill(0)
               .map(() => Math.random() * -100),
             speed: 0.2,
-            opacity: isLightMode ? 0.18 : 0.4,
+            opacity: isLightMode ? 0.3 : 0.5,
             color: isLightMode ? lightDim : darkenRgb(baseColor, 60),
             fontSize: 14,
             blur: 1,
@@ -125,7 +130,7 @@ const MatrixRain = () => {
               .fill(0)
               .map(() => Math.random() * -100),
             speed: 0.4,
-            opacity: isLightMode ? 0.35 : 0.7,
+            opacity: isLightMode ? 0.5 : 0.75,
             color: isLightMode ? lightMid : baseColor,
             fontSize: 16,
             blur: 0,
@@ -136,7 +141,7 @@ const MatrixRain = () => {
               .fill(0)
               .map(() => Math.random() * -100),
             speed: 0.7,
-            opacity: isLightMode ? 0.6 : 1,
+            opacity: isLightMode ? 0.8 : 1,
             color: isLightMode ? lightBright : lightenRgb(baseColor, 100),
             fontSize: 18,
             blur: 0,
@@ -167,8 +172,11 @@ const MatrixRain = () => {
       }
       lastFrameTime = currentTime;
 
-      // Lighter fade - use appropriate colors for theme
-      const fadeColor = isLightMode ? "rgba(255, 255, 255, 0.08)" : "rgba(2, 6, 12, 0.08)";
+      // Fade with appropriate colors - slower fade for more visible trails
+      const fadeAlpha = isLightMode ? 0.06 : 0.05;
+      const fadeColor = isLightMode 
+        ? `rgba(248, 250, 252, ${fadeAlpha})` 
+        : `rgba(2, 6, 12, ${fadeAlpha})`;
       ctx.fillStyle = fadeColor;
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -177,21 +185,23 @@ const MatrixRain = () => {
         ctx.font = `${layer.fontSize}px ${theme.font_family_primary || 'Heebo'}, sans-serif`;
         ctx.filter = layer.blur > 0 ? `blur(${layer.blur}px)` : "none";
         
-        // Glow effect
+        // Glow effect - reduced in light mode
         if (!isMobile && layer.blur === 0) {
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = `rgba(${layer.color}, 0.8)`;
+          ctx.shadowBlur = isLightMode ? 5 : 15;
+          ctx.shadowColor = isLightMode 
+            ? `rgba(${layer.color}, 0.4)` 
+            : `rgba(${layer.color}, 0.8)`;
         }
 
         for (let i = 0; i < layer.drops.length; i++) {
-          // Draw more characters (less skipping)
-          if (Math.random() > 0.6) continue;
+          // Draw more characters (less skipping) for better density
+          if (Math.random() > 0.55) continue;
 
           const char = layer.chars[Math.floor(Math.random() * layer.chars.length)];
           const x = i * fontSize * columnDensity;
           const y = layer.drops[i] * layer.fontSize;
 
-          // Bright color
+          // Draw character
           ctx.fillStyle = `rgba(${layer.color}, ${layer.opacity})`;
           ctx.fillText(char, x, y);
 
@@ -225,13 +235,15 @@ const MatrixRain = () => {
     };
   }, [loading, mounted, shouldRender, isLightMode, theme.primary_h, theme.primary_s, theme.primary_l, theme.matrix_rain_opacity, theme.font_family_primary]);
 
-  // Don't render if disabled or in light mode
   if (!shouldRender) {
     return null;
   }
 
   const baseOpacity = parseFloat(theme.matrix_rain_opacity) || 0.4;
-  const canvasOpacity = isLightMode ? Math.max(0.28, baseOpacity) : baseOpacity;
+  // Ensure minimum visibility in both modes
+  const canvasOpacity = isLightMode 
+    ? Math.max(0.35, baseOpacity) 
+    : Math.max(0.3, baseOpacity);
 
   return (
     <canvas
@@ -241,6 +253,7 @@ const MatrixRain = () => {
         zIndex: 0,
         opacity: canvasOpacity,
       }}
+      aria-hidden="true"
     />
   );
 };
