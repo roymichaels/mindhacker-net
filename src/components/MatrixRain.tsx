@@ -216,9 +216,9 @@ const MatrixRain = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ 
+      style={{
         zIndex: 0,
-        opacity: parseFloat(theme.matrix_rain_opacity) || 0.4
+        opacity: parseFloat(theme.matrix_rain_opacity) || 0.4,
       }}
     />
   );
