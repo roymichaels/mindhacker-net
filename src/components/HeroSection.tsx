@@ -52,7 +52,7 @@ const HeroSection = () => {
   }, [words.length]);
 
   return (
-    <section className="relative min-h-screen flex items-start justify-center px-3 sm:px-4 md:vignette pt-20 sm:pt-24 md:pt-32 pb-16 sm:pb-20 md:pb-24 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="relative min-h-screen flex items-start justify-center px-3 sm:px-4 md:vignette pt-4 sm:pt-6 md:pt-10 pb-16 sm:pb-20 md:pb-24 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* Radial glow overlay - dark mode only */}
       <div 
