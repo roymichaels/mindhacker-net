@@ -53,8 +53,8 @@ function showUpdateToast() {
       bottom: 80px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(135deg, hsl(180 100% 50% / 0.15), hsl(180 100% 50% / 0.05));
-      border: 1px solid hsl(180 100% 50% / 0.3);
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05));
+      border: 1px solid hsl(var(--primary) / 0.3);
       backdrop-filter: blur(10px);
       padding: 16px 24px;
       border-radius: 12px;
@@ -64,7 +64,7 @@ function showUpdateToast() {
       gap: 12px;
       direction: rtl;
       font-family: inherit;
-      box-shadow: 0 10px 40px rgba(0, 240, 255, 0.2);
+      box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
       animation: slideUp 0.3s ease-out;
     `;
     
@@ -75,15 +75,15 @@ function showUpdateToast() {
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
         #pwa-update-toast button:hover {
-          background: hsl(180 100% 50%) !important;
-          color: hsl(240 10% 4%) !important;
+          background: hsl(var(--primary)) !important;
+          color: hsl(var(--primary-foreground)) !important;
         }
       </style>
-      <span style="color: hsl(0 0% 98%); font-size: 14px;">🔄 גרסה חדשה זמינה</span>
+      <span style="color: hsl(var(--foreground)); font-size: 14px;">🔄 גרסה חדשה זמינה</span>
       <button id="pwa-update-btn" style="
-        background: hsl(180 100% 50% / 0.2);
-        border: 1px solid hsl(180 100% 50% / 0.5);
-        color: hsl(180 100% 50%);
+        background: hsl(var(--primary) / 0.2);
+        border: 1px solid hsl(var(--primary) / 0.5);
+        color: hsl(var(--primary));
         padding: 8px 16px;
         border-radius: 8px;
         cursor: pointer;

@@ -49,7 +49,7 @@ const HeroSection = () => {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(circle at center, rgba(0, 240, 255, 0.03) 0%, transparent 70%)"
+          background: "radial-gradient(circle at center, hsl(var(--primary) / 0.03) 0%, transparent 70%)"
         }}
       />
 

@@ -50,14 +50,14 @@ const HeroPortraitEffect = ({ portraitUrl, alt }: HeroPortraitEffectProps) => {
           <div 
             className="absolute -inset-8 sm:-inset-10 md:-inset-12 rounded-full opacity-20"
             style={{ 
-              background: `radial-gradient(circle, ${glowColor || 'hsl(var(--consciousness-aura, 190 50% 40%))'} 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${glowColor || 'hsl(var(--primary) / 0.6)'} 0%, transparent 70%)`,
               animation: `breathe ${animationDuration.breathe} ease-in-out infinite`
             }}
           />
           <div 
             className="absolute -inset-4 sm:-inset-6 md:-inset-8 rounded-full opacity-30"
             style={{ 
-              background: `radial-gradient(circle, ${glowColor || 'hsl(190 60% 50%)'} 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${glowColor || 'hsl(var(--primary) / 0.7)'} 0%, transparent 70%)`,
               animation: `breathe ${animationDuration.breathe} ease-in-out infinite`,
               animationDelay: '1s'
             }}
@@ -67,7 +67,7 @@ const HeroPortraitEffect = ({ portraitUrl, alt }: HeroPortraitEffectProps) => {
           <div 
             className="absolute inset-0 rounded-full"
             style={{ 
-              background: `radial-gradient(circle, ${glowColor || 'rgba(61, 122, 140, 0.4)'} 0%, transparent 60%)`,
+              background: `radial-gradient(circle, ${glowColor || 'hsl(var(--primary) / 0.4)'} 0%, transparent 60%)`,
               filter: 'blur(12px)',
               transform: 'scale(1.3)'
             }}
