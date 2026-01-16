@@ -22,7 +22,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Menu, Settings, ShoppingBag, Sparkles, Globe } from "lucide-react";
+import { LogOut, Menu, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -34,15 +34,21 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
+import AdminSidebar from "./admin/AdminSidebar";
 
 // Default logo from public folder
 const defaultLogo = "/icons/icon-96x96.png";
 
-const Header = () => {
+export interface HeaderProps {
+  variant?: "public" | "admin";
+}
+
+const Header = ({ variant = "public" }: HeaderProps) => {
+  const isAdminMode = variant === "admin";
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(isAdminMode);
   const [startModalOpen, setStartModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
@@ -62,6 +68,12 @@ const Header = () => {
   };
 
   useEffect(() => {
+    // If admin mode is forced via prop, skip the check
+    if (isAdminMode) {
+      setIsAdmin(true);
+      return;
+    }
+
     const checkAdminStatus = async () => {
       if (!user) {
         setIsAdmin(false);
@@ -81,7 +93,7 @@ const Header = () => {
     };
 
     checkAdminStatus();
-  }, [user, t]);
+  }, [user, t, isAdminMode]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -96,26 +108,58 @@ const Header = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
-            <span className="font-black text-lg cyber-glow">
-              {brandName}
-            </span>
-          </Link>
+          {/* Left side: Logo and Admin panel title */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Admin Sidebar Trigger */}
+            {isAdminMode && (
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild className="lg:hidden">
+                  <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
+                    <PanelLeft className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-72" dir={isRTL ? "rtl" : "ltr"}>
+                  <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            )}
 
-          {/* Center CTA Button - Desktop */}
-          <Button
-            onClick={() => setStartModalOpen(true)}
-            className="hidden md:flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
-          >
-            <Sparkles className="h-4 w-4" />
-            {t('header.startChangeNow')}
-          </Button>
+            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+              <span className="font-black text-lg cyber-glow">
+                {isAdminMode ? t('admin.panelTitle') : brandName}
+              </span>
+            </Link>
+          </div>
+
+          {/* Center CTA Button - Only for public mode */}
+          {!isAdminMode && (
+            <Button
+              onClick={() => setStartModalOpen(true)}
+              className="hidden md:flex gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40"
+            >
+              <Sparkles className="h-4 w-4" />
+              {t('header.startChangeNow')}
+            </Button>
+          )}
 
           <div className="flex items-center gap-3">
+            {/* Home button - Only for admin mode */}
+            {isAdminMode && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/")}
+                aria-label={t('common.home')}
+                className="hidden sm:flex"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+            )}
+
             {/* Language switcher only shown for non-logged in users */}
-            {!user && <LanguageSwitcher />}
+            {!user && !isAdminMode && <LanguageSwitcher />}
+            
             {loading ? (
               <div className="h-9 w-9 animate-pulse bg-muted rounded-full" />
             ) : user ? (
@@ -211,97 +255,99 @@ const Header = () => {
               </>
             )}
 
-            {/* Mobile Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={isRTL ? "right" : "left"} dir={isRTL ? "rtl" : "ltr"}>
-                <SheetHeader>
-                  <SheetTitle>{t('header.navigationMenu')}</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-4 mt-8">
-                  {/* Mobile CTA Button */}
-                  <Button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setStartModalOpen(true);
-                    }}
-                    className="w-full gap-2 bg-primary hover:bg-primary/90"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {t('header.startChangeNow')}
+            {/* Mobile Menu - Only for public mode */}
+            {!isAdminMode && (
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
                   </Button>
+                </SheetTrigger>
+                <SheetContent side={isRTL ? "right" : "left"} dir={isRTL ? "rtl" : "ltr"}>
+                  <SheetHeader>
+                    <SheetTitle>{t('header.navigationMenu')}</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-4 mt-8">
+                    {/* Mobile CTA Button */}
+                    <Button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setStartModalOpen(true);
+                      }}
+                      className="w-full gap-2 bg-primary hover:bg-primary/90"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      {t('header.startChangeNow')}
+                    </Button>
 
-                  {user ? (
-                    <>
-                      <div className="border-t my-4" />
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          navigate("/dashboard");
-                          setMobileMenuOpen(false);
-                        }}
-                        className="w-full justify-start"
-                      >
-                        <ShoppingBag className={isRTL ? "ml-2" : "mr-2"} />
-                        {t('common.dashboard')}
-                      </Button>
-                      {isAdmin && (
+                    {user ? (
+                      <>
+                        <div className="border-t my-4" />
                         <Button
                           variant="outline"
                           onClick={() => {
-                            navigate("/admin");
+                            navigate("/dashboard");
                             setMobileMenuOpen(false);
                           }}
                           className="w-full justify-start"
                         >
-                          <Settings className={isRTL ? "ml-2" : "mr-2"} />
-                          {t('header.adminPanel')}
+                          <ShoppingBag className={isRTL ? "ml-2" : "mr-2"} />
+                          {t('common.dashboard')}
                         </Button>
-                      )}
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          handleLogout();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="w-full justify-start text-destructive hover:text-destructive"
-                      >
-                        <LogOut className={isRTL ? "ml-2" : "mr-2"} />
-                        {t('common.logout')}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          setAuthModalMode("login");
-                          setAuthModalOpen(true);
-                        }}
-                        className="w-full"
-                      >
-                        {t('common.login')}
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          setAuthModalMode("signup");
-                          setAuthModalOpen(true);
-                        }}
-                        className="w-full"
-                      >
-                        {t('common.signup')}
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
+                        {isAdmin && (
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              navigate("/admin");
+                              setMobileMenuOpen(false);
+                            }}
+                            className="w-full justify-start"
+                          >
+                            <Settings className={isRTL ? "ml-2" : "mr-2"} />
+                            {t('header.adminPanel')}
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            handleLogout();
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full justify-start text-destructive hover:text-destructive"
+                        >
+                          <LogOut className={isRTL ? "ml-2" : "mr-2"} />
+                          {t('common.logout')}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setAuthModalMode("login");
+                            setAuthModalOpen(true);
+                          }}
+                          className="w-full"
+                        >
+                          {t('common.login')}
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setAuthModalMode("signup");
+                            setAuthModalOpen(true);
+                          }}
+                          className="w-full"
+                        >
+                          {t('common.signup')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
           </div>
         </div>
       </header>

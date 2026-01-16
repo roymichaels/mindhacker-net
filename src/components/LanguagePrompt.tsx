@@ -1,9 +1,16 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useThemeSettings } from '@/hooks/useThemeSettings';
+
+const defaultLogo = "/icons/icon-96x96.png";
 
 export const LanguagePrompt = () => {
   const { isFirstVisit, setLanguage, setFirstVisitComplete, language } = useLanguage();
+  const { theme } = useThemeSettings();
+
+  const logoUrl = theme.logo_url || defaultLogo;
+  const brandName = language === 'he' ? theme.brand_name : theme.brand_name_en;
 
   const handleSelect = (lang: 'he' | 'en') => {
     setLanguage(lang);
@@ -19,10 +26,18 @@ export const LanguagePrompt = () => {
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
+        <DialogTitle className="sr-only">
+          {language === 'he' ? 'בחר שפה' : 'Select Language'}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {language === 'he' 
+            ? 'בחר את השפה המועדפת עליך לצפייה באתר' 
+            : 'Choose your preferred language for viewing the site'}
+        </DialogDescription>
         <div className="flex flex-col items-center gap-6 py-4">
-          {/* Logo - using transparent icon like header */}
+          {/* Logo - using theme settings */}
           <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center">
-            <img src="/icons/icon-96x96.png" alt="Mind Hacker" className="w-14 h-14 object-contain" />
+            <img src={logoUrl} alt={brandName} className="w-14 h-14 object-contain" />
           </div>
 
           {/* Title */}

@@ -1,11 +1,14 @@
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
+import Header from "@/components/Header";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const AdminDashboard = () => {
+  const { isRTL } = useTranslation();
+
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <AdminHeader />
+    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
+      <Header variant="admin" />
       <div className="flex">
         {/* Desktop sidebar - hidden on mobile */}
         <div className="hidden lg:block">
