@@ -102,9 +102,6 @@ const WhatsAppButton = () => {
       aria-label={t('whatsapp.ariaLabel')}
     >
       <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-white" />
-      
-      {/* Pulse ring */}
-      <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
     </a>
   );
 };
