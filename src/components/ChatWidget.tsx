@@ -1,16 +1,18 @@
 import { useState } from "react";
 import ChatPanel from "./chat/ChatPanel";
-import logo from "@/assets/logo-small.webp";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+
+// Default logo from public folder (same as Header)
+const defaultLogo = "/icons/icon-96x96.png";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const { theme } = useThemeSettings();
   
-  // Use theme logo or fallback to asset
-  const logoUrl = theme.logo_url || logo;
+  // Use theme logo or fallback to default (same pattern as Header)
+  const logoUrl = theme.logo_url || defaultLogo;
 
   return (
     <>
