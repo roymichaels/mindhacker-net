@@ -176,7 +176,7 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
                     <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
                       <Avatar className="h-9 w-9 border-2 border-primary/30">
                         <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ''} />
-                        <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
