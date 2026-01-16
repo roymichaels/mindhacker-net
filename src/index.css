@@ -162,6 +162,11 @@ All colors MUST be HSL.
     animation: pulse-glow 3s ease-in-out infinite;
   }
 
+  .light .pulse-glow {
+    animation: none;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
   @keyframes ring-pulse {
     0%, 100% {
       transform: scale(1);
@@ -179,8 +184,17 @@ All colors MUST be HSL.
     animation: ring-pulse 2.5s ease-in-out infinite;
   }
 
+  .light .animate-ring-pulse {
+    animation: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
+  }
+
   .vignette {
     box-shadow: inset 0 0 200px 80px rgba(1, 4, 9, 0.3);
+  }
+
+  .light .vignette {
+    box-shadow: none;
   }
 
   @media (max-width: 768px) {
@@ -196,6 +210,10 @@ All colors MUST be HSL.
       0 0 90px hsl(var(--primary) / 0.3);
   }
 
+  .light .static-word-glow {
+    text-shadow: 0 2px 8px hsl(var(--primary) / 0.15);
+  }
+
   .decrypt-glow-scramble {
     text-shadow: 
       0 0 15px hsl(var(--primary) / 0.8),
@@ -204,12 +222,21 @@ All colors MUST be HSL.
     opacity: 0.7;
   }
 
+  .light .decrypt-glow-scramble {
+    text-shadow: 0 1px 3px hsl(var(--primary) / 0.2);
+    opacity: 1;
+  }
+
   .decrypt-glow-locked {
     text-shadow: 
       0 0 20px hsl(var(--primary)),
       0 0 40px hsl(var(--primary) / 0.7),
       0 0 60px hsl(var(--primary-glow) / 0.4);
     opacity: 1;
+  }
+
+  .light .decrypt-glow-locked {
+    text-shadow: 0 1px 4px hsl(var(--primary) / 0.25);
   }
   
   /* Animation utilities - all use fill-mode forwards to maintain final state */
@@ -446,6 +473,11 @@ All colors MUST be HSL.
     animation: consciousness-pulse 15s ease-in-out infinite;
   }
 
+  .light .consciousness-pulse {
+    opacity: 0.02;
+    border-color: hsl(var(--primary) / 0.1);
+  }
+
   @keyframes breathe {
     0%, 100% {
       transform: scale(0.98);
@@ -459,6 +491,11 @@ All colors MUST be HSL.
 
   .animate-breathe {
     animation: breathe 12s ease-in-out infinite;
+  }
+
+  .light .animate-breathe {
+    opacity: 0.02;
+    border-color: hsl(var(--primary) / 0.1);
   }
 
   .animate-pop {
@@ -493,6 +530,14 @@ All colors MUST be HSL.
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.5);
+  }
+
+  .light .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.2);
+  }
+
+  .light .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.35);
   }
 
   .scrollbar-track-transparent::-webkit-scrollbar-track {
