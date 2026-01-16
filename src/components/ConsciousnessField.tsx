@@ -287,7 +287,10 @@ const ConsciousnessField = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      style={{ 
+        zIndex: 0,
+        opacity: 0.95
+      }}
       aria-hidden="true"
     />
   );
