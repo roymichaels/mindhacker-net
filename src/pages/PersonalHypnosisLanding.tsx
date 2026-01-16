@@ -163,9 +163,9 @@ const PersonalHypnosisLanding = () => {
               ))}
             </div>
             
-            <div className="mt-8 p-4 bg-accent/10 border border-accent/30 rounded-xl text-center">
-              <Clock className="h-6 w-6 mx-auto mb-2 text-accent" />
-              <p className="text-accent font-medium">
+            <div className={`mt-8 p-4 ${colors.bgLight} border ${colors.border}/30 rounded-xl text-center`}>
+              <Clock className={`h-6 w-6 mx-auto mb-2 ${colors.text}`} />
+              <p className={`${colors.text} font-medium`}>
                 {t('personalHypnosisLanding.readyIn')}
               </p>
             </div>
@@ -197,7 +197,7 @@ const PersonalHypnosisLanding = () => {
           <div className="container max-w-3xl mx-auto text-center">
             <div className="flex justify-center gap-1 mb-4">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-6 w-6 fill-accent text-accent" />
+                <Star key={i} className={`h-6 w-6 fill-current ${colors.text}`} />
               ))}
             </div>
             <blockquote className="text-xl md:text-2xl italic text-muted-foreground mb-6">
@@ -210,7 +210,7 @@ const PersonalHypnosisLanding = () => {
         {/* CTA Section */}
         <section className="py-20 px-4">
           <div className="container max-w-2xl mx-auto text-center">
-            <div className="glass-panel p-8 md:p-12 cyber-border">
+            <div className={`glass-panel p-8 md:p-12 border ${colors.border}/30`}>
               <h2 className="text-3xl md:text-4xl font-bold mb-4 cyber-glow">
                 {t('personalHypnosisLanding.ctaTitle')}
               </h2>
