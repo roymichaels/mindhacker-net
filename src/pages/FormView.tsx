@@ -49,6 +49,7 @@ interface FormSettings {
 
 interface Form {
   id: string;
+  access_token?: string;
   title: string;
   description: string | null;
   settings: FormSettings | null;
@@ -136,14 +137,36 @@ const FormView = () => {
   const { data: form, isLoading: formLoading, error: formError } = useQuery({
     queryKey: ["public-form", token],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!token) return null;
+
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      // 1) Try by access_token (canonical)
+      const { data: byToken, error: tokenError } = await supabase
         .from("custom_forms")
         .select("*")
         .eq("access_token", token)
         .eq("status", "published")
-        .single();
-      if (error) throw error;
-      return data as Form;
+        .maybeSingle();
+
+      if (tokenError) throw tokenError;
+      if (byToken) return byToken as Form;
+
+      // 2) Backwards-compat: support old links that used form.id (UUID)
+      if (uuidRegex.test(token)) {
+        const { data: byId, error: idError } = await supabase
+          .from("custom_forms")
+          .select("*")
+          .eq("id", token)
+          .eq("status", "published")
+          .maybeSingle();
+
+        if (idError) throw idError;
+        return (byId as Form) || null;
+      }
+
+      return null;
     },
     enabled: !!token,
     staleTime: 10 * 60 * 1000,
@@ -319,6 +342,13 @@ const FormView = () => {
     },
     [handleNext, currentField?.type, showIntro, shouldShowIntro]
   );
+
+  useEffect(() => {
+    // If someone arrived with an old UUID-based URL, redirect to the canonical access_token URL
+    if (form?.access_token && token && form.access_token !== token) {
+      navigate(`/form/${form.access_token}`, { replace: true });
+    }
+  }, [form?.access_token, token, navigate]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);

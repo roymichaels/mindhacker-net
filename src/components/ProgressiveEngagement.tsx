@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { X, Gift, Sparkles, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ const STORAGE_KEY = "progressive_engagement_shown";
 
 export const ProgressiveEngagement = () => {
   const { theme } = useThemeSettings();
+  const { settings } = useSiteSettings();
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -35,9 +37,14 @@ export const ProgressiveEngagement = () => {
 
   const handleStartJourney = () => {
     setIsVisible(false);
-    // Use access_token instead of form ID
-    const formAccessToken = theme.introspection_form_id || "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
-    navigate(`/form/${formAccessToken}`);
+
+    // Prefer the data-driven URL (site settings). Fall back to theme token.
+    const formAccessToken =
+      theme.introspection_form_id ||
+      "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
+    const url = settings.introspection_form_url || `/form/${formAccessToken}`;
+
+    navigate(url);
   };
 
   const handleNext = () => {
