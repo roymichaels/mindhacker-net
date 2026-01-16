@@ -526,6 +526,115 @@ const Theme = () => {
                   </div>
                 </div>
               )}
+
+              {/* Hero Portrait Effect Section */}
+              <div className="pt-6 border-t border-border">
+                <div className="space-y-2 mb-4">
+                  <Label className="text-lg font-semibold">{isRTL ? "אפקט תמונת פורטרט" : "Hero Portrait Effect"}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {isRTL ? "האפקט סביב התמונה בעמוד הראשי" : "Effect around the portrait on the homepage"}
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('hero_portrait_effect', 'none')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.hero_portrait_effect === 'none' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-lg">👤</span>
+                      </div>
+                      <p className="font-medium text-sm">{isRTL ? "ללא" : "None"}</p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('hero_portrait_effect', 'cyber_glow')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.hero_portrait_effect === 'cyber_glow' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/30">
+                        <span className="text-lg">✨</span>
+                      </div>
+                      <p className="font-medium text-sm">{isRTL ? "זוהר סייבר" : "Cyber Glow"}</p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('hero_portrait_effect', 'consciousness_aura')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.hero_portrait_effect === 'consciousness_aura' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-[#0a1628] to-[#1e3a5f] flex items-center justify-center border border-[#3d7a8c]/50">
+                        <span className="text-[#3d7a8c]">∞</span>
+                      </div>
+                      <p className="font-medium text-sm">{isRTL ? "הילת תודעה" : "Aura"}</p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Portrait effect settings */}
+                {localTheme.hero_portrait_effect !== 'none' && (
+                  <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>{isRTL ? "צבע זוהר (אופציונלי)" : "Glow Color (optional)"}</Label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={localTheme.hero_portrait_glow_color || '#00d4ff'}
+                            onChange={(e) => handleChange('hero_portrait_glow_color', e.target.value)}
+                            className="w-12 h-12 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={localTheme.hero_portrait_glow_color}
+                            onChange={(e) => handleChange('hero_portrait_glow_color', e.target.value)}
+                            placeholder={isRTL ? "השאר ריק לצבע נושא" : "Leave empty for theme color"}
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>{isRTL ? "מהירות אנימציה" : "Animation Speed"}</Label>
+                        <div className="flex gap-2">
+                          {(['slow', 'normal', 'fast'] as const).map((speed) => (
+                            <button
+                              key={speed}
+                              type="button"
+                              onClick={() => handleChange('hero_portrait_animation_speed', speed)}
+                              className={`flex-1 py-2 px-3 rounded-lg border transition-all text-sm ${
+                                localTheme.hero_portrait_animation_speed === speed
+                                  ? 'border-primary bg-primary/10 text-primary'
+                                  : 'border-border hover:border-primary/50'
+                              }`}
+                            >
+                              {isRTL 
+                                ? speed === 'slow' ? 'איטי' : speed === 'normal' ? 'רגיל' : 'מהיר'
+                                : speed.charAt(0).toUpperCase() + speed.slice(1)
+                              }
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
