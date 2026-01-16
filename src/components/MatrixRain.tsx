@@ -79,54 +79,70 @@ const MatrixRain = () => {
     const columns = Math.floor(window.innerWidth / fontSize / columnDensity);
     
     // Dynamic colors based on theme
-    const layers = isMobile ? [
-      {
-        drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.4,
-        opacity: 0.8,
-        color: baseColor,
-        fontSize: 14,
-        blur: 0,
-        chars: hebrewChars + symbols.substring(0, 2)
-      },
-      {
-        drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.7,
-        opacity: 1,
-        color: lightenRgb(baseColor, 80),
-        fontSize: 16,
-        blur: 0,
-        chars: chars
-      }
-    ] : [
-      {
-        drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.2,
-        opacity: 0.4,
-        color: darkenRgb(baseColor, 60),
-        fontSize: 14,
-        blur: 1,
-        chars: hebrewChars
-      },
-      {
-        drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.4,
-        opacity: 0.7,
-        color: baseColor,
-        fontSize: 16,
-        blur: 0,
-        chars: hebrewChars + symbols.substring(0, 2)
-      },
-      {
-        drops: Array(columns).fill(0).map(() => Math.random() * -100),
-        speed: 0.7,
-        opacity: 1,
-        color: lightenRgb(baseColor, 100),
-        fontSize: 18,
-        blur: 0,
-        chars: chars
-      }
-    ];
+    const lightDim = darkenRgb(baseColor, 190);
+    const lightMid = darkenRgb(baseColor, 140);
+    const lightBright = darkenRgb(baseColor, 80);
+
+    const layers = isMobile
+      ? [
+          {
+            drops: Array(columns)
+              .fill(0)
+              .map(() => Math.random() * -100),
+            speed: 0.4,
+            opacity: isLightMode ? 0.35 : 0.8,
+            color: isLightMode ? lightMid : baseColor,
+            fontSize: 14,
+            blur: 0,
+            chars: hebrewChars + symbols.substring(0, 2),
+          },
+          {
+            drops: Array(columns)
+              .fill(0)
+              .map(() => Math.random() * -100),
+            speed: 0.7,
+            opacity: isLightMode ? 0.55 : 1,
+            color: isLightMode ? lightBright : lightenRgb(baseColor, 80),
+            fontSize: 16,
+            blur: 0,
+            chars: chars,
+          },
+        ]
+      : [
+          {
+            drops: Array(columns)
+              .fill(0)
+              .map(() => Math.random() * -100),
+            speed: 0.2,
+            opacity: isLightMode ? 0.18 : 0.4,
+            color: isLightMode ? lightDim : darkenRgb(baseColor, 60),
+            fontSize: 14,
+            blur: 1,
+            chars: hebrewChars,
+          },
+          {
+            drops: Array(columns)
+              .fill(0)
+              .map(() => Math.random() * -100),
+            speed: 0.4,
+            opacity: isLightMode ? 0.35 : 0.7,
+            color: isLightMode ? lightMid : baseColor,
+            fontSize: 16,
+            blur: 0,
+            chars: hebrewChars + symbols.substring(0, 2),
+          },
+          {
+            drops: Array(columns)
+              .fill(0)
+              .map(() => Math.random() * -100),
+            speed: 0.7,
+            opacity: isLightMode ? 0.6 : 1,
+            color: isLightMode ? lightBright : lightenRgb(baseColor, 100),
+            fontSize: 18,
+            blur: 0,
+            chars: chars,
+          },
+        ];
 
     let animationFrameId: number;
     let lastFrameTime = 0;
@@ -214,13 +230,16 @@ const MatrixRain = () => {
     return null;
   }
 
+  const baseOpacity = parseFloat(theme.matrix_rain_opacity) || 0.4;
+  const canvasOpacity = isLightMode ? Math.max(0.28, baseOpacity) : baseOpacity;
+
   return (
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{
         zIndex: 0,
-        opacity: parseFloat(theme.matrix_rain_opacity) || 0.4,
+        opacity: canvasOpacity,
       }}
     />
   );
