@@ -184,6 +184,14 @@ const applyThemeToDOM = (theme: ThemeSettings) => {
   root.style.setProperty('--glass-bg', `${theme.background_h} ${theme.background_s} ${Math.min(parseInt(theme.background_l) + 8, 20)}%`);
   root.style.setProperty('--glass-border', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
   
+  // Skeleton color (lighter primary for loading states)
+  const skeletonL = Math.min(parseInt(theme.primary_l) + 30, 90);
+  root.style.setProperty('--skeleton', `${theme.primary_h} ${theme.primary_s} ${skeletonL}%`);
+  
+  // Tab active state colors
+  root.style.setProperty('--tab-active', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
+  root.style.setProperty('--tab-active-foreground', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
+  
   // Ring color (matches primary)
   root.style.setProperty('--ring', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
   

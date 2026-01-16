@@ -293,7 +293,7 @@ const FAQs = () => {
                   )}
                 </TableCell>
                 <TableCell className={isRTL ? "text-right" : "text-left"}>
-                  <span className={`px-2 py-1 rounded-full text-xs ${faq.is_active ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs ${faq.is_active ? 'bg-green-500/20 text-green-500' : 'bg-muted/50 text-muted-foreground'}`}>
                     {faq.is_active ? t('adminFaqs.active') : t('adminFaqs.inactive')}
                   </span>
                 </TableCell>
