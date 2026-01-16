@@ -83,7 +83,7 @@ const TestimonialsSection = () => {
 
   if (loading) {
     return (
-      <section className="relative py-32 px-4" style={{ zIndex: 2 }}>
+      <section className="relative py-32 px-4 bg-background" style={{ zIndex: 2 }}>
         <div className="max-w-7xl mx-auto flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -92,7 +92,7 @@ const TestimonialsSection = () => {
   }
 
   return (
-    <section id="testimonials" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <section id="testimonials" className="relative py-16 md:py-32 px-4 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 cyber-glow">

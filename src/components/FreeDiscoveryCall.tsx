@@ -36,7 +36,7 @@ const FreeDiscoveryCall = () => {
   if (!enabled) return null;
 
   return (
-    <section id="free-call" className="relative py-12 md:py-20 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <section id="free-call" className="relative py-12 md:py-20 px-4 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-10 border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
           <div className="text-center mb-6">

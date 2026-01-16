@@ -52,7 +52,7 @@ const HowSection = () => {
   ];
 
   return (
-    <section ref={sectionRef} id="how" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section ref={sectionRef} id="how" className="relative py-16 md:py-32 px-4 bg-background" style={{ zIndex: 2 }}>
       <div className="max-w-6xl mx-auto">
         <h2 className={`text-3xl md:text-5xl font-black mb-8 md:mb-16 text-center cyber-glow ${isVisible ? 'animate-fade-in-up' : ''}`}>
           {t('howSection.title')}

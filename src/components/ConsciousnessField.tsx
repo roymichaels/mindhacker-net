@@ -1,6 +1,7 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, memo, useState } from "react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { hslToRgb } from "@/lib/colorUtils";
+import { useTheme } from "next-themes";
 
 // Abstract glyphs for consciousness field effect
 const GLYPHS = [
@@ -31,7 +32,13 @@ const ConsciousnessField = () => {
   const mouseRef = useRef({ x: -1000, y: -1000 });
   const scrollRef = useRef(0);
   const breathPhaseRef = useRef(0);
-  const { theme, loading } = useThemeSettings();
+  const { theme: themeSettings, loading } = useThemeSettings();
+  const { resolvedTheme } = useTheme();
+  
+  // Hide in light mode
+  if (resolvedTheme === 'light') {
+    return null;
+  }
 
   useEffect(() => {
     if (loading) return;
@@ -44,20 +51,20 @@ const ConsciousnessField = () => {
 
     // Derive colors from theme HSL values
     // Background/primary: use background HSL (darkened)
-    const bgH = parseFloat(theme.background_h) || 220;
-    const bgS = parseFloat(theme.background_s) || 60;
-    const bgL = Math.max((parseFloat(theme.background_l) || 8) - 3, 3);
+    const bgH = parseFloat(themeSettings.background_h) || 220;
+    const bgS = parseFloat(themeSettings.background_s) || 60;
+    const bgL = Math.max((parseFloat(themeSettings.background_l) || 8) - 3, 3);
     const primaryColor = hslToRgb(bgH, bgS, bgL);
 
     // Accent: use primary theme color HSL
-    const primaryH = parseFloat(theme.primary_h) || 174;
-    const primaryS = parseFloat(theme.primary_s) || 100;
-    const primaryL = parseFloat(theme.primary_l) || 42;
+    const primaryH = parseFloat(themeSettings.primary_h) || 174;
+    const primaryS = parseFloat(themeSettings.primary_s) || 100;
+    const primaryL = parseFloat(themeSettings.primary_l) || 42;
     const accentColor = hslToRgb(primaryH, primaryS, primaryL);
 
-    const particleDensity = parseFloat(theme.consciousness_field_particle_density || "0.6");
-    const breathingSpeed = parseFloat(theme.consciousness_field_breathing_speed || "10");
-    const interactionEnabled = theme.consciousness_field_interaction !== false;
+    const particleDensity = parseFloat(themeSettings.consciousness_field_particle_density || "0.6");
+    const breathingSpeed = parseFloat(themeSettings.consciousness_field_breathing_speed || "10");
+    const interactionEnabled = themeSettings.consciousness_field_interaction !== false;
 
     // Handle DPI scaling
     const dpr = window.devicePixelRatio || 1;
@@ -276,15 +283,15 @@ const ConsciousnessField = () => {
     };
   }, [
     loading,
-    theme.background_h,
-    theme.background_s,
-    theme.background_l,
-    theme.primary_h,
-    theme.primary_s,
-    theme.primary_l,
-    theme.consciousness_field_particle_density,
-    theme.consciousness_field_breathing_speed,
-    theme.consciousness_field_interaction
+    themeSettings.background_h,
+    themeSettings.background_s,
+    themeSettings.background_l,
+    themeSettings.primary_h,
+    themeSettings.primary_s,
+    themeSettings.primary_l,
+    themeSettings.consciousness_field_particle_density,
+    themeSettings.consciousness_field_breathing_speed,
+    themeSettings.consciousness_field_interaction
   ]);
 
   return (

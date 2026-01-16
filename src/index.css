@@ -127,6 +127,13 @@ All colors MUST be HSL.
     @apply bg-gradient-to-b from-background to-[hsl(var(--background-end))] text-foreground font-['Heebo'] overflow-x-hidden;
   }
   
+  /* Light mode body - override the dark gradient */
+  :root.light body,
+  .light body,
+  html.light body {
+    background: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(210 20% 96%) 100%) !important;
+  }
+  
   h1, h2, h3, h4, h5, h6 {
     @apply font-['Heebo'];
   }
@@ -139,7 +146,26 @@ All colors MUST be HSL.
   
   /* Light mode: use shadows instead of glows */
   .light .glass-panel {
-    @apply bg-white/90 backdrop-blur-xl border border-gray-200 shadow-lg;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid hsl(214 25% 85%) !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07) !important;
+  }
+  
+  /* Hide canvas-based background effects in light mode */
+  .light canvas[aria-hidden="true"],
+  html.light canvas[aria-hidden="true"] {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  
+  /* Hide consciousness pulse in light mode */
+  .light .consciousness-pulse {
+    opacity: 0 !important;
+  }
+  
+  .light .animate-breathe {
+    opacity: 0.05 !important;
+    animation: none !important;
   }
   
   .cyber-glow {

@@ -52,7 +52,7 @@ const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <section id="about" className="relative py-16 md:py-32 px-4 bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="glass-panel p-6 md:p-12">
           {/* Profile Image */}

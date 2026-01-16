@@ -178,18 +178,18 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
 
   return (
     <aside className={cn(
-      "w-72 glass-panel flex flex-col",
+      "w-72 flex flex-col bg-card border-border shadow-lg",
       isMobile 
-        ? "h-full border-l rtl:border-l-0 rtl:border-r border-primary/20" 
-        : "h-screen border-r rtl:border-r-0 rtl:border-l border-primary/20"
+        ? "h-full border-l rtl:border-l-0 rtl:border-r" 
+        : "h-screen border-r rtl:border-r-0 rtl:border-l"
     )} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="p-4 border-b border-primary/20 flex-shrink-0">
-        <h2 className="text-xl font-black cyber-glow text-center">{t('admin.panelTitle')}</h2>
+      <div className="p-4 border-b border-border flex-shrink-0">
+        <h2 className="text-xl font-black text-primary text-center">{t('admin.panelTitle')}</h2>
       </div>
 
       {/* Quick Actions */}
-      <div className="p-3 border-b border-primary/20 flex-shrink-0">
+      <div className="p-3 border-b border-border flex-shrink-0">
         <div className="flex gap-2">
           <Button 
             size="sm" 
