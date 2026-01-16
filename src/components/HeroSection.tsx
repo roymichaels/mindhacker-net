@@ -145,14 +145,7 @@ const HeroSection = () => {
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent -skew-x-12 group-hover:animate-shimmer" />
             
-            {/* Free badge - prominent */}
-            <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
-              <div className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-accent/40 animate-pulse">
-                {t('hero.freeGift')}
-              </div>
-            </div>
-            
-            <div className="relative mt-6">
+            <div className="relative">
               <div className="flex justify-center mb-3">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent/30 to-accent/20 border-2 border-accent flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-accent/20">
                   <Gift className="w-8 h-8 text-accent" />
@@ -175,6 +168,14 @@ const HeroSection = () => {
                 {t('hero.startFree')}
                 <ArrowIcon className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
               </Button>
+              
+              {/* Free badge - below CTA */}
+              <div className="flex justify-center mt-3">
+                <div className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-accent/40 animate-pulse">
+                  <Gift className="w-3 h-3 inline-block mr-1" />
+                  {t('hero.freeGift')}
+                </div>
+              </div>
             </div>
           </Card>
 
