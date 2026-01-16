@@ -1,5 +1,6 @@
 /**
  * SEO Utilities - Manage meta tags, Open Graph, and structured data
+ * Data-driven: All brand information should be passed as parameters
  */
 
 export interface SEOConfig {
@@ -12,12 +13,24 @@ export interface SEOConfig {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  siteName?: string;
 }
 
 export interface StructuredData {
   '@context': string;
   '@type': string;
   [key: string]: any;
+}
+
+export interface BrandSettings {
+  brandName: string;
+  brandNameEn: string;
+  founderName?: string;
+  founderNameEn?: string;
+  founderTitle?: string;
+  founderTitleEn?: string;
+  siteUrl?: string;
+  ogImageUrl?: string;
 }
 
 /**
@@ -34,6 +47,7 @@ export const updateMetaTags = (config: SEOConfig) => {
     author,
     publishedTime,
     modifiedTime,
+    siteName,
   } = config;
 
   // Update title
@@ -65,7 +79,7 @@ export const updateMetaTags = (config: SEOConfig) => {
   setMetaTag('og:url', url, true);
   setMetaTag('og:type', type, true);
   setMetaTag('og:locale', 'he_IL', true);
-  setMetaTag('og:site_name', 'מיינד-האקר', true);
+  if (siteName) setMetaTag('og:site_name', siteName, true);
 
   // Twitter Card tags
   setMetaTag('twitter:card', 'summary_large_image');
@@ -111,19 +125,20 @@ export const addStructuredData = (data: StructuredData | StructuredData[]) => {
 
 /**
  * Generate Organization structured data
+ * @param brand - Optional brand settings. If not provided, uses defaults.
  */
-export const getOrganizationSchema = (): StructuredData => ({
+export const getOrganizationSchema = (brand?: BrandSettings): StructuredData => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'מיינד-האקר - דין אזולאי',
-  alternateName: 'Mind Hacker',
-  url: window.location.origin,
-  logo: 'https://lovable.dev/opengraph-image-p98pqg.png',
+  name: brand?.brandName || 'מיינד-האקר',
+  alternateName: brand?.brandNameEn || 'Mind Hacker',
+  url: brand?.siteUrl || window.location.origin,
+  logo: brand?.ogImageUrl || 'https://lovable.dev/opengraph-image-p98pqg.png',
   description: 'אימון תודעתי עמוק, תכנות תודעה מתקדם, היפנוזה מודעת',
   founder: {
     '@type': 'Person',
-    name: 'דין אזולאי',
-    jobTitle: 'מאמן תודעה',
+    name: brand?.founderName || 'דין אזולאי',
+    jobTitle: brand?.founderTitle || 'מאמן תודעה',
   },
   contactPoint: {
     '@type': 'ContactPoint',
@@ -198,16 +213,17 @@ export const getProductSchema = (product: {
 
 /**
  * Generate WebSite structured data
+ * @param brand - Optional brand settings. If not provided, uses defaults.
  */
-export const getWebsiteSchema = (): StructuredData => ({
+export const getWebsiteSchema = (brand?: BrandSettings): StructuredData => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'מיינד-האקר',
-  alternateName: 'Mind Hacker',
-  url: window.location.origin,
+  name: brand?.brandName || 'מיינד-האקר',
+  alternateName: brand?.brandNameEn || 'Mind Hacker',
+  url: brand?.siteUrl || window.location.origin,
   potentialAction: {
     '@type': 'SearchAction',
-    target: `${window.location.origin}/courses?search={search_term_string}`,
+    target: `${brand?.siteUrl || window.location.origin}/courses?search={search_term_string}`,
     'query-input': 'required name=search_term_string',
   },
 });

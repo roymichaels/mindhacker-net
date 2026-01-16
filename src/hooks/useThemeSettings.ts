@@ -8,10 +8,17 @@ export interface ThemeSettings {
   company_legal_name: string;
   company_country: string;
   
+  // Founder info
+  founder_name: string;
+  founder_name_en: string;
+  founder_title: string;
+  founder_title_en: string;
+  
   // Colors (HSL components)
   primary_h: string;
   primary_s: string;
   primary_l: string;
+  primary_glow_l: string;
   secondary_h: string;
   secondary_s: string;
   secondary_l: string;
@@ -21,6 +28,12 @@ export interface ThemeSettings {
   background_h: string;
   background_s: string;
   background_l: string;
+  foreground_h: string;
+  foreground_s: string;
+  foreground_l: string;
+  muted_h: string;
+  muted_s: string;
+  muted_l: string;
   
   // Typography
   font_family_primary: string;
@@ -34,6 +47,8 @@ export interface ThemeSettings {
   // Assets
   logo_url: string;
   favicon_url: string;
+  og_image_url: string;
+  site_url: string;
   
   // Localization
   default_language: string;
@@ -55,9 +70,14 @@ const defaultTheme: ThemeSettings = {
   brand_name_en: "Mind Hacker",
   company_legal_name: "Mind Hacker OÜ",
   company_country: "Estonia",
+  founder_name: "דין אושר אזולאי",
+  founder_name_en: "Dean Osher Azulay",
+  founder_title: "מאמן תודעה",
+  founder_title_en: "Consciousness Coach",
   primary_h: "187",
   primary_s: "100%",
   primary_l: "50%",
+  primary_glow_l: "70",
   secondary_h: "217",
   secondary_s: "91%",
   secondary_l: "60%",
@@ -67,6 +87,12 @@ const defaultTheme: ThemeSettings = {
   background_h: "222",
   background_s: "47%",
   background_l: "11%",
+  foreground_h: "210",
+  foreground_s: "40%",
+  foreground_l: "98%",
+  muted_h: "215",
+  muted_s: "40%",
+  muted_l: "15%",
   font_family_primary: "Heebo",
   font_family_secondary: "inherit",
   matrix_rain_enabled: true,
@@ -74,6 +100,8 @@ const defaultTheme: ThemeSettings = {
   matrix_rain_opacity: "0.15",
   logo_url: "",
   favicon_url: "",
+  og_image_url: "",
+  site_url: "https://mind-hacker.net",
   default_language: "he",
 };
 
@@ -89,6 +117,10 @@ const applyThemeToDOM = (theme: ThemeSettings) => {
   // Primary color
   root.style.setProperty('--primary', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
   
+  // Primary glow (brighter version for effects)
+  const glowL = theme.primary_glow_l || String(Math.min(parseInt(theme.primary_l) + 20, 100));
+  root.style.setProperty('--primary-glow', `${theme.primary_h} ${theme.primary_s} ${glowL}%`);
+  
   // Secondary color
   root.style.setProperty('--secondary', `${theme.secondary_h} ${theme.secondary_s} ${theme.secondary_l}`);
   
@@ -97,6 +129,25 @@ const applyThemeToDOM = (theme: ThemeSettings) => {
   
   // Background color
   root.style.setProperty('--background', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
+  
+  // Foreground color
+  root.style.setProperty('--foreground', `${theme.foreground_h} ${theme.foreground_s} ${theme.foreground_l}`);
+  
+  // Muted color
+  root.style.setProperty('--muted', `${theme.muted_h} ${theme.muted_s} ${theme.muted_l}`);
+  root.style.setProperty('--muted-foreground', `${theme.foreground_h} 30% 60%`);
+  
+  // Card and popover (derived from background)
+  const cardL = Math.min(parseInt(theme.background_l) + 5, 100);
+  root.style.setProperty('--card', `${theme.background_h} ${theme.background_s} ${cardL}%`);
+  root.style.setProperty('--popover', `${theme.background_h} ${theme.background_s} ${cardL}%`);
+  
+  // Border (derived from background)
+  const borderL = Math.min(parseInt(theme.background_l) + 15, 100);
+  root.style.setProperty('--border', `${theme.background_h} 30% ${borderL}%`);
+  
+  // Ring color (matches primary)
+  root.style.setProperty('--ring', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
   
   // Font family
   if (theme.font_family_primary) {

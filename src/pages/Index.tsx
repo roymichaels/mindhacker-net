@@ -2,8 +2,9 @@ import { lazy, Suspense } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
-import { getOrganizationSchema, getWebsiteSchema } from "@/lib/seo";
+import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 // Note: AffiliateTracker is rendered globally in App.tsx
 
 // Lazy load below-the-fold components - ordered by journey progression
@@ -16,7 +17,20 @@ const FAQSection = lazy(() => import("@/components/FAQSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
+  const { theme } = useThemeSettings();
+  
+  // Build brand settings from theme for SEO
+  const brandSettings: BrandSettings = {
+    brandName: theme.brand_name,
+    brandNameEn: theme.brand_name_en,
+    founderName: theme.founder_name,
+    founderNameEn: theme.founder_name_en,
+    founderTitle: theme.founder_title,
+    founderTitleEn: theme.founder_title_en,
+    siteUrl: theme.site_url || window.location.origin,
+    ogImageUrl: theme.og_image_url,
+  };
   
   // Affiliate tracking is handled globally by AffiliateTracker component
 
@@ -26,7 +40,11 @@ const Index = () => {
     keywords: t('seo.indexKeywords'),
     url: window.location.origin,
     type: "website",
-    structuredData: [getOrganizationSchema(), getWebsiteSchema()],
+    siteName: isRTL ? theme.brand_name : theme.brand_name_en,
+    structuredData: [
+      getOrganizationSchema(brandSettings), 
+      getWebsiteSchema(brandSettings)
+    ],
   });
 
   return (

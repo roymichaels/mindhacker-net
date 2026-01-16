@@ -23,8 +23,6 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Menu, Settings, ShoppingBag, Sparkles, Globe } from "lucide-react";
-// Use the icon from public folder which has transparent background
-const logo = "/icons/icon-96x96.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -33,8 +31,12 @@ import { NotificationBell } from "./admin/NotificationBell";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
+
+// Default logo from public folder
+const defaultLogo = "/icons/icon-96x96.png";
 
 const Header = () => {
   const { user, loading } = useAuth();
@@ -46,6 +48,11 @@ const Header = () => {
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
   const { t, isRTL } = useTranslation();
   const { language, setLanguage } = useLanguage();
+  const { theme } = useThemeSettings();
+
+  // Get brand name from theme settings based on language
+  const brandName = isRTL ? theme.brand_name : theme.brand_name_en;
+  const logoUrl = theme.logo_url || defaultLogo;
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -91,9 +98,9 @@ const Header = () => {
         <div className="container flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={logo} alt={t('header.brandName')} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+            <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
             <span className="font-black text-lg cyber-glow">
-              {t('header.brandName')}
+              {brandName}
             </span>
           </Link>
 
