@@ -49,7 +49,7 @@ const ConsciousnessField = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
     // Derive colors from theme HSL values
