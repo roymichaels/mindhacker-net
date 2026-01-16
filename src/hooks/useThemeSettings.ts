@@ -145,64 +145,93 @@ let cacheTimestamp: number = 0;
 const CACHE_DURATION = 60000; // 1 minute
 
 // Apply theme to CSS custom properties
-const applyThemeToDOM = (theme: ThemeSettings) => {
+// NOTE: We split "brand" variables (should apply in both modes)
+// from "surface" variables (background/foreground/etc.) that should be
+// controlled by the light/dark mode CSS.
+export const applyThemeBrandToDOM = (theme: ThemeSettings) => {
   const root = document.documentElement;
-  
+
   // Primary color
   root.style.setProperty('--primary', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
-  
+
   // Primary glow (brighter version for effects)
   const glowL = theme.primary_glow_l || String(Math.min(parseInt(theme.primary_l) + 20, 100));
   root.style.setProperty('--primary-glow', `${theme.primary_h} ${theme.primary_s} ${glowL}%`);
-  
+
   // Secondary color
   root.style.setProperty('--secondary', `${theme.secondary_h} ${theme.secondary_s} ${theme.secondary_l}`);
-  
+
   // Accent color
   root.style.setProperty('--accent', `${theme.accent_h} ${theme.accent_s} ${theme.accent_l}`);
-  
-  // Background color
-  root.style.setProperty('--background', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
-  
-  // Foreground color
-  root.style.setProperty('--foreground', `${theme.foreground_h} ${theme.foreground_s} ${theme.foreground_l}`);
-  
-  // Muted color
-  root.style.setProperty('--muted', `${theme.muted_h} ${theme.muted_s} ${theme.muted_l}`);
-  root.style.setProperty('--muted-foreground', `${theme.foreground_h} 30% 60%`);
-  
-  // Card and popover (derived from background)
-  const cardL = Math.min(parseInt(theme.background_l) + 5, 100);
-  root.style.setProperty('--card', `${theme.background_h} ${theme.background_s} ${cardL}%`);
-  root.style.setProperty('--popover', `${theme.background_h} ${theme.background_s} ${cardL}%`);
-  
-  // Border (derived from background)
-  const borderL = Math.min(parseInt(theme.background_l) + 15, 100);
-  root.style.setProperty('--border', `${theme.background_h} 30% ${borderL}%`);
-  
-  // Glass panel variables (derived from theme)
-  root.style.setProperty('--glass-bg', `${theme.background_h} ${theme.background_s} ${Math.min(parseInt(theme.background_l) + 8, 20)}%`);
-  root.style.setProperty('--glass-border', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
-  
-  // Skeleton color (lighter primary for loading states)
-  const skeletonL = Math.min(parseInt(theme.primary_l) + 30, 90);
-  root.style.setProperty('--skeleton', `${theme.primary_h} ${theme.primary_s} ${skeletonL}%`);
-  
-  // Tab active state colors
-  root.style.setProperty('--tab-active', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
-  root.style.setProperty('--tab-active-foreground', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
-  
+
   // Ring color (matches primary)
   root.style.setProperty('--ring', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
-  
+
   // Font family
   if (theme.font_family_primary) {
     root.style.setProperty('--font-primary', theme.font_family_primary);
   }
-  
+
   // Matrix rain color (as CSS variable for components)
   root.style.setProperty('--matrix-rain-color', theme.matrix_rain_color);
   root.style.setProperty('--matrix-rain-opacity', theme.matrix_rain_opacity);
+};
+
+export const applyThemeSurfaceToDOM = (theme: ThemeSettings) => {
+  const root = document.documentElement;
+
+  // Background / text palette (these override light/dark defaults)
+  root.style.setProperty('--background', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
+  root.style.setProperty('--foreground', `${theme.foreground_h} ${theme.foreground_s} ${theme.foreground_l}`);
+
+  // Muted color
+  root.style.setProperty('--muted', `${theme.muted_h} ${theme.muted_s} ${theme.muted_l}`);
+  root.style.setProperty('--muted-foreground', `${theme.foreground_h} 30% 60%`);
+
+  // Card and popover (derived from background)
+  const cardL = Math.min(parseInt(theme.background_l) + 5, 100);
+  root.style.setProperty('--card', `${theme.background_h} ${theme.background_s} ${cardL}%`);
+  root.style.setProperty('--popover', `${theme.background_h} ${theme.background_s} ${cardL}%`);
+
+  // Border (derived from background)
+  const borderL = Math.min(parseInt(theme.background_l) + 15, 100);
+  root.style.setProperty('--border', `${theme.background_h} 30% ${borderL}%`);
+
+  // Glass panel variables (derived from theme)
+  root.style.setProperty('--glass-bg', `${theme.background_h} ${theme.background_s} ${Math.min(parseInt(theme.background_l) + 8, 20)}%`);
+  root.style.setProperty('--glass-border', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
+
+  // Skeleton color (lighter primary for loading states)
+  const skeletonL = Math.min(parseInt(theme.primary_l) + 30, 90);
+  root.style.setProperty('--skeleton', `${theme.primary_h} ${theme.primary_s} ${skeletonL}%`);
+
+  // Tab active state colors
+  root.style.setProperty('--tab-active', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
+  root.style.setProperty('--tab-active-foreground', `${theme.background_h} ${theme.background_s} ${theme.background_l}`);
+};
+
+export const clearThemeSurfaceOverrides = () => {
+  const root = document.documentElement;
+  [
+    '--background',
+    '--foreground',
+    '--muted',
+    '--muted-foreground',
+    '--card',
+    '--popover',
+    '--border',
+    '--glass-bg',
+    '--glass-border',
+    '--skeleton',
+    '--tab-active',
+    '--tab-active-foreground',
+  ].forEach((key) => root.style.removeProperty(key));
+};
+
+// Backwards-compatible helper
+const applyThemeToDOM = (theme: ThemeSettings) => {
+  applyThemeBrandToDOM(theme);
+  applyThemeSurfaceToDOM(theme);
 };
 
 export const useThemeSettings = () => {
@@ -213,7 +242,8 @@ export const useThemeSettings = () => {
     // Use cache if valid
     if (cachedTheme && Date.now() - cacheTimestamp < CACHE_DURATION) {
       setTheme(cachedTheme);
-      applyThemeToDOM(cachedTheme);
+      // Always apply brand variables; surface palette is controlled by light/dark mode
+      applyThemeBrandToDOM(cachedTheme);
       setLoading(false);
       return;
     }
@@ -226,7 +256,7 @@ export const useThemeSettings = () => {
       if (error) throw error;
 
       const themeObj = { ...defaultTheme };
-      
+
       if (data) {
         data.forEach((item) => {
           const key = item.setting_key as keyof ThemeSettings;
@@ -243,10 +273,11 @@ export const useThemeSettings = () => {
       cachedTheme = themeObj;
       cacheTimestamp = Date.now();
       setTheme(themeObj);
-      applyThemeToDOM(themeObj);
+      // Always apply brand variables; surface palette is controlled by light/dark mode
+      applyThemeBrandToDOM(themeObj);
     } catch (error) {
       console.error("Error fetching theme settings:", error);
-      applyThemeToDOM(defaultTheme);
+      applyThemeBrandToDOM(defaultTheme);
     } finally {
       setLoading(false);
     }
