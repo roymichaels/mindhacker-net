@@ -45,6 +45,7 @@ export const he = {
     myDashboard: "הדאשבורד שלי",
     notifications: "התראות",
     startChangeNow: "התחל שינוי עכשיו",
+    startShort: "התחל",
     chooseYourPath: "בחר את המסלול שלך",
   },
   auth: {

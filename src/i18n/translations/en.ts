@@ -47,6 +47,7 @@ export const en: TranslationKeys = {
     myDashboard: "My Dashboard",
     notifications: "Notifications",
     startChangeNow: "Start Change Now",
+    startShort: "Start",
     chooseYourPath: "Choose Your Path",
   },
   auth: {
