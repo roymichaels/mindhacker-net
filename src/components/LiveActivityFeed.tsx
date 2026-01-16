@@ -1,108 +1,140 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
 import { Users } from "lucide-react";
 
 interface Activity {
   id: string;
-  type: "viewing" | "started" | "completed";
-  name: string;
+  type: string;
   action: string;
   timestamp: Date;
 }
 
-// Default Hebrew first names for realistic activity
-const defaultHebrewNames = [
-  "שרה", "דניאל", "נועה", "יובל", "מיכל", "אורי", "תמר", "איתי", "ליאור", "גיל",
-  "רונית", "עומר", "הדר", "אריאל", "מאיה", "יונתן", "שירה", "רועי", "ענת", "עידו"
-];
-
-const defaultEnglishNames = [
-  "Yoav", "Noa", "Tamar", "Oren", "Maya", "Gal", "Shira", "Eitan", "Lior", "Amit",
-  "Yael", "Rotem", "Hila", "Ido", "Talia", "Omer", "Dana", "Ariel", "Shani", "Tomer"
-];
-
-const generateRandomActivity = (language: string, customNamesHe?: string[], customNamesEn?: string[]): Activity => {
-  const hebrewNames = customNamesHe?.length ? customNamesHe : defaultHebrewNames;
-  const englishNames = customNamesEn?.length ? customNamesEn : defaultEnglishNames;
-  const names = language === "he" ? hebrewNames : englishNames;
-  const name = names[Math.floor(Math.random() * names.length)];
-  
-  const actions = language === "he" 
-    ? [
-        "התחיל/ה את מסע ההתבוננות",
-        "צופה בעמוד",
-        "הוריד/ה את המתנה החינמית",
-        "השלים/ה את השאלון",
-        "נרשם/ה לייעוץ חינם"
-      ]
-    : [
-        "started the introspection journey",
-        "is viewing the page",
-        "downloaded the free gift",
-        "completed the questionnaire",
-        "signed up for free consultation"
-      ];
-  
-  return {
-    id: Math.random().toString(36).substring(7),
-    type: "started",
-    name,
-    action: actions[Math.floor(Math.random() * actions.length)],
-    timestamp: new Date()
+// Map conversion event types to user-friendly action text
+const getActionText = (eventType: string, language: string): string => {
+  const actionsHe: Record<string, string> = {
+    form_start: "התחיל/ה את מסע ההתבוננות",
+    form_complete: "השלים/ה את השאלון",
+    cta_click: "לחץ/ה על כפתור",
+    video_play: "צופה בסרטון",
+    lead_submit: "השאיר/ה פרטים",
+    page_view: "צופה בעמוד",
   };
+  
+  const actionsEn: Record<string, string> = {
+    form_start: "started the introspection journey",
+    form_complete: "completed the questionnaire",
+    cta_click: "clicked a button",
+    video_play: "is watching a video",
+    lead_submit: "submitted their details",
+    page_view: "is viewing the page",
+  };
+  
+  const actions = language === "he" ? actionsHe : actionsEn;
+  return actions[eventType] || (language === "he" ? "פעיל/ה באתר" : "is active on the site");
 };
 
 export const LiveActivityFeed = () => {
-  const { t, language, isRTL } = useTranslation();
-  const { settings } = useSiteSettings();
+  const { t, language } = useTranslation();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentViewers, setCurrentViewers] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Parse custom names from settings (comma-separated) - use defaults if not configured
-  const customNamesHe = (settings as any).activity_names_he?.split(',').map((n: string) => n.trim()).filter(Boolean);
-  const customNamesEn = (settings as any).activity_names_en?.split(',').map((n: string) => n.trim()).filter(Boolean);
 
-  // Initialize viewer count - always 1 for boutique feel
-  useEffect(() => {
-    setCurrentViewers(1);
+  // Fetch real active viewers from page_views (last 5 minutes)
+  const fetchActiveViewers = async () => {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     
-    // Show after 3 seconds
-    const showTimer = setTimeout(() => setIsVisible(true), 3000);
+    const { count } = await supabase
+      .from('page_views')
+      .select('session_id', { count: 'exact', head: true })
+      .gte('entered_at', fiveMinutesAgo);
+    
+    setCurrentViewers(count || 0);
+  };
+
+  // Fetch real recent activities from conversion_events
+  const fetchRecentActivities = async () => {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    
+    const { data } = await supabase
+      .from('conversion_events')
+      .select('id, event_type, created_at')
+      .in('event_type', ['form_start', 'form_complete', 'cta_click', 'video_play', 'lead_submit'])
+      .gte('created_at', tenMinutesAgo)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    
+    if (data && data.length > 0) {
+      const mappedActivities: Activity[] = data.map(event => ({
+        id: event.id,
+        type: event.event_type,
+        action: getActionText(event.event_type, language),
+        timestamp: new Date(event.created_at || Date.now()),
+      }));
+      setActivities(mappedActivities);
+    } else {
+      setActivities([]);
+    }
+  };
+
+  // Initial data fetch and realtime subscription
+  useEffect(() => {
+    // Initial fetch
+    fetchActiveViewers();
+    fetchRecentActivities();
+    
+    // Show after 2 seconds
+    const showTimer = setTimeout(() => setIsVisible(true), 2000);
+
+    // Refresh viewer count every 30 seconds
+    const viewerInterval = setInterval(fetchActiveViewers, 30000);
+    
+    // Refresh activities every 60 seconds
+    const activityInterval = setInterval(fetchRecentActivities, 60000);
+
+    // Set up realtime subscription for new conversion events
+    const channel = supabase
+      .channel('live-activity-feed')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversion_events'
+        },
+        (payload) => {
+          const event = payload.new as { id: string; event_type: string; created_at: string };
+          
+          // Only show specific event types
+          const trackableEvents = ['form_start', 'form_complete', 'cta_click', 'video_play', 'lead_submit'];
+          if (!trackableEvents.includes(event.event_type)) return;
+          
+          const newActivity: Activity = {
+            id: event.id,
+            type: event.event_type,
+            action: getActionText(event.event_type, language),
+            timestamp: new Date(event.created_at || Date.now()),
+          };
+          
+          setActivities(prev => [newActivity, ...prev].slice(0, 5));
+        }
+      )
+      .subscribe();
 
     return () => {
       clearTimeout(showTimer);
-    };
-  }, []);
-
-  // Generate random activities - very infrequent (once every 3-10 minutes)
-  useEffect(() => {
-    const generateActivity = () => {
-      const newActivity = generateRandomActivity(language, customNamesHe, customNamesEn);
-      setActivities([newActivity]); // Only 1 activity max
-      
-      // Remove after 6 seconds
-      setTimeout(() => {
-        setActivities([]);
-      }, 6000);
-    };
-
-    // First activity after 3 minutes (180 seconds)
-    const firstTimer = setTimeout(generateActivity, 180000);
-    
-    // Then every 3-10 minutes (180-600 seconds)
-    const interval = setInterval(generateActivity, 180000 + Math.random() * 420000);
-
-    return () => {
-      clearTimeout(firstTimer);
-      clearInterval(interval);
+      clearInterval(viewerInterval);
+      clearInterval(activityInterval);
+      supabase.removeChannel(channel);
     };
   }, [language]);
 
   if (!isVisible) return null;
+
+  const noActivityText = language === 'he' ? 'אין פעילות אחרונה' : 'No recent activity';
+  const anonymousUser = language === 'he' ? 'מישהו' : 'Someone';
 
   return (
     <div className="fixed bottom-4 left-4 z-30 pointer-events-none">
@@ -116,27 +148,33 @@ export const LiveActivityFeed = () => {
         >
           <div className="relative">
             <Users className="h-3.5 w-3.5 text-primary" />
-            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+            {currentViewers > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+            )}
           </div>
           <span className="text-primary font-bold">{currentViewers}</span>
         </motion.button>
 
         {/* Expanded activity on mobile - only when clicked */}
         <AnimatePresence>
-          {isExpanded && activities.length > 0 && (
+          {isExpanded && (
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9 }}
               className="glass-panel px-3 py-2 mt-1 max-w-[220px] border-primary/30 pointer-events-auto"
             >
-              <div className="flex items-start gap-1.5">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1 animate-pulse flex-shrink-0" />
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-primary">{activities[0].name}</span>{" "}
-                  <span className="text-muted-foreground">{activities[0].action}</span>
-                </p>
-              </div>
+              {activities.length > 0 ? (
+                <div className="flex items-start gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1 animate-pulse flex-shrink-0" />
+                  <p className="text-xs text-foreground">
+                    <span className="font-semibold text-primary">{anonymousUser}</span>{" "}
+                    <span className="text-muted-foreground">{activities[0].action}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">{noActivityText}</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -151,7 +189,9 @@ export const LiveActivityFeed = () => {
         >
           <div className="relative">
             <Users className="h-4 w-4 text-primary" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            {currentViewers > 0 && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            )}
           </div>
           <span className="text-muted-foreground">
             <span className="text-primary font-bold">{currentViewers}</span> {t('liveActivity.viewingNow')}
@@ -160,7 +200,7 @@ export const LiveActivityFeed = () => {
 
         {/* Activity notifications - Desktop */}
         <AnimatePresence mode="popLayout">
-          {activities.map((activity) => (
+          {activities.slice(0, 3).map((activity) => (
             <motion.div
               key={activity.id}
               initial={{ opacity: 0, x: -100, scale: 0.8 }}
@@ -172,7 +212,7 @@ export const LiveActivityFeed = () => {
               <div className="flex items-start gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 animate-pulse flex-shrink-0" />
                 <p className="text-sm text-foreground">
-                  <span className="font-semibold text-primary">{activity.name}</span>{" "}
+                  <span className="font-semibold text-primary">{anonymousUser}</span>{" "}
                   <span className="text-muted-foreground">{activity.action}</span>
                 </p>
               </div>

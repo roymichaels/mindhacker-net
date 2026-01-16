@@ -162,21 +162,32 @@ const Analytics = () => {
 
       const monthlyTrends = await fetchMonthlyTrends();
 
+      // Fetch enrollments first (without profile join to avoid 400 error)
       const { data: recentEnrollments } = await supabase
         .from("course_enrollments")
         .select(`
           id,
+          user_id,
           enrolled_at,
-          profiles(full_name),
           content_products(title)
         `)
         .order("enrolled_at", { ascending: false })
         .limit(10);
 
+      // Fetch profiles separately for the user_ids
+      const userIds = recentEnrollments?.map(e => e.user_id).filter(Boolean) || [];
+      const { data: profiles } = userIds.length > 0 
+        ? await supabase.from("profiles").select("id, full_name").in("id", userIds)
+        : { data: [] };
+      
+      const profileMap = new Map<string, string>(
+        (profiles || []).map(p => [p.id, p.full_name || ''] as [string, string])
+      );
+
       const activity = recentEnrollments?.map(e => ({
         id: e.id,
-        type: "enrollment",
-        user_name: (e.profiles as any)?.full_name || t('common.unknown'),
+        type: "enrollment" as const,
+        user_name: profileMap.get(e.user_id) || t('common.unknown'),
         course_title: (e.content_products as any)?.title || t('common.unknown'),
         created_at: e.enrolled_at || "",
       })) || [];
