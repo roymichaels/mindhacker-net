@@ -41,7 +41,7 @@ const WhatSection = () => {
   ];
 
   return (
-    <section ref={sectionRef} id="what" className="relative py-16 md:py-32 px-4" style={{ zIndex: 2 }}>
+    <section ref={sectionRef} id="what" className="relative py-16 md:py-32 px-4 bg-background" style={{ zIndex: 2 }}>
       <div className="max-w-4xl mx-auto">
         <div className={`glass-panel p-6 md:p-12 ${isVisible ? 'animate-fade-in-up' : ''}`}>
           <h2 className="text-3xl md:text-5xl font-black mb-6 md:mb-8 text-center cyber-glow">

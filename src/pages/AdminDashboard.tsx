@@ -7,7 +7,7 @@ const AdminDashboard = () => {
   const { isRTL } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-background relative z-10" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-background text-foreground relative z-10" dir={isRTL ? "rtl" : "ltr"}>
       <Header variant="admin" />
       <div className="flex">
         {/* Desktop sidebar - hidden on mobile */}

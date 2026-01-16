@@ -19,7 +19,7 @@ const ConsciousnessLeapPromo = () => {
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <section id="consciousness-leap" className="relative py-20 md:py-32 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section id="consciousness-leap" className="relative py-20 md:py-32 overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
       

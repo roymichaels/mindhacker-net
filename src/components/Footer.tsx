@@ -65,7 +65,7 @@ const Footer = () => {
 
 
   return (
-    <footer className="relative py-12 md:py-20 px-4 border-t border-primary/20" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
+    <footer className="relative py-12 md:py-20 px-4 border-t border-border bg-background" style={{ zIndex: 2 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto text-center">
         
         {/* Final CTA Section - More personal */}

@@ -28,7 +28,7 @@ const IntrospectionPromo = () => {
   ];
 
   return (
-    <section id="introspection" className="relative py-20 md:py-32 overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section id="introspection" className="relative py-20 md:py-32 overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Warm gradient background - using theme accent */}
       <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-background" />
       

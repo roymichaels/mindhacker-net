@@ -48,7 +48,7 @@ const Index = () => {
   });
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-background">
       {/* Header */}
       <Header />
       
