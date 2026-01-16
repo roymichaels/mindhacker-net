@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Users } from "lucide-react";
 
 interface Activity {
@@ -11,18 +12,20 @@ interface Activity {
   timestamp: Date;
 }
 
-// Hebrew first names for realistic activity
-const hebrewNames = [
+// Default Hebrew first names for realistic activity
+const defaultHebrewNames = [
   "שרה", "דניאל", "נועה", "יובל", "מיכל", "אורי", "תמר", "איתי", "ליאור", "גיל",
   "רונית", "עומר", "הדר", "אריאל", "מאיה", "יונתן", "שירה", "רועי", "ענת", "עידו"
 ];
 
-const englishNames = [
+const defaultEnglishNames = [
   "Yoav", "Noa", "Tamar", "Oren", "Maya", "Gal", "Shira", "Eitan", "Lior", "Amit",
   "Yael", "Rotem", "Hila", "Ido", "Talia", "Omer", "Dana", "Ariel", "Shani", "Tomer"
 ];
 
-const generateRandomActivity = (language: string): Activity => {
+const generateRandomActivity = (language: string, customNamesHe?: string[], customNamesEn?: string[]): Activity => {
+  const hebrewNames = customNamesHe?.length ? customNamesHe : defaultHebrewNames;
+  const englishNames = customNamesEn?.length ? customNamesEn : defaultEnglishNames;
   const names = language === "he" ? hebrewNames : englishNames;
   const name = names[Math.floor(Math.random() * names.length)];
   
@@ -53,10 +56,15 @@ const generateRandomActivity = (language: string): Activity => {
 
 export const LiveActivityFeed = () => {
   const { t, language, isRTL } = useTranslation();
+  const { settings } = useSiteSettings();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentViewers, setCurrentViewers] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Parse custom names from settings (comma-separated) - use defaults if not configured
+  const customNamesHe = (settings as any).activity_names_he?.split(',').map((n: string) => n.trim()).filter(Boolean);
+  const customNamesEn = (settings as any).activity_names_en?.split(',').map((n: string) => n.trim()).filter(Boolean);
 
   // Initialize viewer count - always 1 for boutique feel
   useEffect(() => {
@@ -73,7 +81,7 @@ export const LiveActivityFeed = () => {
   // Generate random activities - very infrequent (once every 3-10 minutes)
   useEffect(() => {
     const generateActivity = () => {
-      const newActivity = generateRandomActivity(language);
+      const newActivity = generateRandomActivity(language, customNamesHe, customNamesEn);
       setActivities([newActivity]); // Only 1 activity max
       
       // Remove after 6 seconds

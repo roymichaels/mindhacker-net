@@ -10,6 +10,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 import MatrixRain from "@/components/MatrixRain";
 import ThemeProvider from "@/components/ThemeProvider";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
@@ -82,11 +83,21 @@ const queryClient = new QueryClient({
   },
 });
 
+// Background effect wrapper component
+const BackgroundEffect = () => {
+  const { theme } = useThemeSettings();
+  
+  // Show Matrix Rain only if background_effect is 'matrix_rain'
+  if (theme.background_effect !== 'matrix_rain') return null;
+  
+  return <MatrixRain />;
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <MatrixRain />
+        <BackgroundEffect />
         <AuthProvider>
           <LanguageProvider>
           <TooltipProvider>

@@ -70,7 +70,31 @@ export const getEmailStyles = (lang: 'he' | 'en') => `
   }
 `;
 
-export const getEmailWrapper = (content: string, lang: 'he' | 'en', unsubscribeUrl?: string) => `
+export interface EmailBrandSettings {
+  brandName?: string;
+  brandNameEn?: string;
+  founderName?: string;
+  founderNameEn?: string;
+  founderShortName?: string;
+  founderShortNameEn?: string;
+  primaryColor?: string;
+}
+
+export const getEmailWrapper = (
+  content: string, 
+  lang: 'he' | 'en', 
+  unsubscribeUrl?: string,
+  brandSettings?: EmailBrandSettings
+) => {
+  const brandName = brandSettings?.brandName || 'מיינד האקר';
+  const brandNameEn = brandSettings?.brandNameEn || 'Mind Hacker';
+  const founderName = brandSettings?.founderName || 'דין אושר אזולאי';
+  const founderNameEn = brandSettings?.founderNameEn || 'Dean Osher Azulay';
+  const displayBrand = lang === 'he' ? brandName : brandNameEn;
+  const displayFounder = lang === 'he' ? founderName : founderNameEn;
+  const fullFooter = lang === 'he' ? `${brandName} - ${founderName}` : `${brandNameEn} - ${founderNameEn}`;
+  
+  return `
 <!DOCTYPE html>
 <html dir="${isRTL(lang) ? 'rtl' : 'ltr'}" lang="${lang}">
 <head>
@@ -84,14 +108,14 @@ export const getEmailWrapper = (content: string, lang: 'he' | 'en', unsubscribeU
       <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00f0ff, #8b5cf6); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
         <span style="font-size: 28px;">⚡</span>
       </div>
-      <h2 style="color: #00f0ff; margin: 0;">Mind Hacker</h2>
+      <h2 style="color: #00f0ff; margin: 0;">${displayBrand}</h2>
     </div>
     <div class="content">
       ${content}
     </div>
     <div class="footer">
       <p style="color: #6b7280; font-size: 14px;">
-        ${lang === 'he' ? 'מיינד האקר - דין אושר אזולאי' : 'Mind Hacker - Dean Osher Azulay'}
+        ${fullFooter}
       </p>
       ${unsubscribeUrl ? `
         <a href="${unsubscribeUrl}" class="unsubscribe">
@@ -103,6 +127,7 @@ export const getEmailWrapper = (content: string, lang: 'he' | 'en', unsubscribeU
 </body>
 </html>
 `;
+};
 
 export const welcomeEmailContent = {
   he: (name: string) => `

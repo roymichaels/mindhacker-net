@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { X, Gift, Sparkles, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = "progressive_engagement_shown";
-const FORM_TOKEN = "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308";
 
 export const ProgressiveEngagement = () => {
+  const { theme } = useThemeSettings();
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -34,7 +35,8 @@ export const ProgressiveEngagement = () => {
 
   const handleStartJourney = () => {
     setIsVisible(false);
-    navigate(`/form/${FORM_TOKEN}`);
+    const formId = theme.introspection_form_id || "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308";
+    navigate(`/form/${formId}`);
   };
 
   const handleNext = () => {

@@ -319,49 +319,89 @@ const Theme = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{isRTL ? "גשם מטריקס" : "Matrix Rain"}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {isRTL ? "הפעל/כבה את אפקט הרקע" : "Enable/disable background effect"}
-                  </p>
+              {/* Background Effect Selector */}
+              <div className="space-y-2">
+                <Label>{isRTL ? "אפקט רקע" : "Background Effect"}</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('background_effect', 'none')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.background_effect === 'none' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded bg-muted flex items-center justify-center">
+                        <span className="text-2xl">🚫</span>
+                      </div>
+                      <p className="font-medium">{isRTL ? "ללא" : "None"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "רקע נקי" : "Clean background"}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('background_effect', 'matrix_rain')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      localTheme.background_effect === 'matrix_rain' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded bg-gradient-to-b from-primary/30 to-transparent flex items-center justify-center font-mono text-primary">
+                        01
+                      </div>
+                      <p className="font-medium">{isRTL ? "גשם מטריקס" : "Matrix Rain"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? "אפקט סייבר עברי" : "Hebrew cyber effect"}
+                      </p>
+                    </div>
+                  </button>
                 </div>
-                <Switch
-                  checked={localTheme.matrix_rain_enabled}
-                  onCheckedChange={(checked) => handleChange('matrix_rain_enabled', checked)}
-                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {isRTL ? "אפקטים נוספים יגיעו בקרוב..." : "More effects coming soon..."}
+                </p>
               </div>
               
-              <div className="space-y-2">
-                <Label>{isRTL ? "צבע גשם מטריקס" : "Matrix Rain Color"}</Label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={localTheme.matrix_rain_color}
-                    onChange={(e) => handleChange('matrix_rain_color', e.target.value)}
-                    className="w-12 h-12 rounded cursor-pointer"
-                  />
-                  <Input
-                    value={localTheme.matrix_rain_color}
-                    onChange={(e) => handleChange('matrix_rain_color', e.target.value)}
-                    placeholder="#00d4ff"
-                    className="flex-1"
-                  />
-                </div>
-              </div>
+              {/* Matrix Rain settings - only show when selected */}
+              {localTheme.background_effect === 'matrix_rain' && (
+                <>
+                  <div className="space-y-2">
+                    <Label>{isRTL ? "צבע גשם מטריקס" : "Matrix Rain Color"}</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={localTheme.matrix_rain_color}
+                        onChange={(e) => handleChange('matrix_rain_color', e.target.value)}
+                        className="w-12 h-12 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={localTheme.matrix_rain_color}
+                        onChange={(e) => handleChange('matrix_rain_color', e.target.value)}
+                        placeholder="#00d4ff"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label>{isRTL ? "שקיפות גשם מטריקס" : "Matrix Rain Opacity"}</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="1"
-                  value={localTheme.matrix_rain_opacity}
-                  onChange={(e) => handleChange('matrix_rain_opacity', e.target.value)}
-                  placeholder="0.15"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>{isRTL ? "שקיפות גשם מטריקס" : "Matrix Rain Opacity"}</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      value={localTheme.matrix_rain_opacity}
+                      onChange={(e) => handleChange('matrix_rain_opacity', e.target.value)}
+                      placeholder="0.15"
+                    />
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -425,6 +465,51 @@ const Theme = () => {
                 />
                 <p className="text-xs text-muted-foreground">
                   {isRTL ? "העלה לוגו לאחסון והדבק את הקישור כאן" : "Upload logo to storage and paste the URL here"}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{isRTL ? "תמונת פורטרט" : "Hero Portrait URL"}</Label>
+                <Input
+                  value={localTheme.hero_portrait_url}
+                  onChange={(e) => handleChange('hero_portrait_url', e.target.value)}
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-muted-foreground">
+                  {isRTL ? "תמונת הפורטרט שמופיעה בעמוד הראשי" : "Portrait image shown on the homepage"}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{isRTL ? "שם מקוצר (עברית)" : "Short Name (Hebrew)"}</Label>
+                  <Input
+                    value={localTheme.founder_short_name}
+                    onChange={(e) => handleChange('founder_short_name', e.target.value)}
+                    placeholder="דין"
+                    dir="rtl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{isRTL ? "שם מקוצר (אנגלית)" : "Short Name (English)"}</Label>
+                  <Input
+                    value={localTheme.founder_short_name_en}
+                    onChange={(e) => handleChange('founder_short_name_en', e.target.value)}
+                    placeholder="Dean"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{isRTL ? "מזהה טופס התבוננות" : "Introspection Form ID"}</Label>
+                <Input
+                  value={localTheme.introspection_form_id}
+                  onChange={(e) => handleChange('introspection_form_id', e.target.value)}
+                  placeholder="45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {isRTL ? "מזהה הטופס של המתנה החינמית" : "Form ID for the free gift questionnaire"}
                 </p>
               </div>
 
