@@ -103,92 +103,129 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BackgroundEffect />
-        <AuthProvider>
-          <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <LanguagePrompt />
-              <BrowserRouter>
-                <AffiliateTracker />
-                <AnalyticsProvider>
-                  <Suspense fallback={<PageSkeleton />}>
-                    <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<Index />} />
-                    <Route path="/signup" element={<SignUp />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/courses" element={<Courses />} />
-                    <Route path="/courses/:slug" element={<CourseDetail />} />
-                    <Route path="/courses/:slug/watch" element={<CourseWatch />} />
-                    <Route path="/subscriptions" element={<Subscriptions />} />
-                    <Route path="/install" element={<Install />} />
-                    <Route path="/audio/:token" element={<AudioPlayer />} />
-                    <Route path="/video/:token" element={<VideoPlayer />} />
-                    <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
-                    <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
-                    <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
-                    <Route path="/form/:token" element={<FormView />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                    <Route path="/affiliate-dashboard" element={<ProtectedRoute><AffiliateDashboard /></ProtectedRoute>} />
-                    <Route path="/unsubscribe" element={<Unsubscribe />} />
-                    
-                    {/* Protected user routes */}
-                    <Route path="/personal-hypnosis/success" element={<ProtectedRoute><PersonalHypnosisSuccess /></ProtectedRoute>} />
-                    <Route path="/personal-hypnosis/pending" element={<ProtectedRoute><PersonalHypnosisPending /></ProtectedRoute>} />
-                    <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
-                    <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
-                    
-                    {/* Admin routes */}
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>
-                      }
-                    >
-                      <Route index element={<Navigate to="/admin/analytics" replace />} />
-                      <Route path="analytics" element={<Analytics />} />
-                      <Route path="notifications" element={<NotificationCenter />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="faqs" element={<FAQs />} />
-                      <Route path="testimonials" element={<Testimonials />} />
-                      <Route path="purchases" element={<Purchases />} />
-                      <Route path="users" element={<Users />} />
-                      <Route path="leads" element={<Leads />} />
-                      <Route path="content" element={<Content />} />
-                      <Route path="menu" element={<MenuManagement />} />
-                      <Route path="videos" element={<Videos />} />
-                      <Route path="recordings" element={<Recordings />} />
-                      <Route path="forms" element={<Forms />} />
-                      <Route path="newsletter" element={<Newsletter />} />
-                      <Route path="homepage" element={<HomepageSections />} />
-                      <Route path="theme" element={<AdminTheme />} />
-                      <Route path="chat-assistant" element={<ChatAssistant />} />
-                      <Route path="products" element={<AdminProducts />} />
-                      <Route path="affiliates" element={<AdminAffiliates />} />
-                    </Route>
+        <div className="relative z-10">
+          <AuthProvider>
+            <LanguageProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <LanguagePrompt />
+                <BrowserRouter>
+                  <AffiliateTracker />
+                  <AnalyticsProvider>
+                    <Suspense fallback={<PageSkeleton />}>
+                      <Routes>
+                        {/* Public routes */}
+                        <Route path="/" element={<Index />} />
+                        <Route path="/signup" element={<SignUp />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/courses" element={<Courses />} />
+                        <Route path="/courses/:slug" element={<CourseDetail />} />
+                        <Route path="/courses/:slug/watch" element={<CourseWatch />} />
+                        <Route path="/subscriptions" element={<Subscriptions />} />
+                        <Route path="/install" element={<Install />} />
+                        <Route path="/audio/:token" element={<AudioPlayer />} />
+                        <Route path="/video/:token" element={<VideoPlayer />} />
+                        <Route path="/personal-hypnosis" element={<PersonalHypnosisLanding />} />
+                        <Route path="/consciousness-leap" element={<ConsciousnessLeapLanding />} />
+                        <Route path="/consciousness-leap/apply/:token" element={<ConsciousnessLeapApply />} />
+                        <Route path="/form/:token" element={<FormView />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/terms-of-service" element={<TermsOfService />} />
+                        <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+                        <Route
+                          path="/affiliate-dashboard"
+                          element={
+                            <ProtectedRoute>
+                              <AffiliateDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  <PWAInstallBanner />
-                  <NotificationPermissionPrompt />
-                  <CookieConsent />
-                  <ChatWidget />
-                  <LiveActivityFeed />
-                  <WhatsAppButton />
-                  <ProgressiveEngagement />
-                </Suspense>
-              </AnalyticsProvider>
-            </BrowserRouter>
-          </TooltipProvider>
-        </LanguageProvider>
-      </AuthProvider>
+                        {/* Protected user routes */}
+                        <Route
+                          path="/personal-hypnosis/success"
+                          element={
+                            <ProtectedRoute>
+                              <PersonalHypnosisSuccess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/personal-hypnosis/pending"
+                          element={
+                            <ProtectedRoute>
+                              <PersonalHypnosisPending />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/dashboard"
+                          element={
+                            <ProtectedRoute>
+                              <UserDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/success"
+                          element={
+                            <ProtectedRoute>
+                              <Success />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        {/* Admin routes */}
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        <Route
+                          path="/admin"
+                          element={
+                            <AdminRoute>
+                              <AdminDashboard />
+                            </AdminRoute>
+                          }
+                        >
+                          <Route index element={<Navigate to="/admin/analytics" replace />} />
+                          <Route path="analytics" element={<Analytics />} />
+                          <Route path="notifications" element={<NotificationCenter />} />
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="faqs" element={<FAQs />} />
+                          <Route path="testimonials" element={<Testimonials />} />
+                          <Route path="purchases" element={<Purchases />} />
+                          <Route path="users" element={<Users />} />
+                          <Route path="leads" element={<Leads />} />
+                          <Route path="content" element={<Content />} />
+                          <Route path="menu" element={<MenuManagement />} />
+                          <Route path="videos" element={<Videos />} />
+                          <Route path="recordings" element={<Recordings />} />
+                          <Route path="forms" element={<Forms />} />
+                          <Route path="newsletter" element={<Newsletter />} />
+                          <Route path="homepage" element={<HomepageSections />} />
+                          <Route path="theme" element={<AdminTheme />} />
+                          <Route path="chat-assistant" element={<ChatAssistant />} />
+                          <Route path="products" element={<AdminProducts />} />
+                          <Route path="affiliates" element={<AdminAffiliates />} />
+                        </Route>
+
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                      <PWAInstallBanner />
+                      <NotificationPermissionPrompt />
+                      <CookieConsent />
+                      <ChatWidget />
+                      <LiveActivityFeed />
+                      <WhatsAppButton />
+                      <ProgressiveEngagement />
+                    </Suspense>
+                  </AnalyticsProvider>
+                </BrowserRouter>
+              </TooltipProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </div>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
