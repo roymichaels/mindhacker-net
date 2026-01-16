@@ -2,19 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* 
+ * Design System
+ * =============
+ * Clean, production-ready theming following major app patterns (Stripe, Linear, Notion).
+ * 
+ * LIGHT MODE = default root (clean, professional)
+ * DARK MODE = .dark class (cyber aesthetic)
+ * 
+ * All colors MUST be HSL format.
+ */
 
 @layer base {
+  /* 
+   * LIGHT MODE (Default - Clean SaaS)
+   * Following best practices: white backgrounds, subtle shadows, clear contrast
+   */
   :root {
+    /* Backgrounds - clean whites and light grays */
+    --background: 0 0% 100%;
+    --background-end: 220 14% 96%;
+    --foreground: 224 71% 4%;
+
+    /* Surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Primary - professional teal/cyan, darker for visibility */
+    --primary: 187 70% 38%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 187 80% 50%;
+
+    /* Secondary */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+
+    /* Muted elements */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent - warm gold */
+    --accent: 45 93% 47%;
+    --accent-foreground: 224 71% 4%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 187 70% 38%;
+
+    --radius: 0.75rem;
+
+    /* Glass panel - solid in light mode */
+    --glass-bg: 0 0% 100%;
+    --glass-border: 220 13% 85%;
+
+    --transition-smooth: all 0.2s ease;
+
+    /* Sidebar tokens */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 187 70% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 187 70% 38%;
+  }
+
+  /* 
+   * DARK MODE (Cyber aesthetic)
+   * Deep blues, neon accents, glowing effects
+   */
+  .dark {
     --background: 215 100% 2%;
     --background-end: 215 60% 6%;
     --foreground: 0 0% 100%;
 
     --card: 215 50% 8%;
     --card-foreground: 0 0% 100%;
-
     --popover: 215 50% 8%;
     --popover-foreground: 0 0% 100%;
 
@@ -31,90 +102,24 @@ All colors MUST be HSL.
     --accent: 45 100% 73%;
     --accent-foreground: 215 100% 2%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 187 80% 30%;
     --input: 215 40% 18%;
     --ring: 187 100% 50%;
 
-    --radius: 0.75rem;
-    
     --glass-bg: 215 50% 10%;
     --glass-border: 187 100% 50%;
-    
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  /* Light mode theme */
-  .light {
-    --background: 0 0% 98%;
-    --background-end: 210 20% 96%;
-    --foreground: 222 47% 11%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    
-    /* Primary - darker for visibility on light backgrounds */
-    --primary: 187 85% 35%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 187 100% 45%;
-    
-    --secondary: 210 20% 93%;
-    --secondary-foreground: 222 47% 11%;
-    
-    /* Accent - warmer, more saturated */
-    --accent: 45 100% 50%;
-    --accent-foreground: 222 47% 11%;
-    
-    /* Muted - visible gray tones */
-    --muted: 210 15% 92%;
-    --muted-foreground: 215 20% 45%;
-    
-    /* Borders - more visible */
-    --border: 214 25% 80%;
-    --input: 0 0% 100%;
-    --ring: 187 85% 35%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    
-    /* Glass panel - light frosted glass */
-    --glass-bg: 0 0% 100%;
-    --glass-border: 214 25% 75%;
-    
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 187 85% 35%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 95%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 25% 85%;
-    --sidebar-ring: 187 85% 35%;
-  }
-
-  .dark {
-    --background: 215 100% 2%;
-    --background-end: 215 60% 6%;
-    --foreground: 0 0% 100%;
+    --sidebar-background: 215 50% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 187 100% 50%;
+    --sidebar-primary-foreground: 215 100% 2%;
+    --sidebar-accent: 215 40% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 187 80% 30%;
+    --sidebar-ring: 187 100% 50%;
   }
 }
 
@@ -123,15 +128,17 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  body {
-    @apply bg-gradient-to-b from-background to-[hsl(var(--background-end))] text-foreground font-['Heebo'] overflow-x-hidden;
+  html {
+    @apply scroll-smooth;
   }
-  
-  /* Light mode body - override the dark gradient */
-  :root.light body,
-  .light body,
-  html.light body {
-    background: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(210 20% 96%) 100%) !important;
+
+  body {
+    @apply bg-background text-foreground font-['Heebo'] overflow-x-hidden antialiased;
+  }
+
+  /* Dark mode gradient background */
+  .dark body {
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end)) 100%);
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -140,132 +147,178 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* 
+   * SURFACE UTILITIES
+   * Standard surfaces following major app patterns
+   */
+  .surface {
+    @apply bg-card text-card-foreground border border-border rounded-lg;
+  }
+
+  .surface-elevated {
+    @apply bg-card text-card-foreground border border-border rounded-lg shadow-lg;
+  }
+
+  .surface-muted {
+    @apply bg-muted text-foreground border border-border/60 rounded-lg;
+  }
+
+  .surface-popover {
+    @apply bg-popover text-popover-foreground border border-border shadow-xl rounded-lg;
+  }
+
+  /* 
+   * GLASS PANEL
+   * Light mode: solid surface with shadow
+   * Dark mode: translucent with blur
+   */
   .glass-panel {
-    @apply bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-[hsl(var(--glass-border))]/40 rounded-2xl shadow-sm;
+    @apply bg-card border border-border rounded-2xl shadow-sm;
   }
-  
-  /* Light mode: use shadows instead of glows */
-  .light .glass-panel {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid hsl(214 25% 85%) !important;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07) !important;
+
+  .dark .glass-panel {
+    background: hsl(var(--glass-bg) / 0.8);
+    backdrop-filter: blur(12px);
+    border-color: hsl(var(--glass-border) / 0.4);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
   }
-  
-  /* Hide canvas-based background effects in light mode */
-  .light canvas[aria-hidden="true"],
-  html.light canvas[aria-hidden="true"] {
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  
-  /* Hide consciousness pulse in light mode */
-  .light .consciousness-pulse {
-    opacity: 0 !important;
-  }
-  
-  .light .animate-breathe {
-    opacity: 0.05 !important;
-    animation: none !important;
-  }
-  
+
+  /* 
+   * GLOW EFFECTS (Dark mode only)
+   */
   .cyber-glow {
+    @apply text-primary;
+  }
+  
+  .dark .cyber-glow {
     text-shadow: 0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary-glow));
   }
-  
-  .light .cyber-glow {
-    text-shadow: none;
-  }
-  
+
   .cyber-border {
-    box-shadow: 0 0 20px hsl(var(--primary))/50, inset 0 0 20px hsl(var(--primary))/10;
+    @apply border border-border shadow-md;
   }
-  
-  .light .cyber-border {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  .dark .cyber-border {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5), inset 0 0 20px hsl(var(--primary) / 0.1);
   }
-  
+
   .pulse-glow {
+    @apply shadow-sm;
+  }
+
+  .dark .pulse-glow {
     animation: pulse-glow 3s ease-in-out infinite;
   }
 
-  .light .pulse-glow {
-    animation: none;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.8), 0 0 60px hsl(var(--primary-glow) / 0.4);
+    }
+  }
+
+  /* Ring pulse - dark mode only */
+  .animate-ring-pulse {
+    @apply ring-2 ring-primary/30;
+  }
+
+  .dark .animate-ring-pulse {
+    animation: ring-pulse 2.5s ease-in-out infinite;
   }
 
   @keyframes ring-pulse {
     0%, 100% {
       transform: scale(1);
       opacity: 0.6;
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.4), 0 0 40px hsl(var(--primary) / 0.2);
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
     }
     50% {
       transform: scale(1.08);
       opacity: 1;
-      box-shadow: 0 0 30px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.3), 0 0 80px hsl(var(--primary-glow) / 0.2);
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.6);
     }
   }
 
-  .animate-ring-pulse {
-    animation: ring-pulse 2.5s ease-in-out infinite;
-  }
-
-  .light .animate-ring-pulse {
-    animation: none;
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
-  }
-
+  /* Vignette - dark mode only */
   .vignette {
-    box-shadow: inset 0 0 200px 80px rgba(1, 4, 9, 0.3);
-  }
-
-  .light .vignette {
     box-shadow: none;
   }
 
+  .dark .vignette {
+    box-shadow: inset 0 0 200px 80px rgba(1, 4, 9, 0.3);
+  }
+
   @media (max-width: 768px) {
-    .vignette {
+    .dark .vignette {
       box-shadow: none;
     }
   }
 
+  /* Text glows - dark mode only */
   .static-word-glow {
+    @apply text-foreground font-bold;
+  }
+
+  .dark .static-word-glow {
     text-shadow: 
       0 0 30px rgba(255, 255, 255, 0.8),
       0 0 60px rgba(255, 255, 255, 0.4),
       0 0 90px hsl(var(--primary) / 0.3);
   }
 
-  .light .static-word-glow {
-    text-shadow: 0 2px 8px hsl(var(--primary) / 0.15);
+  .decrypt-glow-scramble {
+    @apply text-muted-foreground;
   }
 
-  .decrypt-glow-scramble {
+  .dark .decrypt-glow-scramble {
     text-shadow: 
       0 0 15px hsl(var(--primary) / 0.8),
-      0 0 30px hsl(var(--primary) / 0.5),
-      0 0 45px hsl(var(--primary-glow) / 0.3);
+      0 0 30px hsl(var(--primary) / 0.5);
     opacity: 0.7;
   }
 
-  .light .decrypt-glow-scramble {
-    text-shadow: 0 1px 3px hsl(var(--primary) / 0.2);
-    opacity: 1;
+  .decrypt-glow-locked {
+    @apply text-primary font-semibold;
   }
 
-  .decrypt-glow-locked {
+  .dark .decrypt-glow-locked {
     text-shadow: 
       0 0 20px hsl(var(--primary)),
-      0 0 40px hsl(var(--primary) / 0.7),
-      0 0 60px hsl(var(--primary-glow) / 0.4);
-    opacity: 1;
+      0 0 40px hsl(var(--primary) / 0.7);
   }
 
-  .light .decrypt-glow-locked {
-    text-shadow: 0 1px 4px hsl(var(--primary) / 0.25);
+  /* 
+   * HOVER EFFECTS
+   */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+
+  .dark .hover-lift:hover {
+    box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    @apply shadow-lg;
+  }
+
+  .dark .hover-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
   }
   
-  /* Animation utilities - all use fill-mode forwards to maintain final state */
+  /* 
+   * ANIMATIONS
+   */
   .animate-fade-in-up {
     animation: fade-in-up 0.6s ease-out forwards;
   }
@@ -299,40 +352,6 @@ All colors MUST be HSL.
     );
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
-  }
-
-  .hover-lift {
-    @apply transition-all duration-300;
-  }
-
-  .hover-lift:hover {
-    @apply -translate-y-1;
-    box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
-  }
-
-  .light .hover-lift:hover {
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  }
-
-  .hover-glow {
-    @apply transition-all duration-300;
-  }
-
-  .hover-glow:hover {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
-  }
-
-  .light .hover-glow:hover {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  }
-  
-  @keyframes pulse-glow {
-    0%, 100% {
-      box-shadow: 0 0 20px hsl(var(--primary))/50;
-    }
-    50% {
-      box-shadow: 0 0 40px hsl(var(--primary))/80, 0 0 60px hsl(var(--primary-glow))/40;
-    }
   }
 
   @keyframes fade-in-up {
@@ -380,15 +399,9 @@ All colors MUST be HSL.
   }
 
   @keyframes pop {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
   }
 
   @keyframes attention-pulse {
@@ -402,13 +415,14 @@ All colors MUST be HSL.
     }
   }
   
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
   @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
   }
 
   @keyframes float-gentle {
@@ -464,12 +478,8 @@ All colors MUST be HSL.
       transform: translateY(-100%);
       opacity: 0;
     }
-    10% {
-      opacity: 1;
-    }
-    90% {
-      opacity: 1;
-    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
     100% {
       transform: translateY(100vh);
       opacity: 0;
@@ -499,11 +509,6 @@ All colors MUST be HSL.
     animation: consciousness-pulse 15s ease-in-out infinite;
   }
 
-  .light .consciousness-pulse {
-    opacity: 0.02;
-    border-color: hsl(var(--primary) / 0.1);
-  }
-
   @keyframes breathe {
     0%, 100% {
       transform: scale(0.98);
@@ -519,9 +524,15 @@ All colors MUST be HSL.
     animation: breathe 12s ease-in-out infinite;
   }
 
-  .light .animate-breathe {
-    opacity: 0.02;
-    border-color: hsl(var(--primary) / 0.1);
+  /* Hide background effects in light mode */
+  .consciousness-pulse,
+  .animate-breathe {
+    @apply hidden;
+  }
+
+  .dark .consciousness-pulse,
+  .dark .animate-breathe {
+    @apply block;
   }
 
   .animate-pop {
@@ -536,7 +547,9 @@ All colors MUST be HSL.
     animation: slide-up 0.4s ease-out forwards;
   }
 
-  /* Scrollbar utilities */
+  /* 
+   * SCROLLBAR
+   */
   .scrollbar-thin {
     scrollbar-width: thin;
   }
@@ -550,20 +563,20 @@ All colors MUST be HSL.
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.3);
+    background: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3);
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.5);
-  }
-
-  .light .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.2);
-  }
-
-  .light .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.35);
   }
 
   .scrollbar-track-transparent::-webkit-scrollbar-track {

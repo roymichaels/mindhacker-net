@@ -34,14 +34,19 @@ const ConsciousnessField = () => {
   const breathPhaseRef = useRef(0);
   const { theme: themeSettings, loading } = useThemeSettings();
   const { resolvedTheme } = useTheme();
-  
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Hide in light mode
-  if (resolvedTheme === 'light') {
+  if (mounted && resolvedTheme === 'light') {
     return null;
   }
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !mounted) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -283,6 +288,7 @@ const ConsciousnessField = () => {
     };
   }, [
     loading,
+    mounted,
     themeSettings.background_h,
     themeSettings.background_s,
     themeSettings.background_l,
