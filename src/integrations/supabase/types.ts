@@ -975,6 +975,47 @@ export type Database = {
         }
         Relationships: []
       }
+      form_analyses: {
+        Row: {
+          analysis_summary: string
+          created_at: string
+          form_submission_id: string
+          id: string
+          patterns: Json | null
+          recommendation: string | null
+          recommended_product: string | null
+          transformation_potential: string | null
+        }
+        Insert: {
+          analysis_summary: string
+          created_at?: string
+          form_submission_id: string
+          id?: string
+          patterns?: Json | null
+          recommendation?: string | null
+          recommended_product?: string | null
+          transformation_potential?: string | null
+        }
+        Update: {
+          analysis_summary?: string
+          created_at?: string
+          form_submission_id?: string
+          id?: string
+          patterns?: Json | null
+          recommendation?: string | null
+          recommended_product?: string | null
+          transformation_potential?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_analyses_form_submission_id_fkey"
+            columns: ["form_submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_fields: {
         Row: {
           created_at: string
