@@ -36,8 +36,9 @@ import {
 import { 
   Loader2, ShoppingBag, Package, Edit, User, Calendar, 
   CheckCircle2, XCircle, CreditCard, Clock, Video, AlertCircle,
-  Sparkles, Eye, FileText
+  Sparkles, Eye, FileText, Palette
 } from "lucide-react";
+import { colorOptions, getProductColors } from "@/lib/productColors";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
@@ -56,6 +57,7 @@ interface Product {
   status: string;
   product_type: string;
   settings: Record<string, any>;
+  brand_color: string | null;
 }
 
 interface Order {
@@ -196,6 +198,7 @@ const Products = () => {
           price: product.price,
           price_usd: product.price_usd,
           status: product.status,
+          brand_color: product.brand_color,
         })
         .eq("id", product.id);
       if (error) throw error;
@@ -351,34 +354,39 @@ const Products = () => {
         {/* Products Tab */}
         <TabsContent value="products" className="mt-6">
           <div className="grid gap-4">
-            {products?.map((product) => (
-              <Card key={product.id} className="glass-panel">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                        <ShoppingBag className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{language === 'he' ? product.title : (product.title_en || product.title)}</h3>
-                          <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
-                            {product.status === 'active' ? t('common.on') : t('common.off')}
-                          </Badge>
+            {products?.map((product) => {
+              const colors = getProductColors(product.brand_color);
+              return (
+                <Card key={product.id} className="glass-panel">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full ${colors.bgMedium} flex items-center justify-center`}>
+                          <ShoppingBag className={`h-6 w-6 ${colors.text}`} />
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          ₪{product.price} {product.price_usd && `/ $${product.price_usd}`}
-                        </p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium">{language === 'he' ? product.title : (product.title_en || product.title)}</h3>
+                            <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
+                              {product.status === 'active' ? t('common.on') : t('common.off')}
+                            </Badge>
+                            {/* Color indicator */}
+                            <div className={`w-4 h-4 rounded-full ${colors.bg}`} title={t('admin.brandColor')} />
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            ₪{product.price} {product.price_usd && `/ $${product.price_usd}`}
+                          </p>
+                        </div>
                       </div>
+                      <Button variant="outline" size="sm" onClick={() => setEditingProduct(product)}>
+                        <Edit className="h-4 w-4 ml-1" />
+                        {t('common.edit')}
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setEditingProduct(product)}>
-                      <Edit className="h-4 w-4 ml-1" />
-                      {t('common.edit')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
@@ -633,6 +641,36 @@ const Products = () => {
                     onCheckedChange={(checked) => setEditingProduct({...editingProduct, status: checked ? 'active' : 'inactive'})}
                   />
                   <Label>{t('admin.productActive')}</Label>
+                </div>
+
+                {/* Brand Color Picker */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-muted-foreground" />
+                    <Label>{t('admin.brandColor')}</Label>
+                  </div>
+                  <Select
+                    value={editingProduct.brand_color || 'primary'}
+                    onValueChange={(value) => setEditingProduct({...editingProduct, brand_color: value})}
+                  >
+                    <SelectTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full ${getProductColors(editingProduct.brand_color).bg}`} />
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colorOptions.map((color) => (
+                        <SelectItem key={color.value} value={color.value}>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full ${color.preview}`} />
+                            <span>{language === 'he' ? color.labelHe : color.labelEn}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{t('admin.brandColorDesc')}</p>
                 </div>
               </div>
               <div className="flex justify-end gap-2">

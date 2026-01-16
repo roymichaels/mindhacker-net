@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PersonalHypnosisCheckoutDialog } from "@/components/checkout/PersonalHypnosisCheckoutDialog";
 import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useProductBranding } from "@/hooks/useProductBranding";
 import { formatPrice } from "@/lib/currency";
 import { 
   Brain, 
@@ -28,6 +29,7 @@ const PersonalHypnosisLanding = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t, language, isRTL } = useTranslation();
+  const { colors } = useProductBranding('personal-hypnosis-video');
 
   useSEO({
     title: t('personalHypnosisLanding.seoTitle'),
@@ -91,7 +93,7 @@ const PersonalHypnosisLanding = () => {
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary mb-6 animate-fade-in-up">
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${colors.bgLight} border ${colors.border}/30 ${colors.text} mb-6 animate-fade-in-up`}>
               <Sparkles className="h-4 w-4" />
               <span className="text-sm font-medium">{t('personalHypnosisLanding.badge')}</span>
             </div>
@@ -99,7 +101,7 @@ const PersonalHypnosisLanding = () => {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 cyber-glow animate-fade-in-up-delay-1">
               {t('personalHypnosisLanding.heroTitle')}
               <br />
-              <span className="text-primary">{t('personalHypnosisLanding.heroTitleHighlight')}</span>
+              <span className={colors.text}>{t('personalHypnosisLanding.heroTitleHighlight')}</span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up-delay-2">
@@ -107,7 +109,7 @@ const PersonalHypnosisLanding = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up-delay-3">
-              <Button size="lg" onClick={handlePurchase} className="text-lg px-8 py-6 pulse-glow">
+              <Button size="lg" onClick={handlePurchase} className={`text-lg px-8 py-6 pulse-glow ${colors.button} ${colors.buttonText}`}>
                 {t('personalHypnosisLanding.buyNow')}{formatPrice(297, language)}
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -128,7 +130,7 @@ const PersonalHypnosisLanding = () => {
               {painPoints.map((point, i) => (
                 <Card key={i} className="glass-panel hover-lift">
                   <CardContent className="p-6 text-center">
-                    <point.icon className="h-10 w-10 mx-auto mb-4 text-primary" />
+                    <point.icon className={`h-10 w-10 mx-auto mb-4 ${colors.text}`} />
                     <p className="text-lg">{point.text}</p>
                   </CardContent>
                 </Card>
@@ -151,8 +153,8 @@ const PersonalHypnosisLanding = () => {
               {processSteps.map((step, i) => (
                 <Card key={i} className="glass-panel relative overflow-hidden">
                   <CardContent className="p-6 text-center">
-                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                      <step.icon className="h-7 w-7 text-primary" />
+                    <div className={`w-14 h-14 rounded-full ${colors.bgMedium} flex items-center justify-center mx-auto mb-4`}>
+                      <step.icon className={`h-7 w-7 ${colors.text}`} />
                     </div>
                     <h3 className="font-bold text-lg mb-2">{step.title}</h3>
                     <p className="text-sm text-muted-foreground">{step.desc}</p>
@@ -179,9 +181,9 @@ const PersonalHypnosisLanding = () => {
             
             <div className="glass-panel p-8 max-w-xl mx-auto">
               <ul className="space-y-4">
-                {benefits.map((benefit, i) => (
+              {benefits.map((benefit, i) => (
                   <li key={i} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-6 w-6 text-primary shrink-0" />
+                    <CheckCircle2 className={`h-6 w-6 ${colors.text} shrink-0`} />
                     <span className="text-lg">{benefit}</span>
                   </li>
                 ))}
@@ -217,11 +219,11 @@ const PersonalHypnosisLanding = () => {
               </p>
               
               <div className="mb-6">
-                <span className="text-4xl font-bold text-primary">{formatPrice(297, language)}</span>
+                <span className={`text-4xl font-bold ${colors.text}`}>{formatPrice(297, language)}</span>
                 <span className={`text-muted-foreground ${isRTL ? 'mr-2' : 'ml-2'}`}>{t('personalHypnosisLanding.oneTimePayment')}</span>
               </div>
               
-              <Button size="lg" onClick={handlePurchase} className="text-lg px-10 py-6 w-full sm:w-auto pulse-glow">
+              <Button size="lg" onClick={handlePurchase} className={`text-lg px-10 py-6 w-full sm:w-auto pulse-glow ${colors.button} ${colors.buttonText}`}>
                 <Video className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t('personalHypnosisLanding.purchaseButton')}
               </Button>

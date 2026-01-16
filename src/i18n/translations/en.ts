@@ -171,6 +171,8 @@ export const en: TranslationKeys = {
     priceILS: "Price (₪)",
     priceUSD: "Price ($)",
     productActive: "Product Active",
+    brandColor: "Brand Color",
+    brandColorDesc: "This color will be used across product cards and landing pages",
     applications: "Applications",
     noApplications: "No applications yet",
     noApplicationsDescription: "Consciousness Leap applications will appear here",
