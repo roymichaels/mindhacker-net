@@ -65,7 +65,7 @@ All colors MUST be HSL.
   /* Light mode theme */
   .light {
     --background: 0 0% 98%;
-    --background-end: 210 20% 94%;
+    --background-end: 210 20% 96%;
     --foreground: 222 47% 11%;
     
     --card: 0 0% 100%;
@@ -73,32 +73,42 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
+    /* Primary - darker for visibility on light backgrounds */
+    --primary: 187 85% 35%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 20% 90%;
+    --primary-glow: 187 100% 45%;
+    
+    --secondary: 210 20% 93%;
     --secondary-foreground: 222 47% 11%;
+    
+    /* Accent - warmer, more saturated */
+    --accent: 45 100% 50%;
     --accent-foreground: 222 47% 11%;
     
-    --muted: 210 20% 90%;
-    --muted-foreground: 215 25% 35%;
+    /* Muted - visible gray tones */
+    --muted: 210 15% 92%;
+    --muted-foreground: 215 20% 45%;
     
-    --border: 214 20% 85%;
-    --input: 214 20% 92%;
-    --ring: var(--primary);
+    /* Borders - more visible */
+    --border: 214 25% 80%;
+    --input: 0 0% 100%;
+    --ring: 187 85% 35%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     
+    /* Glass panel - light frosted glass */
     --glass-bg: 0 0% 100%;
-    --glass-border: 214 20% 80%;
+    --glass-border: 214 25% 75%;
     
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 222 47% 11%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 187 85% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 20% 95%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 20% 85%;
-    --sidebar-ring: var(--primary);
+    --sidebar-border: 214 25% 85%;
+    --sidebar-ring: 187 85% 35%;
   }
 
   .dark {
@@ -124,15 +134,28 @@ All colors MUST be HSL.
 
 @layer utilities {
   .glass-panel {
-    @apply bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-[hsl(var(--glass-border))]/40 rounded-2xl;
+    @apply bg-[hsl(var(--glass-bg))]/80 backdrop-blur-xl border border-[hsl(var(--glass-border))]/40 rounded-2xl shadow-sm;
+  }
+  
+  /* Light mode: use shadows instead of glows */
+  .light .glass-panel {
+    @apply bg-white/90 backdrop-blur-xl border border-gray-200 shadow-lg;
   }
   
   .cyber-glow {
     text-shadow: 0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary-glow));
   }
   
+  .light .cyber-glow {
+    text-shadow: none;
+  }
+  
   .cyber-border {
     box-shadow: 0 0 20px hsl(var(--primary))/50, inset 0 0 20px hsl(var(--primary))/10;
+  }
+  
+  .light .cyber-border {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
   
   .pulse-glow {
@@ -234,12 +257,20 @@ All colors MUST be HSL.
     box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
   }
 
+  .light .hover-lift:hover {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+
   .hover-glow {
     @apply transition-all duration-300;
   }
 
   .hover-glow:hover {
     box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
+  }
+
+  .light .hover-glow:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
   
   @keyframes pulse-glow {
