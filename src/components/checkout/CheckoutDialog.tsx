@@ -13,7 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
 import { trackCheckoutStart, trackPurchaseComplete, trackDialogOpen, trackDialogClose, trackEvent } from "@/hooks/useAnalytics";
-import { getStoredAffiliateCode, clearAffiliateCode } from "@/hooks/useAffiliateTracking";
+import { getStoredAffiliateCode, clearAffiliateCode } from "@/components/AffiliateTracker";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -67,7 +67,10 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
         return;
       }
 
-      // Create purchase record
+      // Get affiliate code before creating records
+      const affiliateCode = getStoredAffiliateCode();
+
+      // Create purchase record (with affiliate_code for tracking)
       const { data: purchase, error: purchaseError } = await supabase
         .from("content_purchases")
         .insert({
@@ -76,6 +79,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
           price_paid: course.price || 0,
           payment_status: paymentStatus === "instant_success" ? "completed" : "pending",
           access_granted_at: paymentStatus === "instant_success" ? new Date().toISOString() : null,
+          affiliate_code: affiliateCode,
         })
         .select()
         .single();
@@ -98,12 +102,11 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
         .update({ enrollment_count: (course.enrollment_count || 0) + 1 })
         .eq("id", course.id);
 
-      // Handle affiliate tracking
-      const affiliateCode = getStoredAffiliateCode();
+      // Handle affiliate tracking - create referral and update earnings
       if (affiliateCode && paymentStatus === "instant_success") {
         const { data: affiliate } = await supabase
           .from("affiliates")
-          .select("id, commission_rate")
+          .select("id, commission_rate, total_earnings")
           .eq("affiliate_code", affiliateCode)
           .eq("status", "active")
           .maybeSingle();
@@ -121,7 +124,7 @@ const CheckoutDialog = ({ open, onOpenChange, course }: CheckoutDialogProps) => 
           // Update affiliate total earnings
           await supabase
             .from("affiliates")
-            .update({ total_earnings: affiliate.commission_rate + commissionAmount })
+            .update({ total_earnings: (affiliate.total_earnings || 0) + commissionAmount })
             .eq("id", affiliate.id);
           
           clearAffiliateCode();
