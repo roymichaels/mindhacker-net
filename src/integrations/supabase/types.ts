@@ -1372,6 +1372,156 @@ export type Database = {
         }
         Relationships: []
       }
+      offers: {
+        Row: {
+          badge_text: string | null
+          badge_text_en: string | null
+          benefits: Json | null
+          brand_color: string | null
+          created_at: string | null
+          cta_link: string | null
+          cta_text: string | null
+          cta_text_en: string | null
+          cta_type: string | null
+          description: string | null
+          description_en: string | null
+          faqs: Json | null
+          form_id: string | null
+          hero_heading: string | null
+          hero_heading_en: string | null
+          hero_subheading: string | null
+          hero_subheading_en: string | null
+          homepage_order: number | null
+          id: string
+          includes: Json | null
+          is_free: boolean | null
+          landing_page_enabled: boolean | null
+          landing_page_route: string | null
+          original_price: number | null
+          original_price_usd: number | null
+          pain_points: Json | null
+          price: number
+          price_usd: number | null
+          process_steps: Json | null
+          product_id: string | null
+          seo_description: string | null
+          seo_description_en: string | null
+          seo_title: string | null
+          seo_title_en: string | null
+          show_on_homepage: boolean | null
+          slug: string
+          status: string | null
+          subtitle: string | null
+          subtitle_en: string | null
+          title: string
+          title_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          badge_text?: string | null
+          badge_text_en?: string | null
+          benefits?: Json | null
+          brand_color?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          cta_text_en?: string | null
+          cta_type?: string | null
+          description?: string | null
+          description_en?: string | null
+          faqs?: Json | null
+          form_id?: string | null
+          hero_heading?: string | null
+          hero_heading_en?: string | null
+          hero_subheading?: string | null
+          hero_subheading_en?: string | null
+          homepage_order?: number | null
+          id?: string
+          includes?: Json | null
+          is_free?: boolean | null
+          landing_page_enabled?: boolean | null
+          landing_page_route?: string | null
+          original_price?: number | null
+          original_price_usd?: number | null
+          pain_points?: Json | null
+          price?: number
+          price_usd?: number | null
+          process_steps?: Json | null
+          product_id?: string | null
+          seo_description?: string | null
+          seo_description_en?: string | null
+          seo_title?: string | null
+          seo_title_en?: string | null
+          show_on_homepage?: boolean | null
+          slug: string
+          status?: string | null
+          subtitle?: string | null
+          subtitle_en?: string | null
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          badge_text?: string | null
+          badge_text_en?: string | null
+          benefits?: Json | null
+          brand_color?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          cta_text_en?: string | null
+          cta_type?: string | null
+          description?: string | null
+          description_en?: string | null
+          faqs?: Json | null
+          form_id?: string | null
+          hero_heading?: string | null
+          hero_heading_en?: string | null
+          hero_subheading?: string | null
+          hero_subheading_en?: string | null
+          homepage_order?: number | null
+          id?: string
+          includes?: Json | null
+          is_free?: boolean | null
+          landing_page_enabled?: boolean | null
+          landing_page_route?: string | null
+          original_price?: number | null
+          original_price_usd?: number | null
+          pain_points?: Json | null
+          price?: number
+          price_usd?: number | null
+          process_steps?: Json | null
+          product_id?: string | null
+          seo_description?: string | null
+          seo_description_en?: string | null
+          seo_title?: string | null
+          seo_title_en?: string | null
+          show_on_homepage?: boolean | null
+          slug?: string
+          status?: string | null
+          subtitle?: string | null
+          subtitle_en?: string | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           affiliate_code: string | null

@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
   BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, UserPlus,
-  FileVideo, Globe, Plus, Bot, Palette
+  FileVideo, Globe, Plus, Bot, Palette, Sparkles
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -102,6 +102,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       items: [
         { to: "/admin/newsletter", icon: Newspaper, label: t('admin.newsletter'), badge: draftCampaignsCount },
         { to: "/admin/leads", icon: Mail, label: t('admin.leads'), badge: newLeadsCount },
+        { to: "/admin/offers", icon: Sparkles, label: t('admin.offers.nav') },
         { to: "/admin/products", icon: ShoppingBag, label: t('admin.products') },
         { to: "/admin/purchases", icon: ShoppingBag, label: t('admin.purchases') },
         { to: "/admin/affiliates", icon: UserPlus, label: t('admin.affiliates') },
