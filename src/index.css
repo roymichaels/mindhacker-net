@@ -17,9 +17,11 @@
   /* 
    * LIGHT MODE (Default)
    * Clean SaaS aesthetic: white backgrounds, subtle shadows, clear contrast
-   * Applied to :root as base, active when html does NOT have .dark class
+   * Applied when html has .light class OR no theme class
    */
-  :root {
+  :root,
+  html.light,
+  html:not(.dark) {
     /* Backgrounds - clean whites and light grays */
     --background: 0 0% 98%;
     --background-end: 220 14% 96%;
@@ -81,6 +83,7 @@
    * Deep blues, neon accents, glowing effects
    * Activated by next-themes adding .dark class to <html>
    */
+  html.dark,
   .dark {
     --background: 215 100% 2%;
     --background-end: 215 60% 6%;
