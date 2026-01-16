@@ -58,6 +58,7 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
 const Settings = lazy(() => import("./pages/admin/Settings"));
 const FAQs = lazy(() => import("./pages/admin/FAQs"));
+const AdminOffers = lazy(() => import("./pages/admin/Offers"));
 const Testimonials = lazy(() => import("./pages/admin/Testimonials"));
 const Purchases = lazy(() => import("./pages/admin/Purchases"));
 const Users = lazy(() => import("./pages/admin/Users"));
