@@ -138,9 +138,14 @@
     background-color: hsl(var(--background));
   }
 
-  /* Dark mode gradient background */
+  /* Dark mode - transparent to show canvas effects */
   .dark body {
-    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background-end)) 100%);
+    background: transparent;
+  }
+  
+  /* Light mode keeps solid background */
+  html.light body {
+    background-color: hsl(var(--background));
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -149,6 +154,20 @@
 }
 
 @layer utilities {
+  /* 
+   * PAGE BACKGROUND
+   * Light mode: solid background
+   * Dark mode: transparent to show canvas effects
+   */
+  .page-bg {
+    @apply bg-background;
+  }
+  
+  .dark .page-bg,
+  .dark .bg-background {
+    background-color: transparent !important;
+  }
+
   /* 
    * SURFACE UTILITIES
    * Standard surfaces following major app patterns

@@ -39,7 +39,7 @@ const MatrixRain = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
     // Derive color from theme primary HSL values
@@ -59,6 +59,9 @@ const MatrixRain = () => {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Initialize with dark background
+      ctx.fillStyle = "rgb(2, 6, 12)";
+      ctx.fillRect(0, 0, width, height);
     };
     updateCanvasSize();
 
