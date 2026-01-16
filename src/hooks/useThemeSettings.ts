@@ -180,6 +180,10 @@ const applyThemeToDOM = (theme: ThemeSettings) => {
   const borderL = Math.min(parseInt(theme.background_l) + 15, 100);
   root.style.setProperty('--border', `${theme.background_h} 30% ${borderL}%`);
   
+  // Glass panel variables (derived from theme)
+  root.style.setProperty('--glass-bg', `${theme.background_h} ${theme.background_s} ${Math.min(parseInt(theme.background_l) + 8, 20)}%`);
+  root.style.setProperty('--glass-border', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
+  
   // Ring color (matches primary)
   root.style.setProperty('--ring', `${theme.primary_h} ${theme.primary_s} ${theme.primary_l}`);
   
