@@ -1,22 +1,32 @@
 import { useState } from "react";
 import { Menu, Home } from "lucide-react";
-import logo from "@/assets/logo-small.webp";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import { NotificationBell } from "./NotificationBell";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useTranslation } from "@/hooks/useTranslation";
+
+// Default logo from public folder
+const defaultLogo = "/icons/icon-96x96.png";
 
 const AdminHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useThemeSettings();
+  const { isRTL } = useTranslation();
+
+  // Get brand name and logo from theme settings
+  const brandName = isRTL ? theme.brand_name : theme.brand_name_en;
+  const logoUrl = theme.logo_url || defaultLogo;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-primary/20 glass-panel" dir="rtl">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" dir="rtl">
       <div className="flex h-16 items-center justify-between px-4">
         {/* Logo/Title */}
         <div className="flex items-center gap-2">
-          <img src={logo} alt="מיינד האקר" className="h-8 w-8 mix-blend-screen" />
+          <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
           <h1 className="text-xl font-black cyber-glow">פאנל ניהול</h1>
         </div>
 
