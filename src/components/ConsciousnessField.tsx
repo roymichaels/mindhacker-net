@@ -26,6 +26,8 @@ interface Particle {
   layer: number;
 }
 
+const clamp255 = (n: number) => Math.min(255, Math.max(0, Math.round(n)));
+
 const ConsciousnessField = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -66,9 +68,10 @@ const ConsciousnessField = () => {
     const primaryL = parseFloat(themeSettings.primary_l) || 42;
     const accentColor = hslToRgb(primaryH, primaryS, primaryL);
 
-    const particleDensity = parseFloat(themeSettings.consciousness_field_particle_density || "0.6");
-    const breathingSpeed = parseFloat(themeSettings.consciousness_field_breathing_speed || "10");
-    const interactionEnabled = themeSettings.consciousness_field_interaction !== false;
+    const tsAny = themeSettings as any;
+    const particleDensity = parseFloat(tsAny.consciousness_field_particle_density || "0.6");
+    const breathingSpeed = parseFloat(tsAny.consciousness_field_breathing_speed || "10");
+    const interactionEnabled = tsAny.consciousness_field_interaction !== false;
 
     // Handle DPI scaling
     const dpr = window.devicePixelRatio || 1;
@@ -234,17 +237,33 @@ const ConsciousnessField = () => {
 
         // Breathing opacity - increase for light mode visibility
         const baseOpacity = particle.opacity * (0.7 + breathFactor * 0.3) * (isLightMode ? 1.5 : 1);
-        
+
         // Layer-based coloring - adjust for light mode
         let color: string;
         if (isLightMode) {
-          // Light mode: use darker primary/accent colors
+          // Light mode: darker glyphs on light background
+          const c0 = {
+            r: clamp255(accentColor.r - 120),
+            g: clamp255(accentColor.g - 120),
+            b: clamp255(accentColor.b - 120),
+          };
+          const c1 = {
+            r: clamp255(accentColor.r - 80),
+            g: clamp255(accentColor.g - 80),
+            b: clamp255(accentColor.b - 80),
+          };
+          const c2 = {
+            r: clamp255(accentColor.r - 20),
+            g: clamp255(accentColor.g - 20),
+            b: clamp255(accentColor.b - 20),
+          };
+
           if (particle.layer === 0) {
-            color = `rgba(${accentColor.r - 50}, ${accentColor.g - 50}, ${accentColor.b - 50}, ${baseOpacity * 0.3})`;
+            color = `rgba(${c0.r}, ${c0.g}, ${c0.b}, ${baseOpacity * 0.25})`;
           } else if (particle.layer === 1) {
-            color = `rgba(${accentColor.r - 30}, ${accentColor.g - 30}, ${accentColor.b - 30}, ${baseOpacity * 0.5})`;
+            color = `rgba(${c1.r}, ${c1.g}, ${c1.b}, ${baseOpacity * 0.45})`;
           } else {
-            color = `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, ${baseOpacity * 0.8})`;
+            color = `rgba(${c2.r}, ${c2.g}, ${c2.b}, ${baseOpacity * 0.7})`;
           }
         } else {
           // Dark mode: original colors
@@ -256,6 +275,21 @@ const ConsciousnessField = () => {
             color = `rgba(${accentColor.r + 40}, ${accentColor.g + 60}, ${accentColor.b + 80}, ${baseOpacity})`;
           }
         }
+
+        // Draw glyph
+        ctx.font = `${particle.size}px "Heebo", sans-serif`;
+        ctx.fillStyle = color;
+
+        // Add subtle glow for front layer
+        if (particle.layer === 2 && !isMobile) {
+          ctx.shadowBlur = isLightMode ? 0 : 8;
+          ctx.shadowColor = `rgba(${accentColor.r}, ${accentColor.g}, ${accentColor.b}, 0.4)`;
+        }
+
+        ctx.fillText(particle.glyph, particle.x, particle.y);
+
+        // Reset shadow
+        ctx.shadowBlur = 0;
 
         // Draw glyph
         ctx.font = `${particle.size}px "Heebo", sans-serif`;
@@ -315,9 +349,9 @@ const ConsciousnessField = () => {
     themeSettings.primary_h,
     themeSettings.primary_s,
     themeSettings.primary_l,
-    themeSettings.consciousness_field_particle_density,
-    themeSettings.consciousness_field_breathing_speed,
-    themeSettings.consciousness_field_interaction
+    (themeSettings as any).consciousness_field_particle_density,
+    (themeSettings as any).consciousness_field_breathing_speed,
+    (themeSettings as any).consciousness_field_interaction
   ]);
 
   // Hide in light mode - must be after all hooks
