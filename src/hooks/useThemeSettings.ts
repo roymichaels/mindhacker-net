@@ -54,6 +54,11 @@ export interface ThemeSettings {
   consciousness_field_breathing_speed: string;
   consciousness_field_interaction: boolean;
   
+  // Hero Portrait Effect
+  hero_portrait_effect: 'none' | 'cyber_glow' | 'consciousness_aura';
+  hero_portrait_glow_color: string;
+  hero_portrait_animation_speed: 'slow' | 'normal' | 'fast';
+  
   // Assets
   logo_url: string;
   favicon_url: string;
@@ -121,6 +126,9 @@ const defaultTheme: ThemeSettings = {
   consciousness_field_particle_density: "0.6",
   consciousness_field_breathing_speed: "10",
   consciousness_field_interaction: true,
+  hero_portrait_effect: "cyber_glow",
+  hero_portrait_glow_color: "",
+  hero_portrait_animation_speed: "normal",
   logo_url: "",
   favicon_url: "",
   og_image_url: "",

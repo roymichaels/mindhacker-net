@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import DecryptText from "./DecryptText";
 import TrustBadges from "./TrustBadges";
 import HeroVideo from "./HeroVideo";
-import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift, Sparkle } from "lucide-react";
+import HeroPortraitEffect from "./HeroPortraitEffect";
+import { ArrowLeft, ArrowRight, Zap, Video, Sparkles, Brain, Gift } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
@@ -61,33 +62,8 @@ const HeroSection = () => {
       </div>
 
       <div className="relative text-center max-w-5xl mx-auto">
-        {/* Hero Portrait - restored larger size */}
-        <div className="relative mx-auto mb-4 sm:mb-6 md:mb-8 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-          <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 mx-auto animate-float-gentle">
-            {/* Glow effect behind image */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 via-accent/40 to-primary/30 blur-2xl scale-150" />
-            {/* Image with mask for seamless blend */}
-            <img 
-              src={portraitUrl} 
-              alt={brandNameAlt}
-              className="relative w-full h-full object-cover rounded-full"
-              style={{
-                maskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
-                WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 100%)',
-              }}
-            />
-            {/* Pulsing glow ring - more prominent */}
-            <div className="absolute inset-0 rounded-full border-2 sm:border-3 border-primary/60 animate-ring-pulse pointer-events-none" />
-            <div className="absolute -inset-2 sm:-inset-3 rounded-full border border-primary/30 animate-ring-pulse pointer-events-none" style={{ animationDelay: '0.5s' }} />
-            
-            {/* Sparkle effects */}
-            <Sparkle className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 w-4 h-4 sm:w-5 sm:h-5 text-primary animate-sparkle" />
-            <Sparkle className="absolute top-1/4 -left-3 sm:-left-4 w-3 h-3 sm:w-4 sm:h-4 text-accent animate-sparkle-delay-1" />
-            <Sparkle className="absolute -bottom-2 right-1/4 w-3 h-3 sm:w-4 sm:h-4 text-primary animate-sparkle-delay-2" />
-            <Sparkle className="absolute top-0 left-1/3 w-2 h-2 sm:w-3 sm:h-3 text-secondary animate-sparkle-delay-3" />
-            <Sparkle className="absolute bottom-1/4 -right-3 sm:-right-4 w-3 h-3 sm:w-4 sm:h-4 text-accent animate-sparkle-delay-4" />
-          </div>
-        </div>
+        {/* Hero Portrait with data-driven effects */}
+        <HeroPortraitEffect portraitUrl={portraitUrl} alt={brandNameAlt} />
 
         {/* Main Headline - proper vertical stacking on mobile */}
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 md:mb-8 leading-tight flex flex-col md:flex-row items-center justify-center gap-0 md:gap-4 pb-1 sm:pb-2 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
