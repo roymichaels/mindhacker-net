@@ -196,6 +196,7 @@ export const en: TranslationKeys = {
     notifications: "Notifications",
     menu: "Menu",
     homepage: "Homepage Sections",
+    theme: "Theme & Branding",
     consciousnessLeap: "Consciousness Leap",
     newsletter: "Newsletter",
     panelTitle: "Command Center",

@@ -9,6 +9,7 @@ import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 import MatrixRain from "@/components/MatrixRain";
+import ThemeProvider from "@/components/ThemeProvider";
 import AffiliateTracker from "@/components/AffiliateTracker";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
@@ -69,6 +70,7 @@ const ChatAssistant = lazy(() => import("./pages/admin/ChatAssistant"));
 const Videos = lazy(() => import("./pages/admin/Videos"));
 const AdminProducts = lazy(() => import("./pages/admin/Products"));
 const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
+const AdminTheme = lazy(() => import("./pages/admin/Theme"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,9 +85,10 @@ const queryClient = new QueryClient({
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <MatrixRain />
-      <AuthProvider>
-        <LanguageProvider>
+      <ThemeProvider>
+        <MatrixRain />
+        <AuthProvider>
+          <LanguageProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -148,6 +151,7 @@ const App = () => (
                       <Route path="forms" element={<Forms />} />
                       <Route path="newsletter" element={<Newsletter />} />
                       <Route path="homepage" element={<HomepageSections />} />
+                      <Route path="theme" element={<AdminTheme />} />
                       <Route path="chat-assistant" element={<ChatAssistant />} />
                       <Route path="products" element={<AdminProducts />} />
                       <Route path="affiliates" element={<AdminAffiliates />} />
@@ -169,6 +173,7 @@ const App = () => (
           </TooltipProvider>
         </LanguageProvider>
       </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );

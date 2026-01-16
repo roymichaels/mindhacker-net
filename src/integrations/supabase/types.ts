@@ -1795,6 +1795,75 @@ export type Database = {
         }
         Relationships: []
       }
+      theme_presets: {
+        Row: {
+          colors: Json
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_en: string | null
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          colors: Json
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_en?: string | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          colors?: Json
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_en?: string | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      theme_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          setting_key: string
+          setting_type: string | null
+          setting_value: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_type?: string | null
+          setting_value?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_type?: string | null
+          setting_value?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_audio_access: {
         Row: {
           access_token: string
