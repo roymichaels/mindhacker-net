@@ -208,6 +208,7 @@ const App = () => (
                           <Route path="chat-assistant" element={<ChatAssistant />} />
                           <Route path="products" element={<AdminProducts />} />
                           <Route path="affiliates" element={<AdminAffiliates />} />
+                          <Route path="offers" element={<AdminOffers />} />
                         </Route>
 
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

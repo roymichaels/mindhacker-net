@@ -1,7 +1,8 @@
 // Product brand colors utility for data-driven theming
 // Maps color identifiers to Tailwind CSS classes
+// Supports "theme" option that uses CSS variables from theme_settings
 
-export type ProductColorKey = 'primary' | 'emerald' | 'purple' | 'amber' | 'rose' | 'blue';
+export type ProductColorKey = 'theme' | 'primary' | 'emerald' | 'purple' | 'amber' | 'rose' | 'blue';
 
 export interface ProductColorClasses {
   border: string;
@@ -17,6 +18,19 @@ export interface ProductColorClasses {
 }
 
 export const productColorClasses: Record<ProductColorKey, ProductColorClasses> = {
+  // Theme uses CSS variables from database-driven theme_settings
+  theme: {
+    border: 'border-primary',
+    borderHover: 'hover:border-primary/60',
+    bg: 'bg-primary',
+    bgLight: 'bg-primary/10',
+    bgMedium: 'bg-primary/20',
+    text: 'text-primary',
+    button: 'bg-primary hover:bg-primary/90',
+    buttonText: 'text-primary-foreground',
+    shadow: 'shadow-primary/25',
+    gradient: 'from-primary/10'
+  },
   primary: {
     border: 'border-primary',
     borderHover: 'hover:border-primary/60',
@@ -91,17 +105,25 @@ export const productColorClasses: Record<ProductColorKey, ProductColorClasses> =
   }
 };
 
+// Get product colors - returns theme colors if null/undefined
 export const getProductColors = (colorKey: string | null | undefined): ProductColorClasses => {
+  if (!colorKey) {
+    return productColorClasses.theme;
+  }
   const key = colorKey as ProductColorKey;
-  return productColorClasses[key] || productColorClasses.primary;
+  return productColorClasses[key] || productColorClasses.theme;
 };
 
-// Color options for admin UI with labels
-export const colorOptions: { value: ProductColorKey; labelHe: string; labelEn: string; preview: string }[] = [
-  { value: 'primary', labelHe: 'ראשי (ציאן)', labelEn: 'Primary (Cyan)', preview: 'bg-primary' },
+// Alias for offers - same logic, different name for clarity
+export const getOfferColors = getProductColors;
+
+// Color options for admin UI with labels (includes theme option first)
+export const colorOptions: { value: ProductColorKey | null; labelHe: string; labelEn: string; preview: string }[] = [
+  { value: null, labelHe: 'ברירת מחדל (צבע ראשי)', labelEn: 'Default (Theme Primary)', preview: 'bg-primary' },
   { value: 'emerald', labelHe: 'אמרלד (ירוק)', labelEn: 'Emerald (Green)', preview: 'bg-emerald-500' },
   { value: 'purple', labelHe: 'סגול (אינדיגו)', labelEn: 'Purple (Indigo)', preview: 'bg-purple-500' },
   { value: 'amber', labelHe: 'ענבר (זהב)', labelEn: 'Amber (Gold)', preview: 'bg-amber-500' },
   { value: 'rose', labelHe: 'ורוד', labelEn: 'Rose (Pink)', preview: 'bg-rose-500' },
   { value: 'blue', labelHe: 'כחול', labelEn: 'Blue', preview: 'bg-blue-500' },
+  { value: 'primary', labelHe: 'ראשי (ציאן)', labelEn: 'Primary (Cyan)', preview: 'bg-primary' },
 ];
