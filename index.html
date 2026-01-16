@@ -1,21 +1,20 @@
 <!doctype html>
 <html lang="he" dir="rtl" class="dark">
-  <script>
-    (function() {
-      try {
-        var theme = localStorage.getItem('theme-preference');
-        // Handle both "light" and '"light"' (JSON stringified)
-        if (theme === 'light' || theme === '"light"') {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
-        } else {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-        }
-      } catch (e) {}
-    })();
-  </script>
   <head>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme-preference');
+          if (theme === 'light' || theme === '"light"') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     
     <!-- Preconnect FIRST for faster resource loading -->
