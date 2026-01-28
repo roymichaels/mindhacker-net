@@ -66,9 +66,9 @@ const FormView = () => {
   // Storage key for persisting form progress
   const storageKey = `form-progress-${token}`;
   
-  // Initialize state from sessionStorage
+  // Initialize state from localStorage (persists across browser sessions)
   const [showIntro, setShowIntro] = useState(() => {
-    const saved = sessionStorage.getItem(storageKey);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -79,7 +79,7 @@ const FormView = () => {
   });
   
   const [currentStep, setCurrentStep] = useState(() => {
-    const saved = sessionStorage.getItem(storageKey);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -90,7 +90,7 @@ const FormView = () => {
   });
   
   const [responses, setResponses] = useState<Record<string, string | string[]>>(() => {
-    const saved = sessionStorage.getItem(storageKey);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -120,13 +120,14 @@ const FormView = () => {
   // Check if this is the introspection form (by checking the token)
   const isIntrospectionForm = token === "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e";
   
-  // Persist form state to sessionStorage
+  // Persist form state to localStorage (survives browser close)
   useEffect(() => {
     if (!isSubmitted && token) {
-      sessionStorage.setItem(storageKey, JSON.stringify({
+      localStorage.setItem(storageKey, JSON.stringify({
         currentStep,
         responses,
-        showIntro
+        showIntro,
+        lastUpdated: new Date().toISOString()
       }));
     }
   }, [currentStep, responses, showIntro, isSubmitted, token, storageKey]);
@@ -272,7 +273,7 @@ const FormView = () => {
       
       setSubmissionId(submissionData?.id || null);
       setIsSubmitted(true);
-      sessionStorage.removeItem(storageKey); // Clear saved progress on successful submission
+      localStorage.removeItem(storageKey); // Clear saved progress on successful submission
       
       // Trigger AI analysis for introspection form
       if (isIntrospectionForm && submissionData?.id) {
