@@ -330,39 +330,36 @@ const AllFormSubmissions = () => {
                   <div
                     key={submission.id}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg border transition-all hover:bg-white/5",
+                      "flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-lg border transition-all hover:bg-muted/50",
                       submission.status === "new" 
-                        ? "border-blue-500/30 bg-blue-500/5" 
-                        : "border-white/10"
+                        ? "border-blue-300 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/5" 
+                        : "border-border"
                     )}
                   >
                     {/* Info Section */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium truncate">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-sm font-medium truncate max-w-[150px] sm:max-w-none">
                           {getFormName(submission.form_id)}
                         </span>
                         {getStatusBadge(submission.status)}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs text-muted-foreground">
                         {submission.email && (
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {submission.email}
+                          <span className="flex items-center gap-1 truncate">
+                            <Mail className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{submission.email}</span>
                           </span>
                         )}
-                        <span className="hidden sm:inline">
+                        <span className="text-[10px] sm:text-xs">
                           {format(new Date(submission.submitted_at), "dd/MM/yyyy HH:mm", { locale: he })}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 truncate sm:hidden">
-                        {getPreviewText(submission)}
-                      </p>
                     </div>
 
                     {/* Actions */}
                     <TooltipProvider delayDuration={300}>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 self-end sm:self-auto border-t sm:border-t-0 pt-2 sm:pt-0 mt-1 sm:mt-0 w-full sm:w-auto justify-end">
                         {/* View Answers */}
                         <Tooltip>
                           <TooltipTrigger asChild>
