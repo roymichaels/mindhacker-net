@@ -72,6 +72,9 @@ export interface ThemeSettings {
   
   // Localization
   default_language: string;
+  
+  // Default theme mode for all users
+  default_theme_mode: 'light' | 'dark';
 }
 
 export interface ThemePreset {
@@ -137,6 +140,7 @@ const defaultTheme: ThemeSettings = {
   pwa_icon_url: "",
   introspection_form_id: "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",
   default_language: "he",
+  default_theme_mode: "dark",
 };
 
 // In-memory cache

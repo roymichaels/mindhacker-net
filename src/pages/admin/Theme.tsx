@@ -320,6 +320,50 @@ const Theme = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Default Theme Mode */}
+              <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
+                <Label className="text-base font-semibold">
+                  {isRTL ? "ערכת נושא ברירת מחדל" : "Default Theme Mode"}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {isRTL ? "בחר את ערכת הנושא שתוצג למשתמשים חדשים" : "Choose the default theme for new visitors"}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('default_theme_mode', 'light')}
+                    className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      (localTheme as any).default_theme_mode === 'light' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center">
+                        <span className="text-2xl">☀️</span>
+                      </div>
+                      <p className="font-medium">{isRTL ? "בהיר" : "Light"}</p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('default_theme_mode', 'dark')}
+                    className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      (localTheme as any).default_theme_mode === 'dark' 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-900 border-2 border-gray-700 flex items-center justify-center">
+                        <span className="text-2xl">🌙</span>
+                      </div>
+                      <p className="font-medium">{isRTL ? "כהה" : "Dark"}</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Background Effect Selector */}
               <div className="space-y-2">
                 <Label>{isRTL ? "אפקט רקע" : "Background Effect"}</Label>
