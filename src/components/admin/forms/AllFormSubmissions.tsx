@@ -5,15 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -22,22 +14,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Download,
   Inbox,
   Trash2,
-  ChevronDown,
-  ChevronUp,
   Mail,
   Search,
   CheckCircle2,
@@ -45,6 +36,8 @@ import {
   Loader2,
   Brain,
   Sparkles,
+  Eye,
+  MessageSquareText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -89,8 +82,8 @@ const AllFormSubmissions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [formFilter, setFormFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
   const [selectedAnalysis, setSelectedAnalysis] = useState<FormAnalysis | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
 
   const { data: forms = [] } = useQuery({
     queryKey: ["custom-forms"],
@@ -206,19 +199,7 @@ const AllFormSubmissions = () => {
     if (!firstResponse) return "אין תשובות";
     const value = firstResponse[1];
     const text = Array.isArray(value) ? value.join(", ") : value;
-    return text.length > 50 ? text.slice(0, 50) + "..." : text;
-  };
-
-  const toggleExpanded = (id: string) => {
-    setExpandedSubmissions((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+    return text.length > 60 ? text.slice(0, 60) + "..." : text;
   };
 
   const exportToCSV = () => {
@@ -251,6 +232,21 @@ const AllFormSubmissions = () => {
     URL.revokeObjectURL(url);
 
     toast({ title: "הקובץ הורד בהצלחה!" });
+  };
+
+  const handleDownloadPDF = async (submission: FormSubmission) => {
+    const fields = getFieldsForForm(submission.form_id);
+    const formResponses = fields.map((field) => ({
+      question: field.label,
+      answer: submission.responses[field.id] || "",
+    }));
+    await generateFormPDF(
+      getFormName(submission.form_id),
+      formResponses,
+      new Date(submission.submitted_at),
+      true
+    );
+    toast({ title: "PDF הורד בהצלחה!" });
   };
 
   const filteredSubmissions = submissions.filter((sub) => {
@@ -316,7 +312,7 @@ const AllFormSubmissions = () => {
         </CardContent>
       </Card>
 
-      {/* Submissions Table */}
+      {/* Submissions List */}
       <Card className="glass-panel border-primary/20">
         <CardContent className="pt-6">
           {filteredSubmissions.length === 0 ? (
@@ -326,152 +322,122 @@ const AllFormSubmissions = () => {
               <p className="text-muted-foreground">לא נמצאו תשובות התואמות את החיפוש</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredSubmissions.map((submission) => {
-                const isExpanded = expandedSubmissions.has(submission.id);
-                const fields = getFieldsForForm(submission.form_id);
+                const hasAnalysis = !!getAnalysisForSubmission(submission.id);
 
                 return (
-                  <Collapsible
+                  <div
                     key={submission.id}
-                    open={isExpanded}
-                    onOpenChange={() => toggleExpanded(submission.id)}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border transition-all hover:bg-white/5",
+                      submission.status === "new" 
+                        ? "border-blue-500/30 bg-blue-500/5" 
+                        : "border-white/10"
+                    )}
                   >
-                    <Card
-                      className={cn(
-                        "border-white/10 transition-all",
-                        submission.status === "new" && "border-blue-500/30 bg-blue-500/5",
-                        isExpanded && "ring-1 ring-primary/30"
-                      )}
-                    >
-                      <CollapsibleTrigger asChild>
-                        <CardHeader className="pb-2 cursor-pointer hover:bg-white/5 transition-colors rounded-t-lg">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                              <div className="flex flex-col gap-1">
-                                <span className="text-sm font-medium">{getFormName(submission.form_id)}</span>
-                                <div className="flex items-center gap-2">
-                                  {submission.email ? (
-                                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                      <Mail className="h-3 w-3" />
-                                      {submission.email}
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs text-muted-foreground">ללא אימייל</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
+                    {/* Info Section */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium truncate">
+                          {getFormName(submission.form_id)}
+                        </span>
+                        {getStatusBadge(submission.status)}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        {submission.email && (
+                          <span className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {submission.email}
+                          </span>
+                        )}
+                        <span className="hidden sm:inline">
+                          {format(new Date(submission.submitted_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 truncate sm:hidden">
+                        {getPreviewText(submission)}
+                      </p>
+                    </div>
 
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-muted-foreground hidden md:block">
-                                {format(new Date(submission.submitted_at), "dd/MM/yyyy HH:mm", { locale: he })}
-                              </span>
-                              {getStatusBadge(submission.status)}
-                              {isExpanded ? (
-                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </div>
-                          </div>
-
-                          {!isExpanded && (
-                            <p className="text-sm text-muted-foreground truncate mt-2">
-                              {getPreviewText(submission)}
-                            </p>
-                          )}
-                        </CardHeader>
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent>
-                        <CardContent className="pt-0 space-y-4">
-                          {/* Answers Section */}
-                          <div className="space-y-3 pt-4 border-t border-border/50">
-                            {fields.map((field, index) => {
-                              const value = submission.responses[field.id];
-                              const displayValue = Array.isArray(value) ? value.join(", ") : value;
-
-                              return (
-                                <div key={field.id} className="p-3 rounded-lg bg-background/50 border border-border/30">
-                                  <div className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
-                                      {index + 1}
-                                    </span>
-                                    <div className="flex-1 min-w-0 space-y-1">
-                                      <p className="font-medium text-sm text-foreground">{field.label}</p>
-                                      <p className="text-sm text-foreground/80 whitespace-pre-wrap">
-                                        {displayValue || <span className="text-muted-foreground italic">לא נענה</span>}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {submission.status !== "processed" && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    markProcessedMutation.mutate(submission.id);
-                                  }}
-                                  className="gap-2"
-                                >
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  סמן כטופל
-                                </Button>
-                              )}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  const formResponses = fields.map((field) => ({
-                                    question: field.label,
-                                    answer: submission.responses[field.id] || "",
-                                  }));
-                                  await generateFormPDF(
-                                    getFormName(submission.form_id),
-                                    formResponses,
-                                    new Date(submission.submitted_at),
-                                    true
-                                  );
-                                  toast({ title: "PDF הורד בהצלחה!" });
-                                }}
-                                className="gap-2"
-                              >
-                                <FileText className="h-4 w-4" />
-                                הורד PDF
-                              </Button>
-                              {/* AI Analysis Button */}
-                              {getAnalysisForSubmission(submission.id) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const analysis = getAnalysisForSubmission(submission.id);
-                                    if (analysis) setSelectedAnalysis(analysis);
-                                  }}
-                                  className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
-                                >
-                                  <Brain className="h-4 w-4" />
-                                  ניתוח AI
-                                </Button>
-                              )}
-                            </div>
+                    {/* Actions */}
+                    <TooltipProvider delayDuration={300}>
+                      <div className="flex items-center gap-1">
+                        {/* View Answers */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <Button
                               variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setSelectedSubmission(submission)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>צפה בתשובות</TooltipContent>
+                        </Tooltip>
+
+                        {/* Mark as Processed */}
+                        {submission.status !== "processed" && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                onClick={() => markProcessedMutation.mutate(submission.id)}
+                              >
+                                <CheckCircle2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>סמן כטופל</TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        {/* Download PDF */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleDownloadPDF(submission)}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>הורד PDF</TooltipContent>
+                        </Tooltip>
+
+                        {/* AI Analysis */}
+                        {hasAnalysis && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
+                                onClick={() => {
+                                  const analysis = getAnalysisForSubmission(submission.id);
+                                  if (analysis) setSelectedAnalysis(analysis);
+                                }}
+                              >
+                                <Brain className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>ניתוח AI</TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        {/* Delete */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
                                 if (confirm("למחוק את התשובה?")) {
                                   deleteMutation.mutate(submission.id);
                                 }
@@ -479,17 +445,113 @@ const AllFormSubmissions = () => {
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                          </div>
-                        </CardContent>
-                      </CollapsibleContent>
-                    </Card>
-                  </Collapsible>
+                          </TooltipTrigger>
+                          <TooltipContent>מחק</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
+                  </div>
                 );
               })}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Answers Dialog */}
+      <Dialog open={!!selectedSubmission} onOpenChange={(open) => !open && setSelectedSubmission(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageSquareText className="h-5 w-5 text-primary" />
+              {selectedSubmission && getFormName(selectedSubmission.form_id)}
+            </DialogTitle>
+            {selectedSubmission && (
+              <div className="flex items-center gap-3 text-sm text-muted-foreground pt-1">
+                {selectedSubmission.email && (
+                  <span className="flex items-center gap-1">
+                    <Mail className="h-3.5 w-3.5" />
+                    {selectedSubmission.email}
+                  </span>
+                )}
+                <span>
+                  {format(new Date(selectedSubmission.submitted_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                </span>
+                {getStatusBadge(selectedSubmission.status)}
+              </div>
+            )}
+          </DialogHeader>
+          
+          {selectedSubmission && (
+            <div className="space-y-3 mt-4">
+              {getFieldsForForm(selectedSubmission.form_id).map((field, index) => {
+                const value = selectedSubmission.responses[field.id];
+                const displayValue = Array.isArray(value) ? value.join(", ") : value;
+
+                return (
+                  <div key={field.id} className="p-3 rounded-lg bg-background/50 border border-border/30">
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="font-medium text-sm text-foreground">{field.label}</p>
+                        <p className="text-sm text-foreground/80 whitespace-pre-wrap">
+                          {displayValue || <span className="text-muted-foreground italic">לא נענה</span>}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Quick Actions in Modal */}
+              <div className="flex items-center gap-2 pt-4 border-t border-border/50">
+                {selectedSubmission.status !== "processed" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      markProcessedMutation.mutate(selectedSubmission.id);
+                      setSelectedSubmission(null);
+                    }}
+                    className="gap-2"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    סמן כטופל
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownloadPDF(selectedSubmission)}
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  הורד PDF
+                </Button>
+                {getAnalysisForSubmission(selectedSubmission.id) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const analysis = getAnalysisForSubmission(selectedSubmission.id);
+                      if (analysis) {
+                        setSelectedSubmission(null);
+                        setTimeout(() => setSelectedAnalysis(analysis), 100);
+                      }
+                    }}
+                    className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                  >
+                    <Brain className="h-4 w-4" />
+                    ניתוח AI
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* AI Analysis Dialog */}
       <Dialog open={!!selectedAnalysis} onOpenChange={(open) => !open && setSelectedAnalysis(null)}>
