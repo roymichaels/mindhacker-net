@@ -202,6 +202,29 @@ const AllFormSubmissions = () => {
     return text.length > 60 ? text.slice(0, 60) + "..." : text;
   };
 
+  // Extract name from form responses
+  const getNameFromSubmission = (submission: FormSubmission) => {
+    const fields = getFieldsForForm(submission.form_id);
+    // Look for name field by label
+    const nameField = fields.find((f) => 
+      f.label.includes("שם") || 
+      f.label.toLowerCase().includes("name") ||
+      f.label.includes("השם")
+    );
+    if (nameField) {
+      const value = submission.responses[nameField.id];
+      if (value && !Array.isArray(value)) return value;
+    }
+    // Fallback: return first short text response (likely a name)
+    for (const field of fields) {
+      const value = submission.responses[field.id];
+      if (value && !Array.isArray(value) && value.length < 50 && value.length > 1) {
+        return value;
+      }
+    }
+    return null;
+  };
+
   const exportToCSV = () => {
     if (filteredSubmissions.length === 0) {
       toast({ title: "אין תשובות לייצוא" });
@@ -325,6 +348,7 @@ const AllFormSubmissions = () => {
             <div className="space-y-2">
               {filteredSubmissions.map((submission) => {
                 const hasAnalysis = !!getAnalysisForSubmission(submission.id);
+                const submitterName = getNameFromSubmission(submission);
 
                 return (
                   <div
@@ -339,7 +363,12 @@ const AllFormSubmissions = () => {
                     {/* Info Section */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-sm font-medium truncate max-w-[150px] sm:max-w-none">
+                        {submitterName && (
+                          <span className="text-sm font-semibold text-foreground truncate max-w-[120px] sm:max-w-[200px]">
+                            {submitterName}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-none">
                           {getFormName(submission.form_id)}
                         </span>
                         {getStatusBadge(submission.status)}
