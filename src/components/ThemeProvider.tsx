@@ -76,6 +76,27 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
  * ThemeProvider component that wraps next-themes for light/dark mode
  * and applies dynamic theme settings from database.
  */
+/**
+ * Inner wrapper that sets default theme from database
+ */
+const ThemeProviderInner = ({ children }: { children: React.ReactNode }) => {
+  const { theme: themeSettings, loading } = useThemeSettings();
+  const { setTheme, theme } = useTheme();
+
+  // Apply default theme from database on first load (only if user hasn't set preference)
+  useEffect(() => {
+    if (loading) return;
+    
+    // Check if user already has a preference stored
+    const storedTheme = localStorage.getItem("theme-preference");
+    if (!storedTheme && themeSettings.default_theme_mode) {
+      setTheme(themeSettings.default_theme_mode);
+    }
+  }, [loading, themeSettings.default_theme_mode, setTheme]);
+
+  return <ThemeSettingsApplier>{children}</ThemeSettingsApplier>;
+};
+
 const ThemeProvider = ({ children }: ThemeProviderProps) => {
   return (
     <NextThemesProvider
@@ -87,7 +108,7 @@ const ThemeProvider = ({ children }: ThemeProviderProps) => {
       themes={["light", "dark"]}
       value={{ light: "light", dark: "dark" }}
     >
-      <ThemeSettingsApplier>{children}</ThemeSettingsApplier>
+      <ThemeProviderInner>{children}</ThemeProviderInner>
     </NextThemesProvider>
   );
 };
