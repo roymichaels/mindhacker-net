@@ -1,247 +1,155 @@
 
-# תוכנית: בניית מערכת קהילה בסגנון Skool
+# תוכנית: שינוי הדאשבורד למראה כמו Skool/Major Apps
 
 ## סקירה כללית
 
-נבנה מערכת קהילה מלאה שתאפשר למשתמשים להתחבר, לשתף תוכן, להשתתף באירועים ולצבור נקודות. המערכת תשתלב עם התשתית הקיימת (קורסים, משתמשים, התראות).
+נשנה את דף `/dashboard` למסך ראשי בסגנון אפליקציה חברתית מודרנית שמשלב את הקהילה במרכז, עם גישה מהירה לכל תכני המשתמש.
 
 ---
 
-## שלב 1: מבנה הנתונים (Database)
-
-### טבלאות חדשות:
+## מבנה חדש של הדאשבורד
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│                    community_posts                          │
-├─────────────────────────────────────────────────────────────┤
-│ id, user_id, category_id, title, content, media_urls,      │
-│ is_pinned, likes_count, comments_count, created_at         │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   community_comments                         │
-├─────────────────────────────────────────────────────────────┤
-│ id, post_id, user_id, parent_comment_id, content,          │
-│ likes_count, created_at                                     │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                 community_categories                         │
-├─────────────────────────────────────────────────────────────┤
-│ id, name, name_en, description, icon, color, order_index   │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                    community_likes                           │
-├─────────────────────────────────────────────────────────────┤
-│ id, user_id, post_id (nullable), comment_id (nullable)     │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                   community_events                           │
-├─────────────────────────────────────────────────────────────┤
-│ id, title, title_en, description, start_time, end_time,    │
-│ event_type, meeting_url, created_by, attendees_count       │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                  community_event_rsvps                       │
-├─────────────────────────────────────────────────────────────┤
-│ id, event_id, user_id, status, created_at                  │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                   community_levels                           │
-├─────────────────────────────────────────────────────────────┤
-│ id, name, name_en, min_points, badge_icon, badge_color,    │
-│ unlocks_content_ids, order_index                            │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                  community_members                           │
-├─────────────────────────────────────────────────────────────┤
-│ id, user_id, bio, avatar_url, total_points, current_level, │
-│ posts_count, comments_count, joined_at, last_active_at     │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                community_point_logs                          │
-├─────────────────────────────────────────────────────────────┤
-│ id, user_id, points, action_type, reference_id, created_at │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                          HEADER (קיים)                              │
+├─────────────┬───────────────────────────────────┬──────────────────┤
+│             │                                   │                  │
+│   SIDEBAR   │         MAIN CONTENT              │  RIGHT SIDEBAR   │
+│   (שמאל)    │           (מרכז)                  │    (ימין)        │
+│             │                                   │                  │
+│  ┌────────┐ │  ┌───────────────────────────┐   │  ┌────────────┐  │
+│  │ Profile│ │  │     Quick Access Bar      │   │  │ My Courses │  │
+│  │  Card  │ │  │  (כפתורים מהירים)         │   │  │   Preview  │  │
+│  └────────┘ │  └───────────────────────────┘   │  └────────────┘  │
+│             │                                   │                  │
+│  ┌────────┐ │  ┌───────────────────────────┐   │  ┌────────────┐  │
+│  │  Nav   │ │  │                           │   │  │ Recordings │  │
+│  │ Items  │ │  │    COMMUNITY FEED         │   │  │   List     │  │
+│  │        │ │  │   (פוסטים מהקהילה)        │   │  └────────────┘  │
+│  │ - Feed │ │  │                           │   │                  │
+│  │ - Events│ │ │                           │   │  ┌────────────┐  │
+│  │ - Members│ │                           │   │  │  Sessions  │  │
+│  │ - Leaders│ │                           │   │  │    Info    │  │
+│  └────────┘ │  │                           │   │  └────────────┘  │
+│             │  └───────────────────────────┘   │                  │
+│  ┌────────┐ │                                   │  ┌────────────┐  │
+│  │ Online │ │                                   │  │ Affiliate  │  │
+│  │ Members│ │                                   │  │   Stats    │  │
+│  └────────┘ │                                   │  └────────────┘  │
+│             │                                   │                  │
+└─────────────┴───────────────────────────────────┴──────────────────┘
 ```
 
 ---
 
-## שלב 2: Frontend - דפים וקומפוננטות
+## שינויים עיקריים
 
-### מבנה הקבצים:
+### 1. יצירת Layout חדש לדאשבורד
+**קובץ חדש:** `src/components/dashboard/DashboardLayout.tsx`
+
+- **Sidebar שמאלי** (כמו CommunityLayout):
+  - כרטיס פרופיל עם אווטאר, שם, רמה ונקודות
+  - פס התקדמות לרמה הבאה
+  - ניווט: פיד, אירועים, חברים, לידרבורד
+  - חברים מחוברים (realtime)
+
+- **תוכן מרכזי**:
+  - Quick Actions Bar (כפתורים מהירים)
+  - Community Feed משולב
+
+- **Sidebar ימני** (מוסתר במובייל):
+  - הקורסים שלי (קומפקטי)
+  - ההקלטות שלי (קומפקטי)
+  - פגישות מתוכננות
+  - מנויים פעילים
+  - שותפים (affiliate)
+
+### 2. עדכון UserDashboard.tsx
+- שימוש ב-DashboardLayout במקום Layout הקיים
+- הקהילה במרכז במקום Tabs
+- תכנים אחרים בסייד בר ימני
+
+### 3. קומפוננטות קומפקטיות חדשות
+**קבצים חדשים:**
+- `src/components/dashboard/CompactCourses.tsx` - רשימת קורסים קומפקטית
+- `src/components/dashboard/CompactRecordings.tsx` - רשימת הקלטות קומפקטית
+- `src/components/dashboard/CompactSessions.tsx` - פגישות קומפקטי
+- `src/components/dashboard/QuickActions.tsx` - כפתורי פעולה מהירים
+
+### 4. מובייל - עיצוב מותאם
+- סייד בר שמאלי: מוסתר במובייל, נגיש דרך hamburger
+- סייד בר ימני: מוסתר במובייל, נגיש דרך tabs
+- תפריט תחתון (Bottom Navigation) למובייל
+
+---
+
+## מבנה הקבצים
 
 ```text
-src/
-├── pages/
-│   ├── Community.tsx              # דף ראשי - פיד
-│   ├── CommunityPost.tsx          # צפייה בפוסט בודד
-│   ├── CommunityEvents.tsx        # לוח אירועים
-│   ├── CommunityMembers.tsx       # רשימת חברים
-│   └── CommunityLeaderboard.tsx   # לידרבורד
-│
-├── components/community/
-│   ├── CommunityLayout.tsx        # Layout עם סייד בר
-│   ├── CommunityFeed.tsx          # רשימת פוסטים
-│   ├── PostCard.tsx               # כרטיס פוסט
-│   ├── PostEditor.tsx             # עורך פוסט חדש
-│   ├── CommentSection.tsx         # תגובות
-│   ├── CommentItem.tsx            # תגובה בודדת
-│   ├── CategoryFilter.tsx         # סינון לפי קטגוריה
-│   ├── MemberCard.tsx             # כרטיס חבר
-│   ├── MemberProfile.tsx          # פרופיל מורחב
-│   ├── EventCard.tsx              # כרטיס אירוע
-│   ├── EventCalendar.tsx          # לוח שנה
-│   ├── LeaderboardTable.tsx       # טבלת דירוג
-│   ├── PointsBadge.tsx            # תג נקודות
-│   ├── LevelProgress.tsx          # התקדמות לרמה הבאה
-│   ├── OnlineMembers.tsx          # חברים מחוברים (realtime)
-│   └── QuickActions.tsx           # פעולות מהירות
+src/components/dashboard/
+├── DashboardLayout.tsx       # NEW - Layout ראשי
+├── DashboardSidebar.tsx      # NEW - Sidebar שמאלי
+├── DashboardRightPanel.tsx   # NEW - Panel ימני
+├── QuickActions.tsx          # NEW - פעולות מהירות
+├── CompactCourses.tsx        # NEW - קורסים קומפקטי
+├── CompactRecordings.tsx     # NEW - הקלטות קומפקטי
+├── CompactSessions.tsx       # NEW - פגישות קומפקטי
+├── MyCourses.tsx             # KEEP - לדף מלא
+├── MyRecordings.tsx          # KEEP - לדף מלא
+├── MySubscriptions.tsx       # KEEP - לדף מלא
+└── MyAffiliatePanel.tsx      # KEEP - לדף מלא
 ```
 
 ---
 
-## שלב 3: פיצ'רים עיקריים
+## תרגומים חדשים
 
-### 3.1 פיד קהילתי
-- יצירת פוסטים עם טקסט, תמונות, סרטונים, GIFs
-- קטגוריות (שאלות, הצלחות, דיונים, הכרזות)
-- לייקים ותגובות עם realtime updates
-- חיפוש ופילטור
-- פוסטים נעוצים (מנהל בלבד)
-
-### 3.2 מערכת Gamification
-- נקודות על פעולות:
-  - פוסט חדש: 5 נקודות
-  - תגובה: 2 נקודות
-  - לייק שמקבלים: 1 נקודה
-  - השתתפות באירוע: 10 נקודות
-  - סיום קורס: 50 נקודות
-- רמות מותאמות אישית (ניהול מהאדמין)
-- פתיחת תכנים בהגעה לרמה מסוימת
-- לידרבורד חודשי/כללי
-
-### 3.3 אירועים קהילתיים
-- לוח שנה עם אירועים
-- סוגי אירועים: מפגש חי, Q&A, וובינר
-- RSVP והתראות
-- שעונים מותאמים לאזור הזמן של המשתמש
-
-### 3.4 פרופילי חברים
-- ביו, תמונה, רמה ונקודות
-- הפעילות האחרונה
-- תגים והישגים
-- סטטיסטיקות (פוסטים, תגובות, לייקים)
-
-### 3.5 Realtime
-- מספר חברים מחוברים
-- התראות על לייקים/תגובות חדשות
-- עדכוני פיד בזמן אמת
-
----
-
-## שלב 4: אינטגרציה עם המערכת הקיימת
-
-### קישור לקורסים:
-- פתיחת קורסים ברמה מסוימת
-- פוסטים של "סיימתי קורס" אוטומטיים
-
-### קישור לפרופיל:
-- הרחבת טבלת profiles או יצירת community_members נפרדת
-- סנכרון שם ותמונה
-
-### ניהול מהאדמין:
-- ניהול קטגוריות
-- ניהול רמות ונקודות
-- ניהול אירועים
-- מחיקה/עריכה של תוכן
-- דוחות ואנליטיקס
-
----
-
-## שלב 5: אבטחה (RLS Policies)
-
-```text
-community_posts:
-- SELECT: authenticated users
-- INSERT: own user_id only
-- UPDATE: own posts or admin
-- DELETE: own posts or admin
-
-community_members:
-- SELECT: authenticated users
-- UPDATE: own profile only
-
-community_events:
-- SELECT: authenticated users
-- INSERT/UPDATE/DELETE: admin only
+```typescript
+// he.ts - נוסיף ל-dashboard
+dashboard: {
+  // ... קיים
+  quickActions: "פעולות מהירות",
+  viewAllCourses: "כל הקורסים",
+  viewAllRecordings: "כל ההקלטות", 
+  scheduledSessions: "פגישות מתוכננות",
+  noScheduledSessions: "אין פגישות מתוכננות",
+  continueWhereYouLeft: "המשך מאיפה שהפסקת",
+  yourContent: "התוכן שלך",
+  communityActivity: "פעילות בקהילה",
+}
 ```
 
 ---
 
-## שלב 6: Routes חדשים
+## רספונסיביות
 
-```text
-/community              → פיד ראשי
-/community/post/:id     → פוסט בודד
-/community/events       → לוח אירועים
-/community/members      → רשימת חברים
-/community/leaderboard  → לידרבורד
-/community/profile/:id  → פרופיל חבר
-```
-
-### Admin Routes:
-```text
-/admin/community             → ניהול קהילה
-/admin/community/categories  → ניהול קטגוריות
-/admin/community/levels      → ניהול רמות
-/admin/community/events      → ניהול אירועים
-```
+| מסך | Layout |
+|-----|--------|
+| Desktop (xl) | 3 עמודות: Sidebar + Content + Right Panel |
+| Tablet (lg) | 2 עמודות: Sidebar + Content |
+| Mobile | עמודה אחת + Bottom Nav + Sheets |
 
 ---
 
-## סדר ביצוע מומלץ
+## סדר ביצוע
 
-| שלב | משימה | אומדן זמן |
-|-----|--------|-----------|
-| 1 | יצירת טבלאות בDB עם RLS | ראשון |
-| 2 | CommunityLayout + Feed בסיסי | שני |
-| 3 | יצירת פוסטים ותגובות | שלישי |
-| 4 | מערכת לייקים | רביעי |
-| 5 | פרופילי חברים | חמישי |
-| 6 | מערכת נקודות ורמות | שישי |
-| 7 | לוח אירועים | שביעי |
-| 8 | לידרבורד | שמיני |
-| 9 | Realtime features | תשיעי |
-| 10 | ניהול אדמין | עשירי |
-
----
-
-## תרגומים נדרשים
-
-יתווספו מפתחות תרגום ל-he.ts ו-en.ts תחת namespace `community`:
-- כותרות דפים
-- פעולות (לייק, תגובה, שתף)
-- רמות ותגים
-- הודעות מערכת
+| שלב | משימה |
+|-----|--------|
+| 1 | יצירת DashboardLayout.tsx עם 3-column layout |
+| 2 | יצירת DashboardSidebar.tsx (פרופיל + ניווט) |
+| 3 | יצירת קומפוננטות קומפקטיות לסייד בר ימני |
+| 4 | יצירת QuickActions.tsx |
+| 5 | עדכון UserDashboard.tsx לשימוש ב-Layout החדש |
+| 6 | הוספת Bottom Navigation למובייל |
+| 7 | הוספת תרגומים חדשים |
 
 ---
 
 ## סיכום טכני
 
-- **10 טבלאות חדשות** בDB
-- **~20 קומפוננטות** חדשות
-- **6 דפים** לצד הלקוח
-- **3 דפי אדמין**
-- **Realtime** עם Supabase Presence
-- **תמיכה דו-לשונית** מלאה (עברית/אנגלית)
-- **RTL תואם** לעברית
-
+- **6 קומפוננטות חדשות** בתיקיית dashboard
+- **עדכון 1 דף** (UserDashboard.tsx)
+- **תרגומים חדשים** ל-he.ts ו-en.ts
+- **שילוב CommunityFeed** כתוכן מרכזי
+- **שימוש ב-Supabase Presence** לחברים מחוברים
+- **RTL תואם** מלא
