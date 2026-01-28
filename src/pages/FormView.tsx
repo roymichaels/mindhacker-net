@@ -258,7 +258,11 @@ const FormView = () => {
     try {
       const email = getEmailFromResponses();
       
-      const { data: submissionData, error } = await supabase.from("form_submissions").insert({
+      // Generate ID client-side to avoid needing SELECT permission after INSERT
+      const newSubmissionId = crypto.randomUUID();
+      
+      const { error } = await supabase.from("form_submissions").insert({
+        id: newSubmissionId,
         form_id: form.id,
         responses,
         email, // Store extracted email for future account linking
@@ -267,17 +271,17 @@ const FormView = () => {
           referrer: document.referrer,
           submitted_at_local: new Date().toISOString(),
         },
-      }).select('id').single();
+      });
 
       if (error) throw error;
       
-      setSubmissionId(submissionData?.id || null);
+      setSubmissionId(newSubmissionId);
       setIsSubmitted(true);
       localStorage.removeItem(storageKey); // Clear saved progress on successful submission
       
       // Trigger AI analysis for introspection form
-      if (isIntrospectionForm && submissionData?.id) {
-        triggerAIAnalysis(submissionData.id);
+      if (isIntrospectionForm) {
+        triggerAIAnalysis(newSubmissionId);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
