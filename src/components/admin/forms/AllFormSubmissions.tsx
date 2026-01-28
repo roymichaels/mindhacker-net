@@ -460,7 +460,7 @@ const AllFormSubmissions = () => {
 
       {/* Answers Dialog */}
       <Dialog open={!!selectedSubmission} onOpenChange={(open) => !open && setSelectedSubmission(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquareText className="h-5 w-5 text-primary" />
@@ -489,14 +489,14 @@ const AllFormSubmissions = () => {
                 const displayValue = Array.isArray(value) ? value.join(", ") : value;
 
                 return (
-                  <div key={field.id} className="p-3 rounded-lg bg-background/50 border border-border/30">
+                  <div key={field.id} className="p-3 rounded-lg bg-muted/50 border border-border">
                     <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
                         {index + 1}
                       </span>
                       <div className="flex-1 min-w-0 space-y-1">
                         <p className="font-medium text-sm text-foreground">{field.label}</p>
-                        <p className="text-sm text-foreground/80 whitespace-pre-wrap">
+                        <p className="text-sm text-foreground whitespace-pre-wrap">
                           {displayValue || <span className="text-muted-foreground italic">לא נענה</span>}
                         </p>
                       </div>
@@ -555,10 +555,10 @@ const AllFormSubmissions = () => {
 
       {/* AI Analysis Dialog */}
       <Dialog open={!!selectedAnalysis} onOpenChange={(open) => !open && setSelectedAnalysis(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-400" />
+              <Sparkles className="h-5 w-5 text-purple-500 dark:text-purple-400" />
               ניתוח AI של השאלון
             </DialogTitle>
           </DialogHeader>
@@ -568,10 +568,10 @@ const AllFormSubmissions = () => {
               {/* Summary */}
               <div className="space-y-2">
                 <h4 className="font-semibold text-foreground flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-purple-400" />
+                  <span className="w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400" />
                   סיכום
                 </h4>
-                <p className="text-foreground/80 leading-relaxed bg-purple-500/5 p-4 rounded-lg border border-purple-500/20">
+                <p className="text-foreground leading-relaxed bg-purple-50 dark:bg-purple-500/10 p-4 rounded-lg border border-purple-200 dark:border-purple-500/20">
                   {selectedAnalysis.analysis_summary}
                 </p>
               </div>
@@ -580,19 +580,19 @@ const AllFormSubmissions = () => {
               {selectedAnalysis.patterns && selectedAnalysis.patterns.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-400" />
+                    <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
                     דפוסים שזוהו
                   </h4>
                   <div className="space-y-2">
                     {selectedAnalysis.patterns.map((pattern, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-2 p-3 bg-blue-500/5 rounded-lg border border-blue-500/20"
+                        className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20"
                       >
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
                           {index + 1}
                         </span>
-                        <span className="text-foreground/80">{pattern}</span>
+                        <span className="text-foreground">{pattern}</span>
                       </div>
                     ))}
                   </div>
@@ -603,10 +603,10 @@ const AllFormSubmissions = () => {
               {selectedAnalysis.transformation_potential && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                    <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400" />
                     פוטנציאל טרנספורמציה
                   </h4>
-                  <p className="text-foreground/80 leading-relaxed bg-green-500/5 p-4 rounded-lg border border-green-500/20">
+                  <p className="text-foreground leading-relaxed bg-green-50 dark:bg-green-500/10 p-4 rounded-lg border border-green-200 dark:border-green-500/20">
                     {selectedAnalysis.transformation_potential}
                   </p>
                 </div>
@@ -616,10 +616,10 @@ const AllFormSubmissions = () => {
               {selectedAnalysis.recommendation && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400" />
                     המלצה
                   </h4>
-                  <p className="text-foreground/80 leading-relaxed bg-amber-500/5 p-4 rounded-lg border border-amber-500/20">
+                  <p className="text-foreground leading-relaxed bg-amber-50 dark:bg-amber-500/10 p-4 rounded-lg border border-amber-200 dark:border-amber-500/20">
                     {selectedAnalysis.recommendation}
                   </p>
                 </div>
@@ -627,7 +627,7 @@ const AllFormSubmissions = () => {
 
               {/* Recommended Product */}
               {selectedAnalysis.recommended_product && (
-                <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
                   <span className="text-sm text-muted-foreground">מוצר מומלץ:</span>
                   <Badge variant="secondary">{selectedAnalysis.recommended_product}</Badge>
                 </div>
