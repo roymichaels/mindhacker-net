@@ -52,6 +52,11 @@ const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLan
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
+const Community = lazy(() => import("./pages/Community"));
+const CommunityPost = lazy(() => import("./pages/CommunityPost"));
+const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
+const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
+const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
 
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
@@ -144,6 +149,48 @@ const App = () => (
                           }
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
+
+                        {/* Community routes (protected) */}
+                        <Route
+                          path="/community"
+                          element={
+                            <ProtectedRoute>
+                              <Community />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/community/post/:id"
+                          element={
+                            <ProtectedRoute>
+                              <CommunityPost />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/community/events"
+                          element={
+                            <ProtectedRoute>
+                              <CommunityEvents />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/community/members"
+                          element={
+                            <ProtectedRoute>
+                              <CommunityMembers />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/community/leaderboard"
+                          element={
+                            <ProtectedRoute>
+                              <CommunityLeaderboard />
+                            </ProtectedRoute>
+                          }
+                        />
 
                         {/* Protected user routes */}
                         <Route

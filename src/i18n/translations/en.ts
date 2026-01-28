@@ -1761,4 +1761,85 @@ export const en: TranslationKeys = {
     continueToProduct: "Continue to Recommended Product",
     exploreOptions: "Explore Your Options",
   },
+  community: {
+    // Page titles
+    pageTitle: "Community | Mind Hacker",
+    pageDescription: "Join our community, share experiences and grow together",
+    eventsPageTitle: "Events | Community",
+    eventsPageDescription: "Community events, meetups and webinars",
+    membersPageTitle: "Members | Community",
+    membersPageDescription: "Meet our community members",
+    leaderboardPageTitle: "Leaderboard | Community",
+    leaderboardPageDescription: "Community members ranking",
+    
+    // Navigation
+    feed: "Feed",
+    feedSubtitle: "What's new in the community",
+    events: "Events",
+    eventsSubtitle: "Upcoming events and meetups",
+    members: "Members",
+    membersSubtitle: "Meet the community",
+    leaderboard: "Leaderboard",
+    leaderboardSubtitle: "Most active community members",
+    
+    // Stats
+    stats: "Statistics",
+    totalPoints: "Total Points",
+    memberSince: "Member Since",
+    posts: "Posts",
+    comments: "Comments",
+    likes: "Likes",
+    points: "points",
+    
+    // Level progress
+    level: "Level",
+    pointsToNextLevel: "points to next level",
+    maxLevelReached: "You've reached the highest level!",
+    
+    // Online members
+    onlineNow: "Online Now",
+    
+    // Posts
+    member: "Member",
+    postTitlePlaceholder: "Title (optional)",
+    postContentPlaceholder: "What's on your mind?",
+    selectCategory: "Select Category",
+    publish: "Publish",
+    postCreated: "Post published successfully",
+    postUpdated: "Post updated successfully",
+    postDeleted: "Post deleted",
+    deletePost: "Delete Post",
+    deletePostConfirm: "Are you sure you want to delete this post? This action cannot be undone.",
+    noPosts: "No posts yet",
+    beFirstToPost: "Be the first to share something!",
+    postNotFound: "Post not found",
+    backToFeed: "Back to Feed",
+    edited: "edited",
+    
+    // Comments
+    writeComment: "Write a comment...",
+    commentAdded: "Comment added",
+    commentUpdated: "Comment updated",
+    commentDeleted: "Comment deleted",
+    noComments: "No comments yet. Be the first to comment!",
+    reply: "Reply",
+    writeReply: "Write a reply...",
+    
+    // Events
+    noEvents: "No upcoming events",
+    eventTypeWebinar: "Webinar",
+    eventTypeQA: "Q&A",
+    eventTypeLiveSession: "Live Session",
+    rsvp: "I'm Going",
+    youreGoing: "You're Going!",
+    rsvpUpdated: "RSVP updated",
+    
+    // Members
+    searchMembers: "Search members...",
+    noMembers: "No members yet",
+    noMembersFound: "No members found",
+    
+    // Leaderboard
+    noLeaderboardData: "No ranking data yet",
+  },
 };
