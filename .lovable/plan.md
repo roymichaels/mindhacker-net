@@ -1,73 +1,247 @@
 
+# תוכנית: בניית מערכת קהילה בסגנון Skool
 
-# תיקון שגיאת שליחת טופס - בעיית RLS
+## סקירה כללית
 
-## הבעיה שזוהתה
+נבנה מערכת קהילה מלאה שתאפשר למשתמשים להתחבר, לשתף תוכן, להשתתף באירועים ולצבור נקודות. המערכת תשתלב עם התשתית הקיימת (קורסים, משתמשים, התראות).
 
-לוגים מהמערכת מראים:
+---
+
+## שלב 1: מבנה הנתונים (Database)
+
+### טבלאות חדשות:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    community_posts                          │
+├─────────────────────────────────────────────────────────────┤
+│ id, user_id, category_id, title, content, media_urls,      │
+│ is_pinned, likes_count, comments_count, created_at         │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   community_comments                         │
+├─────────────────────────────────────────────────────────────┤
+│ id, post_id, user_id, parent_comment_id, content,          │
+│ likes_count, created_at                                     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                 community_categories                         │
+├─────────────────────────────────────────────────────────────┤
+│ id, name, name_en, description, icon, color, order_index   │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    community_likes                           │
+├─────────────────────────────────────────────────────────────┤
+│ id, user_id, post_id (nullable), comment_id (nullable)     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                   community_events                           │
+├─────────────────────────────────────────────────────────────┤
+│ id, title, title_en, description, start_time, end_time,    │
+│ event_type, meeting_url, created_by, attendees_count       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  community_event_rsvps                       │
+├─────────────────────────────────────────────────────────────┤
+│ id, event_id, user_id, status, created_at                  │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                   community_levels                           │
+├─────────────────────────────────────────────────────────────┤
+│ id, name, name_en, min_points, badge_icon, badge_color,    │
+│ unlocks_content_ids, order_index                            │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  community_members                           │
+├─────────────────────────────────────────────────────────────┤
+│ id, user_id, bio, avatar_url, total_points, current_level, │
+│ posts_count, comments_count, joined_at, last_active_at     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                community_point_logs                          │
+├─────────────────────────────────────────────────────────────┤
+│ id, user_id, points, action_type, reference_id, created_at │
+└─────────────────────────────────────────────────────────────┘
 ```
-"new row violates row-level security policy for table 'form_submissions'"
+
+---
+
+## שלב 2: Frontend - דפים וקומפוננטות
+
+### מבנה הקבצים:
+
+```text
+src/
+├── pages/
+│   ├── Community.tsx              # דף ראשי - פיד
+│   ├── CommunityPost.tsx          # צפייה בפוסט בודד
+│   ├── CommunityEvents.tsx        # לוח אירועים
+│   ├── CommunityMembers.tsx       # רשימת חברים
+│   └── CommunityLeaderboard.tsx   # לידרבורד
+│
+├── components/community/
+│   ├── CommunityLayout.tsx        # Layout עם סייד בר
+│   ├── CommunityFeed.tsx          # רשימת פוסטים
+│   ├── PostCard.tsx               # כרטיס פוסט
+│   ├── PostEditor.tsx             # עורך פוסט חדש
+│   ├── CommentSection.tsx         # תגובות
+│   ├── CommentItem.tsx            # תגובה בודדת
+│   ├── CategoryFilter.tsx         # סינון לפי קטגוריה
+│   ├── MemberCard.tsx             # כרטיס חבר
+│   ├── MemberProfile.tsx          # פרופיל מורחב
+│   ├── EventCard.tsx              # כרטיס אירוע
+│   ├── EventCalendar.tsx          # לוח שנה
+│   ├── LeaderboardTable.tsx       # טבלת דירוג
+│   ├── PointsBadge.tsx            # תג נקודות
+│   ├── LevelProgress.tsx          # התקדמות לרמה הבאה
+│   ├── OnlineMembers.tsx          # חברים מחוברים (realtime)
+│   └── QuickActions.tsx           # פעולות מהירות
 ```
 
-**שורש הבעיה:** הקוד ב-`FormView.tsx` מבצע INSERT ואז מיד SELECT:
-```typescript
-const { data: submissionData, error } = await supabase
-  .from("form_submissions")
-  .insert({ ... })
-  .select('id').single();  // ← זה נכשל!
+---
+
+## שלב 3: פיצ'רים עיקריים
+
+### 3.1 פיד קהילתי
+- יצירת פוסטים עם טקסט, תמונות, סרטונים, GIFs
+- קטגוריות (שאלות, הצלחות, דיונים, הכרזות)
+- לייקים ותגובות עם realtime updates
+- חיפוש ופילטור
+- פוסטים נעוצים (מנהל בלבד)
+
+### 3.2 מערכת Gamification
+- נקודות על פעולות:
+  - פוסט חדש: 5 נקודות
+  - תגובה: 2 נקודות
+  - לייק שמקבלים: 1 נקודה
+  - השתתפות באירוע: 10 נקודות
+  - סיום קורס: 50 נקודות
+- רמות מותאמות אישית (ניהול מהאדמין)
+- פתיחת תכנים בהגעה לרמה מסוימת
+- לידרבורד חודשי/כללי
+
+### 3.3 אירועים קהילתיים
+- לוח שנה עם אירועים
+- סוגי אירועים: מפגש חי, Q&A, וובינר
+- RSVP והתראות
+- שעונים מותאמים לאזור הזמן של המשתמש
+
+### 3.4 פרופילי חברים
+- ביו, תמונה, רמה ונקודות
+- הפעילות האחרונה
+- תגים והישגים
+- סטטיסטיקות (פוסטים, תגובות, לייקים)
+
+### 3.5 Realtime
+- מספר חברים מחוברים
+- התראות על לייקים/תגובות חדשות
+- עדכוני פיד בזמן אמת
+
+---
+
+## שלב 4: אינטגרציה עם המערכת הקיימת
+
+### קישור לקורסים:
+- פתיחת קורסים ברמה מסוימת
+- פוסטים של "סיימתי קורס" אוטומטיים
+
+### קישור לפרופיל:
+- הרחבת טבלת profiles או יצירת community_members נפרדת
+- סנכרון שם ותמונה
+
+### ניהול מהאדמין:
+- ניהול קטגוריות
+- ניהול רמות ונקודות
+- ניהול אירועים
+- מחיקה/עריכה של תוכן
+- דוחות ואנליטיקס
+
+---
+
+## שלב 5: אבטחה (RLS Policies)
+
+```text
+community_posts:
+- SELECT: authenticated users
+- INSERT: own user_id only
+- UPDATE: own posts or admin
+- DELETE: own posts or admin
+
+community_members:
+- SELECT: authenticated users
+- UPDATE: own profile only
+
+community_events:
+- SELECT: authenticated users
+- INSERT/UPDATE/DELETE: admin only
 ```
 
-- ה-INSERT עובד (יש policy לזה)
-- ה-SELECT נכשל כי **אין policy שמאפשרת לאנונימיים לקרוא** את form_submissions
+---
 
-## הפתרון
+## שלב 6: Routes חדשים
 
-הוספת SELECT policy שמאפשרת למגישי טפסים לקרוא רק את ההגשה שלהם עצמם (על בסיס session).
-
-**מאחר שמשתמשים אנונימיים לא ניתן לזהות ב-RLS**, הפתרון הטוב ביותר הוא לשנות את הקוד כך שלא ידרוש SELECT אחרי INSERT, תוך שימוש ב-`returning: 'minimal'` וחישוב מקומי של ה-ID.
-
-## שלבי הביצוע
-
-### שלב 1: עדכון הקוד ב-FormView.tsx
-
-שינוי ה-handleSubmit function כך שתעבוד בלי לדרוש SELECT אחרי INSERT:
-
-**לפני:**
-```typescript
-const { data: submissionData, error } = await supabase
-  .from("form_submissions")
-  .insert({ ... })
-  .select('id').single();
+```text
+/community              → פיד ראשי
+/community/post/:id     → פוסט בודד
+/community/events       → לוח אירועים
+/community/members      → רשימת חברים
+/community/leaderboard  → לידרבורד
+/community/profile/:id  → פרופיל חבר
 ```
 
-**אחרי:**
-```typescript
-// Generate ID client-side
-const submissionId = crypto.randomUUID();
-
-const { error } = await supabase
-  .from("form_submissions")
-  .insert({ 
-    id: submissionId,  // Provide ID explicitly
-    ... 
-  });
-
-// Use the pre-generated ID
-setSubmissionId(submissionId);
+### Admin Routes:
+```text
+/admin/community             → ניהול קהילה
+/admin/community/categories  → ניהול קטגוריות
+/admin/community/levels      → ניהול רמות
+/admin/community/events      → ניהול אירועים
 ```
 
-## פרטים טכניים
+---
 
-**שינויים בקובץ:**
-- `src/pages/FormView.tsx` - lines 254-288
+## סדר ביצוע מומלץ
 
-**הסבר:**
-- ניצור UUID בצד הלקוח לפני ה-INSERT
-- נספק את ה-ID במפורש בהכנסה
-- נשתמש ב-ID שיצרנו ללא צורך ב-SELECT
+| שלב | משימה | אומדן זמן |
+|-----|--------|-----------|
+| 1 | יצירת טבלאות בDB עם RLS | ראשון |
+| 2 | CommunityLayout + Feed בסיסי | שני |
+| 3 | יצירת פוסטים ותגובות | שלישי |
+| 4 | מערכת לייקים | רביעי |
+| 5 | פרופילי חברים | חמישי |
+| 6 | מערכת נקודות ורמות | שישי |
+| 7 | לוח אירועים | שביעי |
+| 8 | לידרבורד | שמיני |
+| 9 | Realtime features | תשיעי |
+| 10 | ניהול אדמין | עשירי |
 
-**יתרונות:**
-- לא דורש שינויי RLS בבסיס הנתונים
-- פשוט יותר ובטוח יותר
-- תואם לארכיטקטורה הקיימת
+---
+
+## תרגומים נדרשים
+
+יתווספו מפתחות תרגום ל-he.ts ו-en.ts תחת namespace `community`:
+- כותרות דפים
+- פעולות (לייק, תגובה, שתף)
+- רמות ותגים
+- הודעות מערכת
+
+---
+
+## סיכום טכני
+
+- **10 טבלאות חדשות** בDB
+- **~20 קומפוננטות** חדשות
+- **6 דפים** לצד הלקוח
+- **3 דפי אדמין**
+- **Realtime** עם Supabase Presence
+- **תמיכה דו-לשונית** מלאה (עברית/אנגלית)
+- **RTL תואם** לעברית
 
