@@ -27,6 +27,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Download,
   Inbox,
   Trash2,
@@ -37,6 +43,8 @@ import {
   CheckCircle2,
   FileText,
   Loader2,
+  Brain,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -66,11 +74,23 @@ interface FormField {
   type: string;
 }
 
+interface FormAnalysis {
+  id: string;
+  form_submission_id: string;
+  analysis_summary: string;
+  patterns: string[] | null;
+  transformation_potential: string | null;
+  recommendation: string | null;
+  recommended_product: string | null;
+  created_at: string;
+}
+
 const AllFormSubmissions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [formFilter, setFormFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
+  const [selectedAnalysis, setSelectedAnalysis] = useState<FormAnalysis | null>(null);
 
   const { data: forms = [] } = useQuery({
     queryKey: ["custom-forms"],
@@ -107,6 +127,23 @@ const AllFormSubmissions = () => {
       return data as FormSubmission[];
     },
   });
+
+  // Fetch all form analyses
+  const { data: analyses = [] } = useQuery({
+    queryKey: ["all-form-analyses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("form_analyses")
+        .select("*");
+      if (error) throw error;
+      return data as FormAnalysis[];
+    },
+  });
+
+  // Helper to get analysis for a submission
+  const getAnalysisForSubmission = (submissionId: string) => {
+    return analyses.find((a) => a.form_submission_id === submissionId);
+  };
 
   const markProcessedMutation = useMutation({
     mutationFn: async (submissionId: string) => {
@@ -375,7 +412,7 @@ const AllFormSubmissions = () => {
 
                           {/* Actions */}
                           <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               {submission.status !== "processed" && (
                                 <Button
                                   variant="outline"
@@ -412,6 +449,22 @@ const AllFormSubmissions = () => {
                                 <FileText className="h-4 w-4" />
                                 הורד PDF
                               </Button>
+                              {/* AI Analysis Button */}
+                              {getAnalysisForSubmission(submission.id) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const analysis = getAnalysisForSubmission(submission.id);
+                                    if (analysis) setSelectedAnalysis(analysis);
+                                  }}
+                                  className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                                >
+                                  <Brain className="h-4 w-4" />
+                                  ניתוח AI
+                                </Button>
+                              )}
                             </div>
                             <Button
                               variant="ghost"
@@ -437,6 +490,90 @@ const AllFormSubmissions = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* AI Analysis Dialog */}
+      <Dialog open={!!selectedAnalysis} onOpenChange={(open) => !open && setSelectedAnalysis(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-400" />
+              ניתוח AI של השאלון
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedAnalysis && (
+            <div className="space-y-6">
+              {/* Summary */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-400" />
+                  סיכום
+                </h4>
+                <p className="text-foreground/80 leading-relaxed bg-purple-500/5 p-4 rounded-lg border border-purple-500/20">
+                  {selectedAnalysis.analysis_summary}
+                </p>
+              </div>
+
+              {/* Patterns */}
+              {selectedAnalysis.patterns && selectedAnalysis.patterns.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-400" />
+                    דפוסים שזוהו
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedAnalysis.patterns.map((pattern, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-2 p-3 bg-blue-500/5 rounded-lg border border-blue-500/20"
+                      >
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">
+                          {index + 1}
+                        </span>
+                        <span className="text-foreground/80">{pattern}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Transformation Potential */}
+              {selectedAnalysis.transformation_potential && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                    פוטנציאל טרנספורמציה
+                  </h4>
+                  <p className="text-foreground/80 leading-relaxed bg-green-500/5 p-4 rounded-lg border border-green-500/20">
+                    {selectedAnalysis.transformation_potential}
+                  </p>
+                </div>
+              )}
+
+              {/* Recommendation */}
+              {selectedAnalysis.recommendation && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    המלצה
+                  </h4>
+                  <p className="text-foreground/80 leading-relaxed bg-amber-500/5 p-4 rounded-lg border border-amber-500/20">
+                    {selectedAnalysis.recommendation}
+                  </p>
+                </div>
+              )}
+
+              {/* Recommended Product */}
+              {selectedAnalysis.recommended_product && (
+                <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                  <span className="text-sm text-muted-foreground">מוצר מומלץ:</span>
+                  <Badge variant="secondary">{selectedAnalysis.recommended_product}</Badge>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
