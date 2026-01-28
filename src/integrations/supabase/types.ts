@@ -296,6 +296,417 @@ export type Database = {
         }
         Relationships: []
       }
+      community_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_en: string | null
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_en?: string | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_en?: string | null
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      community_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          edited_at: string | null
+          id: string
+          is_edited: boolean | null
+          likes_count: number | null
+          parent_comment_id: string | null
+          post_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          post_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          likes_count?: number | null
+          parent_comment_id?: string | null
+          post_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_event_rsvps: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "community_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_events: {
+        Row: {
+          attendees_count: number | null
+          cover_image_url: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          description_en: string | null
+          end_time: string | null
+          event_type: string | null
+          id: string
+          is_published: boolean | null
+          max_attendees: number | null
+          meeting_url: string | null
+          start_time: string
+          title: string
+          title_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attendees_count?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          description_en?: string | null
+          end_time?: string | null
+          event_type?: string | null
+          id?: string
+          is_published?: boolean | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          start_time: string
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attendees_count?: number | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          description_en?: string | null
+          end_time?: string | null
+          event_type?: string | null
+          id?: string
+          is_published?: boolean | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          start_time?: string
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      community_levels: {
+        Row: {
+          badge_color: string | null
+          badge_icon: string | null
+          created_at: string | null
+          id: string
+          min_points: number
+          name: string
+          name_en: string | null
+          order_index: number | null
+          unlocks_content_ids: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          created_at?: string | null
+          id?: string
+          min_points?: number
+          name: string
+          name_en?: string | null
+          order_index?: number | null
+          unlocks_content_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          created_at?: string | null
+          id?: string
+          min_points?: number
+          name?: string
+          name_en?: string | null
+          order_index?: number | null
+          unlocks_content_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      community_likes: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string
+          post_id: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_members: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          comments_count: number | null
+          created_at: string | null
+          current_level_id: string | null
+          id: string
+          is_online: boolean | null
+          joined_at: string | null
+          last_active_at: string | null
+          likes_received: number | null
+          posts_count: number | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          comments_count?: number | null
+          created_at?: string | null
+          current_level_id?: string | null
+          id?: string
+          is_online?: boolean | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          likes_received?: number | null
+          posts_count?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          comments_count?: number | null
+          created_at?: string | null
+          current_level_id?: string | null
+          id?: string
+          is_online?: boolean | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          likes_received?: number | null
+          posts_count?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_community_members_level"
+            columns: ["current_level_id"]
+            isOneToOne: false
+            referencedRelation: "community_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_point_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          points: number
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          category_id: string | null
+          comments_count: number | null
+          content: string
+          created_at: string | null
+          edited_at: string | null
+          id: string
+          is_edited: boolean | null
+          is_pinned: boolean | null
+          likes_count: number | null
+          media_urls: string[] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          comments_count?: number | null
+          content: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          media_urls?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          comments_count?: number | null
+          content?: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          is_pinned?: boolean | null
+          likes_count?: number | null
+          media_urls?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "community_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consciousness_leap_applications: {
         Row: {
           admin_notes: string | null

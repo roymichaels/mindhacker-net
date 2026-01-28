@@ -1812,6 +1812,87 @@ export const he = {
     continueToProduct: "המשך למוצר המומלץ",
     exploreOptions: "חקור את האפשרויות",
   },
+  community: {
+    // Page titles
+    pageTitle: "קהילה | מיינד האקר",
+    pageDescription: "הצטרף לקהילה שלנו, שתף חוויות והתפתח יחד עם אחרים",
+    eventsPageTitle: "אירועים | קהילה",
+    eventsPageDescription: "אירועים קהילתיים, מפגשים ווובינרים",
+    membersPageTitle: "חברי הקהילה | קהילה",
+    membersPageDescription: "הכירו את חברי הקהילה שלנו",
+    leaderboardPageTitle: "לידרבורד | קהילה",
+    leaderboardPageDescription: "טבלת הדירוג של חברי הקהילה",
+    
+    // Navigation
+    feed: "פיד",
+    feedSubtitle: "מה חדש בקהילה",
+    events: "אירועים",
+    eventsSubtitle: "אירועים קרובים ומפגשים",
+    members: "חברים",
+    membersSubtitle: "הכירו את חברי הקהילה",
+    leaderboard: "לידרבורד",
+    leaderboardSubtitle: "החברים הפעילים ביותר בקהילה",
+    
+    // Stats
+    stats: "סטטיסטיקות",
+    totalPoints: "סה\"כ נקודות",
+    memberSince: "חבר מאז",
+    posts: "פוסטים",
+    comments: "תגובות",
+    likes: "לייקים",
+    points: "נקודות",
+    
+    // Level progress
+    level: "רמה",
+    pointsToNextLevel: "נקודות לרמה הבאה",
+    maxLevelReached: "הגעת לרמה הגבוהה ביותר!",
+    
+    // Online members
+    onlineNow: "מחוברים עכשיו",
+    
+    // Posts
+    member: "חבר",
+    postTitlePlaceholder: "כותרת (אופציונלי)",
+    postContentPlaceholder: "מה חדש אצלך?",
+    selectCategory: "בחר קטגוריה",
+    publish: "פרסם",
+    postCreated: "הפוסט פורסם בהצלחה",
+    postUpdated: "הפוסט עודכן בהצלחה",
+    postDeleted: "הפוסט נמחק",
+    deletePost: "מחיקת פוסט",
+    deletePostConfirm: "האם אתה בטוח שברצונך למחוק את הפוסט? פעולה זו לא ניתנת לביטול.",
+    noPosts: "אין פוסטים עדיין",
+    beFirstToPost: "היה הראשון לשתף משהו!",
+    postNotFound: "הפוסט לא נמצא",
+    backToFeed: "חזרה לפיד",
+    edited: "נערך",
+    
+    // Comments
+    writeComment: "כתוב תגובה...",
+    commentAdded: "התגובה נוספה",
+    commentUpdated: "התגובה עודכנה",
+    commentDeleted: "התגובה נמחקה",
+    noComments: "אין תגובות עדיין. היה הראשון להגיב!",
+    reply: "הגב",
+    writeReply: "כתוב תגובה...",
+    
+    // Events
+    noEvents: "אין אירועים קרובים",
+    eventTypeWebinar: "וובינר",
+    eventTypeQA: "שאלות ותשובות",
+    eventTypeLiveSession: "מפגש חי",
+    rsvp: "אני אגיע",
+    youreGoing: "אתה מגיע!",
+    rsvpUpdated: "האישור עודכן",
+    
+    // Members
+    searchMembers: "חפש חברים...",
+    noMembers: "אין חברים עדיין",
+    noMembersFound: "לא נמצאו חברים",
+    
+    // Leaderboard
+    noLeaderboardData: "אין נתוני דירוג עדיין",
+  },
 };
 
 export type TranslationKeys = typeof he;
