@@ -12,6 +12,10 @@ import CompactCourses from "@/components/dashboard/CompactCourses";
 import CompactRecordings from "@/components/dashboard/CompactRecordings";
 import CompactSessions from "@/components/dashboard/CompactSessions";
 import CompactAffiliate from "@/components/dashboard/CompactAffiliate";
+import LifeDirectionCard from "@/components/dashboard/LifeDirectionCard";
+import WeeklyProgressCard from "@/components/dashboard/WeeklyProgressCard";
+import DailyAnchorsCard from "@/components/dashboard/DailyAnchorsCard";
+import RecentInsightsCard from "@/components/dashboard/RecentInsightsCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const UserDashboard = () => {
@@ -79,18 +83,32 @@ const UserDashboard = () => {
       <Header />
       
       <DashboardLayout>
-        {/* Dashboard Content - Products and Courses */}
+        {/* Dashboard Content - Unified View */}
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold">{t('common.dashboard')}</h1>
             <p className="text-muted-foreground">{t('dashboard.welcomeBack')}</p>
           </div>
           
+          {/* Life Model Integration - Top Row */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <LifeDirectionCard />
+            <WeeklyProgressCard />
+          </div>
+          
+          {/* Daily Anchors & Insights */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <DailyAnchorsCard />
+            <RecentInsightsCard />
+          </div>
+          
+          {/* Existing Content - Courses & Recordings */}
           <div className="grid gap-6 md:grid-cols-2">
             <CompactCourses />
             <CompactRecordings />
           </div>
           
+          {/* Sessions & Affiliate */}
           <div className="grid gap-6 md:grid-cols-2">
             <CompactSessions />
             <CompactAffiliate />

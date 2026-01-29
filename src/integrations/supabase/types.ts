@@ -3373,13 +3373,74 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_events: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          reason: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      weekly_user_stats: {
+        Row: {
+          aurora_chats: number | null
+          hypnosis_sessions: number | null
+          insights_gained: number | null
+          total_xp: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       aurora_award_xp: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: undefined
+      }
+      award_unified_xp: {
+        Args: {
+          p_amount: number
+          p_reason?: string
+          p_source: string
+          p_user_id: string
+        }
         Returns: undefined
       }
       check_expiring_access: { Args: never; Returns: undefined }
