@@ -137,7 +137,7 @@ const CommunityEvents = () => {
   return (
     <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
       <Header />
-      <main className="pt-20">
+      <main className="pt-0">
         <CommunityLayout>
           <div className="space-y-6">
             <div>

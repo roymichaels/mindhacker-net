@@ -1833,6 +1833,7 @@ export const en: TranslationKeys = {
     leaderboardPageDescription: "Community members ranking",
     
     // Navigation
+    title: "Community",
     feed: "Feed",
     feedSubtitle: "What's new in the community",
     events: "Events",
@@ -1841,6 +1842,7 @@ export const en: TranslationKeys = {
     membersSubtitle: "Meet the community",
     leaderboard: "Leaderboard",
     leaderboardSubtitle: "Most active community members",
+    catalog: "Catalog",
     
     // Stats
     stats: "Statistics",
