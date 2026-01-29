@@ -1,132 +1,248 @@
 
-# תוכנית: הסרת Widgets למשתמשים מחוברים + תפריט תחתון גלובלי עם צ'אט
+# תוכנית: מערכת הודעות בסגנון טלגרם
 
-## סקירת המצב הנוכחי
+## סקירה
 
-### בעיות שזוהו:
-1. **Widgets (ChatWidget, WhatsAppButton, LiveActivityFeed)** מוצגים לכל המשתמשים - גם למחוברים וגם לאורחים
-2. **התפריט התחתון (DashboardBottomNav)** מוצג רק בדף `/dashboard` כי הוא חלק מ-`DashboardLayout`
-3. דפים מוגנים אחרים כמו `/community`, `/community/events`, `/courses` לא מציגים את התפריט התחתון
-
-### מה נעשה:
-1. נסתיר את ה-Widgets (ChatWidget, WhatsAppButton, LiveActivityFeed, ProgressiveEngagement) ממשתמשים מחוברים
-2. ניצור רכיב תפריט תחתון גלובלי חדש שיופיע בכל הדפים למשתמשים מחוברים
-3. נפשט את התפריט ל-2 סימניות בלבד: **דאשבורד** ו**צ'אט**
+נבנה מערכת הודעות מלאה הכוללת:
+1. **דף הודעות ראשי** - רשימת שיחות (כמו טלגרם)
+2. **צ'אט AI מוצמד** - תמיד ראשון ברשימה
+3. **הודעות פרטיות בין משתמשים** - כמו Twitter DMs
+4. **פרופילי משתמשים** - ללא פיד אישי
 
 ---
 
-## שינויים טכניים
+## מבנה הדפים החדשים
 
-### 1. רכיב GlobalBottomNav חדש
-
-ניצור רכיב חדש `src/components/GlobalBottomNav.tsx` שיופיע למשתמשים מחוברים בלבד:
-
-```typescript
-// src/components/GlobalBottomNav.tsx
-- מופיע רק כאשר יש user מחובר (useAuth)
-- מופיע רק במובייל (useIsMobile)
-- 2 סימניות בלבד: Home ו-MessageCircle (צ'אט)
-- ה-Tab של צ'אט פותח את ChatPanel (כמו widget אבל בתוך המסך)
+```text
+/messages                    → רשימת שיחות (Conversations List)
+/messages/ai                 → צ'אט עם AI (Aurora)
+/messages/:conversationId    → צ'אט עם משתמש אחר
+/community/profile/:userId   → פרופיל משתמש (כבר קיים)
 ```
-
-| Tab | Icon | Label | Action |
-|-----|------|-------|--------|
-| דאשבורד | `Home` | "בית" | navigate to `/dashboard` |
-| צ'אט | `MessageCircle` | "צ'אט" | פתיחת ChatPanel |
-
-### 2. עדכון App.tsx
-
-```typescript
-// הסתרה מותנית של widgets
-{!user && <ChatWidget />}
-{!user && <LiveActivityFeed />}
-{!user && <WhatsAppButton />}
-{!user && <ProgressiveEngagement />}
-
-// הוספת ה-bottom nav הגלובלי החדש
-<GlobalBottomNav />
-```
-
-### 3. הסרת DashboardBottomNav מ-DashboardLayout
-
-מכיוון שה-GlobalBottomNav יופיע גלובלית, נסיר את ה-DashboardBottomNav מ-`DashboardLayout.tsx` כדי למנוע כפילות.
-
-### 4. עדכון UserDashboard ודפים מוגנים
-
-- הוספת `pb-16` (padding-bottom) לדפים מוגנים כדי לפנות מקום לתפריט התחתון
-- וידוא שה-ChatPanel נפתח כ-overlay ולא כ-popup קטן כשנפתח מהתפריט התחתון
 
 ---
 
-## מבנה קבצים לעריכה
+## שינויים בתפריט התחתון
+
+**לפני:**
+```
+[ דאשבורד ] [ צ'אט ]
+```
+
+**אחרי:**
+```
+[ דאשבורד ] [ צ'אט ]
+                ↓
+           נווט ל-/messages
+```
+
+---
+
+## מסד נתונים - טבלאות חדשות
+
+### טבלה 1: `conversations`
+| עמודה | סוג | תיאור |
+|-------|-----|-------|
+| id | UUID | מזהה ייחודי |
+| type | ENUM | 'direct' / 'ai' |
+| participant_1 | UUID | user_id של משתתף 1 |
+| participant_2 | UUID | user_id של משתתף 2 (null עבור AI) |
+| last_message_at | TIMESTAMP | זמן ההודעה האחרונה |
+| created_at | TIMESTAMP | זמן יצירה |
+
+### טבלה 2: `messages`
+| עמודה | סוג | תיאור |
+|-------|-----|-------|
+| id | UUID | מזהה ייחודי |
+| conversation_id | UUID | FK לשיחה |
+| sender_id | UUID | user_id של השולח (null עבור AI) |
+| content | TEXT | תוכן ההודעה |
+| is_ai_message | BOOLEAN | האם הודעה מ-AI |
+| is_read | BOOLEAN | האם נקרא |
+| created_at | TIMESTAMP | זמן שליחה |
+
+---
+
+## רכיבים חדשים
+
+### 1. דף Messages (`/messages`)
+```text
+┌─────────────────────────────────────────┐
+│ < חזור          הודעות            ✎     │  ← Header
+├─────────────────────────────────────────┤
+│ 🤖 Aurora (AI)              עכשיו       │  ← מוצמד ראשון
+│    היי! איך אני יכול לעזור?              │
+├─────────────────────────────────────────┤
+│ 👤 יוסי כהן                  2 דק        │
+│    תודה על ההמלצה!                       │
+├─────────────────────────────────────────┤
+│ 👤 מירב לוי                  1 שעה       │
+│    ראית את הפוסט החדש?                  │
+└─────────────────────────────────────────┘
+```
+
+### 2. רכיב ConversationsList
+- מציג רשימת שיחות
+- AI chat מוצמד ראשון תמיד
+- Avatar + שם + הודעה אחרונה + זמן
+- Badge לא נקרא
+
+### 3. רכיב MessageThread
+- תצוגת הודעות בשיחה
+- Header עם פרטי הצד השני
+- Input בתחתית
+- תמיכה ב-streaming עבור AI
+
+### 4. עדכון GlobalBottomNav
+- Tab "צ'אט" ינווט ל-`/messages` במקום לפתוח ChatPanel
+
+---
+
+## קבצים חדשים
+
+| קובץ | תיאור |
+|------|-------|
+| `src/pages/Messages.tsx` | דף ראשי - רשימת שיחות |
+| `src/pages/MessageThread.tsx` | דף שיחה בודדת |
+| `src/components/messages/ConversationItem.tsx` | פריט שיחה ברשימה |
+| `src/components/messages/MessageBubble.tsx` | בועת הודעה |
+| `src/components/messages/NewMessageDialog.tsx` | דיאלוג יצירת שיחה חדשה |
+
+---
+
+## קבצים לעריכה
 
 | קובץ | שינוי |
 |------|-------|
-| `src/components/GlobalBottomNav.tsx` | **חדש** - תפריט תחתון גלובלי למחוברים |
-| `src/App.tsx` | הוספת GlobalBottomNav + הסתרת widgets למחוברים |
-| `src/components/dashboard/DashboardLayout.tsx` | הסרת DashboardBottomNav |
-| `src/components/chat/ChatPanel.tsx` | עדכון לתמיכה ב-fullscreen mode |
+| `src/components/GlobalBottomNav.tsx` | שינוי לנווט ל-/messages |
+| `src/App.tsx` | הוספת routes חדשים |
+| `src/i18n/translations/he.ts` | תרגומים למערכת הודעות |
+| `src/i18n/translations/en.ts` | תרגומים באנגלית |
 
 ---
 
-## פירוט הרכיב החדש
+## פרטים טכניים
+
+### עיצוב ConversationItem
 
 ```typescript
-// GlobalBottomNav.tsx
-const GlobalBottomNav = () => {
-  const { user } = useAuth();
-  const { t } = useTranslation();
-  const isMobile = useIsMobile();
-  const location = useLocation();
-  const [chatOpen, setChatOpen] = useState(false);
-
-  // לא מציג אם לא מחובר או לא במובייל
-  if (!user || !isMobile) return null;
-
-  // לא מציג בדפי admin
-  if (location.pathname.startsWith('/admin')) return null;
-
-  return (
-    <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t safe-area-inset-bottom">
-        <div className="flex items-center justify-around h-14">
-          {/* Dashboard Tab */}
-          <NavLink to="/dashboard" ... />
-          
-          {/* Chat Tab */}
-          <button onClick={() => setChatOpen(true)} ... />
+// src/components/messages/ConversationItem.tsx
+const ConversationItem = ({ conversation, isAI, otherUser, lastMessage }) => (
+  <Link to={isAI ? "/messages/ai" : `/messages/${conversation.id}`}>
+    <div className="flex items-center gap-3 p-4 hover:bg-muted/50 border-b">
+      <Avatar className="h-12 w-12">
+        {isAI ? (
+          <div className="h-full w-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <Bot className="h-6 w-6 text-white" />
+          </div>
+        ) : (
+          <>
+            <AvatarImage src={otherUser.avatar_url} />
+            <AvatarFallback>{otherUser.name?.charAt(0)}</AvatarFallback>
+          </>
+        )}
+      </Avatar>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold">{isAI ? "Aurora (AI)" : otherUser.name}</span>
+          <span className="text-xs text-muted-foreground">{timeAgo}</span>
         </div>
-      </nav>
-      
-      {/* Chat Panel - fullscreen on mobile */}
-      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} fullscreen />
-    </>
-  );
-};
+        <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
+      </div>
+      {unreadCount > 0 && (
+        <Badge className="bg-primary">{unreadCount}</Badge>
+      )}
+    </div>
+  </Link>
+);
 ```
+
+### עדכון GlobalBottomNav
+
+```typescript
+// במקום לפתוח ChatPanel
+<NavLink
+  to="/messages"
+  className={({ isActive }) => cn(
+    "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs",
+    isActive ? "text-primary" : "text-muted-foreground"
+  )}
+>
+  <MessageCircle className="h-5 w-5" />
+  <span>{t('messages.title')}</span>
+</NavLink>
+```
+
+### תרגומים חדשים
+
+```typescript
+// he.ts
+messages: {
+  title: "צ'אט",
+  conversations: "שיחות",
+  noConversations: "אין שיחות עדיין",
+  startConversation: "התחל שיחה",
+  newMessage: "הודעה חדשה",
+  typePlaceholder: "כתוב הודעה...",
+  aiAssistant: "Aurora (AI)",
+  aiSubtitle: "העוזר החכם שלך",
+  searchUsers: "חפש משתמשים...",
+  selectUser: "בחר משתמש לשיחה",
+}
+```
+
+---
+
+## RLS Policies
+
+```sql
+-- conversations: משתמש רואה רק שיחות שהוא חלק מהן
+CREATE POLICY "Users can view own conversations"
+ON conversations FOR SELECT
+USING (participant_1 = auth.uid() OR participant_2 = auth.uid());
+
+-- messages: משתמש רואה רק הודעות בשיחות שלו
+CREATE POLICY "Users can view messages in own conversations"
+ON messages FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM conversations c
+    WHERE c.id = messages.conversation_id
+    AND (c.participant_1 = auth.uid() OR c.participant_2 = auth.uid())
+  )
+);
+```
+
+---
+
+## זרימת עבודה
+
+1. משתמש לוחץ על "צ'אט" בתפריט התחתון
+2. נפתח דף `/messages` עם רשימת שיחות
+3. שיחת AI מופיעה ראשונה (מוצמדת)
+4. לחיצה על שיחה → נכנס לתצוגת ההודעות
+5. כפתור ✎ ב-header → פותח דיאלוג לבחירת משתמש לשיחה חדשה
 
 ---
 
 ## תוצאה צפויה
 
 ```text
+דף הודעות (/messages):
 ┌─────────────────────────────────────────┐
-│              אפליקציה                  │
-│                                        │
-│   (תוכן הדף - דאשבורד/קורסים/קהילה)   │
-│                                        │
-│                                        │
+│ <          הודעות              ✎        │
 ├─────────────────────────────────────────┤
-│   🏠 דאשבורד    │    💬 צ'אט          │  ← תפריט תחתון גלובלי
+│ 🤖 Aurora (AI)                 📌        │
+│    היי! במה אוכל לעזור?                 │
+├─────────────────────────────────────────┤
+│ 👤 יוסי כהן                   3 דק       │
+│    מעולה, תודה רבה!                     │
+├─────────────────────────────────────────┤
+│ 👤 דנה שמיר                  1 שעה       │
+│    אשמח להמליץ לך!                      │
 └─────────────────────────────────────────┘
-
-לעומת אורחים:
-┌─────────────────────────────────────────┐
-│              דף נחיתה                  │
-│                                        │
-│   [ChatWidget]  [WhatsApp]  [Activity] │  ← widgets לאורחים בלבד
-│                                        │
-└─────────────────────────────────────────┘
+         [ דאשבורד ] [ צ'אט ]  ← active
 ```
 
-התפריט התחתון יופיע בכל הדפים המוגנים: `/dashboard`, `/courses`, `/community/*`, `/success` וכו'.
+המערכת תהיה דומה לטלגרם/טוויטר DMs עם צ'אט AI מובנה ומוצמד!
+
