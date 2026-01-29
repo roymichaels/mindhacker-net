@@ -2,21 +2,33 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Users, Star } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Clock, Users, Star, CheckCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CourseCardProps {
   course: Tables<"content_products">;
+  enrollment?: {
+    product_id: string;
+    progress_percentage: number | null;
+    is_completed: boolean | null;
+  };
 }
 
-const CourseCard = ({ course }: CourseCardProps) => {
+const CourseCard = ({ course, enrollment }: CourseCardProps) => {
   const navigate = useNavigate();
+  const { t, isRTL } = useTranslation();
 
   return (
     <Card 
-      className="glass-panel hover:cyber-border transition-all duration-300 cursor-pointer overflow-hidden group"
+      className={cn(
+        "glass-panel hover:cyber-border transition-all duration-300 cursor-pointer overflow-hidden group",
+        enrollment && "ring-2 ring-green-500/50"
+      )}
       onClick={() => navigate(`/courses/${course.slug}`)}
-      dir="rtl"
+      dir={isRTL ? "rtl" : "ltr"}
     >
       {/* Thumbnail */}
       <div className="relative h-48 overflow-hidden">
@@ -34,15 +46,21 @@ const CourseCard = ({ course }: CourseCardProps) => {
         )}
         
         {/* Badges */}
-        <div className="absolute top-3 right-3 flex gap-2">
-          {course.access_level === "free" && (
+        <div className={cn("absolute top-3 flex gap-2", isRTL ? "right-3" : "left-3")}>
+          {enrollment && (
+            <Badge className="bg-green-500 text-white flex items-center gap-1 shadow-lg">
+              <CheckCircle className="h-3 w-3" />
+              {t('courses.owned')}
+            </Badge>
+          )}
+          {course.access_level === "free" && !enrollment && (
             <Badge variant="secondary" className="bg-accent text-accent-foreground">
-              חינם
+              {isRTL ? "חינם" : "Free"}
             </Badge>
           )}
           {course.is_featured && (
             <Badge variant="default" className="cyber-glow">
-              מומלץ
+              {isRTL ? "מומלץ" : "Featured"}
             </Badge>
           )}
         </div>
@@ -91,28 +109,44 @@ const CourseCard = ({ course }: CourseCardProps) => {
         {course.difficulty_level && (
           <div className="mt-3">
             <Badge variant="outline" className="text-xs">
-              רמה: {course.difficulty_level}
+              {isRTL ? "רמה:" : "Level:"} {course.difficulty_level}
             </Badge>
+          </div>
+        )}
+
+        {/* Progress bar for enrolled users */}
+        {enrollment && enrollment.progress_percentage !== null && enrollment.progress_percentage > 0 && (
+          <div className="mt-3 space-y-1">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{isRTL ? "התקדמות" : "Progress"}</span>
+              <span>{Math.round(enrollment.progress_percentage)}%</span>
+            </div>
+            <Progress value={enrollment.progress_percentage} className="h-2" />
           </div>
         )}
       </CardContent>
 
       <CardFooter className="flex items-center justify-between pt-4 border-t border-border/30">
         <div>
-          {course.price && course.price > 0 ? (
+          {enrollment ? (
+            <span className="text-lg font-medium text-green-500 flex items-center gap-1">
+              <CheckCircle className="h-4 w-4" />
+              {t('courses.owned')}
+            </span>
+          ) : course.price && course.price > 0 ? (
             <span className="text-2xl font-bold cyber-glow">₪{course.price}</span>
           ) : (
-            <span className="text-2xl font-bold text-accent">חינם</span>
+            <span className="text-2xl font-bold text-accent">{isRTL ? "חינם" : "Free"}</span>
           )}
         </div>
         <Button 
-          variant="default"
+          variant={enrollment ? "secondary" : "default"}
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/courses/${course.slug}`);
           }}
         >
-          צפה במוצר
+          {enrollment ? t('courses.continueWatching') : t('courses.viewProduct')}
         </Button>
       </CardFooter>
     </Card>

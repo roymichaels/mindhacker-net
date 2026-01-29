@@ -586,6 +586,9 @@ export const en: TranslationKeys = {
       priceLow: "Price: Low to High",
       priceHigh: "Price: High to Low",
     },
+    owned: "Owned",
+    continueWatching: "Continue Watching",
+    viewProduct: "View Product",
   },
   sessions: {
     myPackages: "My Packages",
