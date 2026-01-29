@@ -1305,6 +1305,59 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_protocols: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_seconds: number | null
+          ego_state: string | null
+          goals: string[] | null
+          id: string
+          induction: string | null
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          ego_state?: string | null
+          goals?: string[] | null
+          id?: string
+          induction?: string | null
+          is_public?: boolean | null
+          name: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          ego_state?: string | null
+          goals?: string[] | null
+          id?: string
+          induction?: string | null
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_protocols_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           bounced_at: string | null
@@ -1631,6 +1684,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      hypnosis_sessions: {
+        Row: {
+          action: string | null
+          completed_at: string | null
+          created_at: string | null
+          duration_seconds: number
+          ego_state: string
+          experience_gained: number | null
+          goal_id: string | null
+          id: string
+          script_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          action?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number
+          ego_state?: string
+          experience_gained?: number | null
+          goal_id?: string | null
+          id?: string
+          script_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number
+          ego_state?: string
+          experience_gained?: number | null
+          goal_id?: string | null
+          id?: string
+          script_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hypnosis_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hypnosis_videos: {
         Row: {
@@ -2200,24 +2300,45 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_ego_state: string | null
           created_at: string | null
+          ego_state_usage: Json | null
+          experience: number | null
           full_name: string | null
           id: string
+          last_session_date: string | null
+          level: number | null
           preferred_language: string | null
+          session_streak: number | null
+          tokens: number | null
           updated_at: string | null
         }
         Insert: {
+          active_ego_state?: string | null
           created_at?: string | null
+          ego_state_usage?: Json | null
+          experience?: number | null
           full_name?: string | null
           id: string
+          last_session_date?: string | null
+          level?: number | null
           preferred_language?: string | null
+          session_streak?: number | null
+          tokens?: number | null
           updated_at?: string | null
         }
         Update: {
+          active_ego_state?: string | null
           created_at?: string | null
+          ego_state_usage?: Json | null
+          experience?: number | null
           full_name?: string | null
           id?: string
+          last_session_date?: string | null
+          level?: number | null
           preferred_language?: string | null
+          session_streak?: number | null
+          tokens?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2539,6 +2660,38 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          metadata: Json | null
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          metadata?: Json | null
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          metadata?: Json | null
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_audio_access: {
         Row: {
@@ -2903,6 +3056,7 @@ export type Database = {
     }
     Functions: {
       check_expiring_access: { Args: never; Returns: undefined }
+      check_streak_bonus: { Args: { p_user_id: string }; Returns: number }
       create_admin_notification: {
         Args: {
           p_link?: string

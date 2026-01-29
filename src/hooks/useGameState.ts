@@ -1,0 +1,91 @@
+import { useGameState as useGameStateContext } from '@/contexts/GameStateContext';
+import { calculateXpProgress } from '@/lib/achievements';
+
+/**
+ * Hook that provides game state with computed values
+ */
+export function useGameState() {
+  return useGameStateContext();
+}
+
+/**
+ * Hook for XP progress calculations
+ */
+export function useXpProgress() {
+  const { gameState } = useGameStateContext();
+  
+  if (!gameState) {
+    return {
+      level: 1,
+      experience: 0,
+      current: 0,
+      required: 100,
+      percentage: 0,
+    };
+  }
+
+  const progress = calculateXpProgress(gameState.experience);
+  
+  return {
+    level: gameState.level,
+    experience: gameState.experience,
+    ...progress,
+  };
+}
+
+/**
+ * Hook for streak information
+ */
+export function useStreak() {
+  const { gameState } = useGameStateContext();
+  
+  if (!gameState) {
+    return {
+      streak: 0,
+      lastSessionDate: null,
+      isActiveToday: false,
+    };
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const isActiveToday = gameState.lastSessionDate === today;
+
+  return {
+    streak: gameState.sessionStreak,
+    lastSessionDate: gameState.lastSessionDate,
+    isActiveToday,
+  };
+}
+
+/**
+ * Hook for token balance
+ */
+export function useTokens() {
+  const { gameState, spendTokens, addTokens } = useGameStateContext();
+  
+  return {
+    balance: gameState?.tokens ?? 0,
+    spend: spendTokens,
+    add: addTokens,
+    canAfford: (amount: number) => (gameState?.tokens ?? 0) >= amount,
+  };
+}
+
+/**
+ * Hook for ego state management
+ */
+export function useEgoState() {
+  const { gameState, setActiveEgoState } = useGameStateContext();
+  
+  return {
+    activeEgoState: gameState?.activeEgoState ?? 'guardian',
+    usage: gameState?.egoStateUsage ?? {},
+    setActive: setActiveEgoState,
+    getMostUsed: () => {
+      const usage = gameState?.egoStateUsage ?? {};
+      const entries = Object.entries(usage);
+      if (entries.length === 0) return null;
+      return entries.sort((a, b) => b[1] - a[1])[0][0];
+    },
+  };
+}
