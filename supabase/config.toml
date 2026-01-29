@@ -50,3 +50,12 @@ verify_jwt = false
 
 [functions.analyze-introspection-form]
 verify_jwt = false
+
+[functions.generate-hypnosis-script]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = false
+
+[functions.ai-hypnosis]
+verify_jwt = true
