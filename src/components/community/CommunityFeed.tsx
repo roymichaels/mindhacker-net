@@ -7,8 +7,6 @@ import PostCard from './PostCard';
 import PostEditor from './PostEditor';
 import CategoryFilter from './CategoryFilter';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +24,7 @@ interface CommunityFeedProps {
 }
 
 const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
@@ -34,7 +32,7 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<any>(null);
 
-  const { data: posts, isLoading, refetch } = useQuery({
+  const { data: posts, isLoading } = useQuery({
     queryKey: ['community-posts', selectedCategory],
     queryFn: async () => {
       // First get posts
@@ -124,36 +122,41 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="bg-background">
       {/* Post Editor */}
       {user && !editingPost && <PostEditor />}
       
       {/* Editing Post */}
       {editingPost && (
-        <PostEditor 
-          editPost={editingPost}
-          onSuccess={() => setEditingPost(null)}
-          onCancel={() => setEditingPost(null)}
-        />
+        <div className="p-4">
+          <PostEditor 
+            editPost={editingPost}
+            onSuccess={() => setEditingPost(null)}
+            onCancel={() => setEditingPost(null)}
+          />
+        </div>
       )}
 
       {/* Category Filter */}
-      <div className="flex items-center justify-between">
-        <CategoryFilter 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-        <Button variant="ghost" size="icon" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4" />
-        </Button>
-      </div>
+      <CategoryFilter 
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       {/* Posts */}
-      <div className="space-y-4">
+      <div>
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-lg" />
-          ))
+          <div className="p-4 space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-3">
+                <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : posts && posts.length > 0 ? (
           posts.map((post) => (
             <PostCard 

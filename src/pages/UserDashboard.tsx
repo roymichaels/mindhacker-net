@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -9,14 +9,12 @@ import { useTranslation } from "@/hooks/useTranslation";
 import Header from "@/components/Header";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import CommunityFeed from "@/components/community/CommunityFeed";
-import QuickActions from "@/components/dashboard/QuickActions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const UserDashboard = () => {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const feedRef = useRef<HTMLDivElement>(null);
   
   // SEO Configuration
   useSEO({
@@ -72,10 +70,6 @@ const UserDashboard = () => {
     },
   });
 
-  const scrollToNewPost = () => {
-    feedRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -97,13 +91,8 @@ const UserDashboard = () => {
       <Header />
       
       <DashboardLayout>
-        {/* Quick Actions Bar */}
-        <QuickActions onNewPost={scrollToNewPost} />
-        
-        {/* Community Feed */}
-        <div ref={feedRef}>
-          <CommunityFeed />
-        </div>
+        {/* Community Feed - Twitter style */}
+        <CommunityFeed />
       </DashboardLayout>
     </div>
   );

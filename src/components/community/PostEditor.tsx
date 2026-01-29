@@ -1,19 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Image, X, Loader2 } from 'lucide-react';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Image, X, Loader2, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -35,12 +31,13 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
   const { t, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const [title, setTitle] = useState(editPost?.title || '');
   const [content, setContent] = useState(editPost?.content || '');
   const [categoryId, setCategoryId] = useState(editPost?.category_id || '');
   const [mediaUrls, setMediaUrls] = useState<string[]>(editPost?.media_urls || []);
   const [isUploading, setIsUploading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const { data: categories } = useQuery({
     queryKey: ['community-categories'],
@@ -69,6 +66,22 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
     enabled: !!user?.id,
   });
 
+  const { data: member } = useQuery({
+    queryKey: ['community-member', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('community_members')
+        .select('avatar_url')
+        .eq('user_id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const selectedCategory = categories?.find(c => c.id === categoryId);
+
   const createPostMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error('Not authenticated');
@@ -76,7 +89,7 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
 
       const postData = {
         user_id: user.id,
-        title: title.trim() || null,
+        title: null,
         content: content.trim(),
         category_id: categoryId || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
@@ -97,10 +110,10 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
     },
     onSuccess: () => {
       toast.success(editPost ? t('community.postUpdated') : t('community.postCreated'));
-      setTitle('');
       setContent('');
       setCategoryId('');
       setMediaUrls([]);
+      setIsFocused(false);
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
       onSuccess?.();
     },
@@ -148,112 +161,147 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
 
   if (!user) return null;
 
-  return (
-    <Card>
-      <CardContent className="pt-4">
-        <div className="flex gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback>
-              {profile?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 space-y-3">
-            <Input
-              placeholder={t('community.postTitlePlaceholder')}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={cn(isRTL && "text-right")}
-            />
-            
-            <Textarea
-              placeholder={t('community.postContentPlaceholder')}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className={cn("min-h-[100px] resize-none", isRTL && "text-right")}
-            />
+  const isExpanded = isFocused || content.length > 0 || mediaUrls.length > 0 || !!editPost;
 
-            {/* Image Preview */}
-            {mediaUrls.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {mediaUrls.map((url, index) => (
-                  <div key={index} className="relative">
-                    <img 
-                      src={url} 
-                      alt="" 
-                      className="h-20 w-20 object-cover rounded-lg"
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="border-t pt-3 flex flex-wrap gap-2 justify-between">
-        <div className="flex items-center gap-2">
-          <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder={t('community.selectCategory')} />
-            </SelectTrigger>
-            <SelectContent>
-              {categories?.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {isRTL ? cat.name : cat.name_en || cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleImageUpload}
-              disabled={isUploading}
-            />
-            <Button variant="ghost" size="icon" asChild disabled={isUploading}>
-              <span>
-                {isUploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Image className="h-4 w-4" />
-                )}
-              </span>
-            </Button>
-          </label>
-        </div>
+  return (
+    <div className={cn(
+      "border-b bg-background px-4 py-3",
+      editPost && "border rounded-lg mb-4"
+    )}>
+      <div className="flex gap-3">
+        <Avatar className="h-9 w-9 shrink-0">
+          <AvatarImage src={member?.avatar_url || ''} />
+          <AvatarFallback className="text-sm">
+            {profile?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
         
-        <div className="flex gap-2">
-          {editPost && onCancel && (
-            <Button variant="outline" onClick={onCancel}>
-              {t('common.cancel')}
-            </Button>
-          )}
-          <Button 
-            onClick={() => createPostMutation.mutate()}
-            disabled={!content.trim() || createPostMutation.isPending}
-          >
-            {createPostMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : editPost ? (
-              t('common.save')
-            ) : (
-              t('community.publish')
+        <div className="flex-1 min-w-0">
+          <Textarea
+            ref={textareaRef}
+            placeholder={t('community.postContentPlaceholder')}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            className={cn(
+              "border-0 resize-none p-0 shadow-none focus-visible:ring-0 bg-transparent",
+              "placeholder:text-muted-foreground/60",
+              isExpanded ? "min-h-[80px]" : "min-h-[40px]",
+              isRTL && "text-right"
             )}
-          </Button>
+          />
+
+          {/* Image Preview */}
+          {mediaUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {mediaUrls.map((url, index) => (
+                <div key={index} className="relative">
+                  <img 
+                    src={url} 
+                    alt="" 
+                    className="h-16 w-16 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Actions Row */}
+          {isExpanded && (
+            <div className="flex items-center justify-between mt-3 pt-3 border-t">
+              <div className="flex items-center gap-1">
+                {/* Category Picker */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 px-2 text-xs gap-1"
+                    >
+                      {selectedCategory ? (
+                        <span style={{ color: selectedCategory.color || undefined }}>
+                          {isRTL ? selectedCategory.name : selectedCategory.name_en || selectedCategory.name}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">{t('community.selectCategory')}</span>
+                      )}
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-1" align="start">
+                    <div className="space-y-0.5">
+                      {categories?.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setCategoryId(cat.id)}
+                          className={cn(
+                            "w-full text-start px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors",
+                            categoryId === cat.id && "bg-muted"
+                          )}
+                        >
+                          <span style={{ color: cat.color || undefined }}>
+                            {isRTL ? cat.name : cat.name_en || cat.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                
+                {/* Image Upload */}
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                  />
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild disabled={isUploading}>
+                    <span>
+                      {isUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Image className="h-4 w-4" />
+                      )}
+                    </span>
+                  </Button>
+                </label>
+              </div>
+              
+              <div className="flex gap-2">
+                {editPost && onCancel && (
+                  <Button variant="ghost" size="sm" onClick={onCancel} className="h-8">
+                    {t('common.cancel')}
+                  </Button>
+                )}
+                <Button 
+                  size="sm"
+                  className="h-8 px-4"
+                  onClick={() => createPostMutation.mutate()}
+                  disabled={!content.trim() || createPostMutation.isPending}
+                >
+                  {createPostMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : editPost ? (
+                    t('common.save')
+                  ) : (
+                    t('community.publish')
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 
