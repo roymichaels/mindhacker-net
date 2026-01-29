@@ -37,7 +37,11 @@ serve(async (req) => {
     const apiFormData = new FormData();
     apiFormData.append('file', audioFile);
     apiFormData.append('model_id', 'scribe_v2');
-    apiFormData.append('language_code', 'heb'); // Hebrew support
+    // Use ISO-639-1 code 'he' for Hebrew (not 'heb')
+    // Or omit to let Scribe auto-detect language (better for mixed content)
+    apiFormData.append('language_code', 'he');
+
+    console.log('Starting ElevenLabs transcription, file size:', audioFile.size);
 
     const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
       method: 'POST',
