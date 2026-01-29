@@ -1,214 +1,279 @@
 
-# ChatGPT-Style Aurora Interface Redesign
+# Unified Life Model + Gamification Dashboard
 
 ## Overview
 
-Transform the current Aurora chat interface from a mobile-first "messaging app" layout to a **ChatGPT-style desktop-first layout** with a sidebar for conversations and a spacious centered chat area.
+Create a **single unified dashboard** that combines:
+1. **Aurora Life Model** - Life direction, values, focus plans, daily anchors, insights
+2. **Libero Gamification** - Levels, XP, streaks, tokens, ego states, achievements
 
-## Design Reference Analysis (From Screenshots)
+This replaces the separate `AuroraDashboardView` with a holistic view that shows all user transformation data in one place.
 
-Based on the provided images, the target design has:
+---
 
-1. **Left Sidebar** (fixed ~280px width):
-   - Aurora logo + title at top
-   - "+ New chat" button with border/outline style
-   - "Recent conversations" section with list
-   - User account dropdown at bottom (avatar, name, expand chevron)
-   - Footer actions: Dashboard, Settings, Language toggle, Sign out
+## Current State Analysis
 
-2. **Main Chat Area** (centered, max-width ~800px):
-   - **Welcome State**: Centered Aurora icon (circular gray bg with sparkle), welcome title/subtitle, suggestion pills in 2x2 grid
-   - **Message Display**: 
-     - Aurora messages: Avatar + "Aurora" label above message, full-width bubble
-     - User messages: "You" label above message, right-aligned
-     - Hover actions on Aurora messages (copy, read aloud, regenerate)
-   - **Input Area**: Rounded pill input with mic button inside, send button, footer text "Aurora remembers your conversations..."
+### What We Have (Scattered)
 
-3. **RTL Support**: Right sidebar for Hebrew, text properly aligned
+| Component | Location | Data |
+|-----------|----------|------|
+| `AuroraDashboardView` | Modal only | Life Model (direction, focus, values, energy patterns) |
+| `GameStatsCard` | Not integrated | Level, XP, Streak, Tokens, Ego State |
+| `LevelProgress` | Standalone | XP bar visualization |
+| `StreakCounter` | Standalone | Flame + day count |
+| `TokenBalance` | Standalone | Coin icon + balance |
+| `WeeklyProgressCard` | User Dashboard | Sessions, chats, insights, XP |
+| `LifeDirectionCard` | User Dashboard | Life direction quote + clarity |
+| `DailyAnchorsCard` | User Dashboard | Daily minimum checkboxes |
+| `RecentInsightsCard` | User Dashboard | Identity elements list |
+
+### Target State
+
+A **single `UnifiedDashboardView`** component that can be used:
+1. Inside the Aurora sidebar as a panel/modal
+2. In the main user dashboard page (`/dashboard`)
+3. Anywhere else needed
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Create New Layout Component
+### Phase 1: Create Unified Dashboard Component
 
-**New File: `src/components/aurora/AuroraLayout.tsx`**
+**New File: `src/components/dashboard/UnifiedDashboardView.tsx`**
 
-A full-page layout that orchestrates sidebar + chat:
+A comprehensive dashboard that merges all data sources:
 
 ```text
-┌──────────────────────────────────────────────────────────┐
-│  AuroraLayout (SidebarProvider)                          │
-│  ┌───────────────┬──────────────────────────────────┐   │
-│  │ AuroraSidebar │       AuroraChatArea             │   │
-│  │ (280px fixed) │    (flex-1, centered content)    │   │
-│  │               │                                   │   │
-│  │ - Logo        │  - Welcome / Messages            │   │
-│  │ - New Chat    │  - Auto-scroll                   │   │
-│  │ - Conv List   │  - Input at bottom               │   │
-│  │ - User Menu   │                                   │   │
-│  └───────────────┴──────────────────────────────────┘   │
-└──────────────────────────────────────────────────────────┘
++----------------------------------------------------------+
+|  HEADER: Avatar + Name + Level Badge                     |
+|  XP Progress Bar (full width)                            |
++----------------------------------------------------------+
+|  STATS ROW:                                              |
+|  [Streak: 7 days] [Tokens: 125] [Sessions: 42]           |
++----------------------------------------------------------+
+|  LIFE DIRECTION CARD (highlighted)                       |
+|  "Your purpose..." with clarity score                    |
++----------------------------------------------------------+
+|  2-COLUMN GRID:                                          |
+|  +---------------------------+---------------------------+|
+|  | Current Focus             | Weekly Progress          ||
+|  | Active plan with days     | Sessions, Chats, XP      ||
+|  +---------------------------+---------------------------+|
+|  | Daily Anchors             | Identity Profile         ||
+|  | Checkbox list             | Values, Principles       ||
+|  +---------------------------+---------------------------+|
++----------------------------------------------------------+
+|  RECENT INSIGHTS (horizontal scroll or list)             |
++----------------------------------------------------------+
+|  ACHIEVEMENTS (unlocked badges, compact)                 |
++----------------------------------------------------------+
 ```
 
-- Uses `SidebarProvider` from shadcn/ui
-- Sidebar on left (LTR) or right (RTL)
-- Mobile: Sheet/drawer for sidebar
+### Phase 2: Create Unified Hook
 
-### Phase 2: Create Aurora Sidebar Component
+**New File: `src/hooks/useUnifiedDashboard.ts`**
 
-**New File: `src/components/aurora/AuroraSidebar.tsx`**
+Combines data from:
+- `useGameState()` - Level, XP, streak, tokens, ego state
+- `useLifeModel()` - Life direction, focus plans, daily minimums, patterns
+- `useDashboard()` - Identity elements, visions, commitments
+- `useOnboardingProgress()` - Progress tracking
 
-Features:
-- Aurora sparkle icon + "Aurora" title
-- `+ New chat` button (outline style, full width)
-- "Recent conversations" label + list of conversations
-- Each conversation: title, hover to delete
-- Account dropdown at footer (avatar + name + chevron)
-  - Dashboard modal trigger
-  - Settings modal trigger  
-  - Language toggle (English ↔ עברית)
-  - Sign out
+Returns a single object with all computed values.
 
-### Phase 3: Redesign Chat Area
+### Phase 3: Create Sub-Components
 
-**Update: `src/components/aurora/AuroraChatArea.tsx`** (new file, extracted from AuroraMessageThread)
+**New Files in `src/components/dashboard/unified/`:**
 
-- **Remove header** (no back button needed in desktop layout)
-- **Welcome state** redesign:
-  - Gray circular icon (not gradient), sparkle inside
-  - "Welcome to Aurora" centered title
-  - Subtitle text
-  - 4 suggestion pills in a flex wrap layout (not buttons with icons)
-- **Messages area**: 
-  - Centered container (max-w-3xl mx-auto)
-  - Generous padding top/bottom
-  - Scroll area with auto-scroll
-- **Footer text**: "Aurora remembers your conversations and grows with you over time"
+1. **`StatsBar.tsx`** - Horizontal bar with Streak, Tokens, Sessions, Level
+2. **`LifeDirectionHighlight.tsx`** - Prominent life direction card with clarity
+3. **`CurrentFocusCard.tsx`** - Active focus plan with progress
+4. **`IdentityProfileCard.tsx`** - Values, principles, self-concepts
+5. **`AchievementsBadges.tsx`** - Compact unlocked achievements display
 
-### Phase 4: Redesign Message Bubbles
+### Phase 4: Update Aurora Dashboard Modal
 
-**Update: `src/components/aurora/AuroraChatMessage.tsx`**
+**Update: `src/components/aurora/AuroraDashboardModal.tsx`**
 
-Changes:
-- Add **label above message**: "Aurora" or "You"
-- Aurora avatar: Gray circular background (not gradient), sparkle icon
-- User: No avatar, just label
-- Bubble styling: Keep current but ensure clean look
-- **Action buttons below bubble** (not on hover-top):
-  - Copy, Read Aloud, Regenerate icons
-  - Visible on hover
+Replace `AuroraDashboardView` with `UnifiedDashboardView` to show the full unified data.
 
-### Phase 5: Redesign Input
+### Phase 5: Simplify User Dashboard Page
 
-**Update: `src/components/aurora/AuroraChatInput.tsx`**
+**Update: `src/pages/UserDashboard.tsx`**
 
-Changes:
-- Single pill input with mic button **inside** on the right
-- Send button outside on the far right (circular, primary color)
-- Rounded corners on input (rounded-full)
-- Max-width centered container
-- Add footer text below input: "Aurora remembers your conversations..."
-
-### Phase 6: Update Welcome Component
-
-**Update: `src/components/aurora/AuroraWelcome.tsx`**
-
-Changes:
-- Remove icon gradient → use gray/muted background
-- Remove icon pulse animation
-- Suggestion buttons: Simple outline pills (not with colored icons inside)
-- 2-column grid on desktop, stack on mobile
+Replace the 4 separate cards (LifeDirection, Weekly, DailyAnchors, Insights) with the unified `UnifiedDashboardView` component for a consistent experience.
 
 ---
 
-## New/Modified Files
+## Component Details
+
+### StatsBar Component
+
+```tsx
+// Horizontal stats display
+<div className="flex items-center justify-between p-4 glass-card">
+  <div className="flex items-center gap-2">
+    <Flame className="text-orange-500" />
+    <span className="font-bold">7</span>
+    <span className="text-muted-foreground text-sm">days</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <Coins className="text-amber-500" />
+    <span className="font-bold">125</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <Target className="text-purple-500" />
+    <span className="font-bold">42</span>
+    <span className="text-muted-foreground text-sm">sessions</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <span className="font-bold">Lv. 8</span>
+  </div>
+</div>
+```
+
+### XP Progress Section
+
+Full-width XP bar with level indication and XP numbers:
+
+```tsx
+<div className="space-y-2">
+  <div className="flex justify-between text-sm">
+    <span className="flex items-center gap-2">
+      <span className="text-2xl">🏆</span>
+      <span className="font-bold">Level {level}</span>
+    </span>
+    <span className="text-muted-foreground">{current}/{required} XP</span>
+  </div>
+  <Progress value={percentage} className="h-3" />
+</div>
+```
+
+### Active Ego State Display
+
+Show current ego state with icon and colors:
+
+```tsx
+<div className="flex items-center gap-3 p-3 rounded-lg" 
+     style={{ background: `linear-gradient(135deg, ${ego.colors.primary}20, ${ego.colors.secondary}20)` }}>
+  <span className="text-2xl">{ego.icon}</span>
+  <div>
+    <p className="font-medium">{ego.name}</p>
+    <p className="text-xs text-muted-foreground">Active Ego State</p>
+  </div>
+</div>
+```
+
+---
+
+## File Changes Summary
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `src/components/aurora/AuroraLayout.tsx` | **CREATE** | Full-page layout with sidebar + chat |
-| `src/components/aurora/AuroraSidebar.tsx` | **CREATE** | Conversation list sidebar |
-| `src/components/aurora/AuroraChatArea.tsx` | **CREATE** | Main chat content area |
-| `src/components/aurora/AuroraMessageThread.tsx` | **UPDATE** | Use new layout or redirect |
-| `src/components/aurora/AuroraChatMessage.tsx` | **UPDATE** | Add labels, redesign actions |
-| `src/components/aurora/AuroraChatInput.tsx` | **UPDATE** | Pill style with inline mic |
-| `src/components/aurora/AuroraWelcome.tsx` | **UPDATE** | Simpler design, pill buttons |
-| `src/components/aurora/AuroraAccountDropdown.tsx` | **CREATE** | User menu in sidebar footer |
-| `src/components/aurora/index.ts` | **UPDATE** | Export new components |
+| `src/components/dashboard/UnifiedDashboardView.tsx` | **CREATE** | Main unified dashboard component |
+| `src/hooks/useUnifiedDashboard.ts` | **CREATE** | Combined data hook |
+| `src/components/dashboard/unified/StatsBar.tsx` | **CREATE** | Horizontal stats (streak, tokens, etc.) |
+| `src/components/dashboard/unified/XpProgressSection.tsx` | **CREATE** | Level + XP bar |
+| `src/components/dashboard/unified/EgoStateDisplay.tsx` | **CREATE** | Current ego state card |
+| `src/components/dashboard/unified/AchievementsBadges.tsx` | **CREATE** | Compact achievements |
+| `src/components/aurora/AuroraDashboardModal.tsx` | **UPDATE** | Use UnifiedDashboardView |
+| `src/pages/UserDashboard.tsx` | **UPDATE** | Simplify to use unified view |
 | `src/i18n/translations/en.ts` | **UPDATE** | Add new translation keys |
 | `src/i18n/translations/he.ts` | **UPDATE** | Add Hebrew translations |
 
 ---
 
-## New Translation Keys Needed
+## New Translation Keys
 
 ```typescript
-aurora: {
-  // Existing...
-  newChat: "New chat",
-  recentConversations: "Recent conversations",
-  footerNote: "Aurora remembers your conversations and grows with you over time",
-  signIn: "Sign in",
-  // Account dropdown
-  account: {
-    dashboard: "Dashboard",
-    settings: "Settings",
-    language: "Language",
-    signOut: "Sign out",
+unified: {
+  dashboard: {
+    title: "Your Journey",
+    statsBar: {
+      streak: "Streak",
+      tokens: "Tokens", 
+      sessions: "Sessions",
+      level: "Level",
+    },
+    xpProgress: "Experience Progress",
+    egoState: "Active Ego State",
+    achievements: "Achievements",
+    viewAll: "View All",
+    noAchievements: "Complete activities to earn achievements",
+    // Hebrew
+    title_he: "המסע שלך",
+    ...
   }
 }
 ```
 
 ---
 
-## Routing Considerations
+## Data Flow
 
-The current `/messages/ai` route renders `AuroraMessageThread`. After redesign:
-- Keep same route but render full `AuroraLayout`
-- No need for separate conversation routes - sidebar handles selection
-- Mobile: Show either sidebar (sheet) or chat, with toggle
-
----
-
-## Responsive Behavior
-
-| Breakpoint | Layout |
-|------------|--------|
-| Desktop (≥1024px) | Sidebar always visible, chat centered |
-| Tablet (768-1023px) | Sidebar collapsible, hamburger toggle |
-| Mobile (<768px) | Sidebar as sheet/drawer, chat full-width |
+```text
+┌─────────────────────────────────────────────────────────┐
+│                   useUnifiedDashboard()                 │
+├─────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ useGameState │  │ useLifeModel │  │ useDashboard │  │
+│  │ - level      │  │ - direction  │  │ - values     │  │
+│  │ - xp         │  │ - focus      │  │ - principles │  │
+│  │ - streak     │  │ - minimums   │  │ - visions    │  │
+│  │ - tokens     │  │ - patterns   │  │ - commits    │  │
+│  │ - egoState   │  └──────────────┘  └──────────────┘  │
+│  │ - sessions   │                                       │
+│  └──────────────┘  ┌──────────────────────────────────┐ │
+│                    │  useOnboardingProgress           │ │
+│                    │  - progressPercentage            │ │
+│                    │  - hasDirection, hasIdentity     │ │
+│                    └──────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+              ┌─────────────────────────┐
+              │  UnifiedDashboardView   │
+              │  - StatsBar             │
+              │  - XpProgressSection    │
+              │  - EgoStateDisplay      │
+              │  - LifeDirectionCard    │
+              │  - CurrentFocusCard     │
+              │  - DailyAnchorsCard     │
+              │  - IdentityProfileCard  │
+              │  - InsightsList         │
+              │  - AchievementsBadges   │
+              └─────────────────────────┘
+```
 
 ---
 
 ## Technical Notes
 
-1. **Conversation Management**: 
-   - Reuse existing `get_or_create_ai_conversation` RPC
-   - Add hook for fetching conversation history with titles
-   - Support multiple conversations (new chat creates new one)
+1. **RTL Support**: All components inherit `isRTL` from translation hook and apply proper text alignment and layout flipping.
 
-2. **RTL Support**:
-   - Sidebar flips to right side
-   - Text alignment auto-handled
-   - Use existing `isRTL` from translation hook
+2. **Loading States**: Show skeleton placeholders while data loads from multiple sources.
 
-3. **State Management**:
-   - Sidebar open state (SidebarProvider)
-   - Current conversation ID
-   - Modal states (dashboard, settings, checklists)
+3. **Empty States**: Display encouraging messages when sections are empty (e.g., "Start a hypnosis session to earn XP").
 
-4. **Modals** (keep existing):
-   - `AuroraDashboardModal`
-   - `AuroraSettingsModal`
-   - `AuroraChecklistModal`
+4. **Responsive Design**:
+   - Desktop: 2-column grid for cards
+   - Tablet: 2-column with smaller gaps
+   - Mobile: Single column stack
+
+5. **Animation**: Subtle entrance animations using Framer Motion for cards appearing.
+
+6. **Gamification Context**: Ensure `GameStateProvider` wraps the dashboard for access to game state.
 
 ---
 
 ## Summary
 
-This redesign transforms Aurora from a mobile-messaging style to a ChatGPT-style desktop-first interface while:
-- Keeping all existing functionality intact
-- Supporting full RTL for Hebrew
-- Maintaining conversation history with sidebar navigation
-- Using shadcn/ui Sidebar components
-- Following existing code patterns and styling conventions
+This plan creates a **unified dashboard** that brings together:
+- Level, XP, and progression from Libero gamification
+- Life Model insights from Aurora coaching
+- Streak and token economy
+- Ego state personality system
+- Achievements and milestones
+
+The result is a single, cohesive view of the user's transformation journey that can be accessed from Aurora or the main dashboard.
