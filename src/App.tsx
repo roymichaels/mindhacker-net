@@ -61,6 +61,8 @@ const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
 const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
+const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
+const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -236,6 +238,24 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <MessageThread />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        {/* Hypnosis routes (protected) */}
+                        <Route
+                          path="/hypnosis"
+                          element={
+                            <ProtectedRoute>
+                              <HypnosisLibrary />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/hypnosis/session"
+                          element={
+                            <ProtectedRoute>
+                              <HypnosisSession />
                             </ProtectedRoute>
                           }
                         />
