@@ -62,74 +62,78 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
-      className="fixed bottom-14 left-0 right-0 p-4 bg-background border-t"
-    >
-      <div className="flex gap-2 max-w-3xl mx-auto items-end">
-        {/* Voice Button */}
-        <Button
-          type="button"
-          variant={isRecording ? "destructive" : "outline"}
-          size="icon"
-          onClick={handleMicClick}
-          disabled={disabled}
-          className={cn(
-            "shrink-0 rounded-full w-10 h-10",
-            isRecording && "animate-pulse"
-          )}
-          title={isRecording ? t('aurora.chat.stopRecording') : t('aurora.chat.startRecording')}
-        >
-          {isRecording ? (
-            <MicOff className="w-5 h-5" />
-          ) : (
-            <Mic className="w-5 h-5" />
-          )}
-        </Button>
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-6 pb-6 px-4">
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+        <div className="relative flex items-end gap-3">
+          {/* Input Container */}
+          <div className="flex-1 relative bg-muted rounded-2xl border border-border">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t('aurora.chat.placeholder')}
+              disabled={disabled}
+              rows={1}
+              className={cn(
+                "w-full bg-transparent px-4 py-3 pe-12 text-sm",
+                "resize-none overflow-hidden",
+                "focus:outline-none",
+                "disabled:opacity-50",
+                "placeholder:text-muted-foreground"
+              )}
+              dir={isRTL ? 'rtl' : 'ltr'}
+              style={{ maxHeight: '200px' }}
+            />
+            
+            {/* Mic Button Inside Input */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleMicClick}
+              disabled={disabled}
+              className={cn(
+                "absolute end-2 bottom-1.5 h-8 w-8 rounded-full",
+                isRecording && "text-destructive bg-destructive/10"
+              )}
+              title={isRecording ? t('aurora.chat.stopRecording') : t('aurora.chat.startRecording')}
+            >
+              {isRecording ? (
+                <MicOff className="w-4 h-4" />
+              ) : (
+                <Mic className="w-4 h-4 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
 
-        {/* Text Input */}
-        <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={t('aurora.chat.placeholder')}
-            disabled={disabled}
-            rows={1}
-            className={cn(
-              "w-full bg-muted border border-border rounded-2xl px-4 py-3 text-sm",
-              "resize-none overflow-hidden",
-              "focus:outline-none focus:ring-2 focus:ring-primary/50",
-              "disabled:opacity-50",
-              "placeholder:text-muted-foreground"
+          {/* Send Button */}
+          <Button
+            type="submit"
+            size="icon"
+            disabled={disabled || !input.trim()}
+            className="rounded-full h-11 w-11 shrink-0"
+          >
+            {disabled ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
             )}
-            dir={isRTL ? 'rtl' : 'ltr'}
-            style={{ maxHeight: '200px' }}
-          />
-          
-          {recordingError && (
-            <p className="absolute -bottom-5 left-0 text-xs text-destructive">
-              {recordingError}
-            </p>
-          )}
+          </Button>
         </div>
-
-        {/* Send Button */}
-        <Button
-          type="submit"
-          size="icon"
-          disabled={disabled || !input.trim()}
-          className="rounded-full w-10 h-10 shrink-0"
-        >
-          {disabled ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <Send className="w-5 h-5" />
-          )}
-        </Button>
-      </div>
-    </form>
+        
+        {recordingError && (
+          <p className="text-xs text-destructive mt-2 text-center">
+            {recordingError}
+          </p>
+        )}
+        
+        {/* Footer Note */}
+        <p className="text-xs text-muted-foreground text-center mt-3">
+          {t('aurora.footerNote')}
+        </p>
+      </form>
+    </div>
   );
 };
 

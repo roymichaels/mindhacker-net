@@ -677,6 +677,10 @@ export const en: TranslationKeys = {
     errorCreatingConversation: "Error creating conversation",
     errorSending: "Error sending message",
     startTyping: "Start typing a message...",
+    copy: "Copy",
+    copied: "Copied to clipboard",
+    readAloud: "Read aloud",
+    stopReading: "Stop reading",
   },
   forms: {
     pageTitle: "Forms",
@@ -1989,6 +1993,16 @@ export const en: TranslationKeys = {
       archived: "Checklist archived",
       archiveError: "Error archiving",
       itemCompleted: "Item completed! +10 XP"
+    },
+    newChat: "New chat",
+    recentConversations: "Recent conversations",
+    footerNote: "Aurora remembers your conversations and grows with you over time",
+    you: "You",
+    regenerate: "Regenerate",
+    account: {
+      dashboard: "Dashboard",
+      settings: "Settings",
+      signOut: "Sign out",
     }
   },
   unified: {

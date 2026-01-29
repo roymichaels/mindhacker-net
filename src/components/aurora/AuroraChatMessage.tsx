@@ -1,9 +1,6 @@
 import { Copy, Volume2, VolumeX, RefreshCw, Sparkles } from 'lucide-react';
-import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { he, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { toast } from 'sonner';
@@ -16,6 +13,7 @@ interface AuroraChatMessageProps {
   isAI?: boolean;
   isStreaming?: boolean;
   timestamp?: string;
+  onRegenerate?: () => void;
 }
 
 // Extract CTA buttons from content
@@ -39,18 +37,13 @@ const AuroraChatMessage = ({
   isAI = false,
   isStreaming = false,
   timestamp,
+  onRegenerate,
 }: AuroraChatMessageProps) => {
-  const { language, t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   
   const { cleanContent, ctas } = extractCTAs(content);
   const isPlayingThis = isPlaying && activeMessageId === id;
-
-  const time = timestamp 
-    ? format(new Date(timestamp), 'HH:mm', { 
-        locale: language === 'he' ? he : enUS 
-      })
-    : '';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanContent);
@@ -66,81 +59,96 @@ const AuroraChatMessage = ({
   };
 
   return (
-    <div className={cn(
-      "flex gap-2 animate-fade-in group",
-      isOwn ? "flex-row-reverse" : "flex-row"
-    )}>
-      {/* Avatar - only show for Aurora */}
-      {!isOwn && (
-        <Avatar className="h-8 w-8 shrink-0">
-          <div className="h-full w-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
-        </Avatar>
-      )}
+    <div className={cn("group", isOwn ? "flex justify-end" : "")}>
+      {/* Label */}
+      <div className={cn(
+        "mb-1.5",
+        isOwn && "text-end"
+      )}>
+        <span className="text-xs font-medium text-muted-foreground">
+          {isOwn ? t('aurora.you') : t('aurora.name')}
+        </span>
+      </div>
 
-      {/* Message Content */}
-      <div className={cn("max-w-[75%] space-y-2", isOwn && "items-end")}>
+      {/* Message Container */}
+      <div className={cn(
+        "flex gap-3",
+        isOwn && "flex-row-reverse"
+      )}>
+        {/* Avatar - only for Aurora */}
+        {!isOwn && (
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+            <Sparkles className="h-4 w-4 text-muted-foreground" />
+          </div>
+        )}
+
         {/* Message Bubble */}
         <div className={cn(
-          "rounded-2xl px-4 py-2.5 relative",
-          isOwn 
-            ? "bg-primary text-primary-foreground rounded-br-md" 
-            : "bg-muted text-foreground rounded-bl-md"
+          "max-w-[85%] space-y-2",
+          isOwn && "items-end"
         )}>
-          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-            {cleanContent}
-            {isStreaming && (
-              <span className="inline-block w-1.5 h-4 bg-current animate-pulse ml-1" />
-            )}
-          </p>
-          
-          {time && (
-            <p className={cn(
-              "text-[10px] mt-1",
-              isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-            )}>
-              {time}
+          <div className={cn(
+            "rounded-2xl px-4 py-3",
+            isOwn 
+              ? "bg-primary text-primary-foreground" 
+              : "bg-muted text-foreground"
+          )}>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+              {cleanContent}
+              {isStreaming && (
+                <span className="inline-block w-1.5 h-4 bg-current animate-pulse ms-1" />
+              )}
             </p>
-          )}
+          </div>
 
-          {/* Hover Actions */}
+          {/* Action Buttons - Below message for Aurora */}
           {!isStreaming && !isOwn && (
-            <div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-background/90 backdrop-blur rounded-lg p-1 shadow-sm border">
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-7 w-7"
                 onClick={handleCopy}
                 title={t('messages.copy')}
               >
-                <Copy className="h-3.5 w-3.5" />
+                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-7 w-7"
                 onClick={handleVoice}
                 title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
               >
                 {isPlayingThis ? (
-                  <VolumeX className="h-3.5 w-3.5" />
+                  <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
                 ) : (
-                  <Volume2 className="h-3.5 w-3.5" />
+                  <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
                 )}
               </Button>
+              {onRegenerate && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={onRegenerate}
+                  title={t('aurora.regenerate')}
+                >
+                  <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* CTA Buttons */}
+          {ctas.length > 0 && !isStreaming && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {ctas.map((cta, index) => (
+                <AuroraCTAButton key={`${cta}-${index}`} type={cta} />
+              ))}
             </div>
           )}
         </div>
-
-        {/* CTA Buttons */}
-        {ctas.length > 0 && !isStreaming && (
-          <div className="flex flex-wrap gap-2">
-            {ctas.map((cta, index) => (
-              <AuroraCTAButton key={`${cta}-${index}`} type={cta} />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

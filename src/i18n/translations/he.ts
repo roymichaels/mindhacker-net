@@ -675,6 +675,10 @@ export const he = {
     errorCreatingConversation: "שגיאה ביצירת שיחה",
     errorSending: "שגיאה בשליחת ההודעה",
     startTyping: "התחל להקליד הודעה...",
+    copy: "העתק",
+    copied: "הועתק ללוח",
+    readAloud: "הקרא בקול",
+    stopReading: "הפסק להקריא",
   },
   forms: {
     pageTitle: "טפסים",
@@ -2040,6 +2044,16 @@ export const he = {
       archived: "הרשימה הועברה לארכיון",
       archiveError: "שגיאה בהעברה לארכיון",
       itemCompleted: "פריט הושלם! +10 XP"
+    },
+    newChat: "שיחה חדשה",
+    recentConversations: "שיחות אחרונות",
+    footerNote: "אורורה זוכרת את השיחות שלך וצומחת איתך לאורך זמן",
+    you: "אתה",
+    regenerate: "נסה שוב",
+    account: {
+      dashboard: "דאשבורד",
+      settings: "הגדרות",
+      signOut: "התנתק",
     }
   },
   unified: {
