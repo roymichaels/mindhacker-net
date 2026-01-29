@@ -8,7 +8,10 @@ import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import Header from "@/components/Header";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import CommunityFeed from "@/components/community/CommunityFeed";
+import CompactCourses from "@/components/dashboard/CompactCourses";
+import CompactRecordings from "@/components/dashboard/CompactRecordings";
+import CompactSessions from "@/components/dashboard/CompactSessions";
+import CompactAffiliate from "@/components/dashboard/CompactAffiliate";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const UserDashboard = () => {
@@ -42,20 +45,6 @@ const UserDashboard = () => {
         navigate("/login");
         return;
       }
-
-      // Ensure community member exists
-      const { data: existingMember } = await supabase
-        .from('community_members')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!existingMember) {
-        // Create community member if doesn't exist
-        await supabase
-          .from('community_members')
-          .insert({ user_id: user.id });
-      }
     } catch (error) {
       console.error('Auth check error:', error);
     } finally {
@@ -65,7 +54,6 @@ const UserDashboard = () => {
 
   const pullToRefresh = usePullToRefresh({
     onRefresh: async () => {
-      // Trigger a refetch of the feed
       window.location.reload();
     },
   });
@@ -91,8 +79,23 @@ const UserDashboard = () => {
       <Header />
       
       <DashboardLayout>
-        {/* Community Feed - Twitter style */}
-        <CommunityFeed />
+        {/* Dashboard Content - Products and Courses */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold">{t('common.dashboard')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.welcomeBack')}</p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <CompactCourses />
+            <CompactRecordings />
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <CompactSessions />
+            <CompactAffiliate />
+          </div>
+        </div>
       </DashboardLayout>
     </div>
   );
