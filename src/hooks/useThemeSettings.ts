@@ -232,6 +232,19 @@ export const clearThemeSurfaceOverrides = () => {
   ].forEach((key) => root.style.removeProperty(key));
 };
 
+export const clearThemeBrandOverrides = () => {
+  const root = document.documentElement;
+  [
+    '--primary',
+    '--primary-glow',
+    '--secondary',
+    '--accent',
+    '--ring',
+    '--matrix-rain-color',
+    '--matrix-rain-opacity',
+  ].forEach((key) => root.style.removeProperty(key));
+};
+
 // Backwards-compatible helper
 const applyThemeToDOM = (theme: ThemeSettings) => {
   applyThemeBrandToDOM(theme);
@@ -246,8 +259,7 @@ export const useThemeSettings = () => {
     // Use cache if valid
     if (cachedTheme && Date.now() - cacheTimestamp < CACHE_DURATION) {
       setTheme(cachedTheme);
-      // Always apply brand variables; surface palette is controlled by light/dark mode
-      applyThemeBrandToDOM(cachedTheme);
+      // NOTE: Don't apply brand variables here - ThemeProvider handles it based on light/dark mode
       setLoading(false);
       return;
     }
@@ -277,11 +289,9 @@ export const useThemeSettings = () => {
       cachedTheme = themeObj;
       cacheTimestamp = Date.now();
       setTheme(themeObj);
-      // Always apply brand variables; surface palette is controlled by light/dark mode
-      applyThemeBrandToDOM(themeObj);
+      // NOTE: Don't apply brand variables here - ThemeProvider handles it based on light/dark mode
     } catch (error) {
       console.error("Error fetching theme settings:", error);
-      applyThemeBrandToDOM(defaultTheme);
     } finally {
       setLoading(false);
     }

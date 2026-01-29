@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import {
   clearThemeSurfaceOverrides,
+  clearThemeBrandOverrides,
   applyThemeSurfaceToDOM,
+  applyThemeBrandToDOM,
 } from "@/hooks/useThemeSettings";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
@@ -62,9 +64,12 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
     if (loading) return;
 
     if (resolvedTheme === "light") {
+      // Light mode: use CSS-defined values, clear DB overrides
       clearThemeSurfaceOverrides();
+      clearThemeBrandOverrides();
     } else {
-      // Dark mode: allow DB palette overrides (cyber aesthetic)
+      // Dark mode: apply DB palette overrides (cyber aesthetic)
+      applyThemeBrandToDOM(theme);
       applyThemeSurfaceToDOM(theme);
     }
   }, [loading, resolvedTheme, theme]);
