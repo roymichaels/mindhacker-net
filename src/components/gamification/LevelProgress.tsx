@@ -28,9 +28,9 @@ export function LevelProgress({ className, showLabel = true, size = 'md' }: Leve
       {showLabel && (
         <div className={cn('flex items-center justify-between', textSizes[size])}>
           <span className="font-medium text-foreground">
-            Level {level}
+            Lv. {level}
           </span>
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground tabular-nums">
             {current}/{required} XP
           </span>
         </div>

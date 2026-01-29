@@ -51,7 +51,7 @@ export function StreakCounter({ className, showLabel = true, size = 'md' }: Stre
         {streak}
       </span>
       {showLabel && (
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground text-xs sm:text-sm">
           {streak === 1 ? 'day' : 'days'}
         </span>
       )}
