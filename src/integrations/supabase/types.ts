@@ -1150,6 +1150,39 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          last_message_preview: string | null
+          participant_1: string
+          participant_2: string | null
+          type: Database["public"]["Enums"]["conversation_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          participant_1: string
+          participant_2?: string | null
+          type?: Database["public"]["Enums"]["conversation_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          participant_1?: string
+          participant_2?: string | null
+          type?: Database["public"]["Enums"]["conversation_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversion_events: {
         Row: {
           conversion_value: number | null
@@ -1715,6 +1748,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_ai_message: boolean
+          is_read: boolean
+          sender_id: string | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_ai_message?: boolean
+          is_read?: boolean
+          sender_id?: string | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_ai_message?: boolean
+          is_read?: boolean
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_campaigns: {
         Row: {
@@ -2854,6 +2925,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_or_create_ai_conversation: {
+        Args: { user_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2867,6 +2942,7 @@ export type Database = {
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
+      conversation_type: "direct" | "ai"
       notification_priority: "low" | "medium" | "high" | "urgent"
       notification_type:
         | "new_user"
@@ -3027,6 +3103,7 @@ export const Constants = {
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
+      conversation_type: ["direct", "ai"],
       notification_priority: ["low", "medium", "high", "urgent"],
       notification_type: [
         "new_user",

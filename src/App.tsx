@@ -59,7 +59,8 @@ const CommunityPost = lazy(() => import("./pages/CommunityPost"));
 const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
 const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
 const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
-
+const Messages = lazy(() => import("./pages/Messages"));
+const MessageThread = lazy(() => import("./pages/MessageThread"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -209,6 +210,32 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <CommunityLeaderboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        
+                        {/* Messages routes (protected) */}
+                        <Route
+                          path="/messages"
+                          element={
+                            <ProtectedRoute>
+                              <Messages />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/messages/ai"
+                          element={
+                            <ProtectedRoute>
+                              <MessageThread />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/messages/:conversationId"
+                          element={
+                            <ProtectedRoute>
+                              <MessageThread />
                             </ProtectedRoute>
                           }
                         />
