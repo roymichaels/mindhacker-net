@@ -511,10 +511,10 @@ const FormSubmissionsViewer = ({
 
       {/* AI Analysis Dialog */}
       <Dialog open={!!selectedAnalysis} onOpenChange={(open) => !open && setSelectedAnalysis(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-background text-gray-900 dark:text-foreground">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-foreground">
+              <Sparkles className="h-5 w-5 text-purple-500" />
               ניתוח AI של השאלון
             </DialogTitle>
           </DialogHeader>
@@ -523,11 +523,11 @@ const FormSubmissionsViewer = ({
             <div className="space-y-6">
               {/* Summary */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-foreground flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-purple-500 dark:bg-purple-400" />
+                <h4 className="font-semibold text-gray-900 dark:text-foreground flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />
                   סיכום
                 </h4>
-                <p className="text-foreground leading-relaxed bg-purple-50 dark:bg-purple-500/10 p-4 rounded-lg border border-purple-200 dark:border-purple-500/20">
+                <p className="text-gray-800 dark:text-foreground leading-relaxed bg-purple-50 dark:bg-purple-500/10 p-4 rounded-lg border border-purple-200 dark:border-purple-500/20">
                   {selectedAnalysis.analysis_summary}
                 </p>
               </div>
@@ -535,8 +535,8 @@ const FormSubmissionsViewer = ({
               {/* Patterns */}
               {selectedAnalysis.patterns && selectedAnalysis.patterns.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
+                  <h4 className="font-semibold text-gray-900 dark:text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
                     דפוסים שזוהו
                   </h4>
                   <div className="space-y-2">
@@ -548,7 +548,7 @@ const FormSubmissionsViewer = ({
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
                           {index + 1}
                         </span>
-                        <span className="text-foreground">{pattern}</span>
+                        <span className="text-gray-800 dark:text-foreground">{pattern}</span>
                       </div>
                     ))}
                   </div>
@@ -558,11 +558,11 @@ const FormSubmissionsViewer = ({
               {/* Transformation Potential */}
               {selectedAnalysis.transformation_potential && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400" />
+                  <h4 className="font-semibold text-gray-900 dark:text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500" />
                     פוטנציאל טרנספורמציה
                   </h4>
-                  <p className="text-foreground leading-relaxed bg-green-50 dark:bg-green-500/10 p-4 rounded-lg border border-green-200 dark:border-green-500/20">
+                  <p className="text-gray-800 dark:text-foreground leading-relaxed bg-green-50 dark:bg-green-500/10 p-4 rounded-lg border border-green-200 dark:border-green-500/20">
                     {selectedAnalysis.transformation_potential}
                   </p>
                 </div>
@@ -571,11 +571,11 @@ const FormSubmissionsViewer = ({
               {/* Recommendation */}
               {selectedAnalysis.recommendation && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400" />
+                  <h4 className="font-semibold text-gray-900 dark:text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
                     המלצה
                   </h4>
-                  <p className="text-foreground leading-relaxed bg-amber-50 dark:bg-amber-500/10 p-4 rounded-lg border border-amber-200 dark:border-amber-500/20">
+                  <p className="text-gray-800 dark:text-foreground leading-relaxed bg-amber-50 dark:bg-amber-500/10 p-4 rounded-lg border border-amber-200 dark:border-amber-500/20">
                     {selectedAnalysis.recommendation}
                   </p>
                 </div>
@@ -583,8 +583,8 @@ const FormSubmissionsViewer = ({
 
               {/* Recommended Product */}
               {selectedAnalysis.recommended_product && (
-                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                  <span className="text-sm text-muted-foreground">מוצר מומלץ:</span>
+                <div className="flex items-center gap-2 p-3 bg-gray-100 dark:bg-muted rounded-lg border border-gray-200 dark:border-border">
+                  <span className="text-sm text-gray-600 dark:text-muted-foreground">מוצר מומלץ:</span>
                   <Badge variant="secondary">{selectedAnalysis.recommended_product}</Badge>
                 </div>
               )}
