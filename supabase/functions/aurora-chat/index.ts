@@ -4,13 +4,72 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Aurora's core personality and system prompt
-const buildSystemPrompt = (userContext: string, language: string) => {
+// Mode types for unified AI
+type AuroraMode = 'full' | 'lite' | 'widget';
+
+// Build system prompt based on mode
+const buildSystemPrompt = (
+  mode: AuroraMode,
+  userContext: string,
+  knowledgeBase: string,
+  language: string
+) => {
   const isHebrew = language === 'he';
   
+  // Widget mode - simplified guest-facing assistant
+  if (mode === 'widget') {
+    const basePrompt = isHebrew 
+      ? `אתה העוזר האישי של דין אושר אזולאי מאתר מיינד-האקר.
+אתה עוזר בחמימות ובאמפתיה, בדיוק כמו שדין היה מדבר עם מישהו שפונה אליו.
+
+הגישה שלך:
+- אתה לא מוכר כלום - אתה עוזר, מקשיב, ומכוון
+- אם מישהו שואל על השירותים, אתה מסביר בנחת ומזמין לשיחת היכרות חינם
+- אתה משתמש בשפה פשוטה, חמה, ולא פורמלית
+- אתה לא דוחף לקנות, לא יוצר לחץ
+
+כשעונה:
+- תהיה קצר וענייני, אבל חם ואמפתי
+- אם מישהו לא בטוח - הזמן אותו לשיחת היכרות חינם
+- השתמש באימוג'ים במידה 🙏
+- דבר בעברית, אלא אם פונים באנגלית - אז ענה באנגלית`
+      : `You are the personal assistant of Dean Osher Azoulay from MindHacker.
+You help with warmth and empathy, just like Dean would talk to someone reaching out.
+
+Your approach:
+- You don't sell anything - you help, listen, and guide
+- If someone asks about services, explain calmly and invite to a free intro call
+- Use simple, warm, informal language
+- Don't push to buy, don't create pressure
+
+When responding:
+- Be brief but warm and empathetic
+- If someone is unsure - invite them to a free intro call
+- Use emojis moderately 🙏
+- Speak in Hebrew unless addressed in English`;
+
+    return knowledgeBase 
+      ? `${basePrompt}\n\n## Knowledge Base\n${knowledgeBase}`
+      : basePrompt;
+  }
+
+  // Lite mode - simplified Aurora for quick interactions
+  if (mode === 'lite') {
+    return isHebrew
+      ? `אני אורורה - המלווה שלך. אני כאן לעזור לך בקצרה ובממוקד.
+תשובות קצרות (1-2 משפטים). לא שאלות ארוכות. פשוט עוזרת.
+
+${userContext ? `## על המשתמש\n${userContext}` : ''}`
+      : `I am Aurora - your companion. I'm here to help briefly and focused.
+Short responses (1-2 sentences). No long questions. Just helping.
+
+${userContext ? `## About the user\n${userContext}` : ''}`;
+  }
+
+  // Full mode - complete Aurora life coaching experience
   if (isHebrew) {
     return `אני אורורה - מלווה AI לעיצוב חיים.
 אני עוזרת לך לעצב את החיים שלך, להבהיר את הזהות שלך, ולתכנן את העתיד שלך.
@@ -98,73 +157,61 @@ I help you design your life, clarify your identity, and plan your future.
 ${userContext}`;
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+// Build user context from Life Model data
+const buildUserContext = async (
+  supabase: any,
+  userId: string,
+  language: string
+): Promise<string> => {
+  if (!userId) return "No user data available yet.";
 
-  try {
-    const { messages, userId, language = 'he' } = await req.json();
+  const [
+    profileRes,
+    directionRes,
+    identityRes,
+    visionsRes,
+    commitmentsRes,
+    energyRes,
+    behavioralRes,
+    focusRes,
+    minimumsRes,
+    onboardingRes,
+    checklistsRes
+  ] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", userId).single(),
+    supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
+    supabase.from("aurora_identity_elements").select("*").eq("user_id", userId),
+    supabase.from("aurora_life_visions").select("*").eq("user_id", userId),
+    supabase.from("aurora_commitments").select("*").eq("user_id", userId).eq("status", "active"),
+    supabase.from("aurora_energy_patterns").select("*").eq("user_id", userId),
+    supabase.from("aurora_behavioral_patterns").select("*").eq("user_id", userId),
+    supabase.from("aurora_focus_plans").select("*").eq("user_id", userId).eq("status", "active").limit(1),
+    supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
+    supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
+    supabase.from("aurora_checklists").select("*, aurora_checklist_items(*)").eq("user_id", userId).eq("status", "active")
+  ]);
 
-    if (!messages || !Array.isArray(messages)) {
-      throw new Error("Messages array is required");
-    }
+  const profile = profileRes.data;
+  const direction = directionRes.data?.[0];
+  const identity = identityRes.data || [];
+  const visions = visionsRes.data || [];
+  const commitments = commitmentsRes.data || [];
+  const energy = energyRes.data || [];
+  const behavioral = behavioralRes.data || [];
+  const focus = focusRes.data?.[0];
+  const minimums = minimumsRes.data || [];
+  const onboarding = onboardingRes.data;
+  const checklists = checklistsRes.data || [];
 
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const values = identity.filter((i: any) => i.element_type === 'value').map((i: any) => i.content);
+  const principles = identity.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content);
+  const selfConcepts = identity.filter((i: any) => i.element_type === 'self_concept').map((i: any) => i.content);
+  const visionStatements = identity.filter((i: any) => i.element_type === 'vision_statement').map((i: any) => i.content);
 
-    // Build user context from Life Model data
-    let userContext = "No user data available yet.";
-    
-    if (userId) {
-      const [
-        profileRes,
-        directionRes,
-        identityRes,
-        visionsRes,
-        commitmentsRes,
-        energyRes,
-        behavioralRes,
-        focusRes,
-        minimumsRes,
-        onboardingRes,
-        checklistsRes
-      ] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
-        supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
-        supabase.from("aurora_identity_elements").select("*").eq("user_id", userId),
-        supabase.from("aurora_life_visions").select("*").eq("user_id", userId),
-        supabase.from("aurora_commitments").select("*").eq("user_id", userId).eq("status", "active"),
-        supabase.from("aurora_energy_patterns").select("*").eq("user_id", userId),
-        supabase.from("aurora_behavioral_patterns").select("*").eq("user_id", userId),
-        supabase.from("aurora_focus_plans").select("*").eq("user_id", userId).eq("status", "active").limit(1),
-        supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
-        supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
-        supabase.from("aurora_checklists").select("*, aurora_checklist_items(*)").eq("user_id", userId).eq("status", "active")
-      ]);
-
-      const profile = profileRes.data;
-      const direction = directionRes.data?.[0];
-      const identity = identityRes.data || [];
-      const visions = visionsRes.data || [];
-      const commitments = commitmentsRes.data || [];
-      const energy = energyRes.data || [];
-      const behavioral = behavioralRes.data || [];
-      const focus = focusRes.data?.[0];
-      const minimums = minimumsRes.data || [];
-      const onboarding = onboardingRes.data;
-      const checklists = checklistsRes.data || [];
-
-      const values = identity.filter(i => i.element_type === 'value').map(i => i.content);
-      const principles = identity.filter(i => i.element_type === 'principle').map(i => i.content);
-      const selfConcepts = identity.filter(i => i.element_type === 'self_concept').map(i => i.content);
-      const visionStatements = identity.filter(i => i.element_type === 'vision_statement').map(i => i.content);
-
-      const isHebrew = language === 'he';
-      
-      userContext = isHebrew ? `
+  const isHebrew = language === 'he';
+  
+  if (isHebrew) {
+    return `
 ## פרופיל משתמש
 - שם: ${profile?.full_name || 'לא ידוע'}
 - ביו: ${profile?.bio || 'לא הוגדר'}
@@ -182,22 +229,22 @@ ${direction?.clarity_score ? `(רמת בהירות: ${direction.clarity_score}%)
 - הצהרות חזון: ${visionStatements.length > 0 ? visionStatements.join(', ') : 'טרם הוגדרו'}
 
 ## חזונות
-${visions.map(v => `- ${v.timeframe === '5_year' ? '5 שנים' : '10 שנים'}: ${v.title}`).join('\n') || 'טרם הוגדרו'}
+${visions.map((v: any) => `- ${v.timeframe === '5_year' ? '5 שנים' : '10 שנים'}: ${v.title}`).join('\n') || 'טרם הוגדרו'}
 
 ## התחייבויות פעילות
-${commitments.map(c => `- ${c.title}`).join('\n') || 'אין התחייבויות פעילות'}
+${commitments.map((c: any) => `- ${c.title}`).join('\n') || 'אין התחייבויות פעילות'}
 
 ## דפוסי אנרגיה
-${energy.map(e => `- ${e.pattern_type}: ${e.description}`).join('\n') || 'טרם מופו'}
+${energy.map((e: any) => `- ${e.pattern_type}: ${e.description}`).join('\n') || 'טרם מופו'}
 
 ## דפוסי התנהגות
-${behavioral.map(b => `- ${b.pattern_type}: ${b.description}`).join('\n') || 'טרם זוהו'}
+${behavioral.map((b: any) => `- ${b.pattern_type}: ${b.description}`).join('\n') || 'טרם זוהו'}
 
 ## פוקוס נוכחי
 ${focus ? `${focus.title} (${focus.duration_days} ימים)` : 'לא מוגדר'}
 
 ## מינימום יומי
-${minimums.map(m => `- ${m.title}`).join('\n') || 'לא הוגדרו'}
+${minimums.map((m: any) => `- ${m.title}`).join('\n') || 'לא הוגדרו'}
 
 ## סטטוס התקדמות
 - בהירות כיוון: ${onboarding?.direction_clarity || 'incomplete'}
@@ -205,12 +252,14 @@ ${minimums.map(m => `- ${m.title}`).join('\n') || 'לא הוגדרו'}
 - מיפוי אנרגיה: ${onboarding?.energy_patterns_status || 'unknown'}
 
 ## רשימות פעילות
-${checklists.map(c => {
+${checklists.map((c: any) => {
   const items = c.aurora_checklist_items || [];
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} הושלמו)`;
-}).join('\n') || 'אין רשימות פעילות'}
-` : `
+}).join('\n') || 'אין רשימות פעילות'}`;
+  }
+
+  return `
 ## User Profile
 - Name: ${profile?.full_name || 'Unknown'}
 - Bio: ${profile?.bio || 'Not set'}
@@ -228,22 +277,22 @@ ${direction?.clarity_score ? `(Clarity level: ${direction.clarity_score}%)` : ''
 - Vision statements: ${visionStatements.length > 0 ? visionStatements.join(', ') : 'Not yet defined'}
 
 ## Visions
-${visions.map(v => `- ${v.timeframe === '5_year' ? '5 years' : '10 years'}: ${v.title}`).join('\n') || 'Not yet defined'}
+${visions.map((v: any) => `- ${v.timeframe === '5_year' ? '5 years' : '10 years'}: ${v.title}`).join('\n') || 'Not yet defined'}
 
 ## Active Commitments
-${commitments.map(c => `- ${c.title}`).join('\n') || 'No active commitments'}
+${commitments.map((c: any) => `- ${c.title}`).join('\n') || 'No active commitments'}
 
 ## Energy Patterns
-${energy.map(e => `- ${e.pattern_type}: ${e.description}`).join('\n') || 'Not yet mapped'}
+${energy.map((e: any) => `- ${e.pattern_type}: ${e.description}`).join('\n') || 'Not yet mapped'}
 
 ## Behavioral Patterns
-${behavioral.map(b => `- ${b.pattern_type}: ${b.description}`).join('\n') || 'Not yet identified'}
+${behavioral.map((b: any) => `- ${b.pattern_type}: ${b.description}`).join('\n') || 'Not yet identified'}
 
 ## Current Focus
 ${focus ? `${focus.title} (${focus.duration_days} days)` : 'Not defined'}
 
 ## Daily Minimums
-${minimums.map(m => `- ${m.title}`).join('\n') || 'Not defined'}
+${minimums.map((m: any) => `- ${m.title}`).join('\n') || 'Not defined'}
 
 ## Progress Status
 - Direction clarity: ${onboarding?.direction_clarity || 'incomplete'}
@@ -251,31 +300,162 @@ ${minimums.map(m => `- ${m.title}`).join('\n') || 'Not defined'}
 - Energy mapping: ${onboarding?.energy_patterns_status || 'unknown'}
 
 ## Active Checklists
-${checklists.map(c => {
+${checklists.map((c: any) => {
   const items = c.aurora_checklist_items || [];
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} completed)`;
-}).join('\n') || 'No active checklists'}
-`;
+}).join('\n') || 'No active checklists'}`;
+};
+
+// Fetch knowledge base for widget mode
+const fetchKnowledgeBase = async (supabase: any): Promise<string> => {
+  const { data, error } = await supabase
+    .from('chat_knowledge_base')
+    .select('title, content')
+    .eq('is_active', true)
+    .order('order_index', { ascending: true });
+
+  if (error || !data || data.length === 0) {
+    return '';
+  }
+
+  let kb = '';
+  for (const entry of data) {
+    kb += `\n### ${entry.title}\n${entry.content}\n`;
+  }
+  return kb;
+};
+
+// Check widget settings
+const checkWidgetSettings = async (supabase: any): Promise<{ enabled: boolean; model: string }> => {
+  const { data } = await supabase
+    .from('chat_assistant_settings')
+    .select('setting_key, setting_value');
+
+  const settingsMap = new Map<string, string>();
+  if (data) {
+    for (const setting of data) {
+      settingsMap.set(setting.setting_key, setting.setting_value || '');
+    }
+  }
+
+  return {
+    enabled: settingsMap.get('enabled') !== 'false',
+    model: settingsMap.get('model') || 'google/gemini-2.5-flash'
+  };
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { 
+      messages, 
+      userId, 
+      language = 'he',
+      mode = 'full' as AuroraMode 
+    } = await req.json();
+
+    if (!messages || !Array.isArray(messages)) {
+      throw new Error("Messages array is required");
     }
 
-    const systemPrompt = buildSystemPrompt(userContext, language);
+    // Validate messages
+    const MAX_MESSAGES = 50;
+    const MAX_CONTENT_LENGTH = 4000;
+    
+    if (messages.length > MAX_MESSAGES) {
+      return new Response(
+        JSON.stringify({ error: "Too many messages in history" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const validatedMessages = [];
+    for (const msg of messages) {
+      if (!msg || typeof msg !== 'object' || !msg.role || !msg.content || typeof msg.content !== "string") {
+        return new Response(
+          JSON.stringify({ error: "Invalid message format" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (msg.role !== "user" && msg.role !== "assistant") {
+        return new Response(
+          JSON.stringify({ error: "Invalid message role" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (msg.content.length > MAX_CONTENT_LENGTH) {
+        return new Response(
+          JSON.stringify({ error: "Message content too long" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      validatedMessages.push({
+        role: msg.role,
+        content: msg.content.trim()
+      });
+    }
+
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Mode-specific setup
+    let userContext = "No user data available.";
+    let knowledgeBase = "";
+    let model = "google/gemini-2.5-flash";
+
+    if (mode === 'widget') {
+      // Widget mode: check settings, load knowledge base
+      const settings = await checkWidgetSettings(supabase);
+      
+      if (!settings.enabled) {
+        return new Response(
+          JSON.stringify({ error: "Assistant is currently unavailable" }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      model = settings.model;
+      knowledgeBase = await fetchKnowledgeBase(supabase);
+      
+      // Widget can optionally include user context if authenticated
+      if (userId) {
+        userContext = await buildUserContext(supabase, userId, language);
+      }
+    } else {
+      // Full or Lite mode: require user context
+      if (userId) {
+        userContext = await buildUserContext(supabase, userId, language);
+      }
+    }
+
+    const systemPrompt = buildSystemPrompt(mode, userContext, knowledgeBase, language);
+
+    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || 'guest'}, Model: ${model}`);
 
     // Call Lovable AI Gateway
-    const response = await fetch("https://ai-gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages
+          ...validatedMessages
         ],
         stream: true,
-        max_tokens: 1000,
+        max_tokens: mode === 'lite' ? 500 : 1000,
         temperature: 0.7,
       }),
     });
@@ -283,6 +463,20 @@ ${checklists.map(c => {
     if (!response.ok) {
       const error = await response.text();
       console.error("AI Gateway error:", error);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded, please try again shortly" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Service temporarily unavailable" }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       throw new Error(`AI Gateway error: ${response.status}`);
     }
 

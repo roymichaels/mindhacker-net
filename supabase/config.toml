@@ -1,6 +1,16 @@
 project_id = "tsvfsbluyuaajqmkpzdv"
 
+# DEPRECATED: Use aurora-chat with mode='widget' instead
 [functions.chat-assistant]
+verify_jwt = false
+
+[functions.aurora-chat]
+verify_jwt = false
+
+[functions.aurora-analyze]
+verify_jwt = false
+
+[functions.aurora-generate-title]
 verify_jwt = false
 
 [functions.get-user-data]

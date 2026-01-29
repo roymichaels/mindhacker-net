@@ -5,6 +5,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -18,13 +19,15 @@ interface ChatPanelProps {
 }
 
 const STORAGE_KEY = "mind-hacker-chat-history";
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
+// Use unified aurora-chat with widget mode instead of deprecated chat-assistant
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
 
 const ChatPanel = ({ isOpen, onClose, fullscreen = false }: ChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const { user } = useAuth();
 
   const getGreetingMessage = (): Message => ({
     role: "assistant",
@@ -92,7 +95,10 @@ const ChatPanel = ({ isOpen, onClose, fullscreen = false }: ChatPanelProps) => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: [...messages, userMessage].filter(m => m.content !== greetingContent || m.role === "user")
+          messages: [...messages, userMessage].filter(m => m.content !== greetingContent || m.role === "user"),
+          mode: 'widget', // Use widget mode for guest-facing chat
+          language,
+          userId: user?.id // Include user ID if authenticated for personalization
         }),
       });
 
