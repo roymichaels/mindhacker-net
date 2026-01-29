@@ -1958,6 +1958,90 @@ export const he = {
     // Leaderboard
     noLeaderboardData: "אין נתוני דירוג עדיין",
   },
+  aurora: {
+    name: "אורורה",
+    subtitle: "מלווה אישית לעיצוב חיים",
+    welcomeTitle: "היי, אני אורורה 💜",
+    welcomeSubtitle: "בואי נתחיל לחקור מה באמת חשוב לך...",
+    suggestions: {
+      direction: "אני רוצה לדבר על הכיוון שלי",
+      values: "מה הערכים שמנחים אותי?",
+      energy: "איפה האנרגיה שלי הולכת?",
+      identity: "מי אני באמת?"
+    },
+    chat: {
+      placeholder: "שתפי את מה שעובר עלייך...",
+      startRecording: "התחל הקלטה",
+      stopRecording: "עצור הקלטה"
+    },
+    cta: {
+      life_direction: "בואי נחקור את הכיוון שלך",
+      explore_values: "בואי נגלה מה באמת חשוב לך",
+      map_energy: "בואי נמפה את האנרגיה שלך",
+      anchor_identity: "בואי נעגן את הזהות שלך"
+    },
+    dashboard: {
+      title: "מודל החיים שלי",
+      emptyTitle: "עדיין בונים...",
+      emptySubtitle: "ככל שנשוחח יותר, כך התמונה תתבהר",
+      progress: "התקדמות",
+      clarity: "בהירות",
+      days: "ימים",
+      lifeDirection: "כיוון החיים",
+      currentFocus: "פוקוס נוכחי",
+      dailyAnchors: "עוגנים יומיים",
+      identity: "פרופיל זהות",
+      values: "ערכים",
+      principles: "עקרונות",
+      selfConcepts: "תפיסות עצמיות",
+      visionStatement: "הצהרת חזון",
+      fiveYear: "חזון ל-5 שנים",
+      tenYear: "חזון ל-10 שנים",
+      activeCommitments: "התחייבויות פעילות",
+      energyPatterns: "דפוסי אנרגיה",
+      behavioralPatterns: "דפוסי התנהגות",
+      energy: { sleep: "שינה", nutrition: "תזונה", movement: "תנועה", stress: "מתח" },
+      behavior: { focus: "מיקוד", avoidance: "הימנעות", discipline: "משמעת", resistance: "התנגדות", strength: "חוזק" }
+    },
+    settings: {
+      title: "הגדרות אורורה",
+      profile: "פרופיל",
+      displayName: "שם תצוגה",
+      displayNamePlaceholder: "איך לקרוא לך?",
+      bio: "קצת עליי",
+      bioPlaceholder: "ספרי קצת על עצמך...",
+      communication: "העדפות תקשורת",
+      tone: "סגנון",
+      toneWarm: "חם",
+      toneDirect: "ישיר",
+      tonePlayful: "משחקי",
+      intensity: "עוצמה",
+      intensityGentle: "עדין",
+      intensityBalanced: "מאוזן",
+      intensityChallenging: "מאתגר",
+      save: "שמור",
+      saving: "שומר...",
+      saved: "ההגדרות נשמרו",
+      saveError: "שגיאה בשמירה"
+    },
+    checklists: {
+      title: "רשימות המשימות שלי",
+      new: "רשימה חדשה",
+      add: "הוסף",
+      addItem: "הוסף פריט",
+      titlePlaceholder: "שם הרשימה",
+      itemPlaceholder: "פריט חדש...",
+      loading: "טוען...",
+      empty: "אין רשימות עדיין",
+      created: "הרשימה נוצרה",
+      createError: "שגיאה ביצירת רשימה",
+      deleted: "הרשימה נמחקה",
+      deleteError: "שגיאה במחיקה",
+      archived: "הרשימה הועברה לארכיון",
+      archiveError: "שגיאה בהעברה לארכיון",
+      itemCompleted: "פריט הושלם! +10 XP"
+    }
+  }
 };
 
 export type TranslationKeys = typeof he;

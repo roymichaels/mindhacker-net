@@ -1907,4 +1907,88 @@ export const en: TranslationKeys = {
     // Leaderboard
     noLeaderboardData: "No ranking data yet",
   },
+  aurora: {
+    name: "Aurora",
+    subtitle: "Your life design companion",
+    welcomeTitle: "Hey, I'm Aurora 💜",
+    welcomeSubtitle: "Let's explore what truly matters to you...",
+    suggestions: {
+      direction: "I want to talk about my direction",
+      values: "What values guide me?",
+      energy: "Where is my energy going?",
+      identity: "Who am I really?"
+    },
+    chat: {
+      placeholder: "Share what's on your mind...",
+      startRecording: "Start recording",
+      stopRecording: "Stop recording"
+    },
+    cta: {
+      life_direction: "Let's explore your direction",
+      explore_values: "Let's discover what matters to you",
+      map_energy: "Let's map your energy",
+      anchor_identity: "Let's anchor your identity"
+    },
+    dashboard: {
+      title: "My Life Model",
+      emptyTitle: "Still building...",
+      emptySubtitle: "The more we talk, the clearer the picture becomes",
+      progress: "Progress",
+      clarity: "Clarity",
+      days: "days",
+      lifeDirection: "Life Direction",
+      currentFocus: "Current Focus",
+      dailyAnchors: "Daily Anchors",
+      identity: "Identity Profile",
+      values: "Values",
+      principles: "Principles",
+      selfConcepts: "Self-Concepts",
+      visionStatement: "Vision Statement",
+      fiveYear: "5-Year Vision",
+      tenYear: "10-Year Vision",
+      activeCommitments: "Active Commitments",
+      energyPatterns: "Energy Patterns",
+      behavioralPatterns: "Behavioral Patterns",
+      energy: { sleep: "Sleep", nutrition: "Nutrition", movement: "Movement", stress: "Stress" },
+      behavior: { focus: "Focus", avoidance: "Avoidance", discipline: "Discipline", resistance: "Resistance", strength: "Strength" }
+    },
+    settings: {
+      title: "Aurora Settings",
+      profile: "Profile",
+      displayName: "Display Name",
+      displayNamePlaceholder: "What should I call you?",
+      bio: "About Me",
+      bioPlaceholder: "Tell me a bit about yourself...",
+      communication: "Communication Preferences",
+      tone: "Tone",
+      toneWarm: "Warm",
+      toneDirect: "Direct",
+      tonePlayful: "Playful",
+      intensity: "Intensity",
+      intensityGentle: "Gentle",
+      intensityBalanced: "Balanced",
+      intensityChallenging: "Challenging",
+      save: "Save",
+      saving: "Saving...",
+      saved: "Settings saved",
+      saveError: "Error saving"
+    },
+    checklists: {
+      title: "My Checklists",
+      new: "New Checklist",
+      add: "Add",
+      addItem: "Add item",
+      titlePlaceholder: "Checklist name",
+      itemPlaceholder: "New item...",
+      loading: "Loading...",
+      empty: "No checklists yet",
+      created: "Checklist created",
+      createError: "Error creating checklist",
+      deleted: "Checklist deleted",
+      deleteError: "Error deleting",
+      archived: "Checklist archived",
+      archiveError: "Error archiving",
+      itemCompleted: "Item completed! +10 XP"
+    }
+  }
 };
