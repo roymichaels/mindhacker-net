@@ -15,62 +15,13 @@
 
 @layer base {
   /* 
-   * BASE VARIABLES (will be overridden by theme classes)
-   * DARK MODE is default for this app
+   * BASE VARIABLES - LIGHT MODE DEFAULT
+   * Clean SaaS aesthetic: white backgrounds, subtle shadows, clear contrast
    */
   :root {
     --radius: 0.75rem;
     --transition-smooth: all 0.2s ease;
     
-    /* Default to dark mode values */
-    --background: 215 100% 2%;
-    --background-end: 215 60% 6%;
-    --foreground: 0 0% 100%;
-
-    --card: 215 50% 8%;
-    --card-foreground: 0 0% 100%;
-    --popover: 215 50% 8%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 187 100% 50%;
-    --primary-foreground: 215 100% 2%;
-    --primary-glow: 187 100% 70%;
-
-    --secondary: 187 100% 75%;
-    --secondary-foreground: 215 100% 2%;
-
-    --muted: 215 40% 15%;
-    --muted-foreground: 187 30% 85%;
-
-    --accent: 45 100% 73%;
-    --accent-foreground: 215 100% 2%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 187 80% 30%;
-    --input: 215 40% 18%;
-    --ring: 187 100% 50%;
-
-    --glass-bg: 215 50% 10%;
-    --glass-border: 187 100% 50%;
-
-    --sidebar-background: 215 50% 5%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 187 100% 50%;
-    --sidebar-primary-foreground: 215 100% 2%;
-    --sidebar-accent: 215 40% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 187 80% 30%;
-    --sidebar-ring: 187 100% 50%;
-  }
-
-  /* 
-   * LIGHT MODE 
-   * Clean SaaS aesthetic: white backgrounds, subtle shadows, clear contrast
-   * Activated by next-themes adding .light class to <html>
-   */
-  html.light {
     /* Backgrounds - clean whites and light grays */
     --background: 0 0% 98%;
     --background-end: 220 14% 96%;
@@ -121,6 +72,55 @@
     --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 88%;
     --sidebar-ring: 187 70% 38%;
+  }
+
+  /* 
+   * DARK MODE 
+   * Cyber aesthetic with glows and deep backgrounds
+   * Activated by next-themes adding .dark class to <html>
+   */
+  html.dark, .dark {
+    /* Dark backgrounds */
+    --background: 215 100% 2%;
+    --background-end: 215 60% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 215 50% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 215 50% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 187 100% 50%;
+    --primary-foreground: 215 100% 2%;
+    --primary-glow: 187 100% 70%;
+
+    --secondary: 187 100% 75%;
+    --secondary-foreground: 215 100% 2%;
+
+    --muted: 215 40% 15%;
+    --muted-foreground: 187 30% 85%;
+
+    --accent: 45 100% 73%;
+    --accent-foreground: 215 100% 2%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 187 80% 30%;
+    --input: 215 40% 18%;
+    --ring: 187 100% 50%;
+
+    --glass-bg: 215 50% 10%;
+    --glass-border: 187 100% 50%;
+
+    --sidebar-background: 215 50% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 187 100% 50%;
+    --sidebar-primary-foreground: 215 100% 2%;
+    --sidebar-accent: 215 40% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 187 80% 30%;
+    --sidebar-ring: 187 100% 50%;
   }
 }
 

@@ -58,6 +58,21 @@ const Index = () => {
     ],
   });
 
+  // Don't render landing page content while checking auth - show loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // If user is logged in, they will be redirected by the useEffect above
+  // But render null while redirecting to prevent flash
+  if (user) {
+    return null;
+  }
+
   return (
     <div className="relative min-h-screen bg-background">
       {/* Header */}
