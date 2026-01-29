@@ -98,7 +98,7 @@ const Courses = () => {
       
       <Header />
       
-      <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-16 sm:mt-20">
+      <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-8 sm:mt-12">
         {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12" dir={isRTL ? 'rtl' : 'ltr'}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black cyber-glow mb-3 sm:mb-4">
@@ -109,33 +109,46 @@ const Courses = () => {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/95 backdrop-blur-sm py-2">
-          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5`} />
-          <Input
-            type="text"
-            placeholder={t('courses.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`${isRTL ? 'pr-9 sm:pr-10 text-right' : 'pl-9 sm:pl-10 text-left'} glass-panel h-10 sm:h-11`}
-            dir={isRTL ? 'rtl' : 'ltr'}
+        {/* Search Bar with Filter Button */}
+        <div 
+          className="flex items-center gap-2 mb-6 sm:mb-8 max-w-2xl mx-auto sticky top-16 sm:top-20 z-10 bg-background/95 backdrop-blur-sm py-2"
+          dir={isRTL ? 'rtl' : 'ltr'}
+        >
+          {/* Filter Button */}
+          <CourseFilters
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedDifficulty={selectedDifficulty}
+            setSelectedDifficulty={setSelectedDifficulty}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
           />
+          
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5`} />
+            <Input
+              type="text"
+              placeholder={t('courses.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`${isRTL ? 'pr-9 sm:pr-10 text-right' : 'pl-9 sm:pl-10 text-left'} h-10 sm:h-11`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+          </div>
         </div>
 
-        {/* Filters and Sort */}
-        <CourseFilters
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedDifficulty={selectedDifficulty}
-          setSelectedDifficulty={setSelectedDifficulty}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-        />
+        {/* Results Count */}
+        {filteredCourses && (
+          <p className="text-sm text-muted-foreground mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
+            {filteredCourses.length} {t('courses.results')}
+          </p>
+        )}
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (
               <div key={i} className="glass-panel p-4 sm:p-6 space-y-3 sm:space-y-4">
