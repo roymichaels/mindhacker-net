@@ -2067,7 +2067,46 @@ export const he = {
       sessions: "סשנים",
       auroraChats: "שיחות עם אורורה",
       insightsGained: "תובנות חדשות",
-    }
+      lifeModel: "התקדמות במודל החיים",
+    },
+    statsBar: {
+      streak: "רצף",
+      tokens: "טוקנים",
+      sessions: "סשנים",
+      level: "רמה",
+    },
+    xpProgress: {
+      level: "רמה",
+    },
+    egoState: {
+      active: "מצב אגו פעיל",
+    },
+    lifeDirection: {
+      title: "כיוון החיים",
+      clarity: "בהירות",
+    },
+    currentFocus: {
+      title: "מיקוד נוכחי",
+      daysLeft: "ימים נותרו",
+      complete: "הושלם",
+    },
+    dailyAnchors: {
+      title: "עוגנים יומיים",
+    },
+    identity: {
+      title: "פרופיל זהות",
+      values: "ערכים",
+      principles: "עקרונות",
+      selfConcepts: "תפיסות עצמיות",
+    },
+    commitments: {
+      title: "התחייבויות פעילות",
+      more: "נוספות",
+    },
+    empty: {
+      title: "המסע שלך מתחיל",
+      subtitle: "התחל שיחה עם אורורה או השלם סשן כדי להתחיל לבנות את מודל החיים שלך.",
+    },
   }
 };
 
