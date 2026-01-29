@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PenSquare, Bot, Pin, Search } from 'lucide-react';
+import { PenSquare, Bot, Pin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import ConversationItem from '@/components/messages/ConversationItem';
 import NewMessageDialog from '@/components/messages/NewMessageDialog';
+import Header from '@/components/Header';
 import { cn } from '@/lib/utils';
 
 interface Conversation {
@@ -128,19 +129,13 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+      {/* Global Header */}
+      <Header />
+
+      {/* Page Header */}
+      <div className="sticky top-14 sm:top-16 z-40 bg-background/95 backdrop-blur border-b">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate('/dashboard')}
-            >
-              <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
-            </Button>
-            <h1 className="text-xl font-bold">{t('messages.title')}</h1>
-          </div>
+          <h1 className="text-xl font-bold">{t('messages.title')}</h1>
           <Button 
             variant="ghost" 
             size="icon"
@@ -165,7 +160,7 @@ const Messages = () => {
             />
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto pb-20">
