@@ -126,7 +126,7 @@ const AuroraLayout = () => {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="fixed inset-0 flex w-full bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="fixed inset-0 flex w-full bg-background z-50" dir={isRTL ? 'rtl' : 'ltr'}>
         <AuroraSidebar
           currentConversationId={activeConversationId}
           onNewChat={handleNewChat}
@@ -136,7 +136,7 @@ const AuroraLayout = () => {
           onOpenChecklists={() => setShowChecklists(true)}
         />
         
-        <main className="flex-1 flex flex-col min-h-0 bg-background">
+        <main className="flex-1 flex flex-col min-h-0 min-w-0 bg-background relative z-10">
           <AuroraHeader />
           <AuroraChatArea conversationId={activeConversationId} />
         </main>
