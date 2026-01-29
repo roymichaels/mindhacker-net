@@ -1,9 +1,7 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import * as LucideIcons from 'lucide-react';
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -30,41 +28,30 @@ const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterPr
     id: 'all',
     name: 'הכל',
     name_en: 'All',
-    icon: 'LayoutGrid',
-    color: '#6366f1',
   };
 
   const allCategories = [allCategory, ...(categories || [])];
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex overflow-x-auto no-scrollbar border-b sticky top-0 bg-background z-10">
       {allCategories.map((category) => {
-        const IconComponent = category.icon 
-          ? (LucideIcons as any)[category.icon] || LucideIcons.MessageCircle
-          : LucideIcons.MessageCircle;
-        
         const isSelected = selectedCategory === category.id;
         
         return (
-          <Badge
+          <button
             key={category.id}
-            variant={isSelected ? "default" : "outline"}
-            className={cn(
-              "cursor-pointer transition-all hover:scale-105 gap-1.5 px-3 py-1.5",
-              isSelected && "ring-2 ring-offset-2"
-            )}
-            style={isSelected ? { 
-              backgroundColor: category.color || '#6366f1',
-              borderColor: category.color || '#6366f1',
-            } : {
-              borderColor: category.color || '#6366f1',
-              color: category.color || '#6366f1',
-            }}
             onClick={() => onCategoryChange(category.id)}
+            className={cn(
+              "px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors relative",
+              "hover:bg-muted/50",
+              isSelected ? "text-primary font-semibold" : "text-muted-foreground"
+            )}
           >
-            <IconComponent className="h-3.5 w-3.5" />
-            <span>{isRTL ? category.name : category.name_en || category.name}</span>
-          </Badge>
+            {isRTL ? category.name : category.name_en || category.name}
+            {isSelected && (
+              <span className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
+            )}
+          </button>
         );
       })}
     </div>
