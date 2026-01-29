@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Bot, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -31,6 +31,7 @@ interface Conversation {
 
 const MessageThread = () => {
   const { conversationId } = useParams();
+  const location = useLocation();
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
@@ -41,7 +42,8 @@ const MessageThread = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
 
-  const isAI = conversationId === 'ai';
+  // Check if this is Aurora - either by param OR by route path
+  const isAI = conversationId === 'ai' || location.pathname === '/messages/ai';
 
   // If this is an AI conversation, render Aurora instead
   if (isAI) {
