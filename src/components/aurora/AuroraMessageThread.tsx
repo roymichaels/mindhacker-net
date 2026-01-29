@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, LayoutDashboard, Settings, ListChecks, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, LayoutDashboard, Settings, ListChecks, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import AuroraChatMessage from './AuroraChatMessage';
 import AuroraChatInput from './AuroraChatInput';
@@ -19,7 +21,7 @@ interface AuroraMessageThreadProps {
   conversationId: string;
 }
 
-const AuroraMessageThread = ({ conversationId }: AuroraMessageThreadProps) => {
+const AuroraMessageThread = ({ conversationId: propConversationId }: AuroraMessageThreadProps) => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
@@ -29,12 +31,38 @@ const AuroraMessageThread = ({ conversationId }: AuroraMessageThreadProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChecklists, setShowChecklists] = useState(false);
 
+  // Get or create the real AI conversation UUID
+  const { data: realConversationId, isLoading: isLoadingConversation } = useQuery({
+    queryKey: ['aurora-ai-conversation', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      // If propConversationId is already a valid UUID (not "ai"), use it
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(propConversationId)) {
+        return propConversationId;
+      }
+      
+      // Otherwise, get or create the AI conversation
+      const { data, error } = await supabase
+        .rpc('get_or_create_ai_conversation', { user_id: user.id });
+      
+      if (error) {
+        console.error('Failed to get/create AI conversation:', error);
+        throw error;
+      }
+      
+      return data as string;
+    },
+    enabled: !!user?.id,
+  });
+
   const {
     messages,
     isStreaming,
     streamingContent,
     sendMessage,
-  } = useAuroraChat(conversationId);
+  } = useAuroraChat(realConversationId || null);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -44,6 +72,18 @@ const AuroraMessageThread = ({ conversationId }: AuroraMessageThreadProps) => {
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage(suggestion);
   };
+
+  // Show loading while fetching conversation
+  if (isLoadingConversation) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
