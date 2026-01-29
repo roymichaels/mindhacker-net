@@ -59,12 +59,9 @@ const AuroraChatMessage = ({
   };
 
   return (
-    <div className={cn("group", isOwn ? "flex justify-end" : "")}>
+    <div className={cn("group", isOwn && "flex flex-col items-end")}>
       {/* Label */}
-      <div className={cn(
-        "mb-1.5",
-        isOwn && "text-end"
-      )}>
+      <div className="mb-1.5">
         <span className="text-xs font-medium text-muted-foreground">
           {isOwn ? t('aurora.you') : t('aurora.name')}
         </span>
@@ -83,15 +80,12 @@ const AuroraChatMessage = ({
         )}
 
         {/* Message Bubble */}
-        <div className={cn(
-          "max-w-[85%] space-y-2",
-          isOwn && "items-end"
-        )}>
+        <div className="space-y-2">
           <div className={cn(
             "rounded-2xl px-4 py-3",
             isOwn 
-              ? "bg-primary text-primary-foreground" 
-              : "bg-muted text-foreground"
+              ? "bg-primary text-primary-foreground rounded-br-sm" 
+              : "bg-muted text-foreground rounded-bl-sm"
           )}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
               {cleanContent}
