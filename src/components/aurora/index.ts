@@ -11,3 +11,7 @@ export { default as AuroraProfileSettings } from './AuroraProfileSettings';
 export { default as AuroraChecklistModal } from './AuroraChecklistModal';
 export { default as AuroraChecklistCard } from './AuroraChecklistCard';
 export { default as AuroraChecklistItem } from './AuroraChecklistItem';
+export { default as AuroraLayout } from './AuroraLayout';
+export { default as AuroraSidebar } from './AuroraSidebar';
+export { default as AuroraChatArea } from './AuroraChatArea';
+export { default as AuroraAccountDropdown } from './AuroraAccountDropdown';
