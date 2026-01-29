@@ -43,6 +43,20 @@ const GlobalBottomNav = () => {
           <span>{t('common.dashboard')}</span>
         </NavLink>
 
+        {/* Messages Tab */}
+        <NavLink
+          to="/messages"
+          className={() => cn(
+            "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
+            isOnMessages
+              ? "text-primary" 
+              : "text-muted-foreground"
+          )}
+        >
+          <MessageCircle className="h-5 w-5" />
+          <span>{t('messages.title')}</span>
+        </NavLink>
+
         {/* Catalog Tab */}
         <NavLink
           to="/courses"
@@ -69,20 +83,6 @@ const GlobalBottomNav = () => {
         >
           <Users className="h-5 w-5" />
           <span>{t('community.title')}</span>
-        </NavLink>
-
-        {/* Messages Tab */}
-        <NavLink
-          to="/messages"
-          className={() => cn(
-            "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
-            isOnMessages
-              ? "text-primary" 
-              : "text-muted-foreground"
-          )}
-        >
-          <MessageCircle className="h-5 w-5" />
-          <span>{t('messages.title')}</span>
         </NavLink>
       </div>
     </nav>
