@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
@@ -136,10 +137,11 @@ const App = () => (
         <BackgroundEffect />
         <div className="relative z-10">
           <AuthProvider>
-            <LanguageProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
+            <GameStateProvider>
+              <LanguageProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
                 <LanguagePrompt />
                 <BrowserRouter>
                   <AffiliateTracker />
@@ -337,8 +339,9 @@ const App = () => (
                     </Suspense>
                   </AnalyticsProvider>
                 </BrowserRouter>
-              </TooltipProvider>
-            </LanguageProvider>
+                </TooltipProvider>
+              </LanguageProvider>
+            </GameStateProvider>
           </AuthProvider>
         </div>
       </ThemeProvider>
