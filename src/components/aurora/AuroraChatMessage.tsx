@@ -1,4 +1,4 @@
-import { Copy, Volume2, VolumeX, RefreshCw, Sparkles } from 'lucide-react';
+import { Copy, Volume2, Square, RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -121,7 +121,7 @@ const AuroraChatMessage = ({
                 title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
               >
                 {isPlayingThis ? (
-                  <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Square className="h-3 w-3 text-muted-foreground fill-current" />
                 ) : (
                   <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
                 )}
