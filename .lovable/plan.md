@@ -1,539 +1,519 @@
 
-# תוכנית יישום מפורטת: שילוב Libero ב-MindHacker
+# Aurora Life Coaching Integration Plan
 
-## סקירה כללית
+## Executive Summary
 
-שילוב מערכת ההיפנוזה של Libero ב-MindHacker — כולל ה-Sphere האלייני, מנוע ה-AI להיפנוזה, מערכת הגיימיפיקציה, ו-TTS.
-
-```
-+─────────────────────────────────────────────────────────────────────────+
-│                        MindHacker + Libero Integration                  │
-├─────────────────┬─────────────────┬─────────────────┬──────────────────┤
-│   Phase 1       │   Phase 2       │   Phase 3       │   Phase 4        │
-│   Visual        │   Gamification  │   AI Brain      │   Immersive      │
-│   Identity      │   System        │   & TTS         │   Sessions       │
-├─────────────────┼─────────────────┼─────────────────┼──────────────────┤
-│ • Orb Component │ • XP/Level      │ • ai-hypnosis   │ • Session World  │
-│ • Theme System  │ • Streaks       │ • generate-script│ • Audio Reactive │
-│ • Glass CSS     │ • Achievements  │ • TTS Functions │ • Wormhole Viz   │
-│ • Ego States    │ • Tokens        │ • Personalization│ • Breathing      │
-└─────────────────┴─────────────────┴─────────────────┴──────────────────┘
-```
+This plan integrates Aurora, a chat-first AI life coaching companion, into MindHacker. Aurora will replace the existing "AI Assistant" in the messaging system (`/messages/ai`) while the Chat Widget remains unchanged. Aurora will silently build a Life Model from conversations and unify with MindHacker's existing gamification system.
 
 ---
 
-## Phase 1: Visual Identity (שבוע 1)
+## Integration Strategy
 
-### 1.1 Orb Component System
+### What Changes
+- **Aurora takes over the pinned AI conversation** in `/messages` (currently labeled "AI Assistant")
+- **New database tables** for Life Model data (12 new tables)
+- **New edge functions** for AI orchestration and background analysis
+- **Enhanced profile** with Aurora-specific preferences (tone, intensity, bio)
+- **Life Model Dashboard** accessible from Aurora conversation header
+- **Checklists system** integrated with conversations
+- **Voice I/O** using existing ElevenLabs integration
 
-**קבצים חדשים:**
-```
-src/components/orb/
-├── Orb.tsx                 # Main wrapper (WebGL/CSS detection)
-├── WebGLOrb.tsx            # Three.js wireframe sphere
-├── CSSOrb.tsx              # Lightweight CSS fallback
-├── OrbBackgroundLayer.tsx  # Context provider
-└── index.ts                # Exports
-```
-
-**לוגיקה עיקרית:**
-- זיהוי תמיכת WebGL בטעינה (`supportsWebGL()`)
-- 12 צורות מורפינג פרוצדורליות ב-WebGL
-- Tunnel Mode לסשנים אקטיביים
-- Audio-reactive scaling/opacity
-- Imperative API: `setSpeaking()`, `setListening()`, `updateState()`
-
-**תלויות:**
-```bash
-npm install three @types/three
-```
-
-### 1.2 Theme System Extensions
-
-**עדכון קובץ:** `src/lib/theme.ts`
-
-```typescript
-// Ego States Colors Map
-export const EGO_STATES = {
-  guardian: { bg: 'from-blue-600 to-blue-800', accent: '#5AB6FF' },
-  rebel: { bg: 'from-red-600 to-red-800', accent: '#FF5D5D' },
-  healer: { bg: 'from-green-600 to-green-800', accent: '#2ED573' },
-  explorer: { bg: 'from-yellow-500 to-yellow-700', accent: '#FFC960' },
-  mystic: { bg: 'from-purple-600 to-purple-800', accent: '#7C5CFF' },
-  // ... 15 total archetypes
-} as const;
-
-export function getEgoColor(egoStateId: string) {
-  return EGO_STATES[egoStateId] || EGO_STATES.guardian;
-}
-```
-
-### 1.3 Glass Morphism CSS
-
-**עדכון:** `src/index.css`
-
-הוספת CSS utilities מ-Libero:
-- `.glass-card`, `.glass-card-premium`
-- `.glass-button`, `.glass-input`
-- `.glass-progress`, `.glass-progress-fill`
-- State-based ring effects
-- Animation keyframes: `shimmer`, `breathe-glow`, `spin-slow`
-
-### 1.4 Hook: useOrbSize
-
-**קובץ חדש:** `src/hooks/useOrbSize.ts`
-
-```typescript
-export function getResponsiveOrbSize(options: { fallbackSize: number }): number {
-  if (typeof window === 'undefined') return options.fallbackSize;
-  
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const minDimension = Math.min(vw, vh);
-  
-  // Scale orb to 60-80% of smallest viewport dimension
-  return Math.min(Math.max(minDimension * 0.7, 280), 560);
-}
-```
+### What Stays the Same
+- **Chat Widget** (`ChatWidget.tsx`) - remains for guest/quick questions
+- **Direct messaging** between users - unchanged
+- **Gamification system** - extended to include Aurora interactions
+- **Existing navigation** - no new routes, everything modal-based
 
 ---
 
-## Phase 2: Gamification System (שבוע 2)
+## Phase 1: Database Schema
 
-### 2.1 Database Extensions
+### New Tables (12 total)
 
-**Migration SQL:**
+```text
+Life Model Core:
+├── aurora_life_direction      # Core life orientation
+├── aurora_identity_elements   # Values, principles, self-concepts
+├── aurora_life_visions        # 5-year, 10-year visions
+├── aurora_commitments         # Active life directions
+├── aurora_energy_patterns     # Sleep, nutrition, movement
+├── aurora_behavioral_patterns # Focus, avoidance, discipline
+├── aurora_focus_plans         # Short-term focus periods
+├── aurora_daily_minimums      # Non-negotiable daily anchors
+
+Tracking:
+├── aurora_onboarding_progress # Life Model completion tracking
+├── aurora_checklists          # Task lists (manual or Aurora-created)
+└── aurora_checklist_items     # Individual tasks
+
+Extension to profiles:
+└── profiles (ADD columns: bio, aurora_preferences JSONB)
+```
+
+### Profile Extension
+
+Add to existing `profiles` table:
+- `bio` (text) - User's self-description
+- `aurora_preferences` (JSONB) - Contains:
+  - `tone`: 'warm' | 'direct' | 'playful'
+  - `intensity`: 'gentle' | 'balanced' | 'challenging'
+
+### RLS Policies
+
+All Aurora tables will have:
+- SELECT: `auth.uid() = user_id`
+- INSERT: `auth.uid() = user_id`
+- UPDATE: `auth.uid() = user_id`
+- DELETE: `auth.uid() = user_id`
+
+### Realtime Enablement
+
+Enable realtime for:
+- All aurora_* tables
+- `messages` (already enabled)
+
+---
+
+## Phase 2: Edge Functions
+
+### New Functions (3)
+
+1. **`aurora-chat`** (replaces `chat-assistant` for AI conversations)
+   - Complete Aurora persona with Life Model context injection
+   - Streaming response
+   - Processes action tags: `[action:*]`, `[cta:*]`, `[checklist:*]`
+   - Model: `google/gemini-2.5-flash`
+
+2. **`aurora-analyze`** (background analysis)
+   - Triggered every 4 messages via client
+   - Extracts stable insights using structured output
+   - Updates Life Model tables
+   - Model: `google/gemini-2.5-flash` with JSON mode
+
+3. **`aurora-generate-title`** (conversation titles)
+   - Auto-generates 3-6 word titles after first exchange
+   - Model: `google/gemini-2.5-flash-lite` (fast/cheap)
+
+### Existing Functions Updated
+
+- **`elevenlabs-tts`** - Add Aurora voice (Jessica: `cgSgspJ2msm6clMCkdW9`)
+
+---
+
+## Phase 3: React Hooks
+
+### New Hooks (7)
+
+```text
+src/hooks/aurora/
+├── useAuroraChat.tsx          # Core chat orchestration (659+ lines)
+├── useAuroraConversations.tsx # Conversation CRUD + realtime
+├── useLifeModel.tsx           # Life direction, energy, focus
+├── useDashboard.tsx           # Identity, visions, commitments
+├── useOnboardingProgress.tsx  # Life Model completion tracking
+├── useChecklists.tsx          # Checklist UI management
+├── useChecklistsData.tsx      # Data-only (for useAuroraChat)
+└── useAuroraVoice.tsx         # Voice input/output via ElevenLabs
+```
+
+### Key Hook: `useAuroraChat`
+
+This is the brain of Aurora. It:
+1. Manages message history with streaming
+2. Calls `aurora-chat` edge function
+3. Processes action tags from responses
+4. Triggers background analysis every 4 messages
+5. Builds complete Life Model context for AI
+6. Handles checklist operations inline
+
+---
+
+## Phase 4: UI Components
+
+### New Components (13)
+
+```text
+src/components/aurora/
+├── AuroraMessageThread.tsx    # Enhanced MessageThread for Aurora
+├── AuroraChatMessage.tsx      # Message with CTAs, actions, TTS
+├── AuroraChatInput.tsx        # Input with voice recording
+├── AuroraDashboardModal.tsx   # Life Model viewer modal
+├── AuroraDashboardView.tsx    # Full Life Model display
+├── AuroraSettingsModal.tsx    # Aurora preferences editor
+├── AuroraProfileSettings.tsx  # Bio, tone, intensity settings
+├── AuroraChecklistModal.tsx   # Checklist manager modal
+├── AuroraChecklistCard.tsx    # Collapsible checklist
+├── AuroraChecklistItem.tsx    # Individual todo item
+├── AuroraCTAButton.tsx        # Interactive CTA buttons
+├── AuroraTypingIndicator.tsx  # "Aurora is thinking..."
+└── AuroraVoiceButton.tsx      # Microphone button with states
+```
+
+### Modified Components
+
+- **`MessageThread.tsx`** - Detect Aurora conversation and render `AuroraMessageThread`
+- **`ConversationItem.tsx`** - Update Aurora branding/subtitle
+- **`MessageBubble.tsx`** - Add markdown rendering, TTS hover button
+
+---
+
+## Phase 5: Gamification Integration
+
+### Aurora XP Events
+
+- **Message sent to Aurora**: +5 XP
+- **Insight extracted (Life Model update)**: +15 XP
+- **Checklist item completed**: +10 XP
+- **Daily conversation with Aurora**: +25 XP (streak bonus applies)
+
+### Profile Unification
+
+Aurora's Life Model data enriches the existing profile:
+- Display Life Direction on user dashboard
+- Show active commitments as achievements
+- Track "Aurora streak" alongside hypnosis streak
+
+### Database Function
 
 ```sql
--- Extend profiles table for gamification
-ALTER TABLE profiles
-ADD COLUMN IF NOT EXISTS level integer DEFAULT 1,
-ADD COLUMN IF NOT EXISTS experience integer DEFAULT 0,
-ADD COLUMN IF NOT EXISTS tokens integer DEFAULT 10,
-ADD COLUMN IF NOT EXISTS session_streak integer DEFAULT 0,
-ADD COLUMN IF NOT EXISTS last_session_date date,
-ADD COLUMN IF NOT EXISTS active_ego_state text DEFAULT 'guardian',
-ADD COLUMN IF NOT EXISTS ego_state_usage jsonb DEFAULT '{}';
-
--- Sessions table for history
-CREATE TABLE IF NOT EXISTS hypnosis_sessions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
-  ego_state text NOT NULL,
-  action text,
-  duration integer NOT NULL,
-  experience_gained integer DEFAULT 0,
-  completed_at timestamptz DEFAULT now(),
-  script_data jsonb,
-  created_at timestamptz DEFAULT now()
-);
-
--- User achievements
-CREATE TABLE IF NOT EXISTS user_achievements (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
-  achievement_id text NOT NULL,
-  unlocked_at timestamptz DEFAULT now(),
-  UNIQUE(user_id, achievement_id)
-);
-
--- Custom protocols
-CREATE TABLE IF NOT EXISTS custom_protocols (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
-  name text NOT NULL,
-  goals text[],
-  induction text,
-  duration integer,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
--- RLS Policies
-ALTER TABLE hypnosis_sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE custom_protocols ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own sessions"
-  ON hypnosis_sessions FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own sessions"
-  ON hypnosis_sessions FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Similar policies for other tables...
-
--- Streak bonus function
-CREATE OR REPLACE FUNCTION check_streak_bonus(p_user_id uuid)
-RETURNS integer AS $$
-DECLARE
-  v_streak integer;
-  v_bonus integer := 0;
+CREATE FUNCTION aurora_award_xp(
+  p_user_id UUID,
+  p_amount INT,
+  p_reason TEXT
+) RETURNS VOID AS $$
 BEGIN
-  SELECT session_streak INTO v_streak FROM profiles WHERE id = p_user_id;
-  
-  IF v_streak = 7 THEN v_bonus := 10;   -- Weekly bonus
-  ELSIF v_streak = 30 THEN v_bonus := 50; -- Monthly bonus
-  END IF;
-  
-  IF v_bonus > 0 THEN
-    UPDATE profiles SET tokens = tokens + v_bonus WHERE id = p_user_id;
-  END IF;
-  
-  RETURN v_bonus;
+  UPDATE profiles
+  SET experience = experience + p_amount,
+      updated_at = now()
+  WHERE id = p_user_id;
+  -- Trigger level-up check
 END;
 $$ LANGUAGE plpgsql;
 ```
 
-### 2.2 Game State Context
+---
 
-**קובץ חדש:** `src/contexts/GameStateContext.tsx`
+## Phase 6: Voice Integration
+
+### Voice Input (Speech-to-Text)
+
+Create `aurora-transcribe` edge function:
+- Uses ElevenLabs Scribe v1
+- Returns transcribed text
+- Input: FormData with audio blob
+
+### Voice Output (Text-to-Speech)
+
+Update `elevenlabs-tts`:
+- Add voice option parameter
+- Aurora uses Jessica voice (`cgSgspJ2msm6clMCkdW9`)
+- Model: `eleven_multilingual_v2` (Hebrew support)
+
+### Client Integration
+
+New hook `useAuroraVoice.tsx`:
+- `startRecording()` - MediaRecorder API
+- `stopRecording()` - Send to transcribe function
+- `playMessage(messageId)` - Fetch TTS, play audio
+- State: `isRecording`, `isPlaying`, `activeMessageId`
+
+---
+
+## Phase 7: Translations
+
+### New i18n Keys (~100)
+
+Add to `src/i18n/translations/he.ts` and `en.ts`:
 
 ```typescript
-interface GameState {
-  user: {
-    level: number;
-    experience: number;
-    tokens: number;
-    sessionStreak: number;
-    activeEgoState: string;
-    egoStateUsage: Record<string, number>;
-  } | null;
-  loading: boolean;
+aurora: {
+  name: "אורורה",
+  subtitle: "מלווה אישית לעיצוב חיים",
+  welcomeTitle: "היי, אני אורורה 💜",
+  welcomeSubtitle: "בואי נתחיל לחקור מה באמת חשוב לך...",
+  suggestions: {
+    direction: "אני רוצה לדבר על הכיוון שלי",
+    values: "מה הערכים שמנחים אותי?",
+    energy: "איפה האנרגיה שלי הולכת?",
+    identity: "מי אני באמת?"
+  },
+  dashboard: {
+    title: "מודל החיים שלי",
+    emptyState: "אנחנו עדיין בונים את התמונה שלך...",
+    lifeDirection: "כיוון החיים",
+    identity: "פרופיל זהות",
+    visions: "חזון לעתיד",
+    // ... 40+ more keys
+  },
+  settings: {
+    tone: "סגנון תקשורת",
+    intensity: "עוצמת האתגר",
+    // ... 20+ more keys
+  },
+  checklists: {
+    title: "רשימות המשימות שלי",
+    // ... 15+ more keys
+  },
+  cta: {
+    lifeDirection: "בואי נחקור את הכיוון שלך",
+    exploreValues: "בואי נגלה מה באמת חשוב לך",
+    // ... 10+ more keys
+  }
 }
-
-// Provider with:
-// - loadUserProfile()
-// - addExperience(amount)
-// - updateStreak()
-// - awardAchievement(id)
-// - spendTokens(amount)
 ```
 
-### 2.3 Achievement Definitions
+---
 
-**קובץ חדש:** `src/lib/achievements.ts`
+## Implementation Order
+
+### Week 1: Foundation
+1. Database migrations (all 12 tables + profile columns)
+2. RLS policies and realtime setup
+3. Basic `aurora-chat` edge function
+
+### Week 2: Core Chat
+4. `useAuroraChat` hook (core logic)
+5. `AuroraMessageThread` component
+6. Replace AI conversation in `/messages/ai`
+
+### Week 3: Life Model
+7. `aurora-analyze` edge function
+8. Life Model hooks (useDashboard, useLifeModel)
+9. `AuroraDashboardModal` + `AuroraDashboardView`
+
+### Week 4: Features
+10. Checklists system (tables, hooks, components)
+11. Voice integration (TTS buttons, STT recording)
+12. Settings modal and preferences
+
+### Week 5: Polish
+13. Gamification integration (XP events)
+14. Translations (all keys)
+15. Testing and refinement
+
+---
+
+## Technical Specifications
+
+### Aurora Chat System Prompt (Hebrew)
+
+```
+אני אורורה - מלווה AI לעיצוב חיים.
+אני עוזרת לך לעצב את החיים שלך, להבהיר את הזהות שלך, ולתכנן את העתיד שלך.
+
+## עקרונות הליווי
+- אני מקשיבה קודם, שואלת שאלות מחודדות
+- אני מותאמת לקצב שלך ולסגנון שלך
+- אני מזהה דפוסים ומשקפת אותם לאט
+- אני לא דוחפת, לא שופטת, לא ממהרת
+
+## תגיות פעולה
+- [action:analyze] - ניתוח רקע
+- [cta:life_direction] - כפתור לחקירת כיוון
+- [checklist:create:כותרת] - יצירת רשימה חדשה
+- [checklist:add:כותרת:פריט] - הוספת פריט
+
+## הקשר המשתמש
+{USER_CONTEXT_INJECTED_HERE}
+```
+
+### Action Tag Processing
+
+Client-side parsing in `useAuroraChat`:
 
 ```typescript
-export const ACHIEVEMENTS = {
-  first_session: {
-    id: 'first_session',
-    name: 'First Journey',
-    description: 'Complete your first hypnosis session',
-    icon: '🌟',
-    xp: 50
-  },
-  streak_7: {
-    id: 'streak_7',
-    name: 'Week Warrior',
-    description: '7 day streak',
-    icon: '🔥',
-    xp: 100,
-    tokens: 10
-  },
-  // ... more achievements
+const processResponse = (content: string) => {
+  // Extract and remove silent actions
+  const actionMatches = content.matchAll(/\[action:(\w+)\]/g);
+  for (const match of actionMatches) {
+    if (match[1] === 'analyze') triggerBackgroundAnalysis();
+  }
+  
+  // Keep CTAs for rendering
+  // [cta:life_direction] -> <AuroraCTAButton type="life_direction" />
+  
+  // Process checklists
+  const checklistCreate = /\[checklist:create:(.+?)\]/g;
+  const checklistAdd = /\[checklist:add:(.+?):(.+?)\]/g;
+  // ... handle each
 };
 ```
 
-### 2.4 UI Components
+---
 
-**קבצים חדשים:**
-```
-src/components/gamification/
-├── LevelProgress.tsx      # XP bar with level display
-├── StreakCounter.tsx      # Daily streak visualization
-├── AchievementToast.tsx   # Unlock notifications
-├── TokenBalance.tsx       # Token display
-└── EgoStateSelector.tsx   # Archetype picker
+## File Structure Summary
+
+```text
+New files:
+├── supabase/
+│   ├── functions/
+│   │   ├── aurora-chat/index.ts
+│   │   ├── aurora-analyze/index.ts
+│   │   └── aurora-generate-title/index.ts
+│   └── migrations/
+│       └── YYYYMMDD_aurora_schema.sql
+├── src/
+│   ├── hooks/aurora/
+│   │   ├── useAuroraChat.tsx
+│   │   ├── useAuroraConversations.tsx
+│   │   ├── useLifeModel.tsx
+│   │   ├── useDashboard.tsx
+│   │   ├── useOnboardingProgress.tsx
+│   │   ├── useChecklists.tsx
+│   │   ├── useChecklistsData.tsx
+│   │   └── useAuroraVoice.tsx
+│   └── components/aurora/
+│       ├── AuroraMessageThread.tsx
+│       ├── AuroraChatMessage.tsx
+│       ├── AuroraChatInput.tsx
+│       ├── AuroraDashboardModal.tsx
+│       ├── AuroraDashboardView.tsx
+│       ├── AuroraSettingsModal.tsx
+│       ├── AuroraProfileSettings.tsx
+│       ├── AuroraChecklistModal.tsx
+│       ├── AuroraChecklistCard.tsx
+│       ├── AuroraChecklistItem.tsx
+│       ├── AuroraCTAButton.tsx
+│       ├── AuroraTypingIndicator.tsx
+│       └── AuroraVoiceButton.tsx
+
+Modified files:
+├── src/pages/MessageThread.tsx
+├── src/components/messages/ConversationItem.tsx
+├── src/components/messages/MessageBubble.tsx
+├── src/i18n/translations/he.ts
+├── src/i18n/translations/en.ts
+├── supabase/functions/elevenlabs-tts/index.ts
+└── supabase/config.toml
 ```
 
 ---
 
-## Phase 3: AI Brain & TTS (שבוע 3)
+## Database Tables Detail
 
-### 3.1 Edge Functions
+### aurora_life_direction
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| content | text | Life direction statement |
+| clarity_score | int | 0-100 confidence score |
+| created_at | timestamptz | |
+| updated_at | timestamptz | |
 
-**Secrets נדרשים:**
-- `OPENAI_API_KEY` — יש להוסיף!
-- `ELEVENLABS_API_KEY` (אופציונלי) — יש להוסיף!
+### aurora_identity_elements
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| element_type | text | 'value' / 'principle' / 'self_concept' / 'vision_statement' |
+| content | text | The element text |
+| metadata | jsonb | Additional context |
+| created_at | timestamptz | |
 
-**קבצי Edge Functions חדשים:**
+### aurora_life_visions
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| timeframe | text | '5_year' / '10_year' |
+| title | text | Vision title |
+| description | text | Detailed description |
+| focus_areas | text[] | Array of focus areas |
+| created_at | timestamptz | |
 
-```
-supabase/functions/
-├── ai-hypnosis/index.ts        # Main hypnosis AI
-├── generate-script/index.ts    # Script generator
-├── tts/index.ts                # OpenAI TTS
-└── elevenlabs-tts-proxy/index.ts  # ElevenLabs (optional)
-```
+### aurora_commitments
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| title | text | Commitment title |
+| description | text | |
+| status | text | 'active' / 'completed' / 'paused' |
+| created_at | timestamptz | |
 
-**config.toml עדכונים:**
-```toml
-[functions.ai-hypnosis]
-verify_jwt = true
+### aurora_energy_patterns
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| pattern_type | text | 'sleep' / 'nutrition' / 'movement' / 'stress' |
+| description | text | Pattern description |
+| created_at | timestamptz | |
 
-[functions.generate-script]
-verify_jwt = true
+### aurora_behavioral_patterns
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| pattern_type | text | 'focus' / 'avoidance' / 'discipline' / 'resistance' / 'strength' |
+| description | text | Pattern description |
+| created_at | timestamptz | |
 
-[functions.tts]
-verify_jwt = false
+### aurora_focus_plans
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| title | text | Focus plan title |
+| description | text | |
+| duration_days | int | Plan duration |
+| start_date | date | |
+| end_date | date | |
+| status | text | 'active' / 'completed' / 'abandoned' |
+| created_at | timestamptz | |
 
-[functions.elevenlabs-tts-proxy]
-verify_jwt = false
-```
+### aurora_daily_minimums
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| title | text | Minimum title |
+| category | text | Category label |
+| is_active | boolean | |
+| created_at | timestamptz | |
 
-### 3.2 Script Generation Logic
+### aurora_onboarding_progress
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles (unique) |
+| direction_clarity | text | 'incomplete' / 'emerging' / 'stable' |
+| identity_understanding | text | 'shallow' / 'partial' / 'clear' |
+| energy_patterns_status | text | 'unknown' / 'partial' / 'mapped' |
+| onboarding_complete | boolean | |
+| updated_at | timestamptz | |
 
-**מבנה סקריפט:**
-```typescript
-interface HypnosisScript {
-  title: string;
-  segments: Array<{
-    id: string;           // welcome, induction, deepening, core_work, integration, emergence
-    text: string;         // Full hypnotic script text
-    mood: string;         // calming, deepening, transformative, energizing
-    voice: string;        // female
-    sfx: string;          // ambient, gentle, energy
-  }>;
-  metadata: {
-    durationSec: number;
-    style: string;
-    wordsPerMinute: number;  // 150 default
-    totalWords: number;
-  };
-}
-```
+### aurora_checklists
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to profiles |
+| title | text | Checklist title |
+| origin | text | 'manual' / 'aurora' |
+| context | text | Conversation context |
+| status | text | 'active' / 'archived' |
+| created_at | timestamptz | |
 
-**Segment Timing:**
-| Segment | Time % | Purpose |
-|---------|--------|---------|
-| Welcome | 8% | Introduce session and goal |
-| Induction | 25% | Guide into hypnotic state |
-| Deepening | 20% | Deepen the trance |
-| Core Work | 30% | Main transformation |
-| Integration | 12% | Lock in changes |
-| Emergence | 5% | Return to awareness |
-
-### 3.3 Personalization Engine
-
-**קבצים חדשים:**
-```
-src/services/
-├── userMemory.ts       # Load/save user preferences & session history
-├── sessionContext.ts   # Map session options to context object
-└── hypnosis.ts         # API client for Edge Functions
-```
-
-**UserMemory Interface:**
-```typescript
-interface UserMemory {
-  preferences: {
-    level: number;
-    activeEgoState: string;
-    egoStateUsage: Record<string, number>;
-    sessionStreak: number;
-    lastSessionDate: string | null;
-  } | null;
-  recentSessions: SessionSummary[];
-  outcomeSummary: {
-    totalSessions: number;
-    totalExperience: number;
-    favoriteEgoState: string | null;
-    averageDurationMinutes: number | null;
-  };
-}
-```
-
-### 3.4 TTS Client
-
-**קובץ חדש:** `src/services/voice.ts`
-
-```typescript
-export async function synthesizeSpeech(
-  text: string,
-  options: {
-    voice?: string;      // default: 'ash'
-    speed?: number;      // default: 1.0
-    model?: string;      // default: 'tts-1'
-  }
-): Promise<AudioBuffer | null> {
-  // 1. Try OpenAI TTS Edge Function
-  // 2. Fallback to browser SpeechSynthesis
-  // 3. Return null if both fail
-}
-```
-
----
-
-## Phase 4: Immersive Sessions (שבוע 4)
-
-### 4.1 Session Manager
-
-**קובץ חדש:** `src/services/session.ts`
-
-```typescript
-interface SessionHandle {
-  start(): Promise<void>;
-  pause(): void;
-  resume(): void;
-  stop(): void;
-  skip(): void;
-  
-  // State
-  currentSegment: Segment | null;
-  playState: 'idle' | 'loading' | 'playing' | 'paused' | 'complete';
-  progress: number;  // 0-1
-  
-  // Events
-  onSegmentChange: (segment: Segment) => void;
-  onAudioLevel: (level: number) => void;
-  onComplete: () => void;
-}
-```
-
-### 4.2 Audio Analysis
-
-**קובץ חדש:** `src/hooks/useAudioAnalysis.ts`
-
-```typescript
-export function useAudioAnalysis(audioElement: HTMLAudioElement | null) {
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [audioFrequency, setAudioFrequency] = useState(0);
-  
-  // Uses Web Audio API:
-  // - AudioContext
-  // - AnalyserNode
-  // - getByteFrequencyData()
-  
-  return { audioLevel, audioFrequency };
-}
-```
-
-### 4.3 Session Page
-
-**קובץ חדש:** `src/pages/HypnosisSession.tsx`
-
-```typescript
-// Layout:
-// ┌─────────────────────────────────────┐
-// │           [Header/Back]             │
-// ├─────────────────────────────────────┤
-// │                                     │
-// │          [WebGL/CSS Orb]            │
-// │       (Audio-reactive, centered)    │
-// │                                     │
-// ├─────────────────────────────────────┤
-// │    [Segment Progress Indicator]     │
-// ├─────────────────────────────────────┤
-// │  [Play/Pause]  [Skip]  [Settings]   │
-// └─────────────────────────────────────┘
-```
-
-### 4.4 Zustand Stores
-
-**קבצים חדשים:**
-```
-src/stores/
-├── appStore.ts          # UI state (modals, toasts, tabs)
-├── sessionStore.ts      # Session lifecycle
-└── chatSessionStore.ts  # Chat threads (if implementing chat)
-```
-
-### 4.5 Route Addition
-
-**עדכון:** `src/App.tsx`
-
-```tsx
-const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
-const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
-
-// Add routes:
-<Route
-  path="/hypnosis"
-  element={
-    <ProtectedRoute>
-      <HypnosisLibrary />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/hypnosis/session"
-  element={
-    <ProtectedRoute>
-      <HypnosisSession />
-    </ProtectedRoute>
-  }
-/>
-```
+### aurora_checklist_items
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| checklist_id | uuid | FK to aurora_checklists |
+| content | text | Item text |
+| is_completed | boolean | |
+| order_index | int | Sort order |
+| created_at | timestamptz | |
 
 ---
 
-## סיכום טכני
+## Success Criteria
 
-### קבצים חדשים (סה"כ ~25)
-
-| Category | Files |
-|----------|-------|
-| Components | 12 (orb/, gamification/) |
-| Hooks | 3 (useOrbSize, useAudioAnalysis, useGameState) |
-| Services | 4 (userMemory, sessionContext, voice, hypnosis) |
-| Stores | 3 (appStore, sessionStore, chatSessionStore) |
-| Edge Functions | 4 (ai-hypnosis, generate-script, tts, elevenlabs) |
-| Pages | 2 (HypnosisSession, HypnosisLibrary) |
-| Lib | 2 (theme extensions, achievements) |
-
-### תלויות חדשות
-
-```json
-{
-  "dependencies": {
-    "three": "^0.160.0",
-    "zustand": "^4.5.0"
-  },
-  "devDependencies": {
-    "@types/three": "^0.160.0"
-  }
-}
-```
-
-### Secrets נדרשים
-
-| Secret | Purpose | Status |
-|--------|---------|--------|
-| LOVABLE_API_KEY | AI Gateway | ✅ קיים |
-| OPENAI_API_KEY | TTS + Script Gen | ❌ יש להוסיף |
-| ELEVENLABS_API_KEY | Premium TTS | ❌ אופציונלי |
-
-### Database Changes
-
-- 3 טבלאות חדשות: `hypnosis_sessions`, `user_achievements`, `custom_protocols`
-- 6 עמודות חדשות ב-`profiles`
-- 1 DB function: `check_streak_bonus`
-- RLS policies לכל הטבלאות החדשות
-
----
-
-## סדר יישום מומלץ
-
-```
-Week 1: Phase 1 (Visual Identity)
-  └── Day 1-2: Orb components + Three.js
-  └── Day 3-4: Theme extensions + Glass CSS
-  └── Day 5: Integration testing
-
-Week 2: Phase 2 (Gamification)
-  └── Day 1: Database migrations
-  └── Day 2-3: GameStateContext
-  └── Day 4-5: UI components
-
-Week 3: Phase 3 (AI Brain)
-  └── Day 1: Add OPENAI_API_KEY secret
-  └── Day 2-3: Edge Functions deployment
-  └── Day 4-5: Client services
-
-Week 4: Phase 4 (Sessions)
-  └── Day 1-2: Session manager + audio
-  └── Day 3-4: Session page UI
-  └── Day 5: End-to-end testing
-```
+1. Aurora conversation is pinned and distinct in `/messages`
+2. Life Model data populates after 5-10 meaningful exchanges
+3. Dashboard shows extracted insights with empty states handled
+4. Checklists can be created via conversation or manually
+5. Voice input/output works seamlessly
+6. XP is awarded for Aurora interactions
+7. All UI is fully RTL-compatible
+8. No breaking changes to existing Chat Widget or direct messages
