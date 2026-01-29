@@ -88,6 +88,7 @@ const AdminProducts = lazy(() => import("./pages/admin/Products"));
 const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
 const AdminTheme = lazy(() => import("./pages/admin/Theme"));
 const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
+const LandingPageBuilder = lazy(() => import("./pages/admin/LandingPageBuilder"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -339,6 +340,8 @@ const App = () => (
                           <Route path="newsletter" element={<Newsletter />} />
                           <Route path="homepage" element={<HomepageSections />} />
                           <Route path="landing-pages" element={<LandingPages />} />
+                          <Route path="landing-pages/new" element={<LandingPageBuilder />} />
+                          <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
                           <Route path="theme" element={<AdminTheme />} />
                           <Route path="chat-assistant" element={<ChatAssistant />} />
                           <Route path="products" element={<AdminProducts />} />

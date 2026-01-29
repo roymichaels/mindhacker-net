@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
@@ -13,11 +14,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Plus, Home, Brain, Mic, Layout, Eye, Edit, Copy, 
   MoreVertical, ExternalLink, Trash2, CheckCircle, XCircle, PanelTop
 } from "lucide-react";
-import { LandingPageDialog } from "@/components/admin/landing/LandingPageDialog";
+import { TemplateGallery, Template } from "@/components/admin/landing/TemplateGallery";
+import { motion } from "framer-motion";
 
 interface LandingPageListItem {
   id: string;
@@ -56,9 +64,8 @@ const LandingPages = () => {
   const { t, isRTL, language } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const navigate = useNavigate();
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
 
   const { data: pages, isLoading } = useQuery({
     queryKey: ['landing-pages'],
@@ -123,16 +130,13 @@ const LandingPages = () => {
     },
   });
 
-  const handleCreate = () => {
-    setSelectedPageId(null);
-    setIsCreating(true);
-    setIsDialogOpen(true);
+  const handleTemplateSelect = (template: Template) => {
+    setShowTemplateGallery(false);
+    navigate(`/admin/landing-pages/new?template=${template.type}`);
   };
 
   const handleEdit = (page: LandingPageListItem) => {
-    setSelectedPageId(page.id);
-    setIsCreating(false);
-    setIsDialogOpen(true);
+    navigate(`/admin/landing-pages/edit/${page.id}`);
   };
 
   const handlePreview = (page: LandingPageListItem) => {
@@ -161,7 +165,7 @@ const LandingPages = () => {
             </p>
           </div>
         </div>
-        <Button onClick={handleCreate} className="gap-2">
+        <Button onClick={() => setShowTemplateGallery(true)} className="gap-2">
           <Plus className="w-4 h-4" />
           {isRTL ? 'דף חדש' : 'New Page'}
         </Button>
@@ -178,40 +182,44 @@ const LandingPages = () => {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {pages?.map((page) => {
-            const TemplateIcon = getTemplateIcon(page.template_type);
-            
-            return (
-              <Card 
-                key={page.id} 
-                className="hover:border-primary/50 transition-colors"
-                style={{ borderLeftColor: page.brand_color || undefined, borderLeftWidth: 4 }}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-lg font-semibold mb-4">
+              {isRTL ? 'הדפים שלך' : 'Your Pages'}
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pages?.map((page, index) => {
+                const TemplateIcon = getTemplateIcon(page.template_type);
+                
+                return (
+                  <motion.div
+                    key={page.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card 
+                      className="group hover:border-primary/50 transition-all duration-300 overflow-hidden"
+                    >
                       <div 
-                        className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: `${page.brand_color}20` || 'var(--primary)' }}
+                        className="h-32 relative overflow-hidden"
+                        style={{ 
+                          background: `linear-gradient(135deg, ${page.brand_color || '#8B5CF6'}15 0%, ${page.brand_color || '#8B5CF6'}05 100%)` 
+                        }}
                       >
-                        <TemplateIcon 
-                          className="w-6 h-6" 
-                          style={{ color: page.brand_color || 'var(--primary)' }}
-                        />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-lg truncate">
-                            {getPageTitle(page)}
-                          </h3>
-                          {page.is_homepage && (
-                            <Badge variant="outline" className="text-xs">
-                              <Home className="w-3 h-3 mr-1" />
-                              {isRTL ? 'ראשי' : 'Home'}
-                            </Badge>
-                          )}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div 
+                            className="w-20 h-20 rounded-xl flex items-center justify-center"
+                            style={{ backgroundColor: `${page.brand_color || '#8B5CF6'}20` }}
+                          >
+                            <TemplateIcon 
+                              className="w-10 h-10" 
+                              style={{ color: page.brand_color || '#8B5CF6' }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3">
                           <Badge 
                             variant={page.is_published ? "default" : "secondary"}
                             className="text-xs"
@@ -229,93 +237,122 @@ const LandingPages = () => {
                             )}
                           </Badge>
                         </div>
-                        
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-                          <span className="font-mono">
-                            {page.is_homepage ? '/' : `/lp/${page.slug}`}
-                          </span>
-                          <span>•</span>
-                          <span>{getTemplateLabel(page.template_type, isRTL)}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            {page.view_count.toLocaleString()}
-                          </span>
+
+                        {page.is_homepage && (
+                          <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3">
+                            <Badge variant="outline" className="text-xs bg-background/80">
+                              <Home className="w-3 h-3 mr-1" />
+                              {isRTL ? 'ראשי' : 'Home'}
+                            </Badge>
+                          </div>
+                        )}
+
+                        <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleEdit(page)}
+                            className="gap-1"
+                          >
+                            <Edit className="w-4 h-4" />
+                            {isRTL ? 'עריכה' : 'Edit'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handlePreview(page)}
+                            className="gap-1"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            {isRTL ? 'תצוגה' : 'Preview'}
+                          </Button>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePreview(page)}
-                        className="gap-1"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        {isRTL ? 'תצוגה' : 'Preview'}
-                      </Button>
-                      
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => handleEdit(page)}
-                        className="gap-1"
-                      >
-                        <Edit className="w-4 h-4" />
-                        {isRTL ? 'עריכה' : 'Edit'}
-                      </Button>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold truncate mb-1">
+                              {getPageTitle(page)}
+                            </h3>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span className="font-mono truncate">
+                                {page.is_homepage ? '/' : `/lp/${page.slug}`}
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />
+                                {page.view_count.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => duplicateMutation.mutate(page)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            {isRTL ? 'שכפל' : 'Duplicate'}
-                          </DropdownMenuItem>
-                          {!page.is_homepage && (
-                            <DropdownMenuItem 
-                              onClick={() => deleteMutation.mutate(page.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              {isRTL ? 'מחק' : 'Delete'}
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(page)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                {isRTL ? 'עריכה' : 'Edit'}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handlePreview(page)}>
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                {isRTL ? 'תצוגה' : 'Preview'}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => duplicateMutation.mutate(page)}>
+                                <Copy className="w-4 h-4 mr-2" />
+                                {isRTL ? 'שכפל' : 'Duplicate'}
+                              </DropdownMenuItem>
+                              {!page.is_homepage && (
+                                <DropdownMenuItem 
+                                  onClick={() => deleteMutation.mutate(page.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  {isRTL ? 'מחק' : 'Delete'}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
 
-          {pages?.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center text-muted-foreground">
-                <Layout className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>{isRTL ? 'אין דפי נחיתה עדיין' : 'No landing pages yet'}</p>
-                <Button onClick={handleCreate} className="mt-4">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {isRTL ? 'צור דף ראשון' : 'Create First Page'}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+              {pages?.length === 0 && (
+                <Card className="col-span-full">
+                  <CardContent className="p-8 text-center text-muted-foreground">
+                    <Layout className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>{isRTL ? 'אין דפי נחיתה עדיין' : 'No landing pages yet'}</p>
+                    <Button onClick={() => setShowTemplateGallery(true)} className="mt-4">
+                      <Plus className="w-4 h-4 mr-2" />
+                      {isRTL ? 'צור דף ראשון' : 'Create First Page'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
-      <LandingPageDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        pageId={selectedPageId}
-        isCreating={isCreating}
-      />
+      <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {isRTL ? 'בחר תבנית' : 'Choose a Template'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <TemplateGallery onSelect={handleTemplateSelect} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
