@@ -62,6 +62,7 @@ const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
 const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
+const Aurora = lazy(() => import("./pages/Aurora"));
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
 // Admin pages
@@ -240,6 +241,16 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <MessageThread />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        {/* Aurora route (protected) */}
+                        <Route
+                          path="/aurora"
+                          element={
+                            <ProtectedRoute>
+                              <Aurora />
                             </ProtectedRoute>
                           }
                         />
