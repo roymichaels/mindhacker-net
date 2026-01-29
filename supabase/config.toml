@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.ai-hypnosis]
 verify_jwt = true
+
+[functions.elevenlabs-tts]
+verify_jwt = false

@@ -11,7 +11,7 @@ import { Orb } from '@/components/orb';
 import { BreathingGuide } from '@/components/hypnosis';
 import { getEgoState } from '@/lib/egoStates';
 import { generateHypnosisScript, type HypnosisScript } from '@/services/hypnosis';
-import { speakWithBrowser, stopBrowserSpeech, isBrowserTTSAvailable } from '@/services/voice';
+import { synthesizeSpeech, speakWithBrowser, stopBrowserSpeech, isBrowserTTSAvailable, playAudioUrl } from '@/services/voice';
 import { saveSession } from '@/services/userMemory';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
@@ -61,8 +61,10 @@ const HypnosisSession = () => {
   const [showBreathing, setShowBreathing] = useState(false);
   const [breathingCountdown, setBreathingCountdown] = useState(0);
 
+  const [voiceProvider, setVoiceProvider] = useState<'elevenlabs' | 'openai' | 'browser'>('elevenlabs');
+
   const startTimeRef = useRef<number>(0);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const playingRef = useRef<boolean>(false);
 
   const currentSegment = script?.segments[currentSegmentIndex];
@@ -143,8 +145,8 @@ const HypnosisSession = () => {
     }
   };
 
-  // Play a segment
-  const playSegment = useCallback((index: number) => {
+  // Play a segment using ElevenLabs/OpenAI TTS with browser fallback
+  const playSegment = useCallback(async (index: number) => {
     if (!script || index >= script.segments.length) {
       handleSessionComplete();
       return;
@@ -154,7 +156,7 @@ const HypnosisSession = () => {
     setCurrentSegmentIndex(index);
     impact('light');
 
-    if (isMuted || !isBrowserTTSAvailable()) {
+    if (isMuted) {
       // If muted, simulate reading time
       const wordsPerMinute = 130;
       const words = segment.text.split(/\s+/).length;
@@ -168,21 +170,53 @@ const HypnosisSession = () => {
       return;
     }
 
-    // Use browser TTS
-    utteranceRef.current = speakWithBrowser(segment.text, {
-      rate: 0.85,
-      onEnd: () => {
+    try {
+      // Try ElevenLabs → OpenAI → Browser fallback
+      const result = await synthesizeSpeech(segment.text, {
+        provider: voiceProvider,
+        voice: 'sarah', // Premium calm female voice
+        speed: 0.9,
+      });
+
+      if (result) {
+        setVoiceProvider(result.provider);
+        
+        await playAudioUrl(result.audioUrl, {
+          onEnd: () => {
+            if (playingRef.current) {
+              playSegment(index + 1);
+            }
+          },
+          onError: (error) => {
+            console.error('Audio playback error:', error);
+            // Continue to next segment on error
+            if (playingRef.current) {
+              setTimeout(() => playSegment(index + 1), 500);
+            }
+          },
+        });
+      } else {
+        // All TTS failed, use timer-based progression
+        const wordsPerMinute = 130;
+        const words = segment.text.split(/\s+/).length;
+        const readingTime = (words / wordsPerMinute) * 60 * 1000;
+        
+        setTimeout(() => {
+          if (playingRef.current) {
+            playSegment(index + 1);
+          }
+        }, readingTime);
+      }
+    } catch (error) {
+      console.error('Segment playback error:', error);
+      // Continue to next segment
+      setTimeout(() => {
         if (playingRef.current) {
           playSegment(index + 1);
         }
-      },
-      onError: (error) => {
-        console.error('TTS error:', error);
-        // Continue to next segment even on error
-        setTimeout(() => playSegment(index + 1), 1000);
-      },
-    });
-  }, [script, isMuted, impact]);
+      }, 1000);
+    }
+  }, [script, isMuted, voiceProvider, impact]);
 
   // Handle pause/resume
   const togglePlayPause = () => {
