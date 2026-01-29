@@ -12,9 +12,11 @@ import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Courses = () => {
   const { t, isRTL } = useTranslation();
+  const { user } = useAuth();
 
   // SEO Configuration
   useSEO({
@@ -80,6 +82,25 @@ const Courses = () => {
       return data;
     },
   });
+
+  // Fetch user enrollments
+  const { data: userEnrollments } = useQuery({
+    queryKey: ['user-enrollments', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data } = await supabase
+        .from('course_enrollments')
+        .select('product_id, progress_percentage, is_completed')
+        .eq('user_id', user.id);
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  // Create enrollment map for quick lookup
+  const enrollmentMap = new Map(
+    userEnrollments?.map(e => [e.product_id, e]) || []
+  );
 
   const filteredCourses = courses?.filter((course) =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,7 +182,7 @@ const Courses = () => {
             ))
           ) : filteredCourses && filteredCourses.length > 0 ? (
             filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard key={course.id} course={course} enrollment={enrollmentMap.get(course.id)} />
             ))
           ) : (
             <div className="col-span-full text-center py-12" dir={isRTL ? 'rtl' : 'ltr'}>

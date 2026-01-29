@@ -584,6 +584,9 @@ export const he = {
       priceLow: "מחיר נמוך לגבוה",
       priceHigh: "מחיר גבוה לנמוך",
     },
+    owned: "יש לך",
+    continueWatching: "המשך צפייה",
+    viewProduct: "צפה במוצר",
   },
   sessions: {
     myPackages: "החבילות שלי",
