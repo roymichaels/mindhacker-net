@@ -1,10 +1,12 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useAuth } from "@/contexts/AuthContext";
 // Note: AffiliateTracker is rendered globally in App.tsx
 
 // Lazy load below-the-fold components - ordered by journey progression
@@ -19,6 +21,15 @@ const Footer = lazy(() => import("@/components/Footer"));
 const Index = () => {
   const { t, isRTL } = useTranslation();
   const { theme } = useThemeSettings();
+  const { user, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect logged-in users to their dashboard (like major apps)
+  useEffect(() => {
+    if (!loading && user) {
+      navigate(isAdmin ? '/admin' : '/dashboard', { replace: true });
+    }
+  }, [user, isAdmin, loading, navigate]);
   
   // Build brand settings from theme for SEO
   const brandSettings: BrandSettings = {
