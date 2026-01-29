@@ -55,6 +55,7 @@ const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLan
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
+const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
 const CommunityPost = lazy(() => import("./pages/CommunityPost"));
 const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
@@ -86,6 +87,7 @@ const Videos = lazy(() => import("./pages/admin/Videos"));
 const AdminProducts = lazy(() => import("./pages/admin/Products"));
 const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
 const AdminTheme = lazy(() => import("./pages/admin/Theme"));
+const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -273,6 +275,9 @@ const App = () => (
                           }
                         />
 
+                        {/* Dynamic Landing Pages */}
+                        <Route path="/lp/:slug" element={<DynamicLandingPage />} />
+
                         {/* Protected user routes */}
                         <Route
                           path="/personal-hypnosis/success"
@@ -333,6 +338,7 @@ const App = () => (
                           <Route path="forms" element={<Forms />} />
                           <Route path="newsletter" element={<Newsletter />} />
                           <Route path="homepage" element={<HomepageSections />} />
+                          <Route path="landing-pages" element={<LandingPages />} />
                           <Route path="theme" element={<AdminTheme />} />
                           <Route path="chat-assistant" element={<ChatAssistant />} />
                           <Route path="products" element={<AdminProducts />} />
