@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, MessageCircle, Users, ShoppingBag } from 'lucide-react';
+import { Home, MessageCircle, Users, ShoppingBag, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -14,8 +14,9 @@ const GlobalBottomNav = () => {
   // Only show for authenticated users on mobile
   if (!user || !isMobile) return null;
 
-  // Don't show on admin pages
+  // Don't show on admin pages or Aurora page (Aurora has its own layout)
   if (location.pathname.startsWith('/admin')) return null;
+  if (location.pathname === '/aurora' || location.pathname.startsWith('/aurora/')) return null;
 
   const isOnCommunity = location.pathname.startsWith('/community');
   const isOnMessages = location.pathname.startsWith('/messages');
@@ -55,6 +56,22 @@ const GlobalBottomNav = () => {
         >
           <MessageCircle className="h-5 w-5" />
           <span>{t('messages.title')}</span>
+        </NavLink>
+
+        {/* Aurora Tab - Center */}
+        <NavLink
+          to="/aurora"
+          className={({ isActive }) => cn(
+            "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
+            isActive
+              ? "text-primary" 
+              : "text-muted-foreground"
+          )}
+        >
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center -mt-4 border-2 border-background shadow-lg">
+            <Sparkles className="h-5 w-5 text-primary" />
+          </div>
+          <span className="-mt-1">{t('aurora.name')}</span>
         </NavLink>
 
         {/* Catalog Tab */}
