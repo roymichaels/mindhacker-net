@@ -135,18 +135,9 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
             </Link>
           </div>
 
-          {/* Center CTA Button - Only for public mode */}
+          {/* Center - Empty space to maintain grid layout */}
           <div className="flex justify-center">
-            {!isAdminMode && (
-              <Button
-                onClick={() => setStartModalOpen(true)}
-                className={`flex gap-2 transition-all ${brandColors ? `${brandColors.button} ${brandColors.buttonText} ${brandColors.shadow}` : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40'}`}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('header.startChangeNow')}</span>
-                <span className="sm:hidden">{t('header.startShort')}</span>
-              </Button>
-            )}
+            {/* Intentionally empty - CTA moved to avatar dropdown */}
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 justify-end">
@@ -188,6 +179,15 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
                         </p>
                       </div>
                     </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {/* Start Change CTA */}
+                    <DropdownMenuItem 
+                      onClick={() => setStartModalOpen(true)}
+                      className="bg-primary/10 text-primary focus:bg-primary/20 focus:text-primary"
+                    >
+                      <Sparkles className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                      {t('header.startChangeNow')}
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                       <ShoppingBag className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
