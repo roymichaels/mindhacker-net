@@ -2085,6 +2085,107 @@ export type Database = {
         }
         Relationships: []
       }
+      launchpad_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_step: number | null
+          id: string
+          launchpad_complete: boolean | null
+          step_1_completed_at: string | null
+          step_1_intention: string | null
+          step_1_welcome: boolean | null
+          step_2_completed_at: string | null
+          step_2_first_chat: boolean | null
+          step_2_summary: string | null
+          step_3_completed_at: string | null
+          step_3_form_submission_id: string | null
+          step_3_introspection: boolean | null
+          step_4_completed_at: string | null
+          step_4_form_submission_id: string | null
+          step_4_life_plan: boolean | null
+          step_5_completed_at: string | null
+          step_5_focus_areas: boolean | null
+          step_5_focus_areas_selected: Json | null
+          step_6_actions: Json | null
+          step_6_anchor_habit: string | null
+          step_6_completed_at: string | null
+          step_6_first_week: boolean | null
+          step_7_completed_at: string | null
+          step_7_dashboard_activated: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          launchpad_complete?: boolean | null
+          step_1_completed_at?: string | null
+          step_1_intention?: string | null
+          step_1_welcome?: boolean | null
+          step_2_completed_at?: string | null
+          step_2_first_chat?: boolean | null
+          step_2_summary?: string | null
+          step_3_completed_at?: string | null
+          step_3_form_submission_id?: string | null
+          step_3_introspection?: boolean | null
+          step_4_completed_at?: string | null
+          step_4_form_submission_id?: string | null
+          step_4_life_plan?: boolean | null
+          step_5_completed_at?: string | null
+          step_5_focus_areas?: boolean | null
+          step_5_focus_areas_selected?: Json | null
+          step_6_actions?: Json | null
+          step_6_anchor_habit?: string | null
+          step_6_completed_at?: string | null
+          step_6_first_week?: boolean | null
+          step_7_completed_at?: string | null
+          step_7_dashboard_activated?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          launchpad_complete?: boolean | null
+          step_1_completed_at?: string | null
+          step_1_intention?: string | null
+          step_1_welcome?: boolean | null
+          step_2_completed_at?: string | null
+          step_2_first_chat?: boolean | null
+          step_2_summary?: string | null
+          step_3_completed_at?: string | null
+          step_3_form_submission_id?: string | null
+          step_3_introspection?: boolean | null
+          step_4_completed_at?: string | null
+          step_4_form_submission_id?: string | null
+          step_4_life_plan?: boolean | null
+          step_5_completed_at?: string | null
+          step_5_focus_areas?: boolean | null
+          step_5_focus_areas_selected?: Json | null
+          step_6_actions?: Json | null
+          step_6_anchor_habit?: string | null
+          step_6_completed_at?: string | null
+          step_6_first_week?: boolean | null
+          step_7_completed_at?: string | null
+          step_7_dashboard_activated?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "launchpad_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           affiliate_code: string | null
@@ -2774,6 +2875,81 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaire_completions: {
+        Row: {
+          analysis: Json | null
+          blindspots: Json | null
+          completed_at: string | null
+          created_at: string | null
+          form_submission_id: string | null
+          goals_suggested: Json | null
+          habits_suggested: Json | null
+          id: string
+          key_insights: Json | null
+          life_model_updates_applied: boolean | null
+          next_actions: Json | null
+          questionnaire_type: string
+          summary: string | null
+          tags: Json | null
+          tokens_awarded: number | null
+          user_id: string
+          xp_awarded: number | null
+        }
+        Insert: {
+          analysis?: Json | null
+          blindspots?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          form_submission_id?: string | null
+          goals_suggested?: Json | null
+          habits_suggested?: Json | null
+          id?: string
+          key_insights?: Json | null
+          life_model_updates_applied?: boolean | null
+          next_actions?: Json | null
+          questionnaire_type: string
+          summary?: string | null
+          tags?: Json | null
+          tokens_awarded?: number | null
+          user_id: string
+          xp_awarded?: number | null
+        }
+        Update: {
+          analysis?: Json | null
+          blindspots?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          form_submission_id?: string | null
+          goals_suggested?: Json | null
+          habits_suggested?: Json | null
+          id?: string
+          key_insights?: Json | null
+          life_model_updates_applied?: boolean | null
+          next_actions?: Json | null
+          questionnaire_type?: string
+          summary?: string | null
+          tags?: Json | null
+          tokens_awarded?: number | null
+          user_id?: string
+          xp_awarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaire_completions_form_submission_id_fkey"
+            columns: ["form_submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questionnaire_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings: {
         Row: {
           description: string | null
@@ -3056,6 +3232,41 @@ export type Database = {
             columns: ["audio_id"]
             isOneToOne: false
             referencedRelation: "hypnosis_audios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_feature_unlocks: {
+        Row: {
+          feature_key: string
+          id: string
+          unlock_reason: string | null
+          unlock_source: string | null
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          feature_key: string
+          id?: string
+          unlock_reason?: string | null
+          unlock_source?: string | null
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          feature_key?: string
+          id?: string
+          unlock_reason?: string | null
+          unlock_source?: string | null
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_feature_unlocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3445,6 +3656,10 @@ export type Database = {
       }
       check_expiring_access: { Args: never; Returns: undefined }
       check_streak_bonus: { Args: { p_user_id: string }; Returns: number }
+      complete_launchpad_step: {
+        Args: { p_data?: Json; p_step: number; p_user_id: string }
+        Returns: Json
+      }
       create_admin_notification: {
         Args: {
           p_link?: string
@@ -3471,6 +3686,7 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      get_user_tier: { Args: { p_user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
