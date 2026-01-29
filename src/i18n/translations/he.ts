@@ -47,6 +47,7 @@ export const he = {
     startChangeNow: "התחל שינוי עכשיו",
     startShort: "התחל",
     chooseYourPath: "בחר את המסלול שלך",
+    guestMenu: "תפריט אורח",
   },
   auth: {
     loginTitle: "התחברות",

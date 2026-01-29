@@ -20,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon } from "lucide-react";
+import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -110,9 +110,9 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
-        <div className="container grid grid-cols-3 h-16 items-center px-4">
+        <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
           {/* Left side: Logo and Admin panel title */}
-          <div className="flex items-center gap-3 justify-start">
+          <div className="flex items-center gap-1 sm:gap-3 justify-start">
             {/* Mobile Admin Sidebar Trigger */}
             {isAdminMode && (
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -149,7 +149,7 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
             )}
           </div>
 
-          <div className="flex items-center gap-3 justify-end">
+          <div className="flex items-center gap-1 sm:gap-2 justify-end">
             {/* Home button - Only for admin mode */}
             {isAdminMode && (
               <Button
@@ -163,20 +163,17 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
               </Button>
             )}
 
-            {/* Language switcher only shown for non-logged in users */}
-            {!user && !isAdminMode && <LanguageSwitcher />}
-            
             {loading ? (
-              <div className="h-9 w-9 animate-pulse bg-muted rounded-full" />
+              <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
             ) : user ? (
               <>
                 {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
-                      <Avatar className="h-9 w-9 border-2 border-primary/30">
+                    <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
+                      <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30">
                         <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ''} />
-                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
@@ -246,43 +243,74 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                {/* Theme toggle for non-logged in users */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTheme(isDark ? "light" : "dark")}
-                  aria-label={isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
-                >
-                  {isDark ? (
-                    <Sun className="h-5 w-5" />
-                  ) : (
-                    <Moon className="h-5 w-5" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
+              /* Guest Avatar Dropdown with Language/Theme */
+              <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
+                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-muted">
+                      <AvatarFallback className="bg-muted text-muted-foreground">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => {
                     setAuthModalMode("login");
                     setAuthModalOpen(true);
-                  }}
-                  className="hidden sm:inline-flex"
-                >
-                  {t('common.login')}
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
+                  }}>
+                    <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
+                    {t('common.login')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
                     setAuthModalMode("signup");
                     setAuthModalOpen(true);
-                  }}
-                >
-                  {t('common.signup')}
-                </Button>
-              </>
+                  }}>
+                    <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                    {t('common.signup')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {/* Language Switcher Sub-menu */}
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                      {t('common.language')}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent className="bg-card dark:bg-card border border-border shadow-xl z-50">
+                        <DropdownMenuItem 
+                          onClick={() => setLanguage('he')}
+                          className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
+                        >
+                          <span className={isRTL ? "ml-2" : "mr-2"}>🇮🇱</span>
+                          עברית
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setLanguage('en')}
+                          className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
+                        >
+                          <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
+                          English
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  {/* Theme Toggle */}
+                  <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+                    {isDark ? (
+                      <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                    ) : (
+                      <Moon className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                    )}
+                    {isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
-
           </div>
         </div>
       </header>

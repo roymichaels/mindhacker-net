@@ -49,6 +49,7 @@ export const en: TranslationKeys = {
     startChangeNow: "Start Change Now",
     startShort: "Start",
     chooseYourPath: "Choose Your Path",
+    guestMenu: "Guest Menu",
   },
   auth: {
     loginTitle: "Login",
