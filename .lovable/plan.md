@@ -1,241 +1,292 @@
 
-# תוכנית: טאב ניהול דפי נחיתה באדמין
+# Visual Landing Page Builder - Elementor Style
 
-## סיכום
-יצירת מערכת data-driven לניהול דפי נחיתה, שהופכת את הדפים הקיימים (Index, ConsciousnessLeapLanding, PersonalHypnosisLanding) לתבניות גנריות שנשלטות מהדאטאבייס.
+## Overview
+Transform the current form-based landing page editor into a modern, visual drag-and-drop builder similar to Elementor, featuring:
+- Visual template gallery with live previews
+- Drag-and-drop section reordering
+- Live preview panel alongside the editor
+- Section widgets with visual thumbnails
+- Full-screen immersive editing experience
 
-## מה קיים היום
+## Current State vs Target State
 
-### דפי נחיתה קיימים:
-1. **דף הבית (Index.tsx)** - HeroSection + IntrospectionPromo + PersonalVideoPromo + ConsciousnessLeapPromo
-2. **קפיצה לתודעה (ConsciousnessLeapLanding.tsx)** - Hero, Pain Points, Process, Benefits, For Who, Testimonials, FAQs, Form
-3. **הקלטת היפנוזה אישית (PersonalHypnosisLanding.tsx)** - Hero, Pain Points, Process, Benefits, Testimonial, CTA
+### Current State
+- Simple dialog with tabs and form fields
+- List-based section editing
+- No visual feedback or live preview
+- Basic collapsible items for content
 
-### מערכת Offers קיימת:
-- כבר יש טבלת `offers` עם שדות רבים ללנדינג פייג'ס:
-  - hero_heading/hero_subheading
-  - pain_points, process_steps, benefits, faqs, includes (כל אלה JSONB)
-  - brand_color, badge_text, cta_type, cta_text
-  - landing_page_route, landing_page_enabled
+### Target State
+- Full-page visual builder (like Elementor/Wix)
+- Template gallery with visual cards
+- Drag-and-drop section ordering
+- Split-screen: Editor left, Live Preview right
+- Section widgets with thumbnails
+- Inline editing feel
 
-## הארכיטקטורה החדשה
+---
 
-### 1. טבלת landing_pages חדשה
+## Architecture
 
-```sql
-CREATE TABLE landing_pages (
-  id UUID PRIMARY KEY,
-  slug TEXT UNIQUE NOT NULL,
-  template_type TEXT NOT NULL, -- 'homepage', 'product', 'lead_capture', 'custom'
-  
-  -- Offer connection (optional)
-  offer_id UUID REFERENCES offers(id),
-  
-  -- Meta & SEO
-  title_he TEXT,
-  title_en TEXT,
-  seo_title_he TEXT,
-  seo_title_en TEXT,
-  seo_description_he TEXT,
-  seo_description_en TEXT,
-  
-  -- Hero Section
-  hero_heading_he TEXT,
-  hero_heading_en TEXT,
-  hero_subheading_he TEXT,
-  hero_subheading_en TEXT,
-  hero_image_url TEXT,
-  hero_video_url TEXT,
-  
-  -- Sections Configuration (JSONB)
-  sections_order JSONB, -- ["hero", "pain_points", "process", "benefits", "testimonials", "faq", "cta"]
-  sections_config JSONB, -- Detailed config per section
-  
-  -- Content Blocks (JSONB for flexibility)
-  pain_points JSONB,
-  process_steps JSONB,
-  benefits JSONB,
-  for_who JSONB,
-  not_for_who JSONB,
-  testimonials JSONB,
-  faqs JSONB,
-  includes JSONB,
-  
-  -- Styling
-  brand_color TEXT,
-  custom_css TEXT,
-  
-  -- CTA
-  primary_cta_type TEXT, -- 'checkout', 'form', 'link', 'contact'
-  primary_cta_text_he TEXT,
-  primary_cta_text_en TEXT,
-  primary_cta_link TEXT,
-  form_id UUID REFERENCES custom_forms(id),
-  
-  -- Status
-  is_published BOOLEAN DEFAULT FALSE,
-  is_homepage BOOLEAN DEFAULT FALSE,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-### 2. דף אדמין חדש: LandingPages.tsx
-
-**מיקום**: `/admin/landing-pages`
-
-**פיצ'רים**:
-- רשימת כל דפי הנחיתה עם preview, status, ו-analytics
-- יצירת דף חדש מתבנית (Homepage/Product/Lead Capture/Custom)
-- עריכת דף קיים עם Visual Builder פשוט
-- Duplicate של דף קיים
-- Preview בכרטיסייה חדשה
-
-**UI מוצע**:
+### New Component Structure
 ```text
-┌──────────────────────────────────────────────────────────────────┐
-│  דפי נחיתה                                               + חדש  │
-├──────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ 🏠 דף הבית                               ✅ פורסם │ עריכה  │ │
-│  │    /  •  Template: Homepage  •  3,245 צפיות                 │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ 🧠 קפיצה לתודעה חדשה                     ✅ פורסם │ עריכה  │ │
-│  │    /consciousness-leap  •  Template: Product  •  1,892 צפיות│ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ 🎬 הקלטת היפנוזה אישית                   ✅ פורסם │ עריכה  │ │
-│  │    /personal-hypnosis  •  Template: Product  •  2,156 צפיות │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────┘
+src/pages/admin/
+├── LandingPages.tsx (updated - template gallery)
+└── LandingPageBuilder.tsx (NEW - full-screen visual builder)
+
+src/components/admin/landing/
+├── TemplateGallery.tsx (NEW - visual template cards)
+├── BuilderCanvas.tsx (NEW - drag-drop section ordering)
+├── BuilderSidebar.tsx (NEW - section widgets + settings)
+├── BuilderPreview.tsx (NEW - live preview iframe/component)
+├── SectionWidget.tsx (NEW - draggable section card)
+├── SectionSettingsPanel.tsx (NEW - settings for selected section)
+└── SectionEditor.tsx (existing - content editing)
 ```
 
-### 3. Dialog עריכה עם Tabs
+### Flow
+1. `/admin/landing-pages` - Template Gallery (choose template or edit existing)
+2. `/admin/landing-pages/edit/:id` - Full Visual Builder
+
+---
+
+## Phase 1: Template Gallery
+
+Replace current list view with visual template cards showing:
+- Live thumbnail/preview of template
+- Template name and description
+- "Use This Template" button
+- Hover animations
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│  עריכת דף: קפיצה לתודעה חדשה                              [X]  │
-├─────────────────────────────────────────────────────────────────┤
-│  [כללי] [Hero] [תוכן] [סעיפים] [עיצוב] [SEO] [CTA]             │
-├─────────────────────────────────────────────────────────────────┤
-│  Tab: תוכן                                                      │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  נקודות כאב (Pain Points)                           [+]  │  │
-│  │  ├── 1. אתה יודע שיש בך יותר...                 [▲][▼][🗑]│  │
-│  │  ├── 2. דפוסים חוזרים...                        [▲][▼][🗑]│  │
-│  │  └── 3. מרגיש תקוע...                           [▲][▼][🗑]│  │
-│  │                                                            │  │
-│  │  שלבי התהליך (Process Steps)                        [+]  │  │
-│  │  ├── 1. שיחת הכרות                              [▲][▼][🗑]│  │
-│  │  ├── 2. מיפוי עומק                              [▲][▼][🗑]│  │
-│  │  └── 3. תוכנית פעולה                            [▲][▼][🗑]│  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  [ביטול]                                    [שמור] [שמור ופרסם] │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### 4. תבניות ברירת מחדל
-
-**Template: Homepage**
-- Hero with portrait + rotating words
-- 3 product cards (Introspection, Personal Hypnosis, Consciousness Leap)
-- About section
-- Testimonials
-- FAQ
-- Footer
-
-**Template: Product**
-- Hero with badge + CTA
-- Pain Points (3 cards)
-- How It Works / Process Steps
-- What's Included / Benefits
-- For Who / Not For Who
-- Testimonials
-- FAQ
-- Final CTA
-
-**Template: Lead Capture**
-- Hero with form
-- Value proposition
-- Trust badges
-- Simple form
-
-### 5. קומפוננטת DynamicLandingPage
-
-קומפוננטה גנרית שמקבלת slug ומרנדרת את הדף לפי הנתונים מהדאטאבייס:
-
-```tsx
-// src/pages/DynamicLandingPage.tsx
-const DynamicLandingPage = () => {
-  const { slug } = useParams();
-  const { data: page } = useQuery(['landing-page', slug], ...);
-  
-  return (
-    <div>
-      <Header brandColors={getColors(page.brand_color)} />
-      
-      {page.sections_order.map(sectionKey => {
-        switch(sectionKey) {
-          case 'hero': return <HeroSection data={page} />;
-          case 'pain_points': return <PainPointsSection data={page.pain_points} />;
-          case 'process': return <ProcessSection data={page.process_steps} />;
-          case 'benefits': return <BenefitsSection data={page.benefits} />;
-          case 'testimonials': return <TestimonialsSection data={page.testimonials} />;
-          case 'faq': return <FAQSection data={page.faqs} />;
-          case 'cta': return <CTASection data={page} />;
-        }
-      })}
-      
-      <Footer />
-    </div>
-  );
-};
+┌─────────────────────────────────────────────────────────────────────┐
+│  דפי נחיתה                                              + חדש     │
+├─────────────────────────────────────────────────────────────────────┤
+│  Choose a Template:                                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐     │
+│  │ ╔═════════════╗ │  │ ╔═════════════╗ │  │ ╔═════════════╗ │     │
+│  │ ║   PREVIEW   ║ │  │ ║   PREVIEW   ║ │  │ ║   PREVIEW   ║ │     │
+│  │ ║  (Live UI)  ║ │  │ ║  (Live UI)  ║ │  │ ║  (Live UI)  ║ │     │
+│  │ ╚═════════════╝ │  │ ╚═════════════╝ │  │ ╚═════════════╝ │     │
+│  │    Homepage     │  │     Product     │  │   Lead Capture  │     │
+│  │  Hero + Cards   │  │  Full Funnel    │  │   Simple Form   │     │
+│  │  [Use Template] │  │  [Use Template] │  │  [Use Template] │     │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘     │
+├─────────────────────────────────────────────────────────────────────┤
+│  Your Pages:                                                        │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐     │
+│  │ ╔═════════════╗ │  │ ╔═════════════╗ │  │ ╔═════════════╗ │     │
+│  │ ║  דף הבית   ║ │  │ ║  קפיצה     ║ │  │ ║  היפנוזה   ║ │     │
+│  │ ╚═════════════╝ │  │ ╚═════════════╝ │  │ ╚═════════════╝ │     │
+│  │   📍 Published  │  │   📍 Published  │  │   📍 Draft     │     │
+│  │ [Edit] [Preview]│  │ [Edit] [Preview]│  │ [Edit] [Preview]│     │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## שינויים טכניים
+## Phase 2: Full-Screen Visual Builder
 
-### Phase 1: Database
+New dedicated page for editing with split layout:
 
-1. יצירת טבלת `landing_pages`
-2. מיגרציה של הנתונים הקיימים מ-Offers + הוספת נתוני ברירת מחדל לדפים הקיימים
-3. RLS policies
-
-### Phase 2: Admin UI
-
-1. עדכון AdminSidebar - הוספת "דפי נחיתה" לקבוצת Site
-2. יצירת `src/pages/admin/LandingPages.tsx`
-3. יצירת `src/components/admin/landing/LandingPageDialog.tsx`
-4. יצירת `src/components/admin/landing/SectionEditor.tsx`
-
-### Phase 3: Frontend Components
-
-1. יצירת `src/components/landing/DynamicHero.tsx`
-2. יצירת `src/components/landing/DynamicPainPoints.tsx`
-3. יצירת `src/components/landing/DynamicProcess.tsx`
-4. יצירת `src/components/landing/DynamicBenefits.tsx`
-5. יצירת `src/components/landing/DynamicTestimonials.tsx`
-6. יצירת `src/components/landing/DynamicFAQ.tsx`
-7. יצירת `src/components/landing/DynamicCTA.tsx`
-8. יצירת `src/pages/DynamicLandingPage.tsx`
-
-### Phase 4: Routing
-
-עדכון App.tsx להוספת route דינמי:
-```tsx
-<Route path="/lp/:slug" element={<DynamicLandingPage />} />
+```text
+┌──────────────────────────────────────────────────────────────────────┐
+│ [← Back]  Landing Page Builder: קפיצה לתודעה    [Preview] [Publish] │
+├────────────────────┬─────────────────────────────────────────────────┤
+│                    │                                                  │
+│  📦 SECTIONS       │           LIVE PREVIEW                          │
+│  ════════════════  │                                                  │
+│                    │  ┌──────────────────────────────────────────┐   │
+│  ┌──────────────┐  │  │                                          │   │
+│  │ ≡ Hero       │  │  │     ╔═══════════════════════════════╗    │   │
+│  │   [img] ▼    │  │  │     ║         HERO SECTION          ║    │   │
+│  └──────────────┘  │  │     ╚═══════════════════════════════╝    │   │
+│  ┌──────────────┐  │  │                                          │   │
+│  │ ≡ Pain Points│  │  │     ╔═══════════════════════════════╗    │   │
+│  │   [img] ▼    │  │  │     ║       PAIN POINTS             ║    │   │
+│  └──────────────┘  │  │     ╚═══════════════════════════════╝    │   │
+│  ┌──────────────┐  │  │                                          │   │
+│  │ ≡ Process    │  │  │     ╔═══════════════════════════════╗    │   │
+│  │   [img] ▼    │  │  │     ║        PROCESS                ║    │   │
+│  └──────────────┘  │  │     ╚═══════════════════════════════╝    │   │
+│  ┌──────────────┐  │  │                                          │   │
+│  │ ≡ Benefits   │  │  │                                          │   │
+│  └──────────────┘  │  │                                          │   │
+│                    │  └──────────────────────────────────────────┘   │
+│  ┌────────────┐    │                                                  │
+│  │ + Add Section │ │   Device: [📱] [💻] [🖥️]                        │
+│  └────────────┘    │                                                  │
+├────────────────────┴─────────────────────────────────────────────────┤
+│  SECTION SETTINGS (when section selected)                            │
+│  ┌───────────────────────────────────────────────────────────────┐   │
+│  │  Hero Section Settings                                         │   │
+│  │  [Content] [Style] [Advanced]                                  │   │
+│  │  Heading (HE): [_________________]                             │   │
+│  │  Heading (EN): [_________________]                             │   │
+│  │  Badge Text:   [_________________]                             │   │
+│  │  Image URL:    [_________________] [📤 Upload]                 │   │
+│  └───────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## שאלה
+## Phase 3: Section Widget Library
 
-האם אתה רוצה:
-1. **גישה מלאה** - טבלה חדשה + כל הקומפוננטות הדינמיות + עורך ויזואלי מלא
-2. **גישה פשוטה** - להשתמש בטבלת Offers הקיימת ורק להוסיף דף אדמין שמנהל את השדות הקיימים בצורה יותר נוחה
+Add section from a visual widget panel:
 
-הגישה הפשוטה מהירה יותר ומשתמשת במה שכבר קיים.
+```text
+┌─────────────────────────────────────────────────┐
+│  + Add Section                                   │
+├─────────────────────────────────────────────────┤
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐   │
+│  │ ╔═══════╗ │  │ ╔═══════╗ │  │ ╔═══════╗ │   │
+│  │ ║ HERO  ║ │  │ ║ PAIN  ║ │  │ ║PROCESS║ │   │
+│  │ ╚═══════╝ │  │ ╚═══════╝ │  │ ╚═══════╝ │   │
+│  │   Hero    │  │Pain Points│  │  Process  │   │
+│  └───────────┘  └───────────┘  └───────────┘   │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐   │
+│  │ ╔═══════╗ │  │ ╔═══════╗ │  │ ╔═══════╗ │   │
+│  │ ║BENEFIT║ │  │ ║ TESTI ║ │  │ ║  FAQ  ║ │   │
+│  │ ╚═══════╝ │  │ ╚═══════╝ │  │ ╚═══════╝ │   │
+│  │  Benefits │  │Testimonials│  │   FAQs   │   │
+│  └───────────┘  └───────────┘  └───────────┘   │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐   │
+│  │ ╔═══════╗ │  │ ╔═══════╗ │  │ ╔═══════╗ │   │
+│  │ ║FOR WHO║ │  │ ║  CTA  ║ │  │ ║CUSTOM ║ │   │
+│  │ ╚═══════╝ │  │ ╚═══════╝ │  │ ╚═══════╝ │   │
+│  │  For Who  │  │    CTA    │  │  Custom   │   │
+│  └───────────┘  └───────────┘  └───────────┘   │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+## Technical Implementation
+
+### Dependencies
+Add `@dnd-kit/core` and `@dnd-kit/sortable` for drag-and-drop (lightweight, modern alternative to react-beautiful-dnd):
+
+```bash
+npm install @dnd-kit/core @dnd-kit/sortable
+```
+
+### New Files
+
+#### 1. LandingPageBuilder.tsx (Full-screen editor)
+```tsx
+// Full-screen builder with:
+// - ResizablePanelGroup for sidebar/preview split
+// - DndContext for drag-drop sections
+// - Live preview component that re-renders on changes
+// - Bottom drawer for section settings
+```
+
+#### 2. TemplateGallery.tsx (Visual template cards)
+```tsx
+// Visual cards with:
+// - Miniature preview of each template type
+// - Hover animations with framer-motion
+// - Quick action buttons (Use, Preview)
+```
+
+#### 3. BuilderSidebar.tsx (Section list + widgets)
+```tsx
+// Sidebar with:
+// - Draggable section list (SortableContext)
+// - "Add Section" widget panel
+// - Global page settings (brand color, SEO)
+```
+
+#### 4. SectionWidget.tsx (Draggable section card)
+```tsx
+// Each section as a card:
+// - Thumbnail preview (miniature of actual section)
+// - Drag handle
+// - Quick actions (edit, duplicate, delete)
+// - Visual indicator when selected
+```
+
+#### 5. BuilderPreview.tsx (Live preview)
+```tsx
+// Live preview that:
+// - Shows actual rendered landing page
+// - Highlights selected section
+// - Responsive toggle (mobile/tablet/desktop)
+// - Click-to-select sections
+```
+
+### Routing Updates
+```tsx
+// App.tsx
+<Route path="/admin/landing-pages" element={<LandingPages />} />
+<Route path="/admin/landing-pages/edit/:id" element={<LandingPageBuilder />} />
+<Route path="/admin/landing-pages/new" element={<LandingPageBuilder />} />
+```
+
+---
+
+## Section Thumbnails
+
+Pre-designed SVG/CSS thumbnails for each section type:
+
+| Section | Thumbnail Visual |
+|---------|------------------|
+| Hero | Large header + CTA button + badge |
+| Pain Points | 3 red-tinted cards in row |
+| Process | Numbered steps with arrows |
+| Benefits | Green check cards grid |
+| For Who | Two columns (✓ / ✗) |
+| Testimonials | Quote cards with avatars |
+| FAQ | Accordion-style lines |
+| CTA | Full-width button banner |
+
+---
+
+## User Flow
+
+### Creating New Page
+1. Click "+ New Page" button
+2. See visual Template Gallery modal
+3. Click on a template thumbnail
+4. Template preview expands with details
+5. Click "Use This Template"
+6. Redirects to full-screen Builder with template pre-loaded
+7. Drag-drop to reorder sections
+8. Click section to edit content
+9. See live preview update in real-time
+10. Click "Publish" when done
+
+### Editing Existing Page
+1. Click "Edit" on page card
+2. Opens full-screen Builder
+3. Same editing experience
+
+---
+
+## Implementation Priority
+
+1. **Phase 1**: Add dnd-kit dependency + Visual template gallery on main page
+2. **Phase 2**: Create LandingPageBuilder route + basic split layout
+3. **Phase 3**: Implement BuilderSidebar with draggable sections
+4. **Phase 4**: Add BuilderPreview with live rendering
+5. **Phase 5**: Section settings panel at bottom
+6. **Phase 6**: Add section widget library modal
+7. **Phase 7**: Polish with animations, responsive preview toggle
+
+Total: ~4-5 hours of implementation
+
+---
+
+## Key Features Summary
+
+- **Visual Template Selection**: Cards with live mini-previews instead of dropdowns
+- **Drag & Drop Sections**: Reorder page sections visually
+- **Split-Screen Editor**: Edit on left, preview on right
+- **Live Preview**: Changes reflect immediately
+- **Section Widgets**: Visual library to add new sections
+- **Responsive Preview**: Toggle phone/tablet/desktop view
+- **Full-Screen Experience**: Immersive editing like Elementor/Wix
+- **Click-to-Select**: Click on preview to select section for editing
