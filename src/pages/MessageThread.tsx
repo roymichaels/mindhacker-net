@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import MessageBubble from '@/components/messages/MessageBubble';
 import { cn } from '@/lib/utils';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { AuroraMessageThread } from '@/components/aurora';
 
 interface Message {
   id: string;
@@ -41,6 +42,12 @@ const MessageThread = () => {
   const [streamingContent, setStreamingContent] = useState('');
 
   const isAI = conversationId === 'ai';
+
+  // If this is an AI conversation, render Aurora instead
+  if (isAI) {
+    return <AuroraMessageThread conversationId="ai" />;
+  }
+
   const logoUrl = theme.logo_url || "/icons/icon-96x96.png";
 
   // Get conversation details

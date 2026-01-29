@@ -242,6 +242,323 @@ export type Database = {
         }
         Relationships: []
       }
+      aurora_behavioral_patterns: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          pattern_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          pattern_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          pattern_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_checklist_items: {
+        Row: {
+          checklist_id: string
+          content: string
+          created_at: string
+          id: string
+          is_completed: boolean
+          order_index: number
+        }
+        Insert: {
+          checklist_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          order_index?: number
+        }
+        Update: {
+          checklist_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aurora_checklist_items_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "aurora_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aurora_checklists: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          origin: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          origin?: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          origin?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_commitments: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_daily_minimums: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_energy_patterns: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          pattern_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          pattern_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          pattern_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_focus_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_days: number
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_days: number
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_identity_elements: {
+        Row: {
+          content: string
+          created_at: string
+          element_type: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          element_type: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          element_type?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_life_direction: {
+        Row: {
+          clarity_score: number | null
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clarity_score?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clarity_score?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_life_visions: {
+        Row: {
+          created_at: string
+          description: string | null
+          focus_areas: string[] | null
+          id: string
+          timeframe: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          focus_areas?: string[] | null
+          id?: string
+          timeframe: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          focus_areas?: string[] | null
+          id?: string
+          timeframe?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_onboarding_progress: {
+        Row: {
+          direction_clarity: string
+          energy_patterns_status: string
+          id: string
+          identity_understanding: string
+          onboarding_complete: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          direction_clarity?: string
+          energy_patterns_status?: string
+          id?: string
+          identity_understanding?: string
+          onboarding_complete?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          direction_clarity?: string
+          energy_patterns_status?: string
+          id?: string
+          identity_understanding?: string
+          onboarding_complete?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_assistant_settings: {
         Row: {
           created_at: string | null
@@ -2301,6 +2618,8 @@ export type Database = {
       profiles: {
         Row: {
           active_ego_state: string | null
+          aurora_preferences: Json | null
+          bio: string | null
           created_at: string | null
           ego_state_usage: Json | null
           experience: number | null
@@ -2315,6 +2634,8 @@ export type Database = {
         }
         Insert: {
           active_ego_state?: string | null
+          aurora_preferences?: Json | null
+          bio?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null
@@ -2329,6 +2650,8 @@ export type Database = {
         }
         Update: {
           active_ego_state?: string | null
+          aurora_preferences?: Json | null
+          bio?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null
@@ -3055,6 +3378,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aurora_award_xp: {
+        Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: undefined
+      }
       check_expiring_access: { Args: never; Returns: undefined }
       check_streak_bonus: { Args: { p_user_id: string }; Returns: number }
       create_admin_notification: {
