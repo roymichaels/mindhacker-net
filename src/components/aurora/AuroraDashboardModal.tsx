@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
-import AuroraDashboardView from './AuroraDashboardView';
+import { UnifiedDashboardView } from '@/components/dashboard/UnifiedDashboardView';
 
 interface AuroraDashboardModalProps {
   open: boolean;
@@ -24,7 +24,7 @@ const AuroraDashboardModal = ({ open, onOpenChange }: AuroraDashboardModalProps)
         <DialogHeader>
           <DialogTitle>{t('aurora.dashboard.title')}</DialogTitle>
         </DialogHeader>
-        <AuroraDashboardView />
+        <UnifiedDashboardView />
       </DialogContent>
     </Dialog>
   );

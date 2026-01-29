@@ -2016,6 +2016,45 @@ export const en: TranslationKeys = {
       sessions: "Sessions",
       auroraChats: "Aurora Chats",
       insightsGained: "New Insights",
-    }
+      lifeModel: "Life Model Progress",
+    },
+    statsBar: {
+      streak: "Streak",
+      tokens: "Tokens",
+      sessions: "Sessions",
+      level: "Level",
+    },
+    xpProgress: {
+      level: "Level",
+    },
+    egoState: {
+      active: "Active Ego State",
+    },
+    lifeDirection: {
+      title: "Life Direction",
+      clarity: "Clarity",
+    },
+    currentFocus: {
+      title: "Current Focus",
+      daysLeft: "days left",
+      complete: "complete",
+    },
+    dailyAnchors: {
+      title: "Daily Anchors",
+    },
+    identity: {
+      title: "Identity Profile",
+      values: "Values",
+      principles: "Principles",
+      selfConcepts: "Self Concepts",
+    },
+    commitments: {
+      title: "Active Commitments",
+      more: "more",
+    },
+    empty: {
+      title: "Your Journey Begins",
+      subtitle: "Start a conversation with Aurora or complete a session to begin building your life model.",
+    },
   }
 };
