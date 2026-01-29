@@ -10,7 +10,11 @@ import {
   Crown,
   Headphones,
   TrendingUp,
-  LogOut
+  LogOut,
+  Home,
+  MessageCircle,
+  ShoppingBag,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -45,6 +49,14 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
     navigate('/');
   };
 
+  // Main navigation items (same as bottom nav on mobile)
+  const mainNavItems = [
+    { to: '/dashboard', icon: Home, label: t('common.dashboard'), exact: true },
+    { to: '/messages', icon: MessageCircle, label: t('messages.title') },
+    { to: '/courses', icon: ShoppingBag, label: t('community.catalog') },
+    { to: '/community', icon: Users, label: t('community.title') },
+  ];
+
   const contentItems = [
     { to: '/courses', icon: BookOpen, label: t('common.courses') },
     { to: '/subscriptions', icon: Crown, label: t('common.subscriptions') },
@@ -72,6 +84,27 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
           </div>
         </div>
       </div>
+
+      {/* Main Navigation */}
+      <nav className="space-y-1">
+        {mainNavItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={'exact' in item && item.exact}
+            onClick={onNavigate}
+            className={({ isActive }) => cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+              isActive 
+                ? "bg-primary text-primary-foreground" 
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
 
       {/* Content Section */}
       <nav className="space-y-1">
