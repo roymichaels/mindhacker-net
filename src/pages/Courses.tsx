@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import CourseCard from "@/components/courses/CourseCard";
+import OfferCard from "@/components/courses/OfferCard";
 import CourseFilters from "@/components/courses/CourseFilters";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -40,32 +40,18 @@ const Courses = () => {
   const [sortBy, setSortBy] = useState<string>("newest");
 
   const { data: courses, isLoading, refetch } = useQuery({
-    queryKey: ["courses", selectedCategory, selectedDifficulty, selectedType, sortBy],
+    queryKey: ["courses", sortBy],
     queryFn: async () => {
       let query = supabase
-        .from("content_products")
+        .from("offers")
         .select("*")
-        .eq("status", "published");
-
-      if (selectedCategory !== "all") {
-        query = query.eq("category", selectedCategory);
-      }
-
-      if (selectedDifficulty !== "all") {
-        query = query.eq("difficulty_level", selectedDifficulty);
-      }
-
-      if (selectedType !== "all") {
-        query = query.eq("content_type", selectedType as "course" | "masterclass" | "workshop" | "guide" | "toolkit");
-      }
+        .eq("status", "active")
+        .eq("landing_page_enabled", true);
 
       // Sorting
       switch (sortBy) {
         case "newest":
           query = query.order("created_at", { ascending: false });
-          break;
-        case "popular":
-          query = query.order("enrollment_count", { ascending: false });
           break;
         case "price_low":
           query = query.order("price", { ascending: true });
@@ -74,7 +60,7 @@ const Courses = () => {
           query = query.order("price", { ascending: false });
           break;
         default:
-          query = query.order("created_at", { ascending: false });
+          query = query.order("homepage_order", { ascending: true });
       }
 
       const { data, error } = await query;
@@ -83,28 +69,29 @@ const Courses = () => {
     },
   });
 
-  // Fetch user enrollments
-  const { data: userEnrollments } = useQuery({
-    queryKey: ['user-enrollments', user?.id],
+  // Fetch user purchases for ownership check
+  const { data: userPurchases } = useQuery({
+    queryKey: ['user-purchases', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase
-        .from('course_enrollments')
-        .select('product_id, progress_percentage, is_completed')
-        .eq('user_id', user.id);
+        .from('orders')
+        .select('product_id, payment_status')
+        .eq('user_id', user.id)
+        .eq('payment_status', 'completed');
       return data || [];
     },
     enabled: !!user?.id,
   });
 
-  // Create enrollment map for quick lookup
-  const enrollmentMap = new Map(
-    userEnrollments?.map(e => [e.product_id, e]) || []
+  // Create purchase map for quick lookup (using product_id which links to offers via products table)
+  const purchaseMap = new Map(
+    userPurchases?.map(p => [p.product_id, p]) || []
   );
 
-  const filteredCourses = courses?.filter((course) =>
-    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCourses = courses?.filter((offer) =>
+    offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    offer.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const pullToRefresh = usePullToRefresh({
@@ -181,8 +168,8 @@ const Courses = () => {
               </div>
             ))
           ) : filteredCourses && filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} enrollment={enrollmentMap.get(course.id)} />
+            filteredCourses.map((offer) => (
+              <OfferCard key={offer.id} offer={offer} purchased={!!purchaseMap.get(offer.id)} />
             ))
           ) : (
             <div className="col-span-full text-center py-12" dir={isRTL ? 'rtl' : 'ltr'}>
