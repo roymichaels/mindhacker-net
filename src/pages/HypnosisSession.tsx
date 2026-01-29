@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, Volume2, VolumeX, X, ChevronDown, Wind } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -13,6 +14,7 @@ import { getEgoState } from '@/lib/egoStates';
 import { generateHypnosisScript, type HypnosisScript } from '@/services/hypnosis';
 import { synthesizeSpeech, speakWithBrowser, stopBrowserSpeech, isBrowserTTSAvailable, playAudioUrl } from '@/services/voice';
 import { saveSession } from '@/services/userMemory';
+import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -294,6 +296,7 @@ const HypnosisSession = () => {
     const xpGained = Math.floor(sessionDuration / 60) * 10 + 20;
 
     if (user?.id) {
+      // Save session to hypnosis_sessions
       await saveSession(user.id, {
         egoState: egoStateId,
         action: goal,
@@ -302,12 +305,29 @@ const HypnosisSession = () => {
         scriptData: script ? { title: script.title, segments: script.segments.length } : undefined,
       });
 
+      // Record session in game state
       await recordSession({
         egoState: egoStateId,
         durationSeconds: sessionDuration,
         action: goal,
         experienceGained: xpGained,
       });
+
+      // Award XP through unified system
+      await awardXp(user.id, xpGained, 'hypnosis', `${egoStateId} session: ${goal}`);
+
+      // Feed session insights to Aurora Life Model (for significant sessions)
+      if (sessionDuration >= 300) { // 5+ minute sessions
+        try {
+          await supabase.from('aurora_energy_patterns').insert({
+            user_id: user.id,
+            pattern_type: 'hypnosis_session',
+            description: `${Math.round(sessionDuration / 60)} min ${language === 'he' ? egoState.nameHe : egoState.name} session: "${goal}"`,
+          });
+        } catch (e) {
+          console.warn('Failed to log session to Aurora:', e);
+        }
+      }
     }
   };
 

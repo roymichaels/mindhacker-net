@@ -98,6 +98,40 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    // Load Aurora Life Model data for personalization
+    const [
+      directionRes,
+      identityRes,
+      energyRes,
+      focusRes,
+    ] = await Promise.all([
+      supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
+      supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', user.id),
+      supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
+      supabase.from('aurora_focus_plans').select('title').eq('user_id', user.id).eq('status', 'active').limit(1),
+    ]);
+
+    const lifeDirection = directionRes.data?.[0]?.content || null;
+    const values = (identityRes.data || []).filter((i: { element_type: string }) => i.element_type === 'value').map((i: { content: string }) => i.content);
+    const energyPatterns = energyRes.data || [];
+    const currentFocus = focusRes.data?.[0]?.title || null;
+
+    // Build personalization context
+    let personalizationContext = '';
+    if (lifeDirection) {
+      personalizationContext += `\nLife Direction: "${lifeDirection}" - weave this into the session's metaphors and suggestions.`;
+    }
+    if (values.length > 0) {
+      personalizationContext += `\nCore Values: ${values.join(', ')} - anchor suggestions to these values.`;
+    }
+    if (currentFocus) {
+      personalizationContext += `\nCurrent Focus: "${currentFocus}" - connect the goal to this focus area.`;
+    }
+    if (energyPatterns.length > 0) {
+      const patterns = energyPatterns.map((e: { pattern_type: string; description: string }) => `${e.pattern_type}: ${e.description}`).join('; ');
+      personalizationContext += `\nEnergy Patterns: ${patterns} - be mindful of these in pacing and suggestions.`;
+    }
+
     const wordsPerMinute = 130;
     const totalWords = durationMinutes * wordsPerMinute;
     const egoStateContext = EGO_STATE_PROMPTS[egoState] || EGO_STATE_PROMPTS.guardian;
@@ -125,6 +159,7 @@ ${egoStateContext}
 
 ${experienceContext}
 ${streakContext}
+${personalizationContext}
 
 Create a hypnosis script with exactly these segments in order:
 1. WELCOME (8%) - Greet warmly, establish safety, introduce the session goal

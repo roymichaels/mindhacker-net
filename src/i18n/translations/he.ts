@@ -2041,6 +2041,19 @@ export const he = {
       archiveError: "שגיאה בהעברה לארכיון",
       itemCompleted: "פריט הושלם! +10 XP"
     }
+  },
+  unified: {
+    dashboard: {
+      lifeDirection: "כיוון החיים",
+      weeklyProgress: "התקדמות שבועית",
+      dailyAnchors: "עוגנים יומיים",
+      recentInsights: "תובנות אחרונות",
+    },
+    progress: {
+      sessions: "סשנים",
+      auroraChats: "שיחות עם אורורה",
+      insightsGained: "תובנות חדשות",
+    }
   }
 };
 

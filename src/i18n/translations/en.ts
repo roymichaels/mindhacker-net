@@ -1990,5 +1990,18 @@ export const en: TranslationKeys = {
       archiveError: "Error archiving",
       itemCompleted: "Item completed! +10 XP"
     }
+  },
+  unified: {
+    dashboard: {
+      lifeDirection: "Life Direction",
+      weeklyProgress: "Weekly Progress",
+      dailyAnchors: "Daily Anchors",
+      recentInsights: "Recent Insights",
+    },
+    progress: {
+      sessions: "Sessions",
+      auroraChats: "Aurora Chats",
+      insightsGained: "New Insights",
+    }
   }
 };

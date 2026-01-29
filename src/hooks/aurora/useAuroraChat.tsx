@@ -208,12 +208,17 @@ export const useAuroraChat = (conversationId: string | null) => {
       return;
     }
 
-    // Award XP for sending message
-    await supabase.rpc('aurora_award_xp', {
-      p_user_id: user.id,
-      p_amount: 5,
-      p_reason: 'Message sent to Aurora',
-    });
+    // Award XP for sending message through unified system
+    try {
+      await supabase.rpc('award_unified_xp', {
+        p_user_id: user.id,
+        p_amount: 5,
+        p_source: 'aurora',
+        p_reason: 'Message sent to Aurora',
+      });
+    } catch (e) {
+      console.warn('Failed to award XP:', e);
+    }
 
     // Build message history for AI
     const chatMessages: ChatMessage[] = [
