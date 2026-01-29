@@ -208,6 +208,7 @@ export const en: TranslationKeys = {
     notifications: "Notifications",
     menu: "Menu",
     homepage: "Homepage Sections",
+    landingPages: "Landing Pages",
     theme: "Theme & Branding",
     consciousnessLeap: "Consciousness Leap",
     newsletter: "Newsletter",

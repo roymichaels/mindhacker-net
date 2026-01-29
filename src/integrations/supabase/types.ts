@@ -2085,6 +2085,150 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_pages: {
+        Row: {
+          benefits: Json | null
+          brand_color: string | null
+          created_at: string | null
+          custom_css: string | null
+          faqs: Json | null
+          for_who: Json | null
+          form_id: string | null
+          hero_badge_text_en: string | null
+          hero_badge_text_he: string | null
+          hero_heading_en: string | null
+          hero_heading_he: string | null
+          hero_image_url: string | null
+          hero_subheading_en: string | null
+          hero_subheading_he: string | null
+          hero_video_url: string | null
+          id: string
+          includes: Json | null
+          is_homepage: boolean | null
+          is_published: boolean | null
+          not_for_who: Json | null
+          offer_id: string | null
+          pain_points: Json | null
+          primary_cta_link: string | null
+          primary_cta_text_en: string | null
+          primary_cta_text_he: string | null
+          primary_cta_type: string | null
+          process_steps: Json | null
+          sections_config: Json | null
+          sections_order: Json | null
+          seo_description_en: string | null
+          seo_description_he: string | null
+          seo_title_en: string | null
+          seo_title_he: string | null
+          slug: string
+          template_type: string
+          testimonials: Json | null
+          title_en: string | null
+          title_he: string | null
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          benefits?: Json | null
+          brand_color?: string | null
+          created_at?: string | null
+          custom_css?: string | null
+          faqs?: Json | null
+          for_who?: Json | null
+          form_id?: string | null
+          hero_badge_text_en?: string | null
+          hero_badge_text_he?: string | null
+          hero_heading_en?: string | null
+          hero_heading_he?: string | null
+          hero_image_url?: string | null
+          hero_subheading_en?: string | null
+          hero_subheading_he?: string | null
+          hero_video_url?: string | null
+          id?: string
+          includes?: Json | null
+          is_homepage?: boolean | null
+          is_published?: boolean | null
+          not_for_who?: Json | null
+          offer_id?: string | null
+          pain_points?: Json | null
+          primary_cta_link?: string | null
+          primary_cta_text_en?: string | null
+          primary_cta_text_he?: string | null
+          primary_cta_type?: string | null
+          process_steps?: Json | null
+          sections_config?: Json | null
+          sections_order?: Json | null
+          seo_description_en?: string | null
+          seo_description_he?: string | null
+          seo_title_en?: string | null
+          seo_title_he?: string | null
+          slug: string
+          template_type?: string
+          testimonials?: Json | null
+          title_en?: string | null
+          title_he?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          benefits?: Json | null
+          brand_color?: string | null
+          created_at?: string | null
+          custom_css?: string | null
+          faqs?: Json | null
+          for_who?: Json | null
+          form_id?: string | null
+          hero_badge_text_en?: string | null
+          hero_badge_text_he?: string | null
+          hero_heading_en?: string | null
+          hero_heading_he?: string | null
+          hero_image_url?: string | null
+          hero_subheading_en?: string | null
+          hero_subheading_he?: string | null
+          hero_video_url?: string | null
+          id?: string
+          includes?: Json | null
+          is_homepage?: boolean | null
+          is_published?: boolean | null
+          not_for_who?: Json | null
+          offer_id?: string | null
+          pain_points?: Json | null
+          primary_cta_link?: string | null
+          primary_cta_text_en?: string | null
+          primary_cta_text_he?: string | null
+          primary_cta_type?: string | null
+          process_steps?: Json | null
+          sections_config?: Json | null
+          sections_order?: Json | null
+          seo_description_en?: string | null
+          seo_description_he?: string | null
+          seo_title_en?: string | null
+          seo_title_he?: string | null
+          slug?: string
+          template_type?: string
+          testimonials?: Json | null
+          title_en?: string | null
+          title_he?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_pages_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_pages_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       launchpad_progress: {
         Row: {
           completed_at: string | null

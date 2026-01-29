@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
   BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, UserPlus,
-  FileVideo, Globe, Plus, Bot, Palette, Sparkles
+  FileVideo, Globe, Plus, Bot, Palette, Sparkles, PanelTop
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -126,6 +126,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       icon: Globe,
       colorClass: 'text-green-400',
       items: [
+        { to: "/admin/landing-pages", icon: PanelTop, label: t('admin.landingPages') },
         { to: "/admin/homepage", icon: Layout, label: t('admin.homepage') },
         { to: "/admin/theme", icon: Palette, label: t('admin.theme') },
         { to: "/admin/faqs", icon: HelpCircle, label: t('admin.faqs') },

@@ -206,6 +206,7 @@ export const he = {
     notifications: "התראות",
     menu: "ניהול תפריט",
     homepage: "סקשנים בעמוד הבית",
+    landingPages: "דפי נחיתה",
     theme: "עיצוב ומיתוג",
     consciousnessLeap: "קפיצה לתודעה",
     newsletter: "ניוזלטר",
