@@ -27,36 +27,37 @@ const AuroraHeader = () => {
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   return (
-    <header className="h-14 border-b border-border bg-background/95 backdrop-blur flex items-center px-4 gap-3 shrink-0">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => navigate(-1)}
-        className="shrink-0"
-      >
-        <BackArrow className="h-5 w-5" />
-      </Button>
-
-      {/* Toggle Sidebar (mobile or when collapsed) */}
-      {(isMobile || isCollapsed) && (
+    <header className="h-14 border-b border-border bg-background/95 backdrop-blur flex items-center justify-between px-4 shrink-0">
+      {/* Right side - Back + Title */}
+      <div className="flex items-center gap-3">
+        {/* Back Button */}
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggleSidebar}
+          onClick={() => navigate(-1)}
           className="shrink-0"
         >
-          <Menu className="h-5 w-5" />
+          <BackArrow className="h-5 w-5" />
         </Button>
-      )}
 
-      {/* Aurora Title */}
-      <div className="flex items-center gap-2 flex-1">
-        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-          <Sparkles className="h-4 w-4 text-primary" />
+        {/* Aurora Title */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-primary" />
+          </div>
+          <span className="font-semibold">{t('aurora.name')}</span>
         </div>
-        <span className="font-semibold">{t('aurora.name')}</span>
       </div>
+
+      {/* Left side - Toggle Sidebar (always visible for easy access) */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className="shrink-0"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
     </header>
   );
 };
