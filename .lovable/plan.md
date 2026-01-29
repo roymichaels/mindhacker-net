@@ -1,315 +1,214 @@
 
+# ChatGPT-Style Aurora Interface Redesign
 
-# Aurora Integration Gap Analysis & Completion Plan
+## Overview
 
-## Current State Summary
+Transform the current Aurora chat interface from a mobile-first "messaging app" layout to a **ChatGPT-style desktop-first layout** with a sidebar for conversations and a spacious centered chat area.
 
-The MindHacker platform has successfully integrated most of the Aurora Life Coaching system:
+## Design Reference Analysis (From Screenshots)
 
-### What's Already Implemented ✅
+Based on the provided images, the target design has:
 
-| Category | Components | Status |
-|----------|------------|--------|
-| **Database Tables** | 11 aurora_* tables | ✅ Complete |
-| **Edge Functions** | aurora-chat, aurora-analyze, aurora-generate-title | ✅ Complete |
-| **UI Components** | 13 Aurora components | ✅ Complete |
-| **Hooks** | 7 Aurora hooks | ✅ Complete |
-| **Translations** | Hebrew & English aurora.* keys | ✅ Complete |
-| **Unified Services** | unifiedContext.ts, unifiedVoice.ts | ✅ Complete |
+1. **Left Sidebar** (fixed ~280px width):
+   - Aurora logo + title at top
+   - "+ New chat" button with border/outline style
+   - "Recent conversations" section with list
+   - User account dropdown at bottom (avatar, name, expand chevron)
+   - Footer actions: Dashboard, Settings, Language toggle, Sign out
 
-### What's Missing ❌
+2. **Main Chat Area** (centered, max-width ~800px):
+   - **Welcome State**: Centered Aurora icon (circular gray bg with sparkle), welcome title/subtitle, suggestion pills in 2x2 grid
+   - **Message Display**: 
+     - Aurora messages: Avatar + "Aurora" label above message, full-width bubble
+     - User messages: "You" label above message, right-aligned
+     - Hover actions on Aurora messages (copy, read aloud, regenerate)
+   - **Input Area**: Rounded pill input with mic button inside, send button, footer text "Aurora remembers your conversations..."
+
+3. **RTL Support**: Right sidebar for Hebrew, text properly aligned
 
 ---
 
-## Gap 1: ElevenLabs Transcription Edge Function
+## Implementation Plan
 
-**Problem**: The `useAuroraVoice.tsx` hook calls an edge function `elevenlabs-transcribe` that doesn't exist.
+### Phase 1: Create New Layout Component
 
-```typescript
-// In useAuroraVoice.tsx line 79-80
-const response = await fetch(
-  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-transcribe`,
+**New File: `src/components/aurora/AuroraLayout.tsx`**
+
+A full-page layout that orchestrates sidebar + chat:
+
+```text
+┌──────────────────────────────────────────────────────────┐
+│  AuroraLayout (SidebarProvider)                          │
+│  ┌───────────────┬──────────────────────────────────┐   │
+│  │ AuroraSidebar │       AuroraChatArea             │   │
+│  │ (280px fixed) │    (flex-1, centered content)    │   │
+│  │               │                                   │   │
+│  │ - Logo        │  - Welcome / Messages            │   │
+│  │ - New Chat    │  - Auto-scroll                   │   │
+│  │ - Conv List   │  - Input at bottom               │   │
+│  │ - User Menu   │                                   │   │
+│  └───────────────┴──────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────┘
 ```
 
-**Impact**: Voice input (microphone button) in Aurora chat will fail silently.
+- Uses `SidebarProvider` from shadcn/ui
+- Sidebar on left (LTR) or right (RTL)
+- Mobile: Sheet/drawer for sidebar
 
-**Solution**: Create the missing edge function.
+### Phase 2: Create Aurora Sidebar Component
 
-### New File: `supabase/functions/elevenlabs-transcribe/index.ts`
+**New File: `src/components/aurora/AuroraSidebar.tsx`**
+
+Features:
+- Aurora sparkle icon + "Aurora" title
+- `+ New chat` button (outline style, full width)
+- "Recent conversations" label + list of conversations
+- Each conversation: title, hover to delete
+- Account dropdown at footer (avatar + name + chevron)
+  - Dashboard modal trigger
+  - Settings modal trigger  
+  - Language toggle (English ↔ עברית)
+  - Sign out
+
+### Phase 3: Redesign Chat Area
+
+**Update: `src/components/aurora/AuroraChatArea.tsx`** (new file, extracted from AuroraMessageThread)
+
+- **Remove header** (no back button needed in desktop layout)
+- **Welcome state** redesign:
+  - Gray circular icon (not gradient), sparkle inside
+  - "Welcome to Aurora" centered title
+  - Subtitle text
+  - 4 suggestion pills in a flex wrap layout (not buttons with icons)
+- **Messages area**: 
+  - Centered container (max-w-3xl mx-auto)
+  - Generous padding top/bottom
+  - Scroll area with auto-scroll
+- **Footer text**: "Aurora remembers your conversations and grows with you over time"
+
+### Phase 4: Redesign Message Bubbles
+
+**Update: `src/components/aurora/AuroraChatMessage.tsx`**
+
+Changes:
+- Add **label above message**: "Aurora" or "You"
+- Aurora avatar: Gray circular background (not gradient), sparkle icon
+- User: No avatar, just label
+- Bubble styling: Keep current but ensure clean look
+- **Action buttons below bubble** (not on hover-top):
+  - Copy, Read Aloud, Regenerate icons
+  - Visible on hover
+
+### Phase 5: Redesign Input
+
+**Update: `src/components/aurora/AuroraChatInput.tsx`**
+
+Changes:
+- Single pill input with mic button **inside** on the right
+- Send button outside on the far right (circular, primary color)
+- Rounded corners on input (rounded-full)
+- Max-width centered container
+- Add footer text below input: "Aurora remembers your conversations..."
+
+### Phase 6: Update Welcome Component
+
+**Update: `src/components/aurora/AuroraWelcome.tsx`**
+
+Changes:
+- Remove icon gradient → use gray/muted background
+- Remove icon pulse animation
+- Suggestion buttons: Simple outline pills (not with colored icons inside)
+- 2-column grid on desktop, stack on mobile
+
+---
+
+## New/Modified Files
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/aurora/AuroraLayout.tsx` | **CREATE** | Full-page layout with sidebar + chat |
+| `src/components/aurora/AuroraSidebar.tsx` | **CREATE** | Conversation list sidebar |
+| `src/components/aurora/AuroraChatArea.tsx` | **CREATE** | Main chat content area |
+| `src/components/aurora/AuroraMessageThread.tsx` | **UPDATE** | Use new layout or redirect |
+| `src/components/aurora/AuroraChatMessage.tsx` | **UPDATE** | Add labels, redesign actions |
+| `src/components/aurora/AuroraChatInput.tsx` | **UPDATE** | Pill style with inline mic |
+| `src/components/aurora/AuroraWelcome.tsx` | **UPDATE** | Simpler design, pill buttons |
+| `src/components/aurora/AuroraAccountDropdown.tsx` | **CREATE** | User menu in sidebar footer |
+| `src/components/aurora/index.ts` | **UPDATE** | Export new components |
+| `src/i18n/translations/en.ts` | **UPDATE** | Add new translation keys |
+| `src/i18n/translations/he.ts` | **UPDATE** | Add Hebrew translations |
+
+---
+
+## New Translation Keys Needed
 
 ```typescript
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+aurora: {
+  // Existing...
+  newChat: "New chat",
+  recentConversations: "Recent conversations",
+  footerNote: "Aurora remembers your conversations and grows with you over time",
+  signIn: "Sign in",
+  // Account dropdown
+  account: {
+    dashboard: "Dashboard",
+    settings: "Settings",
+    language: "Language",
+    signOut: "Sign out",
   }
-
-  try {
-    const formData = await req.formData();
-    const audioFile = formData.get('audio') as File;
-
-    if (!audioFile) {
-      return new Response(JSON.stringify({ error: 'Audio file required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-    if (!ELEVENLABS_API_KEY) {
-      // Fallback to browser speech recognition message
-      return new Response(JSON.stringify({ 
-        error: 'ElevenLabs not configured',
-        fallback: true,
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Convert to base64 for ElevenLabs
-    const arrayBuffer = await audioFile.arrayBuffer();
-    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-
-    const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
-      method: 'POST',
-      headers: {
-        'xi-api-key': ELEVENLABS_API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        audio: base64Audio,
-        model_id: 'scribe_v1',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('ElevenLabs STT error:', response.status, errorText);
-      return new Response(JSON.stringify({ 
-        error: 'Transcription failed',
-        fallback: true,
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const result = await response.json();
-    
-    return new Response(JSON.stringify({ 
-      text: result.text || '',
-      success: true,
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
-  } catch (error) {
-    console.error('Transcription error:', error);
-    return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Unknown error',
-      fallback: true,
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-});
+}
 ```
 
 ---
 
-## Gap 2: Config.toml Missing Entry
+## Routing Considerations
 
-**Problem**: The `elevenlabs-transcribe` function needs to be registered in `supabase/config.toml`.
-
-**Solution**: Add entry:
-```toml
-[functions.elevenlabs-transcribe]
-verify_jwt = false
-```
+The current `/messages/ai` route renders `AuroraMessageThread`. After redesign:
+- Keep same route but render full `AuroraLayout`
+- No need for separate conversation routes - sidebar handles selection
+- Mobile: Show either sidebar (sheet) or chat, with toggle
 
 ---
 
-## Gap 3: Aurora Gateway URL Typo
+## Responsive Behavior
 
-**Problem**: In `aurora-analyze/index.ts` line 93, the AI Gateway URL is incorrect:
-```typescript
-const response = await fetch("https://ai-gateway.lovable.dev/v1/chat/completions", {
-```
-
-Should be:
-```typescript
-const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-```
-
-Same issue in `aurora-generate-title/index.ts` line 38.
+| Breakpoint | Layout |
+|------------|--------|
+| Desktop (≥1024px) | Sidebar always visible, chat centered |
+| Tablet (768-1023px) | Sidebar collapsible, hamburger toggle |
+| Mobile (<768px) | Sidebar as sheet/drawer, chat full-width |
 
 ---
 
-## Gap 4: Missing useChecklists Hook (UI Version)
+## Technical Notes
 
-**Problem**: `AuroraChecklistModal.tsx` imports `useChecklists` from `@/hooks/aurora/useChecklists`, but examining the hooks index shows we have:
-- `useChecklistsData` (data-only, no UI dependencies) ✅
-- `useChecklists` (with toast notifications) - needs verification
+1. **Conversation Management**: 
+   - Reuse existing `get_or_create_ai_conversation` RPC
+   - Add hook for fetching conversation history with titles
+   - Support multiple conversations (new chat creates new one)
 
-**Solution**: Verify and ensure `useChecklists.tsx` exists with proper toast notifications.
+2. **RTL Support**:
+   - Sidebar flips to right side
+   - Text alignment auto-handled
+   - Use existing `isRTL` from translation hook
 
-### Verify/Create: `src/hooks/aurora/useChecklists.tsx`
+3. **State Management**:
+   - Sidebar open state (SidebarProvider)
+   - Current conversation ID
+   - Modal states (dashboard, settings, checklists)
 
-```typescript
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useChecklistsData } from './useChecklistsData';
-import { toast } from 'sonner';
-import { useCallback } from 'react';
-
-export const useChecklists = () => {
-  const { user } = useAuth();
-  const { t } = useTranslation();
-  const data = useChecklistsData(user);
-
-  const createChecklist = useCallback(async (title: string, origin: 'manual' | 'aurora' = 'manual') => {
-    const result = await data.createChecklist(title, origin);
-    if (result) {
-      toast.success(t('aurora.checklists.created'));
-    } else {
-      toast.error(t('aurora.checklists.createError'));
-    }
-    return result;
-  }, [data, t]);
-
-  const deleteChecklist = useCallback(async (checklistId: string) => {
-    const result = await data.deleteChecklist(checklistId);
-    if (result) {
-      toast.success(t('aurora.checklists.deleted'));
-    } else {
-      toast.error(t('aurora.checklists.deleteError'));
-    }
-    return result;
-  }, [data, t]);
-
-  const archiveChecklist = useCallback(async (checklistId: string) => {
-    const result = await data.archiveChecklist(checklistId);
-    if (result) {
-      toast.success(t('aurora.checklists.archived'));
-    } else {
-      toast.error(t('aurora.checklists.archiveError'));
-    }
-    return result;
-  }, [data, t]);
-
-  const toggleItem = useCallback(async (itemId: string, isCompleted: boolean) => {
-    const result = await data.toggleItem(itemId, isCompleted);
-    if (result && isCompleted) {
-      toast.success(t('aurora.checklists.itemCompleted'));
-    }
-    return result;
-  }, [data, t]);
-
-  return {
-    ...data,
-    createChecklist,
-    deleteChecklist,
-    archiveChecklist,
-    toggleItem,
-  };
-};
-```
+4. **Modals** (keep existing):
+   - `AuroraDashboardModal`
+   - `AuroraSettingsModal`
+   - `AuroraChecklistModal`
 
 ---
 
-## Gap 5: Missing Award XP Function
+## Summary
 
-**Problem**: The `aurora-analyze/index.ts` and `useChecklistsData.tsx` call `aurora_award_xp`, but the unified system uses `award_unified_xp`.
-
-**Action**: Either:
-1. Create an alias function `aurora_award_xp` that calls `award_unified_xp`, OR
-2. Update all references to use `award_unified_xp` consistently
-
-**Recommended Solution**: Create alias for backward compatibility:
-
-```sql
-CREATE OR REPLACE FUNCTION aurora_award_xp(
-  p_user_id UUID,
-  p_amount INT,
-  p_reason TEXT
-) RETURNS VOID AS $$
-BEGIN
-  PERFORM award_unified_xp(p_user_id, p_amount, 'aurora', p_reason);
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
----
-
-## Gap 6: Conversation Creation Flow
-
-**Problem**: The Aurora chat flow expects conversations to exist, but the `useAuroraChat` hook doesn't handle conversation creation. The original Aurora app had `useConversations` hook that managed this.
-
-**Current MindHacker Integration**: Uses the existing `conversations` table from the messaging system, which may work but needs verification.
-
-**Action**: Verify that clicking on Aurora in messages:
-1. Creates a conversation if none exists
-2. Properly filters Aurora conversations vs regular DMs
-
----
-
-## Implementation Order
-
-### Phase 1: Critical Fixes (Immediate)
-1. Create `elevenlabs-transcribe` edge function
-2. Add config.toml entry
-3. Fix AI Gateway URL typos in aurora-analyze and aurora-generate-title
-
-### Phase 2: Database & Functions
-4. Create `aurora_award_xp` alias function
-5. Verify/create `useChecklists.tsx` hook
-
-### Phase 3: Verification
-6. Test Aurora chat end-to-end
-7. Test voice input functionality
-8. Test checklist creation from Aurora
-9. Test XP awarding on insights
-
----
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `supabase/functions/elevenlabs-transcribe/index.ts` | Voice-to-text transcription |
-| `src/hooks/aurora/useChecklists.tsx` | UI wrapper with toast notifications (verify exists) |
-
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `supabase/config.toml` | Add elevenlabs-transcribe entry |
-| `supabase/functions/aurora-analyze/index.ts` | Fix AI Gateway URL |
-| `supabase/functions/aurora-generate-title/index.ts` | Fix AI Gateway URL |
-
-## Database Changes
-
-| Type | Name | Purpose |
-|------|------|---------|
-| Function | `aurora_award_xp` | Backward-compatible XP alias |
-
----
-
-## Success Criteria
-
-After implementation:
-- ✅ Voice input works in Aurora chat (microphone button)
-- ✅ Background analysis saves insights correctly
-- ✅ Conversation titles auto-generate
-- ✅ Checklists can be created from Aurora
-- ✅ XP is awarded for insights and completed items
-- ✅ All Aurora features work in Hebrew RTL mode
-
+This redesign transforms Aurora from a mobile-messaging style to a ChatGPT-style desktop-first interface while:
+- Keeping all existing functionality intact
+- Supporting full RTL for Hebrew
+- Maintaining conversation history with sidebar navigation
+- Using shadcn/ui Sidebar components
+- Following existing code patterns and styling conventions
