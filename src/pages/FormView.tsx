@@ -843,7 +843,7 @@ const FormView = () => {
     <div className="min-h-screen flex flex-col relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Enhanced Progress bar with milestones */}
       {showProgress && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm pt-2 pb-4 px-4">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 dark:bg-transparent backdrop-blur-sm dark:backdrop-blur-none pt-2 pb-4 px-4">
           <FormProgressBar 
             currentStep={currentStep} 
             totalSteps={fields.length} 
