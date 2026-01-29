@@ -98,7 +98,8 @@ const UserJourney = () => {
 
   const totalSessions = Object.keys(sessionPaths).length;
   
-  const funnelData = funnelSteps.map((step, index) => {
+  // First pass: calculate counts
+  const funnelCounts = funnelSteps.map((step) => {
     let count = 0;
     if (step.event === null) {
       count = totalSessions;
@@ -109,11 +110,14 @@ const UserJourney = () => {
     } else {
       count = events.filter((e: any) => e.event_type === step.event).length;
     }
-    
-    const prevCount = index > 0 ? (funnelData[index - 1]?.count || totalSessions) : totalSessions;
-    const dropOff = prevCount > 0 ? Math.round(((prevCount - count) / prevCount) * 100) : 0;
-    
-    return { name: step.name, count, dropOff };
+    return { name: step.name, count };
+  });
+  
+  // Second pass: calculate drop-offs based on previous counts
+  const funnelData = funnelCounts.map((item, index) => {
+    const prevCount = index > 0 ? funnelCounts[index - 1].count : totalSessions;
+    const dropOff = prevCount > 0 ? Math.round(((prevCount - item.count) / prevCount) * 100) : 0;
+    return { name: item.name, count: item.count, dropOff };
   });
 
   // Calculate actual funnel data since we can't reference it during construction
