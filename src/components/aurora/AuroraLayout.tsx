@@ -8,6 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, ArrowLeft, ArrowRight, Menu, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { LaunchpadFlow } from '@/components/launchpad';
 import AuroraSidebar from './AuroraSidebar';
 import AuroraChatArea from './AuroraChatArea';
 import AuroraDashboardModal from './AuroraDashboardModal';
@@ -63,11 +65,13 @@ const AuroraLayout = () => {
   const { user } = useAuth();
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
+  const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
   
   const [showDashboard, setShowDashboard] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showChecklists, setShowChecklists] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [showLaunchpad, setShowLaunchpad] = useState(true);
 
   // Get or create the default AI conversation
   const { data: defaultConversationId, isLoading } = useQuery({
@@ -114,13 +118,22 @@ const AuroraLayout = () => {
     setCurrentConversationId(conversationId);
   };
 
-  if (isLoading) {
+  if (isLoading || launchpadLoading) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
+    );
+  }
+
+  // Show Launchpad if not complete
+  if (!isLaunchpadComplete && showLaunchpad) {
+    return (
+      <LaunchpadFlow 
+        onComplete={() => setShowLaunchpad(false)}
+      />
     );
   }
 

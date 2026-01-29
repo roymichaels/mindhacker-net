@@ -1,7 +1,9 @@
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { Progress } from '@/components/ui/progress';
+import { LaunchpadProgress } from '@/components/launchpad';
 import { cn } from '@/lib/utils';
 import {
   StatsBar,
@@ -22,6 +24,7 @@ interface UnifiedDashboardViewProps {
 export function UnifiedDashboardView({ className, compact = false }: UnifiedDashboardViewProps) {
   const { t, isRTL } = useTranslation();
   const dashboard = useUnifiedDashboard();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
 
   if (dashboard.isLoading) {
     return (
@@ -52,6 +55,11 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       className={cn("space-y-4", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
+      {/* Launchpad Progress (if not complete) */}
+      {!isLaunchpadComplete && (
+        <LaunchpadProgress compact />
+      )}
+
       {/* XP Progress - Full Width */}
       <XpProgressSection
         level={dashboard.level}
