@@ -247,6 +247,19 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
               </>
             ) : (
               <>
+                {/* Theme toggle for non-logged in users */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTheme(isDark ? "light" : "dark")}
+                  aria-label={isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+                >
+                  {isDark ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
