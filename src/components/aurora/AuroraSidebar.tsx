@@ -94,10 +94,10 @@ const AuroraSidebar = ({
   return (
     <Sidebar 
       className={cn(
-        "border-border bg-muted/30",
+        "border-border bg-background z-40",
         isRTL && "order-last"
       )}
-      collapsible="icon"
+      collapsible="offcanvas"
     >
       <SidebarHeader className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
