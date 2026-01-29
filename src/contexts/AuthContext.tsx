@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,47 +29,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const adminCheckRequestIdRef = useRef(0);
+
+  const fetchIsAdmin = async (userId: string) => {
+    const requestId = ++adminCheckRequestIdRef.current;
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .single();
+
+      // ignore stale responses
+      if (adminCheckRequestIdRef.current !== requestId) return;
+      setIsAdmin(!!data);
+    } catch {
+      if (adminCheckRequestIdRef.current !== requestId) return;
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Check admin role
-        if (session?.user) {
-          const { data } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .eq('role', 'admin')
-            .single();
-          setIsAdmin(!!data);
+      (_event, nextSession) => {
+        // IMPORTANT: keep this callback synchronous to avoid auth deadlocks.
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
+
+        if (nextSession?.user) {
+          // Defer any backend calls
+          setTimeout(() => {
+            fetchIsAdmin(nextSession.user.id);
+          }, 0);
         } else {
           setIsAdmin(false);
         }
-        
+
         setLoading(false);
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      // Check admin role
-      if (session?.user) {
-        const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .single();
-        setIsAdmin(!!data);
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      setUser(existingSession?.user ?? null);
+
+      if (existingSession?.user) {
+        setTimeout(() => {
+          fetchIsAdmin(existingSession.user.id);
+        }, 0);
+      } else {
+        setIsAdmin(false);
       }
-      
+
       setLoading(false);
     });
 
