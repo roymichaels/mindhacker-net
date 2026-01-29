@@ -3,7 +3,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardRightPanel from './DashboardRightPanel';
-import DashboardBottomNav from './DashboardBottomNav';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, PanelRightOpen } from 'lucide-react';
@@ -46,13 +45,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </Sheet>
         </div>
 
-        {/* Main Content */}
-        <main className="p-4">
+        {/* Main Content - add padding for bottom nav */}
+        <main className="p-4 pb-20">
           {children}
         </main>
-
-        {/* Bottom Navigation */}
-        <DashboardBottomNav />
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,12 +14,13 @@ interface Message {
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  fullscreen?: boolean;
 }
 
 const STORAGE_KEY = "mind-hacker-chat-history";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
 
-const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
+const ChatPanel = ({ isOpen, onClose, fullscreen = false }: ChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -144,7 +146,12 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 z-50 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] flex flex-col rounded-2xl border border-border shadow-2xl animate-scale-in overflow-hidden bg-card">
+    <div className={cn(
+      "fixed z-50 flex flex-col border border-border shadow-2xl animate-scale-in overflow-hidden bg-card",
+      fullscreen 
+        ? "inset-0 rounded-none" 
+        : "bottom-40 md:bottom-28 left-4 md:left-auto md:right-4 w-[calc(100%-2rem)] md:w-96 max-h-[70vh] rounded-2xl"
+    )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
         <div className="flex items-center gap-3">
@@ -177,7 +184,10 @@ const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px] max-h-[50vh] bg-background">
+      <div className={cn(
+        "flex-1 overflow-y-auto p-4 space-y-4 bg-background",
+        fullscreen ? "pb-20" : "min-h-[200px] max-h-[50vh]"
+      )}>
         {messages.map((message, index) => (
           <ChatMessage 
             key={index} 
