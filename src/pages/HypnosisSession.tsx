@@ -54,6 +54,7 @@ const HypnosisSession = () => {
   const [goal, setGoal] = useState('');
   const [duration, setDuration] = useState(presetDuration ? parseInt(presetDuration) : 10);
   const [script, setScript] = useState<HypnosisScript | null>(null);
+  const scriptRef = useRef<HypnosisScript | null>(null); // Sync ref for script
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -127,12 +128,21 @@ const HypnosisSession = () => {
         language: language as 'he' | 'en',
       });
 
+      // Validate script has segments before proceeding
+      if (!generatedScript?.segments?.length) {
+        throw new Error('Invalid script: no segments generated');
+      }
+
+      // Update both ref (sync) and state (async) 
+      scriptRef.current = generatedScript;
       setScript(generatedScript);
       setState('playing');
       startTimeRef.current = Date.now();
       playingRef.current = true;
       hapticPattern('success');
-      playSegment(0);
+      
+      // Pass script directly to avoid race condition
+      playSegment(0, generatedScript);
     } catch (error) {
       console.error('Failed to generate script:', error);
       hapticPattern('error');
@@ -146,13 +156,32 @@ const HypnosisSession = () => {
   };
 
   // Play a segment using ElevenLabs/OpenAI TTS with browser fallback
-  const playSegment = useCallback(async (index: number) => {
-    if (!script || index >= script.segments.length) {
+  // Accept optional scriptOverride for initial call to avoid state race condition
+  const playSegment = useCallback(async (index: number, scriptOverride?: HypnosisScript) => {
+    const activeScript = scriptOverride || scriptRef.current;
+    
+    // Guard against missing script or completed segments
+    if (!activeScript || !activeScript.segments || activeScript.segments.length === 0) {
+      console.error('playSegment called without valid script');
+      return;
+    }
+    
+    if (index >= activeScript.segments.length) {
       handleSessionComplete();
       return;
     }
 
-    const segment = script.segments[index];
+    const segment = activeScript.segments[index];
+    if (!segment?.text) {
+      console.warn(`Segment ${index} has no text, skipping`);
+      if (playingRef.current && index + 1 < activeScript.segments.length) {
+        playSegment(index + 1, activeScript);
+      } else {
+        handleSessionComplete();
+      }
+      return;
+    }
+
     setCurrentSegmentIndex(index);
     impact('light');
 
@@ -160,11 +189,11 @@ const HypnosisSession = () => {
       // If muted, simulate reading time
       const wordsPerMinute = 130;
       const words = segment.text.split(/\s+/).length;
-      const readingTime = (words / wordsPerMinute) * 60 * 1000;
+      const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 2000);
       
       setTimeout(() => {
         if (playingRef.current) {
-          playSegment(index + 1);
+          playSegment(index + 1, activeScript);
         }
       }, readingTime);
       return;
@@ -184,14 +213,14 @@ const HypnosisSession = () => {
         await playAudioUrl(result.audioUrl, {
           onEnd: () => {
             if (playingRef.current) {
-              playSegment(index + 1);
+              playSegment(index + 1, activeScript);
             }
           },
           onError: (error) => {
             console.error('Audio playback error:', error);
             // Continue to next segment on error
             if (playingRef.current) {
-              setTimeout(() => playSegment(index + 1), 500);
+              setTimeout(() => playSegment(index + 1, activeScript), 500);
             }
           },
         });
@@ -199,11 +228,11 @@ const HypnosisSession = () => {
         // All TTS failed, use timer-based progression
         const wordsPerMinute = 130;
         const words = segment.text.split(/\s+/).length;
-        const readingTime = (words / wordsPerMinute) * 60 * 1000;
+        const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 2000);
         
         setTimeout(() => {
           if (playingRef.current) {
-            playSegment(index + 1);
+            playSegment(index + 1, activeScript);
           }
         }, readingTime);
       }
@@ -212,11 +241,11 @@ const HypnosisSession = () => {
       // Continue to next segment
       setTimeout(() => {
         if (playingRef.current) {
-          playSegment(index + 1);
+          playSegment(index + 1, activeScript);
         }
       }, 1000);
     }
-  }, [script, isMuted, voiceProvider, impact]);
+  }, [isMuted, voiceProvider, impact]);
 
   // Handle pause/resume
   const togglePlayPause = () => {
@@ -225,10 +254,10 @@ const HypnosisSession = () => {
       setState('paused');
       playingRef.current = false;
       stopBrowserSpeech();
-    } else if (state === 'paused') {
+    } else if (state === 'paused' && scriptRef.current) {
       setState('playing');
       playingRef.current = true;
-      playSegment(currentSegmentIndex);
+      playSegment(currentSegmentIndex, scriptRef.current);
     }
   };
 
@@ -236,8 +265,9 @@ const HypnosisSession = () => {
   const skipSegment = () => {
     impact('light');
     stopBrowserSpeech();
-    if (script && currentSegmentIndex < script.segments.length - 1) {
-      playSegment(currentSegmentIndex + 1);
+    const activeScript = scriptRef.current;
+    if (activeScript && currentSegmentIndex < activeScript.segments.length - 1) {
+      playSegment(currentSegmentIndex + 1, activeScript);
     } else {
       handleSessionComplete();
     }
