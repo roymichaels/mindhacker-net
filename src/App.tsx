@@ -24,6 +24,8 @@ import AdminRoute from "@/components/AdminRoute";
 import { PageSkeleton } from "@/components/ui/skeleton";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import ProgressiveEngagement from "@/components/ProgressiveEngagement";
+import GlobalBottomNav from "@/components/GlobalBottomNav";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -104,6 +106,25 @@ const BackgroundEffect = () => {
   }
 };
 
+// Widget wrapper that conditionally shows widgets based on auth state
+const ConditionalWidgets = () => {
+  const { user } = useAuth();
+  
+  // Hide widgets for authenticated users
+  if (user) {
+    return <GlobalBottomNav />;
+  }
+  
+  // Show widgets for guests
+  return (
+    <>
+      <ChatWidget />
+      <LiveActivityFeed />
+      <WhatsAppButton />
+      <ProgressiveEngagement />
+    </>
+  );
+};
 
 const App = () => (
   <ErrorBoundary>
@@ -265,10 +286,7 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
-                      <ChatWidget />
-                      <LiveActivityFeed />
-                      <WhatsAppButton />
-                      <ProgressiveEngagement />
+                      <ConditionalWidgets />
                     </Suspense>
                   </AnalyticsProvider>
                 </BrowserRouter>
