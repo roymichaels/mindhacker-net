@@ -35,10 +35,10 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full relative">
+    <div className="flex-1 flex flex-col min-h-0 relative bg-background">
       {/* Messages Area */}
       <ScrollArea className="flex-1">
-        <div className="max-w-3xl mx-auto px-4 py-8 pb-40">
+        <div className="max-w-3xl mx-auto px-4 py-8 pb-48">
           {messages.length === 0 && !isStreaming ? (
             <AuroraWelcome onSuggestionClick={handleSuggestionClick} />
           ) : (
