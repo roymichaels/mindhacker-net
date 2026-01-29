@@ -279,6 +279,9 @@ const MessageThread = () => {
     }
   };
 
+  // Check if this is an AI conversation
+  const isAIConversation = isAI || conversation?.type === 'ai';
+
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
@@ -294,7 +297,7 @@ const MessageThread = () => {
           
           {/* Avatar */}
           <Avatar className="h-10 w-10">
-            {isAI || conversation?.type === 'ai' ? (
+            {isAIConversation ? (
               <div className="h-full w-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <Bot className="h-5 w-5 text-white" />
               </div>
@@ -307,12 +310,12 @@ const MessageThread = () => {
           
           <div className="flex-1 min-w-0">
             <h1 className="font-semibold truncate">
-              {isAI || conversation?.type === 'ai' 
+              {isAIConversation 
                 ? t('messages.aiAssistant')
                 : otherProfile?.full_name || t('messages.unknownUser')
               }
             </h1>
-            {(isAI || conversation?.type === 'ai') && (
+            {isAIConversation && (
               <p className="text-xs text-muted-foreground">{t('messages.aiSubtitle')}</p>
             )}
           </div>
@@ -320,7 +323,7 @@ const MessageThread = () => {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-40">
         {messages.length === 0 && !isStreaming && (
           <div className="text-center py-8 text-muted-foreground">
             {t('messages.startTyping')}
@@ -351,10 +354,10 @@ const MessageThread = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
+      {/* Input - positioned above bottom nav */}
       <form 
         onSubmit={handleSubmit} 
-        className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t safe-area-inset-bottom"
+        className="fixed bottom-14 left-0 right-0 p-4 bg-background border-t"
       >
         <div className="flex gap-2 max-w-3xl mx-auto">
           <input
