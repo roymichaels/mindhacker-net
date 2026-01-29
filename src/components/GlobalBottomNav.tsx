@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, MessageCircle } from 'lucide-react';
+import { Home, MessageCircle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -17,6 +17,12 @@ const GlobalBottomNav = () => {
   // Don't show on admin pages
   if (location.pathname.startsWith('/admin')) return null;
 
+  const isOnCommunity = location.pathname.startsWith('/community');
+  const isOnMessages = location.pathname.startsWith('/messages');
+  const isOnDashboard = location.pathname === '/dashboard' || 
+    location.pathname.startsWith('/courses') || 
+    location.pathname.startsWith('/affiliate');
+
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t safe-area-inset-bottom"
@@ -26,9 +32,9 @@ const GlobalBottomNav = () => {
         {/* Dashboard Tab */}
         <NavLink
           to="/dashboard"
-          className={({ isActive }) => cn(
+          className={() => cn(
             "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
-            isActive && !location.pathname.startsWith('/messages')
+            isOnDashboard
               ? "text-primary" 
               : "text-muted-foreground"
           )}
@@ -37,12 +43,26 @@ const GlobalBottomNav = () => {
           <span>{t('common.dashboard')}</span>
         </NavLink>
 
+        {/* Community Tab */}
+        <NavLink
+          to="/community"
+          className={() => cn(
+            "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
+            isOnCommunity
+              ? "text-primary" 
+              : "text-muted-foreground"
+          )}
+        >
+          <Users className="h-5 w-5" />
+          <span>{t('community.title')}</span>
+        </NavLink>
+
         {/* Messages Tab */}
         <NavLink
           to="/messages"
-          className={({ isActive }) => cn(
+          className={() => cn(
             "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
-            isActive || location.pathname.startsWith('/messages')
+            isOnMessages
               ? "text-primary" 
               : "text-muted-foreground"
           )}
