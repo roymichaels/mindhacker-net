@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, MessageCircle, Users } from 'lucide-react';
+import { Home, MessageCircle, Users, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,8 +19,8 @@ const GlobalBottomNav = () => {
 
   const isOnCommunity = location.pathname.startsWith('/community');
   const isOnMessages = location.pathname.startsWith('/messages');
+  const isOnCatalog = location.pathname.startsWith('/courses') || location.pathname.startsWith('/subscriptions');
   const isOnDashboard = location.pathname === '/dashboard' || 
-    location.pathname.startsWith('/courses') || 
     location.pathname.startsWith('/affiliate');
 
   return (
@@ -41,6 +41,20 @@ const GlobalBottomNav = () => {
         >
           <Home className="h-5 w-5" />
           <span>{t('common.dashboard')}</span>
+        </NavLink>
+
+        {/* Catalog Tab */}
+        <NavLink
+          to="/courses"
+          className={() => cn(
+            "flex flex-col items-center justify-center flex-1 h-full gap-0.5 text-xs transition-colors",
+            isOnCatalog
+              ? "text-primary" 
+              : "text-muted-foreground"
+          )}
+        >
+          <ShoppingBag className="h-5 w-5" />
+          <span>{t('community.catalog')}</span>
         </NavLink>
 
         {/* Community Tab */}

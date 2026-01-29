@@ -1884,6 +1884,7 @@ export const he = {
     leaderboardPageDescription: "טבלת הדירוג של חברי הקהילה",
     
     // Navigation
+    title: "קהילה",
     feed: "פיד",
     feedSubtitle: "מה חדש בקהילה",
     events: "אירועים",
@@ -1892,6 +1893,7 @@ export const he = {
     membersSubtitle: "הכירו את חברי הקהילה",
     leaderboard: "לידרבורד",
     leaderboardSubtitle: "החברים הפעילים ביותר בקהילה",
+    catalog: "קטלוג",
     
     // Stats
     stats: "סטטיסטיקות",
