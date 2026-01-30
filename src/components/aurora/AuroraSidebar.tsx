@@ -1,4 +1,4 @@
-import { Plus, Sparkles, Trash2, Menu } from 'lucide-react';
+import { Plus, Sparkles, Trash2, Menu, LayoutDashboard, MessageSquare, BookOpen, Users, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { he, enUS } from 'date-fns/locale';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuroraAccountDropdown from './AuroraAccountDropdown';
 
 interface AuroraSidebarProps {
@@ -45,8 +46,39 @@ const AuroraSidebar = ({
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const { state } = useSidebar();
+  const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const isCollapsed = state === 'collapsed';
+
+  // Navigation items that match the bottom nav
+  const navItems = [
+    { 
+      icon: LayoutDashboard, 
+      label: language === 'he' ? 'דשבורד' : 'Dashboard', 
+      path: '/dashboard' 
+    },
+    { 
+      icon: MessageSquare, 
+      label: language === 'he' ? 'הודעות' : 'Messages', 
+      path: '/messages' 
+    },
+    { 
+      icon: BookOpen, 
+      label: language === 'he' ? 'קטלוג' : 'Catalog', 
+      path: '/courses' 
+    },
+    { 
+      icon: Users, 
+      label: language === 'he' ? 'קהילה' : 'Community', 
+      path: '/community' 
+    },
+    { 
+      icon: Compass, 
+      label: language === 'he' ? 'היפנוזה' : 'Hypnosis', 
+      path: '/hypnosis' 
+    },
+  ];
 
   // Fetch user's AI conversations
   const { data: conversations = [] } = useQuery({
@@ -115,6 +147,60 @@ const AuroraSidebar = ({
       </SidebarHeader>
 
       <SidebarContent className="p-2">
+        {/* Navigation Section */}
+        {!isCollapsed && (
+          <div className="mb-4">
+            <p className="text-xs text-muted-foreground px-2 mb-2 uppercase tracking-wider">
+              {language === 'he' ? 'ניווט' : 'Navigate'}
+            </p>
+            <div className="space-y-1">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                      "hover:bg-muted",
+                      isActive && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        
+        {/* Collapsed navigation icons */}
+        {isCollapsed && (
+          <div className="space-y-2 mb-4">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate(item.path)}
+                  className={cn(
+                    "w-full",
+                    isActive && "bg-primary/10 text-primary"
+                  )}
+                  title={item.label}
+                >
+                  <item.icon className="h-4 w-4" />
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="border-t border-border pt-3 mb-2" />
+
         {/* New Chat Button */}
         <Button
           variant="outline"
