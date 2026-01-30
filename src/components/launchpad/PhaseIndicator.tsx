@@ -79,15 +79,7 @@ export function PhaseIndicator({ currentStep, className }: PhaseIndicatorProps) 
                     <span>{phase.icon}</span>
                   )}
                   
-                  {/* Active pulse ring */}
-                  {isActive && (
-                    <motion.div
-                      className={cn("absolute inset-0 rounded-full", colors.active)}
-                      initial={{ opacity: 0.5, scale: 1 }}
-                      animate={{ opacity: 0, scale: 1.5 }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                  )}
+                  {/* Active indicator - subtle border only, no pulse */}
                 </motion.div>
 
                 {/* Phase title */}
