@@ -43,6 +43,8 @@ export async function generateHypnosisScript(options: {
   sessionStreak?: number;
   previousSessions?: number;
   language?: 'he' | 'en';
+  autoGenerateGoal?: boolean;
+  isDailySession?: boolean;
 }): Promise<HypnosisScript> {
   const { data, error } = await supabase.functions.invoke('generate-hypnosis-script', {
     body: options,
@@ -54,6 +56,29 @@ export async function generateHypnosisScript(options: {
   }
 
   return data as HypnosisScript;
+}
+
+/**
+ * Get daily session context for AI-generated goal
+ */
+export async function getDailySessionContext(userId: string): Promise<{
+  suggestedGoal: string;
+  currentMilestone?: string;
+  consciousnessState?: string;
+}> {
+  const { data, error } = await supabase.functions.invoke('generate-hypnosis-script', {
+    body: {
+      action: 'get_daily_context',
+      userId,
+    },
+  });
+
+  if (error) {
+    console.error('Failed to get daily context:', error);
+    return { suggestedGoal: 'התפתחות אישית והתעלות' };
+  }
+
+  return data;
 }
 
 /**
