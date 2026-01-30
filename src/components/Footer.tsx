@@ -77,9 +77,11 @@ const Footer = () => {
           <p className="text-muted-foreground mb-6">
             {t('footer.ctaSubtitle')}
           </p>
-          <p className="text-secondary italic mb-8 text-sm md:text-base">
-            {t('footer.quote')}
-          </p>
+          {t('footer.quote') && (
+            <p className="text-secondary italic mb-8 text-sm md:text-base">
+              {t('footer.quote')}
+            </p>
+          )}
           <LeadCaptureDialog 
             source="footer_cta"
             triggerText={t('footer.ctaButton')}
