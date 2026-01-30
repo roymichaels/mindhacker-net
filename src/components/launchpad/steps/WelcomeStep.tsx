@@ -258,20 +258,6 @@ const WELCOME_QUIZ: QuizQuestion[] = [
       { value: 'determined', label: 'נחוש', labelEn: 'Determined', icon: '💪' },
     ],
   },
-  // Duration
-  {
-    id: 'duration',
-    question: 'כמה זמן זה מלווה אותך?',
-    questionEn: 'How long has this been with you?',
-    multiSelect: true,
-    options: [
-      { value: 'recent', label: 'לאחרונה (פחות מחודש)', labelEn: 'Recently (less than a month)', icon: '📅' },
-      { value: 'months', label: 'כמה חודשים', labelEn: 'A few months', icon: '📆' },
-      { value: 'year', label: 'שנה', labelEn: 'A year', icon: '🗓️' },
-      { value: 'years', label: 'שנים', labelEn: 'Years', icon: '⏳' },
-      { value: 'always', label: 'תמיד היה ככה', labelEn: 'It has always been like this', icon: '♾️' },
-    ],
-  },
   // What have you tried
   {
     id: 'tried_before',
@@ -325,7 +311,7 @@ function getVisibleQuestions(answers: Record<string, string | string[]>): QuizQu
     }
   }
   
-  // Finally, add the remaining general questions (emotional_state, duration, etc.)
+  // Finally, add the remaining general questions (emotional_state, tried_before, help_style, etc.)
   const generalQuestions = WELCOME_QUIZ.filter(q => !q.dependsOn && q.id !== 'main_area');
   result.push(...generalQuestions);
   
