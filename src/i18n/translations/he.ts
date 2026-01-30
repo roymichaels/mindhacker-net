@@ -2434,7 +2434,38 @@ export const he = {
     xpDaily: "יום רצף",
     xpMilestone: "Milestone שבועי",
     
-    // Consciousness Coaching
+    // Aurora Coach Section
+    auroraGreeting: "היי, אני אורורה 👋",
+    auroraSubtitle: "המאמנת האישית שלך - 24/7, בכל נושא, בלי שיפוטיות",
+    auroraFeature1: "שיחות מעמיקות בכל נושא",
+    auroraFeature2: "12 מצבי אגו להתנסות",
+    auroraFeature3: "היפנוזות מותאמות אישית",
+    auroraFeature4: "ניתוח דפוסים והתנהגויות",
+    auroraEasyMessage: "רק תקליד - אורורה דואגת לכל השאר ✨",
+    
+    // Life Wrapping Section
+    wrapBadge: "חיים על אוטומט",
+    wrapTitle: "האפליקציה שעוטפת אותך מכל הכיוונים",
+    wrapSubtitle: "ניהול יומי + תכנון עתידי = טרנספורמציה אמיתית",
+    wrapDailyTitle: "היום-יום שלך",
+    wrapDailyItem1: "משימות ותזכורות",
+    wrapDailyItem2: "צ'קליסטים יומיים",
+    wrapDailyItem3: "מעקב הרגלים",
+    wrapDailyItem4: "לוח זמנים",
+    wrapLongTitle: "הטווח הארוך",
+    wrapLongItem1: "תוכנית 90 יום",
+    wrapLongItem2: "מטרות ויעדים",
+    wrapLongItem3: "Life Model אישי",
+    wrapLongItem4: "ניתוח דפוסים",
+    wrapCta: "אתה רק צריך להקליד - אורורה מנהלת את השאר",
+    
+    // Gamification Addiction
+    dontLoseStreak: "אל תאבד את הסטריק!",
+    xpToNextLevel: "XP לרמה הבאה",
+    usersLeveledUp: "משתמשים עלו רמה היום",
+    usersJoinedThisWeek: "משתמשים הצטרפו השבוע",
+
+    // Consciousness Coaching (legacy)
     coachingTitle: "אימון תודעתי אישי 24/7",
     coachingSubtitle: "Aurora - המאמן שלך לחיים",
     coachingFeature1: "שיחות מעמיקות בכל נושא",
