@@ -19,6 +19,8 @@ import {
   TraitsCard,
   ChecklistsCard,
   LaunchpadSummaryCard,
+  ConsciousnessCard,
+  BehavioralInsightsCard,
 } from './unified';
 import LifePlanCard from './unified/LifePlanCard';
 
@@ -208,11 +210,17 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       {/* Two Column Grid */}
       {!compact && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Life Plan Card - New! */}
+          {/* Life Plan Card */}
           <LifePlanCard />
 
           {/* Checklists / My Tasks */}
           <ChecklistsCard />
+
+          {/* Consciousness Analysis - NEW */}
+          <ConsciousnessCard />
+
+          {/* Behavioral Insights - NEW */}
+          <BehavioralInsightsCard />
 
           {/* Current Focus */}
           {dashboard.activeFocusPlan && (

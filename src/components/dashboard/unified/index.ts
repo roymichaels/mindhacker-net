@@ -9,3 +9,5 @@ export { CommitmentsCard } from './CommitmentsCard';
 export { TraitsCard } from './TraitsCard';
 export { ChecklistsCard } from './ChecklistsCard';
 export { LaunchpadSummaryCard } from './LaunchpadSummaryCard';
+export { ConsciousnessCard } from './ConsciousnessCard';
+export { BehavioralInsightsCard } from './BehavioralInsightsCard';
