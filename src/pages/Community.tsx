@@ -2,14 +2,13 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import CommunityLayout from '@/components/community/CommunityLayout';
 import CommunityFeed from '@/components/community/CommunityFeed';
 import { useSEO } from '@/hooks/useSEO';
 
 const Community = () => {
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -35,21 +34,17 @@ const Community = () => {
   if (!user) return null;
 
   return (
-    <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
-      <Header />
-      <main className="pt-0">
-        <CommunityLayout>
-          <div className="space-y-4">
-            <div>
-              <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
-              <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
-            </div>
-            <CommunityFeed />
+    <DashboardLayout>
+      <CommunityLayout>
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
+            <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
           </div>
-        </CommunityLayout>
-      </main>
-      <Footer />
-    </div>
+          <CommunityFeed />
+        </div>
+      </CommunityLayout>
+    </DashboardLayout>
   );
 };
 
