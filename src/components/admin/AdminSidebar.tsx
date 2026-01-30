@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
   BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, UserPlus,
-  FileVideo, Globe, Plus, Bot, Palette, Sparkles, PanelTop
+  FileVideo, Globe, Plus, Bot, Palette, Sparkles, PanelTop, Brain
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -140,6 +140,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       colorClass: 'text-muted-foreground',
       items: [
         { to: "/admin/users", icon: Users, label: t('admin.users') },
+        { to: "/admin/aurora-insights", icon: Brain, label: 'Aurora Insights' },
         { to: "/admin/chat-assistant", icon: Bot, label: t('admin.chatAssistant.title') },
         { to: "/admin/settings", icon: Settings, label: t('admin.settings') },
       ]

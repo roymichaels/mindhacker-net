@@ -17,6 +17,7 @@ import {
   TraitsCard,
   ChecklistsCard,
 } from './unified';
+import LifePlanCard from './unified/LifePlanCard';
 
 interface UnifiedDashboardViewProps {
   className?: string;
@@ -98,7 +99,10 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       {/* Two Column Grid */}
       {!compact && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Checklists / My Tasks - Full Width on top */}
+          {/* Life Plan Card - New! */}
+          <LifePlanCard />
+
+          {/* Checklists / My Tasks */}
           <ChecklistsCard />
 
           {/* Current Focus */}

@@ -90,6 +90,7 @@ const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
 const AdminTheme = lazy(() => import("./pages/admin/Theme"));
 const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
 const LandingPageBuilder = lazy(() => import("./pages/admin/LandingPageBuilder"));
+const AuroraInsights = lazy(() => import("./pages/admin/AuroraInsights"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -353,6 +354,7 @@ const App = () => (
                           <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
                           <Route path="theme" element={<AdminTheme />} />
                           <Route path="chat-assistant" element={<ChatAssistant />} />
+                          <Route path="aurora-insights" element={<AuroraInsights />} />
                           <Route path="products" element={<AdminProducts />} />
                           <Route path="affiliates" element={<AdminAffiliates />} />
                           <Route path="offers" element={<AdminOffers />} />
