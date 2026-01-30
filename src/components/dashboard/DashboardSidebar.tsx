@@ -17,7 +17,8 @@ import {
   Users,
   Sparkles,
   Compass,
-  Menu
+  Menu,
+  UserCog
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -78,6 +79,7 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
 
   // Content section items
   const contentItems = [
+    { path: '/launchpad/settings', icon: UserCog, label: language === 'he' ? 'הפרופיל שלי' : 'My Profile' },
     { path: '/courses', icon: BookOpen, label: language === 'he' ? 'מוצרים דיגיטליים' : 'Digital Products' },
     { path: '/subscriptions', icon: Crown, label: language === 'he' ? 'מנויים' : 'Subscriptions' },
     { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'ההקלטות שלי' : 'My Recordings' },
