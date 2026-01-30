@@ -6,6 +6,7 @@ import { Sparkles, Target, Zap, Briefcase, Rocket, Check, Loader2, RefreshCw, Tr
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useLaunchpadChecklists } from '@/hooks/useLaunchpadChecklists';
 
 interface TransformationPlan {
   habits_to_quit: string[];
@@ -204,7 +205,7 @@ interface SavedProgress {
 
 export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
-  
+  const { createChecklistsFromPlan } = useLaunchpadChecklists();
   // Load saved progress from localStorage
   const getSavedProgress = (): SavedProgress | null => {
     try {
@@ -329,8 +330,29 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
     selectedCareerSteps.length >= 1 &&
     selectedChallenge;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isValid) {
+      const planData = {
+        habits_to_quit: selectedQuit,
+        habits_to_build: selectedBuild,
+        career_status: selectedCareerStatus,
+        career_goal: selectedCareerGoal,
+        career_steps: selectedCareerSteps,
+        challenge_mission: selectedChallenge
+      };
+
+      // Create checklists from the plan
+      const result = await createChecklistsFromPlan(planData);
+      
+      if (result.success && result.checklistsCreated > 0) {
+        toast.success(
+          language === 'he' 
+            ? `נוצרו ${result.checklistsCreated} צ'קליסטים עם ${result.totalItems} משימות!`
+            : `Created ${result.checklistsCreated} checklists with ${result.totalItems} tasks!`,
+          { icon: '✅' }
+        );
+      }
+
       // Clear localStorage on successful completion
       try {
         localStorage.removeItem(STORAGE_KEY);
@@ -338,14 +360,7 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
         console.error('Error clearing saved progress:', e);
       }
       
-      onComplete({
-        habits_to_quit: selectedQuit,
-        habits_to_build: selectedBuild,
-        career_status: selectedCareerStatus,
-        career_goal: selectedCareerGoal,
-        career_steps: selectedCareerSteps,
-        challenge_mission: selectedChallenge
-      });
+      onComplete(planData);
     }
   };
 

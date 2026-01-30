@@ -15,6 +15,7 @@ import {
   IdentityProfileCard,
   CommitmentsCard,
   TraitsCard,
+  ChecklistsCard,
 } from './unified';
 
 interface UnifiedDashboardViewProps {
@@ -97,6 +98,9 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       {/* Two Column Grid */}
       {!compact && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Checklists / My Tasks - Full Width on top */}
+          <ChecklistsCard />
+
           {/* Current Focus */}
           {dashboard.activeFocusPlan && (
             <CurrentFocusCard
