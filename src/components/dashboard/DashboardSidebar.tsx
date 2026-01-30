@@ -9,8 +9,6 @@ import { cn } from '@/lib/utils';
 import { 
   BookOpen, 
   Crown,
-  Headphones,
-  TrendingUp,
   LogOut,
   LayoutDashboard,
   MessageSquare,
@@ -67,13 +65,14 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
     onNavigate?.();
   };
 
-  // Main navigation items (matches Aurora sidebar)
-  const mainNavItems = [
+  // Navigation items (matches Aurora sidebar exactly)
+  const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
-    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'צ\'אט' : 'Messages' },
+    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
     { path: '/aurora', icon: Sparkles, label: language === 'he' ? 'אורורה' : 'Aurora' },
     { path: '/courses', icon: BookOpen, label: language === 'he' ? 'קטלוג' : 'Catalog' },
     { path: '/community', icon: Users, label: language === 'he' ? 'קהילה' : 'Community' },
+    { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
   ];
 
   // Content section items
@@ -81,7 +80,6 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
     { path: '/courses', icon: BookOpen, label: language === 'he' ? 'מוצרים דיגיטליים' : 'Digital Products' },
     { path: '/subscriptions', icon: Crown, label: language === 'he' ? 'מנויים' : 'Subscriptions' },
     { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'ההקלטות שלי' : 'My Recordings' },
-    { path: '/affiliate-dashboard', icon: TrendingUp, label: language === 'he' ? 'שותפים' : 'Affiliates' },
   ];
 
   return (
@@ -132,18 +130,23 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
             </div>
           )}
 
-          {/* Main Navigation */}
+          {/* Navigation Section */}
+          {!isCollapsed && (
+            <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
+              {language === 'he' ? 'ניווט' : 'Navigate'}
+            </p>
+          )}
           <div className="space-y-1 mb-4">
-            {mainNavItems.map((item) => {
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
                     isActive 
-                      ? "bg-primary text-primary-foreground" 
+                      ? "bg-primary/10 text-primary" 
                       : "hover:bg-muted text-muted-foreground hover:text-foreground",
                     isCollapsed && "justify-center px-2"
                   )}
