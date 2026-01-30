@@ -63,27 +63,83 @@ export interface StepCompletionResult {
   feature_unlocked: string | null;
 }
 
+// Phase definitions
+export interface Phase {
+  id: 1 | 2 | 3;
+  key: 'who_you_are' | 'whats_not_working' | 'who_you_want_to_be';
+  title: string;
+  titleEn: string;
+  description: string;
+  descriptionEn: string;
+  icon: string;
+  color: string;
+  steps: number[];
+}
+
+export const PHASES: Phase[] = [
+  {
+    id: 1,
+    key: 'who_you_are',
+    title: 'מי אתה עכשיו?',
+    titleEn: 'Who Are You Now?',
+    description: 'נלמד על המצב הנוכחי שלך',
+    descriptionEn: 'Let\'s learn about your current state',
+    icon: '🔍',
+    color: 'blue',
+    steps: [1, 2],
+  },
+  {
+    id: 2,
+    key: 'whats_not_working',
+    title: 'מה לא עובד?',
+    titleEn: 'What\'s Not Working?',
+    description: 'נזהה את החסמים והדפוסים שמעכבים אותך',
+    descriptionEn: 'Identify blockers and patterns holding you back',
+    icon: '⚠️',
+    color: 'amber',
+    steps: [3, 4, 5, 6],
+  },
+  {
+    id: 3,
+    key: 'who_you_want_to_be',
+    title: 'מי אתה רוצה להיות?',
+    titleEn: 'Who Do You Want to Be?',
+    description: 'בונים את החזון והזהות החדשה שלך',
+    descriptionEn: 'Build your vision and new identity',
+    icon: '🚀',
+    color: 'emerald',
+    steps: [7, 8, 9, 10],
+  },
+];
+
 // XP and tokens for each step (now 10 steps)
 export const STEP_REWARDS = {
   1: { xp: 25, tokens: 0, unlock: 'personal_profile' },
-  2: { xp: 40, tokens: 5, unlock: 'identity_building' },
-  3: { xp: 50, tokens: 5, unlock: 'growth_deep_dive' },
-  4: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
-  5: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
-  6: { xp: 100, tokens: 10, unlock: 'life_plan_questionnaire' },
-  7: { xp: 100, tokens: 15, unlock: 'focus_areas_selection' },
-  8: { xp: 50, tokens: 0, unlock: 'first_week_planning' },
-  9: { xp: 75, tokens: 0, unlock: 'dashboard_full' },
+  2: { xp: 40, tokens: 5, unlock: 'growth_deep_dive' },
+  3: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
+  4: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
+  5: { xp: 50, tokens: 5, unlock: 'introspection_complete' },
+  6: { xp: 100, tokens: 10, unlock: 'identity_building' },
+  7: { xp: 100, tokens: 15, unlock: 'life_plan_questionnaire' },
+  8: { xp: 50, tokens: 0, unlock: 'focus_areas_selection' },
+  9: { xp: 75, tokens: 0, unlock: 'first_week_planning' },
   10: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
 };
 
-// Step metadata (now 10 steps)
+// Step metadata (now 10 steps with phase info)
+// PHASE 1: Who Are You Now? (Steps 1-2)
+// PHASE 2: What's Not Working? (Steps 3-6)
+// PHASE 3: Who Do You Want to Be? (Steps 7-10)
 export const STEPS = [
+  // === PHASE 1: מי אתה עכשיו? ===
   {
     id: 1,
     key: 'welcome',
+    phase: 1 as const,
     title: 'ברוך הבא',
     titleEn: 'Welcome',
+    subtitle: 'מה מטריד אותך?',
+    subtitleEn: 'What\'s on your mind?',
     description: 'ספר לנו מה אתה רוצה שיקרה בחיים שלך',
     descriptionEn: 'Tell us what you want to happen in your life',
     icon: '👋',
@@ -91,62 +147,85 @@ export const STEPS = [
   {
     id: 2,
     key: 'personal_profile',
+    phase: 1 as const,
     title: 'פרופיל אישי',
     titleEn: 'Personal Profile',
-    description: 'ספר לנו על ההרגלים והאורח חיים שלך',
-    descriptionEn: 'Tell us about your habits and lifestyle',
+    subtitle: 'מי אתה היום?',
+    subtitleEn: 'Who are you today?',
+    description: 'ספר לנו על ההרגלים והאורח חיים שלך כיום',
+    descriptionEn: 'Tell us about your current habits and lifestyle',
     icon: '👤',
   },
+  // === PHASE 2: מה לא עובד? ===
   {
     id: 3,
+    key: 'growth_deep_dive',
+    phase: 2 as const,
+    title: 'העמקה אישית',
+    titleEn: 'Personal Deep Dive',
+    subtitle: 'מה לא עובד?',
+    subtitleEn: 'What\'s not working?',
+    description: 'נעמיק בתחומים שאתה רוצה לשפר',
+    descriptionEn: 'Dive deeper into areas you want to improve',
+    icon: '🔍',
+  },
+  {
+    id: 4,
+    key: 'first_chat',
+    phase: 2 as const,
+    title: 'שיחה ראשונה',
+    titleEn: 'First Chat',
+    subtitle: 'מה מפריע לך?',
+    subtitleEn: 'What bothers you?',
+    description: 'שיחה עם Aurora על התסכולים והאתגרים',
+    descriptionEn: 'Chat with Aurora about your frustrations and challenges',
+    icon: '💬',
+  },
+  {
+    id: 5,
+    key: 'introspection',
+    phase: 2 as const,
+    title: 'התבוננות פנימית',
+    titleEn: 'Introspection',
+    subtitle: 'דפוסים שליליים',
+    subtitleEn: 'Negative patterns',
+    description: 'זיהוי דפוסים שחוזרים על עצמם ומגבילים אותך',
+    descriptionEn: 'Identify recurring patterns that limit you',
+    icon: '🧘',
+  },
+  {
+    id: 6,
+    key: 'life_plan',
+    phase: 2 as const,
+    title: 'חזון וכיוון',
+    titleEn: 'Vision & Direction',
+    subtitle: 'לאן אתה הולך?',
+    subtitleEn: 'Where are you going?',
+    description: 'בניית חזון ומטרות ל-3 שנים, שנה, ו-90 ימים',
+    descriptionEn: 'Build vision and goals for 3 years, 1 year, and 90 days',
+    icon: '🎯',
+  },
+  // === PHASE 3: מי אתה רוצה להיות? ===
+  {
+    id: 7,
     key: 'identity_building',
+    phase: 3 as const,
     title: 'בניית זהות',
     titleEn: 'Build Your Identity',
+    subtitle: 'מי אתה רוצה להיות?',
+    subtitleEn: 'Who do you want to be?',
     description: 'בחר את תכונות האופי שאתה רוצה לפתח',
     descriptionEn: 'Choose the character traits you want to develop',
     icon: '🎭',
   },
   {
-    id: 4,
-    key: 'growth_deep_dive',
-    title: 'העמקה אישית',
-    titleEn: 'Personal Deep Dive',
-    description: 'נעמיק בתחומי הצמיחה שבחרת',
-    descriptionEn: 'Dive deeper into your chosen growth areas',
-    icon: '🔍',
-  },
-  {
-    id: 5,
-    key: 'first_chat',
-    title: 'שיחה ראשונה',
-    titleEn: 'First Chat',
-    description: 'שיחה קצרה עם Aurora להכרות ראשונית',
-    descriptionEn: 'A short chat with Aurora to get to know you',
-    icon: '💬',
-  },
-  {
-    id: 6,
-    key: 'introspection',
-    title: 'מסע התבוננות פנימית',
-    titleEn: 'Introspection Journey',
-    description: 'שאלון עומק להבנת עצמך',
-    descriptionEn: 'Deep questionnaire for self-understanding',
-    icon: '🧘',
-  },
-  {
-    id: 7,
-    key: 'life_plan',
-    title: 'תוכנית חיים',
-    titleEn: 'Life Plan',
-    description: 'בניית חזון ומטרות ל-3 שנים, שנה, ו-90 ימים',
-    descriptionEn: 'Build vision and goals for 3 years, 1 year, and 90 days',
-    icon: '🎯',
-  },
-  {
     id: 8,
     key: 'focus_areas',
+    phase: 3 as const,
     title: 'תחומי פוקוס',
     titleEn: 'Focus Areas',
+    subtitle: 'על מה להתמקד?',
+    subtitleEn: 'What to focus on?',
     description: 'בחר 3 תחומים שאתה רוצה להתמקד בהם',
     descriptionEn: 'Choose 3 areas you want to focus on',
     icon: '🎪',
@@ -154,8 +233,11 @@ export const STEPS = [
   {
     id: 9,
     key: 'first_week',
+    phase: 3 as const,
     title: 'שבוע ראשון',
     titleEn: 'First Week',
+    subtitle: 'תוכנית פעולה',
+    subtitleEn: 'Action plan',
     description: 'הגדר 3 פעולות והרגל עוגן לשבוע הראשון',
     descriptionEn: 'Set 3 actions and an anchor habit for your first week',
     icon: '📅',
@@ -163,13 +245,35 @@ export const STEPS = [
   {
     id: 10,
     key: 'dashboard_activation',
+    phase: 3 as const,
     title: 'הפעלת הדשבורד',
     titleEn: 'Dashboard Activation',
+    subtitle: 'התחלת המסע',
+    subtitleEn: 'Start your journey',
     description: 'Aurora מוכנה לבנות את מודל החיים שלך',
     descriptionEn: 'Aurora is ready to build your life model',
     icon: '🚀',
   },
 ];
+
+// Get phase by step number
+export function getPhaseForStep(stepNumber: number): Phase | undefined {
+  return PHASES.find(phase => phase.steps.includes(stepNumber));
+}
+
+// Check if step is last in its phase (for showing transition screen)
+export function isLastStepInPhase(stepNumber: number): boolean {
+  const phase = getPhaseForStep(stepNumber);
+  if (!phase) return false;
+  return phase.steps[phase.steps.length - 1] === stepNumber;
+}
+
+// Check if step is first in its phase (for showing phase intro)
+export function isFirstStepInPhase(stepNumber: number): boolean {
+  const phase = getPhaseForStep(stepNumber);
+  if (!phase) return false;
+  return phase.steps[0] === stepNumber;
+}
 
 export function useLaunchpadProgress() {
   const { user } = useAuth();
@@ -217,6 +321,7 @@ export function useLaunchpadProgress() {
   };
 
   const actualCurrentStep = calculateActualCurrentStep();
+  const currentPhase = getPhaseForStep(actualCurrentStep);
 
   // Helper to safely serialize data for JSON (removes circular refs, DOM nodes, etc.)
   const safeSerialize = (obj: unknown): unknown => {
@@ -301,7 +406,7 @@ export function useLaunchpadProgress() {
     return (progress.current_step || 1) > stepNumber;
   };
 
-  // Check if launchpad is truly complete (all 9 steps done)
+  // Check if launchpad is truly complete (all 10 steps done)
   const isActuallyComplete = progress?.launchpad_complete || false;
 
   // Get current step metadata
@@ -325,8 +430,13 @@ export function useLaunchpadProgress() {
     isStepCompleted,
     isLaunchpadComplete: isActuallyComplete,
     currentStep: actualCurrentStep,
+    currentPhase,
     currentStepMeta,
     steps: STEPS,
+    phases: PHASES,
     getStepRewards,
+    getPhaseForStep,
+    isLastStepInPhase,
+    isFirstStepInPhase,
   };
 }

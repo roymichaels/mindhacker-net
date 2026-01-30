@@ -1,5 +1,7 @@
 export { LaunchpadFlow } from './LaunchpadFlow';
 export { LaunchpadProgress } from './LaunchpadProgress';
+export { PhaseIndicator } from './PhaseIndicator';
+export { PhaseTransition } from './PhaseTransition';
 export { WelcomeStep } from './steps/WelcomeStep';
 export { PersonalProfileStep } from './steps/PersonalProfileStep';
 export { IdentityBuildingStep } from './steps/IdentityBuildingStep';
