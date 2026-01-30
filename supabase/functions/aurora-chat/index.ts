@@ -542,6 +542,8 @@ serve(async (req) => {
     }
 
     const validatedMessages = [];
+    let customSystemPrompt: string | null = null;
+    
     for (const msg of messages) {
       if (!msg || typeof msg !== 'object' || !msg.role || !msg.content || typeof msg.content !== "string") {
         return new Response(
@@ -550,7 +552,8 @@ serve(async (req) => {
         );
       }
       
-      if (msg.role !== "user" && msg.role !== "assistant") {
+      // Allow system, user, and assistant roles
+      if (msg.role !== "user" && msg.role !== "assistant" && msg.role !== "system") {
         return new Response(
           JSON.stringify({ error: "Invalid message role" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -562,6 +565,12 @@ serve(async (req) => {
           JSON.stringify({ error: "Message content too long" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+
+      // Capture custom system prompt if provided (use last one)
+      if (msg.role === "system") {
+        customSystemPrompt = msg.content.trim();
+        continue; // Don't add system messages to validatedMessages
       }
 
       validatedMessages.push({
@@ -605,9 +614,10 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = buildSystemPrompt(mode, userContext, knowledgeBase, language);
+    // Use custom system prompt if provided, otherwise build the default one
+    const systemPrompt = customSystemPrompt || buildSystemPrompt(mode, userContext, knowledgeBase, language);
 
-    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || 'guest'}, Model: ${model}`);
+    console.log(`Aurora chat - Mode: ${mode}, User: ${userId || 'guest'}, Model: ${model}, CustomPrompt: ${!!customSystemPrompt}`);
 
     // Call Lovable AI Gateway
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -623,7 +633,7 @@ serve(async (req) => {
           ...validatedMessages
         ],
         stream: true,
-        max_tokens: mode === 'lite' ? 500 : 1000,
+        max_tokens: customSystemPrompt ? 500 : (mode === 'lite' ? 500 : 1000),
         temperature: 0.7,
       }),
     });
