@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Rocket, MessageCircle, Sparkles, UserCog } from 'lucide-react';
+import { Loader2, Rocket, Sparkles, UserCog, RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { ProfileDrawer } from './ProfileDrawer';
+import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import {
   StatsBar,
   XpProgressSection,
@@ -37,6 +38,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [analysisKey, setAnalysisKey] = useState(0);
 
   if (dashboard.isLoading) {
     return (
@@ -46,25 +48,13 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
     );
   }
 
-  // If launchpad is complete but life model is empty - show summary card instead of empty state
-  if (isLaunchpadComplete && dashboard.isEmpty) {
+  // If launchpad is complete - show full dashboard with all data
+  if (isLaunchpadComplete) {
     return (
       <div 
         className={cn("space-y-4", className)}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Welcome message */}
-        <div className="text-center py-4">
-          <h2 className="text-xl font-bold">
-            {language === 'he' ? '🎉 ברוך הבא למסע!' : '🎉 Welcome to Your Journey!'}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {language === 'he' 
-              ? 'סיימת את ה-Launchpad! הנה הסיכום שלך:' 
-              : 'You completed the Launchpad! Here\'s your summary:'}
-          </p>
-        </div>
-
         {/* XP Progress */}
         <XpProgressSection
           level={dashboard.level}
@@ -81,27 +71,41 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
           level={dashboard.level}
         />
 
-        {/* My Profile Button */}
+        {/* Edit Profile Button */}
         <Button
           variant="outline"
-          className="w-full gap-2"
+          size="sm"
+          className="gap-2"
           onClick={() => setProfileOpen(true)}
         >
           <UserCog className="h-4 w-4" />
-          {language === 'he' ? 'הפרופיל שלי - צפה ועדכן' : 'My Profile - View & Edit'}
+          {language === 'he' ? 'ערוך פרופיל' : 'Edit Profile'}
         </Button>
-
-        {/* Profile Drawer */}
         <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
-        {/* Launchpad Summary Card */}
-        <LaunchpadSummaryCard />
+        {/* Life Plan & Checklists Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <LifePlanCard />
+          <ChecklistsCard />
+        </div>
 
-        {/* Life Plan Card */}
-        <LifePlanCard />
-
-        {/* Checklists */}
-        <ChecklistsCard />
+        {/* Full AI Analysis - All Launchpad Data */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {language === 'he' ? 'ניתוח AI מלא' : 'Full AI Analysis'}
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAnalysisKey(k => k + 1)}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+          <AIAnalysisDisplay language={language} refreshKey={analysisKey} />
+        </div>
       </div>
     );
   }
