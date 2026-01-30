@@ -22,6 +22,7 @@ import ChatWidget from "@/components/ChatWidget";
 import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import RoleRoute from "@/components/RoleRoute";
 import { PageSkeleton } from "@/components/ui/skeleton";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import ProgressiveEngagement from "@/components/ProgressiveEngagement";
@@ -70,6 +71,17 @@ const Launchpad = lazy(() => import("./pages/Launchpad"));
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
+// Unified Panel
+const UnifiedPanel = lazy(() => import("./components/panel/UnifiedPanel"));
+const PanelDashboard = lazy(() => import("./components/panel/PanelDashboard"));
+const RolesManager = lazy(() => import("./pages/panel/RolesManager"));
+const MyClients = lazy(() => import("./pages/panel/MyClients"));
+const MyServices = lazy(() => import("./pages/panel/MyServices"));
+const MyCalendar = lazy(() => import("./pages/panel/MyCalendar"));
+const MyEarnings = lazy(() => import("./pages/panel/MyEarnings"));
+const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
+const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
+const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -364,6 +376,43 @@ const App = () => (
                           <Route path="products" element={<AdminProducts />} />
                           <Route path="affiliates" element={<AdminAffiliates />} />
                           <Route path="offers" element={<AdminOffers />} />
+                        </Route>
+
+                        {/* Unified Panel routes */}
+                        <Route
+                          path="/panel"
+                          element={
+                            <RoleRoute allowedRoles={['admin', 'practitioner', 'affiliate']}>
+                              <UnifiedPanel />
+                            </RoleRoute>
+                          }
+                        >
+                          <Route index element={<PanelDashboard />} />
+                          <Route path="analytics" element={<Analytics />} />
+                          <Route path="roles" element={<RolesManager />} />
+                          <Route path="users" element={<Users />} />
+                          <Route path="practitioners" element={<Users />} />
+                          <Route path="leads" element={<Leads />} />
+                          <Route path="aurora-insights" element={<AuroraInsights />} />
+                          <Route path="affiliates" element={<AdminAffiliates />} />
+                          <Route path="newsletter" element={<Newsletter />} />
+                          <Route path="products" element={<AdminProducts />} />
+                          <Route path="content" element={<Content />} />
+                          <Route path="recordings" element={<Recordings />} />
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="theme" element={<AdminTheme />} />
+                          <Route path="landing-pages" element={<LandingPages />} />
+                          {/* Practitioner routes */}
+                          <Route path="my-clients" element={<MyClients />} />
+                          <Route path="my-services" element={<MyServices />} />
+                          <Route path="my-calendar" element={<MyCalendar />} />
+                          <Route path="my-earnings" element={<MyEarnings />} />
+                          <Route path="my-profile" element={<Settings />} />
+                          <Route path="my-products" element={<AdminProducts />} />
+                          {/* Affiliate routes */}
+                          <Route path="my-links" element={<MyLinks />} />
+                          <Route path="my-referrals" element={<MyReferrals />} />
+                          <Route path="my-payouts" element={<MyPayouts />} />
                         </Route>
 
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
