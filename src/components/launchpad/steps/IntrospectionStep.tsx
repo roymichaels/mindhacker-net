@@ -83,6 +83,8 @@ interface AnalysisResult {
 
 const INTROSPECTION_STORAGE_KEY = 'launchpad_introspection_answers';
 
+const INTROSPECTION_FORM_ID = '45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308';
+
 export function IntrospectionStep({ onComplete, isCompleting, rewards }: IntrospectionStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
@@ -97,16 +99,77 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   const [openSections, setOpenSections] = useState<string[]>(['life_end']);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [step, setStep] = useState<'questions' | 'analysis'>('questions');
+  const [step, setStep] = useState<'questions' | 'analysis' | 'completed'>('questions');
   const [showSkipOption, setShowSkipOption] = useState(false);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [existingSubmission, setExistingSubmission] = useState<any>(null);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(true);
 
-  // Persist answers to localStorage on every change
+  // Check for existing submission when component mounts
   useEffect(() => {
-    if (Object.keys(answers).length > 0) {
+    const checkExistingSubmission = async () => {
+      if (!user?.id) {
+        setIsLoadingExisting(false);
+        return;
+      }
+
+      try {
+        // Check for existing form submission
+        const { data: submissions } = await supabase
+          .from('form_submissions')
+          .select('*, form_analyses(*)')
+          .eq('form_id', INTROSPECTION_FORM_ID)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (submissions && submissions.length > 0) {
+          const submission = submissions[0];
+          setExistingSubmission(submission);
+          setSubmissionId(submission.id);
+          
+          // Load answers from submission responses
+          if (submission.responses && Array.isArray(submission.responses)) {
+            const loadedAnswers: Record<string, string> = {};
+            submission.responses.forEach((r: any, index: number) => {
+              if (QUESTIONS[index]) {
+                loadedAnswers[QUESTIONS[index].id] = r.answer || '';
+              }
+            });
+            setAnswers(loadedAnswers);
+          }
+
+          // If there's an analysis, load it
+          if (submission.form_analyses && submission.form_analyses.length > 0) {
+            const analysisData = submission.form_analyses[0];
+            if (analysisData.patterns) {
+              setAnalysis({
+                summary: analysisData.analysis_summary || '',
+                patterns: Array.isArray(analysisData.patterns) ? analysisData.patterns.map(String) : [],
+                transformation_potential: analysisData.transformation_potential || '',
+                recommendation: analysisData.recommendation || '',
+              });
+            }
+          }
+          
+          setStep('completed');
+        }
+      } catch (error) {
+        console.error('Error checking existing submission:', error);
+      } finally {
+        setIsLoadingExisting(false);
+      }
+    };
+
+    checkExistingSubmission();
+  }, [user?.id]);
+
+  // Persist answers to localStorage on every change (only if not from existing submission)
+  useEffect(() => {
+    if (Object.keys(answers).length > 0 && !existingSubmission) {
       localStorage.setItem(INTROSPECTION_STORAGE_KEY, JSON.stringify(answers));
     }
-  }, [answers]);
+  }, [answers, existingSubmission]);
 
   // Clear localStorage after successful submission
   const clearSavedAnswers = () => {
@@ -218,6 +281,105 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   const handleContinueAfterAnalysis = () => {
     onComplete(submissionId ? { form_submission_id: submissionId } : {});
   };
+
+  // Loading state
+  if (isLoadingExisting) {
+    return (
+      <div className="flex items-center justify-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Completed View - Show existing submission with answers
+  if (step === 'completed' && existingSubmission) {
+    return (
+      <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-4"
+        >
+          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+            <span className="text-3xl">✓</span>
+          </div>
+          <h1 className="text-2xl font-bold">
+            {language === 'he' ? 'כבר מילאת את השאלון הזה!' : 'You already completed this!'}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {language === 'he' 
+              ? 'הנה התשובות שלך מהפעם הקודמת'
+              : 'Here are your previous answers'
+            }
+          </p>
+        </motion.div>
+
+        {/* Show previous answers */}
+        <div className="space-y-3">
+          {QUESTIONS.map((question, index) => {
+            const answer = answers[question.id];
+            if (!answer?.trim()) return null;
+            return (
+              <motion.div 
+                key={question.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="p-4 rounded-xl bg-muted/30 border space-y-2"
+              >
+                <h4 className="text-sm font-medium text-primary">
+                  {language === 'he' ? question.title : question.titleEn}
+                </h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {answer}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Show analysis if available */}
+        {analysis && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="p-5 rounded-xl bg-primary/5 border border-primary/20 space-y-3"
+          >
+            <h3 className="font-semibold flex items-center gap-2">
+              <Brain className="w-5 h-5 text-primary" />
+              {language === 'he' ? 'הניתוח שלך' : 'Your Analysis'}
+            </h3>
+            <p className="text-sm text-muted-foreground">{analysis.summary}</p>
+            {analysis.patterns.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {analysis.patterns.map((pattern, i) => (
+                  <span key={i} className="px-2 py-1 rounded-full bg-muted text-xs">
+                    {pattern}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Continue button */}
+        <div className="text-center pt-4">
+          <Button 
+            size="lg" 
+            onClick={handleContinueAfterAnalysis}
+            disabled={isCompleting}
+            className="min-w-[200px]"
+          >
+            {isCompleting 
+              ? (language === 'he' ? 'שומר...' : 'Saving...') 
+              : (language === 'he' ? 'המשך לשלב הבא' : 'Continue to Next Step')
+            }
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Analysis View
   if (step === 'analysis' && analysis) {
