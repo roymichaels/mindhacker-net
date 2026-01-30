@@ -2383,7 +2383,38 @@ export const en: TranslationKeys = {
     xpDaily: "Daily streak",
     xpMilestone: "Weekly milestone",
     
-    // Consciousness Coaching
+    // Aurora Coach Section
+    auroraGreeting: "Hi, I'm Aurora 👋",
+    auroraSubtitle: "Your personal coach - 24/7, any topic, no judgment",
+    auroraFeature1: "Deep conversations on any topic",
+    auroraFeature2: "12 Ego States to explore",
+    auroraFeature3: "Personalized hypnosis sessions",
+    auroraFeature4: "Pattern and behavior analysis",
+    auroraEasyMessage: "Just type - Aurora handles the rest ✨",
+    
+    // Life Wrapping Section
+    wrapBadge: "Life on Autopilot",
+    wrapTitle: "The App That Wraps Your Entire Life",
+    wrapSubtitle: "Daily management + Long-term planning = Real transformation",
+    wrapDailyTitle: "Your Daily Life",
+    wrapDailyItem1: "Tasks & reminders",
+    wrapDailyItem2: "Daily checklists",
+    wrapDailyItem3: "Habit tracking",
+    wrapDailyItem4: "Schedule & calendar",
+    wrapLongTitle: "The Long Term",
+    wrapLongItem1: "90-day plan",
+    wrapLongItem2: "Goals & objectives",
+    wrapLongItem3: "Personal Life Model",
+    wrapLongItem4: "Pattern analysis",
+    wrapCta: "You just need to type - Aurora manages the rest",
+    
+    // Gamification Addiction
+    dontLoseStreak: "Don't lose your streak!",
+    xpToNextLevel: "XP to next level",
+    usersLeveledUp: "users leveled up today",
+    usersJoinedThisWeek: "users joined this week",
+
+    // Consciousness Coaching (legacy)
     coachingTitle: "Personal Consciousness Coaching 24/7",
     coachingSubtitle: "Aurora - Your Life Coach",
     coachingFeature1: "Deep conversations on any topic",

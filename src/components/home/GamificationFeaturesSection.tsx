@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Star, Flame, Coins, Trophy, TrendingUp } from 'lucide-react';
+import { Star, Flame, Coins, Trophy, TrendingUp, Users } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 const gamificationFeatures = [
   { 
@@ -41,6 +42,15 @@ const xpActions = [
 export default function GamificationFeaturesSection() {
   const { t, isRTL } = useTranslation();
 
+  // Mock data for preview
+  const mockLevel = 7;
+  const mockXp = 1450;
+  const mockXpRequired = 2000;
+  const mockStreak = 12;
+  const mockTokens = 340;
+  const mockAchievements = 15;
+  const mockUsersLeveledUp = 78;
+
   return (
     <section className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background decoration */}
@@ -56,7 +66,7 @@ export default function GamificationFeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-violet-500/20 to-amber-500/20 border border-violet-500/30 mb-6 shadow-lg shadow-violet-500/10">
             <TrendingUp className="h-4 w-4 text-violet-400" />
@@ -72,8 +82,63 @@ export default function GamificationFeaturesSection() {
           </p>
         </motion.div>
 
+        {/* Progress Bar Preview - Addiction Mechanic */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="max-w-3xl mx-auto mb-12 p-6 rounded-2xl bg-card border border-border/50"
+        >
+          {/* Level & XP Row */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-violet-400" />
+              <span className="font-bold text-lg">Level {mockLevel}</span>
+            </div>
+            <span className="text-muted-foreground tabular-nums">{mockXp} / {mockXpRequired} XP</span>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <Progress value={(mockXp / mockXpRequired) * 100} className="h-3" />
+          </div>
+
+          {/* Stats Row */}
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <Flame className="h-4 w-4 text-orange-500" />
+              <span className="font-semibold text-orange-500">{mockStreak}</span>
+              <span className="text-muted-foreground">{isRTL ? 'ימים' : 'days'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Coins className="h-4 w-4 text-amber-500" />
+              <span className="font-semibold">{mockTokens}</span>
+              <span className="text-muted-foreground">Tokens</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-emerald-500" />
+              <span className="font-semibold">{mockAchievements}/50</span>
+              <span className="text-muted-foreground">{isRTL ? 'הישגים' : 'Achievements'}</span>
+            </div>
+          </div>
+
+          {/* Loss Aversion Message */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-4 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center"
+          >
+            <p className="text-sm font-medium text-orange-400">
+              🔥 {t('home.dontLoseStreak')} {mockStreak} {isRTL ? 'ימים רצופים!' : 'day streak!'}
+            </p>
+          </motion.div>
+        </motion.div>
+
         {/* Features Grid - Enhanced cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
           {gamificationFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -148,11 +213,19 @@ export default function GamificationFeaturesSection() {
               ))}
             </div>
 
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              {isRTL 
-                ? 'פתח הישגים ואסוף tokens לפיצ\'רים פרימיום!' 
-                : 'Unlock achievements and collect tokens for premium features!'}
-            </p>
+            {/* Social Proof */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="mt-4 pt-4 border-t border-border/50 flex items-center justify-center gap-2 text-sm text-muted-foreground"
+            >
+              <Users className="h-4 w-4 text-primary" />
+              <span>
+                <span className="font-bold text-foreground">{mockUsersLeveledUp}</span> {t('home.usersLeveledUp')}
+              </span>
+            </motion.div>
           </div>
         </motion.div>
       </div>

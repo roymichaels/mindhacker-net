@@ -12,7 +12,8 @@ import {
   WhatIsThisSection,
   ChatManagesEverythingSection,
   GamificationFeaturesSection,
-  ConsciousnessCoachingSection,
+  AuroraCoachSection,
+  LifeWrappingSection,
   LifePlanPreviewSection,
   DashboardPreviewSection
 } from "@/components/home";
@@ -74,14 +75,14 @@ const Index = () => {
       {/* Header */}
       <Header />
       
-      {/* Main content - New Gamified Homepage */}
       <main className="relative z-10">
         <GameHeroSection />
         <DigitalAvatarSection />
         <WhatIsThisSection />
+        <AuroraCoachSection />
+        <LifeWrappingSection />
         <ChatManagesEverythingSection />
         <GamificationFeaturesSection />
-        <ConsciousnessCoachingSection />
         <LifePlanPreviewSection />
         <DashboardPreviewSection />
       </main>
