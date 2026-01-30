@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { PenSquare, Bot, Pin, Search } from 'lucide-react';
+import { useState } from 'react';
+import { PenSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import ConversationItem from '@/components/messages/ConversationItem';
 import NewMessageDialog from '@/components/messages/NewMessageDialog';
 import Header from '@/components/Header';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { cn } from '@/lib/utils';
 
 interface Conversation {
@@ -30,7 +30,6 @@ interface Profile {
 const Messages = () => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewMessage, setShowNewMessage] = useState(false);
 
@@ -128,95 +127,97 @@ const Messages = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Global Header */}
       <Header />
 
-      {/* Page Header */}
-      <div className="sticky top-14 sm:top-16 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold">{t('messages.title')}</h1>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setShowNewMessage(true)}
-          >
-            <PenSquare className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Search */}
-        <div className="px-4 pb-3">
-          <div className="relative">
-            <Search className={cn(
-              "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground",
-              isRTL ? "right-3" : "left-3"
-            )} />
-            <Input
-              placeholder={t('messages.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn("h-10", isRTL ? "pr-10" : "pl-10")}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto pb-20">
-        {/* AI Assistant - Always First (Pinned) */}
-        <ConversationItem
-          isAI
-          conversationId={aiConversationId || 'ai'}
-          name={t('messages.aiAssistant')}
-          subtitle={t('messages.aiSubtitle')}
-          lastMessage={aiConversation?.last_message_preview || t('messages.aiGreeting')}
-          lastMessageAt={aiConversation?.last_message_at}
-          unreadCount={aiConversationId ? unreadCounts[aiConversationId] || 0 : 0}
-          isPinned
-        />
-
-        {/* Separator */}
-        {filteredConversations.length > 0 && (
-          <div className="h-px bg-border my-1" />
-        )}
-
-        {/* Direct Conversations */}
-        {filteredConversations.map(conversation => {
-          const otherId = conversation.participant_1 === user?.id 
-            ? conversation.participant_2 
-            : conversation.participant_1;
-          const profile = profiles[otherId || ''];
-          
-          return (
-            <ConversationItem
-              key={conversation.id}
-              name={profile?.full_name || t('messages.unknownUser')}
-              conversationId={conversation.id}
-              lastMessage={conversation.last_message_preview || ''}
-              lastMessageAt={conversation.last_message_at}
-              unreadCount={unreadCounts[conversation.id] || 0}
-            />
-          );
-        })}
-
-        {/* Empty State */}
-        {!isLoading && filteredConversations.length === 0 && !searchQuery && (
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <p className="text-muted-foreground mb-4">{t('messages.noConversations')}</p>
-            <Button onClick={() => setShowNewMessage(true)}>
-              <PenSquare className="h-4 w-4 mr-2" />
-              {t('messages.startConversation')}
+      <DashboardLayout>
+        <div className="flex flex-col h-full">
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-bold">{t('messages.title')}</h1>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowNewMessage(true)}
+            >
+              <PenSquare className="h-5 w-5" />
             </Button>
           </div>
-        )}
-      </div>
 
-      {/* New Message Dialog */}
-      <NewMessageDialog 
-        open={showNewMessage} 
-        onOpenChange={setShowNewMessage} 
-      />
+          {/* Search */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className={cn(
+                "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground",
+                isRTL ? "right-3" : "left-3"
+              )} />
+              <Input
+                placeholder={t('messages.searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={cn("h-10", isRTL ? "pr-10" : "pl-10")}
+              />
+            </div>
+          </div>
+
+          {/* Conversations List */}
+          <div className="flex-1 overflow-y-auto -mx-4 px-4">
+            {/* AI Assistant - Always First (Pinned) */}
+            <ConversationItem
+              isAI
+              conversationId={aiConversationId || 'ai'}
+              name={t('messages.aiAssistant')}
+              subtitle={t('messages.aiSubtitle')}
+              lastMessage={aiConversation?.last_message_preview || t('messages.aiGreeting')}
+              lastMessageAt={aiConversation?.last_message_at}
+              unreadCount={aiConversationId ? unreadCounts[aiConversationId] || 0 : 0}
+              isPinned
+            />
+
+            {/* Separator */}
+            {filteredConversations.length > 0 && (
+              <div className="h-px bg-border my-1" />
+            )}
+
+            {/* Direct Conversations */}
+            {filteredConversations.map(conversation => {
+              const otherId = conversation.participant_1 === user?.id 
+                ? conversation.participant_2 
+                : conversation.participant_1;
+              const profile = profiles[otherId || ''];
+              
+              return (
+                <ConversationItem
+                  key={conversation.id}
+                  name={profile?.full_name || t('messages.unknownUser')}
+                  conversationId={conversation.id}
+                  lastMessage={conversation.last_message_preview || ''}
+                  lastMessageAt={conversation.last_message_at}
+                  unreadCount={unreadCounts[conversation.id] || 0}
+                />
+              );
+            })}
+
+            {/* Empty State */}
+            {!isLoading && filteredConversations.length === 0 && !searchQuery && (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <p className="text-muted-foreground mb-4">{t('messages.noConversations')}</p>
+                <Button onClick={() => setShowNewMessage(true)}>
+                  <PenSquare className="h-4 w-4 mr-2" />
+                  {t('messages.startConversation')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* New Message Dialog */}
+        <NewMessageDialog 
+          open={showNewMessage} 
+          onOpenChange={setShowNewMessage} 
+        />
+      </DashboardLayout>
     </div>
   );
 };
