@@ -14,18 +14,14 @@ import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
-import ChatWidget from "@/components/ChatWidget";
 import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
 import { PageSkeleton } from "@/components/ui/skeleton";
-import LiveActivityFeed from "@/components/LiveActivityFeed";
-import ProgressiveEngagement from "@/components/ProgressiveEngagement";
 import GlobalBottomNav from "@/components/GlobalBottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -135,20 +131,13 @@ const BackgroundEffect = () => {
 const ConditionalWidgets = () => {
   const { user } = useAuth();
   
-  // Hide widgets for authenticated users
+  // Show bottom nav for authenticated users only
   if (user) {
     return <GlobalBottomNav />;
   }
   
-  // Show widgets for guests
-  return (
-    <>
-      <ChatWidget />
-      <LiveActivityFeed />
-      <WhatsAppButton />
-      <ProgressiveEngagement />
-    </>
-  );
+  // No global widgets for guests - game-style clean interface
+  return null;
 };
 
 const App = () => (
