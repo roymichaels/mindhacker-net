@@ -2344,17 +2344,65 @@ export const he = {
   },
 
   home: {
-    // Hero
-    heroTitle: "בנה את תוכנית החיים שלך",
-    heroAnimation1: "ל-3 החודשים הקרובים",
-    heroAnimation2: "לשנה הבאה",
-    heroAnimation3: "לחיים שלך",
-    heroSubtitle: "מאמן AI אישי שיוציא ממך מטרות, משימות ותוכנית פעולה",
-    heroCta: "התחל את המסע - חינם",
+    // Hero - Gamified
+    heroTitle: "הפוך את החיים שלך למשחק",
+    heroSubtitle: "דשבורד אישי עם סטטיסטיקות, מטרות ומעקב התקדמות בזמן אמת",
+    heroCta: "התחל את המשחק - חינם",
     heroMeta: "10 שלבים • 20 דקות • תוכנית מלאה",
     
-    // Launchpad Preview
-    launchpadTitle: "מה תקבל במסע ה-Launchpad:",
+    // Mock Dashboard
+    mockLevel: "Level 12",
+    mockXp: "1,240 XP",
+    mockStreak: "14 ימי רצף",
+    mockTokens: "85 Tokens",
+    mockTasks: "3/5 משימות",
+    mockGoal: "67% השבוע",
+    
+    // Chat Manages Everything
+    chatTitle: "דרך הצ'אט אפשר לעשות הכל",
+    chatSubtitle: "Aurora עוקבת אחרי הלוז שלך ומסמנת משימות אוטומטית",
+    chatTasks: "משימות",
+    chatTasksExample: '"סמן משימה כבוצעה"',
+    chatSchedule: "לוח זמנים",
+    chatScheduleExample: '"מה יש לי היום?"',
+    chatChecklists: "צ׳קליסטים",
+    chatChecklistsExample: '"מה נותר להשלים?"',
+    chatGoals: "יעדים",
+    chatGoalsExample: '"עדכן את היעד שלי"',
+    chatInsights: "תובנות",
+    chatInsightsExample: '"מה למדתי השבוע?"',
+    chatReminders: "תזכורות",
+    chatRemindersExample: '"הזכר לי מחר..."',
+    
+    // Gamification
+    gamificationTitle: "צבור XP, עלה ברמות, פתח הישגים",
+    gamificationSubtitle: "כל פעולה שלך מתגמלת",
+    featureLevelUp: "Level Up",
+    featureLevelUpDesc: "עלה ברמות עם כל פעולה",
+    featureStreaks: "Streaks",
+    featureStreaksDesc: "שמור על רצף יומי",
+    featureTokens: "Tokens",
+    featureTokensDesc: "אסוף tokens לפיצ'רים",
+    featureAchievements: "Achievements",
+    featureAchievementsDesc: "פתח 20+ הישגים",
+    xpChat: "שיחה עם Aurora",
+    xpTask: "משימה שהושלמה",
+    xpInsight: "תובנה שנשמרה",
+    xpDaily: "יום רצף",
+    xpMilestone: "Milestone שבועי",
+    
+    // Consciousness Coaching
+    coachingTitle: "אימון תודעתי אישי 24/7",
+    coachingSubtitle: "Aurora - המאמן שלך לחיים",
+    coachingFeature1: "שיחות מעמיקות בכל נושא",
+    coachingFeature2: "12 מצבי אגו להתנסות",
+    coachingFeature3: "היפנוזות ומדיטציות מותאמות",
+    coachingFeature4: "ניתוח דפוסים והתנהגויות",
+    coachingFeature5: "זמינה בכל שעה, כל יום",
+    
+    // Life Plan / Launchpad
+    lifePlanTitle: "תוכנית 90 ימים לחיים חדשים",
+    lifePlanSubtitle: "10 שלבים ב-Launchpad → תוכנית אישית מלאה",
     step1Name: "ברוך הבא",
     step2Name: "פרופיל אישי",
     step3Name: "בניית זהות",
@@ -2365,40 +2413,17 @@ export const he = {
     step8Name: "תחומי פוקוס",
     step9Name: "שבוע ראשון",
     step10Name: "הפעלת דשבורד",
-    
     outcomesTitle: "בסוף התהליך תקבל:",
-    outcome1: "מטרות ברורות ל-3 החודשים הקרובים",
-    outcome2: "משימות יומיות ושבועיות מותאמות אישית",
-    outcome3: "הרגלי עוגן שיעזרו לך להתמיד",
-    outcome4: "דשבורד אישי עם מעקב התקדמות",
-    outcome5: "מאמן AI זמין 24/7 לשאלות וליווי",
+    lifePlanOutcome1: "מטרות שבועיות עם Milestones",
+    lifePlanOutcome2: "משימות יומיות מותאמות",
+    lifePlanOutcome3: "הרגלי עוגן לבנות",
+    lifePlanOutcome4: "דברים להפסיק",
+    lifePlanOutcome5: "אתגר שבועי מאתגר",
     launchpadCta: "בוא נתחיל!",
     
-    // Aurora Section
-    aiPowered: "מונע על ידי AI",
-    auroraTitle: "הכר את Aurora - המאמן שלך",
-    auroraDesc: "מערכת AI מתקדמת שלומדת אותך ובונה תוכנית מותאמת אישית",
-    auroraFeature1: "זמינה 24/7 בכל שאלה",
-    auroraFeature2: "לומדת אותך עם כל שיחה",
-    auroraFeature3: "בונה תוכנית מותאמת במיוחד לך",
-    auroraFeature4: "משימות ומטרות שמתעדכנות",
-    startWithAurora: "התחל עם Aurora - חינם",
-    available: "זמין",
-    personalizedAI: "AI אישי",
-    
-    // How It Works
-    howItWorksTitle: "איך זה עובד?",
-    howItWorksSubtitle: "4 צעדים פשוטים להתחלה",
-    howStep1Title: "הרשם",
-    howStep1Desc: "בחינם, בדקה אחת",
-    howStep2Title: "עבור את ה-Launchpad",
-    howStep2Desc: "10 שלבים מהנים ומעשירים",
-    howStep3Title: "קבל תוכנית",
-    howStep3Desc: "מטרות ומשימות ל-3 חודשים",
-    howStep4Title: "התחל לפעול",
-    howStep4Desc: "עם ליווי Aurora 24/7",
-    getStartedFree: "התחל עכשיו - חינם",
-    noCardRequired: "לא נדרש כרטיס אשראי",
+    // Dashboard Preview
+    dashboardTitle: "כך נראה הדשבורד שלך",
+    dashboardCta: "צור את הדשבורד שלך",
   },
 
   practitionerLanding: {
