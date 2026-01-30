@@ -119,12 +119,6 @@ const DashboardSidebar = ({
       side={isRTL ? "right" : "left"}
     >
       <SidebarContent className="p-2 flex flex-col h-full">
-        {/* Hamburger toggle at top */}
-        <div className="flex justify-end mb-2">
-          <SidebarTrigger className="shrink-0 p-2 hover:bg-muted rounded-lg">
-            <Menu className="h-5 w-5" />
-          </SidebarTrigger>
-        </div>
 
         {/* New Chat Button - ChatGPT style (only on Aurora page) */}
         {isAuroraPage && !isCollapsed && onNewChat && (
