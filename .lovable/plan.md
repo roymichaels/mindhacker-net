@@ -1,145 +1,221 @@
 
-# Plan: Fix Header Logo Size & Improve Game-Like Button Styling
+# Plan: Digital Avatar Orb Section + Header Orb Avatar + Larger Logo
 
-## Summary
-Two visual issues need fixing:
-1. The header logo appears small and doesn't fill its circular container properly
-2. The CTA button gradient (cyan-to-gold) looks mismatched and doesn't feel "game-like"
+## Overview
 
-**Note on Build**: The build log actually shows "4590 modules transformed" and successful chunk rendering - it was just truncated in display. No actual build errors.
+שלושה שיפורים עיקריים:
+1. **סקשן חדש בדף הבית** - להציג שהאורב מתפתח ומותאם אישית לכל משתמש (כמו Avatar)
+2. **אורב כאווטר בהדר** - להחליף את האווטר הרגיל באורב מותאם אישית עבור משתמשים מחוברים
+3. **לוגו גדול יותר בהדר** - להגדיל את הלוגו שעדיין נראה קטן
 
-## Issue 1: Header Logo Not Filling Container
+---
 
-### Current Problem
-In `Header.tsx` (line 131), the logo uses:
-```tsx
-<img src={logoUrl} className="h-10 w-10 sm:h-12 sm:w-12" />
+## Part 1: New Homepage Section - "Digital Avatar Orb"
+
+### Location in Page
+
+הסקשן יתווסף מיד אחרי `GameHeroSection` ולפני `WhatIsThisSection` - כדי להמשיך את "הסיפור" של האורב שמופיע בהירו.
+
+### Section Design
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                       │
+│              🔮 Badge: "Your Digital Avatar"                         │
+│                                                                       │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                                                                 │ │
+│  │                    [Animated Orb Demo]                          │ │
+│  │                   Size: 200px, Morphing                         │ │
+│  │                                                                 │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                                                       │
+│           "Your Orb Evolves With You"                                │
+│           ─────────────────────────────                              │
+│    Subtitle: Colors, shapes, textures uniquely yours                │
+│                                                                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │
+│  │ 🎨 Colors    │  │ ✨ Shapes    │  │ 🌟 Textures  │               │
+│  │ Based on    │  │ Based on    │  │ Based on    │               │
+│  │ your Ego    │  │ your traits │  │ your level  │               │
+│  │ State       │  │             │  │ & progress  │               │
+│  └──────────────┘  └──────────────┘  └──────────────┘               │
+│                                                                       │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │  🧬 Guardian    🔥 Warrior    💚 Healer    🔮 Mystic   ...     │ │
+│  │  [Mini orb]   [Mini orb]    [Mini orb]   [Mini orb]            │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                                                       │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-The logo image needs `object-contain` or `object-cover` to properly fill the space, and should be displayed at 100% width/height within its container.
+### Features to Display
 
-### Fix
-Update the logo in the header to:
-- Use a circular container wrapper
-- Set the image to fill 100% of the container
-- Use `object-contain` for proper scaling
+| Feature | Icon | Description (HE) | Description (EN) |
+|---------|------|------------------|------------------|
+| **Colors** | Palette | צבעים ייחודיים לפי מצב האגו שלך | Unique colors based on your Ego State |
+| **Shapes** | Sparkles | צורות גיאומטריות לפי התכונות שבחרת | Geometric shapes based on your traits |
+| **Textures** | Layers | טקסטורות מתפתחות עם הרמה שלך | Evolving textures with your level |
 
-**File**: `src/components/Header.tsx`
+### Mini Orb Showcase
 
-Change line 131 from fixed dimensions to a flexible container-filling approach:
-```tsx
-<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden flex-shrink-0">
-  <img 
-    src={logoUrl} 
-    alt={brandName} 
-    className="w-full h-full object-contain" 
-    loading="eager" 
-    decoding="async" 
-  />
-</div>
-```
+נציג 4-5 מיני-אורבים קטנים (40px) בצבעים שונים לפי Ego States שונים:
+- Guardian (Blue)
+- Warrior (Orange)
+- Healer (Green)
+- Mystic (Purple)
+- Sage (Cyan)
 
-## Issue 2: Button Colors Need Game-Like Styling
+---
 
-### Current Problem
-The CTA button in `GameHeroSection.tsx` (lines 106-113) uses:
-```tsx
-className="... bg-gradient-to-r from-primary to-accent ..."
-```
+## Part 2: Header Avatar Orb
 
-This creates a cyan-to-gold gradient which looks disconnected. For a game aesthetic, buttons should feel more cohesive and energetic.
+### Current Implementation
 
-### Game-Like Button Design Approach
-
-Instead of mixing unrelated colors (cyan + gold), use these approaches:
-
-**Option A: Vibrant Single-Color Gradient with Glow**
-- Use variations of the same hue (e.g., light cyan to deeper cyan)
-- Add glow effects for "energy" feel
-- Add subtle animation
-
-**Option B: Neon Game Button Style**
-- Solid vibrant color with strong shadows
-- Glowing border effect
-- "Press to Play" feeling
-
-### Implementation
-
-**File**: `src/components/home/GameHeroSection.tsx`
-
-Update the CTA button styling (lines 106-113) to use a more cohesive, game-like appearance:
-
-```tsx
-<Button
-  size="lg"
-  onClick={() => navigate('/signup')}
-  className="group text-lg px-8 py-6 rounded-2xl 
-    bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600
-    hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-700
-    text-white font-bold
-    shadow-[0_0_20px_rgba(16,185,129,0.4),0_8px_20px_rgba(0,0,0,0.2)]
-    hover:shadow-[0_0_30px_rgba(16,185,129,0.6),0_12px_30px_rgba(0,0,0,0.3)]
-    border-2 border-emerald-300/30
-    transition-all duration-300 hover:scale-105
-    animate-pulse-slow"
->
-```
-
-This creates:
-- Vibrant green "Start Game" feeling (common in game UIs)
-- Glowing shadow effect
-- Subtle border for depth
-- Smooth hover animations
-
-**File**: `src/index.css`
-
-Add a slow pulse animation for game buttons:
-```css
-@keyframes pulse-slow {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(16,185,129,0.4), 0 8px 20px rgba(0,0,0,0.2);
-  }
-  50% { 
-    box-shadow: 0 0 30px rgba(16,185,129,0.6), 0 8px 20px rgba(0,0,0,0.2);
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 3s ease-in-out infinite;
-}
-```
-
-## Alternative: Keep Brand Colors but Make Cohesive
-
-If you prefer to keep the primary cyan color scheme:
+כרגע האווטר משתמש ב-Avatar component של shadcn עם initials:
 
 ```tsx
-<Button
-  className="group text-lg px-8 py-6 rounded-2xl 
-    bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600
-    hover:from-cyan-500 hover:via-cyan-600 hover:to-cyan-700
-    text-cyan-950 font-bold
-    shadow-[0_0_25px_rgba(34,211,238,0.5),0_8px_20px_rgba(0,0,0,0.2)]
-    hover:shadow-[0_0_35px_rgba(34,211,238,0.7),0_12px_30px_rgba(0,0,0,0.3)]
-    border-2 border-cyan-200/40
-    transition-all duration-300 hover:scale-105"
->
+<Avatar className="h-8 w-8">
+  <AvatarImage src={user.user_metadata?.avatar_url} />
+  <AvatarFallback>{getUserInitials()}</AvatarFallback>
+</Avatar>
 ```
+
+### New Implementation
+
+עבור משתמשים מחוברים, נחליף את האווטר באורב מותאם אישית קטן:
+
+```tsx
+{user ? (
+  <div className="relative h-9 w-9 rounded-full overflow-hidden">
+    <PersonalizedOrb 
+      size={36}
+      state="idle"
+      showGlow={false}
+      className="scale-110"
+    />
+  </div>
+) : (
+  <Avatar>...</Avatar>
+)}
+```
+
+### Styling Considerations
+
+- גודל: 36px (מותאם לגודל ההדר)
+- ללא Glow (כדי לא לבלבל)
+- state="idle" תמיד
+- border-2 border-primary/30 לעקביות
+
+---
+
+## Part 3: Larger Header Logo
+
+### Current Size
+
+```tsx
+<div className="w-10 h-10 sm:w-12 sm:h-12">
+```
+
+40px mobile, 48px desktop - עדיין קטן מדי
+
+### New Size
+
+```tsx
+<div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16">
+```
+
+- Mobile: 48px
+- Small Desktop: 56px
+- Desktop: 64px
+
+---
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/home/DigitalAvatarSection.tsx` | New homepage section about personalized orb |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/Header.tsx` | Wrap logo in container, set image to 100% w/h |
-| `src/components/home/GameHeroSection.tsx` | Update CTA button with game-like gradient and glow |
-| `src/index.css` | Add slow pulse animation for game buttons |
+| `src/components/Header.tsx` | Replace avatar with PersonalizedOrb for logged-in users, increase logo size |
+| `src/pages/Index.tsx` | Add DigitalAvatarSection after GameHeroSection |
+| `src/i18n/translations/he.ts` | Add Hebrew translations for new section |
+| `src/i18n/translations/en.ts` | Add English translations for new section |
+| `src/components/home/index.ts` | Export new component |
 
-## Visual Result
+---
 
-After these changes:
-- **Header Logo**: Will fill its circular container properly at 100% size
-- **CTA Button**: Will have a vibrant, cohesive game-button appearance with:
-  - Single-hue gradient (green or cyan)
-  - Glowing shadow effect
-  - Animated subtle pulse
-  - Clean hover transitions
+## Technical Details
+
+### New Translations to Add
+
+**Hebrew (he.ts)**:
+```typescript
+// Digital Avatar Section
+avatarBadge: "האווטר הדיגיטלי שלך",
+avatarTitle: "האורב שלך מתפתח איתך",
+avatarSubtitle: "צבעים, צורות וטקסטורות ייחודיות לך בלבד",
+avatarColors: "צבעים",
+avatarColorsDesc: "צבעים ייחודיים לפי מצב האגו שלך",
+avatarShapes: "צורות",
+avatarShapesDesc: "צורות גיאומטריות לפי התכונות שבחרת",
+avatarTextures: "טקסטורות",
+avatarTexturesDesc: "מורכבות גיאומטרית שעולה עם הרמה",
+avatarEvolution: "ככל שתתקדם - האורב ישתנה",
+```
+
+**English (en.ts)**:
+```typescript
+// Digital Avatar Section
+avatarBadge: "Your Digital Avatar",
+avatarTitle: "Your Orb Evolves With You",
+avatarSubtitle: "Colors, shapes, and textures uniquely yours",
+avatarColors: "Colors",
+avatarColorsDesc: "Unique colors based on your Ego State",
+avatarShapes: "Shapes",
+avatarShapesDesc: "Geometric shapes based on your traits",
+avatarTextures: "Textures",
+avatarTexturesDesc: "Complexity that grows with your level",
+avatarEvolution: "As you progress - your orb transforms",
+```
+
+### Header Component Changes
+
+1. Import `PersonalizedOrb` from `@/components/orb`
+2. For logged-in users, render mini orb instead of Avatar with initials
+3. Increase logo container from `w-10 h-10 sm:w-12 sm:h-12` to `w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16`
+
+### DigitalAvatarSection Component Structure
+
+```tsx
+export default function DigitalAvatarSection() {
+  // Features array for the 3 pillars (Colors, Shapes, Textures)
+  // Mini orbs showcase array with ego states
+  // Framer Motion animations for entrance
+  // RTL support via useTranslation
+  
+  return (
+    <section>
+      {/* Badge */}
+      {/* Animated Central Orb */}
+      {/* Title + Subtitle */}
+      {/* 3-Column Features Grid */}
+      {/* Mini Orbs Showcase Row */}
+    </section>
+  );
+}
+```
+
+---
+
+## Visual Summary
+
+After implementation:
+1. **Homepage** will have a dedicated section explaining that the orb is a personal digital avatar that evolves
+2. **Header** will show the user's personalized mini-orb as their avatar (instead of just initials)
+3. **Logo** will be significantly larger and more prominent in the header (48px → 64px)
+
