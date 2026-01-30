@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Rocket, Sparkles, UserCog, RefreshCw } from 'lucide-react';
+import { Loader2, Rocket, Sparkles, UserCog } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -9,7 +9,19 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { ProfileDrawer } from './ProfileDrawer';
-import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
+import { QuickAccessGrid } from './QuickAccessGrid';
+import {
+  AIAnalysisModal,
+  LifePlanModal,
+  ChecklistsModal,
+  ConsciousnessModal,
+  BehavioralModal,
+  IdentityModal,
+  TraitsModal,
+  CommitmentsModal,
+  AnchorsModal,
+  FocusModal,
+} from './DashboardModals';
 import {
   StatsBar,
   XpProgressSection,
@@ -32,13 +44,15 @@ interface UnifiedDashboardViewProps {
   compact?: boolean;
 }
 
+type ModalType = 'ai' | 'plan' | 'tasks' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | 'focus' | null;
+
 export function UnifiedDashboardView({ className, compact = false }: UnifiedDashboardViewProps) {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [analysisKey, setAnalysisKey] = useState(0);
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   if (dashboard.isLoading) {
     return (
@@ -48,7 +62,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
     );
   }
 
-  // If launchpad is complete - show full dashboard with all data
+  // If launchpad is complete - show compact dashboard with quick access grid
   if (isLaunchpadComplete) {
     return (
       <div 
@@ -83,29 +97,85 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
         </Button>
         <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
-        {/* Life Plan & Checklists Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <LifePlanCard />
-          <ChecklistsCard />
+        {/* Quick Access Grid - Opens Modals */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-muted-foreground">
+            {language === 'he' ? 'גישה מהירה' : 'Quick Access'}
+          </h3>
+          <QuickAccessGrid
+            language={language}
+            onOpenAI={() => setActiveModal('ai')}
+            onOpenPlan={() => setActiveModal('plan')}
+            onOpenTasks={() => setActiveModal('tasks')}
+            onOpenConsciousness={() => setActiveModal('consciousness')}
+            onOpenBehavioral={() => setActiveModal('behavioral')}
+            onOpenIdentity={() => setActiveModal('identity')}
+            onOpenTraits={() => setActiveModal('traits')}
+            onOpenCommitments={() => setActiveModal('commitments')}
+            onOpenAnchors={() => setActiveModal('anchors')}
+            onOpenFocus={() => setActiveModal('focus')}
+            hasFocusPlan={!!dashboard.activeFocusPlan}
+          />
         </div>
 
-        {/* Full AI Analysis - All Launchpad Data */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              {language === 'he' ? 'ניתוח AI מלא' : 'Full AI Analysis'}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setAnalysisKey(k => k + 1)}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          </div>
-          <AIAnalysisDisplay language={language} refreshKey={analysisKey} />
-        </div>
+        {/* All Modals */}
+        <AIAnalysisModal 
+          open={activeModal === 'ai'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language} 
+        />
+        <LifePlanModal 
+          open={activeModal === 'plan'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language} 
+        />
+        <ChecklistsModal 
+          open={activeModal === 'tasks'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language} 
+        />
+        <ConsciousnessModal 
+          open={activeModal === 'consciousness'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language} 
+        />
+        <BehavioralModal 
+          open={activeModal === 'behavioral'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language} 
+        />
+        <IdentityModal 
+          open={activeModal === 'identity'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language}
+          values={dashboard.values}
+          principles={dashboard.principles}
+          selfConcepts={dashboard.selfConcepts}
+        />
+        <TraitsModal 
+          open={activeModal === 'traits'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language}
+          traitIds={dashboard.characterTraits}
+        />
+        <CommitmentsModal 
+          open={activeModal === 'commitments'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language}
+          commitments={dashboard.activeCommitments}
+        />
+        <AnchorsModal 
+          open={activeModal === 'anchors'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language}
+          anchors={dashboard.dailyAnchors}
+        />
+        <FocusModal 
+          open={activeModal === 'focus'} 
+          onOpenChange={(open) => !open && setActiveModal(null)} 
+          language={language}
+          focusPlan={dashboard.activeFocusPlan}
+        />
       </div>
     );
   }
