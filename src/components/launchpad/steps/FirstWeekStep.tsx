@@ -191,16 +191,42 @@ const FALLBACK_CHALLENGES: AISuggestion[] = [
   { id: 'meet_mentor', icon: '🤝', label: 'פגוש מנטור או מומחה בתחום', labelEn: 'Meet a mentor or expert in your field' },
 ];
 
+const STORAGE_KEY = 'launchpad_first_week_progress';
+
+interface SavedProgress {
+  selectedQuit: string[];
+  selectedBuild: string[];
+  selectedCareerStatus: string;
+  selectedCareerGoal: string;
+  selectedCareerSteps: string[];
+  selectedChallenge: string;
+}
+
 export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
   
-  // State for selections
-  const [selectedQuit, setSelectedQuit] = useState<string[]>([]);
-  const [selectedBuild, setSelectedBuild] = useState<string[]>([]);
-  const [selectedCareerStatus, setSelectedCareerStatus] = useState<string>('');
-  const [selectedCareerGoal, setSelectedCareerGoal] = useState<string>('');
-  const [selectedCareerSteps, setSelectedCareerSteps] = useState<string[]>([]);
-  const [selectedChallenge, setSelectedChallenge] = useState<string>('');
+  // Load saved progress from localStorage
+  const getSavedProgress = (): SavedProgress | null => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error loading saved progress:', e);
+    }
+    return null;
+  };
+
+  const savedProgress = getSavedProgress();
+  
+  // State for selections - initialize from localStorage
+  const [selectedQuit, setSelectedQuit] = useState<string[]>(savedProgress?.selectedQuit || []);
+  const [selectedBuild, setSelectedBuild] = useState<string[]>(savedProgress?.selectedBuild || []);
+  const [selectedCareerStatus, setSelectedCareerStatus] = useState<string>(savedProgress?.selectedCareerStatus || '');
+  const [selectedCareerGoal, setSelectedCareerGoal] = useState<string>(savedProgress?.selectedCareerGoal || '');
+  const [selectedCareerSteps, setSelectedCareerSteps] = useState<string[]>(savedProgress?.selectedCareerSteps || []);
+  const [selectedChallenge, setSelectedChallenge] = useState<string>(savedProgress?.selectedChallenge || '');
   
   // AI personalized suggestions
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
@@ -209,6 +235,23 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
 
   // Current section (for mobile flow)
   const [currentSection, setCurrentSection] = useState<1 | 2 | 3 | 4>(1);
+
+  // Save progress to localStorage whenever selections change
+  useEffect(() => {
+    const progress: SavedProgress = {
+      selectedQuit,
+      selectedBuild,
+      selectedCareerStatus,
+      selectedCareerGoal,
+      selectedCareerSteps,
+      selectedChallenge,
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (e) {
+      console.error('Error saving progress:', e);
+    }
+  }, [selectedQuit, selectedBuild, selectedCareerStatus, selectedCareerGoal, selectedCareerSteps, selectedChallenge]);
 
   const loadSuggestions = async () => {
     setIsLoadingSuggestions(true);
@@ -288,6 +331,13 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
 
   const handleSubmit = () => {
     if (isValid) {
+      // Clear localStorage on successful completion
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        console.error('Error clearing saved progress:', e);
+      }
+      
       onComplete({
         habits_to_quit: selectedQuit,
         habits_to_build: selectedBuild,
