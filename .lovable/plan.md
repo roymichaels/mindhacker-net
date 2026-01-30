@@ -1,101 +1,42 @@
 
+# Plan: Complete Logo Update Across All Locations
 
-# הבהרת שאלות - מצב נוכחי vs מה שרוצה
+## Summary
+The new logo (blue-gold sphere) was copied to the icon files, but several components and the database still reference non-versioned paths, causing browsers to show cached old icons. Additionally, the PWA manifest needs version cache-busting.
 
-## הבעיה
+## Technical Details
 
-בשאלון Personal Profile, השאלות לא מבהירות האם הכוונה ל:
-- **מצב נוכחי** - "כמה שעות אתה ישן כרגע?"
-- **מצב רצוי** - "כמה שעות אתה רוצה לישון?"
+### Files to Update
 
-## הפתרון
+1. **src/components/LanguagePrompt.tsx**
+   - Line 6: Change `"/icons/icon-96x96.png"` to `"/icons/icon-96x96.png?v=4"`
 
-הוספת תת-כותרת (subtitle) לכל שאלה שמבהירה את ההקשר.
+2. **src/pages/AdminLogin.tsx**  
+   - Line 12: Change `"/icons/icon-96x96.png"` to `"/icons/icon-96x96.png?v=4"`
 
-### קטגוריות שאלות:
+3. **src/pages/MessageThread.tsx**
+   - Line 53: Change `"/icons/icon-96x96.png"` to `"/icons/icon-96x96.png?v=4"`
 
-| סוג | דוגמאות | הבהרה |
-|-----|---------|-------|
-| **עובדתי** | גיל, מין, ילדים, מגורים | לא צריך הבהרה - ברור שזה המצב הנוכחי |
-| **התנהגות נוכחית** | שעות שינה, תדירות אימונים, עישון, אלכוהול, קפאין, תזונה | צריך להוסיף: "כרגע" / "Currently" |
-| **תחושות נוכחיות** | רמת סטרס, מקורות אנרגיה | צריך להוסיף: "כרגע" / "Currently" |
-| **ניסיון** | מדיטציה, טיפול | ברור מהאופציות שזה על העבר והווה |
-| **סגנון** | החלטות, קונפליקטים | ברור שזה על הדרך שלו כרגע |
+4. **public/custom-sw.js** (Service Worker)
+   - Line 92: Change `'/icons/icon-192x192.png'` to `'/icons/icon-192x192.png?v=4'`
+   - Line 93: Change `'/icons/icon-96x96.png'` to `'/icons/icon-96x96.png?v=4'`
 
----
+5. **supabase/functions/push-notifications/index.ts**
+   - Update icon references to include version parameter
 
-## שינויים בקובץ
+6. **vite.config.ts** (PWA Manifest)
+   - Add version query parameter to all icon paths in the manifest config
 
-**קובץ:** `src/components/launchpad/steps/PersonalProfileStep.tsx`
+7. **Database Update**
+   - Update `theme_settings` table entries for `logo_url` and `favicon_url` to include `?v=4`
 
-### 1. הוספת שדה subtitle לכל קטגוריה רלוונטית
+### Implementation Steps
 
-```typescript
-// דוגמה - sleep_hours
-sleep_hours: {
-  section: 'health',
-  title: 'שעות שינה',
-  titleEn: 'Sleep Hours',
-  subtitle: 'כמה אתה ישן כרגע בממוצע?',    // חדש
-  subtitleEn: 'How much do you currently sleep on average?', // חדש
-  icon: '😴',
-  ...
-},
+1. Update all component files with cache-busting version parameter
+2. Update service worker icon references
+3. Update PWA manifest icon paths in vite.config.ts
+4. Update database entries via SQL migration
+5. After deployment, users should hard-refresh (Ctrl+Shift+R) or reinstall PWA
 
-// דוגמה - stress_level  
-stress_level: {
-  section: 'mental',
-  title: 'רמת סטרס',
-  titleEn: 'Stress Level',
-  subtitle: 'מה רמת הלחץ שלך בחיים כרגע?',
-  subtitleEn: 'What is your current stress level?',
-  icon: '😰',
-  ...
-},
-```
-
-### 2. שאלות שצריכות הבהרה:
-
-| שאלה | הבהרה בעברית | הבהרה באנגלית |
-|------|--------------|----------------|
-| `sleep_hours` | "כמה אתה ישן כרגע בממוצע?" | "How much do you currently sleep on average?" |
-| `exercise_frequency` | "כמה פעמים בשבוע אתה מתאמן כרגע?" | "How often do you currently exercise?" |
-| `exercise_types` | "באילו אימונים אתה עוסק כרגע?" | "What types of exercise do you currently do?" |
-| `smoking` | "האם אתה מעשן כרגע?" | "Do you currently smoke?" |
-| `alcohol` | "מה צריכת האלכוהול שלך כרגע?" | "What is your current alcohol consumption?" |
-| `caffeine` | "כמה קפאין אתה צורך כרגע?" | "How much caffeine do you currently consume?" |
-| `hydration` | "מה אתה שותה בדרך כלל?" | "What do you usually drink?" |
-| `supplements` | "אילו תוספים אתה לוקח כרגע?" | "What supplements do you currently take?" |
-| `diet` | "איך נראית התזונה שלך כרגע?" | "What does your diet currently look like?" |
-| `stress_level` | "מה רמת הסטרס שלך כרגע?" | "What is your current stress level?" |
-| `energy_source` | "מה נותן לך אנרגיה בדרך כלל?" | "What usually gives you energy?" |
-| `relaxation_methods` | "מה מרגיע אותך בדרך כלל?" | "What usually relaxes you?" |
-
-### 3. עדכון ה-UI להציג את ה-subtitle
-
-בחלק שמציג את כותרת השאלה, הוספת שורה:
-
-```tsx
-{/* Title */}
-<h3 className="text-lg font-semibold mb-1">
-  {category.icon} {isRTL ? category.title : category.titleEn}
-</h3>
-
-{/* Subtitle - clarification (חדש) */}
-{category.subtitle && (
-  <p className="text-sm text-muted-foreground mb-3">
-    {isRTL ? category.subtitle : category.subtitleEn}
-  </p>
-)}
-```
-
----
-
-## סיכום
-
-| פריט | פעולה |
-|------|-------|
-| הוספת שדות `subtitle` ו-`subtitleEn` | ל-12 קטגוריות |
-| עדכון ה-UI | הצגת תת-כותרת מתחת לכותרת הראשית |
-| קובץ יחיד | `src/components/launchpad/steps/PersonalProfileStep.tsx` |
-
+### Expected Result
+All locations showing the old power-button logo will display the new blue-gold sphere logo after refresh.
