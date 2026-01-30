@@ -1,6 +1,7 @@
 /**
  * Character Traits System for Identity Building
  * Each trait has colors, categories, and descriptions
+ * Extended list for comprehensive archetype analysis
  */
 
 export type TraitCategory = 
@@ -90,8 +91,9 @@ export const TRAIT_CATEGORIES: Record<TraitCategory, TraitCategoryInfo> = {
   },
 };
 
+// Extended trait list - 5 traits per category (30 total) for comprehensive analysis
 export const CHARACTER_TRAITS: CharacterTrait[] = [
-  // === INNER STRENGTH (כוח פנימי) - 3 core traits ===
+  // === INNER STRENGTH (כוח פנימי) ===
   {
     id: 'courage',
     name: 'Courage',
@@ -125,8 +127,30 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     description: 'Stay committed to your goals',
     descriptionHe: 'להישאר מחויב למטרות שלך',
   },
+  {
+    id: 'determination',
+    name: 'Determination',
+    nameHe: 'נחישות',
+    category: 'inner_strength',
+    icon: '⚡',
+    color: '#f59e0b',
+    gradient: 'from-amber-500 to-orange-500',
+    description: 'Pursue goals with unwavering focus',
+    descriptionHe: 'לרדוף אחרי מטרות במיקוד בלתי מתפשר',
+  },
+  {
+    id: 'persistence',
+    name: 'Persistence',
+    nameHe: 'התמדה',
+    category: 'inner_strength',
+    icon: '🔥',
+    color: '#ef4444',
+    gradient: 'from-red-400 to-orange-500',
+    description: 'Keep going despite obstacles',
+    descriptionHe: 'להמשיך למרות מכשולים',
+  },
 
-  // === THINKING (חשיבה) - 3 core traits ===
+  // === THINKING (חשיבה) ===
   {
     id: 'wisdom',
     name: 'Wisdom',
@@ -150,6 +174,28 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'לחקור וללמוד ללא הפסקה',
   },
   {
+    id: 'open_mindedness',
+    name: 'Open-mindedness',
+    nameHe: 'פתיחות מחשבתית',
+    category: 'thinking',
+    icon: '🌈',
+    color: '#7c3aed',
+    gradient: 'from-violet-600 to-purple-500',
+    description: 'Welcome new ideas and perspectives',
+    descriptionHe: 'לקבל רעיונות ונקודות מבט חדשות',
+  },
+  {
+    id: 'critical_thinking',
+    name: 'Critical Thinking',
+    nameHe: 'חשיבה ביקורתית',
+    category: 'thinking',
+    icon: '⚖️',
+    color: '#9333ea',
+    gradient: 'from-purple-600 to-violet-500',
+    description: 'Analyze and evaluate objectively',
+    descriptionHe: 'לנתח ולהעריך באופן אובייקטיבי',
+  },
+  {
     id: 'creativity',
     name: 'Creativity',
     nameHe: 'יצירתיות',
@@ -161,7 +207,7 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'לחשוב מחוץ לקופסה',
   },
 
-  // === HEART & EMOTION (לב ורגש) - 3 core traits ===
+  // === HEART & EMOTION (לב ורגש) ===
   {
     id: 'empathy',
     name: 'Empathy',
@@ -185,6 +231,28 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'להראות טוב לב ודאגה לאחרים',
   },
   {
+    id: 'patience',
+    name: 'Patience',
+    nameHe: 'סבלנות',
+    category: 'heart',
+    icon: '🌸',
+    color: '#db2777',
+    gradient: 'from-pink-600 to-rose-500',
+    description: 'Accept delays with calm',
+    descriptionHe: 'לקבל עיכובים בשלווה',
+  },
+  {
+    id: 'self_love',
+    name: 'Self-Love',
+    nameHe: 'אהבה עצמית',
+    category: 'heart',
+    icon: '🌹',
+    color: '#e11d48',
+    gradient: 'from-rose-600 to-pink-500',
+    description: 'Value and care for yourself',
+    descriptionHe: 'להעריך ולטפל בעצמך',
+  },
+  {
     id: 'gratitude',
     name: 'Gratitude',
     nameHe: 'הכרת תודה',
@@ -196,7 +264,7 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'להעריך את מה שיש לך',
   },
 
-  // === LEADERSHIP (מנהיגות) - 3 core traits ===
+  // === LEADERSHIP (מנהיגות) ===
   {
     id: 'accountability',
     name: 'Accountability',
@@ -207,6 +275,17 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     gradient: 'from-yellow-500 to-amber-500',
     description: 'Own your actions and results',
     descriptionHe: 'לקחת בעלות על פעולותיך ותוצאותיך',
+  },
+  {
+    id: 'influence',
+    name: 'Influence',
+    nameHe: 'השפעה',
+    category: 'leadership',
+    icon: '✨',
+    color: '#f59e0b',
+    gradient: 'from-amber-500 to-yellow-500',
+    description: 'Inspire and guide others positively',
+    descriptionHe: 'לעורר השראה ולהנחות אחרים לחיוב',
   },
   {
     id: 'vision',
@@ -220,6 +299,17 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'לראות את התמונה הגדולה בבהירות',
   },
   {
+    id: 'decision_making',
+    name: 'Decision Making',
+    nameHe: 'קבלת החלטות',
+    category: 'leadership',
+    icon: '🎯',
+    color: '#ca8a04',
+    gradient: 'from-yellow-600 to-amber-500',
+    description: 'Choose wisely and confidently',
+    descriptionHe: 'לבחור בחוכמה ובביטחון',
+  },
+  {
     id: 'initiative',
     name: 'Initiative',
     nameHe: 'יוזמה',
@@ -231,7 +321,7 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'לפעול בלי לחכות לאחרים',
   },
 
-  // === SOCIAL (חברתי) - 3 core traits ===
+  // === SOCIAL (חברתי) ===
   {
     id: 'communication',
     name: 'Communication',
@@ -242,6 +332,28 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     gradient: 'from-emerald-500 to-teal-500',
     description: 'Express yourself clearly',
     descriptionHe: 'לבטא את עצמך בבהירות',
+  },
+  {
+    id: 'active_listening',
+    name: 'Active Listening',
+    nameHe: 'הקשבה פעילה',
+    category: 'social',
+    icon: '👂',
+    color: '#14b8a6',
+    gradient: 'from-teal-500 to-emerald-500',
+    description: 'Truly hear and understand others',
+    descriptionHe: 'לשמוע ולהבין אחרים באמת',
+  },
+  {
+    id: 'assertiveness',
+    name: 'Assertiveness',
+    nameHe: 'אסרטיביות',
+    category: 'social',
+    icon: '🗣️',
+    color: '#059669',
+    gradient: 'from-emerald-600 to-teal-500',
+    description: 'Express needs respectfully',
+    descriptionHe: 'לבטא צרכים בכבוד',
   },
   {
     id: 'collaboration',
@@ -266,7 +378,7 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'לתת בחופשיות בלי לצפות לתמורה',
   },
 
-  // === SPIRITUAL (רוחני) - 3 core traits ===
+  // === SPIRITUAL (רוחני) ===
   {
     id: 'presence',
     name: 'Presence',
@@ -277,6 +389,28 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     gradient: 'from-indigo-500 to-purple-600',
     description: 'Be fully in the moment',
     descriptionHe: 'להיות נוכח לחלוטין ברגע',
+  },
+  {
+    id: 'inner_peace',
+    name: 'Inner Peace',
+    nameHe: 'שלווה פנימית',
+    category: 'spiritual',
+    icon: '☮️',
+    color: '#818cf8',
+    gradient: 'from-indigo-400 to-purple-500',
+    description: 'Find calm within yourself',
+    descriptionHe: 'למצוא שקט פנימי',
+  },
+  {
+    id: 'faith',
+    name: 'Faith',
+    nameHe: 'אמונה',
+    category: 'spiritual',
+    icon: '🕯️',
+    color: '#4f46e5',
+    gradient: 'from-indigo-600 to-purple-600',
+    description: 'Trust in something greater',
+    descriptionHe: 'לבטוח במשהו גדול יותר',
   },
   {
     id: 'authenticity',
@@ -290,15 +424,15 @@ export const CHARACTER_TRAITS: CharacterTrait[] = [
     descriptionHe: 'להיות נאמן לעצמך',
   },
   {
-    id: 'inner_peace',
-    name: 'Inner Peace',
-    nameHe: 'שלווה פנימית',
+    id: 'humility',
+    name: 'Humility',
+    nameHe: 'ענווה',
     category: 'spiritual',
-    icon: '☮️',
-    color: '#818cf8',
-    gradient: 'from-indigo-400 to-purple-500',
-    description: 'Find calm within yourself',
-    descriptionHe: 'למצוא שקט פנימי',
+    icon: '🌿',
+    color: '#5b21b6',
+    gradient: 'from-purple-700 to-indigo-600',
+    description: 'Stay grounded and open to growth',
+    descriptionHe: 'להישאר מקורקע ופתוח לצמיחה',
   },
 ];
 
