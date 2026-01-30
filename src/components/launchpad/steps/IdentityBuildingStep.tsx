@@ -8,21 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { 
-  Sparkles, Check, ChevronDown, ChevronUp, Loader2, 
-  ArrowLeft, ArrowRight, GripVertical, X, Star
+  Sparkles, Loader2, ArrowLeft, ArrowRight, GripVertical, Star
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { 
-  CHARACTER_TRAITS, 
   TRAIT_CATEGORIES, 
-  getTraitsByCategory, 
   getAllCategories,
-  suggestEgoState,
-  getTrait,
-  type TraitCategory,
-  type CharacterTrait 
+  type TraitCategory 
 } from '@/lib/characterTraits';
 
 interface IdentityBuildingStepProps {
@@ -31,12 +25,20 @@ interface IdentityBuildingStepProps {
   rewards?: { xp: number; tokens: number; unlock: string };
 }
 
-const STORAGE_KEY = 'launchpad_identity_traits';
+const STORAGE_KEY = 'launchpad_identity_categories';
 const STORAGE_KEY_ROLEMODELS = 'launchpad_identity_rolemodels';
-const MIN_TRAITS = 3;
-const MAX_TRAITS = 6;
 
-type Phase = 'select' | 'rolemodels';
+type Phase = 'prioritize' | 'rolemodels';
+
+// Map categories to ego states
+const categoryToEgoState: Record<TraitCategory, string> = {
+  inner_strength: 'warrior',
+  thinking: 'sage',
+  heart: 'healer',
+  leadership: 'king',
+  social: 'lover',
+  spiritual: 'mystic',
+};
 
 export function IdentityBuildingStep({ 
   onComplete, 
@@ -45,13 +47,10 @@ export function IdentityBuildingStep({
 }: IdentityBuildingStepProps) {
   const { t, isRTL, language } = useTranslation();
   const { user } = useAuth();
-  const [phase, setPhase] = useState<Phase>('select');
-  const [prioritizedTraits, setPrioritizedTraits] = useState<string[]>([]);
+  const [phase, setPhase] = useState<Phase>('prioritize');
+  const [prioritizedCategories, setPrioritizedCategories] = useState<TraitCategory[]>(getAllCategories());
   const [roleModels, setRoleModels] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<Set<TraitCategory>>(
-    new Set(['inner_strength', 'thinking'])
-  );
 
   // Load from localStorage
   useEffect(() => {
@@ -59,8 +58,8 @@ export function IdentityBuildingStep({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setPrioritizedTraits(parsed);
+        if (Array.isArray(parsed) && parsed.length === 6) {
+          setPrioritizedCategories(parsed as TraitCategory[]);
         }
       } catch {
         // Ignore parse errors
@@ -75,90 +74,56 @@ export function IdentityBuildingStep({
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prioritizedTraits));
-  }, [prioritizedTraits]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prioritizedCategories));
+  }, [prioritizedCategories]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_ROLEMODELS, roleModels);
   }, [roleModels]);
 
-  const toggleTrait = (traitId: string) => {
-    setPrioritizedTraits((prev) => {
-      if (prev.includes(traitId)) {
-        return prev.filter((id) => id !== traitId);
-      }
-      if (prev.length >= MAX_TRAITS) {
-        toast.warning(
-          language === 'he' 
-            ? `ניתן לבחור עד ${MAX_TRAITS} תכונות` 
-            : `You can select up to ${MAX_TRAITS} traits`
-        );
-        return prev;
-      }
-      return [...prev, traitId];
-    });
-  };
-
-  const removeTrait = (traitId: string) => {
-    setPrioritizedTraits((prev) => prev.filter((id) => id !== traitId));
-  };
-
-  const toggleCategory = (category: TraitCategory) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
-      return next;
-    });
-  };
-
   const handleGoToRoleModels = () => {
     setPhase('rolemodels');
   };
 
-  const handleBackToSelect = () => {
-    setPhase('select');
+  const handleBackToPrioritize = () => {
+    setPhase('prioritize');
   };
 
   const handleComplete = async () => {
-    if (prioritizedTraits.length < MIN_TRAITS || !user?.id) return;
+    if (!user?.id) return;
 
     setIsSaving(true);
 
     try {
-      // Delete existing character traits and role models for this user
+      // Delete existing identity elements for this user
       await supabase
         .from('aurora_identity_elements')
         .delete()
         .eq('user_id', user.id)
-        .in('element_type', ['character_trait', 'role_model']);
+        .in('element_type', ['category_priority', 'role_model']);
 
-      // Insert prioritized character traits with priority
-      const traitsToInsert = prioritizedTraits.map((traitId, index) => {
-        const trait = getTrait(traitId);
+      // Insert prioritized categories
+      const categoriesToInsert = prioritizedCategories.map((category, index) => {
+        const categoryInfo = TRAIT_CATEGORIES[category];
         return {
           user_id: user.id,
-          element_type: 'character_trait' as const,
-          content: traitId,
+          element_type: 'category_priority' as const,
+          content: category,
           metadata: {
             priority: index + 1,
-            isCore: index < 3, // Top 3 are core traits
-            category: trait?.category,
-            color: trait?.color,
-            icon: trait?.icon,
+            isCore: index < 3, // Top 3 are core categories
+            color: categoryInfo.color,
+            icon: categoryInfo.icon,
             selected_at: new Date().toISOString(),
           },
         };
       });
 
-      const { error: traitsError } = await supabase
+      const { error: categoriesError } = await supabase
         .from('aurora_identity_elements')
-        .insert(traitsToInsert);
+        .insert(categoriesToInsert);
 
-      if (traitsError) throw traitsError;
+      if (categoriesError) throw categoriesError;
 
       // Insert role models if provided
       if (roleModels.trim()) {
@@ -176,48 +141,39 @@ export function IdentityBuildingStep({
         if (roleModelError) throw roleModelError;
       }
 
-      const suggestedEgoState = suggestEgoState(prioritizedTraits);
+      // Suggested ego state based on top category
+      const suggestedEgoState = categoryToEgoState[prioritizedCategories[0]] || 'guardian';
 
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STORAGE_KEY_ROLEMODELS);
 
       onComplete({
-        selectedTraits: prioritizedTraits,
-        prioritizedTraits,
+        prioritizedCategories,
         roleModels: roleModels.trim(),
         suggestedEgoState,
-        categoryCounts: getAllCategories().reduce((acc, cat) => {
-          acc[cat] = prioritizedTraits.filter(
-            (id) => CHARACTER_TRAITS.find((t) => t.id === id)?.category === cat
-          ).length;
-          return acc;
-        }, {} as Record<TraitCategory, number>),
+        coreCategories: prioritizedCategories.slice(0, 3),
       });
     } catch (error) {
-      console.error('Failed to save traits:', error);
-      toast.error(language === 'he' ? 'שגיאה בשמירת התכונות' : 'Failed to save traits');
+      console.error('Failed to save priorities:', error);
+      toast.error(language === 'he' ? 'שגיאה בשמירה' : 'Failed to save');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const canContinue = prioritizedTraits.length >= MIN_TRAITS;
-  const bonusThreshold = 5;
-  const hasBonus = prioritizedTraits.length >= bonusThreshold;
-
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Phase Indicator */}
       <div className="flex justify-center gap-2">
-        {(['select', 'rolemodels'] as Phase[]).map((p, idx) => (
+        {(['prioritize', 'rolemodels'] as Phase[]).map((p, idx) => (
           <div
             key={p}
             className={cn(
               "w-3 h-3 rounded-full transition-all",
               phase === p 
                 ? "bg-violet-600 scale-125" 
-                : idx < ['select', 'rolemodels'].indexOf(phase)
+                : idx < ['prioritize', 'rolemodels'].indexOf(phase)
                   ? "bg-violet-400"
                   : "bg-muted-foreground/30"
             )}
@@ -226,18 +182,13 @@ export function IdentityBuildingStep({
       </div>
 
       <AnimatePresence mode="wait">
-        {phase === 'select' && (
-          <SelectAndPrioritizePhase
-            key="select"
+        {phase === 'prioritize' && (
+          <PrioritizePhase
+            key="prioritize"
             language={language}
             isRTL={isRTL}
-            prioritizedTraits={prioritizedTraits}
-            setPrioritizedTraits={setPrioritizedTraits}
-            expandedCategories={expandedCategories}
-            toggleTrait={toggleTrait}
-            removeTrait={removeTrait}
-            toggleCategory={toggleCategory}
-            canContinue={canContinue}
+            prioritizedCategories={prioritizedCategories}
+            setPrioritizedCategories={setPrioritizedCategories}
             onContinue={handleGoToRoleModels}
           />
         )}
@@ -249,12 +200,11 @@ export function IdentityBuildingStep({
             isRTL={isRTL}
             roleModels={roleModels}
             setRoleModels={setRoleModels}
-            prioritizedTraits={prioritizedTraits}
-            hasBonus={hasBonus}
+            prioritizedCategories={prioritizedCategories}
             rewards={rewards}
             isSaving={isSaving}
             isCompleting={isCompleting}
-            onBack={handleBackToSelect}
+            onBack={handleBackToPrioritize}
             onComplete={handleComplete}
           />
         )}
@@ -263,32 +213,22 @@ export function IdentityBuildingStep({
   );
 }
 
-// ============ SELECT & PRIORITIZE PHASE (Combined) ============
-interface SelectAndPrioritizePhaseProps {
+// ============ PRIORITIZE PHASE ============
+interface PrioritizePhaseProps {
   language: string;
   isRTL: boolean;
-  prioritizedTraits: string[];
-  setPrioritizedTraits: (traits: string[]) => void;
-  expandedCategories: Set<TraitCategory>;
-  toggleTrait: (id: string) => void;
-  removeTrait: (id: string) => void;
-  toggleCategory: (cat: TraitCategory) => void;
-  canContinue: boolean;
+  prioritizedCategories: TraitCategory[];
+  setPrioritizedCategories: (categories: TraitCategory[]) => void;
   onContinue: () => void;
 }
 
-function SelectAndPrioritizePhase({
+function PrioritizePhase({
   language,
   isRTL,
-  prioritizedTraits,
-  setPrioritizedTraits,
-  expandedCategories,
-  toggleTrait,
-  removeTrait,
-  toggleCategory,
-  canContinue,
+  prioritizedCategories,
+  setPrioritizedCategories,
   onContinue,
-}: SelectAndPrioritizePhaseProps) {
+}: PrioritizePhaseProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -303,179 +243,84 @@ function SelectAndPrioritizePhase({
           animate={{ scale: 1 }}
           className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center"
         >
-          <span className="text-4xl">🎭</span>
+          <span className="text-4xl">🎯</span>
         </motion.div>
         
         <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-          {language === 'he' ? 'בנו את הזהות שלכם' : 'Build Your Identity'}
+          {language === 'he' ? 'מה הכי חשוב לכם?' : 'What matters most to you?'}
         </h2>
         
         <p className="text-muted-foreground max-w-md mx-auto">
           {language === 'he' 
-            ? `בחרו ${MIN_TRAITS}-${MAX_TRAITS} תכונות וסדרו אותן לפי חשיבות. 3 הראשונות הן תכונות הליבה.`
-            : `Select ${MIN_TRAITS}-${MAX_TRAITS} traits and order by importance. Top 3 are core traits.`}
+            ? 'סדרו את התחומים לפי החשיבות שלהם עבורכם. גררו למעלה את מה שהכי חשוב.'
+            : 'Order these areas by importance. Drag up what matters most.'}
         </p>
       </div>
 
-      {/* Priority List (Reorderable) */}
-      {prioritizedTraits.length > 0 && (
-        <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-              <h4 className="font-semibold text-sm">
-                {language === 'he' ? 'התכונות שלי (לפי סדר חשיבות)' : 'My Traits (by priority)'}
-              </h4>
-            </div>
-            <Badge 
-              variant={prioritizedTraits.length >= MIN_TRAITS ? "default" : "secondary"}
-              className={cn(
-                prioritizedTraits.length >= MIN_TRAITS && "bg-violet-600"
-              )}
-            >
-              {prioritizedTraits.length} / {MAX_TRAITS}
-            </Badge>
-          </div>
+      {/* Priority List */}
+      <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20">
+        <div className="flex items-center gap-2 mb-4">
+          <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+          <h4 className="font-semibold">
+            {language === 'he' ? 'סדר העדיפויות שלי' : 'My Priority Order'}
+          </h4>
+        </div>
 
-          <Reorder.Group
-            axis="y"
-            values={prioritizedTraits}
-            onReorder={setPrioritizedTraits}
-            className="space-y-2"
-          >
-            {prioritizedTraits.map((traitId, index) => {
-              const trait = getTrait(traitId);
-              if (!trait) return null;
-              const isCore = index < 3;
-              const categoryInfo = TRAIT_CATEGORIES[trait.category];
+        <Reorder.Group
+          axis="y"
+          values={prioritizedCategories}
+          onReorder={setPrioritizedCategories}
+          className="space-y-2"
+        >
+          {prioritizedCategories.map((category, index) => {
+            const categoryInfo = TRAIT_CATEGORIES[category];
+            const isCore = index < 3;
 
-              return (
-                <Reorder.Item
-                  key={traitId}
-                  value={traitId}
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg border cursor-grab active:cursor-grabbing transition-all",
-                    isCore 
-                      ? "border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30"
-                      : "border-border bg-background"
-                  )}
-                >
-                  <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-                  
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0",
-                    isCore 
-                      ? "bg-amber-500 text-white" 
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    {index + 1}
-                  </div>
-                  
-                  <span className="text-lg shrink-0">{trait.icon}</span>
-                  
-                  <span className="flex-1 font-medium text-sm truncate">
-                    {language === 'he' ? trait.nameHe : trait.name}
-                  </span>
-
-                  {isCore && (
-                    <Badge variant="outline" className="text-xs border-amber-400 text-amber-600 dark:text-amber-400 shrink-0">
-                      {language === 'he' ? 'ליבה' : 'Core'}
-                    </Badge>
-                  )}
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeTrait(traitId);
-                    }}
-                    className="p-1 hover:bg-destructive/10 rounded shrink-0"
-                  >
-                    <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                  </button>
-                </Reorder.Item>
-              );
-            })}
-          </Reorder.Group>
-
-          <p className="text-xs text-muted-foreground mt-3 text-center">
-            {language === 'he' ? '↕️ גררו לשינוי סדר' : '↕️ Drag to reorder'}
-          </p>
-        </Card>
-      )}
-
-      {/* Categories & Traits */}
-      <div className="space-y-3">
-        {getAllCategories().map((category) => {
-          const categoryInfo = TRAIT_CATEGORIES[category];
-          const traits = getTraitsByCategory(category);
-          const isExpanded = expandedCategories.has(category);
-          const selectedInCategory = prioritizedTraits.filter(
-            (id) => traits.find((t) => t.id === id)
-          ).length;
-
-          return (
-            <Card key={category} className="overflow-hidden">
-              <button
-                onClick={() => toggleCategory(category)}
+            return (
+              <Reorder.Item
+                key={category}
+                value={category}
                 className={cn(
-                  "w-full p-3 flex items-center justify-between transition-colors",
-                  "hover:bg-muted/50",
-                  isExpanded && "bg-muted/30"
+                  "flex items-center gap-3 p-4 rounded-xl border cursor-grab active:cursor-grabbing transition-all",
+                  isCore 
+                    ? "border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 shadow-sm"
+                    : "border-border bg-background hover:bg-muted/50"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{categoryInfo.icon}</span>
-                  <span className="font-medium text-sm">
+                <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
+                
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0",
+                  isCore 
+                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md" 
+                    : "bg-muted text-muted-foreground"
+                )}>
+                  {index + 1}
+                </div>
+                
+                <span className="text-2xl shrink-0">{categoryInfo.icon}</span>
+                
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold block">
                     {language === 'he' ? categoryInfo.nameHe : categoryInfo.name}
                   </span>
-                  {selectedInCategory > 0 && (
-                    <Badge className={cn(categoryInfo.bgClass, categoryInfo.textClass, "text-xs")}>
-                      {selectedInCategory}
-                    </Badge>
-                  )}
                 </div>
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
 
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-3 pt-0 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {traits.map((trait) => {
-                        const isSelected = prioritizedTraits.includes(trait.id);
-                        const isDisabled = !isSelected && prioritizedTraits.length >= MAX_TRAITS;
-                        const priorityIndex = prioritizedTraits.indexOf(trait.id);
-                        
-                        return (
-                          <TraitCard
-                            key={trait.id}
-                            trait={trait}
-                            isSelected={isSelected}
-                            isDisabled={isDisabled}
-                            priorityNumber={isSelected ? priorityIndex + 1 : undefined}
-                            onClick={() => toggleTrait(trait.id)}
-                            language={language}
-                          />
-                        );
-                      })}
-                    </div>
-                  </motion.div>
+                {isCore && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shrink-0">
+                    {language === 'he' ? 'ליבה' : 'Core'}
+                  </Badge>
                 )}
-              </AnimatePresence>
-            </Card>
-          );
-        })}
-      </div>
+              </Reorder.Item>
+            );
+          })}
+        </Reorder.Group>
+
+        <p className="text-sm text-muted-foreground mt-4 text-center flex items-center justify-center gap-2">
+          <span>↕️</span>
+          {language === 'he' ? 'גררו לשינוי סדר העדיפויות' : 'Drag to reorder priorities'}
+        </p>
+      </Card>
 
       {/* Continue Button */}
       <div className="pt-4">
@@ -483,18 +328,11 @@ function SelectAndPrioritizePhase({
           size="lg"
           className="w-full text-lg py-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
           onClick={onContinue}
-          disabled={!canContinue}
         >
-          {!canContinue ? (
-            language === 'he' 
-              ? `בחרו לפחות ${MIN_TRAITS} תכונות (${prioritizedTraits.length}/${MIN_TRAITS})` 
-              : `Select at least ${MIN_TRAITS} traits (${prioritizedTraits.length}/${MIN_TRAITS})`
-          ) : (
-            <span className="flex items-center gap-2">
-              {language === 'he' ? 'המשך לדמויות השראה' : 'Continue to Role Models'}
-              {isRTL ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
-            </span>
-          )}
+          <span className="flex items-center gap-2">
+            {language === 'he' ? 'המשך לדמויות השראה' : 'Continue to Role Models'}
+            {isRTL ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
+          </span>
         </Button>
       </div>
     </motion.div>
@@ -507,8 +345,7 @@ interface RoleModelsPhaseProps {
   isRTL: boolean;
   roleModels: string;
   setRoleModels: (value: string) => void;
-  prioritizedTraits: string[];
-  hasBonus: boolean;
+  prioritizedCategories: TraitCategory[];
   rewards?: { xp: number; tokens: number; unlock: string };
   isSaving: boolean;
   isCompleting?: boolean;
@@ -521,14 +358,15 @@ function RoleModelsPhase({
   isRTL,
   roleModels,
   setRoleModels,
-  prioritizedTraits,
-  hasBonus,
+  prioritizedCategories,
   rewards,
   isSaving,
   isCompleting,
   onBack,
   onComplete,
 }: RoleModelsPhaseProps) {
+  const topCategories = prioritizedCategories.slice(0, 3);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -541,129 +379,93 @@ function RoleModelsPhase({
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center"
+          className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center"
         >
-          <span className="text-4xl">🌟</span>
+          <span className="text-4xl">⭐</span>
         </motion.div>
         
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
           {language === 'he' ? 'דמויות השראה' : 'Role Models'}
         </h2>
         
         <p className="text-muted-foreground max-w-md mx-auto">
           {language === 'he' 
-            ? 'מי הדמויות (מסדרות, סרטים, ספרים) שהייתם רוצים להידמות אליהן? זה עוזר לנו להבין טוב יותר את הזהות שאתם בונים.'
-            : 'Which characters (from shows, movies, books) do you aspire to be like? This helps us better understand the identity you\'re building.'}
+            ? 'מי הדמויות שמעוררות בכם השראה? (אופציונלי)'
+            : 'Who inspires you? (Optional)'}
         </p>
       </div>
 
-      {/* Role Models Input */}
-      <Card className="p-4 space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="roleModels" className="text-base font-medium">
-            {language === 'he' 
-              ? 'כתבו 1-3 דמויות ולמה הן מעוררות בכם השראה'
-              : 'Write 1-3 characters and why they inspire you'}
-          </Label>
-          <Textarea
-            id="roleModels"
-            value={roleModels}
-            onChange={(e) => setRoleModels(e.target.value)}
-            placeholder={language === 'he' 
-              ? 'לדוגמה:\n• הארוי ספקטר (Suits) - הביטחון העצמי והאסטרטגיה שלו\n• טוני סטארק (Iron Man) - היצירתיות והחזון שלו'
-              : 'Example:\n• Harvey Specter (Suits) - his confidence and strategy\n• Tony Stark (Iron Man) - his creativity and vision'}
-            className="min-h-[150px] resize-none"
-            dir={isRTL ? 'rtl' : 'ltr'}
-          />
+      {/* Summary of Core Categories */}
+      <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20">
+        <p className="text-sm text-muted-foreground mb-3 text-center">
+          {language === 'he' ? 'התחומים העיקריים שלכם:' : 'Your core areas:'}
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {topCategories.map((category, index) => {
+            const categoryInfo = TRAIT_CATEGORIES[category];
+            return (
+              <Badge 
+                key={category} 
+                className={cn(
+                  "text-sm py-1.5 px-3",
+                  categoryInfo.bgClass, 
+                  categoryInfo.textClass
+                )}
+              >
+                <span className="mr-1">{categoryInfo.icon}</span>
+                {language === 'he' ? categoryInfo.nameHe : categoryInfo.name}
+              </Badge>
+            );
+          })}
         </div>
+      </Card>
 
+      {/* Role Models Input */}
+      <div className="space-y-3">
+        <Label htmlFor="rolemodels" className="text-base font-medium">
+          {language === 'he' 
+            ? 'דמויות שמעוררות בכם השראה (אמיתיות או בדיוניות)'
+            : 'Characters that inspire you (real or fictional)'}
+        </Label>
+        <Textarea
+          id="rolemodels"
+          placeholder={language === 'he' 
+            ? 'למשל: סטיב ג׳ובס, גנדלף, דוד המלך, ריאן גוסלינג...'
+            : 'e.g., Steve Jobs, Gandalf, King David, Ryan Gosling...'}
+          value={roleModels}
+          onChange={(e) => setRoleModels(e.target.value)}
+          className="min-h-[100px] resize-none"
+        />
         <p className="text-xs text-muted-foreground">
           {language === 'he' 
-            ? '💡 טיפ: דמויות השראה עוזרות ל-AI להבין את הסגנון והגישה שלכם לחיים'
-            : '💡 Tip: Role models help the AI understand your style and approach to life'}
+            ? 'הדמויות האלה יעזרו לנו להבין טוב יותר את השאיפות שלכם'
+            : 'These characters help us understand your aspirations better'}
         </p>
-      </Card>
-
-      {/* Summary */}
-      <Card className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-violet-200 dark:border-violet-800">
-        <h4 className="font-semibold mb-3">
-          {language === 'he' ? 'סיכום הזהות שלכם' : 'Your Identity Summary'}
-        </h4>
-        
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            {language === 'he' ? 'תכונות ליבה:' : 'Core traits:'}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {prioritizedTraits.slice(0, 3).map((traitId, index) => {
-              const trait = getTrait(traitId);
-              if (!trait) return null;
-              const categoryInfo = TRAIT_CATEGORIES[trait.category];
-              
-              return (
-                <Badge
-                  key={traitId}
-                  className={cn(
-                    "text-sm",
-                    categoryInfo.bgClass,
-                    categoryInfo.textClass
-                  )}
-                >
-                  <span className={isRTL ? "ml-1" : "mr-1"}>{index + 1}.</span>
-                  {trait.icon} {language === 'he' ? trait.nameHe : trait.name}
-                </Badge>
-              );
-            })}
-          </div>
-          
-          {prioritizedTraits.length > 3 && (
-            <>
-              <p className="text-sm text-muted-foreground mt-3">
-                {language === 'he' ? 'תכונות נוספות:' : 'Additional traits:'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {prioritizedTraits.slice(3).map((traitId) => {
-                  const trait = getTrait(traitId);
-                  if (!trait) return null;
-                  
-                  return (
-                    <Badge key={traitId} variant="outline" className="text-sm">
-                      {trait.icon} {language === 'he' ? trait.nameHe : trait.name}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-      </Card>
+      </div>
 
       {/* Rewards Preview */}
       {rewards && (
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Sparkles className="h-4 w-4 text-yellow-500" />
-            +{rewards.xp}{hasBonus ? '+25' : ''} XP
-          </span>
-          <span className="flex items-center gap-1">
-            🪙 +{rewards.tokens}{hasBonus ? '+2' : ''} Tokens
-          </span>
-        </div>
-      )}
-      
-      {hasBonus && (
-        <p className="text-center text-sm text-green-600 dark:text-green-400">
-          ✨ {language === 'he' ? 'בונוס על בחירת 5+ תכונות!' : 'Bonus for selecting 5+ traits!'}
-        </p>
+        <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200 dark:border-amber-800">
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <div className="flex items-center gap-1">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+              <span className="font-medium text-amber-700 dark:text-amber-300">+{rewards.xp} XP</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-lg">🪙</span>
+              <span className="font-medium text-amber-700 dark:text-amber-300">+{rewards.tokens}</span>
+            </div>
+          </div>
+        </Card>
       )}
 
-      {/* Navigation */}
+      {/* Action Buttons */}
       <div className="flex gap-3 pt-4">
         <Button
           variant="outline"
           size="lg"
-          className="flex-1 py-6"
           onClick={onBack}
+          className="flex-1"
         >
           <span className="flex items-center gap-2">
             {isRTL ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
@@ -673,18 +475,16 @@ function RoleModelsPhase({
         
         <Button
           size="lg"
-          className="flex-1 py-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+          className="flex-[2] text-lg bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
           onClick={onComplete}
           disabled={isSaving || isCompleting}
         >
-          {(isSaving || isCompleting) ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              {language === 'he' ? 'שומר...' : 'Saving...'}
-            </span>
+          {isSaving || isCompleting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <span className="flex items-center gap-2">
-              {language === 'he' ? 'סיום ←' : 'Complete →'}
+              <Sparkles className="h-5 w-5" />
+              {language === 'he' ? 'סיום' : 'Complete'}
             </span>
           )}
         </Button>
@@ -692,65 +492,3 @@ function RoleModelsPhase({
     </motion.div>
   );
 }
-
-// ============ TRAIT CARD COMPONENT ============
-interface TraitCardProps {
-  trait: CharacterTrait;
-  isSelected: boolean;
-  isDisabled?: boolean;
-  priorityNumber?: number;
-  onClick: () => void;
-  language: string;
-}
-
-function TraitCard({ trait, isSelected, isDisabled, priorityNumber, onClick, language }: TraitCardProps) {
-  return (
-    <motion.button
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
-      disabled={isDisabled}
-      className={cn(
-        "relative p-3 rounded-xl border-2 text-start transition-all",
-        "hover:shadow-md",
-        isDisabled && "opacity-50 cursor-not-allowed",
-        isSelected
-          ? `border-current bg-gradient-to-br ${trait.gradient} text-white shadow-lg`
-          : "border-border hover:border-muted-foreground/50 bg-card"
-      )}
-    >
-      {/* Priority Number Badge */}
-      {isSelected && priorityNumber && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className={cn(
-            "absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-md font-bold text-xs",
-            priorityNumber <= 3 
-              ? "bg-amber-500 text-white" 
-              : "bg-white text-gray-700"
-          )}
-        >
-          {priorityNumber}
-        </motion.div>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <span className="text-xl">{trait.icon}</span>
-        <span className={cn(
-          "font-medium text-sm",
-          isSelected ? "text-white" : "text-foreground"
-        )}>
-          {language === 'he' ? trait.nameHe : trait.name}
-        </span>
-        <span className={cn(
-          "text-xs line-clamp-2",
-          isSelected ? "text-white/80" : "text-muted-foreground"
-        )}>
-          {language === 'he' ? trait.descriptionHe : trait.description}
-        </span>
-      </div>
-    </motion.button>
-  );
-}
-
-export default IdentityBuildingStep;
