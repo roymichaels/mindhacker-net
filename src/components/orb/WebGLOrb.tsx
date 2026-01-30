@@ -26,6 +26,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const meshRef = useRef<THREE.Mesh | null>(null);
+  const basePositionsRef = useRef<Float32Array | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
 
@@ -76,6 +77,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Geometry - Icosahedron for organic shape (smaller radius to avoid clipping)
     const geometry = new THREE.IcosahedronGeometry(0.7, 4);
+    // Store base vertex positions once (avoid cumulative distortion each frame)
+    basePositionsRef.current = (geometry.attributes.position.array as Float32Array).slice();
     
     // Material - Wireframe with glow
     const material = new THREE.MeshBasicMaterial({
@@ -161,12 +164,14 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
       // Morphing vertices for organic feel
       const positions = mesh.geometry.attributes.position;
-      const originalPositions = mesh.geometry.attributes.position.clone();
+      const basePositions = basePositionsRef.current;
+      if (!basePositions) return;
       
       for (let i = 0; i < positions.count; i++) {
-        const x = originalPositions.getX(i);
-        const y = originalPositions.getY(i);
-        const z = originalPositions.getZ(i);
+        const idx = i * 3;
+        const x = basePositions[idx];
+        const y = basePositions[idx + 1];
+        const z = basePositions[idx + 2];
         
         const noise = Math.sin(x * 2 + time) * Math.cos(y * 2 + time) * 0.05 * (1 + audioLevel);
         
