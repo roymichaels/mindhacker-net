@@ -1,221 +1,171 @@
 
-# Plan: Digital Avatar Orb Section + Header Orb Avatar + Larger Logo
 
-## Overview
+# תוכנית: דף בית חדש לגמרי - "Life as a Game"
 
-שלושה שיפורים עיקריים:
-1. **סקשן חדש בדף הבית** - להציג שהאורב מתפתח ומותאם אישית לכל משתמש (כמו Avatar)
-2. **אורב כאווטר בהדר** - להחליף את האווטר הרגיל באורב מותאם אישית עבור משתמשים מחוברים
-3. **לוגו גדול יותר בהדר** - להגדיל את הלוגו שעדיין נראה קטן
+## סיכום
+
+דף הבית יעבור עיצוב מחדש מלא עם:
+1. **שפה מותאמת** - לא נשתמש במילה "אורב" בעברית, נשתמש במקום במונחים כמו "האווטר הדיגיטלי", "הכדור", "הישות"
+2. **סדר סקשנים מחודש** - דגש על הדברים הכי חזקים ראשונים
+3. **עיצוב משחקי יותר** - כל הסקשנים בסגנון game UI
 
 ---
 
-## Part 1: New Homepage Section - "Digital Avatar Orb"
-
-### Location in Page
-
-הסקשן יתווסף מיד אחרי `GameHeroSection` ולפני `WhatIsThisSection` - כדי להמשיך את "הסיפור" של האורב שמופיע בהירו.
-
-### Section Design
+## מבנה דף הבית החדש
 
 ```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                                                                       │
-│              🔮 Badge: "Your Digital Avatar"                         │
-│                                                                       │
-│  ┌─────────────────────────────────────────────────────────────────┐ │
-│  │                                                                 │ │
-│  │                    [Animated Orb Demo]                          │ │
-│  │                   Size: 200px, Morphing                         │ │
-│  │                                                                 │ │
-│  └─────────────────────────────────────────────────────────────────┘ │
-│                                                                       │
-│           "Your Orb Evolves With You"                                │
-│           ─────────────────────────────                              │
-│    Subtitle: Colors, shapes, textures uniquely yours                │
-│                                                                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │
-│  │ 🎨 Colors    │  │ ✨ Shapes    │  │ 🌟 Textures  │               │
-│  │ Based on    │  │ Based on    │  │ Based on    │               │
-│  │ your Ego    │  │ your traits │  │ your level  │               │
-│  │ State       │  │             │  │ & progress  │               │
-│  └──────────────┘  └──────────────┘  └──────────────┘               │
-│                                                                       │
-│  ┌─────────────────────────────────────────────────────────────────┐ │
-│  │  🧬 Guardian    🔥 Warrior    💚 Healer    🔮 Mystic   ...     │ │
-│  │  [Mini orb]   [Mini orb]    [Mini orb]   [Mini orb]            │ │
-│  └─────────────────────────────────────────────────────────────────┘ │
-│                                                                       │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              HEADER                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  1. HERO SECTION - "הפוך את החיים למשחק"                               │
+│     [אווטר 3D מונפש] + כותרת גדולה + CTA משחקי                         │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  2. AVATAR SECTION - "האווטר הדיגיטלי שלך"                              │
+│     הדגשת הפרסונליזציה: צבעים, צורות, טקסטורות                          │
+│     (תרגום: לא "אורב" - אלא "האווטר", "הישות שלך")                      │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  3. THREE PILLARS - "מה זה?"                                          │
+│     AI Coach | Gamification | Hypnosis                                 │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  4. GAMIFICATION SECTION - "צבור XP, עלה ברמות"                        │
+│     4 כרטיסיות: Level, Streaks, Tokens, Achievements                  │
+│     + טבלת XP לכל פעולה                                                │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  5. CHAT SECTION - "דרך הצ'אט אפשר לעשות הכל"                          │
+│     6 יכולות: משימות, לוז, צ'קליסטים, יעדים, תובנות, תזכורות          │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  6. COACHING SECTION - "אימון תודעתי 24/7"                             │
+│     Aurora + 12 מצבי אגו סביבו                                         │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  7. LAUNCHPAD SECTION - "10 שלבים → תוכנית 90 יום"                     │
+│     10 שלבים + תוצאות                                                  │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  8. DASHBOARD PREVIEW - "כך נראה הדשבורד שלך"                          │
+│     Mock Dashboard + CTA אחרון                                          │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
-
-### Features to Display
-
-| Feature | Icon | Description (HE) | Description (EN) |
-|---------|------|------------------|------------------|
-| **Colors** | Palette | צבעים ייחודיים לפי מצב האגו שלך | Unique colors based on your Ego State |
-| **Shapes** | Sparkles | צורות גיאומטריות לפי התכונות שבחרת | Geometric shapes based on your traits |
-| **Textures** | Layers | טקסטורות מתפתחות עם הרמה שלך | Evolving textures with your level |
-
-### Mini Orb Showcase
-
-נציג 4-5 מיני-אורבים קטנים (40px) בצבעים שונים לפי Ego States שונים:
-- Guardian (Blue)
-- Warrior (Orange)
-- Healer (Green)
-- Mystic (Purple)
-- Sage (Cyan)
 
 ---
 
-## Part 2: Header Avatar Orb
+## שינויי תוכן ושפה
 
-### Current Implementation
+### 1. החלפת "אורב" בעברית
 
-כרגע האווטר משתמש ב-Avatar component של shadcn עם initials:
+| טקסט ישן | טקסט חדש |
+|----------|----------|
+| האורב שלך מתפתח איתך | **האווטר הדיגיטלי שלך מתפתח איתך** |
+| ככל שתתקדם - האורב ישתנה | **ככל שתתקדם - הוא ישתנה** |
+| צבעים ייחודיים לפי מצב האגו שלך | ללא שינוי |
+| צורות גיאומטריות לפי התכונות שבחרת | ללא שינוי |
 
-```tsx
-<Avatar className="h-8 w-8">
-  <AvatarImage src={user.user_metadata?.avatar_url} />
-  <AvatarFallback>{getUserInitials()}</AvatarFallback>
-</Avatar>
-```
+### 2. תרגומים חדשים לסקשן Avatar
 
-### New Implementation
-
-עבור משתמשים מחוברים, נחליף את האווטר באורב מותאם אישית קטן:
-
-```tsx
-{user ? (
-  <div className="relative h-9 w-9 rounded-full overflow-hidden">
-    <PersonalizedOrb 
-      size={36}
-      state="idle"
-      showGlow={false}
-      className="scale-110"
-    />
-  </div>
-) : (
-  <Avatar>...</Avatar>
-)}
-```
-
-### Styling Considerations
-
-- גודל: 36px (מותאם לגודל ההדר)
-- ללא Glow (כדי לא לבלבל)
-- state="idle" תמיד
-- border-2 border-primary/30 לעקביות
-
----
-
-## Part 3: Larger Header Logo
-
-### Current Size
-
-```tsx
-<div className="w-10 h-10 sm:w-12 sm:h-12">
-```
-
-40px mobile, 48px desktop - עדיין קטן מדי
-
-### New Size
-
-```tsx
-<div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16">
-```
-
-- Mobile: 48px
-- Small Desktop: 56px
-- Desktop: 64px
-
----
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/home/DigitalAvatarSection.tsx` | New homepage section about personalized orb |
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/Header.tsx` | Replace avatar with PersonalizedOrb for logged-in users, increase logo size |
-| `src/pages/Index.tsx` | Add DigitalAvatarSection after GameHeroSection |
-| `src/i18n/translations/he.ts` | Add Hebrew translations for new section |
-| `src/i18n/translations/en.ts` | Add English translations for new section |
-| `src/components/home/index.ts` | Export new component |
-
----
-
-## Technical Details
-
-### New Translations to Add
-
-**Hebrew (he.ts)**:
 ```typescript
-// Digital Avatar Section
-avatarBadge: "האווטר הדיגיטלי שלך",
-avatarTitle: "האורב שלך מתפתח איתך",
-avatarSubtitle: "צבעים, צורות וטקסטורות ייחודיות לך בלבד",
-avatarColors: "צבעים",
-avatarColorsDesc: "צבעים ייחודיים לפי מצב האגו שלך",
-avatarShapes: "צורות",
-avatarShapesDesc: "צורות גיאומטריות לפי התכונות שבחרת",
-avatarTextures: "טקסטורות",
-avatarTexturesDesc: "מורכבות גיאומטרית שעולה עם הרמה",
-avatarEvolution: "ככל שתתקדם - האורב ישתנה",
-```
-
-**English (en.ts)**:
-```typescript
-// Digital Avatar Section
-avatarBadge: "Your Digital Avatar",
-avatarTitle: "Your Orb Evolves With You",
-avatarSubtitle: "Colors, shapes, and textures uniquely yours",
-avatarColors: "Colors",
-avatarColorsDesc: "Unique colors based on your Ego State",
-avatarShapes: "Shapes",
-avatarShapesDesc: "Geometric shapes based on your traits",
-avatarTextures: "Textures",
-avatarTexturesDesc: "Complexity that grows with your level",
-avatarEvolution: "As you progress - your orb transforms",
-```
-
-### Header Component Changes
-
-1. Import `PersonalizedOrb` from `@/components/orb`
-2. For logged-in users, render mini orb instead of Avatar with initials
-3. Increase logo container from `w-10 h-10 sm:w-12 sm:h-12` to `w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16`
-
-### DigitalAvatarSection Component Structure
-
-```tsx
-export default function DigitalAvatarSection() {
-  // Features array for the 3 pillars (Colors, Shapes, Textures)
-  // Mini orbs showcase array with ego states
-  // Framer Motion animations for entrance
-  // RTL support via useTranslation
-  
-  return (
-    <section>
-      {/* Badge */}
-      {/* Animated Central Orb */}
-      {/* Title + Subtitle */}
-      {/* 3-Column Features Grid */}
-      {/* Mini Orbs Showcase Row */}
-    </section>
-  );
+avatar: {
+  badge: "הזהות הדיגיטלית שלך",
+  title: "האווטר שלך מתפתח איתך",
+  subtitle: "צבעים, צורות וטקסטורות ייחודיות שמשקפות את מי שאתה",
+  colors: "צבעים",
+  colorsDesc: "פלטת צבעים ייחודית לפי האישיות שלך",
+  shapes: "צורות",
+  shapesDesc: "מבנה גיאומטרי שנבנה מהתכונות שבחרת",
+  textures: "טקסטורות",
+  texturesDesc: "מורכבות שעולה ככל שאתה מתקדם",
+  evolution: "ככל שתתקדם - הוא מתפתח איתך",
 }
 ```
 
 ---
 
-## Visual Summary
+## שיפורים ויזואליים
 
-After implementation:
-1. **Homepage** will have a dedicated section explaining that the orb is a personal digital avatar that evolves
-2. **Header** will show the user's personalized mini-orb as their avatar (instead of just initials)
-3. **Logo** will be significantly larger and more prominent in the header (48px → 64px)
+### 1. Hero Section
+
+- **כותרת גדולה יותר** - font-size 7xl-8xl
+- **Badge משחקי** - עם אנימציית נצנוץ
+- **CTA ירוק זוהר** (כבר עודכן) - שמירה על הסגנון
+- **תת-כותרת** - הדגשה על "דשבורד אישי"
+
+### 2. Avatar Section (DigitalAvatarSection)
+
+- **מרכז ויזואלי** - אווטר גדול (200px) עם הילה זוהרת
+- **3 פילרים** - צבעים, צורות, טקסטורות - עם אייקונים וגרדיאנטים
+- **מיני-אווטרים** - תצוגת 5 סוגי Ego States שונים (Guardian, Warrior, Healer, Mystic, Sage)
+- **אנימציות** - כניסה מונפשת לכל אלמנט
+
+### 3. Three Pillars (WhatIsThisSection)
+
+- שמירה על המבנה הנוכחי
+- שיפור הגרדיאנטים והצללים
+
+### 4. Gamification Section
+
+- **4 כרטיסיות בולטות** - Level, Streaks, Tokens, Achievements
+- **טבלת XP** - 5 פעולות עם כמות XP
+- **אנימציות Hover** - scale ו-glow
+
+### 5. Dashboard Preview
+
+- עדכון ה-CTA לסגנון משחקי (כמו ב-Hero)
+- שיפור הזוהר והצללים
+
+---
+
+## קבצים לשינוי
+
+| קובץ | שינויים |
+|------|----------|
+| `src/pages/Index.tsx` | סידור מחדש של הסקשנים (הסדר הנוכחי כבר טוב) |
+| `src/i18n/translations/he.ts` | עדכון תרגומים - החלפת "אורב" ב"אווטר" |
+| `src/i18n/translations/en.ts` | עדכון תרגומים - שיפורים |
+| `src/components/home/DigitalAvatarSection.tsx` | עיצוב מחודש, הדגשת הערך |
+| `src/components/home/GameHeroSection.tsx` | שיפורים קלים בטיפוגרפיה |
+| `src/components/home/GamificationFeaturesSection.tsx` | שיפור אנימציות |
+| `src/components/home/DashboardPreviewSection.tsx` | CTA משחקי |
+
+---
+
+## סדר הסקשנים הסופי
+
+```typescript
+// src/pages/Index.tsx
+<main className="relative z-10">
+  <GameHeroSection />           // 1. Hero עם Avatar
+  <DigitalAvatarSection />      // 2. הסבר על האווטר המתפתח
+  <WhatIsThisSection />         // 3. 3 Pillars - מה זה?
+  <GamificationFeaturesSection /> // 4. Gamification
+  <ChatManagesEverythingSection /> // 5. Chat
+  <ConsciousnessCoachingSection /> // 6. Coaching
+  <LifePlanPreviewSection />    // 7. Launchpad
+  <DashboardPreviewSection />   // 8. Dashboard Preview
+</main>
+```
+
+**הסדר הזה כבר קיים ומתאים** - רק נשפר את התוכן והעיצוב של כל סקשן.
+
+---
+
+## סיכום טכני
+
+1. **עדכון תרגומים** - החלפת "אורב" ב"אווטר דיגיטלי"
+2. **שיפור DigitalAvatarSection** - עיצוב יותר בולט ומשחקי
+3. **עקביות CTAs** - כל הכפתורים בסגנון ירוק/סיאן זוהר
+4. **אנימציות חלקות** - Framer Motion לכל הסקשנים
+5. **RTL מלא** - תמיכה מושלמת בעברית
 
