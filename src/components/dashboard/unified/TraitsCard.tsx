@@ -40,8 +40,32 @@ export function TraitsCard({ archetypeData, roleModels, className, traitIds, tra
   const { isRTL, language } = useTranslation();
   const isHebrew = language === 'he';
 
-  // If no archetype data and no legacy traits, don't render
-  if (!archetypeData && (!traitIds || traitIds.length === 0)) return null;
+  // If no archetype data and no legacy traits, show empty state
+  if (!archetypeData && (!traitIds || traitIds.length === 0)) {
+    return (
+      <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Sparkles className="h-5 w-5 text-violet-500" />
+            {isHebrew ? 'תכונות אופי' : 'Character Traits'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground mb-2">
+            {isHebrew 
+              ? 'עדיין אין ניתוח תכונות' 
+              : 'No traits analysis yet'}
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            {isHebrew 
+              ? 'השלם את ה-Launchpad כדי לגלות את הארכיטייפ שלך'
+              : 'Complete the Launchpad to discover your archetype'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Render AI-generated archetype
   if (archetypeData) {

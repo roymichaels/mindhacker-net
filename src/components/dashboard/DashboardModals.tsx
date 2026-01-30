@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { LifePlanExpanded } from './LifePlanExpanded';
 import { ChecklistsCard, ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardModalProps {
   open: boolean;
@@ -105,11 +108,94 @@ export function IdentityModal({ open, onOpenChange, language, values, principles
   );
 }
 
-interface TraitsModalProps extends DashboardModalProps {
-  traitIds: string[];
+interface ArchetypeData {
+  archetype: {
+    name: string;
+    nameEn: string;
+    description: string;
+    descriptionEn: string;
+    icon: string;
+  };
+  coreTraits: Array<{
+    name: string;
+    nameEn: string;
+    icon: string;
+    reason: string;
+    reasonEn: string;
+  }>;
+  growthEdges: Array<{
+    area: string;
+    areaEn: string;
+  }>;
+  uniqueStrength: string;
+  uniqueStrengthEn: string;
 }
 
-export function TraitsModal({ open, onOpenChange, language, traitIds }: TraitsModalProps) {
+export function TraitsModal({ open, onOpenChange, language }: DashboardModalProps) {
+  const { user } = useAuth();
+  const [archetypeData, setArchetypeData] = useState<ArchetypeData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || !open) return;
+
+    async function fetchArchetype() {
+      try {
+        const { data } = await supabase
+          .from('launchpad_summaries')
+          .select('summary_data')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (data?.summary_data) {
+          const summaryData = data.summary_data as any;
+          
+          // Try to get archetype from identity_profile or build from consciousness_analysis
+          if (summaryData.identity_profile?.archetype) {
+            setArchetypeData(summaryData.identity_profile.archetype);
+          } else if (summaryData.consciousness_analysis) {
+            // Build archetype from consciousness analysis data
+            const ca = summaryData.consciousness_analysis;
+            const ip = summaryData.identity_profile || {};
+            
+            const constructedArchetype: ArchetypeData = {
+              archetype: {
+                name: ip.suggested_ego_state || 'מעצב מודע',
+                nameEn: ip.suggested_ego_state_en || 'Conscious Shaper',
+                description: ca.current_state || '',
+                descriptionEn: ca.current_state || '',
+                icon: '🎯',
+              },
+              coreTraits: (ip.dominant_traits || ca.strengths || []).slice(0, 4).map((trait: string, i: number) => ({
+                name: trait,
+                nameEn: trait,
+                icon: ['💡', '🔥', '⚡', '🌟'][i] || '✨',
+                reason: '',
+                reasonEn: '',
+              })),
+              growthEdges: (ca.growth_edges || []).slice(0, 3).map((edge: string) => ({
+                area: edge,
+                areaEn: edge,
+              })),
+              uniqueStrength: ip.values_hierarchy?.[0] || ca.strengths?.[0] || '',
+              uniqueStrengthEn: ip.values_hierarchy?.[0] || ca.strengths?.[0] || '',
+            };
+            
+            setArchetypeData(constructedArchetype);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching archetype:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArchetype();
+  }, [user, open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
@@ -118,7 +204,7 @@ export function TraitsModal({ open, onOpenChange, language, traitIds }: TraitsMo
             {language === 'he' ? 'תכונות אופי' : 'Character Traits'}
           </DialogTitle>
         </DialogHeader>
-        <TraitsCard traitIds={traitIds} />
+        <TraitsCard archetypeData={archetypeData} />
       </DialogContent>
     </Dialog>
   );

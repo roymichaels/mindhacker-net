@@ -56,7 +56,33 @@ export function BehavioralInsightsCard({ className }: { className?: string }) {
     );
   }
 
-  if (!insights) return null;
+  if (!insights) {
+    return (
+      <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-orange-500" />
+            </div>
+            {language === 'he' ? 'תובנות התנהגותיות' : 'Behavioral Insights'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <Activity className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground mb-2">
+            {language === 'he' 
+              ? 'עדיין אין תובנות התנהגותיות' 
+              : 'No behavioral insights yet'}
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            {language === 'he' 
+              ? 'השלם את ה-Launchpad כדי לזהות דפוסים'
+              : 'Complete the Launchpad to identify patterns'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const sections = [
     {

@@ -16,9 +16,33 @@ interface DailyAnchorsDisplayProps {
 }
 
 export function DailyAnchorsDisplay({ anchors, className }: DailyAnchorsDisplayProps) {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
 
-  if (anchors.length === 0) return null;
+  if (anchors.length === 0) {
+    return (
+      <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Anchor className="h-5 w-5 text-green-500" />
+            {t('unified.dailyAnchors.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <Anchor className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground mb-2">
+            {language === 'he' 
+              ? 'עדיין אין עוגנים יומיים' 
+              : 'No daily anchors yet'}
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            {language === 'he' 
+              ? 'דבר עם אורורה כדי להגדיר הרגלי עוגן'
+              : 'Talk to Aurora to set anchor habits'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>

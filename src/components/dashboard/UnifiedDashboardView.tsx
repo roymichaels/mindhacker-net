@@ -156,7 +156,6 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
           open={activeModal === 'traits'} 
           onOpenChange={(open) => !open && setActiveModal(null)} 
           language={language}
-          traitIds={dashboard.characterTraits}
         />
         <CommitmentsModal 
           open={activeModal === 'commitments'} 
