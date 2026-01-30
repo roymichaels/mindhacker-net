@@ -2372,7 +2372,7 @@ export const he = {
     chatInsights: "תובנות",
     chatInsightsExample: '"מה למדתי השבוע?"',
     chatReminders: "תזכורות",
-    chatRemindersExample: '"הזכר לי מחר..."',
+    chatRemindersExample: '"מה המשימות שלי מחר?"',
     
     // Gamification
     gamificationTitle: "צבור XP, עלה ברמות, פתח הישגים",

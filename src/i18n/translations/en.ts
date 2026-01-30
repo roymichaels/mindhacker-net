@@ -2321,7 +2321,7 @@ export const en: TranslationKeys = {
     chatInsights: "Insights",
     chatInsightsExample: '"What did I learn this week?"',
     chatReminders: "Reminders",
-    chatRemindersExample: '"Remind me tomorrow..."',
+    chatRemindersExample: '"What are my tasks tomorrow?"',
     
     // Gamification
     gamificationTitle: "Earn XP, Level Up, Unlock Achievements",
