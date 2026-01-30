@@ -126,7 +126,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
           user_id: user.id,
           email: user.email,
           responses,
-          status: 'completed',
+          status: 'new',
         })
         .select()
         .single();
