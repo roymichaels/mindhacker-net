@@ -36,8 +36,8 @@ import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
 
-// Default logo from public folder
-const defaultLogo = "/icons/icon-96x96.png";
+// Default logo from public folder - new orb logo
+const defaultLogo = "/icons/icon-96x96.png?v=4";
 
 export interface HeaderProps {
   variant?: "public" | "admin";

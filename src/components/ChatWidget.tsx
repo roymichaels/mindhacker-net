@@ -3,8 +3,8 @@ import ChatPanel from "./chat/ChatPanel";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
-// Default logo from public folder (same as Header)
-const defaultLogo = "/icons/icon-96x96.png";
+// Default logo from public folder (new orb logo)
+const defaultLogo = "/icons/icon-96x96.png?v=4";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
