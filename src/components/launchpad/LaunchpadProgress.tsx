@@ -1,16 +1,19 @@
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS } from '@/hooks/useLaunchpadProgress';
-import { Check, Lock } from 'lucide-react';
+import { Check, Lock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 
 interface LaunchpadProgressProps {
   className?: string;
   compact?: boolean;
+  onClick?: () => void;
 }
 
-export function LaunchpadProgress({ className, compact = false }: LaunchpadProgressProps) {
+export function LaunchpadProgress({ className, compact = false, onClick }: LaunchpadProgressProps) {
   const { t, isRTL, language } = useTranslation();
+  const navigate = useNavigate();
   const { 
     progress, 
     completionPercentage, 
@@ -22,16 +25,37 @@ export function LaunchpadProgress({ className, compact = false }: LaunchpadProgr
 
   if (isLaunchpadComplete) return null;
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate('/launchpad');
+    }
+  };
+
   if (compact) {
     return (
-      <div className={cn("p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border", className)}>
+      <button 
+        onClick={handleClick}
+        className={cn(
+          "w-full p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border text-start transition-all hover:shadow-md hover:border-primary/30 group",
+          className
+        )}
+      >
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium">
             {language === 'he' ? 'התקדמות Launchpad' : 'Launchpad Progress'}
           </span>
-          <span className="text-sm text-muted-foreground">
-            {currentStep - 1}/{STEPS.length}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {currentStep - 1}/{STEPS.length}
+            </span>
+            {isRTL ? (
+              <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            )}
+          </div>
         </div>
         <Progress value={completionPercentage} className="h-2" />
         <p className="text-xs text-muted-foreground mt-2">
@@ -40,7 +64,7 @@ export function LaunchpadProgress({ className, compact = false }: LaunchpadProgr
             : `Next: ${STEPS[currentStep - 1]?.titleEn || 'Complete'}`
           }
         </p>
-      </div>
+      </button>
     );
   }
 
