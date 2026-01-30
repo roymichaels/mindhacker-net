@@ -55,3 +55,16 @@ export const getCurrencySymbol = (language: 'he' | 'en'): string => {
 export const getCurrencyCode = (language: 'he' | 'en'): string => {
   return language === 'en' ? 'USD' : 'ILS';
 };
+
+/**
+ * Format currency with amount and currency code
+ */
+export const formatCurrency = (amount: number, currency: string = 'ILS'): string => {
+  if (currency === 'USD' || currency === '$') {
+    return `$${amount.toLocaleString()}`;
+  }
+  if (currency === 'EUR' || currency === '€') {
+    return `€${amount.toLocaleString()}`;
+  }
+  return `₪${amount.toLocaleString()}`;
+};
