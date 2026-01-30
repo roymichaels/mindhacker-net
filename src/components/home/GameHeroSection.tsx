@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Rocket, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Orb } from '@/components/orb';
+import { PersonalizedOrb } from '@/components/orb';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
 
   // Cycle through orb states for visual interest
@@ -63,12 +65,12 @@ export default function GameHeroSection() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="mx-auto"
           >
-            <Orb 
-              size={150}
+            <PersonalizedOrb 
+              size={180}
               state={orbState}
-              egoState="guardian"
-              showGlow={false}
+              showGlow={true}
               className="mx-auto"
+              disablePersonalization={!user}
             />
           </motion.div>
 

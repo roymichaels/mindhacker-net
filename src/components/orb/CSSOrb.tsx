@@ -1,10 +1,10 @@
-import React, { forwardRef, useImperativeHandle, useState, useCallback } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { OrbRef, OrbProps, OrbState } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
 
 export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
-  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady },
+  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady, profile },
   ref
 ) {
   const [internalState, setInternalState] = useState<OrbState>('idle');
@@ -15,7 +15,16 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   const audioLevel = externalAudioLevel ?? internalAudioLevel;
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
-  const colors = getEgoStateColors(egoState);
+  // Use profile colors if available, otherwise fall back to ego state colors
+  const egoColors = getEgoStateColors(egoState);
+  const colors = profile ? {
+    primary: profile.primaryColor,
+    secondary: profile.secondaryColors[0] || profile.primaryColor,
+    accent: profile.accentColor,
+    glow: profile.accentColor,
+    highlight: egoColors.highlight,
+    shadow: egoColors.shadow,
+  } : egoColors;
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
