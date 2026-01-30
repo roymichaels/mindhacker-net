@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Loader2, Rocket, MessageCircle, Sparkles, UserCog } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -7,6 +8,7 @@ import { LaunchpadProgress } from '@/components/launchpad';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { ProfileDrawer } from './ProfileDrawer';
 import {
   StatsBar,
   XpProgressSection,
@@ -34,6 +36,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
   const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   if (dashboard.isLoading) {
     return (
@@ -82,11 +85,14 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
         <Button
           variant="outline"
           className="w-full gap-2"
-          onClick={() => navigate('/launchpad/settings')}
+          onClick={() => setProfileOpen(true)}
         >
           <UserCog className="h-4 w-4" />
           {language === 'he' ? 'הפרופיל שלי - צפה ועדכן' : 'My Profile - View & Edit'}
         </Button>
+
+        {/* Profile Drawer */}
+        <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
         {/* Launchpad Summary Card */}
         <LaunchpadSummaryCard />
