@@ -14,9 +14,8 @@ const GlobalBottomNav = () => {
   // Only show for authenticated users on mobile
   if (!user || !isMobile) return null;
 
-  // Don't show on admin pages or Aurora page (Aurora has its own layout)
+  // Don't show on admin pages
   if (location.pathname.startsWith('/admin')) return null;
-  if (location.pathname === '/aurora' || location.pathname.startsWith('/aurora/')) return null;
 
   const isOnCommunity = location.pathname.startsWith('/community');
   const isOnMessages = location.pathname.startsWith('/messages');
