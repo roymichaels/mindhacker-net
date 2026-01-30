@@ -193,17 +193,32 @@ const WELCOME_QUIZ: QuizQuestion[] = [
   },
 ];
 
-// Get visible questions based on current answers
+// Get visible questions based on current answers - now properly handles multi-select
 function getVisibleQuestions(answers: Record<string, string | string[]>): QuizQuestion[] {
-  return WELCOME_QUIZ.filter(q => {
-    if (!q.dependsOn) return true;
-    const parentAnswer = answers[q.dependsOn.questionId];
-    // Support both single string and array of strings
-    if (Array.isArray(parentAnswer)) {
-      return parentAnswer.some(val => q.dependsOn!.values.includes(val));
+  const result: QuizQuestion[] = [];
+  const mainAreaAnswer = answers.main_area;
+  const selectedCategories = Array.isArray(mainAreaAnswer) ? mainAreaAnswer : (mainAreaAnswer ? [mainAreaAnswer] : []);
+  
+  // First, add the main question (no dependencies)
+  const mainQuestions = WELCOME_QUIZ.filter(q => !q.dependsOn);
+  result.push(...mainQuestions.slice(0, 1)); // Just the first main question (life areas)
+  
+  // Then, add sub-questions for each selected category IN ORDER
+  for (const category of selectedCategories) {
+    const subQuestion = WELCOME_QUIZ.find(q => 
+      q.dependsOn?.questionId === 'main_area' && 
+      q.dependsOn.values.includes(category)
+    );
+    if (subQuestion) {
+      result.push(subQuestion);
     }
-    return parentAnswer && q.dependsOn.values.includes(parentAnswer as string);
-  });
+  }
+  
+  // Finally, add the remaining general questions (emotional_state, duration, etc.)
+  const generalQuestions = WELCOME_QUIZ.filter(q => !q.dependsOn && q.id !== 'main_area');
+  result.push(...generalQuestions);
+  
+  return result;
 }
 
 // Get summary text based on answers
@@ -234,10 +249,12 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
   
+  // Calculate visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers);
+  const totalQuestions = visibleQuestions.length;
   const currentQuestion = visibleQuestions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex) / visibleQuestions.length) * 100;
-  const isQuizComplete = currentQuestionIndex >= visibleQuestions.length;
+  const progress = ((currentQuestionIndex) / totalQuestions) * 100;
+  const isQuizComplete = currentQuestionIndex >= totalQuestions;
 
   // Check if quiz is complete
   useEffect(() => {
@@ -273,6 +290,7 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
   };
 
   const handleMultiSelectContinue = () => {
+    // After selecting categories, recalculate the visible questions
     const newVisibleQuestions = getVisibleQuestions(answers);
     if (currentQuestionIndex + 1 < newVisibleQuestions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -306,7 +324,7 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
         <p className="text-xs text-muted-foreground">
           {showSummary 
             ? (language === 'he' ? 'סיום' : 'Complete')
-            : `${currentQuestionIndex + 1} / ${visibleQuestions.length}`
+            : `${currentQuestionIndex + 1} / ${totalQuestions}`
           }
         </p>
       </div>
