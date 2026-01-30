@@ -63,20 +63,21 @@ export interface StepCompletionResult {
   feature_unlocked: string | null;
 }
 
-// XP and tokens for each step (now 9 steps)
+// XP and tokens for each step (now 10 steps)
 export const STEP_REWARDS = {
   1: { xp: 25, tokens: 0, unlock: 'personal_profile' },
-  2: { xp: 40, tokens: 5, unlock: 'growth_deep_dive' },
-  3: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
-  4: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
-  5: { xp: 100, tokens: 10, unlock: 'life_plan_questionnaire' },
-  6: { xp: 100, tokens: 15, unlock: 'focus_areas_selection' },
-  7: { xp: 50, tokens: 0, unlock: 'first_week_planning' },
-  8: { xp: 75, tokens: 0, unlock: 'dashboard_full' },
-  9: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
+  2: { xp: 40, tokens: 5, unlock: 'identity_building' },
+  3: { xp: 50, tokens: 5, unlock: 'growth_deep_dive' },
+  4: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
+  5: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
+  6: { xp: 100, tokens: 10, unlock: 'life_plan_questionnaire' },
+  7: { xp: 100, tokens: 15, unlock: 'focus_areas_selection' },
+  8: { xp: 50, tokens: 0, unlock: 'first_week_planning' },
+  9: { xp: 75, tokens: 0, unlock: 'dashboard_full' },
+  10: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
 };
 
-// Step metadata (now 9 steps)
+// Step metadata (now 10 steps)
 export const STEPS = [
   {
     id: 1,
@@ -98,6 +99,15 @@ export const STEPS = [
   },
   {
     id: 3,
+    key: 'identity_building',
+    title: 'בניית זהות',
+    titleEn: 'Build Your Identity',
+    description: 'בחר את תכונות האופי שאתה רוצה לפתח',
+    descriptionEn: 'Choose the character traits you want to develop',
+    icon: '🎭',
+  },
+  {
+    id: 4,
     key: 'growth_deep_dive',
     title: 'העמקה אישית',
     titleEn: 'Personal Deep Dive',
@@ -106,7 +116,7 @@ export const STEPS = [
     icon: '🔍',
   },
   {
-    id: 4,
+    id: 5,
     key: 'first_chat',
     title: 'שיחה ראשונה',
     titleEn: 'First Chat',
@@ -115,7 +125,7 @@ export const STEPS = [
     icon: '💬',
   },
   {
-    id: 5,
+    id: 6,
     key: 'introspection',
     title: 'מסע התבוננות פנימית',
     titleEn: 'Introspection Journey',
@@ -124,7 +134,7 @@ export const STEPS = [
     icon: '🧘',
   },
   {
-    id: 6,
+    id: 7,
     key: 'life_plan',
     title: 'תוכנית חיים',
     titleEn: 'Life Plan',
@@ -133,7 +143,7 @@ export const STEPS = [
     icon: '🎯',
   },
   {
-    id: 7,
+    id: 8,
     key: 'focus_areas',
     title: 'תחומי פוקוס',
     titleEn: 'Focus Areas',
@@ -142,7 +152,7 @@ export const STEPS = [
     icon: '🎪',
   },
   {
-    id: 8,
+    id: 9,
     key: 'first_week',
     title: 'שבוע ראשון',
     titleEn: 'First Week',
@@ -151,7 +161,7 @@ export const STEPS = [
     icon: '📅',
   },
   {
-    id: 9,
+    id: 10,
     key: 'dashboard_activation',
     title: 'הפעלת הדשבורד',
     titleEn: 'Dashboard Activation',
@@ -242,9 +252,9 @@ export function useLaunchpadProgress() {
     },
   });
 
-  // Calculate completion percentage (now 9 steps)
+  // Calculate completion percentage (now 10 steps)
   const completionPercentage = progress ? 
-    Math.round(((actualCurrentStep - 1) / 9) * 100) : 0;
+    Math.round(((actualCurrentStep - 1) / 10) * 100) : 0;
 
   // Get completed steps count
   const completedSteps = progress ? actualCurrentStep - 1 : 0;
@@ -281,7 +291,7 @@ export function useLaunchpadProgress() {
     isCompleting: completeStepMutation.isPending,
     completionPercentage,
     completedSteps,
-    totalSteps: 9,
+    totalSteps: 10,
     isStepAccessible,
     isStepCompleted,
     isLaunchpadComplete: isActuallyComplete,

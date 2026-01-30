@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 interface IdentityElement {
   id: string;
   user_id: string;
-  element_type: 'value' | 'principle' | 'self_concept' | 'vision_statement';
+  element_type: 'value' | 'principle' | 'self_concept' | 'vision_statement' | 'character_trait';
   content: string;
   metadata: Record<string, unknown>;
   created_at: string;
@@ -87,6 +87,7 @@ export const useDashboard = () => {
   const principles = identityElements.filter((e) => e.element_type === 'principle');
   const selfConcepts = identityElements.filter((e) => e.element_type === 'self_concept');
   const visionStatements = identityElements.filter((e) => e.element_type === 'vision_statement');
+  const characterTraits = identityElements.filter((e) => e.element_type === 'character_trait');
 
   const fiveYearVision = lifeVisions.find((v) => v.timeframe === '5_year') || null;
   const tenYearVision = lifeVisions.find((v) => v.timeframe === '10_year') || null;
@@ -129,6 +130,7 @@ export const useDashboard = () => {
     principles,
     selfConcepts,
     visionStatements,
+    characterTraits,
     fiveYearVision,
     tenYearVision,
     activeCommitments,

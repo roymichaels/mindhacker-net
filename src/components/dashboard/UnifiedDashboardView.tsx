@@ -14,6 +14,7 @@ import {
   DailyAnchorsDisplay,
   IdentityProfileCard,
   CommitmentsCard,
+  TraitsCard,
 } from './unified';
 
 interface UnifiedDashboardViewProps {
@@ -115,6 +116,9 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
             principles={dashboard.principles}
             selfConcepts={dashboard.selfConcepts}
           />
+
+          {/* Character Traits */}
+          <TraitsCard traitIds={dashboard.characterTraits} />
 
           {/* Commitments */}
           <CommitmentsCard commitments={dashboard.activeCommitments} />

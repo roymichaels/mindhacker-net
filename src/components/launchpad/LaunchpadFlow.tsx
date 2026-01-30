@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
+import { IdentityBuildingStep } from './steps/IdentityBuildingStep';
 import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
@@ -50,13 +51,13 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       return;
     }
     
-    // Store profile data for GrowthDeepDiveStep
+    // Store profile data for GrowthDeepDiveStep (step 2)
     if (currentStep === 2 && data) {
       setProfileData(data);
     }
     
     completeStep({ step: currentStep, data });
-    if (currentStep === 9 && onComplete) {
+    if (currentStep === 10 && onComplete) {
       onComplete();
     }
   };
@@ -103,18 +104,20 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 2:
         return <PersonalProfileStep {...stepProps} />;
       case 3:
-        return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
+        return <IdentityBuildingStep {...stepProps} />;
       case 4:
-        return <FirstChatStep {...stepProps} />;
+        return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
       case 5:
-        return <IntrospectionStep {...stepProps} />;
+        return <FirstChatStep {...stepProps} />;
       case 6:
-        return <LifePlanStep {...stepProps} />;
+        return <IntrospectionStep {...stepProps} />;
       case 7:
-        return <FocusAreasStep {...stepProps} />;
+        return <LifePlanStep {...stepProps} />;
       case 8:
-        return <FirstWeekStep {...stepProps} />;
+        return <FocusAreasStep {...stepProps} />;
       case 9:
+        return <FirstWeekStep {...stepProps} />;
+      case 10:
         return <DashboardActivation {...stepProps} />;
       default:
         return null;
