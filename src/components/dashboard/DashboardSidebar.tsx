@@ -14,7 +14,8 @@ import {
   Home,
   MessageCircle,
   ShoppingBag,
-  Users
+  Users,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -53,6 +54,7 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
   const mainNavItems = [
     { to: '/dashboard', icon: Home, label: t('common.dashboard'), exact: true },
     { to: '/messages', icon: MessageCircle, label: t('messages.title') },
+    { to: '/aurora', icon: Sparkles, label: t('aurora.name') },
     { to: '/courses', icon: ShoppingBag, label: t('community.catalog') },
     { to: '/community', icon: Users, label: t('community.title') },
   ];
