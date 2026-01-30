@@ -10,22 +10,32 @@ export interface LaunchpadProgress {
   step_1_welcome: boolean;
   step_1_intention: string | null;
   step_1_completed_at: string | null;
-  step_2_first_chat: boolean;
+  // Step 2: Personal Profile (NEW!)
+  step_2_profile: boolean;
+  step_2_profile_data: Record<string, unknown> | null;
+  step_2_profile_completed_at: string | null;
+  // Step 3: First Chat (was step 2)
+  step_2_first_chat: boolean; // DB column name unchanged
   step_2_summary: string | null;
   step_2_completed_at: string | null;
+  // Step 4: Introspection (was step 3)
   step_3_introspection: boolean;
   step_3_form_submission_id: string | null;
   step_3_completed_at: string | null;
+  // Step 5: Life Plan (was step 4)
   step_4_life_plan: boolean;
   step_4_form_submission_id: string | null;
   step_4_completed_at: string | null;
+  // Step 6: Focus Areas (was step 5)
   step_5_focus_areas: boolean;
   step_5_focus_areas_selected: string[];
   step_5_completed_at: string | null;
+  // Step 7: First Week (was step 6)
   step_6_first_week: boolean;
   step_6_actions: string[];
   step_6_anchor_habit: string | null;
   step_6_completed_at: string | null;
+  // Step 8: Dashboard Activation (was step 7)
   step_7_dashboard_activated: boolean;
   step_7_completed_at: string | null;
   current_step: number;
@@ -37,6 +47,7 @@ export interface LaunchpadProgress {
 
 export interface StepCompletionData {
   intention?: string;
+  profile_data?: Record<string, unknown>;
   summary?: string;
   form_submission_id?: string;
   focus_areas?: string[];
@@ -52,18 +63,19 @@ export interface StepCompletionResult {
   feature_unlocked: string | null;
 }
 
-// XP and tokens for each step
+// XP and tokens for each step (now 8 steps)
 export const STEP_REWARDS = {
-  1: { xp: 25, tokens: 0, unlock: 'aurora_chat_basic' },
-  2: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
-  3: { xp: 100, tokens: 10, unlock: 'life_plan_questionnaire' },
-  4: { xp: 100, tokens: 15, unlock: 'focus_areas_selection' },
-  5: { xp: 50, tokens: 0, unlock: 'first_week_planning' },
-  6: { xp: 75, tokens: 0, unlock: 'dashboard_full' },
-  7: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
+  1: { xp: 25, tokens: 0, unlock: 'personal_profile' },
+  2: { xp: 40, tokens: 5, unlock: 'aurora_chat_basic' },
+  3: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
+  4: { xp: 100, tokens: 10, unlock: 'life_plan_questionnaire' },
+  5: { xp: 100, tokens: 15, unlock: 'focus_areas_selection' },
+  6: { xp: 50, tokens: 0, unlock: 'first_week_planning' },
+  7: { xp: 75, tokens: 0, unlock: 'dashboard_full' },
+  8: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
 };
 
-// Step metadata
+// Step metadata (now 8 steps)
 export const STEPS = [
   {
     id: 1,
@@ -76,6 +88,15 @@ export const STEPS = [
   },
   {
     id: 2,
+    key: 'personal_profile',
+    title: 'פרופיל אישי',
+    titleEn: 'Personal Profile',
+    description: 'ספר לנו על ההרגלים והאורח חיים שלך',
+    descriptionEn: 'Tell us about your habits and lifestyle',
+    icon: '👤',
+  },
+  {
+    id: 3,
     key: 'first_chat',
     title: 'שיחה ראשונה',
     titleEn: 'First Chat',
@@ -84,7 +105,7 @@ export const STEPS = [
     icon: '💬',
   },
   {
-    id: 3,
+    id: 4,
     key: 'introspection',
     title: 'מסע התבוננות פנימית',
     titleEn: 'Introspection Journey',
@@ -93,7 +114,7 @@ export const STEPS = [
     icon: '🔍',
   },
   {
-    id: 4,
+    id: 5,
     key: 'life_plan',
     title: 'תוכנית חיים',
     titleEn: 'Life Plan',
@@ -102,7 +123,7 @@ export const STEPS = [
     icon: '🎯',
   },
   {
-    id: 5,
+    id: 6,
     key: 'focus_areas',
     title: 'תחומי פוקוס',
     titleEn: 'Focus Areas',
@@ -111,7 +132,7 @@ export const STEPS = [
     icon: '🎪',
   },
   {
-    id: 6,
+    id: 7,
     key: 'first_week',
     title: 'שבוע ראשון',
     titleEn: 'First Week',
@@ -120,7 +141,7 @@ export const STEPS = [
     icon: '📅',
   },
   {
-    id: 7,
+    id: 8,
     key: 'dashboard_activation',
     title: 'הפעלת הדשבורד',
     titleEn: 'Dashboard Activation',
@@ -199,9 +220,9 @@ export function useLaunchpadProgress() {
     },
   });
 
-  // Calculate completion percentage
+  // Calculate completion percentage (now 8 steps)
   const completionPercentage = progress ? 
-    Math.round(((progress.current_step - 1) / 7) * 100) : 0;
+    Math.round(((progress.current_step - 1) / 8) * 100) : 0;
 
   // Get completed steps count
   const completedSteps = progress ? progress.current_step - 1 : 0;
@@ -234,7 +255,7 @@ export function useLaunchpadProgress() {
     isCompleting: completeStepMutation.isPending,
     completionPercentage,
     completedSteps,
-    totalSteps: 7,
+    totalSteps: 8,
     isStepAccessible,
     isStepCompleted,
     isLaunchpadComplete: progress?.launchpad_complete || false,

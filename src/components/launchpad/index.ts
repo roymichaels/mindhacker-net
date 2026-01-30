@@ -1,6 +1,7 @@
 export { LaunchpadFlow } from './LaunchpadFlow';
 export { LaunchpadProgress } from './LaunchpadProgress';
 export { WelcomeStep } from './steps/WelcomeStep';
+export { PersonalProfileStep } from './steps/PersonalProfileStep';
 export { FirstChatStep } from './steps/FirstChatStep';
 export { IntrospectionStep } from './steps/IntrospectionStep';
 export { LifePlanStep } from './steps/LifePlanStep';
