@@ -9,6 +9,8 @@ interface ChecklistItem {
   is_completed: boolean;
   order_index: number;
   created_at: string;
+  due_date?: string | null;
+  completed_at?: string | null;
 }
 
 interface Checklist {
@@ -285,11 +287,81 @@ export const useChecklistsData = (user: User | null) => {
     return true;
   }, []);
 
+  // Reschedule item due date
+  const rescheduleItem = useCallback(async (checklistTitle: string, itemContent: string, newDate: string) => {
+    const checklist = checklists.find((c) => c.title === checklistTitle);
+    if (!checklist) {
+      console.error('Checklist not found:', checklistTitle);
+      return false;
+    }
+
+    const item = checklist.aurora_checklist_items?.find((i) =>
+      i.content.toLowerCase().includes(itemContent.toLowerCase())
+    );
+    if (!item) {
+      console.error('Item not found:', itemContent);
+      return false;
+    }
+
+    const { error } = await supabase
+      .from('aurora_checklist_items')
+      .update({ due_date: newDate })
+      .eq('id', item.id);
+
+    if (error) {
+      console.error('Failed to reschedule item:', error);
+      return false;
+    }
+
+    return true;
+  }, [checklists]);
+
+  // Add item with due date
+  const addChecklistItemWithDate = useCallback(async (checklistTitleOrId: string, content: string, dueDate?: string) => {
+    if (!user?.id) return null;
+
+    // Find checklist by title or id
+    let checklist = checklists.find(
+      (c) => c.title === checklistTitleOrId || c.id === checklistTitleOrId
+    );
+
+    // If not found by title, try to create one
+    if (!checklist) {
+      checklist = await createChecklist(checklistTitleOrId, 'aurora') as Checklist | null;
+      if (!checklist) return null;
+    }
+
+    const maxIndex = Math.max(
+      0,
+      ...(checklist.aurora_checklist_items?.map((i) => i.order_index) || [0])
+    );
+
+    const { data, error } = await supabase
+      .from('aurora_checklist_items')
+      .insert({
+        checklist_id: checklist.id,
+        content,
+        is_completed: false,
+        order_index: maxIndex + 1,
+        due_date: dueDate || null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to add checklist item:', error);
+      return null;
+    }
+
+    return data as ChecklistItem;
+  }, [user?.id, checklists, createChecklist]);
+
   return {
     checklists,
     loading,
     createChecklist,
     addChecklistItem,
+    addChecklistItemWithDate,
     completeChecklistItem,
     toggleItem,
     deleteChecklist,
@@ -297,5 +369,6 @@ export const useChecklistsData = (user: User | null) => {
     deleteItem,
     updateItemContent,
     updateChecklistTitle,
+    rescheduleItem,
   };
 };

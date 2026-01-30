@@ -7,8 +7,25 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Calendar, Target, CheckCircle2, Circle, Rocket, 
-  ChevronRight, Sparkles, Zap
+  ChevronRight, Sparkles, Zap, Clock, AlertCircle
 } from 'lucide-react';
+
+// Helper to calculate days remaining/overdue
+const getDaysInfo = (endDate: string | null | undefined, isCompleted: boolean): { days: number; isOverdue: boolean } => {
+  if (!endDate || isCompleted) return { days: 0, isOverdue: false };
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+  
+  const diffDays = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  return {
+    days: Math.abs(diffDays),
+    isOverdue: diffDays < 0,
+  };
+};
 
 const LifePlanCard = () => {
   const { language, isRTL } = useTranslation();
@@ -40,6 +57,8 @@ const LifePlanCard = () => {
       });
     }
   };
+
+  const daysInfo = currentMilestone ? getDaysInfo(currentMilestone.end_date, currentMilestone.is_completed) : null;
 
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
@@ -82,6 +101,46 @@ const LifePlanCard = () => {
                 <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               )}
             </div>
+
+            {/* Date Range & Status */}
+            {(currentMilestone.start_date || currentMilestone.end_date) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary" className="text-[10px] gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {currentMilestone.start_date && new Date(currentMilestone.start_date).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' })}
+                  {' - '}
+                  {currentMilestone.end_date && new Date(currentMilestone.end_date).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' })}
+                </Badge>
+                
+                {daysInfo && !currentMilestone.is_completed && (
+                  daysInfo.isOverdue ? (
+                    <Badge variant="destructive" className="text-[10px] gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {language === 'he' 
+                        ? `${daysInfo.days} ימים באיחור`
+                        : `${daysInfo.days} days overdue`
+                      }
+                    </Badge>
+                  ) : daysInfo.days <= 2 ? (
+                    <Badge variant="secondary" className="text-[10px] gap-1 bg-amber-500/20 text-amber-700 border-amber-500/30">
+                      <Clock className="h-3 w-3" />
+                      {language === 'he' 
+                        ? `נותרו ${daysInfo.days} ימים`
+                        : `${daysInfo.days} days left`
+                      }
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] gap-1">
+                      <Clock className="h-3 w-3" />
+                      {language === 'he' 
+                        ? `נותרו ${daysInfo.days} ימים`
+                        : `${daysInfo.days} days left`
+                      }
+                    </Badge>
+                  )
+                )}
+              </div>
+            )}
 
             {/* Goal */}
             {currentMilestone.goal && (
@@ -132,8 +191,8 @@ const LifePlanCard = () => {
           <div className="flex items-center gap-1 text-muted-foreground">
             <Calendar className="h-3 w-3" />
             <span>
-              {plan?.start_date && new Date(plan.start_date).toLocaleDateString()} - 
-              {plan?.end_date && new Date(plan.end_date).toLocaleDateString()}
+              {plan?.start_date && new Date(plan.start_date).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' })} - 
+              {plan?.end_date && new Date(plan.end_date).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { day: 'numeric', month: 'short' })}
             </span>
           </div>
           <Button variant="ghost" size="sm" className="h-6 text-xs gap-1">

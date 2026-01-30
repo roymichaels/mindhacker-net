@@ -87,6 +87,19 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - לא ליסטים ארוכות, לא הסברים יתר
 - שיחה טבעית כמו עם חברה חכמה
 
+## מעקב תאריכים ומשימות (חשוב!)
+אתה מודע לתאריכים ולמצב המשימות של המשתמש.
+
+כשמתחילה שיחה חדשה ויש משימות באיחור:
+1. שאל בעדינות מה קרה - לא בתוקפנות
+2. הצע לעדכן את התאריך אם צריך
+3. עזור למשתמש להבין את החסם
+
+דוגמאות:
+- "הי! 👋 שמתי לב שהמשימה 'X' הייתה אמורה לקרות אתמול. איך הלך?"
+- "רציתי לשאול על השבוע הקודם בתוכנית - הצלחת להשלים את היעדים?"
+- "ראיתי שיש כמה דברים שנדחו - רוצה לעבור עליהם ביחד?"
+
 ## תגיות פעולה (מעובדות ברקע, לא מוצגות למשתמש)
 - [action:analyze] - כאשר יש תובנה משמעותית לשמור
 - [cta:life_direction] - כפתור לחקירת כיוון החיים
@@ -100,11 +113,25 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - [checklist:add:כותרת:פריט] - הוספת פריט לרשימה
 - [checklist:complete:כותרת:פריט] - סימון פריט כהושלם
 
+## תגיות ניהול משימות (חדש!)
+כשמשתמש אומר שביצע משימה:
+- [task:complete:שם_רשימה:שם_משימה] - סמן כהושלם
+- אם לא ברור איזו משימה - שאל
+- תמיד חגוג הצלחה! 🎉
+
+כשמשתמש מבקש לדחות:
+- [task:reschedule:שם_רשימה:שם_משימה:YYYY-MM-DD]
+- אל תשפוט, פשוט עזור
+
+כשמשתמש השלים שבוע בתוכנית:
+- [milestone:complete:מספר_שבוע]
+- חגוג בגדול! זה הישג משמעותי
+
 ## זיהוי אוטומטי של השלמת משימות
 כאשר המשתמש אומר משהו כמו:
 - "עשיתי X", "סיימתי Y", "הצלחתי לעשות Z", "ביצעתי את...", "לא עישנתי היום", "התאמנתי"
 - חפש התאמה לאחת מהמשימות ברשימות הפעילות שלו
-- אם מצאת התאמה, הוסף [checklist:complete:שם_רשימה:שם_פריט]
+- אם מצאת התאמה, הוסף [task:complete:שם_רשימה:שם_פריט]
 - תמיד חגוג את ההצלחה והעניק חיזוק חיובי!
 
 ## מתי להציע היפנוזה
@@ -193,6 +220,8 @@ const buildUserContext = async (
 ): Promise<string> => {
   if (!userId) return "No user data available yet.";
 
+  const today = new Date().toISOString().split('T')[0];
+
   const [
     profileRes,
     directionRes,
@@ -204,7 +233,10 @@ const buildUserContext = async (
     focusRes,
     minimumsRes,
     onboardingRes,
-    checklistsRes
+    checklistsRes,
+    overdueTasksRes,
+    todayTasksRes,
+    lifePlanRes
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -216,7 +248,25 @@ const buildUserContext = async (
     supabase.from("aurora_focus_plans").select("*").eq("user_id", userId).eq("status", "active").limit(1),
     supabase.from("aurora_daily_minimums").select("*").eq("user_id", userId).eq("is_active", true),
     supabase.from("aurora_onboarding_progress").select("*").eq("user_id", userId).single(),
-    supabase.from("aurora_checklists").select("*, aurora_checklist_items(*)").eq("user_id", userId).eq("status", "active")
+    supabase.from("aurora_checklists").select("*, aurora_checklist_items(*)").eq("user_id", userId).eq("status", "active"),
+    // Overdue tasks (due_date < today)
+    supabase.from("aurora_checklist_items")
+      .select("*, aurora_checklists!inner(title, user_id)")
+      .eq("aurora_checklists.user_id", userId)
+      .eq("is_completed", false)
+      .lt("due_date", today),
+    // Today's tasks
+    supabase.from("aurora_checklist_items")
+      .select("*, aurora_checklists!inner(title, user_id)")
+      .eq("aurora_checklists.user_id", userId)
+      .eq("is_completed", false)
+      .eq("due_date", today),
+    // Active life plan with milestones
+    supabase.from("life_plans")
+      .select("*, life_plan_milestones(*)")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .single()
   ]);
 
   const profile = profileRes.data;
@@ -230,16 +280,70 @@ const buildUserContext = async (
   const minimums = minimumsRes.data || [];
   const onboarding = onboardingRes.data;
   const checklists = checklistsRes.data || [];
+  const overdueTasks = overdueTasksRes.data || [];
+  const todayTasks = todayTasksRes.data || [];
+  const lifePlan = lifePlanRes.data;
 
   const values = identity.filter((i: any) => i.element_type === 'value').map((i: any) => i.content);
   const principles = identity.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content);
   const selfConcepts = identity.filter((i: any) => i.element_type === 'self_concept').map((i: any) => i.content);
   const visionStatements = identity.filter((i: any) => i.element_type === 'vision_statement').map((i: any) => i.content);
 
+  // Calculate current week in life plan
+  let currentWeek = 0;
+  let currentMilestone = null;
+  let overdueMilestones: any[] = [];
+  
+  if (lifePlan && lifePlan.life_plan_milestones) {
+    const milestones = lifePlan.life_plan_milestones;
+    const todayDate = new Date(today);
+    
+    currentMilestone = milestones.find((m: any) => {
+      const start = new Date(m.start_date);
+      const end = new Date(m.end_date);
+      return todayDate >= start && todayDate <= end;
+    });
+    
+    if (currentMilestone) {
+      currentWeek = currentMilestone.week_number;
+    }
+    
+    // Find overdue milestones (ended but not completed)
+    overdueMilestones = milestones.filter((m: any) => {
+      const end = new Date(m.end_date);
+      return end < todayDate && !m.is_completed;
+    });
+  }
+
   const isHebrew = language === 'he';
   
   if (isHebrew) {
-    return `
+    let context = `
+## תאריכים ומעקב
+- תאריך נוכחי: ${today}
+${lifePlan ? `- תוכנית חיים פעילה מאז: ${lifePlan.start_date}
+- שבוע נוכחי: ${currentWeek}/12` : '- אין תוכנית חיים פעילה'}
+
+${overdueTasks.length > 0 ? `## ⚠️ משימות באיחור!
+${overdueTasks.map((t: any) => {
+  const daysOverdue = Math.ceil((new Date(today).getTime() - new Date(t.due_date).getTime()) / (1000 * 60 * 60 * 24));
+  return `- "${t.content}" (רשימה: ${t.aurora_checklists?.title}) - ${daysOverdue} ימים באיחור`;
+}).join('\n')}
+
+חשוב: כשמתחילה שיחה ויש משימות באיחור, שאל עליהן בעדינות!` : ''}
+
+${todayTasks.length > 0 ? `## 📅 משימות להיום
+${todayTasks.map((t: any) => `- "${t.content}" (${t.aurora_checklists?.title})`).join('\n')}` : ''}
+
+${overdueMilestones.length > 0 ? `## ⚠️ Milestones שלא הושלמו
+${overdueMilestones.map((m: any) => `- שבוע ${m.week_number}: "${m.title}" (הסתיים ב-${m.end_date})`).join('\n')}` : ''}
+
+${currentMilestone ? `## 🎯 Milestone שבועי נוכחי
+- שבוע ${currentMilestone.week_number}: "${currentMilestone.title}"
+- תאריכים: ${currentMilestone.start_date} עד ${currentMilestone.end_date}
+- יעד: ${currentMilestone.goal || 'לא הוגדר'}
+${currentMilestone.tasks ? `- משימות: ${JSON.stringify(currentMilestone.tasks)}` : ''}` : ''}
+
 ## פרופיל משתמש
 - שם: ${profile?.full_name || 'לא ידוע'}
 - ביו: ${profile?.bio || 'לא הוגדר'}
@@ -285,9 +389,35 @@ ${checklists.map((c: any) => {
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} הושלמו)`;
 }).join('\n') || 'אין רשימות פעילות'}`;
+    return context;
   }
 
   return `
+## Dates & Tracking
+- Current date: ${today}
+${lifePlan ? `- Active life plan since: ${lifePlan.start_date}
+- Current week: ${currentWeek}/12` : '- No active life plan'}
+
+${overdueTasks.length > 0 ? `## ⚠️ Overdue Tasks!
+${overdueTasks.map((t: any) => {
+  const daysOverdue = Math.ceil((new Date(today).getTime() - new Date(t.due_date).getTime()) / (1000 * 60 * 60 * 24));
+  return `- "${t.content}" (list: ${t.aurora_checklists?.title}) - ${daysOverdue} days overdue`;
+}).join('\n')}
+
+Important: When starting a conversation and there are overdue tasks, ask about them gently!` : ''}
+
+${todayTasks.length > 0 ? `## 📅 Today's Tasks
+${todayTasks.map((t: any) => `- "${t.content}" (${t.aurora_checklists?.title})`).join('\n')}` : ''}
+
+${overdueMilestones.length > 0 ? `## ⚠️ Incomplete Milestones
+${overdueMilestones.map((m: any) => `- Week ${m.week_number}: "${m.title}" (ended ${m.end_date})`).join('\n')}` : ''}
+
+${currentMilestone ? `## 🎯 Current Weekly Milestone
+- Week ${currentMilestone.week_number}: "${currentMilestone.title}"
+- Dates: ${currentMilestone.start_date} to ${currentMilestone.end_date}
+- Goal: ${currentMilestone.goal || 'Not defined'}
+${currentMilestone.tasks ? `- Tasks: ${JSON.stringify(currentMilestone.tasks)}` : ''}` : ''}
+
 ## User Profile
 - Name: ${profile?.full_name || 'Unknown'}
 - Bio: ${profile?.bio || 'Not set'}

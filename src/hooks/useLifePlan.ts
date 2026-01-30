@@ -31,6 +31,8 @@ interface Milestone {
   completed_at: string | null;
   xp_reward: number;
   tokens_reward: number;
+  start_date: string | null;
+  end_date: string | null;
 }
 
 interface LaunchpadSummary {
