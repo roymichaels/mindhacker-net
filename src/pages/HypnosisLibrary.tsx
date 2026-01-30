@@ -1,17 +1,13 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Clock, Sparkles, ChevronRight, Zap, ArrowLeft } from 'lucide-react';
+import { Play, Clock, Sparkles, Zap, Star, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuth } from '@/contexts/AuthContext';
-import { getEgoState } from '@/lib/egoStates';
-import { EgoStateSelector } from '@/components/gamification';
-import { LevelProgress, StreakCounter, TokenBalance } from '@/components/gamification';
 import { RecentSessions, SessionStats } from '@/components/hypnosis';
-import { useGameState } from '@/contexts/GameStateContext';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { cn } from '@/lib/utils';
 
 const QUICK_SESSIONS = [
@@ -22,75 +18,54 @@ const QUICK_SESSIONS = [
 ];
 
 const HypnosisLibrary = () => {
-  const { t, isRTL, language } = useTranslation();
-  const { user } = useAuth();
+  const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
-  const { gameState } = useGameState();
   const { impact } = useHaptics();
-  
-  const [selectedEgoState, setSelectedEgoState] = useState(
-    gameState?.activeEgoState || 'guardian'
-  );
-
-  const currentEgo = getEgoState(selectedEgoState);
+  const { egoState, egoStateId, currentMilestone, suggestedGoal, isLoading } = useDailyHypnosis();
 
   const handleStartSession = (preset?: string, duration?: number) => {
     impact('medium');
     const params = new URLSearchParams();
-    params.set('ego', selectedEgoState);
+    params.set('ego', egoStateId);
     if (preset) params.set('preset', preset);
     if (duration) params.set('duration', duration.toString());
     navigate(`/hypnosis/session?${params.toString()}`);
   };
 
-  const handleEgoSelect = (ego: import('@/lib/egoStates').EgoState) => {
-    impact('light');
-    setSelectedEgoState(ego.id);
+  const handleStartDailySession = () => {
+    impact('medium');
+    const params = new URLSearchParams();
+    params.set('ego', egoStateId);
+    params.set('duration', '15');
+    params.set('goal', suggestedGoal);
+    params.set('daily', 'true');
+    navigate(`/hypnosis/session?${params.toString()}`);
   };
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header with Stats */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b safe-area-top">
-        <div className="container py-3 sm:py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                onClick={() => navigate('/dashboard')}
-              >
-                <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
-              </Button>
-              <h1 className="text-xl sm:text-2xl font-bold">
-                {language === 'he' ? 'סשנים' : 'Sessions'}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <StreakCounter size="sm" showLabel={false} />
-              <TokenBalance size="sm" />
-            </div>
+    <DashboardLayout>
+      <div className="space-y-6 sm:space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Page Header with Archetype Display */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              {language === 'he' ? 'סשנים' : 'Sessions'}
+            </h1>
+            {egoState && (
+              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                <span className="text-lg">{egoState.icon}</span>
+                {language === 'he' ? egoState.nameHe : egoState.name}
+              </p>
+            )}
           </div>
-          <LevelProgress size="sm" />
         </div>
-      </header>
 
-      <main className="container py-4 sm:py-6 space-y-6 sm:space-y-8 pb-32">
         {/* Stats Grid */}
         <section>
           <SessionStats language={language as 'he' | 'en'} />
         </section>
 
-        {/* Ego State Selector */}
-        <section>
-          <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
-            {language === 'he' ? 'בחר את הארכיטיפ שלך' : 'Choose Your Archetype'}
-          </h2>
-          <EgoStateSelector onSelect={handleEgoSelect} />
-        </section>
-
-        {/* Start Custom Session */}
+        {/* Daily Session Card - AI Generated */}
         <section>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -99,33 +74,55 @@ const HypnosisLibrary = () => {
             className={cn(
               "relative overflow-hidden rounded-2xl p-5 sm:p-6 cursor-pointer",
               "bg-gradient-to-br active:brightness-95 transition-all",
-              currentEgo.colors.gradient
+              egoState?.colors.gradient || 'from-primary to-primary/80'
             )}
-            onClick={() => handleStartSession()}
+            onClick={handleStartDailySession}
           >
-            <div className="relative z-10 text-white">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl sm:text-3xl">{currentEgo.icon}</span>
-                <span className="text-xs sm:text-sm opacity-80">
-                  {language === 'he' ? currentEgo.nameHe : currentEgo.name}
+            <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3">
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                <Star className="w-4 h-4 text-white fill-white" />
+                <span className="text-xs font-medium text-white">
+                  {language === 'he' ? 'הסשן היומי' : 'Daily Session'}
                 </span>
               </div>
+            </div>
+            
+            <div className="relative z-10 text-white">
+              <div className="flex items-center gap-2 mb-2 mt-6">
+                <span className="text-2xl sm:text-3xl">{egoState?.icon || '✨'}</span>
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm opacity-80">
+                  <Clock className="w-3.5 h-3.5" />
+                  15 {language === 'he' ? 'דקות' : 'minutes'}
+                </div>
+              </div>
+              
               <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
-                {language === 'he' ? 'סשן מותאם אישית' : 'Custom Session'}
+                {language === 'he' ? 'הסשן המותאם אישית שלך להיום' : 'Your Personalized Session for Today'}
               </h3>
+              
+              {currentMilestone && (
+                <div className="flex items-center gap-2 mb-2 text-xs sm:text-sm opacity-90">
+                  <Target className="w-4 h-4" />
+                  <span>
+                    {language === 'he' ? 'יעד השבוע:' : 'This week:'} {currentMilestone.title}
+                  </span>
+                </div>
+              )}
+              
               <p className="text-xs sm:text-sm opacity-90 mb-3 sm:mb-4 max-w-md">
                 {language === 'he' 
-                  ? 'ה-AI יבנה לך סשן היפנוזה מותאם אישית'
-                  : 'AI will build a personalized hypnosis session'
+                  ? 'סקריפט AI מותאם אישית על בסיס הפרופיל שלך, תוכנית ה-90 יום והמטרות השבועיות'
+                  : 'AI script personalized based on your profile, 90-day plan and weekly goals'
                 }
               </p>
+              
               <Button
                 size="lg"
                 variant="secondary"
                 className="gap-2 h-11 sm:h-12 text-sm sm:text-base touch-manipulation"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" />
-                {language === 'he' ? 'התחל סשן' : 'Start Session'}
+                {language === 'he' ? 'התחל סשן יומי' : 'Start Daily Session'}
               </Button>
             </div>
             
@@ -195,8 +192,8 @@ const HypnosisLibrary = () => {
             isRTL={isRTL}
           />
         </section>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

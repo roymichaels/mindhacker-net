@@ -14,6 +14,8 @@ interface ScriptRequest {
   sessionStreak?: number;
   previousSessions?: number;
   language?: 'he' | 'en';
+  autoGenerateGoal?: boolean;
+  isDailySession?: boolean;
 }
 
 interface ScriptSegment {
@@ -45,6 +47,7 @@ const EGO_STATE_PROMPTS: Record<string, string> = {
   innocent: 'Focus on wonder, trust, and seeing fresh perspectives. Use metaphors of sunrise, dewdrops, and playful exploration.',
   jester: 'Focus on lightness, joy, and releasing heavy patterns. Use metaphors of laughter, dancing, and colorful celebrations.',
   ruler: 'Focus on self-mastery, order, and taking charge of life. Use metaphors of thrones, kingdoms, and commanding presence.',
+  visionary: 'Focus on future vision, clarity of purpose, and manifesting dreams. Use metaphors of horizons, light paths, and blueprints.',
 };
 
 serve(async (req) => {
@@ -84,6 +87,7 @@ serve(async (req) => {
       sessionStreak = 0,
       previousSessions = 0,
       language = 'he',
+      isDailySession = false,
     } = body;
 
     if (!goal) {
@@ -104,11 +108,17 @@ serve(async (req) => {
       identityRes,
       energyRes,
       focusRes,
+      launchpadRes,
+      milestoneRes,
     ] = await Promise.all([
       supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
       supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', user.id),
       supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
       supabase.from('aurora_focus_plans').select('title').eq('user_id', user.id).eq('status', 'active').limit(1),
+      // NEW: Fetch Launchpad Summary
+      supabase.from('launchpad_summaries').select('summary_data').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
+      // NEW: Fetch current life plan milestone
+      supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1),
     ]);
 
     const lifeDirection = directionRes.data?.[0]?.content || null;
@@ -116,8 +126,43 @@ serve(async (req) => {
     const energyPatterns = energyRes.data || [];
     const currentFocus = focusRes.data?.[0]?.title || null;
 
+    // NEW: Extract Launchpad data
+    const launchpadSummary = launchpadRes.data?.[0]?.summary_data as {
+      consciousness_analysis?: {
+        current_state?: string;
+        patterns?: string[];
+        strengths?: string[];
+        blind_spots?: string[];
+      };
+      identity_profile?: {
+        suggested_ego_state?: string;
+        core_values?: string[];
+      };
+      behavioral_insights?: {
+        dominant_patterns?: string[];
+        growth_areas?: string[];
+      };
+    } | null;
+
+    // NEW: Fetch active milestone
+    let currentMilestone: { title: string; description?: string | null } | null = null;
+    if (milestoneRes.data?.[0]?.id) {
+      const { data: milestones } = await supabase
+        .from('life_plan_milestones')
+        .select('title, description')
+        .eq('plan_id', milestoneRes.data[0].id)
+        .eq('is_completed', false)
+        .order('week_number', { ascending: true })
+        .limit(1);
+      
+      if (milestones && milestones.length > 0) {
+        currentMilestone = milestones[0];
+      }
+    }
+
     // Build personalization context
     let personalizationContext = '';
+    
     if (lifeDirection) {
       personalizationContext += `\nLife Direction: "${lifeDirection}" - weave this into the session's metaphors and suggestions.`;
     }
@@ -130,6 +175,46 @@ serve(async (req) => {
     if (energyPatterns.length > 0) {
       const patterns = energyPatterns.map((e: { pattern_type: string; description: string }) => `${e.pattern_type}: ${e.description}`).join('; ');
       personalizationContext += `\nEnergy Patterns: ${patterns} - be mindful of these in pacing and suggestions.`;
+    }
+
+    // NEW: Add Launchpad insights to personalization
+    if (launchpadSummary) {
+      const consciousness = launchpadSummary.consciousness_analysis;
+      const identity = launchpadSummary.identity_profile;
+      const behavioral = launchpadSummary.behavioral_insights;
+
+      if (consciousness?.current_state) {
+        personalizationContext += `\n\nCONSCIOUSNESS STATE: "${consciousness.current_state}"`;
+      }
+      if (consciousness?.patterns && consciousness.patterns.length > 0) {
+        personalizationContext += `\nBEHAVIORAL PATTERNS TO ADDRESS: ${consciousness.patterns.join(', ')}`;
+      }
+      if (consciousness?.strengths && consciousness.strengths.length > 0) {
+        personalizationContext += `\nSTRENGTHS TO LEVERAGE: ${consciousness.strengths.join(', ')}`;
+      }
+      if (consciousness?.blind_spots && consciousness.blind_spots.length > 0) {
+        personalizationContext += `\nBLIND SPOTS TO GENTLY ILLUMINATE: ${consciousness.blind_spots.join(', ')} - address these with compassion and indirect suggestions.`;
+      }
+      if (identity?.core_values && identity.core_values.length > 0) {
+        personalizationContext += `\nDEEP VALUES: ${identity.core_values.join(', ')}`;
+      }
+      if (behavioral?.growth_areas && behavioral.growth_areas.length > 0) {
+        personalizationContext += `\nGROWTH AREAS: ${behavioral.growth_areas.join(', ')}`;
+      }
+    }
+
+    // NEW: Add current milestone context
+    if (currentMilestone) {
+      personalizationContext += `\n\n90-DAY PLAN - CURRENT WEEKLY GOAL: "${currentMilestone.title}"`;
+      if (currentMilestone.description) {
+        personalizationContext += ` - ${currentMilestone.description}`;
+      }
+      personalizationContext += `\nWeave progress toward this weekly goal into the session's suggestions and future pacing.`;
+    }
+
+    // Daily session special context
+    if (isDailySession) {
+      personalizationContext += `\n\nThis is the user's DAILY SESSION - make it feel special, personally crafted for today. Reference their ongoing journey and progress.`;
     }
 
     const wordsPerMinute = 130;
@@ -150,24 +235,31 @@ serve(async (req) => {
       ? 'Acknowledge their commitment to daily practice.'
       : '';
 
-    const systemPrompt = `You are a master hypnotherapist creating personalized hypnosis scripts.
+    const systemPrompt = `You are a master hypnotherapist creating DEEPLY PERSONALIZED hypnosis scripts.
 Your scripts are warm, flowing, and deeply relaxing.
 You use Ericksonian techniques, embedded commands, and metaphorical language.
 ${languageInstruction}
 
+ARCHETYPE ENERGY:
 ${egoStateContext}
 
+USER EXPERIENCE:
 ${experienceContext}
 ${streakContext}
+
+PERSONALIZATION DATA (USE THIS TO MAKE THE SCRIPT DEEPLY PERSONAL):
 ${personalizationContext}
 
 Create a hypnosis script with exactly these segments in order:
-1. WELCOME (8%) - Greet warmly, establish safety, introduce the session goal
+1. WELCOME (8%) - Greet warmly, establish safety, introduce the session goal. Reference their personal journey.
 2. INDUCTION (25%) - Guide into hypnotic state with progressive relaxation
 3. DEEPENING (20%) - Deepen the trance with counting, stairs, or other deepening techniques
-4. CORE_WORK (30%) - The main therapeutic work addressing the goal
-5. INTEGRATION (12%) - Lock in changes, future pacing, positive suggestions
+4. CORE_WORK (30%) - The main therapeutic work addressing the goal. Weave in their values, strengths, and gently work with blind spots.
+5. INTEGRATION (12%) - Lock in changes, future pacing connected to their 90-day goals, positive suggestions
 6. EMERGENCE (5%) - Gently bring back to full awareness
+
+CRITICAL: Use the personalization data to make this feel like a session crafted specifically for this person.
+Reference their values, their journey, their goals - make them feel truly seen.
 
 Total target: approximately ${totalWords} words.
 Mark each segment clearly with [SEGMENT_NAME] at the start.`;
@@ -179,7 +271,15 @@ User Level: ${userLevel}
 
 Remember to mark each segment with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WORK], [INTEGRATION], [EMERGENCE].`;
 
-    console.log('Generating hypnosis script for:', { egoState, goal, durationMinutes, language });
+    console.log('Generating hypnosis script for:', { 
+      egoState, 
+      goal, 
+      durationMinutes, 
+      language,
+      isDailySession,
+      hasLaunchpadData: !!launchpadSummary,
+      hasMilestone: !!currentMilestone,
+    });
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -255,12 +355,14 @@ Remember to mark each segment with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WO
         wordsPerMinute,
         generatedAt: new Date().toISOString(),
         userLevel,
+        isDailySession,
       },
     };
 
     console.log('Script generated successfully:', {
       segmentCount: segments.length,
       totalWords: script.metadata.totalWords,
+      isDailySession,
     });
 
     return new Response(JSON.stringify(script), {
