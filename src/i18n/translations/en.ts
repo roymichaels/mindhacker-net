@@ -2293,17 +2293,65 @@ export const en: TranslationKeys = {
   },
 
   home: {
-    // Hero
-    heroTitle: "Build Your Life Plan",
-    heroAnimation1: "for the next 3 months",
-    heroAnimation2: "for the next year",
-    heroAnimation3: "for your life",
-    heroSubtitle: "A personal AI coach that will extract your goals, tasks, and an action plan",
-    heroCta: "Start the Journey - Free",
+    // Hero - Gamified
+    heroTitle: "Turn Your Life Into a Game",
+    heroSubtitle: "Personal dashboard with statistics, goals, and real-time progress tracking",
+    heroCta: "Start the Game - Free",
     heroMeta: "10 steps • 20 minutes • Complete plan",
     
-    // Launchpad Preview
-    launchpadTitle: "What You'll Get in the Launchpad Journey:",
+    // Mock Dashboard
+    mockLevel: "Level 12",
+    mockXp: "1,240 XP",
+    mockStreak: "14 day streak",
+    mockTokens: "85 Tokens",
+    mockTasks: "3/5 tasks",
+    mockGoal: "67% this week",
+    
+    // Chat Manages Everything
+    chatTitle: "Do Everything Through Chat",
+    chatSubtitle: "Aurora tracks your schedule and automatically marks tasks for you",
+    chatTasks: "Tasks",
+    chatTasksExample: '"Mark task as done"',
+    chatSchedule: "Schedule",
+    chatScheduleExample: '"What do I have today?"',
+    chatChecklists: "Checklists",
+    chatChecklistsExample: '"What\'s left to complete?"',
+    chatGoals: "Goals",
+    chatGoalsExample: '"Update my goal"',
+    chatInsights: "Insights",
+    chatInsightsExample: '"What did I learn this week?"',
+    chatReminders: "Reminders",
+    chatRemindersExample: '"Remind me tomorrow..."',
+    
+    // Gamification
+    gamificationTitle: "Earn XP, Level Up, Unlock Achievements",
+    gamificationSubtitle: "Every action you take is rewarded",
+    featureLevelUp: "Level Up",
+    featureLevelUpDesc: "Rise through levels with every action",
+    featureStreaks: "Streaks",
+    featureStreaksDesc: "Maintain your daily streak",
+    featureTokens: "Tokens",
+    featureTokensDesc: "Collect tokens for features",
+    featureAchievements: "Achievements",
+    featureAchievementsDesc: "Unlock 20+ achievements",
+    xpChat: "Chat with Aurora",
+    xpTask: "Completed task",
+    xpInsight: "Saved insight",
+    xpDaily: "Daily streak",
+    xpMilestone: "Weekly milestone",
+    
+    // Consciousness Coaching
+    coachingTitle: "Personal Consciousness Coaching 24/7",
+    coachingSubtitle: "Aurora - Your Life Coach",
+    coachingFeature1: "Deep conversations on any topic",
+    coachingFeature2: "12 Ego States to explore",
+    coachingFeature3: "Personalized hypnosis & meditations",
+    coachingFeature4: "Pattern and behavior analysis",
+    coachingFeature5: "Available 24 hours, every day",
+    
+    // Life Plan / Launchpad
+    lifePlanTitle: "90-Day Plan for a New Life",
+    lifePlanSubtitle: "10 steps in Launchpad → Complete personal plan",
     step1Name: "Welcome",
     step2Name: "Personal Profile",
     step3Name: "Identity Building",
@@ -2314,40 +2362,17 @@ export const en: TranslationKeys = {
     step8Name: "Focus Areas",
     step9Name: "First Week",
     step10Name: "Dashboard Activation",
-    
     outcomesTitle: "At the End You'll Receive:",
-    outcome1: "Clear goals for the next 3 months",
-    outcome2: "Personalized daily and weekly tasks",
-    outcome3: "Anchor habits to help you persist",
-    outcome4: "Personal dashboard with progress tracking",
-    outcome5: "AI coach available 24/7 for questions and support",
+    lifePlanOutcome1: "Weekly goals with milestones",
+    lifePlanOutcome2: "Personalized daily tasks",
+    lifePlanOutcome3: "Anchor habits to build",
+    lifePlanOutcome4: "Things to eliminate",
+    lifePlanOutcome5: "Challenging weekly mission",
     launchpadCta: "Let's Start!",
     
-    // Aurora Section
-    aiPowered: "AI Powered",
-    auroraTitle: "Meet Aurora - Your Coach",
-    auroraDesc: "An advanced AI system that learns you and builds a personalized plan",
-    auroraFeature1: "Available 24/7 for any question",
-    auroraFeature2: "Learns you with every conversation",
-    auroraFeature3: "Builds a plan tailored just for you",
-    auroraFeature4: "Tasks and goals that update dynamically",
-    startWithAurora: "Start with Aurora - Free",
-    available: "Available",
-    personalizedAI: "Personal AI",
-    
-    // How It Works
-    howItWorksTitle: "How It Works",
-    howItWorksSubtitle: "4 simple steps to get started",
-    howStep1Title: "Sign Up",
-    howStep1Desc: "Free, in one minute",
-    howStep2Title: "Complete the Launchpad",
-    howStep2Desc: "10 fun and enriching steps",
-    howStep3Title: "Get Your Plan",
-    howStep3Desc: "Goals and tasks for 3 months",
-    howStep4Title: "Start Acting",
-    howStep4Desc: "With Aurora coaching 24/7",
-    getStartedFree: "Get Started - Free",
-    noCardRequired: "No credit card required",
+    // Dashboard Preview
+    dashboardTitle: "This Is What Your Dashboard Looks Like",
+    dashboardCta: "Create Your Dashboard",
   },
 
   practitionerLanding: {

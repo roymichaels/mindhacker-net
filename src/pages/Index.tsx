@@ -6,8 +6,14 @@ import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/se
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
-import { NewHeroSection, LaunchpadPreviewSection } from "@/components/home";
-import { AuroraPromoSection, HowItWorksSection } from "@/components/platform";
+import { 
+  GameHeroSection, 
+  ChatManagesEverythingSection,
+  GamificationFeaturesSection,
+  ConsciousnessCoachingSection,
+  LifePlanPreviewSection,
+  DashboardPreviewSection
+} from "@/components/home";
 
 // Lazy load below-the-fold components
 const FAQSection = lazy(() => import("@/components/FAQSection"));
@@ -70,12 +76,14 @@ const Index = () => {
       {/* Header */}
       <Header />
       
-      {/* Main content - Platform sections */}
+      {/* Main content - New Gamified Homepage */}
       <main className="relative z-10">
-        <NewHeroSection />
-        <LaunchpadPreviewSection />
-        <AuroraPromoSection />
-        <HowItWorksSection />
+        <GameHeroSection />
+        <ChatManagesEverythingSection />
+        <GamificationFeaturesSection />
+        <ConsciousnessCoachingSection />
+        <LifePlanPreviewSection />
+        <DashboardPreviewSection />
         <Suspense fallback={null}>
           <FAQSection />
           <Footer />
