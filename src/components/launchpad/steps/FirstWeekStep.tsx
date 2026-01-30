@@ -46,32 +46,107 @@ interface AITransformationPlan {
   challenge_missions: AISuggestion[];
 }
 
-// Habits to quit - things that hold people back
+// Habits to quit - comprehensive list covering all harmful behaviors
 const HABITS_TO_QUIT: AISuggestion[] = [
+  // Substances & Addictions
+  { id: 'alcohol', icon: '🍺', label: 'אלכוהול מוגזם', labelEn: 'Excessive alcohol' },
+  { id: 'drugs', icon: '💊', label: 'סמים / שימוש בחומרים', labelEn: 'Drugs / substance use' },
+  { id: 'smoking', icon: '🚬', label: 'עישון / ניקוטין', labelEn: 'Smoking / nicotine' },
+  { id: 'caffeine', icon: '☕', label: 'קפאין מוגזם', labelEn: 'Excessive caffeine' },
+  { id: 'sugar', icon: '🍫', label: 'סוכר והתמכרות למתוקים', labelEn: 'Sugar & sweets addiction' },
+  { id: 'gambling', icon: '🎰', label: 'הימורים', labelEn: 'Gambling' },
+  { id: 'porn', icon: '🔞', label: 'פורנו / תוכן מיני', labelEn: 'Porn / sexual content' },
+  { id: 'gaming', icon: '🎮', label: 'גיימינג כפייתי', labelEn: 'Compulsive gaming' },
+  
+  // Harmful behaviors
   { id: 'scrolling', icon: '📱', label: 'סקרולינג אינסופי ברשתות', labelEn: 'Endless social media scrolling' },
   { id: 'procrastination', icon: '⏰', label: 'דחיינות ודחיית משימות', labelEn: 'Procrastination' },
   { id: 'binge_watching', icon: '📺', label: 'צפייה מוגזמת בנטפליקס/יוטיוב', labelEn: 'Binge watching Netflix/YouTube' },
-  { id: 'emotional_eating', icon: '🍕', label: 'אכילה רגשית', labelEn: 'Emotional eating' },
-  { id: 'negative_self_talk', icon: '🗣️', label: 'דיבור עצמי שלילי', labelEn: 'Negative self-talk' },
-  { id: 'toxic_relationships', icon: '👥', label: 'יחסים שמדכאים אותי', labelEn: 'Draining relationships' },
-  { id: 'complaining', icon: '😤', label: 'תלונות ושליליות', labelEn: 'Complaining & negativity' },
-  { id: 'wasted_time', icon: '⌛', label: 'בזבוז זמן על דברים לא חשובים', labelEn: 'Wasting time on unimportant things' },
-  { id: 'late_nights', icon: '🌙', label: 'שהייה ערים עד מאוחר בלי סיבה', labelEn: 'Staying up late for no reason' },
+  { id: 'emotional_eating', icon: '🍕', label: 'אכילה רגשית / לא בריאה', labelEn: 'Emotional / unhealthy eating' },
   { id: 'junk_food', icon: '🍔', label: 'אוכל זבל ושתייה מתוקה', labelEn: 'Junk food & sugary drinks' },
+  { id: 'late_nights', icon: '🌙', label: 'שהייה ערים עד מאוחר', labelEn: 'Staying up late' },
+  { id: 'wasted_time', icon: '⌛', label: 'בזבוז זמן על דברים לא חשובים', labelEn: 'Wasting time on unimportant things' },
+  { id: 'compulsive_shopping', icon: '🛒', label: 'קניות כפייתיות', labelEn: 'Compulsive shopping' },
+  
+  // Mental patterns
+  { id: 'negative_self_talk', icon: '🗣️', label: 'דיבור עצמי שלילי', labelEn: 'Negative self-talk' },
+  { id: 'complaining', icon: '😤', label: 'תלונות ושליליות', labelEn: 'Complaining & negativity' },
+  { id: 'comparison', icon: '📊', label: 'השוואה מתמדת לאחרים', labelEn: 'Constant comparison to others' },
+  { id: 'excessive_worry', icon: '😰', label: 'דאגנות יתר', labelEn: 'Excessive worrying' },
+  { id: 'perfectionism', icon: '🎭', label: 'פרפקציוניזם משתק', labelEn: 'Paralyzing perfectionism' },
+  { id: 'overthinking', icon: '💭', label: 'חשיבת יתר (overthinking)', labelEn: 'Overthinking' },
+  
+  // Relationships
+  { id: 'toxic_relationships', icon: '👥', label: 'יחסים שמדכאים אותי', labelEn: 'Draining relationships' },
+  { id: 'conflict_avoidance', icon: '🤐', label: 'הימנעות מעימותים נחוצים', labelEn: 'Avoiding necessary conflicts' },
+  { id: 'not_listening', icon: '👂', label: 'אי-הקשבה / קטיעת אנשים', labelEn: 'Not listening / interrupting' },
+  { id: 'gossip', icon: '🗨️', label: 'רכילות ולשון הרע', labelEn: 'Gossip & bad-mouthing' },
+  { id: 'self_isolation', icon: '🙈', label: 'בידוד עצמי מהעולם', labelEn: 'Self-isolation' },
+  { id: 'codependency', icon: '🧲', label: 'תלות יתר באחרים', labelEn: 'Over-dependency on others' },
+  
+  // Financial
+  { id: 'reckless_spending', icon: '💸', label: 'הוצאות לא מחושבות', labelEn: 'Reckless spending' },
+  { id: 'living_beyond_means', icon: '💳', label: 'חיים מעבר ליכולת', labelEn: 'Living beyond means' },
+  { id: 'financial_avoidance', icon: '📉', label: 'הימנעות מלהסתכל על המצב הכלכלי', labelEn: 'Avoiding financial reality' },
+  
+  // Other
+  { id: 'chronic_lateness', icon: '⏱️', label: 'איחורים כרוניים', labelEn: 'Chronic lateness' },
+  { id: 'small_lies', icon: '🤥', label: 'שקרים קטנים', labelEn: 'Small lies' },
+  { id: 'anger_outbursts', icon: '😡', label: 'התפרצויות כעס', labelEn: 'Anger outbursts' },
+  { id: 'saying_yes_always', icon: '🙅', label: 'אמירת כן לכל דבר', labelEn: 'Saying yes to everything' },
 ];
 
-// Habits to build - elite habits
+// Habits to build - comprehensive elite habits
 const HABITS_TO_BUILD: AISuggestion[] = [
+  // Routines & Structure
   { id: 'morning_routine', icon: '🌅', label: 'שגרת בוקר מובנית', labelEn: 'Structured morning routine' },
+  { id: 'weekly_planning', icon: '📋', label: 'תכנון יום/שבוע מראש', labelEn: 'Daily/weekly planning ahead' },
+  { id: 'daily_goals', icon: '🎯', label: 'הגדרת מטרות יומיות', labelEn: 'Setting daily goals' },
+  { id: 'task_completion', icon: '✅', label: 'סיום משימות עד הסוף', labelEn: 'Completing tasks fully' },
+  { id: 'saying_no', icon: '🚫', label: 'אמירת "לא" לדברים לא חשובים', labelEn: 'Saying "no" to unimportant things' },
+  { id: 'daily_review', icon: '📊', label: 'ביקורת יומית/שבועית', labelEn: 'Daily/weekly review' },
+  
+  // Body & Health
   { id: 'daily_exercise', icon: '💪', label: 'פעילות גופנית יומית', labelEn: 'Daily exercise' },
+  { id: 'drinking_water', icon: '💧', label: 'שתיית מים מספקת', labelEn: 'Drinking enough water' },
+  { id: 'healthy_eating', icon: '🥗', label: 'תזונה מאוזנת ובריאה', labelEn: 'Balanced healthy eating' },
+  { id: 'quality_sleep', icon: '😴', label: 'שינה איכותית ומספקת', labelEn: 'Quality sufficient sleep' },
+  { id: 'cold_exposure', icon: '🥶', label: 'מקלחת קרה / אתגר פיזי', labelEn: 'Cold shower / physical challenge' },
+  { id: 'medical_checkups', icon: '🏥', label: 'בדיקות רפואיות תקופתיות', labelEn: 'Regular medical checkups' },
+  
+  // Learning & Development
   { id: 'daily_learning', icon: '📚', label: 'למידה יומית (30+ דקות)', labelEn: 'Daily learning (30+ min)' },
+  { id: 'reading', icon: '📖', label: 'קריאת ספרים (לא רשתות)', labelEn: 'Reading books (not social media)' },
+  { id: 'podcasts', icon: '🎧', label: 'האזנה לפודקאסטים מלמדים', labelEn: 'Listening to educational podcasts' },
+  { id: 'new_language', icon: '🌍', label: 'לימוד שפה חדשה', labelEn: 'Learning a new language' },
+  { id: 'courses', icon: '🎓', label: 'קורסים מקצועיים', labelEn: 'Professional courses' },
+  
+  // Business & Career
   { id: 'work_on_business', icon: '🏗️', label: 'עבודה על הפרויקט/העסק שלי', labelEn: 'Work on my project/business' },
   { id: 'skill_practice', icon: '🎯', label: 'תרגול מיומנות מקצועית', labelEn: 'Professional skill practice' },
-  { id: 'reading', icon: '📖', label: 'קריאת ספרים (לא רשתות)', labelEn: 'Reading books (not social media)' },
   { id: 'networking', icon: '🤝', label: 'נטוורקינג ויצירת קשרים', labelEn: 'Networking & connections' },
+  { id: 'client_outreach', icon: '📞', label: 'יצירת קשר עם לקוחות/שותפים', labelEn: 'Reaching out to clients/partners' },
+  { id: 'documenting_ideas', icon: '📝', label: 'תיעוד רעיונות ותובנות', labelEn: 'Documenting ideas & insights' },
+  
+  // Mental & Emotional
   { id: 'meditation', icon: '🧘', label: 'מדיטציה / רפלקציה יומית', labelEn: 'Daily meditation / reflection' },
-  { id: 'journaling', icon: '✍️', label: 'כתיבה יומית / תיעוד רעיונות', labelEn: 'Daily journaling / ideas' },
-  { id: 'cold_exposure', icon: '🥶', label: 'מקלחת קרה / אתגר פיזי', labelEn: 'Cold shower / physical challenge' },
+  { id: 'journaling', icon: '✍️', label: 'כתיבה יומית / ג\'ורנלינג', labelEn: 'Daily journaling' },
+  { id: 'gratitude', icon: '🙏', label: 'תרגול הכרת תודה', labelEn: 'Practicing gratitude' },
+  { id: 'mental_blocks', icon: '🧠', label: 'עבודה על חסמים מנטליים', labelEn: 'Working on mental blocks' },
+  { id: 'stress_management', icon: '💆', label: 'ניהול סטרס בריא', labelEn: 'Healthy stress management' },
+  
+  // Relationships
+  { id: 'family_time', icon: '👨‍👩‍👧', label: 'זמן איכות עם משפחה', labelEn: 'Quality time with family' },
+  { id: 'relationship_investment', icon: '💑', label: 'השקעה בזוגיות', labelEn: 'Investing in relationship' },
+  { id: 'active_listening', icon: '👂', label: 'הקשבה פעילה לאחרים', labelEn: 'Active listening' },
+  { id: 'honest_communication', icon: '💬', label: 'תקשורת כנה ופתוחה', labelEn: 'Honest open communication' },
+  { id: 'volunteering', icon: '🤲', label: 'עזרה לאחרים / התנדבות', labelEn: 'Helping others / volunteering' },
+  
+  // Financial
+  { id: 'expense_tracking', icon: '📒', label: 'מעקב הוצאות יומי', labelEn: 'Daily expense tracking' },
+  { id: 'regular_saving', icon: '💰', label: 'חיסכון קבוע', labelEn: 'Regular saving' },
+  { id: 'learning_investing', icon: '📈', label: 'למידה על השקעות', labelEn: 'Learning about investing' },
+  { id: 'additional_income', icon: '💵', label: 'בניית מקור הכנסה נוסף', labelEn: 'Building additional income stream' },
 ];
 
 // Career status options
