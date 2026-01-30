@@ -13,7 +13,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
   SidebarFooter,
   SidebarTrigger,
   useSidebar,
@@ -48,29 +47,20 @@ const DashboardSidebar = ({ onNavigate }: DashboardSidebarProps) => {
   return (
     <Sidebar 
       className={cn(
-        "border-border bg-background !z-50",
+        "border-border bg-background !z-50 pt-16",
         isRTL && "order-last"
       )}
       collapsible="offcanvas"
       side={isRTL ? "right" : "left"}
     >
-      <SidebarHeader className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className={cn("flex items-center gap-3", isCollapsed && "hidden")}>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-lg">
-              {language === 'he' ? 'מיינד האקר' : 'MindHacker'}
-            </span>
-          </div>
-          <SidebarTrigger className="shrink-0">
+      <SidebarContent className="p-2">
+        {/* Hamburger toggle at top */}
+        <div className="flex justify-end mb-2">
+          <SidebarTrigger className="shrink-0 p-2 hover:bg-muted rounded-lg">
             <Menu className="h-5 w-5" />
           </SidebarTrigger>
         </div>
-      </SidebarHeader>
 
-      <SidebarContent className="p-2">
         <ScrollArea className="flex-1">
           {/* Navigation Section */}
           {!isCollapsed && (
