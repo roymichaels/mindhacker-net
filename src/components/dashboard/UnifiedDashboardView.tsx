@@ -1,4 +1,4 @@
-import { Loader2, Rocket, MessageCircle, Sparkles } from 'lucide-react';
+import { Loader2, Rocket, MessageCircle, Sparkles, UserCog } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -77,6 +77,16 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
           sessions={dashboard.totalSessions}
           level={dashboard.level}
         />
+
+        {/* My Profile Button */}
+        <Button
+          variant="outline"
+          className="w-full gap-2"
+          onClick={() => navigate('/launchpad/settings')}
+        >
+          <UserCog className="h-4 w-4" />
+          {language === 'he' ? 'הפרופיל שלי - צפה ועדכן' : 'My Profile - View & Edit'}
+        </Button>
 
         {/* Launchpad Summary Card */}
         <LaunchpadSummaryCard />
