@@ -138,6 +138,7 @@ const CATEGORIES = {
     options: [
       { value: 'alone', label: 'לבד', labelEn: 'Alone' },
       { value: 'with-partner', label: 'עם בן/ת זוג', labelEn: 'With partner' },
+      { value: 'with-partner-and-child', label: 'עם בן/ת זוג וילד', labelEn: 'With partner and child' },
       { value: 'with-family', label: 'עם משפחה', labelEn: 'With family' },
       { value: 'with-roommates', label: 'עם שותפים', labelEn: 'With roommates' },
       { value: 'with-parents', label: 'עם הורים', labelEn: 'With parents' },
