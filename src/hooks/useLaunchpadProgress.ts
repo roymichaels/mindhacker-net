@@ -201,20 +201,9 @@ export function useLaunchpadProgress() {
   const calculateActualCurrentStep = (): number => {
     if (!progress) return 1;
     
-    // Check each step in order
-    if (!progress.step_1_welcome) return 1;
-    if (!progress.step_2_profile) return 2; // Personal Profile
-    // Note: step 3 (GrowthDeepDive) doesn't have a DB column yet, we'll skip it for now
-    // and treat it as part of step 2's completion
-    if (!progress.step_2_first_chat) return 4; // First Chat (skip to 4 since 3 is new)
-    if (!progress.step_3_introspection) return 5;
-    if (!progress.step_4_life_plan) return 6;
-    if (!progress.step_5_focus_areas) return 7;
-    if (!progress.step_6_first_week) return 8;
-    if (!progress.step_7_dashboard_activated) return 9;
-    
-    // All done
-    return 9;
+    // The current_step field in DB accurately tracks where user is
+    // It's updated by the complete_launchpad_step function
+    return progress.current_step || 1;
   };
 
   const actualCurrentStep = calculateActualCurrentStep();
@@ -266,35 +255,15 @@ export function useLaunchpadProgress() {
     return stepNumber <= actualCurrentStep;
   };
 
-  // Check if a specific step is completed based on actual DB flags
+  // Check if a specific step is completed based on current_step progression
   const isStepCompleted = (stepNumber: number): boolean => {
     if (!progress) return false;
-    switch (stepNumber) {
-      case 1: return progress.step_1_welcome;
-      case 2: return progress.step_2_profile;
-      case 3: return progress.step_2_profile; // GrowthDeepDive completes with profile for now
-      case 4: return progress.step_2_first_chat;
-      case 5: return progress.step_3_introspection;
-      case 6: return progress.step_4_life_plan;
-      case 7: return progress.step_5_focus_areas;
-      case 8: return progress.step_6_first_week;
-      case 9: return progress.step_7_dashboard_activated;
-      default: return false;
-    }
+    // A step is completed if current_step is greater than it
+    return (progress.current_step || 1) > stepNumber;
   };
 
   // Check if launchpad is truly complete (all 9 steps done)
-  const isActuallyComplete = progress ? (
-    progress.step_1_welcome &&
-    progress.step_2_profile &&
-    // step 3 (growth deep dive) is bundled with step 2
-    progress.step_2_first_chat &&
-    progress.step_3_introspection &&
-    progress.step_4_life_plan &&
-    progress.step_5_focus_areas &&
-    progress.step_6_first_week &&
-    progress.step_7_dashboard_activated
-  ) : false;
+  const isActuallyComplete = progress?.launchpad_complete || false;
 
   // Get current step metadata
   const currentStepMeta = STEPS.find(s => s.id === actualCurrentStep);
