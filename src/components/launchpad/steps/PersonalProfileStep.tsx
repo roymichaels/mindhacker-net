@@ -40,7 +40,6 @@ interface ProfileData {
   stress_level: string;
   meditation_practice: string;
   therapy_experience: string;
-  challenge_response: string;
   energy_source: string[];
   relaxation_methods: string[];
   
@@ -48,25 +47,31 @@ interface ProfileData {
   hobbies: string[];
   reading_habits: string;
   
+  // Situational & Behavioral
+  conflict_handling: string;
+  problem_approach: string;
+  decision_style: string;
+  opportunity_response: string;
+  failure_response: string;
+  time_management: string;
+  relationship_style: string;
+  
   // Social & Lifestyle
   social_preference: string;
   morning_evening: string;
   learning_style: string;
-  communication_style: string;
-  life_approach: string;
-  decision_making: string;
-  change_attitude: string;
   
   // Goals & Values
   life_priorities: string[];
   spiritual_practice: string;
   growth_focus: string[];
+  obstacles: string[];
 }
 
 const STORAGE_KEY = 'launchpad_personal_profile';
 
 type CategoryKey = keyof typeof CATEGORIES;
-type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'hobbies' | 'life_priorities' | 'energy_source' | 'relaxation_methods' | 'growth_focus';
+type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'hobbies' | 'life_priorities' | 'energy_source' | 'relaxation_methods' | 'growth_focus' | 'obstacles';
 
 const CATEGORIES = {
   // === DEMOGRAPHICS ===
@@ -346,22 +351,6 @@ const CATEGORIES = {
       { value: 'interested', label: 'מתעניין', labelEn: 'Interested' },
     ],
   },
-
-  // === MENTAL & EMOTIONAL (continued) ===
-  challenge_response: {
-    section: 'mental',
-    title: 'איך אתה מגיב לאתגרים?',
-    titleEn: 'How do you respond to challenges?',
-    icon: '💪',
-    multiSelect: false,
-    options: [
-      { value: 'head-on', label: 'ישר פונה לפתרון', labelEn: 'Head-on' },
-      { value: 'reflect', label: 'קודם חושב', labelEn: 'Reflect first' },
-      { value: 'avoid', label: 'נוטה להימנע', labelEn: 'Tend to avoid' },
-      { value: 'seek-help', label: 'מבקש עזרה', labelEn: 'Seek help' },
-      { value: 'adapt', label: 'מסתגל', labelEn: 'Adapt' },
-    ],
-  },
   energy_source: {
     section: 'mental',
     title: 'מה נותן לך אנרגיה?',
@@ -375,6 +364,9 @@ const CATEGORIES = {
       { value: 'creativity', label: 'יצירה', labelEn: 'Creativity' },
       { value: 'learning', label: 'למידה', labelEn: 'Learning' },
       { value: 'achievement', label: 'הישגים', labelEn: 'Achievement' },
+      { value: 'music', label: 'מוזיקה', labelEn: 'Music' },
+      { value: 'movement', label: 'תנועה', labelEn: 'Movement' },
+      { value: 'helping-others', label: 'עזרה לאחרים', labelEn: 'Helping others' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -392,6 +384,9 @@ const CATEGORIES = {
       { value: 'social', label: 'חברים/משפחה', labelEn: 'Friends/Family' },
       { value: 'alone', label: 'זמן לבד', labelEn: 'Alone time' },
       { value: 'hobbies', label: 'תחביבים', labelEn: 'Hobbies' },
+      { value: 'sleep', label: 'שינה', labelEn: 'Sleep' },
+      { value: 'screens', label: 'מסכים (טלוויזיה/נטפליקס)', labelEn: 'Screens (TV/Netflix)' },
+      { value: 'food', label: 'אוכל', labelEn: 'Food' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -416,7 +411,6 @@ const CATEGORIES = {
       { value: 'writing', label: 'כתיבה', labelEn: 'Writing' },
       { value: 'podcasts', label: 'פודקאסטים', labelEn: 'Podcasts' },
       { value: 'movies', label: 'סרטים/סדרות', labelEn: 'Movies/Shows' },
-      { value: 'sports-watching', label: 'צפייה בספורט', labelEn: 'Watching Sports' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -434,6 +428,106 @@ const CATEGORIES = {
       { value: 'sometimes', label: 'לפעמים', labelEn: 'Sometimes' },
       { value: 'often', label: 'הרבה', labelEn: 'Often' },
       { value: 'daily', label: 'כל יום', labelEn: 'Daily' },
+    ],
+  },
+
+  // === SITUATIONAL & BEHAVIORAL (New elegant questions) ===
+  conflict_handling: {
+    section: 'behavioral',
+    title: 'כשיש לך דעה שונה מאחרים, אתה בדרך כלל...',
+    titleEn: 'When you have a different opinion from others, you usually...',
+    icon: '💬',
+    multiSelect: false,
+    options: [
+      { value: 'direct', label: 'אומר ישר מה שאתה חושב', labelEn: 'Say exactly what you think' },
+      { value: 'diplomatic', label: 'מנסה למצוא דרך עדינה לומר', labelEn: 'Try to find a gentle way to say it' },
+      { value: 'thinks-first', label: 'חושב הרבה לפני שמגיב', labelEn: 'Think a lot before responding' },
+      { value: 'avoids', label: 'מעדיף לא להיכנס לעימות', labelEn: 'Prefer not to engage in conflict' },
+      { value: 'depends', label: 'תלוי במי מדובר', labelEn: 'Depends on who it is' },
+    ],
+  },
+  problem_approach: {
+    section: 'behavioral',
+    title: 'כשאתה נתקל בבעיה בלתי צפויה...',
+    titleEn: 'When you encounter an unexpected problem...',
+    icon: '🔧',
+    multiSelect: false,
+    options: [
+      { value: 'solve-immediately', label: 'מיד מתחיל לחפש פתרונות', labelEn: 'Immediately start looking for solutions' },
+      { value: 'calm-first', label: 'קודם נרגע, אחר כך פותר', labelEn: 'First calm down, then solve' },
+      { value: 'stressed', label: 'מרגיש לחץ עד שזה נפתר', labelEn: 'Feel stressed until it\'s resolved' },
+      { value: 'opportunity', label: 'רואה בזה הזדמנות', labelEn: 'See it as an opportunity' },
+      { value: 'seek-help', label: 'מחפש עזרה מאחרים', labelEn: 'Seek help from others' },
+    ],
+  },
+  decision_style: {
+    section: 'behavioral',
+    title: 'כשיש לך החלטה גדולה לקבל, אתה...',
+    titleEn: 'When you have a big decision to make, you...',
+    icon: '🤔',
+    multiSelect: false,
+    options: [
+      { value: 'gut', label: 'הולך עם הבטן', labelEn: 'Go with your gut' },
+      { value: 'pros-cons', label: 'בונה רשימת יתרונות וחסרונות', labelEn: 'Make a pros and cons list' },
+      { value: 'consult', label: 'שואל הרבה אנשים', labelEn: 'Ask many people' },
+      { value: 'wait', label: 'מחכה שזה יתברר לבד', labelEn: 'Wait for it to become clear' },
+      { value: 'procrastinate', label: 'דוחה עד הרגע האחרון', labelEn: 'Postpone until the last moment' },
+    ],
+  },
+  opportunity_response: {
+    section: 'behavioral',
+    title: 'כשמציעים לך הזדמנות חדשה לא מתוכננת...',
+    titleEn: 'When offered an unexpected new opportunity...',
+    icon: '🚀',
+    multiSelect: false,
+    options: [
+      { value: 'excited', label: 'נרגש ומתלהב מיד', labelEn: 'Get excited immediately' },
+      { value: 'think-first', label: 'צריך זמן לחשוב על זה', labelEn: 'Need time to think about it' },
+      { value: 'worried', label: 'חושש מהלא נודע', labelEn: 'Worried about the unknown' },
+      { value: 'investigate', label: 'בודק את כל הפרטים קודם', labelEn: 'Check all the details first' },
+      { value: 'consult', label: 'שואל לייעוץ מאנשים קרובים', labelEn: 'Ask close people for advice' },
+    ],
+  },
+  failure_response: {
+    section: 'behavioral',
+    title: 'אחרי כישלון או אכזבה, אתה בדרך כלל...',
+    titleEn: 'After a failure or disappointment, you usually...',
+    icon: '💔',
+    multiSelect: false,
+    options: [
+      { value: 'bounce-back', label: 'קם ומתחיל מחדש מהר', labelEn: 'Bounce back quickly' },
+      { value: 'process', label: 'צריך זמן לעכל', labelEn: 'Need time to process' },
+      { value: 'self-blame', label: 'מאשים את עצמך', labelEn: 'Blame yourself' },
+      { value: 'learn', label: 'מחפש מה ללמוד מזה', labelEn: 'Look for what to learn from it' },
+      { value: 'stuck', label: 'מתקשה להמשיך הלאה', labelEn: 'Struggle to move on' },
+    ],
+  },
+  time_management: {
+    section: 'behavioral',
+    title: 'כשיש לך הרבה משימות...',
+    titleEn: 'When you have many tasks...',
+    icon: '⏰',
+    multiSelect: false,
+    options: [
+      { value: 'organized', label: 'עושה רשימה ומסדר לפי חשיבות', labelEn: 'Make a list and prioritize' },
+      { value: 'easy-first', label: 'מתחיל ממה שהכי קל', labelEn: 'Start with the easiest' },
+      { value: 'overwhelmed', label: 'מרגיש מוצף', labelEn: 'Feel overwhelmed' },
+      { value: 'last-minute', label: 'דוחה לרגע האחרון', labelEn: 'Postpone until the last moment' },
+      { value: 'pressure-works', label: 'עובד טוב תחת לחץ', labelEn: 'Work well under pressure' },
+    ],
+  },
+  relationship_style: {
+    section: 'behavioral',
+    title: 'ביחסים עם אנשים קרובים, אתה...',
+    titleEn: 'In relationships with close people, you...',
+    icon: '❤️',
+    multiSelect: false,
+    options: [
+      { value: 'giver', label: 'נותן הרבה ומבקש מעט', labelEn: 'Give a lot and ask for little' },
+      { value: 'needs-space', label: 'צריך הרבה זמן לבד', labelEn: 'Need a lot of alone time' },
+      { value: 'deep-connection', label: 'מחפש חיבור עמוק', labelEn: 'Seek deep connection' },
+      { value: 'cautious', label: 'נזהר להתקרב מדי', labelEn: 'Careful not to get too close' },
+      { value: 'initiator', label: 'יוזם הרבה מפגשים', labelEn: 'Initiate many meetings' },
     ],
   },
 
@@ -475,80 +569,34 @@ const CATEGORIES = {
       { value: 'kinesthetic', label: 'מעשי', labelEn: 'Kinesthetic' },
     ],
   },
-  communication_style: {
-    section: 'social',
-    title: 'סגנון תקשורת',
-    titleEn: 'Communication Style',
-    icon: '💬',
-    multiSelect: false,
-    options: [
-      { value: 'direct', label: 'ישיר', labelEn: 'Direct' },
-      { value: 'diplomatic', label: 'דיפלומטי', labelEn: 'Diplomatic' },
-      { value: 'analytical', label: 'אנליטי', labelEn: 'Analytical' },
-      { value: 'emotional', label: 'רגשי', labelEn: 'Emotional' },
-    ],
-  },
-  life_approach: {
-    section: 'social',
-    title: 'גישה לחיים',
-    titleEn: 'Life Approach',
-    icon: '🧭',
-    multiSelect: false,
-    options: [
-      { value: 'optimistic', label: 'אופטימי', labelEn: 'Optimistic' },
-      { value: 'realistic', label: 'ריאליסטי', labelEn: 'Realistic' },
-      { value: 'cautious', label: 'זהיר', labelEn: 'Cautious' },
-      { value: 'adventurous', label: 'הרפתקני', labelEn: 'Adventurous' },
-      { value: 'philosophical', label: 'פילוסופי', labelEn: 'Philosophical' },
-    ],
-  },
-  decision_making: {
-    section: 'social',
-    title: 'איך אתה מקבל החלטות?',
-    titleEn: 'How do you make decisions?',
-    icon: '🤔',
-    multiSelect: false,
-    options: [
-      { value: 'intuition', label: 'אינטואיציה', labelEn: 'Intuition' },
-      { value: 'analysis', label: 'ניתוח', labelEn: 'Analysis' },
-      { value: 'feelings', label: 'רגשות', labelEn: 'Feelings' },
-      { value: 'advice', label: 'עצות מאחרים', labelEn: 'Others\' advice' },
-      { value: 'mixed', label: 'משולב', labelEn: 'Mixed' },
-    ],
-  },
-  change_attitude: {
-    section: 'social',
-    title: 'יחס לשינויים',
-    titleEn: 'Attitude to Change',
-    icon: '🔄',
-    multiSelect: false,
-    options: [
-      { value: 'embrace', label: 'מחבק שינויים', labelEn: 'Embrace change' },
-      { value: 'cautious', label: 'זהיר עם שינויים', labelEn: 'Cautious about change' },
-      { value: 'resist', label: 'מעדיף יציבות', labelEn: 'Prefer stability' },
-      { value: 'depends', label: 'תלוי בסיטואציה', labelEn: 'Depends on situation' },
-    ],
-  },
 
   // === GOALS & VALUES ===
   life_priorities: {
     section: 'values',
-    title: 'עדיפויות בחיים (בחר עד 3)',
-    titleEn: 'Life Priorities (pick up to 3)',
+    title: 'עדיפויות בחיים',
+    titleEn: 'Life Priorities',
     icon: '🎯',
     multiSelect: true,
-    maxSelect: 3,
     options: [
-      { value: 'career', label: 'קריירה', labelEn: 'Career' },
-      { value: 'family', label: 'משפחה', labelEn: 'Family' },
-      { value: 'health', label: 'בריאות', labelEn: 'Health' },
-      { value: 'wealth', label: 'עושר', labelEn: 'Wealth' },
-      { value: 'relationships', label: 'מערכות יחסים', labelEn: 'Relationships' },
-      { value: 'personal-growth', label: 'צמיחה אישית', labelEn: 'Personal Growth' },
-      { value: 'creativity', label: 'יצירתיות', labelEn: 'Creativity' },
-      { value: 'adventure', label: 'הרפתקאות', labelEn: 'Adventure' },
-      { value: 'spirituality', label: 'רוחניות', labelEn: 'Spirituality' },
-      { value: 'contribution', label: 'תרומה לחברה', labelEn: 'Contribution' },
+      { value: 'career', label: 'קריירה והצלחה מקצועית', labelEn: 'Career & Professional Success' },
+      { value: 'family', label: 'משפחה וילדים', labelEn: 'Family & Children' },
+      { value: 'health', label: 'בריאות ואורח חיים בריא', labelEn: 'Health & Healthy Lifestyle' },
+      { value: 'wealth', label: 'ביטחון כלכלי ועושר', labelEn: 'Financial Security & Wealth' },
+      { value: 'relationships', label: 'מערכות יחסים איכותיות', labelEn: 'Quality Relationships' },
+      { value: 'personal-growth', label: 'צמיחה אישית והתפתחות', labelEn: 'Personal Growth & Development' },
+      { value: 'freedom', label: 'חופש וגמישות', labelEn: 'Freedom & Flexibility' },
+      { value: 'creativity', label: 'יצירתיות וביטוי עצמי', labelEn: 'Creativity & Self-expression' },
+      { value: 'adventure', label: 'הרפתקאות וחוויות', labelEn: 'Adventure & Experiences' },
+      { value: 'spirituality', label: 'רוחניות ומשמעות', labelEn: 'Spirituality & Meaning' },
+      { value: 'contribution', label: 'תרומה לחברה ועזרה לאחרים', labelEn: 'Contribution & Helping Others' },
+      { value: 'peace', label: 'שלווה נפשית ורוגע', labelEn: 'Peace of Mind & Calm' },
+      { value: 'recognition', label: 'הכרה והערכה מאחרים', labelEn: 'Recognition & Appreciation' },
+      { value: 'intimacy', label: 'אינטימיות וקרבה', labelEn: 'Intimacy & Closeness' },
+      { value: 'independence', label: 'עצמאות', labelEn: 'Independence' },
+      { value: 'legacy', label: 'מורשת והשארת חותם', labelEn: 'Legacy & Leaving a Mark' },
+      { value: 'learning', label: 'למידה ידע והשכלה', labelEn: 'Learning & Education' },
+      { value: 'leadership', label: 'השפעה ומנהיגות', labelEn: 'Influence & Leadership' },
+      { value: 'pleasure', label: 'הנאה ותענוגות', labelEn: 'Pleasure & Enjoyment' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -568,19 +616,47 @@ const CATEGORIES = {
   },
   growth_focus: {
     section: 'values',
-    title: 'במה אתה רוצה לצמוח? (בחר עד 3)',
-    titleEn: 'Where do you want to grow? (pick up to 3)',
+    title: 'במה אתה רוצה לצמוח?',
+    titleEn: 'Where do you want to grow?',
     icon: '🌱',
     multiSelect: true,
-    maxSelect: 3,
     options: [
       { value: 'confidence', label: 'ביטחון עצמי', labelEn: 'Self-confidence' },
-      { value: 'discipline', label: 'משמעת', labelEn: 'Discipline' },
+      { value: 'discipline', label: 'משמעת ועקביות', labelEn: 'Discipline & Consistency' },
       { value: 'emotional', label: 'אינטליגנציה רגשית', labelEn: 'Emotional intelligence' },
-      { value: 'communication', label: 'תקשורת', labelEn: 'Communication' },
-      { value: 'leadership', label: 'מנהיגות', labelEn: 'Leadership' },
-      { value: 'creativity', label: 'יצירתיות', labelEn: 'Creativity' },
-      { value: 'mindfulness', label: 'מודעות עצמית', labelEn: 'Mindfulness' },
+      { value: 'communication', label: 'תקשורת בינאישית', labelEn: 'Interpersonal Communication' },
+      { value: 'leadership', label: 'מנהיגות והשפעה', labelEn: 'Leadership & Influence' },
+      { value: 'creativity', label: 'יצירתיות וחשיבה מחוץ לקופסה', labelEn: 'Creativity & Thinking Outside the Box' },
+      { value: 'mindfulness', label: 'מודעות עצמית', labelEn: 'Self-awareness' },
+      { value: 'time-management', label: 'ניהול זמן', labelEn: 'Time Management' },
+      { value: 'boundaries', label: 'גבולות בריאים', labelEn: 'Healthy Boundaries' },
+      { value: 'asking-for-help', label: 'קבלת עזרה', labelEn: 'Accepting Help' },
+      { value: 'patience', label: 'סבלנות', labelEn: 'Patience' },
+      { value: 'flexibility', label: 'גמישות מחשבתית', labelEn: 'Mental Flexibility' },
+      { value: 'assertiveness', label: 'אסרטיביות', labelEn: 'Assertiveness' },
+      { value: 'focus', label: 'ריכוז ופוקוס', labelEn: 'Focus & Concentration' },
+      { value: 'resilience', label: 'חוסן נפשי', labelEn: 'Mental Resilience' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
+    ],
+  },
+  obstacles: {
+    section: 'values',
+    title: 'מה הכי עוצר אותך מלהתקדם?',
+    titleEn: 'What stops you most from progressing?',
+    icon: '🚧',
+    multiSelect: true,
+    options: [
+      { value: 'fear-of-failure', label: 'פחד מכישלון', labelEn: 'Fear of failure' },
+      { value: 'low-confidence', label: 'חוסר ביטחון עצמי', labelEn: 'Low self-confidence' },
+      { value: 'no-time', label: 'חוסר זמן', labelEn: 'Lack of time' },
+      { value: 'dont-know-how', label: 'לא יודע מאיפה להתחיל', labelEn: 'Don\'t know where to start' },
+      { value: 'external', label: 'משהו מבחוץ (כסף, אנשים, מצב)', labelEn: 'External factors (money, people, situation)' },
+      { value: 'fear-of-change', label: 'פחד משינוי', labelEn: 'Fear of change' },
+      { value: 'fatigue', label: 'עייפות/חוסר אנרגיה', labelEn: 'Fatigue/Lack of energy' },
+      { value: 'procrastination', label: 'דחיינות', labelEn: 'Procrastination' },
+      { value: 'perfectionism', label: 'פרפקציוניזם', labelEn: 'Perfectionism' },
+      { value: 'self-doubt', label: 'ספקות עצמיים', labelEn: 'Self-doubt' },
+      { value: 'fear-of-success', label: 'פחד מהצלחה', labelEn: 'Fear of success' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -591,6 +667,7 @@ const SECTIONS = [
   { key: 'health', title: 'בריאות והרגלים', titleEn: 'Health & Habits', icon: '❤️' },
   { key: 'mental', title: 'נפש ורגש', titleEn: 'Mental & Emotional', icon: '🧠' },
   { key: 'interests', title: 'תחומי עניין', titleEn: 'Interests & Hobbies', icon: '🎨' },
+  { key: 'behavioral', title: 'דפוסי התנהגות', titleEn: 'Behavioral Patterns', icon: '🧩' },
   { key: 'social', title: 'חברתי ואורח חיים', titleEn: 'Social & Lifestyle', icon: '🌍' },
   { key: 'values', title: 'ערכים ומטרות', titleEn: 'Values & Goals', icon: '⭐' },
 ];
@@ -601,13 +678,15 @@ const CATEGORY_ORDER: CategoryKey[] = [
   // Health
   'diet', 'sleep_hours', 'exercise_frequency', 'exercise_types', 'smoking', 'alcohol', 'caffeine', 'hydration', 'supplements',
   // Mental
-  'stress_level', 'meditation_practice', 'therapy_experience', 'challenge_response', 'energy_source', 'relaxation_methods',
+  'stress_level', 'meditation_practice', 'therapy_experience', 'energy_source', 'relaxation_methods',
   // Interests
   'hobbies', 'reading_habits',
+  // Behavioral (new situational questions)
+  'conflict_handling', 'problem_approach', 'decision_style', 'opportunity_response', 'failure_response', 'time_management', 'relationship_style',
   // Social
-  'social_preference', 'morning_evening', 'learning_style', 'communication_style', 'life_approach', 'decision_making', 'change_attitude',
+  'social_preference', 'morning_evening', 'learning_style',
   // Values
-  'life_priorities', 'spiritual_practice', 'growth_focus',
+  'life_priorities', 'spiritual_practice', 'growth_focus', 'obstacles',
 ];
 
 const getDefaultProfileData = (): ProfileData => ({
@@ -631,21 +710,24 @@ const getDefaultProfileData = (): ProfileData => ({
   stress_level: '',
   meditation_practice: '',
   therapy_experience: '',
-  challenge_response: '',
   energy_source: [],
   relaxation_methods: [],
   hobbies: [],
   reading_habits: '',
+  conflict_handling: '',
+  problem_approach: '',
+  decision_style: '',
+  opportunity_response: '',
+  failure_response: '',
+  time_management: '',
+  relationship_style: '',
   social_preference: '',
   morning_evening: '',
   learning_style: '',
-  communication_style: '',
-  life_approach: '',
-  decision_making: '',
-  change_attitude: '',
   life_priorities: [],
   spiritual_practice: '',
   growth_focus: [],
+  obstacles: [],
 });
 
 export function PersonalProfileStep({ onComplete, isCompleting, rewards }: PersonalProfileStepProps) {
@@ -673,7 +755,7 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
     setProfileData(prev => ({ ...prev, [category]: value }));
   };
 
-  const handleMultiSelect = (category: MultiSelectCategory, value: string, maxSelect?: number) => {
+  const handleMultiSelect = (category: MultiSelectCategory, value: string) => {
     setProfileData(prev => {
       const current = prev[category] as string[];
       
@@ -688,10 +770,6 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
       if (newValues.includes(value)) {
         newValues = newValues.filter(v => v !== value);
       } else {
-        // Check max select limit
-        if (maxSelect && newValues.length >= maxSelect) {
-          return prev; // Don't add more
-        }
         newValues = [...newValues, value];
       }
       
@@ -775,7 +853,6 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
                 {sectionCategories.map((categoryKey) => {
                   const category = CATEGORIES[categoryKey];
                   const value = profileData[categoryKey];
-                  const maxSelect = 'maxSelect' in category ? category.maxSelect : undefined;
                   
                   return (
                     <div key={categoryKey} className="space-y-3">
@@ -785,6 +862,13 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
                           {language === 'he' ? category.title : category.titleEn}
                         </h4>
                       </div>
+                      
+                      {/* Description if exists */}
+                      {'description' in category && category.description && (
+                        <p className="text-xs text-muted-foreground mr-7">
+                          {language === 'he' ? category.description : (category as any).descriptionEn}
+                        </p>
+                      )}
                       
                       <div className="flex flex-wrap gap-2">
                         {category.options.map((option) => {
@@ -798,7 +882,7 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
                               type="button"
                               onClick={() => {
                                 if (category.multiSelect) {
-                                  handleMultiSelect(categoryKey as MultiSelectCategory, option.value, maxSelect);
+                                  handleMultiSelect(categoryKey as MultiSelectCategory, option.value);
                                 } else {
                                   handleSingleSelect(categoryKey, option.value);
                                 }
@@ -895,30 +979,35 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
             </span>
           )}
         </div>
-
+        
         <Button
           onClick={handleComplete}
           disabled={!canComplete || isCompleting}
-          className="w-full h-12 text-base gap-2"
+          className="w-full py-6 text-lg relative overflow-hidden group"
           size="lg"
         >
-          {isCompleting ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              {language === 'he' ? 'המשך' : 'Continue'}
-              {rewards && rewards.xp > 0 && (
-                <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
-                  +{rewards.xp} XP
-                </span>
-              )}
-            </>
-          )}
+          <span className="relative z-10 flex items-center gap-2">
+            {isCompleting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {language === 'he' ? 'שומר...' : 'Saving...'}
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                {language === 'he' ? 'שמור והמשך' : 'Save & Continue'}
+              </>
+            )}
+          </span>
         </Button>
+        
+        {rewards && (
+          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+            <span>🏆 {rewards.xp} XP</span>
+            {rewards.tokens > 0 && <span>🪙 {rewards.tokens} Tokens</span>}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default PersonalProfileStep;
