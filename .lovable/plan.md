@@ -1,170 +1,193 @@
 
-# Aurora כמסך בית עם ניווט תמידי
+# תוכנית: קטלוג לכל מאמן + העברת תכנים לדין
 
-## הבעיה הנוכחית
+## הבנת המצב הנוכחי
 
-1. **AuroraLayout משתמש ב-`fixed inset-0`** - מסתיר את כל הניווט
-2. **GlobalBottomNav מסתיר את עצמו ב-`/aurora`** - קוד מפורש שמונע את הניווט
-3. **אין דרך לצאת מ-Aurora** - חוץ מכפתור "חזור" שעושה `navigate(-1)`
+### מבנה הנתונים הנוכחי:
+1. **`offers` table** - מציג מוצרים בקטלוג הראשי (`/courses`) - יש 3 offers פעילים כרגע
+2. **`products` table** - מוצרים עם workflow (Personal Hypnosis, Consciousness Leap)
+3. **`content_products` table** - קורסים ותוכן סטטי, כבר יש לו `practitioner_id` column!
+4. **`practitioners` table** - טבלת מאמנים עם כל הפרטים (כרגע ריקה - אין מאמנים רשומים)
 
-## הפתרון
+### הבעיה:
+- אין חיבור בין offers/products לבין practitioners
+- הקטלוג הראשי (`/courses`) מציג את כל ה-offers ללא סינון למאמן
+- אין קטלוג ספציפי לכל מאמן בדף הפרופיל שלו
 
-### שינוי 1: GlobalBottomNav - להציג גם ב-Aurora
-**קובץ:** `src/components/GlobalBottomNav.tsx`
+---
 
-הסרת התנאי שמסתיר את הניווט ב-Aurora:
+## שלב 1: שינויי Database
+
+### 1.1 הוספת practitioner_id לטבלאות offers ו-products
+```sql
+ALTER TABLE offers ADD COLUMN practitioner_id UUID REFERENCES practitioners(id);
+ALTER TABLE products ADD COLUMN practitioner_id UUID REFERENCES practitioners(id);
+```
+
+### 1.2 יצירת פרופיל מאמן עבור דין (Admin)
+יצירת רשומת practitioner עבור הוא לשימוש המערכת (user_id של האדמין)
+
+---
+
+## שלב 2: עדכון הקטלוג הראשי (`/courses`)
+
+### שינויים בקובץ `src/pages/Courses.tsx`:
+1. הוספת סינון אופציונלי לפי `practitioner_id`
+2. אם לא נבחר מאמן ספציפי - מציג את כל ה-offers
+3. אם נבחר מאמן - מציג רק את ה-offers שלו
+
+### לוגיקה חדשה:
 ```typescript
-// לפני (שורות 18-19):
-if (location.pathname.startsWith('/admin')) return null;
-if (location.pathname === '/aurora' || location.pathname.startsWith('/aurora/')) return null;
+// Query offers with optional practitioner filter
+let query = supabase
+  .from("offers")
+  .select("*, practitioners(display_name, slug, avatar_url)")
+  .eq("status", "active")
+  .eq("landing_page_enabled", true);
 
-// אחרי:
-if (location.pathname.startsWith('/admin')) return null;
-// Aurora now shows bottom nav like all other screens
+if (practitionerId) {
+  query = query.eq("practitioner_id", practitionerId);
+}
 ```
 
-### שינוי 2: AuroraLayout - להפוך ללייאאוט רגיל
-**קובץ:** `src/components/aurora/AuroraLayout.tsx`
+---
 
-שינויים עיקריים:
-1. **הסרת `fixed inset-0`** - במקום זה להשתמש בגובה מחושב
-2. **הוספת padding-bottom למובייל** - למניעת חפיפה עם הניווט
-3. **הסרת כפתור ה-Back** - הניווט התחתון מחליף אותו
+## שלב 3: קטלוג בדף המאמן (`/practitioner/:slug`)
 
-**מבנה חדש:**
-```tsx
-// Mobile: h-screen with bottom padding for nav
-// Desktop: h-screen with sidebar visible
+### עדכון `src/pages/PractitionerProfile.tsx`:
+הוספת סקציית קטלוג חדשה שמציגה רק את ה-offers של אותו מאמן
 
-<SidebarProvider defaultOpen={!isMobile}>
-  <div 
-    className={cn(
-      "flex w-full bg-background",
-      isMobile ? "h-[100dvh] pb-14" : "h-screen" // pb-14 for bottom nav
-    )}
-    dir={isRTL ? 'rtl' : 'ltr'}
-  >
-    {/* Desktop: Aurora sidebar for chat history */}
-    {!isMobile && (
-      <AuroraSidebar ... />
-    )}
-    
-    <main className="flex-1 flex flex-col min-h-0">
-      {/* Simplified header - no back button needed */}
-      <AuroraHeader />
-      <AuroraChatArea conversationId={activeConversationId} />
-    </main>
-  </div>
-</SidebarProvider>
-```
-
-### שינוי 3: AuroraHeader - הפשטה
-**בתוך:** `src/components/aurora/AuroraLayout.tsx`
-
-Header פשוט יותר:
-- ✅ כותרת Aurora עם אייקון
-- ✅ כפתור toggle לסיידבר (בדסקטופ)
-- ❌ הסרת כפתור "חזור" - כי יש ניווט תחתון
-
-**Header חדש:**
-```tsx
-const AuroraHeader = () => {
-  const { t, isRTL } = useTranslation();
-  const { toggleSidebar } = useSidebar();
-  const isMobile = useIsMobile();
-
+### קומפוננטה חדשה:
+```typescript
+// src/components/practitioner-landing/PractitionerCatalog.tsx
+const PractitionerCatalog = ({ practitionerId }) => {
+  const { data: offers } = useQuery({
+    queryKey: ['practitioner-offers', practitionerId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('offers')
+        .select('*')
+        .eq('practitioner_id', practitionerId)
+        .eq('status', 'active')
+        .eq('landing_page_enabled', true);
+      return data;
+    }
+  });
+  
   return (
-    <header className="h-14 border-b border-border bg-background/95 backdrop-blur flex items-center justify-between px-4 shrink-0">
-      {/* Title */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-          <Sparkles className="h-4 w-4 text-primary" />
-        </div>
-        <span className="font-semibold">{t('aurora.name')}</span>
-      </div>
-
-      {/* Desktop sidebar toggle */}
-      {!isMobile && (
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-          <Menu className="h-5 w-5" />
-        </Button>
-      )}
-    </header>
+    <section>
+      {offers?.map(offer => <OfferCard key={offer.id} offer={offer} />)}
+    </section>
   );
 };
 ```
 
-### שינוי 4 (אופציונלי): Mobile sidebar access
-במובייל, אם רוצים גישה להיסטוריית שיחות:
-- הוספת כפתור hamburger בצד ימין של ה-header
-- או: גישה דרך הדשבורד
+---
+
+## שלב 4: Admin Panel - ניהול מוצרים למאמנים
+
+### עדכונים ב-`src/pages/admin/Offers.tsx`:
+1. הוספת שדה בחירת practitioner בטופס עריכה/יצירה
+2. סינון לפי מאמן בתצוגת הרשימה
+
+### עדכונים ב-`src/pages/admin/Products.tsx`:
+1. הוספת שדה practitioner_id בעריכת מוצר
+2. סינון לפי מאמן
+
+### עדכונים ב-`src/pages/admin/Content.tsx`:
+1. שדה בחירת practitioner כבר קיים (practitioner_id קיים בטבלה)
+2. צריך רק לוודא שהממשק מאפשר בחירה
+
+---
+
+## שלב 5: Panel למאמנים (Practitioner Panel)
+
+### עדכון `src/components/panel/UnifiedSidebar.tsx`:
+כבר יש `/panel/my-products` בניווט - צריך ליצור את הדף
+
+### יצירת דף חדש: `src/pages/panel/MyProducts.tsx`
+מאמנים יוכלו לראות ולנהל רק את המוצרים שלהם:
+```typescript
+const MyProducts = () => {
+  const { data: myProfile } = useMyPractitionerProfile();
+  
+  const { data: offers } = useQuery({
+    queryKey: ['my-offers', myProfile?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('offers')
+        .select('*')
+        .eq('practitioner_id', myProfile.id);
+      return data;
+    },
+    enabled: !!myProfile?.id
+  });
+  
+  // Display and manage own offers
+};
+```
+
+---
+
+## שלב 6: העברת התוכן הקיים לדין
+
+לאחר הוספת הטבלאות:
+1. יצירת רשומת practitioner עבור דין (אם לא קיימת)
+2. עדכון כל ה-offers הקיימים עם ה-practitioner_id של דין
+3. עדכון כל ה-products הקיימים עם ה-practitioner_id של דין
+
+```sql
+-- Assign existing offers to Dean's practitioner profile
+UPDATE offers SET practitioner_id = '<dean_practitioner_id>';
+UPDATE products SET practitioner_id = '<dean_practitioner_id>';
+```
+
+---
+
+## סיכום קבצים לעריכה
+
+| קובץ | שינוי |
+|------|-------|
+| **Database** | הוספת practitioner_id ל-offers ו-products |
+| `src/pages/Courses.tsx` | סינון אופציונלי לפי practitioner + הצגת שם המאמן |
+| `src/pages/PractitionerProfile.tsx` | הוספת סקציית קטלוג |
+| `src/components/practitioner-landing/PractitionerCatalog.tsx` | **חדש** - קטלוג מוצרים של מאמן |
+| `src/pages/admin/Offers.tsx` | הוספת שדה practitioner בטופס |
+| `src/pages/admin/Products.tsx` | הוספת שדה practitioner בטופס |
+| `src/pages/panel/MyProducts.tsx` | **חדש** - ניהול מוצרים למאמנים |
+| `src/pages/panel/index.ts` | ייצוא MyProducts |
+| `src/App.tsx` | הוספת route ל-MyProducts |
 
 ---
 
 ## תוצאה סופית
 
 ```text
-┌─────────────────────────────────────────────────────────────────────┐
-│ MOBILE VIEW                                                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │ [≡]  ✨ Aurora                                        [⋮]  │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│                                                                     │
-│                                                                     │
-│                     [CHAT AREA]                                     │
-│                                                                     │
-│                                                                     │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │  💬 Input...                                     [🎤] [➤] │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│                                                                     │
-│  ╔═════════════════════════════════════════════════════════════╗   │
-│  ║ 🏠 Dashboard │ 💬 Messages │ ✨ Aurora │ 🛒 Catalog │ 👥   ║   │
-│  ╚═════════════════════════════════════════════════════════════╝   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                        CATALOG STRUCTURE                       │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  /courses                                                      │
+│  ├── All Offers (main catalog)                                │
+│  │   ├── Shows practitioner name on each card                 │
+│  │   └── Optional filter by practitioner                      │
+│  │                                                            │
+│  /practitioner/dean                                            │
+│  ├── Dean's Profile                                            │
+│  ├── Dean's Services (sessions, packages)                     │
+│  └── Dean's Catalog (offers with practitioner_id = dean)      │
+│                                                                │
+│  /panel/my-products (for practitioners)                        │
+│  └── Manage own offers and products                           │
+│                                                                │
+│  /admin/offers (for admin)                                     │
+│  └── Manage all offers + assign practitioner                  │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
 ```
 
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│ DESKTOP VIEW                                                        │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────────┐┌──────────────────────────────────────────┐  │
-│  │  Aurora Sidebar  ││                                          │  │
-│  │  ──────────────  ││  [✨ Aurora]                      [☰]    │  │
-│  │                  ││  ────────────────────────────────────── │  │
-│  │  [+ New Chat]    ││                                          │  │
-│  │                  ││              [CHAT AREA]                 │  │
-│  │  Recent:         ││                                          │  │
-│  │  • Chat 1        ││                                          │  │
-│  │  • Chat 2        ││                                          │  │
-│  │  • Chat 3        ││                                          │  │
-│  │                  ││  ┌──────────────────────────────────┐    │  │
-│  │                  ││  │  💬 Input...           [🎤] [➤] │    │  │
-│  │  ──────────────  ││  └──────────────────────────────────┘    │  │
-│  │  [👤 Profile ▼]  ││                                          │  │
-│  └──────────────────┘└──────────────────────────────────────────┘  │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## סיכום שינויים
-
-| קובץ | שינוי |
-|------|-------|
-| `src/components/GlobalBottomNav.tsx` | הסרת תנאי הסתרה ב-Aurora |
-| `src/components/aurora/AuroraLayout.tsx` | שינוי מ-fixed ל-layout רגיל עם pb-14 במובייל |
-
----
-
-## יתרונות
-
-1. **ניווט תמידי** - תמיד רואים איך לעבור בין מסכים
-2. **Aurora כמסך הבית** - כי זה ה-tab המרכזי
-3. **UX עקבי** - אותו פטרן כמו כל שאר האפליקציה
-4. **גישה להיסטוריה בדסקטופ** - סיידבר עם רשימת שיחות
+### יתרונות:
+1. **קטלוג ראשי** - מציג את כל ה-offers מכל המאמנים
+2. **קטלוג למאמן** - כל מאמן מציג רק את המוצרים שלו בדף הפרופיל
+3. **Admin יכול להקצות** - מי שיוצר מוצר יכול לבחור לאיזה מאמן הוא שייך
+4. **מאמנים יכולים לנהל** - כל מאמן רואה ומנהל רק את שלו ב-Panel
