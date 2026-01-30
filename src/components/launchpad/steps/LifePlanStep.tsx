@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Gift, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Gift, ChevronDown, ChevronUp, Loader2, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface LifePlanStepProps {
   onComplete: (data: { form_submission_id?: string }) => void;
@@ -80,10 +83,23 @@ const SECTIONS: Section[] = [
   },
 ];
 
+interface LifePlanAnalysis {
+  summary: string;
+  vision_clarity: string;
+  action_readiness: string;
+  key_goals: string[];
+  potential_blockers: string[];
+  next_steps: string[];
+}
+
 export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStepProps) {
   const { language, isRTL } = useTranslation();
+  const { user } = useAuth();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openSections, setOpenSections] = useState<string[]>(['vision_3y']);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<LifePlanAnalysis | null>(null);
+  const [step, setStep] = useState<'questions' | 'analysis'>('questions');
 
   const toggleSection = (id: string) => {
     setOpenSections(prev => 
@@ -96,13 +112,232 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
   const completedCount = Object.values(answers).filter(a => a.trim().length >= 20).length;
   const isValid = completedCount >= 3; // At least 3 sections filled
 
-  const handleSubmit = () => {
-    if (isValid) {
-      // In a real implementation, this would save to form_submissions
-      onComplete({});
+  const handleSubmit = async () => {
+    if (!isValid || !user?.id) return;
+
+    setIsAnalyzing(true);
+
+    try {
+      // Prepare responses for storage
+      const responses = SECTIONS.map(s => ({
+        question: language === 'he' ? s.question : s.questionEn,
+        answer: answers[s.id] || '',
+      }));
+
+      // Save to form_submissions (using a generated form ID for life plan)
+      const { data: submission, error: submissionError } = await supabase
+        .from('form_submissions')
+        .insert({
+          form_id: '00000000-0000-0000-0000-000000000001', // Life Plan pseudo-form ID
+          user_id: user.id,
+          email: user.email,
+          responses,
+          status: 'completed',
+          metadata: { type: 'life_plan', source: 'launchpad' },
+        })
+        .select()
+        .single();
+
+      if (submissionError) {
+        console.error('Failed to save submission:', submissionError);
+        throw new Error('Failed to save your responses');
+      }
+
+      // Also save to aurora_life_visions for the dashboard
+      const vision3y = answers.vision_3y?.trim();
+      if (vision3y) {
+        await supabase
+          .from('aurora_life_visions')
+          .upsert({
+            user_id: user.id,
+            timeframe: '5_year',
+            title: vision3y.substring(0, 100),
+            description: vision3y,
+            focus_areas: Object.keys(answers).filter(k => answers[k]?.trim().length > 20),
+          }, { onConflict: 'user_id,timeframe' });
+      }
+
+      // Call AI for life plan analysis
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+        'analyze-life-plan',
+        {
+          body: {
+            form_submission_id: submission.id,
+            responses,
+            language,
+          },
+        }
+      );
+
+      if (analysisError) {
+        console.error('AI analysis error:', analysisError);
+        // Continue even if analysis fails - use fallback
+      }
+
+      if (analysisData?.analysis) {
+        setAnalysis(analysisData.analysis);
+        setStep('analysis');
+      } else {
+        // Fallback analysis
+        setAnalysis({
+          summary: language === 'he' 
+            ? 'תודה על בניית תוכנית החיים שלך! יש לך חזון ברור ומטרות מוגדרות.'
+            : 'Thank you for building your life plan! You have a clear vision and defined goals.',
+          vision_clarity: language === 'he' ? 'גבוהה' : 'High',
+          action_readiness: language === 'he' ? 'מוכן לפעולה' : 'Ready for action',
+          key_goals: Object.values(answers).slice(0, 3).map(a => a.substring(0, 50) + '...'),
+          potential_blockers: [
+            language === 'he' ? 'חוסר עקביות' : 'Lack of consistency',
+            language === 'he' ? 'הסחות דעת' : 'Distractions',
+          ],
+          next_steps: [
+            language === 'he' ? 'הגדר 3 פעולות לשבוע הקרוב' : 'Define 3 actions for next week',
+            language === 'he' ? 'בחר עוגן יומי' : 'Choose a daily anchor',
+          ],
+        });
+        setStep('analysis');
+      }
+    } catch (error) {
+      console.error('Life plan step error:', error);
+      toast.error(language === 'he' ? 'שגיאה בשמירת התוכנית' : 'Error saving plan');
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
+  const handleContinueAfterAnalysis = () => {
+    onComplete({});
+  };
+
+  // Analysis View
+  if (step === 'analysis' && analysis) {
+    return (
+      <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-4"
+        >
+          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+            <Target className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold">
+            {language === 'he' ? 'סיכום תוכנית החיים' : 'Life Plan Summary'}
+          </h1>
+        </motion.div>
+
+        {/* Summary */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-5 rounded-xl bg-primary/5 border border-primary/20"
+        >
+          <p className="text-muted-foreground leading-relaxed">{analysis.summary}</p>
+        </motion.div>
+
+        {/* Vision Clarity & Action Readiness */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-2 gap-3"
+        >
+          <div className="p-4 rounded-xl bg-muted/50 text-center">
+            <p className="text-xs text-muted-foreground mb-1">
+              {language === 'he' ? 'בהירות חזון' : 'Vision Clarity'}
+            </p>
+            <p className="font-semibold text-primary">{analysis.vision_clarity}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-muted/50 text-center">
+            <p className="text-xs text-muted-foreground mb-1">
+              {language === 'he' ? 'מוכנות לפעולה' : 'Action Readiness'}
+            </p>
+            <p className="font-semibold text-green-600">{analysis.action_readiness}</p>
+          </div>
+        </motion.div>
+
+        {/* Key Goals */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-3"
+        >
+          <h3 className="font-semibold flex items-center gap-2">
+            <span>🎯</span>
+            {language === 'he' ? 'מטרות מפתח' : 'Key Goals'}
+          </h3>
+          <ul className="space-y-2">
+            {analysis.key_goals.map((goal, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary">•</span>
+                {goal}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* Next Steps */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
+        >
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <span>🚀</span>
+            {language === 'he' ? 'הצעדים הבאים' : 'Next Steps'}
+          </h3>
+          <ul className="space-y-2">
+            {analysis.next_steps.map((step, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-5 h-5 rounded-full bg-green-500/20 text-green-600 flex items-center justify-center text-xs">
+                  {i + 1}
+                </span>
+                {step}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* Rewards & Continue */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="space-y-4 text-center pt-4"
+        >
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+              <Sparkles className="w-4 h-4" />
+              <span>+{rewards.xp} XP</span>
+            </div>
+            {rewards.tokens > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600">
+                <Gift className="w-4 h-4" />
+                <span>+{rewards.tokens} {language === 'he' ? 'טוקנים' : 'Tokens'}</span>
+              </div>
+            )}
+          </div>
+
+          <Button 
+            size="lg" 
+            onClick={handleContinueAfterAnalysis}
+            disabled={isCompleting}
+            className="min-w-[200px]"
+          >
+            {isCompleting 
+              ? (language === 'he' ? 'שומר...' : 'Saving...') 
+              : (language === 'he' ? 'המשך לשלב הבא' : 'Continue to Next Step')
+            }
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Questions View
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
@@ -194,13 +429,17 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
         <Button 
           size="lg" 
           onClick={handleSubmit}
-          disabled={!isValid || isCompleting}
-          className="min-w-[200px]"
+          disabled={!isValid || isAnalyzing}
+          className="min-w-[200px] gap-2"
         >
-          {isCompleting 
-            ? (language === 'he' ? 'שומר...' : 'Saving...') 
-            : (language === 'he' ? 'המשך' : 'Continue')
-          }
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {language === 'he' ? 'מנתח...' : 'Analyzing...'}
+            </>
+          ) : (
+            language === 'he' ? 'קבל סיכום' : 'Get Summary'
+          )}
         </Button>
         
         {!isValid && (
