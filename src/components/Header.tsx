@@ -128,7 +128,7 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
             )}
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src={logoUrl} alt={brandName} className="h-8 w-8" width={32} height={32} loading="eager" decoding="async" />
+              <img src={logoUrl} alt={brandName} className="h-10 w-10 sm:h-12 sm:w-12" width={48} height={48} loading="eager" decoding="async" />
               <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>

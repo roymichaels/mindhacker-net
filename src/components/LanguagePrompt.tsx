@@ -36,8 +36,8 @@ export const LanguagePrompt = () => {
         </DialogDescription>
         <div className="flex flex-col items-center gap-6 py-4">
           {/* Logo - using theme settings */}
-          <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-            <img src={logoUrl} alt={brandName} className="w-20 h-20 object-contain" />
+          <div className="w-28 h-28 rounded-full bg-primary/10 flex items-center justify-center p-2">
+            <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" />
           </div>
 
           {/* Title */}
