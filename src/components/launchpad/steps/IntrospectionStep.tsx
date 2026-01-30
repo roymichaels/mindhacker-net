@@ -220,25 +220,27 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
         answer: answers[q.id] || '',
       }));
 
+      // Generate ID client-side to avoid requiring SELECT permission after INSERT
+      const newSubmissionId = crypto.randomUUID();
+
       // Save to form_submissions
-      const { data: submission, error: submissionError } = await supabase
+      const { error: submissionError } = await supabase
         .from('form_submissions')
         .insert({
-          form_id: '45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308', // Introspection form ID
+          id: newSubmissionId,
+          form_id: INTROSPECTION_FORM_ID,
           user_id: user.id,
           email: user.email,
           responses,
           status: 'new',
-        })
-        .select()
-        .single();
+        });
 
       if (submissionError) {
         console.error('Failed to save submission:', submissionError);
         throw new Error('Failed to save your responses');
       }
 
-      setSubmissionId(submission.id);
+      setSubmissionId(newSubmissionId);
       clearSavedAnswers(); // Clear localStorage after successful submission
 
       // Call AI analysis
@@ -246,7 +248,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
         'analyze-introspection-form',
         {
           body: {
-            form_submission_id: submission.id,
+            form_submission_id: newSubmissionId,
             responses,
             language,
           },
@@ -263,7 +265,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
         setStep('analysis');
       } else {
         // If no analysis, complete the step directly
-        onComplete({ form_submission_id: submission.id });
+        onComplete({ form_submission_id: newSubmissionId });
       }
     } catch (error) {
       console.error('Introspection step error:', error);
