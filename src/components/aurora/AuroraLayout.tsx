@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, ArrowLeft, ArrowRight, Menu, Sparkles } from 'lucide-react';
+import { Loader2, Menu, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { LaunchpadFlow } from '@/components/launchpad';
+import { cn } from '@/lib/utils';
 import AuroraSidebar from './AuroraSidebar';
 import AuroraChatArea from './AuroraChatArea';
 import AuroraDashboardModal from './AuroraDashboardModal';
@@ -18,46 +18,47 @@ import AuroraChecklistModal from './AuroraChecklistModal';
 
 // Header component inside SidebarProvider to access sidebar state
 const AuroraHeader = () => {
-  const navigate = useNavigate();
-  const { t, isRTL } = useTranslation();
-  const { toggleSidebar, state } = useSidebar();
+  const { t } = useTranslation();
+  const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
-  const isCollapsed = state === 'collapsed';
-
-  const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   return (
     <header className="h-14 border-b border-border bg-background/95 backdrop-blur flex items-center justify-between px-4 shrink-0">
-      {/* Right side - Back + Title */}
-      <div className="flex items-center gap-3">
-        {/* Back Button */}
+      {/* Mobile: Menu button for sidebar access */}
+      {isMobile ? (
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(-1)}
+          onClick={toggleSidebar}
           className="shrink-0"
         >
-          <BackArrow className="h-5 w-5" />
+          <Menu className="h-5 w-5" />
         </Button>
+      ) : (
+        <div /> // Spacer for desktop
+      )}
 
-        {/* Aurora Title */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-primary" />
-          </div>
-          <span className="font-semibold">{t('aurora.name')}</span>
+      {/* Aurora Title - Center */}
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+          <Sparkles className="h-4 w-4 text-primary" />
         </div>
+        <span className="font-semibold">{t('aurora.name')}</span>
       </div>
 
-      {/* Left side - Toggle Sidebar (always visible for easy access) */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        className="shrink-0"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
+      {/* Desktop: Sidebar toggle */}
+      {!isMobile ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="shrink-0"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      ) : (
+        <div className="w-10" /> // Spacer for symmetry on mobile
+      )}
     </header>
   );
 };
@@ -121,7 +122,13 @@ const AuroraLayout = () => {
 
   if (isLoading || launchpadLoading) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div 
+        className={cn(
+          "flex items-center justify-center bg-background",
+          isMobile ? "h-[calc(100dvh-3.5rem)]" : "h-screen"
+        )}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -140,7 +147,13 @@ const AuroraLayout = () => {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="fixed inset-0 flex w-full bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div 
+        className={cn(
+          "flex w-full bg-background",
+          isMobile ? "h-[calc(100dvh-3.5rem)]" : "h-screen"
+        )}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
         <AuroraSidebar
           currentConversationId={activeConversationId}
           onNewChat={handleNewChat}
