@@ -246,11 +246,7 @@ export default function LaunchpadSettings() {
               <CardContent>
                 <ScrollArea className="h-[600px] pr-4">
                   <TransformationPlanDisplay 
-                    data={localData.firstWeek || {}}
-                    onChange={(data) => {
-                      setLocalData(prev => ({ ...prev, firstWeek: data }));
-                      setHasChanges(true);
-                    }}
+                    milestones={launchpadData?.milestones || []}
                     language={language}
                   />
                 </ScrollArea>
@@ -299,11 +295,40 @@ function WelcomeQuizDisplay({ data, onChange, language }: WelcomeQuizDisplayProp
     );
   }
 
+  // If there's just an intention (plain text), display it nicely
+  if (entries.length === 1 && entries[0][0] === 'intention' && typeof entries[0][1] === 'string') {
+    return (
+      <div className="space-y-4">
+        <div className="p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+          <p className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            ✨ {language === 'he' ? 'הכוונה שלי למסע הזה' : 'My Intention for This Journey'}
+          </p>
+          <p className="text-foreground text-lg leading-relaxed whitespace-pre-wrap">{entries[0][1]}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Map field keys to Hebrew labels
+  const fieldLabels: Record<string, string> = {
+    life_areas: language === 'he' ? 'תחומי חיים' : 'Life Areas',
+    career_situation: language === 'he' ? 'מצב קריירה' : 'Career Situation',
+    relationship_status: language === 'he' ? 'מצב זוגי' : 'Relationship Status',
+    health_focus: language === 'he' ? 'מיקוד בריאותי' : 'Health Focus',
+    financial_situation: language === 'he' ? 'מצב פיננסי' : 'Financial Situation',
+    emotional_state: language === 'he' ? 'מצב רגשי' : 'Emotional State',
+    biggest_challenge: language === 'he' ? 'האתגר הגדול ביותר' : 'Biggest Challenge',
+    desired_outcome: language === 'he' ? 'התוצאה הרצויה' : 'Desired Outcome',
+    intention: language === 'he' ? 'הכוונה שלי' : 'My Intention',
+  };
+
   return (
     <div className="space-y-4">
       {entries.map(([key, value]) => (
         <div key={key} className="p-4 rounded-lg bg-muted/50 border">
-          <p className="text-sm font-medium text-muted-foreground mb-2">{key}</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">
+            {fieldLabels[key] || key}
+          </p>
           {Array.isArray(value) ? (
             <div className="flex flex-wrap gap-2">
               {value.map((v, i) => (
@@ -317,7 +342,7 @@ function WelcomeQuizDisplay({ data, onChange, language }: WelcomeQuizDisplayProp
               ))}
             </div>
           ) : (
-            <p className="text-foreground">{value}</p>
+            <p className="text-foreground whitespace-pre-wrap">{value}</p>
           )}
         </div>
       ))}
@@ -479,94 +504,123 @@ function FocusAreasDisplay({ data, onChange, language }: FocusAreasDisplayProps)
 }
 
 interface TransformationPlanDisplayProps {
-  data: Record<string, unknown>;
-  onChange: (data: Record<string, unknown>) => void;
+  milestones: Array<{
+    id: string;
+    week_number: number;
+    month_number: number;
+    title: string;
+    description: string;
+    goal: string;
+    tasks: string[];
+    challenge: string;
+    focus_area: string;
+    is_completed: boolean;
+    xp_reward: number;
+    tokens_reward: number;
+  }>;
   language: string;
 }
 
-function TransformationPlanDisplay({ data, onChange, language }: TransformationPlanDisplayProps) {
-  const habitsToQuit = (data.habits_to_quit as string[]) || [];
-  const habitsToBuild = (data.habits_to_build as string[]) || [];
-  const careerStatus = (data.career_status as string) || '';
-  const careerGoal = (data.career_goal as string) || '';
-
-  if (!habitsToQuit.length && !habitsToBuild.length && !careerStatus && !careerGoal) {
+function TransformationPlanDisplay({ milestones, language }: TransformationPlanDisplayProps) {
+  if (!milestones || milestones.length === 0) {
     return (
       <p className="text-muted-foreground text-center py-8">
-        {language === 'he' ? 'אין נתונים עדיין' : 'No data yet'}
+        {language === 'he' ? 'אין נתונים עדיין. לחץ על "חשב מחדש" ליצירת תוכנית.' : 'No data yet. Click "Regenerate" to create a plan.'}
       </p>
     );
   }
 
+  // Group by month
+  const monthsMap = milestones.reduce((acc, m) => {
+    const month = m.month_number || 1;
+    if (!acc[month]) acc[month] = [];
+    acc[month].push(m);
+    return acc;
+  }, {} as Record<number, typeof milestones>);
+
+  const months = Object.keys(monthsMap).map(Number).sort((a, b) => a - b);
+
   return (
-    <div className="space-y-6">
-      {/* Habits to Quit */}
-      {habitsToQuit.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium flex items-center gap-2">
-            <span>🚫</span>
-            {language === 'he' ? 'הרגלים לוותר עליהם' : 'Habits to Quit'}
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {habitsToQuit.map((habit, i) => (
-              <span 
-                key={i}
-                className="px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-sm"
+    <div className="space-y-8">
+      {months.map((monthNum) => (
+        <div key={monthNum} className="space-y-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+              {monthNum}
+            </span>
+            {language === 'he' ? `חודש ${monthNum}` : `Month ${monthNum}`}
+          </h3>
+          
+          <div className="space-y-3">
+            {monthsMap[monthNum].map((milestone) => (
+              <div 
+                key={milestone.id}
+                className={cn(
+                  "p-4 rounded-xl border transition-all",
+                  milestone.is_completed 
+                    ? "bg-green-500/10 border-green-500/30" 
+                    : "bg-muted/50 border-border hover:border-primary/30"
+                )}
               >
-                {habit}
-              </span>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        {language === 'he' ? `שבוע ${milestone.week_number}` : `Week ${milestone.week_number}`}
+                      </span>
+                      {milestone.is_completed && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
+                          ✓ {language === 'he' ? 'הושלם' : 'Completed'}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="font-semibold text-base">{milestone.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{milestone.description}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="text-xs text-muted-foreground">
+                      +{milestone.xp_reward} XP
+                    </div>
+                    <div className="text-xs text-amber-500">
+                      +{milestone.tokens_reward} 🪙
+                    </div>
+                  </div>
+                </div>
+
+                {milestone.goal && (
+                  <div className="mt-3 p-2 rounded-lg bg-background/50">
+                    <span className="text-xs text-muted-foreground">{language === 'he' ? 'יעד:' : 'Goal:'}</span>
+                    <span className="text-sm ms-2 font-medium">{milestone.goal}</span>
+                  </div>
+                )}
+
+                {milestone.tasks && milestone.tasks.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs text-muted-foreground mb-2">{language === 'he' ? 'משימות:' : 'Tasks:'}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {milestone.tasks.map((task, i) => (
+                        <span 
+                          key={i}
+                          className="text-xs px-2 py-1 rounded-md bg-muted border border-border"
+                        >
+                          {task}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {milestone.challenge && (
+                  <div className="mt-3 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <span className="text-xs text-amber-600">⚡ {language === 'he' ? 'אתגר:' : 'Challenge:'}</span>
+                    <span className="text-sm ms-2">{milestone.challenge}</span>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
-      )}
-
-      {/* Habits to Build */}
-      {habitsToBuild.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium flex items-center gap-2">
-            <span>✅</span>
-            {language === 'he' ? 'הרגלים לבנות' : 'Habits to Build'}
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {habitsToBuild.map((habit, i) => (
-              <span 
-                key={i}
-                className="px-3 py-2 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 text-sm"
-              >
-                {habit}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Career Info */}
-      {(careerStatus || careerGoal) && (
-        <div className="space-y-3">
-          <h4 className="font-medium flex items-center gap-2">
-            <span>💼</span>
-            {language === 'he' ? 'קריירה' : 'Career'}
-          </h4>
-          <div className="grid gap-3">
-            {careerStatus && (
-              <div className="p-3 rounded-lg bg-muted/50 border">
-                <p className="text-xs text-muted-foreground mb-1">
-                  {language === 'he' ? 'מצב נוכחי' : 'Current Status'}
-                </p>
-                <p className="font-medium">{careerStatus}</p>
-              </div>
-            )}
-            {careerGoal && (
-              <div className="p-3 rounded-lg bg-muted/50 border">
-                <p className="text-xs text-muted-foreground mb-1">
-                  {language === 'he' ? 'מטרה' : 'Goal'}
-                </p>
-                <p className="font-medium">{careerGoal}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      ))}
     </div>
   );
 }

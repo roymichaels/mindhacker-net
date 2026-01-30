@@ -3,6 +3,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export interface Milestone {
+  id: string;
+  week_number: number;
+  month_number: number;
+  title: string;
+  description: string;
+  goal: string;
+  tasks: string[];
+  challenge: string;
+  focus_area: string;
+  is_completed: boolean;
+  xp_reward: number;
+  tokens_reward: number;
+}
+
 export interface LaunchpadData {
   welcomeQuiz: Record<string, string | string[]>;
   personalProfile: Record<string, unknown>;
@@ -13,6 +28,8 @@ export interface LaunchpadData {
     career_status: string;
     career_goal: string;
   };
+  milestones: Milestone[];
+  lifePlanId: string | null;
 }
 
 export function useLaunchpadData() {
@@ -35,7 +52,7 @@ export function useLaunchpadData() {
         return null;
       }
 
-      // Parse the stored data - step_1_intention can be plain text or JSON
+      // Parse the welcome quiz data - step_1_intention can be plain text or JSON
       let welcomeQuiz: Record<string, string | string[]> = {};
       try {
         if (progress.step_1_intention) {
@@ -89,11 +106,57 @@ export function useLaunchpadData() {
         console.error('Error parsing first week data:', e);
       }
 
+      // Fetch the transformation plan (milestones)
+      let milestones: Milestone[] = [];
+      let lifePlanId: string | null = null;
+      try {
+        // First get the life plan
+        const { data: lifePlan } = await supabase
+          .from('life_plans')
+          .select('id')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (lifePlan) {
+          lifePlanId = lifePlan.id;
+          
+          // Then get the milestones
+          const { data: milestonesData } = await supabase
+            .from('life_plan_milestones')
+            .select('*')
+            .eq('plan_id', lifePlan.id)
+            .order('week_number', { ascending: true });
+
+          if (milestonesData) {
+            milestones = milestonesData.map(m => ({
+              id: m.id,
+              week_number: m.week_number,
+              month_number: m.month_number,
+              title: m.title,
+              description: m.description || '',
+              goal: m.goal || '',
+              tasks: (m.tasks as string[]) || [],
+              challenge: m.challenge || '',
+              focus_area: m.focus_area || '',
+              is_completed: m.is_completed || false,
+              xp_reward: m.xp_reward || 0,
+              tokens_reward: m.tokens_reward || 0,
+            }));
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching milestones:', e);
+      }
+
       return {
         welcomeQuiz,
         personalProfile,
         focusAreas,
         firstWeek,
+        milestones,
+        lifePlanId,
       };
     },
     enabled: !!user?.id,
