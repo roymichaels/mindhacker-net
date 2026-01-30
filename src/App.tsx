@@ -66,6 +66,7 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 const Aurora = lazy(() => import("./pages/Aurora"));
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
+const Launchpad = lazy(() => import("./pages/Launchpad"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -301,6 +302,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <UserDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/launchpad"
+                          element={
+                            <ProtectedRoute>
+                              <Launchpad />
                             </ProtectedRoute>
                           }
                         />

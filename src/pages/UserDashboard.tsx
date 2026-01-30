@@ -8,10 +8,8 @@ import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import Header from "@/components/Header";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import CompactCourses from "@/components/dashboard/CompactCourses";
 import CompactRecordings from "@/components/dashboard/CompactRecordings";
 import CompactSessions from "@/components/dashboard/CompactSessions";
-import CompactAffiliate from "@/components/dashboard/CompactAffiliate";
 import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardView";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -90,16 +88,10 @@ const UserDashboard = () => {
           {/* Unified Life Model + Gamification Dashboard */}
           <UnifiedDashboardView />
           
-          {/* Existing Content - Courses & Recordings */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <CompactCourses />
-            <CompactRecordings />
-          </div>
-          
-          {/* Sessions & Affiliate */}
+          {/* Sessions & Recordings */}
           <div className="grid gap-6 md:grid-cols-2">
             <CompactSessions />
-            <CompactAffiliate />
+            <CompactRecordings />
           </div>
         </div>
       </DashboardLayout>
