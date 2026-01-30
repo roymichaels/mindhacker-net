@@ -72,24 +72,25 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
 
   const handleNavigatePrev = () => {
     if (displayedStep > 1) {
-      if (isStepCompleted(displayedStep - 1)) {
-        setViewingStep(displayedStep - 1);
-      }
+      // Allow going back if the previous step is completed OR we're already viewing a past step
+      setViewingStep(displayedStep - 1);
     }
   };
 
   const handleNavigateNext = () => {
-    if (viewingStep !== null && viewingStep < currentStep) {
-      if (viewingStep + 1 === currentStep) {
+    if (displayedStep < currentStep) {
+      if (displayedStep + 1 === currentStep) {
         setViewingStep(null); // Go back to current step
       } else {
-        setViewingStep(viewingStep + 1);
+        setViewingStep(displayedStep + 1);
       }
     }
   };
 
-  const canGoPrev = displayedStep > 1 && isStepCompleted(displayedStep - 1);
-  const canGoNext = viewingStep !== null && viewingStep < currentStep;
+  // Can go back if we're not on step 1
+  const canGoPrev = displayedStep > 1;
+  // Can go forward if we're viewing a past step (not at current)
+  const canGoNext = displayedStep < currentStep;
 
   const renderCurrentStep = () => {
     const stepProps = {
