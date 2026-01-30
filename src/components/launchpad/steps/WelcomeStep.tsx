@@ -28,13 +28,13 @@ interface QuizQuestion {
   dependsOn?: { questionId: string; values: string[] };
 }
 
-// All quiz questions with branching logic
+// All quiz questions with branching logic - ALL QUESTIONS ARE MULTI-SELECT
 const WELCOME_QUIZ: QuizQuestion[] = [
-  // Question 1: Life Areas - MULTI-SELECT - What are you dealing with
+  // Question 1: Life Areas - What are you dealing with
   {
     id: 'main_area',
-    question: 'במה אתה מתעסק כרגע בחיים? (בחר הכל שרלוונטי)',
-    questionEn: 'What are you currently dealing with in life? (Select all that apply)',
+    question: 'במה אתה מתעסק כרגע בחיים?',
+    questionEn: 'What are you currently dealing with in life?',
     multiSelect: true,
     options: [
       { value: 'career', label: 'קריירה/עבודה', labelEn: 'Career/Work', icon: '💼' },
@@ -56,6 +56,7 @@ const WELCOME_QUIZ: QuizQuestion[] = [
     id: 'career_specific',
     question: 'מה בדיוק בקריירה?',
     questionEn: 'What specifically about your career?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['career'] },
     options: [
       { value: 'advance', label: 'רוצה להתקדם בתפקיד', labelEn: 'Want to advance in my role', icon: '📈' },
@@ -66,19 +67,52 @@ const WELCOME_QUIZ: QuizQuestion[] = [
       { value: 'balance', label: 'רוצה איזון עבודה-חיים', labelEn: 'Want work-life balance', icon: '⚖️' },
     ],
   },
+  // Business sub-questions
+  {
+    id: 'business_specific',
+    question: 'מה בדיוק בעסק/יזמות?',
+    questionEn: 'What specifically about business/entrepreneurship?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['business'] },
+    options: [
+      { value: 'start', label: 'רוצה להקים עסק', labelEn: 'Want to start a business', icon: '🚀' },
+      { value: 'grow', label: 'רוצה להגדיל את העסק', labelEn: 'Want to grow the business', icon: '📈' },
+      { value: 'struggle', label: 'העסק מתקשה', labelEn: 'Business is struggling', icon: '😟' },
+      { value: 'marketing', label: 'צריך עזרה בשיווק', labelEn: 'Need help with marketing', icon: '📣' },
+      { value: 'team', label: 'ניהול צוות', labelEn: 'Team management', icon: '👥' },
+      { value: 'pivot', label: 'רוצה לשנות כיוון', labelEn: 'Want to pivot', icon: '🔄' },
+    ],
+  },
   // Relationships sub-questions
   {
     id: 'relationships_specific',
     question: 'מה בדיוק במערכות יחסים?',
     questionEn: 'What specifically about relationships?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['relationships'] },
     options: [
       { value: 'find_partner', label: 'רוצה למצוא בן/בת זוג', labelEn: 'Want to find a partner', icon: '💕' },
       { value: 'current_relationship', label: 'בעיות בזוגיות הנוכחית', labelEn: 'Issues in current relationship', icon: '💔' },
-      { value: 'family', label: 'קשיים עם ילדים/משפחה', labelEn: 'Difficulties with kids/family', icon: '👨‍👩‍👧' },
-      { value: 'social', label: 'קשיים חברתיים', labelEn: 'Social difficulties', icon: '👥' },
       { value: 'healing', label: 'ריפוי מפרידה', labelEn: 'Healing from separation', icon: '🩹' },
       { value: 'communication', label: 'רוצה לשפר תקשורת', labelEn: 'Want to improve communication', icon: '💬' },
+      { value: 'intimacy', label: 'קרבה ואינטימיות', labelEn: 'Closeness and intimacy', icon: '🔥' },
+      { value: 'commitment', label: 'פחד מהתחייבות', labelEn: 'Fear of commitment', icon: '🔐' },
+    ],
+  },
+  // Family sub-questions
+  {
+    id: 'family_specific',
+    question: 'מה בדיוק במשפחה?',
+    questionEn: 'What specifically about family?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['family'] },
+    options: [
+      { value: 'parenting', label: 'אתגרי הורות', labelEn: 'Parenting challenges', icon: '👶' },
+      { value: 'teenagers', label: 'התמודדות עם מתבגרים', labelEn: 'Dealing with teenagers', icon: '🧒' },
+      { value: 'parents', label: 'יחסים עם הורים', labelEn: 'Relationship with parents', icon: '👴' },
+      { value: 'siblings', label: 'יחסים עם אחים', labelEn: 'Relationship with siblings', icon: '👫' },
+      { value: 'balance', label: 'איזון משפחה-עבודה', labelEn: 'Family-work balance', icon: '⚖️' },
+      { value: 'conflict', label: 'קונפליקטים משפחתיים', labelEn: 'Family conflicts', icon: '⚡' },
     ],
   },
   // Health sub-questions
@@ -86,14 +120,31 @@ const WELCOME_QUIZ: QuizQuestion[] = [
     id: 'health_specific',
     question: 'מה בדיוק בבריאות?',
     questionEn: 'What specifically about health?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['health'] },
     options: [
       { value: 'weight', label: 'רוצה לרדת במשקל', labelEn: 'Want to lose weight', icon: '⚖️' },
-      { value: 'energy', label: 'חסר אנרגיה/עייפות', labelEn: 'Lacking energy/fatigue', icon: '🔋' },
-      { value: 'sleep', label: 'בעיות שינה', labelEn: 'Sleep issues', icon: '😴' },
       { value: 'exercise', label: 'רוצה להתחיל להתאמן', labelEn: 'Want to start exercising', icon: '🏃' },
-      { value: 'pain', label: 'להתמודד עם כאבים כרוניים', labelEn: 'Dealing with chronic pain', icon: '🩹' },
       { value: 'nutrition', label: 'לשפר תזונה', labelEn: 'Improve nutrition', icon: '🥗' },
+      { value: 'pain', label: 'כאבים כרוניים', labelEn: 'Chronic pain', icon: '🩹' },
+      { value: 'condition', label: 'מצב רפואי מתמשך', labelEn: 'Ongoing medical condition', icon: '🏥' },
+      { value: 'habits', label: 'הרגלים לא בריאים', labelEn: 'Unhealthy habits', icon: '🚭' },
+    ],
+  },
+  // Energy sub-questions
+  {
+    id: 'energy_specific',
+    question: 'מה בדיוק באנרגיה/שינה?',
+    questionEn: 'What specifically about energy/sleep?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['energy'] },
+    options: [
+      { value: 'tired', label: 'עייפות כרונית', labelEn: 'Chronic fatigue', icon: '😫' },
+      { value: 'sleep_quality', label: 'איכות שינה ירודה', labelEn: 'Poor sleep quality', icon: '😴' },
+      { value: 'insomnia', label: 'קשיי הירדמות', labelEn: 'Difficulty falling asleep', icon: '🌙' },
+      { value: 'morning', label: 'קושי להתעורר בבוקר', labelEn: 'Difficulty waking up', icon: '⏰' },
+      { value: 'focus', label: 'חוסר ריכוז', labelEn: 'Lack of focus', icon: '🎯' },
+      { value: 'burnout', label: 'שחיקה', labelEn: 'Burnout', icon: '🔥' },
     ],
   },
   // Finance sub-questions
@@ -101,6 +152,7 @@ const WELCOME_QUIZ: QuizQuestion[] = [
     id: 'finance_specific',
     question: 'מה בדיוק בכסף/פיננסים?',
     questionEn: 'What specifically about money/finances?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['finance'] },
     options: [
       { value: 'save', label: 'רוצה לחסוך יותר', labelEn: 'Want to save more', icon: '🐷' },
@@ -116,79 +168,138 @@ const WELCOME_QUIZ: QuizQuestion[] = [
     id: 'purpose_specific',
     question: 'מה בדיוק במטרה/כיוון?',
     questionEn: 'What specifically about purpose/direction?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['purpose'] },
     options: [
-      { value: 'dont_know', label: 'לא יודע מה אני רוצה בחיים', labelEn: "Don't know what I want in life", icon: '❓' },
+      { value: 'dont_know', label: 'לא יודע מה אני רוצה', labelEn: "Don't know what I want", icon: '❓' },
       { value: 'lost', label: 'מרגיש אבוד', labelEn: 'Feeling lost', icon: '🧭' },
       { value: 'passion', label: 'רוצה למצוא תשוקה', labelEn: 'Want to find passion', icon: '🔥' },
       { value: 'meaning', label: 'מחפש משמעות', labelEn: 'Seeking meaning', icon: '✨' },
       { value: 'big_change', label: 'רוצה לעשות שינוי גדול', labelEn: 'Want to make a big change', icon: '🦋' },
+      { value: 'legacy', label: 'רוצה להשאיר חותם', labelEn: 'Want to leave a legacy', icon: '🏆' },
     ],
   },
   // Emotional sub-questions
   {
     id: 'emotional_specific',
     question: 'מה בדיוק ברגשות/מנטלי?',
-    questionEn: 'What specifically about emotions/mental?',
+    questionEn: 'What specifically about emotions/mental health?',
+    multiSelect: true,
     dependsOn: { questionId: 'main_area', values: ['emotional'] },
     options: [
-      { value: 'anxiety', label: 'התמודדות עם חרדה', labelEn: 'Dealing with anxiety', icon: '😟' },
-      { value: 'depression', label: 'התמודדות עם דיכאון', labelEn: 'Dealing with depression', icon: '😢' },
-      { value: 'confidence', label: 'בעיות ביטחון עצמי', labelEn: 'Self-confidence issues', icon: '💪' },
+      { value: 'anxiety', label: 'חרדה', labelEn: 'Anxiety', icon: '😟' },
+      { value: 'depression', label: 'דיכאון', labelEn: 'Depression', icon: '😢' },
+      { value: 'confidence', label: 'ביטחון עצמי', labelEn: 'Self-confidence', icon: '💪' },
       { value: 'regulation', label: 'ויסות רגשי', labelEn: 'Emotional regulation', icon: '🎭' },
       { value: 'anger', label: 'ניהול כעסים', labelEn: 'Anger management', icon: '😤' },
       { value: 'trauma', label: 'טראומה מהעבר', labelEn: 'Past trauma', icon: '🩹' },
     ],
   },
-  // Question 3: Emotional state (for all)
+  // Social sub-questions
   {
-    id: 'emotional_state',
-    question: 'מה המצב הרגשי שלך לגבי זה?',
-    questionEn: 'How do you feel about this emotionally?',
+    id: 'social_specific',
+    question: 'מה בדיוק בחברתי?',
+    questionEn: 'What specifically about social life?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['social'] },
     options: [
-      { value: 'frustrated', label: 'מתוסכל/מיואש', labelEn: 'Frustrated/Desperate', icon: '😤' },
-      { value: 'curious', label: 'סקרן/מוטיבציה', labelEn: 'Curious/Motivated', icon: '🤔' },
-      { value: 'confused', label: 'מבולבל/לא בטוח', labelEn: 'Confused/Uncertain', icon: '😵‍💫' },
-      { value: 'worried', label: 'מודאג/חרד', labelEn: 'Worried/Anxious', icon: '😰' },
-      { value: 'hopeful', label: 'מלא תקווה', labelEn: 'Hopeful', icon: '🌟' },
+      { value: 'lonely', label: 'בדידות', labelEn: 'Loneliness', icon: '😔' },
+      { value: 'friends', label: 'רוצה יותר חברים', labelEn: 'Want more friends', icon: '👋' },
+      { value: 'social_anxiety', label: 'חרדה חברתית', labelEn: 'Social anxiety', icon: '😰' },
+      { value: 'boundaries', label: 'הצבת גבולות', labelEn: 'Setting boundaries', icon: '🚧' },
+      { value: 'networking', label: 'נטוורקינג', labelEn: 'Networking', icon: '🤝' },
+      { value: 'community', label: 'רוצה קהילה', labelEn: 'Want community', icon: '🏘️' },
     ],
   },
-  // Question 4: Duration
+  // Learning sub-questions
+  {
+    id: 'learning_specific',
+    question: 'מה בדיוק בלימודים/התפתחות?',
+    questionEn: 'What specifically about learning/growth?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['learning'] },
+    options: [
+      { value: 'new_skill', label: 'רוצה ללמוד מיומנות חדשה', labelEn: 'Want to learn a new skill', icon: '🎯' },
+      { value: 'degree', label: 'תואר/הסמכה', labelEn: 'Degree/certification', icon: '🎓' },
+      { value: 'focus', label: 'קושי להתמקד בלימודים', labelEn: 'Difficulty focusing on studies', icon: '📚' },
+      { value: 'motivation', label: 'חוסר מוטיבציה', labelEn: 'Lack of motivation', icon: '🔋' },
+      { value: 'time', label: 'אין לי זמן', labelEn: 'No time', icon: '⏰' },
+      { value: 'direction', label: 'לא יודע מה ללמוד', labelEn: "Don't know what to learn", icon: '🧭' },
+    ],
+  },
+  // Spirituality sub-questions
+  {
+    id: 'spirituality_specific',
+    question: 'מה בדיוק ברוחניות/משמעות?',
+    questionEn: 'What specifically about spirituality/meaning?',
+    multiSelect: true,
+    dependsOn: { questionId: 'main_area', values: ['spirituality'] },
+    options: [
+      { value: 'connection', label: 'רוצה חיבור רוחני', labelEn: 'Want spiritual connection', icon: '🙏' },
+      { value: 'meditation', label: 'רוצה להתחיל למדיטציה', labelEn: 'Want to start meditating', icon: '🧘' },
+      { value: 'faith', label: 'שאלות על אמונה', labelEn: 'Questions about faith', icon: '✨' },
+      { value: 'purpose', label: 'מחפש תכלית', labelEn: 'Seeking purpose', icon: '🌟' },
+      { value: 'peace', label: 'רוצה שקט פנימי', labelEn: 'Want inner peace', icon: '☮️' },
+      { value: 'growth', label: 'צמיחה אישית', labelEn: 'Personal growth', icon: '🌱' },
+    ],
+  },
+  // Final questions - Emotional state
+  {
+    id: 'emotional_state',
+    question: 'איך אתה מרגיש לגבי המצב?',
+    questionEn: 'How do you feel about the situation?',
+    multiSelect: true,
+    options: [
+      { value: 'frustrated', label: 'מתוסכל', labelEn: 'Frustrated', icon: '😤' },
+      { value: 'hopeful', label: 'מלא תקווה', labelEn: 'Hopeful', icon: '🌟' },
+      { value: 'confused', label: 'מבולבל', labelEn: 'Confused', icon: '😵‍💫' },
+      { value: 'motivated', label: 'מוטיבציה', labelEn: 'Motivated', icon: '🚀' },
+      { value: 'anxious', label: 'חרד', labelEn: 'Anxious', icon: '😰' },
+      { value: 'determined', label: 'נחוש', labelEn: 'Determined', icon: '💪' },
+    ],
+  },
+  // Duration
   {
     id: 'duration',
-    question: 'כמה זמן זה מטריד אותך?',
-    questionEn: 'How long has this been bothering you?',
+    question: 'כמה זמן זה מלווה אותך?',
+    questionEn: 'How long has this been with you?',
+    multiSelect: true,
     options: [
-      { value: 'recent', label: 'התחיל לאחרונה (פחות מחודש)', labelEn: 'Recently started (less than a month)', icon: '📅' },
-      { value: 'months', label: 'כבר כמה חודשים', labelEn: 'A few months already', icon: '📆' },
-      { value: 'year_plus', label: 'שנה ויותר', labelEn: 'A year or more', icon: '📅' },
+      { value: 'recent', label: 'לאחרונה (פחות מחודש)', labelEn: 'Recently (less than a month)', icon: '📅' },
+      { value: 'months', label: 'כמה חודשים', labelEn: 'A few months', icon: '📆' },
+      { value: 'year', label: 'שנה', labelEn: 'A year', icon: '🗓️' },
+      { value: 'years', label: 'שנים', labelEn: 'Years', icon: '⏳' },
       { value: 'always', label: 'תמיד היה ככה', labelEn: 'It has always been like this', icon: '♾️' },
     ],
   },
-  // Question 5: What have you tried
+  // What have you tried
   {
     id: 'tried_before',
-    question: 'מה ניסית עד עכשיו?',
-    questionEn: 'What have you tried so far?',
+    question: 'מה כבר ניסית?',
+    questionEn: 'What have you already tried?',
+    multiSelect: true,
     options: [
-      { value: 'reading', label: 'קראתי ספרים/מאמרים', labelEn: 'Read books/articles', icon: '📚' },
-      { value: 'talked', label: 'דיברתי עם חברים/משפחה', labelEn: 'Talked with friends/family', icon: '💬' },
-      { value: 'professional', label: 'עבדתי עם מאמן/יועץ', labelEn: 'Worked with coach/counselor', icon: '👨‍💼' },
-      { value: 'alone', label: 'ניסיתי לבד', labelEn: 'Tried on my own', icon: '🧘' },
-      { value: 'nothing', label: 'לא הרבה, מחפש עזרה', labelEn: 'Not much, looking for help', icon: '🆕' },
+      { value: 'reading', label: 'ספרים/מאמרים', labelEn: 'Books/articles', icon: '📚' },
+      { value: 'courses', label: 'קורסים', labelEn: 'Courses', icon: '🎓' },
+      { value: 'coaching', label: 'אימון/ייעוץ', labelEn: 'Coaching/counseling', icon: '👨‍💼' },
+      { value: 'therapy', label: 'טיפול', labelEn: 'Therapy', icon: '🛋️' },
+      { value: 'apps', label: 'אפליקציות', labelEn: 'Apps', icon: '📱' },
+      { value: 'nothing', label: 'לא הרבה', labelEn: 'Not much', icon: '🆕' },
     ],
   },
-  // Question 6: Help preference
+  // Help style preference
   {
     id: 'help_style',
-    question: 'מה הכי חשוב לך כשאתה מקבל עזרה?',
-    questionEn: 'What is most important to you when receiving help?',
+    question: 'מה יעזור לך הכי הרבה?',
+    questionEn: 'What would help you the most?',
+    multiSelect: true,
     options: [
       { value: 'practical', label: 'פתרונות מעשיים', labelEn: 'Practical solutions', icon: '🔧' },
-      { value: 'listening', label: 'הקשבה והבנה', labelEn: 'Listening and understanding', icon: '👂' },
-      { value: 'plan', label: 'תוכנית מסודרת', labelEn: 'Organized plan', icon: '📋' },
+      { value: 'listening', label: 'הקשבה', labelEn: 'Being heard', icon: '👂' },
+      { value: 'plan', label: 'תוכנית ברורה', labelEn: 'Clear plan', icon: '📋' },
       { value: 'push', label: 'דחיפה לפעולה', labelEn: 'Push to action', icon: '🚀' },
-      { value: 'understanding', label: 'הבנה עמוקה של עצמי', labelEn: 'Deep self-understanding', icon: '🔮' },
+      { value: 'understanding', label: 'הבנה עצמית', labelEn: 'Self-understanding', icon: '🔮' },
+      { value: 'accountability', label: 'אחריותיות', labelEn: 'Accountability', icon: '✅' },
     ],
   },
 ];
@@ -221,26 +332,36 @@ function getVisibleQuestions(answers: Record<string, string | string[]>): QuizQu
   return result;
 }
 
-// Get summary text based on answers
+// Get summary text based on answers - handles multi-select for all questions
 function getSummaryText(answers: Record<string, string | string[]>, language: string): string {
   const mainAreaValue = answers.main_area;
-  const mainAreas = Array.isArray(mainAreaValue) ? mainAreaValue : [mainAreaValue];
+  const mainAreas = Array.isArray(mainAreaValue) ? mainAreaValue : (mainAreaValue ? [mainAreaValue] : []);
   const mainAreaLabels = mainAreas
     .map(val => WELCOME_QUIZ[0].options.find(o => o.value === val))
     .filter(Boolean);
   
-  const emotionalState = WELCOME_QUIZ.find(q => q.id === 'emotional_state')?.options.find(o => o.value === answers.emotional_state);
-  const duration = WELCOME_QUIZ.find(q => q.id === 'duration')?.options.find(o => o.value === answers.duration);
+  // Handle multi-select for emotional_state
+  const emotionalStateValue = answers.emotional_state;
+  const emotionalStates = Array.isArray(emotionalStateValue) ? emotionalStateValue : (emotionalStateValue ? [emotionalStateValue] : []);
+  const emotionalStateLabels = emotionalStates
+    .map(val => WELCOME_QUIZ.find(q => q.id === 'emotional_state')?.options.find(o => o.value === val))
+    .filter(Boolean);
   
-  if (mainAreaLabels.length === 0 || !emotionalState || !duration) return '';
+  if (mainAreaLabels.length === 0) return '';
   
   if (language === 'he') {
     const areasText = mainAreaLabels.map(a => a?.label).join(', ');
-    return `אני רואה שאתה מתמקד ב${areasText}, מרגיש ${emotionalState.label}, וזה כבר ${duration.label}. יחד נמצא את הדרך הנכונה בשבילך.`;
+    const emotionalText = emotionalStateLabels.length > 0 
+      ? emotionalStateLabels.map(e => e?.label).join(' ו')
+      : 'במסע שלך';
+    return `אני רואה שאתה מתמקד ב${areasText}. אתה מרגיש ${emotionalText}. יחד נמצא את הדרך הנכונה בשבילך.`;
   }
   
   const areasTextEn = mainAreaLabels.map(a => a?.labelEn).join(', ');
-  return `I see that you're focused on ${areasTextEn}, feeling ${emotionalState.labelEn}, and it's been ${duration.labelEn}. Together we'll find the right path for you.`;
+  const emotionalTextEn = emotionalStateLabels.length > 0 
+    ? emotionalStateLabels.map(e => e?.labelEn).join(' and ')
+    : 'on your journey';
+  return `I see that you're focused on ${areasTextEn}. You feel ${emotionalTextEn}. Together we'll find the right path for you.`;
 }
 
 export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepProps) {
