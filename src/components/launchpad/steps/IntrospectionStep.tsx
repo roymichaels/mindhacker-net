@@ -89,6 +89,11 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
+  const [showSkipOption, setShowSkipOption] = useState(false);
+
+  const handleSkip = () => {
+    onComplete({});
+  };
 
   const toggleSection = (id: string) => {
     setOpenSections(prev => 
@@ -423,6 +428,47 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
             }
           </p>
         )}
+
+        {/* Skip Option */}
+        <div className="pt-4 border-t border-border/50">
+          {showSkipOption ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {language === 'he' 
+                  ? 'מילאת את השאלון הזה בעבר? תוכל לדלג ולהמשיך.'
+                  : 'Filled this questionnaire before? You can skip and continue.'
+                }
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowSkipOption(false)}
+                >
+                  {language === 'he' ? 'ביטול' : 'Cancel'}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={handleSkip}
+                  disabled={isCompleting}
+                >
+                  {isCompleting 
+                    ? (language === 'he' ? 'ממשיך...' : 'Continuing...')
+                    : (language === 'he' ? 'דלג והמשך' : 'Skip & Continue')
+                  }
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowSkipOption(true)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            >
+              {language === 'he' ? 'כבר מילאתי את השאלון הזה' : 'I already filled this questionnaire'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
