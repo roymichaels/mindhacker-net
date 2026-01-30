@@ -20,7 +20,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon, User } from "lucide-react";
+import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon, User, Menu } from "lucide-react";
+import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -44,6 +45,24 @@ export interface HeaderProps {
   variant?: "public" | "admin";
   brandColors?: ProductColorClasses;
 }
+
+// Sidebar toggle component that uses the sidebar context
+const SidebarToggle = () => {
+  const sidebar = useSidebar();
+  
+  if (!sidebar) return null;
+  
+  return (
+    <Button 
+      variant="ghost" 
+      size="icon" 
+      onClick={() => sidebar.toggleSidebar()}
+      aria-label="Toggle sidebar"
+    >
+      <Menu className="h-5 w-5" />
+    </Button>
+  );
+};
 
 const Header = ({ variant = "public", brandColors }: HeaderProps) => {
   const isAdminMode = variant === "admin";
@@ -112,8 +131,22 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
-          {/* Left side: Logo and Admin panel title */}
+          {/* Left side: Logo, Sidebar Trigger and Admin panel title */}
           <div className="flex items-center gap-1 sm:gap-3 justify-start">
+            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0">
+                <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" loading="eager" decoding="async" />
+              </div>
+              <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
+                {isAdminMode ? t('admin.panelTitle') : brandName}
+              </span>
+            </Link>
+
+            {/* Sidebar Toggle - for authenticated users (non-admin) */}
+            {user && !isAdminMode && (
+              <SidebarToggle />
+            )}
+
             {/* Mobile Admin Sidebar Trigger */}
             {isAdminMode && (
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -127,15 +160,6 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
                 </SheetContent>
               </Sheet>
             )}
-
-            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0">
-                <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" loading="eager" decoding="async" />
-              </div>
-              <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
-                {isAdminMode ? t('admin.panelTitle') : brandName}
-              </span>
-            </Link>
           </div>
 
           {/* Center - Empty space to maintain grid layout */}
