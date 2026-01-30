@@ -62,18 +62,25 @@ export default function DashboardPreviewSection() {
           </div>
         </motion.div>
 
-        {/* CTA */}
+        {/* CTA - Game-style glowing button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-10"
+          className="text-center mt-12"
         >
           <Button
             size="lg"
             onClick={() => navigate('/signup')}
-            className="group text-lg px-8 py-6 rounded-xl bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+            className="group text-lg px-10 py-7 rounded-2xl 
+              bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600
+              hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-500
+              text-cyan-950 font-bold
+              shadow-[0_0_25px_rgba(34,211,238,0.5),0_8px_20px_rgba(0,0,0,0.2)]
+              hover:shadow-[0_0_35px_rgba(34,211,238,0.7),0_12px_30px_rgba(0,0,0,0.3)]
+              border-2 border-cyan-200/40
+              transition-all duration-300 hover:scale-105"
           >
             {t('home.dashboardCta')}
             <ArrowRight className={cn(
@@ -81,6 +88,10 @@ export default function DashboardPreviewSection() {
               isRTL ? "mr-2 rotate-180 group-hover:-translate-x-1" : "ml-2"
             )} />
           </Button>
+          
+          <p className="text-sm text-muted-foreground mt-4">
+            {isRTL ? '🎮 התחל את המשחק שלך עכשיו' : '🎮 Start your game now'}
+          </p>
         </motion.div>
       </div>
     </section>

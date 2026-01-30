@@ -74,14 +74,14 @@ export default function GameHeroSection() {
             />
           </motion.div>
 
-          {/* Main Title */}
+          {/* Main Title - Larger and more impactful */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
           >
-            <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent drop-shadow-sm">
               {t('home.heroTitle')}
             </span>
           </motion.h1>

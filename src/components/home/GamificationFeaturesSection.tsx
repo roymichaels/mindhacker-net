@@ -42,32 +42,38 @@ export default function GamificationFeaturesSection() {
   const { t, isRTL } = useTranslation();
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background">
-      <div className="container mx-auto max-w-6xl" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto max-w-6xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Gamification</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-violet-500/20 to-amber-500/20 border border-violet-500/30 mb-6 shadow-lg shadow-violet-500/10">
+            <TrendingUp className="h-4 w-4 text-violet-400" />
+            <span className="text-sm font-semibold text-violet-300">Gamification</span>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5">
             {t('home.gamificationTitle')}
           </h2>
           
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             {t('home.gamificationSubtitle')}
           </p>
         </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        {/* Features Grid - Enhanced cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-14">
           {gamificationFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -77,26 +83,26 @@ export default function GamificationFeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 className={cn(
-                  "relative p-6 rounded-2xl text-center",
-                  "bg-card border border-border/50",
-                  "hover:border-primary/30 transition-all hover:shadow-lg"
+                  "relative p-6 sm:p-8 rounded-2xl text-center",
+                  "bg-card/60 border border-border/50 backdrop-blur-sm",
+                  "hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10"
                 )}
               >
                 <div className={cn(
-                  "w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4",
+                  "w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center mb-5",
                   feature.bgColor
                 )}>
                   <div className={cn(
-                    "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center",
+                    "w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg",
                     feature.color
                   )}>
-                    <Icon className="h-6 w-6 text-white" />
+                    <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                   </div>
                 </div>
                 
-                <h3 className="font-bold text-lg mb-1">
+                <h3 className="font-bold text-lg sm:text-xl mb-2">
                   {t(`home.feature${feature.key}`)}
                 </h3>
                 
