@@ -81,3 +81,6 @@ verify_jwt = false
 
 [functions.generate-launchpad-summary]
 verify_jwt = true
+
+[functions.generate-identity-archetype]
+verify_jwt = false
