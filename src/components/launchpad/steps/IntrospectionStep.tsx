@@ -90,6 +90,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
   const [showSkipOption, setShowSkipOption] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const handleSkip = () => {
     onComplete({});
@@ -136,6 +137,8 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
         throw new Error('Failed to save your responses');
       }
 
+      setSubmissionId(submission.id);
+
       // Call AI analysis
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
         'analyze-introspection-form',
@@ -169,7 +172,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   };
 
   const handleContinueAfterAnalysis = () => {
-    onComplete({});
+    onComplete(submissionId ? { form_submission_id: submissionId } : {});
   };
 
   // Analysis View
