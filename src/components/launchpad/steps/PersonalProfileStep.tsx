@@ -549,6 +549,7 @@ const CATEGORIES = {
     multiSelect: false,
     options: [
       { value: 'never', label: 'לא קורא', labelEn: 'Never read' },
+      { value: 'audiobooks', label: 'רק ספרי אודיו', labelEn: 'Audiobooks only' },
       { value: 'rarely', label: 'נדיר', labelEn: 'Rarely' },
       { value: 'sometimes', label: 'לפעמים', labelEn: 'Sometimes' },
       { value: 'often', label: 'הרבה', labelEn: 'Often' },
