@@ -144,8 +144,8 @@ export default function GamificationFeaturesSection() {
 
             <p className="text-center text-sm text-muted-foreground mt-4">
               {isRTL 
-                ? 'פתח 20+ הישגים ואסוף tokens לפיצ\'רים פרימיום!' 
-                : 'Unlock 20+ achievements and collect tokens for premium features!'}
+                ? 'פתח הישגים ואסוף tokens לפיצ\'רים פרימיום!' 
+                : 'Unlock achievements and collect tokens for premium features!'}
             </p>
           </div>
         </motion.div>
