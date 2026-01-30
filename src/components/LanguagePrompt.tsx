@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 
-const defaultLogo = "/icons/icon-96x96.png";
+const defaultLogo = "/icons/icon-96x96.png?v=4";
 
 export const LanguagePrompt = () => {
   const { isFirstVisit, setLanguage, setFirstVisitComplete, language } = useLanguage();

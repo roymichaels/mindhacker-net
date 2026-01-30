@@ -255,8 +255,8 @@ async function sendPushNotification(
     const payloadString = JSON.stringify({
       title: payload.title,
       body: payload.body,
-      icon: payload.icon || '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png',
+      icon: payload.icon || '/icons/icon-192x192.png?v=4',
+      badge: '/icons/icon-96x96.png?v=4',
       data: { url: payload.url || '/dashboard' }
     });
     
