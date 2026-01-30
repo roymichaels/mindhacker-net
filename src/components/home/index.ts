@@ -1,5 +1,6 @@
 // New gamified homepage components
 export { default as GameHeroSection } from './GameHeroSection';
+export { default as DigitalAvatarSection } from './DigitalAvatarSection';
 export { default as WhatIsThisSection } from './WhatIsThisSection';
 export { default as MockDashboard } from './MockDashboard';
 export { default as ChatManagesEverythingSection } from './ChatManagesEverythingSection';

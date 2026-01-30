@@ -40,6 +40,18 @@ export const en: TranslationKeys = {
     email: "Email",
     language: "Language",
   },
+  avatar: {
+    badge: "Your Digital Avatar",
+    title: "Your Orb Evolves With You",
+    subtitle: "Colors, shapes, and textures uniquely yours",
+    colors: "Colors",
+    colorsDesc: "Unique colors based on your Ego State",
+    shapes: "Shapes",
+    shapesDesc: "Geometric shapes based on your traits",
+    textures: "Textures",
+    texturesDesc: "Complexity that grows with your level",
+    evolution: "As you progress - your orb transforms",
+  },
   header: {
     brandName: "Mind Hacker",
     navigationMenu: "Navigation Menu",

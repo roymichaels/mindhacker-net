@@ -35,6 +35,7 @@ import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
+import { PersonalizedOrb } from "@/components/orb";
 
 // Default logo from public folder - new orb logo
 const defaultLogo = "/icons/icon-96x96.png?v=4";
@@ -128,7 +129,7 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
             )}
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0">
                 <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" loading="eager" decoding="async" />
               </div>
               <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
@@ -163,13 +164,16 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
                 {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
-                      <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30">
-                        <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ''} />
-                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
-                          {getUserInitials()}
-                        </AvatarFallback>
-                      </Avatar>
+                    <Button variant="ghost" className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
+                      {/* Personalized Orb Avatar for logged-in users */}
+                      <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30">
+                        <PersonalizedOrb 
+                          size={44}
+                          state="idle"
+                          showGlow={false}
+                          className="absolute inset-0 scale-125"
+                        />
+                      </div>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
