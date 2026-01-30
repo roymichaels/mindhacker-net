@@ -67,6 +67,9 @@ const Aurora = lazy(() => import("./pages/Aurora"));
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
 const Launchpad = lazy(() => import("./pages/Launchpad"));
+// Practitioner pages
+const Practitioners = lazy(() => import("./pages/Practitioners"));
+const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -172,6 +175,9 @@ const App = () => (
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
+                        {/* Practitioner directory (public) */}
+                        <Route path="/practitioners" element={<Practitioners />} />
+                        <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
                         <Route
                           path="/affiliate-dashboard"
                           element={

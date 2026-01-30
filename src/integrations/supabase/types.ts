@@ -1271,6 +1271,7 @@ export type Database = {
           is_featured: boolean | null
           learning_objectives: string[] | null
           order_index: number | null
+          practitioner_id: string | null
           preview_video_url: string | null
           price: number | null
           requirements: string[] | null
@@ -1299,6 +1300,7 @@ export type Database = {
           is_featured?: boolean | null
           learning_objectives?: string[] | null
           order_index?: number | null
+          practitioner_id?: string | null
           preview_video_url?: string | null
           price?: number | null
           requirements?: string[] | null
@@ -1327,6 +1329,7 @@ export type Database = {
           is_featured?: boolean | null
           learning_objectives?: string[] | null
           order_index?: number | null
+          practitioner_id?: string | null
           preview_video_url?: string | null
           price?: number | null
           requirements?: string[] | null
@@ -1339,7 +1342,15 @@ export type Database = {
           updated_by?: string | null
           view_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_products_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_purchases: {
         Row: {
@@ -2978,6 +2989,252 @@ export type Database = {
         }
         Relationships: []
       }
+      practitioner_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_approved: boolean | null
+          practitioner_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_approved?: boolean | null
+          practitioner_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_approved?: boolean | null
+          practitioner_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_reviews_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practitioner_services: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          duration_minutes: number | null
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          practitioner_id: string
+          price: number
+          price_currency: string | null
+          service_type: string
+          sessions_count: number | null
+          title: string
+          title_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          practitioner_id: string
+          price: number
+          price_currency?: string | null
+          service_type: string
+          sessions_count?: number | null
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          practitioner_id?: string
+          price?: number
+          price_currency?: string | null
+          service_type?: string
+          sessions_count?: number | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_services_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practitioner_specialties: {
+        Row: {
+          certification_name: string | null
+          certification_url: string | null
+          created_at: string | null
+          id: string
+          practitioner_id: string
+          specialty: string
+          specialty_label: string
+          specialty_label_en: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          certification_name?: string | null
+          certification_url?: string | null
+          created_at?: string | null
+          id?: string
+          practitioner_id: string
+          specialty: string
+          specialty_label: string
+          specialty_label_en?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          certification_name?: string | null
+          certification_url?: string | null
+          created_at?: string | null
+          id?: string
+          practitioner_id?: string
+          specialty?: string
+          specialty_label?: string
+          specialty_label_en?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_specialties_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practitioners: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          bio_en: string | null
+          calendly_url: string | null
+          clients_count: number | null
+          commission_rate: number | null
+          country: string | null
+          created_at: string | null
+          display_name: string
+          display_name_en: string | null
+          hero_image_url: string | null
+          id: string
+          instagram_url: string | null
+          intro_video_url: string | null
+          is_featured: boolean | null
+          is_verified: boolean | null
+          languages: string[] | null
+          rating: number | null
+          reviews_count: number | null
+          short_name: string | null
+          short_name_en: string | null
+          slug: string
+          status: string | null
+          timezone: string | null
+          title: string
+          title_en: string | null
+          updated_at: string | null
+          user_id: string
+          website_url: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_en?: string | null
+          calendly_url?: string | null
+          clients_count?: number | null
+          commission_rate?: number | null
+          country?: string | null
+          created_at?: string | null
+          display_name: string
+          display_name_en?: string | null
+          hero_image_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          rating?: number | null
+          reviews_count?: number | null
+          short_name?: string | null
+          short_name_en?: string | null
+          slug: string
+          status?: string | null
+          timezone?: string | null
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+          user_id: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_en?: string | null
+          calendly_url?: string | null
+          clients_count?: number | null
+          commission_rate?: number | null
+          country?: string | null
+          created_at?: string | null
+          display_name?: string
+          display_name_en?: string | null
+          hero_image_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          intro_video_url?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          rating?: number | null
+          reviews_count?: number | null
+          short_name?: string | null
+          short_name_en?: string | null
+          slug?: string
+          status?: string | null
+          timezone?: string | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand_color: string | null
@@ -3094,6 +3351,7 @@ export type Database = {
           payment_completed_at: string | null
           payment_method: string | null
           payment_status: string | null
+          practitioner_id: string | null
           price: number
           purchase_date: string | null
           scheduled_date: string | null
@@ -3116,6 +3374,7 @@ export type Database = {
           payment_completed_at?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          practitioner_id?: string | null
           price: number
           purchase_date?: string | null
           scheduled_date?: string | null
@@ -3138,6 +3397,7 @@ export type Database = {
           payment_completed_at?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          practitioner_id?: string | null
           price?: number
           purchase_date?: string | null
           scheduled_date?: string | null
@@ -3147,7 +3407,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "purchases_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
@@ -4009,7 +4277,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "practitioner"
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
@@ -4170,7 +4438,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "practitioner"],
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],
