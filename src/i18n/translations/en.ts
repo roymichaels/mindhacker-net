@@ -2292,6 +2292,64 @@ export const en: TranslationKeys = {
     viewAllPractitioners: "View All Coaches",
   },
 
+  home: {
+    // Hero
+    heroTitle: "Build Your Life Plan",
+    heroAnimation1: "for the next 3 months",
+    heroAnimation2: "for the next year",
+    heroAnimation3: "for your life",
+    heroSubtitle: "A personal AI coach that will extract your goals, tasks, and an action plan",
+    heroCta: "Start the Journey - Free",
+    heroMeta: "10 steps • 20 minutes • Complete plan",
+    
+    // Launchpad Preview
+    launchpadTitle: "What You'll Get in the Launchpad Journey:",
+    step1Name: "Welcome",
+    step2Name: "Personal Profile",
+    step3Name: "Identity Building",
+    step4Name: "Deep Dive",
+    step5Name: "First Chat",
+    step6Name: "Introspection",
+    step7Name: "Life Plan",
+    step8Name: "Focus Areas",
+    step9Name: "First Week",
+    step10Name: "Dashboard Activation",
+    
+    outcomesTitle: "At the End You'll Receive:",
+    outcome1: "Clear goals for the next 3 months",
+    outcome2: "Personalized daily and weekly tasks",
+    outcome3: "Anchor habits to help you persist",
+    outcome4: "Personal dashboard with progress tracking",
+    outcome5: "AI coach available 24/7 for questions and support",
+    launchpadCta: "Let's Start!",
+    
+    // Aurora Section
+    aiPowered: "AI Powered",
+    auroraTitle: "Meet Aurora - Your Coach",
+    auroraDesc: "An advanced AI system that learns you and builds a personalized plan",
+    auroraFeature1: "Available 24/7 for any question",
+    auroraFeature2: "Learns you with every conversation",
+    auroraFeature3: "Builds a plan tailored just for you",
+    auroraFeature4: "Tasks and goals that update dynamically",
+    startWithAurora: "Start with Aurora - Free",
+    available: "Available",
+    personalizedAI: "Personal AI",
+    
+    // How It Works
+    howItWorksTitle: "How It Works",
+    howItWorksSubtitle: "4 simple steps to get started",
+    howStep1Title: "Sign Up",
+    howStep1Desc: "Free, in one minute",
+    howStep2Title: "Complete the Launchpad",
+    howStep2Desc: "10 fun and enriching steps",
+    howStep3Title: "Get Your Plan",
+    howStep3Desc: "Goals and tasks for 3 months",
+    howStep4Title: "Start Acting",
+    howStep4Desc: "With Aurora coaching 24/7",
+    getStartedFree: "Get Started - Free",
+    noCardRequired: "No credit card required",
+  },
+
   practitionerLanding: {
     backToDirectory: "Back to Directory",
     aboutTitle: "About",

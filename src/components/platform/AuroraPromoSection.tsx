@@ -21,19 +21,19 @@ const AuroraPromoSection = () => {
   const features = [
     {
       icon: Clock,
-      title: t('platform.auroraFeature1'),
-    },
-    {
-      icon: Target,
-      title: t('platform.auroraFeature2'),
+      title: t('home.auroraFeature1'),
     },
     {
       icon: Brain,
-      title: t('platform.auroraFeature3'),
+      title: t('home.auroraFeature2'),
+    },
+    {
+      icon: Target,
+      title: t('home.auroraFeature3'),
     },
     {
       icon: Headphones,
-      title: t('platform.auroraFeature4'),
+      title: t('home.auroraFeature4'),
     },
   ];
 
@@ -54,15 +54,15 @@ const AuroraPromoSection = () => {
           >
             <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary font-medium">{t('platform.aiPowered')}</span>
+              <span className="text-sm text-primary font-medium">{t('home.aiPowered')}</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-              {t('platform.auroraPromoTitle')}
+              {t('home.auroraTitle')}
             </h2>
             
             <p className="text-lg text-muted-foreground mb-8">
-              {t('platform.auroraPromoSubtitle')}
+              {t('home.auroraDesc')}
             </p>
 
             <div className="space-y-4 mb-8">
@@ -86,9 +86,9 @@ const AuroraPromoSection = () => {
             <Button 
               size="lg" 
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-              onClick={() => navigate('/aurora')}
+              onClick={() => navigate('/launchpad')}
             >
-              {t('platform.startWithAurora')}
+              {t('home.startWithAurora')}
               <ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
             </Button>
           </motion.div>
@@ -118,7 +118,7 @@ const AuroraPromoSection = () => {
                 transition={{ duration: 3, repeat: Infinity }}
                 className="absolute -top-4 -right-4 bg-card border border-border rounded-lg px-3 py-2 shadow-lg"
               >
-                <span className="text-sm font-medium">24/7 {t('platform.available')}</span>
+                <span className="text-sm font-medium">24/7 {t('home.available')}</span>
               </motion.div>
 
               <motion.div
@@ -126,7 +126,7 @@ const AuroraPromoSection = () => {
                 transition={{ duration: 3.5, repeat: Infinity }}
                 className="absolute -bottom-4 -left-4 bg-card border border-border rounded-lg px-3 py-2 shadow-lg"
               >
-                <span className="text-sm font-medium">{t('platform.personalizedAI')}</span>
+                <span className="text-sm font-medium">{t('home.personalizedAI')}</span>
               </motion.div>
             </div>
           </motion.div>
