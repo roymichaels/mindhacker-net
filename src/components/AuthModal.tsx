@@ -238,7 +238,7 @@ export const AuthModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md bg-background border border-border shadow-xl z-50"
+        className="sm:max-w-md bg-white dark:bg-background border border-border shadow-xl z-50 text-gray-900 dark:text-foreground"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <DialogHeader className="text-center">
