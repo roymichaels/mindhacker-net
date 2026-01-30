@@ -186,6 +186,27 @@ export function useLaunchpadProgress() {
     enabled: !!user?.id,
   });
 
+  // Calculate the ACTUAL current step based on what's completed
+  // This handles legacy users who completed old steps before the profile step was added
+  const calculateActualCurrentStep = (): number => {
+    if (!progress) return 1;
+    
+    // Check each step in order
+    if (!progress.step_1_welcome) return 1;
+    if (!progress.step_2_profile) return 2; // New step
+    if (!progress.step_2_first_chat) return 3;
+    if (!progress.step_3_introspection) return 4;
+    if (!progress.step_4_life_plan) return 5;
+    if (!progress.step_5_focus_areas) return 6;
+    if (!progress.step_6_first_week) return 7;
+    if (!progress.step_7_dashboard_activated) return 8;
+    
+    // All done
+    return 8;
+  };
+
+  const actualCurrentStep = calculateActualCurrentStep();
+
   // Complete step mutation
   const completeStepMutation = useMutation({
     mutationFn: async ({ step, data }: { step: number; data?: StepCompletionData }): Promise<StepCompletionResult> => {
@@ -222,25 +243,47 @@ export function useLaunchpadProgress() {
 
   // Calculate completion percentage (now 8 steps)
   const completionPercentage = progress ? 
-    Math.round(((progress.current_step - 1) / 8) * 100) : 0;
+    Math.round(((actualCurrentStep - 1) / 8) * 100) : 0;
 
   // Get completed steps count
-  const completedSteps = progress ? progress.current_step - 1 : 0;
+  const completedSteps = progress ? actualCurrentStep - 1 : 0;
 
   // Check if a step is accessible
   const isStepAccessible = (stepNumber: number): boolean => {
     if (!progress) return stepNumber === 1;
-    return stepNumber <= progress.current_step;
+    return stepNumber <= actualCurrentStep;
   };
 
-  // Check if a step is completed
+  // Check if a specific step is completed based on actual DB flags
   const isStepCompleted = (stepNumber: number): boolean => {
     if (!progress) return false;
-    return stepNumber < progress.current_step;
+    switch (stepNumber) {
+      case 1: return progress.step_1_welcome;
+      case 2: return progress.step_2_profile;
+      case 3: return progress.step_2_first_chat;
+      case 4: return progress.step_3_introspection;
+      case 5: return progress.step_4_life_plan;
+      case 6: return progress.step_5_focus_areas;
+      case 7: return progress.step_6_first_week;
+      case 8: return progress.step_7_dashboard_activated;
+      default: return false;
+    }
   };
 
+  // Check if launchpad is truly complete (all 8 steps done)
+  const isActuallyComplete = progress ? (
+    progress.step_1_welcome &&
+    progress.step_2_profile &&
+    progress.step_2_first_chat &&
+    progress.step_3_introspection &&
+    progress.step_4_life_plan &&
+    progress.step_5_focus_areas &&
+    progress.step_6_first_week &&
+    progress.step_7_dashboard_activated
+  ) : false;
+
   // Get current step metadata
-  const currentStepMeta = STEPS.find(s => s.id === (progress?.current_step || 1));
+  const currentStepMeta = STEPS.find(s => s.id === actualCurrentStep);
 
   // Get step rewards
   const getStepRewards = (stepNumber: number) => {
@@ -258,8 +301,8 @@ export function useLaunchpadProgress() {
     totalSteps: 8,
     isStepAccessible,
     isStepCompleted,
-    isLaunchpadComplete: progress?.launchpad_complete || false,
-    currentStep: progress?.current_step || 1,
+    isLaunchpadComplete: isActuallyComplete,
+    currentStep: actualCurrentStep,
     currentStepMeta,
     steps: STEPS,
     getStepRewards,
