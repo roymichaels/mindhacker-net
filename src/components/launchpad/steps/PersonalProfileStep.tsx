@@ -33,7 +33,7 @@ interface ProfileData {
   smoking: string[];
   alcohol: string;
   caffeine: string;
-  water_intake: string;
+  hydration: string[];  // Changed from water_intake: string
   supplements: string[];
   
   // Mental & Emotional
@@ -62,7 +62,7 @@ interface ProfileData {
 const STORAGE_KEY = 'launchpad_personal_profile';
 
 type CategoryKey = keyof typeof CATEGORIES;
-type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'music_genres' | 'sports' | 'hobbies' | 'life_priorities';
+type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'music_genres' | 'sports' | 'hobbies' | 'life_priorities';
 
 const CATEGORIES = {
   // === DEMOGRAPHICS ===
@@ -157,12 +157,18 @@ const CATEGORIES = {
     icon: '🍽️',
     multiSelect: false,
     options: [
-      { value: 'carnivore', label: 'קרניבור', labelEn: 'Carnivore' },
-      { value: 'keto', label: 'קטו', labelEn: 'Keto' },
-      { value: 'paleo', label: 'פליאו', labelEn: 'Paleo' },
-      { value: 'vegan', label: 'טבעוני', labelEn: 'Vegan' },
-      { value: 'vegetarian', label: 'צמחוני', labelEn: 'Vegetarian' },
       { value: 'regular', label: 'רגיל', labelEn: 'Regular' },
+      { value: 'vegetarian', label: 'צמחוני', labelEn: 'Vegetarian' },
+      { value: 'vegan', label: 'טבעוני', labelEn: 'Vegan' },
+      { value: 'alkaline-vegan', label: 'טבעוני אלקלייני', labelEn: 'Alkaline Vegan' },
+      { value: 'raw-vegan', label: 'גלם טבעוני', labelEn: 'Raw Vegan' },
+      { value: 'keto', label: 'קטו', labelEn: 'Keto' },
+      { value: 'carnivore', label: 'קרניבור', labelEn: 'Carnivore' },
+      { value: 'paleo', label: 'פליאו', labelEn: 'Paleo' },
+      { value: 'mediterranean', label: 'ים תיכוני', labelEn: 'Mediterranean' },
+      { value: 'gluten-free', label: 'ללא גלוטן', labelEn: 'Gluten-Free' },
+      { value: 'sugar-free', label: 'ללא סוכר', labelEn: 'Sugar-Free' },
+      { value: 'intuitive', label: 'אינטואיטיבי', labelEn: 'Intuitive' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -206,10 +212,18 @@ const CATEGORIES = {
       { value: 'swimming', label: 'שחייה', labelEn: 'Swimming' },
       { value: 'yoga', label: 'יוגה', labelEn: 'Yoga' },
       { value: 'pilates', label: 'פילאטיס', labelEn: 'Pilates' },
+      { value: 'calisthenics', label: 'קליסטניקס', labelEn: 'Calisthenics' },
+      { value: 'crossfit', label: 'קרוספיט', labelEn: 'CrossFit' },
       { value: 'martial-arts', label: 'אומנויות לחימה', labelEn: 'Martial Arts' },
       { value: 'cycling', label: 'רכיבה', labelEn: 'Cycling' },
       { value: 'hiking', label: 'טיולים', labelEn: 'Hiking' },
+      { value: 'dancing', label: 'ריקוד', labelEn: 'Dancing' },
+      { value: 'climbing', label: 'טיפוס', labelEn: 'Climbing' },
+      { value: 'tai-chi', label: 'טאי צ\'י', labelEn: 'Tai Chi' },
+      { value: 'power-walking', label: 'הליכה מהירה', labelEn: 'Power Walking' },
+      { value: 'team-sports', label: 'ספורט קבוצתי', labelEn: 'Team Sports' },
       { value: 'none', label: 'לא מתאמן', labelEn: 'None' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   smoking: {
@@ -253,17 +267,20 @@ const CATEGORIES = {
       { value: '5+/day', label: '5+/יום', labelEn: '5+/day' },
     ],
   },
-  water_intake: {
+  hydration: {
     section: 'health',
-    title: 'שתיית מים (ליטרים)',
-    titleEn: 'Water (liters)',
+    title: 'שתייה יומית (הידרציה)',
+    titleEn: 'Daily Hydration',
     icon: '💧',
-    multiSelect: false,
+    multiSelect: true,
     options: [
-      { value: 'less-than-1', label: 'פחות מ-1', labelEn: 'Less than 1' },
-      { value: '1-2', label: '1-2', labelEn: '1-2' },
-      { value: '2-3', label: '2-3', labelEn: '2-3' },
-      { value: 'more-than-3', label: 'יותר מ-3', labelEn: 'More than 3' },
+      { value: 'water', label: 'מים', labelEn: 'Water' },
+      { value: 'natural-juice', label: 'מיצים טבעיים', labelEn: 'Natural Juices' },
+      { value: 'coconut-water', label: 'מי קוקוס', labelEn: 'Coconut Water' },
+      { value: 'herbal-tea', label: 'תה צמחים', labelEn: 'Herbal Tea' },
+      { value: 'green-smoothies', label: 'שייקים ירוקים', labelEn: 'Green Smoothies' },
+      { value: 'electrolytes', label: 'משקאות אלקטרוליטים', labelEn: 'Electrolyte Drinks' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   supplements: {
@@ -279,6 +296,7 @@ const CATEGORIES = {
       { value: 'creatine', label: 'קריאטין', labelEn: 'Creatine' },
       { value: 'omega3', label: 'אומגה 3', labelEn: 'Omega 3' },
       { value: 'probiotics', label: 'פרוביוטיקה', labelEn: 'Probiotics' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
 
@@ -343,6 +361,7 @@ const CATEGORIES = {
       { value: 'metal', label: 'מטאל', labelEn: 'Metal' },
       { value: 'indie', label: 'אינדי', labelEn: 'Indie' },
       { value: 'rnb', label: 'R&B', labelEn: 'R&B' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   sports: {
@@ -360,6 +379,7 @@ const CATEGORIES = {
       { value: 'esports', label: 'אי-ספורט', labelEn: 'Esports' },
       { value: 'surfing', label: 'גלישה', labelEn: 'Surfing' },
       { value: 'none', label: 'לא מעניין', labelEn: 'Not interested' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   hobbies: {
@@ -381,6 +401,7 @@ const CATEGORIES = {
       { value: 'writing', label: 'כתיבה', labelEn: 'Writing' },
       { value: 'podcasts', label: 'פודקאסטים', labelEn: 'Podcasts' },
       { value: 'movies', label: 'סרטים', labelEn: 'Movies' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   reading_habits: {
@@ -482,6 +503,7 @@ const CATEGORIES = {
       { value: 'adventure', label: 'הרפתקאות', labelEn: 'Adventure' },
       { value: 'spirituality', label: 'רוחניות', labelEn: 'Spirituality' },
       { value: 'contribution', label: 'תרומה לחברה', labelEn: 'Contribution' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   spiritual_practice: {
@@ -513,7 +535,7 @@ const CATEGORY_ORDER: CategoryKey[] = [
   // Demographics
   'age_group', 'gender', 'relationship_status', 'children', 'living_situation', 'employment_status',
   // Health
-  'diet', 'sleep_hours', 'exercise_frequency', 'exercise_types', 'smoking', 'alcohol', 'caffeine', 'water_intake', 'supplements',
+  'diet', 'sleep_hours', 'exercise_frequency', 'exercise_types', 'smoking', 'alcohol', 'caffeine', 'hydration', 'supplements',
   // Mental
   'stress_level', 'meditation_practice', 'therapy_experience',
   // Interests
@@ -540,7 +562,7 @@ const getDefaultProfileData = (): ProfileData => ({
   smoking: [],
   alcohol: '',
   caffeine: '',
-  water_intake: '',
+  hydration: [],
   supplements: [],
   stress_level: '',
   meditation_practice: '',
