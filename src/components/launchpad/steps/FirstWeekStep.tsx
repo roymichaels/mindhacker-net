@@ -2,19 +2,14 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Target, Zap, Briefcase, Rocket, Check, Loader2, RefreshCw, Trash2, Plus } from 'lucide-react';
+import { Sparkles, Briefcase, Rocket, Check, Trash2, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useLaunchpadChecklists } from '@/hooks/useLaunchpadChecklists';
 
 interface TransformationPlan {
   habits_to_quit: string[];
   habits_to_build: string[];
   career_status: string;
   career_goal: string;
-  career_steps: string[];
-  challenge_mission: string;
   [key: string]: unknown;
 }
 
@@ -24,13 +19,11 @@ interface FirstWeekStepProps {
   rewards: { xp: number; tokens: number; unlock: string };
 }
 
-interface TransformationPlan {
+interface TransformationPlanSimple {
   habits_to_quit: string[];
   habits_to_build: string[];
   career_status: string;
   career_goal: string;
-  career_steps: string[];
-  challenge_mission: string;
 }
 
 interface AISuggestion {
@@ -40,12 +33,7 @@ interface AISuggestion {
   labelEn: string;
 }
 
-interface AITransformationPlan {
-  habits_to_quit: AISuggestion[];
-  habits_to_build: AISuggestion[];
-  career_steps: AISuggestion[];
-  challenge_missions: AISuggestion[];
-}
+// Removed AI-generated challenge missions and career steps - user didn't find them relevant
 
 // Habits to quit - comprehensive list covering all harmful behaviors
 const HABITS_TO_QUIT: AISuggestion[] = [
@@ -174,23 +162,7 @@ const CAREER_GOALS: AISuggestion[] = [
   { id: 'passive_income', icon: '💎', label: 'הכנסה פסיבית', labelEn: 'Passive income' },
 ];
 
-// Fallback career steps
-const FALLBACK_CAREER_STEPS: AISuggestion[] = [
-  { id: 'identify_skill', icon: '🎯', label: 'זהה מיומנות אחת לפתח השבוע', labelEn: 'Identify one skill to develop this week' },
-  { id: 'reach_out', icon: '📧', label: 'שלח הודעה לאדם שיכול לעזור לקריירה', labelEn: 'Reach out to someone who can help your career' },
-  { id: 'research', icon: '🔍', label: 'חקור את השוק שלך לעומק', labelEn: 'Research your market deeply' },
-  { id: 'create_content', icon: '📝', label: 'צור תוכן אחד שמציג את המומחיות שלך', labelEn: 'Create content showcasing your expertise' },
-  { id: 'learn_selling', icon: '💼', label: 'למד מכירות - זה הכל בעסקים', labelEn: 'Learn sales - it\'s everything in business' },
-];
-
-// Fallback challenge missions
-const FALLBACK_CHALLENGES: AISuggestion[] = [
-  { id: 'call_10', icon: '📞', label: 'התקשר ל-10 לקוחות פוטנציאליים', labelEn: 'Call 10 potential clients' },
-  { id: 'publish', icon: '🌐', label: 'פרסם משהו שמפחיד אותך', labelEn: 'Publish something that scares you' },
-  { id: 'ask_raise', icon: '💵', label: 'בקש העלאה או העלה מחירים', labelEn: 'Ask for a raise or raise prices' },
-  { id: 'quit_bad', icon: '🚫', label: 'עזוב הרגל אחד רע לשבוע שלם', labelEn: 'Quit one bad habit for a full week' },
-  { id: 'meet_mentor', icon: '🤝', label: 'פגוש מנטור או מומחה בתחום', labelEn: 'Meet a mentor or expert in your field' },
-];
+// Removed FALLBACK_CAREER_STEPS and FALLBACK_CHALLENGES - user found them not relevant
 
 const STORAGE_KEY = 'launchpad_first_week_progress';
 
@@ -199,13 +171,10 @@ interface SavedProgress {
   selectedBuild: string[];
   selectedCareerStatus: string;
   selectedCareerGoal: string;
-  selectedCareerSteps: string[];
-  selectedChallenge: string;
 }
 
 export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
-  const { createChecklistsFromPlan } = useLaunchpadChecklists();
   // Load saved progress from localStorage
   const getSavedProgress = (): SavedProgress | null => {
     try {
@@ -226,13 +195,6 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
   const [selectedBuild, setSelectedBuild] = useState<string[]>(savedProgress?.selectedBuild || []);
   const [selectedCareerStatus, setSelectedCareerStatus] = useState<string>(savedProgress?.selectedCareerStatus || '');
   const [selectedCareerGoal, setSelectedCareerGoal] = useState<string>(savedProgress?.selectedCareerGoal || '');
-  const [selectedCareerSteps, setSelectedCareerSteps] = useState<string[]>(savedProgress?.selectedCareerSteps || []);
-  const [selectedChallenge, setSelectedChallenge] = useState<string>(savedProgress?.selectedChallenge || '');
-  
-  // AI personalized suggestions
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
-  const [aiCareerSteps, setAiCareerSteps] = useState<AISuggestion[]>(FALLBACK_CAREER_STEPS);
-  const [aiChallenges, setAiChallenges] = useState<AISuggestion[]>(FALLBACK_CHALLENGES);
 
   // Current section (for mobile flow)
   const [currentSection, setCurrentSection] = useState<1 | 2 | 3 | 4>(1);
@@ -244,63 +206,15 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
       selectedBuild,
       selectedCareerStatus,
       selectedCareerGoal,
-      selectedCareerSteps,
-      selectedChallenge,
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     } catch (e) {
       console.error('Error saving progress:', e);
     }
-  }, [selectedQuit, selectedBuild, selectedCareerStatus, selectedCareerGoal, selectedCareerSteps, selectedChallenge]);
+  }, [selectedQuit, selectedBuild, selectedCareerStatus, selectedCareerGoal]);
 
-  const loadSuggestions = async () => {
-    setIsLoadingSuggestions(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log('No session, using fallback suggestions');
-        setIsLoadingSuggestions(false);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('generate-first-week-actions', {
-        body: { 
-          language,
-          careerStatus: selectedCareerStatus,
-          careerGoal: selectedCareerGoal 
-        }
-      });
-
-      if (error) {
-        console.error('Error loading suggestions:', error);
-        if (error.message?.includes('429')) {
-          toast.error(language === 'he' ? 'יותר מדי בקשות, נסה שוב עוד רגע' : 'Too many requests, try again shortly');
-        }
-        return;
-      }
-
-      if (data?.career_steps && data.career_steps.length > 0) {
-        setAiCareerSteps(data.career_steps);
-      }
-      if (data?.challenge_missions && data.challenge_missions.length > 0) {
-        setAiChallenges(data.challenge_missions);
-      }
-    } catch (err) {
-      console.error('Failed to load AI suggestions:', err);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  };
-
-  useEffect(() => {
-    // Load AI suggestions when career status/goal are selected
-    if (selectedCareerStatus && selectedCareerGoal) {
-      loadSuggestions();
-    } else {
-      setIsLoadingSuggestions(false);
-    }
-  }, [selectedCareerStatus, selectedCareerGoal, language]);
+  // Removed loadSuggestions and AI career steps/challenges - user found them not relevant
 
   const toggleQuit = (label: string) => {
     setSelectedQuit(prev => 
@@ -314,21 +228,13 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
     );
   };
 
-  const toggleCareerStep = (label: string) => {
-    setSelectedCareerSteps(prev => {
-      if (prev.includes(label)) return prev.filter(s => s !== label);
-      if (prev.length >= 3) return [...prev.slice(1), label];
-      return [...prev, label];
-    });
-  };
+  // Removed toggleCareerStep - user found career steps not relevant
 
   const isValid = 
     selectedQuit.length >= 1 && 
     selectedBuild.length >= 1 && 
     selectedCareerStatus && 
-    selectedCareerGoal && 
-    selectedCareerSteps.length >= 1 &&
-    selectedChallenge;
+    selectedCareerGoal;
 
   const handleSubmit = async () => {
     if (isValid) {
@@ -337,21 +243,7 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
         habits_to_build: selectedBuild,
         career_status: selectedCareerStatus,
         career_goal: selectedCareerGoal,
-        career_steps: selectedCareerSteps,
-        challenge_mission: selectedChallenge
       };
-
-      // Create checklists from the plan
-      const result = await createChecklistsFromPlan(planData);
-      
-      if (result.success && result.checklistsCreated > 0) {
-        toast.success(
-          language === 'he' 
-            ? `נוצרו ${result.checklistsCreated} צ'קליסטים עם ${result.totalItems} משימות!`
-            : `Created ${result.checklistsCreated} checklists with ${result.totalItems} tasks!`,
-          { icon: '✅' }
-        );
-      }
 
       // Clear localStorage on successful completion
       try {
@@ -596,137 +488,9 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
             })}
           </div>
         </div>
-
-        {/* Career Steps - AI Generated */}
-        {selectedCareerStatus && selectedCareerGoal && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="space-y-3 pt-4 border-t border-blue-500/20"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-muted-foreground">
-                {language === 'he' ? 'צעדים קונקרטיים השבוע (בחר עד 3):' : 'Concrete steps this week (choose up to 3):'}
-              </p>
-              {isLoadingSuggestions && (
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              )}
-              {!isLoadingSuggestions && (
-                <button
-                  onClick={loadSuggestions}
-                  className="p-1 rounded hover:bg-muted"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              <span className="text-xs text-purple-600 dark:text-purple-400">
-                {language === 'he' ? 'מותאם אישית למטרה שלך' : 'Personalized to your goal'}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {aiCareerSteps.map((step, index) => {
-                const label = language === 'he' ? step.label : step.labelEn;
-                const isSelected = selectedCareerSteps.includes(label);
-                const selectionIndex = selectedCareerSteps.indexOf(label);
-                return (
-                  <motion.button
-                    key={step.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.03 * index }}
-                    onClick={() => toggleCareerStep(label)}
-                    className={cn(
-                      "relative flex items-center gap-2 px-4 py-3 rounded-xl transition-all",
-                      isSelected 
-                        ? "bg-blue-600 text-white shadow-lg" 
-                        : "bg-muted/50 hover:bg-muted border border-border"
-                    )}
-                  >
-                    {isSelected && (
-                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold">
-                        {selectionIndex + 1}
-                      </span>
-                    )}
-                    <span>{step.icon}</span>
-                    <span className="text-sm font-medium">{label}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
       </motion.div>
 
-      {/* Section 4: Challenge Mission */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-2xl p-5 border border-amber-500/20"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 rounded-lg bg-amber-500/10">
-            <Zap className="w-5 h-5 text-amber-500" />
-          </div>
-          <h3 className="font-bold text-lg">
-            {language === 'he' ? '⚡ משימת אתגר' : '⚡ Challenge Mission'}
-          </h3>
-        </div>
-        
-        <p className="text-sm text-muted-foreground mb-4">
-          {language === 'he' 
-            ? 'דבר אחד שמפחיד אותך אבל יזיז אותך קדימה. בחר אחד ועשה אותו השבוע!'
-            : 'One thing that scares you but will push you forward. Pick one and do it this week!'
-          }
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          {aiChallenges.map((challenge, index) => {
-            const label = language === 'he' ? challenge.label : challenge.labelEn;
-            const isSelected = selectedChallenge === label;
-            return (
-              <motion.button
-                key={challenge.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.03 * index }}
-                onClick={() => setSelectedChallenge(label)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 rounded-xl transition-all",
-                  isSelected 
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg scale-[1.02]" 
-                    : "bg-muted/50 hover:bg-muted border border-border hover:border-amber-500/50"
-                )}
-              >
-                <span className="text-lg">{challenge.icon}</span>
-                <span className="text-sm font-medium">{label}</span>
-                {isSelected && <Zap className="w-4 h-4" />}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        <AnimatePresence>
-          {selectedChallenge && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-lg p-4"
-            >
-              <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                {language === 'he' ? '🎯 משימת האתגר שלי השבוע:' : '🎯 My challenge mission this week:'}
-              </p>
-              <p className="text-base font-medium mt-1">{selectedChallenge}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      {/* Removed Section 4: Challenge Mission - user found it not relevant */}
 
       {/* Submit */}
       <div className="text-center space-y-4 pt-4">
@@ -752,8 +516,8 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
         {!isValid && (
           <p className="text-xs text-muted-foreground max-w-md mx-auto">
             {language === 'he' 
-              ? 'בחר לפחות: הרגל אחד לעזוב, הרגל אחד לבנות, מצב קריירה ומטרה, צעד אחד ומשימת אתגר'
-              : 'Select at least: 1 habit to quit, 1 to build, career status & goal, 1 step, and a challenge'
+              ? 'בחר לפחות: הרגל אחד לעזוב, הרגל אחד לבנות, מצב קריירה ומטרה'
+              : 'Select at least: 1 habit to quit, 1 to build, career status & goal'
             }
           </p>
         )}
