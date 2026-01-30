@@ -71,7 +71,7 @@ export default function LifePlanPreviewSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-12"
         >
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-2 md:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3">
             {launchpadSteps.map((item, index) => (
               <motion.div
                 key={item.step}
@@ -79,19 +79,22 @@ export default function LifePlanPreviewSection() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: 0.3 + index * 0.05 }}
-                whileHover={{ scale: 1.1, y: -5 }}
+                whileHover={{ scale: 1.05, y: -3 }}
                 className={cn(
-                  "relative p-3 rounded-xl text-center",
+                  "relative p-3 sm:p-4 rounded-xl text-center",
                   "bg-card border border-border/50",
                   "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10",
                   "transition-all cursor-pointer group"
                 )}
               >
-                <div className="text-2xl mb-1">{item.icon}</div>
-                <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
+                <div className="text-2xl sm:text-3xl mb-2">{item.icon}</div>
+                <div className={cn(
+                  "absolute -top-2 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold",
+                  isRTL ? "-left-2" : "-right-2"
+                )}>
                   {item.step}
                 </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground group-hover:text-foreground transition-colors line-clamp-1">
+                <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors font-medium">
                   {t(`home.${item.key}`)}
                 </p>
               </motion.div>
