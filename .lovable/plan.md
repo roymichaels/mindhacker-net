@@ -1,69 +1,168 @@
 
 
-# תוכנית: המרת שלב 1 לפורמט QUIZ אינטראקטיבי
+# תוכנית: עדכון וחיזוק שלב הפרופיל האישי
 
-## הבעיה הנוכחית
-שלב ה-Welcome דורש תשובה פתוחה של "מה אתה רוצה שיקרה בחיים שלך?" - זה קשה למשתמשים:
-- חוסר כיוון
-- לחץ לכתוב משהו "נכון"
-- מחסום כניסה גבוה מדי
+## שינויים נדרשים
 
-## הפתרון: Quiz מתפצל בסגנון Typeform
+### 1. הסרת קטגוריות לא נחוצות
 
-במקום שאלה פתוחה אחת, ניצור מסע של שאלות עם כפתורים שמתפצלים לאפשרויות ספציפיות יותר.
+| קטגוריה | סיבה להסרה |
+|---------|------------|
+| `music_genres` (טעם מוזיקלי) | לא רלוונטי לתהליך |
+| `sports` (ספורט צפייה/עניין) | לא רלוונטי לתהליך |
+| `gaming` (גיימינג) | כפילות - כבר קיים בתחביבים |
 
-### מבנה ה-Quiz
+### 2. הבהרת "הרגלי קריאה"
 
-```text
-שאלה 1: מה הכי מטריד אותך עכשיו?
-┌─────────────────┐  ┌─────────────────┐
-│  💼 קריירה      │  │  ❤️ מערכות יחסים │
-└─────────────────┘  └─────────────────┘
-┌─────────────────┐  ┌─────────────────┐
-│  🧘 בריאות      │  │  💰 כסף/פיננסים │
-└─────────────────┘  └─────────────────┘
-┌─────────────────┐  ┌─────────────────┐
-│  🎯 מטרה/כיוון  │  │  😰 רגשות/מנטלי │
-└─────────────────┘  └─────────────────┘
-                ↓
-        (על פי הבחירה)
-                ↓
-שאלה 2: מה בדיוק ב[קריירה]? (מתפצל)
-    • רוצה להתקדם בתפקיד
-    • רוצה לשנות מקצוע
-    • מרגיש תקוע
-    • רוצה יותר סיפוק
-    • מחפש עבודה
-    • רוצה להיות עצמאי
-                ↓
-שאלה 3: מה המצב הרגשי שלך לגבי זה?
-    • מתוסכל/מיואש
-    • סקרן/מוטיבציה
-    • מבולבל/לא בטוח
-    • מודאג/חרד
-    • מלא תקווה
-                ↓
-שאלה 4: כמה זמן זה מטריד אותך?
-    • התחיל לאחרונה (פחות מחודש)
-    • כבר כמה חודשים
-    • שנה ויותר
-    • תמיד היה ככה
-                ↓
-שאלה 5: מה ניסית עד עכשיו?
-    • קראתי ספרים/מאמרים
-    • דיברתי עם חברים/משפחה
-    • עבדתי עם מאמן/יועץ
-    • ניסיתי לבד
-    • לא הרבה, מחפש עזרה
-                ↓
-שאלה 6: מה הכי חשוב לך כשאתה מקבל עזרה?
-    • פתרונות מעשיים
-    • הקשבה והבנה
-    • תוכנית מסודרת
-    • דחיפה לפעולה
-    • הבנה עמוקה של עצמי
-                ↓
-        [סיכום + המשך]
+**לפני:**
+```
+הרגלי קריאה
+📚 Reading Habits
+```
+
+**אחרי:**
+```
+קריאת ספרים (לא לימודי)
+📚 Book Reading (non-academic)
+תיאור: ספרי פיתוח עצמי, בדיוני, ביוגרפיות וכו׳
+```
+
+### 3. הוספת קטגוריות חדשות
+
+נוסיף קטגוריות שיחלצו יותר מידע על אישיות וגישה לחיים:
+
+#### A. גישה לחיים (Life Approach)
+```typescript
+life_approach: {
+  section: 'social',
+  title: 'גישה לחיים',
+  titleEn: 'Life Approach',
+  icon: '🧭',
+  multiSelect: false,
+  options: [
+    { value: 'optimistic', label: 'אופטימי', labelEn: 'Optimistic' },
+    { value: 'realistic', label: 'ריאליסטי', labelEn: 'Realistic' },
+    { value: 'cautious', label: 'זהיר', labelEn: 'Cautious' },
+    { value: 'adventurous', label: 'הרפתקני', labelEn: 'Adventurous' },
+    { value: 'philosophical', label: 'פילוסופי', labelEn: 'Philosophical' },
+  ],
+}
+```
+
+#### B. קבלת החלטות (Decision Making)
+```typescript
+decision_making: {
+  section: 'social',
+  title: 'איך אתה מקבל החלטות?',
+  titleEn: 'How do you make decisions?',
+  icon: '🤔',
+  multiSelect: false,
+  options: [
+    { value: 'intuition', label: 'אינטואיציה', labelEn: 'Intuition' },
+    { value: 'analysis', label: 'ניתוח', labelEn: 'Analysis' },
+    { value: 'feelings', label: 'רגשות', labelEn: 'Feelings' },
+    { value: 'advice', label: 'עצות מאחרים', labelEn: 'Others\' advice' },
+    { value: 'mixed', label: 'משולב', labelEn: 'Mixed' },
+  ],
+}
+```
+
+#### C. התמודדות עם אתגרים (Challenge Response)
+```typescript
+challenge_response: {
+  section: 'mental',
+  title: 'איך אתה מגיב לאתגרים?',
+  titleEn: 'How do you respond to challenges?',
+  icon: '💪',
+  multiSelect: false,
+  options: [
+    { value: 'head-on', label: 'ישר פונה לפתרון', labelEn: 'Head-on' },
+    { value: 'reflect', label: 'קודם חושב', labelEn: 'Reflect first' },
+    { value: 'avoid', label: 'נוטה להימנע', labelEn: 'Tend to avoid' },
+    { value: 'seek-help', label: 'מבקש עזרה', labelEn: 'Seek help' },
+    { value: 'adapt', label: 'מסתגל', labelEn: 'Adapt' },
+  ],
+}
+```
+
+#### D. מקור אנרגיה (Energy Source)
+```typescript
+energy_source: {
+  section: 'mental',
+  title: 'מה נותן לך אנרגיה?',
+  titleEn: 'What gives you energy?',
+  icon: '⚡',
+  multiSelect: true,
+  options: [
+    { value: 'people', label: 'אנשים', labelEn: 'People' },
+    { value: 'solitude', label: 'זמן לבד', labelEn: 'Solitude' },
+    { value: 'nature', label: 'טבע', labelEn: 'Nature' },
+    { value: 'creativity', label: 'יצירה', labelEn: 'Creativity' },
+    { value: 'learning', label: 'למידה', labelEn: 'Learning' },
+    { value: 'achievement', label: 'הישגים', labelEn: 'Achievement' },
+    { value: 'other', label: 'אחר', labelEn: 'Other' },
+  ],
+}
+```
+
+#### E. מה מרגיע אותך (Relaxation)
+```typescript
+relaxation_methods: {
+  section: 'mental',
+  title: 'מה מרגיע אותך?',
+  titleEn: 'What relaxes you?',
+  icon: '🌿',
+  multiSelect: true,
+  options: [
+    { value: 'music', label: 'מוזיקה', labelEn: 'Music' },
+    { value: 'nature', label: 'טבע', labelEn: 'Nature' },
+    { value: 'exercise', label: 'פעילות גופנית', labelEn: 'Exercise' },
+    { value: 'meditation', label: 'מדיטציה', labelEn: 'Meditation' },
+    { value: 'social', label: 'חברים/משפחה', labelEn: 'Friends/Family' },
+    { value: 'alone', label: 'זמן לבד', labelEn: 'Alone time' },
+    { value: 'hobbies', label: 'תחביבים', labelEn: 'Hobbies' },
+    { value: 'other', label: 'אחר', labelEn: 'Other' },
+  ],
+}
+```
+
+#### F. יחס לשינויים (Change Attitude)
+```typescript
+change_attitude: {
+  section: 'social',
+  title: 'יחס לשינויים',
+  titleEn: 'Attitude to Change',
+  icon: '🔄',
+  multiSelect: false,
+  options: [
+    { value: 'embrace', label: 'מחבק שינויים', labelEn: 'Embrace change' },
+    { value: 'cautious', label: 'זהיר עם שינויים', labelEn: 'Cautious about change' },
+    { value: 'resist', label: 'מעדיף יציבות', labelEn: 'Prefer stability' },
+    { value: 'depends', label: 'תלוי בסיטואציה', labelEn: 'Depends on situation' },
+  ],
+}
+```
+
+#### G. צמיחה אישית (Personal Growth Focus)
+```typescript
+growth_focus: {
+  section: 'values',
+  title: 'במה אתה רוצה לצמוח?',
+  titleEn: 'Where do you want to grow?',
+  icon: '🌱',
+  multiSelect: true,
+  maxSelect: 3,
+  options: [
+    { value: 'confidence', label: 'ביטחון עצמי', labelEn: 'Self-confidence' },
+    { value: 'discipline', label: 'משמעת', labelEn: 'Discipline' },
+    { value: 'emotional', label: 'אינטליגנציה רגשית', labelEn: 'Emotional intelligence' },
+    { value: 'communication', label: 'תקשורת', labelEn: 'Communication' },
+    { value: 'leadership', label: 'מנהיגות', labelEn: 'Leadership' },
+    { value: 'creativity', label: 'יצירתיות', labelEn: 'Creativity' },
+    { value: 'mindfulness', label: 'מודעות עצמית', labelEn: 'Mindfulness' },
+    { value: 'other', label: 'אחר', labelEn: 'Other' },
+  ],
+}
 ```
 
 ---
@@ -71,131 +170,41 @@
 ## פרטים טכניים
 
 ### קובץ לעריכה:
-`src/components/launchpad/steps/WelcomeStep.tsx`
+`src/components/launchpad/steps/PersonalProfileStep.tsx`
 
-### מבנה הקוד החדש:
+### שינויים בקוד:
 
-```typescript
-interface QuizQuestion {
-  id: string;
-  question: string;
-  questionEn: string;
-  options: QuizOption[];
-  dependsOn?: { questionId: string; values: string[] }; // Branching logic
-}
+1. **`ProfileData` interface** - הסרת שדות והוספת חדשים:
+   - הסרה: `music_genres`, `sports`, `gaming`
+   - הוספה: `life_approach`, `decision_making`, `challenge_response`, `energy_source`, `relaxation_methods`, `change_attitude`, `growth_focus`
 
-interface QuizOption {
-  value: string;
-  label: string;
-  labelEn: string;
-  icon: string;
-}
+2. **`MultiSelectCategory` type** - עדכון לרשימה החדשה
 
-const WELCOME_QUIZ: QuizQuestion[] = [
-  {
-    id: 'main_area',
-    question: 'מה הכי מטריד אותך עכשיו?',
-    questionEn: 'What concerns you the most right now?',
-    options: [
-      { value: 'career', label: 'קריירה/עבודה', labelEn: 'Career/Work', icon: '💼' },
-      { value: 'relationships', label: 'מערכות יחסים', labelEn: 'Relationships', icon: '❤️' },
-      { value: 'health', label: 'בריאות/אנרגיה', labelEn: 'Health/Energy', icon: '🧘' },
-      { value: 'finance', label: 'כסף/פיננסים', labelEn: 'Money/Finances', icon: '💰' },
-      { value: 'purpose', label: 'מטרה/כיוון בחיים', labelEn: 'Purpose/Direction', icon: '🎯' },
-      { value: 'emotional', label: 'רגשות/מנטלי', labelEn: 'Emotions/Mental', icon: '😰' },
-    ],
-  },
-  // Sub-questions based on main_area choice...
-];
-```
+3. **`CATEGORIES` object** - הסרת 3 קטגוריות, הוספת 7 קטגוריות חדשות
 
-### מצב (State):
-```typescript
-const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-const [answers, setAnswers] = useState<Record<string, string>>({});
-const [isAnimating, setIsAnimating] = useState(false);
-```
+4. **`reading_habits`** - עדכון כותרת והבהרה
 
-### UI עיקריים:
-1. **Progress bar** - מראה את ההתקדמות דרך ה-Quiz
-2. **Question display** - עם אנימציית כניסה
-3. **Option buttons** - כפתורים גדולים עם אייקונים
-4. **Auto-advance** - מעבר אוטומטי לשאלה הבאה אחרי בחירה
+5. **`CATEGORY_ORDER`** - עדכון סדר הקטגוריות
 
-### תצוגת סיכום:
-בסוף ה-Quiz, נציג סיכום קצר של הבחירות לפני ההמשך:
-```text
-"אני רואה שאתה מתמקד ב[קריירה], מרגיש [מתוסכל], 
-וזה כבר [כמה חודשים]. יחד נמצא את הדרך הנכונה בשבילך."
-```
+6. **`getDefaultProfileData()`** - עדכון ערכי ברירת מחדל
 
 ---
 
-## אפשרויות מתפצלות לפי תחום
+## סיכום
 
-### 🎯 קריירה/עבודה:
-- רוצה להתקדם בתפקיד הנוכחי
-- רוצה לשנות מקצוע לגמרי
-- מרגיש תקוע ומשועמם
-- מחפש עבודה
-- רוצה להפוך לעצמאי
-- רוצה יותר איזון עבודה-חיים
+| פעולה | כמות |
+|-------|------|
+| קטגוריות שמוסרות | 3 |
+| קטגוריות שמתווספות | 7 |
+| קטגוריות שמתעדכנות | 1 (הרגלי קריאה) |
+| **סה"כ שינוי נטו** | +4 קטגוריות |
 
-### ❤️ מערכות יחסים:
-- רוצה למצוא בן/בת זוג
-- בעיות בזוגיות הנוכחית
-- קשיים עם ילדים/משפחה
-- קשיים חברתיים
-- ריפוי מפרידה
-- רוצה לשפר תקשורת
-
-### 🧘 בריאות/אנרגיה:
-- רוצה לרדת במשקל
-- חסר אנרגיה/עייפות
-- בעיות שינה
-- רוצה להתחיל להתאמן
-- להתמודד עם כאבים כרוניים
-- לשפר תזונה
-
-### 💰 כסף/פיננסים:
-- רוצה לחסוך יותר
-- חובות שמטרידים
-- רוצה להרוויח יותר
-- לא יודע לנהל תקציב
-- רוצה להשקיע
-- חרדות כלכליות
-
-### 🎯 מטרה/כיוון:
-- לא יודע מה אני רוצה בחיים
-- מרגיש אבוד
-- רוצה למצוא תשוקה
-- מחפש משמעות
-- רוצה לעשות שינוי גדול
-
-### 😰 רגשות/מנטלי:
-- התמודדות עם חרדה
-- התמודדות עם דיכאון
-- בעיות ביטחון עצמי
-- ויסות רגשי
-- ניהול כעסים
-- טראומה מהעבר
-
----
-
-## סיכום השינויים
-
-| לפני | אחרי |
-|------|------|
-| שאלה פתוחה אחת | 5-6 שאלות עם כפתורים |
-| כתיבה חופשית | בחירה מאפשרויות |
-| מחסום כניסה גבוה | קל ומהיר |
-| מידע כללי | מידע מובנה ומפורט |
-| טקסט לניתוח | נתונים מסווגים |
-
-### יתרונות:
-1. **קל יותר למשתמש** - רק לחיצות
-2. **מידע מובנה** - קל לניתוח AI
-3. **מתפצל** - שאלות ספציפיות לפי בחירה
-4. **מהיר** - 30 שניות במקום כתיבה
-5. **פחות לחץ** - אין צורך לנסח
+### קטגוריות חדשות שמחלצות מידע עמוק:
+- גישה לחיים (אופטימי/ריאליסטי/וכו')
+- קבלת החלטות (אינטואיציה/ניתוח/וכו')
+- התמודדות עם אתגרים
+- מקור אנרגיה
+- שיטות הרגעה
+- יחס לשינויים
+- תחומי צמיחה רצויים
 
