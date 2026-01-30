@@ -448,47 +448,48 @@ Your task is to analyze comprehensive data from a user who completed a Launchpad
 1. A deep consciousness analysis
 2. A personalized 90-day transformation plan with weekly milestones
 
-Guidelines:
+**CRITICAL: ALL TEXT CONTENT MUST BE IN HEBREW (עברית)**
+- All analysis text, descriptions, tasks, and insights must be written in Hebrew
+- Names/titles should have both Hebrew and English versions where specified
 - Be direct and challenging, not coddling
 - Focus on results and action
 - Identify the gap between where the user is and where they need to go
 - Suggest challenges that push for growth
-- Consider Hebrew speakers - provide content that works in both languages
 
 Respond ONLY with valid JSON matching this exact structure:
 {
   "summary": {
     "consciousness_analysis": {
-      "current_state": "A 2-3 paragraph analysis of the user's current mental and emotional state",
-      "dominant_patterns": ["Pattern 1", "Pattern 2", "Pattern 3"],
-      "blind_spots": ["Blind spot 1", "Blind spot 2"],
-      "strengths": ["Strength 1", "Strength 2", "Strength 3"],
-      "growth_edges": ["Growth edge 1", "Growth edge 2"]
+      "current_state": "2-3 פסקאות ניתוח של המצב הנפשי והרגשי הנוכחי של המשתמש - בעברית",
+      "dominant_patterns": ["דפוס 1", "דפוס 2", "דפוס 3"],
+      "blind_spots": ["נקודה עיוורת 1", "נקודה עיוורת 2"],
+      "strengths": ["חוזק 1", "חוזק 2", "חוזק 3"],
+      "growth_edges": ["קצה צמיחה 1", "קצה צמיחה 2"]
     },
     "life_direction": {
-      "core_aspiration": "One sentence capturing what they truly want",
+      "core_aspiration": "משפט אחד שמזהה את מה שהמשתמש באמת רוצה",
       "clarity_score": 75,
-      "vision_summary": "2-3 sentences summarizing their vision"
+      "vision_summary": "2-3 משפטים שמסכמים את החזון שלו"
     },
     "identity_profile": {
-      "dominant_traits": ["Trait 1", "Trait 2", "Trait 3"],
+      "dominant_traits": ["תכונה 1", "תכונה 2", "תכונה 3"],
       "suggested_ego_state": "warrior|guardian|creator|seeker|sage",
-      "values_hierarchy": ["Value 1", "Value 2", "Value 3"]
+      "values_hierarchy": ["ערך 1", "ערך 2", "ערך 3"]
     },
     "behavioral_insights": {
-      "habits_to_transform": ["Habit 1", "Habit 2"],
-      "habits_to_cultivate": ["Habit 1", "Habit 2", "Habit 3"],
-      "resistance_patterns": ["Pattern 1", "Pattern 2"]
+      "habits_to_transform": ["הרגל לשנות 1", "הרגל לשנות 2"],
+      "habits_to_cultivate": ["הרגל לפתח 1", "הרגל לפתח 2", "הרגל לפתח 3"],
+      "resistance_patterns": ["דפוס התנגדות 1", "דפוס התנגדות 2"]
     },
     "career_path": {
-      "current_status": "Current work situation",
-      "aspiration": "Career aspiration",
-      "key_steps": ["Step 1", "Step 2", "Step 3"]
+      "current_status": "מצב עבודה נוכחי",
+      "aspiration": "שאיפה מקצועית",
+      "key_steps": ["צעד 1", "צעד 2", "צעד 3"]
     },
     "transformation_potential": {
       "readiness_score": 80,
-      "primary_focus": "Main area to focus on",
-      "secondary_focus": "Secondary focus area"
+      "primary_focus": "תחום מיקוד עיקרי",
+      "secondary_focus": "תחום מיקוד משני"
     }
   },
   "plan": {
@@ -497,17 +498,17 @@ Respond ONLY with valid JSON matching this exact structure:
         "number": 1,
         "title": "Foundations",
         "title_he": "יסודות",
-        "focus": "Building core habits",
-        "milestone": "3 new habits established",
+        "focus": "בניית הרגלי בסיס",
+        "milestone": "3 הרגלים חדשים מבוססים",
         "weeks": [
           {
             "number": 1,
-            "title": "Week 1: Starting Point",
-            "description": "Description of this week's focus",
-            "tasks": ["Task 1", "Task 2", "Task 3", "Task 4", "Task 5"],
-            "goal": "Measurable goal for the week",
-            "challenge": "One challenging task",
-            "hypnosis_recommendation": "Type of hypnosis session to support this week"
+            "title": "שבוע 1: נקודת התחלה",
+            "description": "תיאור מיקוד השבוע - בעברית",
+            "tasks": ["משימה 1", "משימה 2", "משימה 3", "משימה 4", "משימה 5"],
+            "goal": "יעד מדיד לשבוע",
+            "challenge": "משימה מאתגרת אחת",
+            "hypnosis_recommendation": "סוג סשן היפנוזה מומלץ"
           }
         ]
       }
@@ -520,7 +521,7 @@ Respond ONLY with valid JSON matching this exact structure:
   }
 }
 
-Include exactly 3 months with 4 weeks each (12 weeks total). Each week should have 3-5 specific, actionable tasks.`
+Include exactly 3 months with 4 weeks each (12 weeks total). Each week should have 3-5 specific, actionable tasks IN HEBREW.`
         },
         {
           role: 'user',
