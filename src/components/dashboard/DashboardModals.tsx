@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
-import LifePlanCard from './unified/LifePlanCard';
+import { LifePlanExpanded } from './LifePlanExpanded';
 import { ChecklistsCard, ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
 
 interface DashboardModalProps {
@@ -27,13 +27,13 @@ export function AIAnalysisModal({ open, onOpenChange, language }: DashboardModal
 export function LifePlanModal({ open, onOpenChange, language }: DashboardModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
           </DialogTitle>
         </DialogHeader>
-        <LifePlanCard />
+        <LifePlanExpanded />
       </DialogContent>
     </Dialog>
   );
