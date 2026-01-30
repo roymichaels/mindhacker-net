@@ -106,9 +106,17 @@ export default function GameHeroSection() {
             <Button
               size="lg"
               onClick={() => navigate('/signup')}
-              className="group text-lg px-8 py-6 rounded-xl bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
+              className="group text-lg px-8 py-6 rounded-2xl 
+                bg-gradient-to-br from-cyan-400 via-cyan-500 to-cyan-600
+                hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-500
+                text-cyan-950 font-bold
+                shadow-[0_0_25px_rgba(34,211,238,0.5),0_8px_20px_rgba(0,0,0,0.2)]
+                hover:shadow-[0_0_35px_rgba(34,211,238,0.7),0_12px_30px_rgba(0,0,0,0.3)]
+                border-2 border-cyan-200/40
+                transition-all duration-300 hover:scale-105
+                animate-pulse-glow"
             >
-              <Rocket className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'} group-hover:animate-pulse`} />
+              <Rocket className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'} group-hover:animate-bounce`} />
               {t('home.heroCta')}
             </Button>
             
