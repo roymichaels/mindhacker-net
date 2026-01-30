@@ -7,7 +7,8 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  GameHeroSection, 
+  GameHeroSection,
+  WhatIsThisSection,
   ChatManagesEverythingSection,
   GamificationFeaturesSection,
   ConsciousnessCoachingSection,
@@ -75,6 +76,7 @@ const Index = () => {
       {/* Main content - New Gamified Homepage */}
       <main className="relative z-10">
         <GameHeroSection />
+        <WhatIsThisSection />
         <ChatManagesEverythingSection />
         <GamificationFeaturesSection />
         <ConsciousnessCoachingSection />
