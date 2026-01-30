@@ -307,13 +307,18 @@ interface WelcomeQuizDisplayProps {
 }
 
 function WelcomeQuizDisplay({ data, onChange, language }: WelcomeQuizDisplayProps) {
-  const entries = Object.entries(data);
+  const entries = Object.entries(data).filter(([_, v]) => v !== null && v !== undefined && v !== '');
   
   if (entries.length === 0) {
     return (
-      <p className="text-muted-foreground text-center py-8">
-        {language === 'he' ? 'אין נתונים עדיין' : 'No data yet'}
-      </p>
+      <div className="text-center py-12 space-y-4">
+        <span className="text-5xl">🎯</span>
+        <p className="text-muted-foreground">
+          {language === 'he' 
+            ? 'השאלון ההתחלתי לא הושלם או לא נשמר בנפרד. הנתונים שלך נשמרים בפרופיל האישי.' 
+            : 'The welcome quiz was not saved separately. Your data is stored in the personal profile.'}
+        </p>
+      </div>
     );
   }
 
@@ -546,9 +551,14 @@ interface TransformationPlanDisplayProps {
 function TransformationPlanDisplay({ milestones, language }: TransformationPlanDisplayProps) {
   if (!milestones || milestones.length === 0) {
     return (
-      <p className="text-muted-foreground text-center py-8">
-        {language === 'he' ? 'אין נתונים עדיין. לחץ על "חשב מחדש" ליצירת תוכנית.' : 'No data yet. Click "Regenerate" to create a plan.'}
-      </p>
+      <div className="text-center py-12 space-y-4">
+        <span className="text-5xl">🚀</span>
+        <p className="text-muted-foreground">
+          {language === 'he' 
+            ? 'אין תוכנית טרנספורמציה עדיין. לחץ על "חשב מחדש" למעלה ליצירת תוכנית.' 
+            : 'No transformation plan yet. Click "Regenerate" above to create a plan.'}
+        </p>
+      </div>
     );
   }
 
