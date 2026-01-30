@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS } from '@/hooks/useLaunchpadProgress';
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
+import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
 import { LifePlanStep } from './steps/LifePlanStep';
@@ -37,6 +38,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   
   const [stepData, setStepData] = useState<Record<string, unknown>>({});
   const [viewingStep, setViewingStep] = useState<number | null>(null);
+  const [profileData, setProfileData] = useState<Record<string, unknown> | null>(null);
   
   // The step we're actually showing (could be current or a past step we're reviewing)
   const displayedStep = viewingStep ?? currentStep;
@@ -48,8 +50,13 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       return;
     }
     
+    // Store profile data for GrowthDeepDiveStep
+    if (currentStep === 2 && data) {
+      setProfileData(data);
+    }
+    
     completeStep({ step: currentStep, data });
-    if (currentStep === 8 && onComplete) {
+    if (currentStep === 9 && onComplete) {
       onComplete();
     }
   };
@@ -96,16 +103,18 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 2:
         return <PersonalProfileStep {...stepProps} />;
       case 3:
-        return <FirstChatStep {...stepProps} />;
+        return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
       case 4:
-        return <IntrospectionStep {...stepProps} />;
+        return <FirstChatStep {...stepProps} />;
       case 5:
-        return <LifePlanStep {...stepProps} />;
+        return <IntrospectionStep {...stepProps} />;
       case 6:
-        return <FocusAreasStep {...stepProps} />;
+        return <LifePlanStep {...stepProps} />;
       case 7:
-        return <FirstWeekStep {...stepProps} />;
+        return <FocusAreasStep {...stepProps} />;
       case 8:
+        return <FirstWeekStep {...stepProps} />;
+      case 9:
         return <DashboardActivation {...stepProps} />;
       default:
         return null;
