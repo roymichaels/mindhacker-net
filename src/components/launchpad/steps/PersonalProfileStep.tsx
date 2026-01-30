@@ -164,6 +164,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'סוג תזונה',
     titleEn: 'Diet Type',
+    subtitle: 'איך נראית התזונה שלך כרגע?',
+    subtitleEn: 'What does your diet currently look like?',
     icon: '🍽️',
     multiSelect: false,
     options: [
@@ -186,6 +188,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'שעות שינה',
     titleEn: 'Sleep Hours',
+    subtitle: 'כמה אתה ישן כרגע בממוצע?',
+    subtitleEn: 'How much do you currently sleep on average?',
     icon: '😴',
     multiSelect: false,
     options: [
@@ -200,6 +204,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'תדירות אימונים',
     titleEn: 'Exercise Frequency',
+    subtitle: 'כמה פעמים בשבוע אתה מתאמן כרגע?',
+    subtitleEn: 'How often do you currently exercise?',
     icon: '💪',
     multiSelect: false,
     options: [
@@ -214,6 +220,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'סוגי אימונים',
     titleEn: 'Exercise Types',
+    subtitle: 'באילו אימונים אתה עוסק כרגע?',
+    subtitleEn: 'What types of exercise do you currently do?',
     icon: '🏋️',
     multiSelect: true,
     options: [
@@ -240,6 +248,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'עישון',
     titleEn: 'Smoking',
+    subtitle: 'האם אתה מעשן כרגע?',
+    subtitleEn: 'Do you currently smoke?',
     icon: '🚬',
     multiSelect: true,
     options: [
@@ -254,6 +264,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'אלכוהול',
     titleEn: 'Alcohol',
+    subtitle: 'מה צריכת האלכוהול שלך כרגע?',
+    subtitleEn: 'What is your current alcohol consumption?',
     icon: '🍷',
     multiSelect: false,
     options: [
@@ -268,6 +280,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'קפאין',
     titleEn: 'Caffeine',
+    subtitle: 'כמה קפאין אתה צורך כרגע?',
+    subtitleEn: 'How much caffeine do you currently consume?',
     icon: '☕',
     multiSelect: false,
     options: [
@@ -281,6 +295,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'שתייה יומית (הידרציה)',
     titleEn: 'Daily Hydration',
+    subtitle: 'מה אתה שותה בדרך כלל?',
+    subtitleEn: 'What do you usually drink?',
     icon: '💧',
     multiSelect: true,
     options: [
@@ -297,6 +313,8 @@ const CATEGORIES = {
     section: 'health',
     title: 'תוספי תזונה',
     titleEn: 'Supplements',
+    subtitle: 'אילו תוספים אתה לוקח כרגע?',
+    subtitleEn: 'What supplements do you currently take?',
     icon: '💊',
     multiSelect: true,
     options: [
@@ -315,6 +333,8 @@ const CATEGORIES = {
     section: 'mental',
     title: 'רמת סטרס',
     titleEn: 'Stress Level',
+    subtitle: 'מה רמת הסטרס שלך כרגע?',
+    subtitleEn: 'What is your current stress level?',
     icon: '😰',
     multiSelect: false,
     options: [
@@ -356,6 +376,8 @@ const CATEGORIES = {
     section: 'mental',
     title: 'מה נותן לך אנרגיה?',
     titleEn: 'What gives you energy?',
+    subtitle: 'מה נותן לך אנרגיה בדרך כלל?',
+    subtitleEn: 'What usually gives you energy?',
     icon: '⚡',
     multiSelect: true,
     options: [
@@ -375,6 +397,8 @@ const CATEGORIES = {
     section: 'mental',
     title: 'מה מרגיע אותך?',
     titleEn: 'What relaxes you?',
+    subtitle: 'מה מרגיע אותך בדרך כלל?',
+    subtitleEn: 'What usually relaxes you?',
     icon: '🌿',
     multiSelect: true,
     options: [
@@ -1013,6 +1037,13 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
                           {language === 'he' ? category.title : category.titleEn}
                         </h4>
                       </div>
+                      
+                      {/* Subtitle - clarification for current state questions */}
+                      {'subtitle' in category && category.subtitle && (
+                        <p className="text-xs text-muted-foreground mr-7">
+                          {language === 'he' ? category.subtitle : (category as any).subtitleEn}
+                        </p>
+                      )}
                       
                       {/* Description if exists */}
                       {'description' in category && category.description && (
