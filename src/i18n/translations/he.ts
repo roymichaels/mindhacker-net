@@ -2350,6 +2350,37 @@ export const he = {
     heroCta: "התחל את המשחק - חינם",
     heroMeta: "10 שלבים • 20 דקות • תוכנית מלאה",
     
+    // What Is This Section
+    whatBadge: "מה זו האפליקציה?",
+    whatTitle: "אפליקציה לאימון חיים מבוססת בינה מלאכותית",
+    whatSubtitle: "שילוב ייחודי של 3 טכנולוגיות שמשנות את הדרך שבה אתה גדל, משתפר ומשיג את המטרות שלך",
+    
+    // AI Pillar
+    pillarAiTitle: "מאמן AI אישי",
+    pillarAiDesc: "Aurora היא מאמנת AI שמכירה אותך, זוכרת את השיחות שלכם, ומלווה אותך בכל שעה.",
+    pillarAiFeature1: "זמינה 24/7 לכל שאלה",
+    pillarAiFeature2: "לומדת את הסגנון שלך",
+    pillarAiFeature3: "זוכרת הכל ומתייחסת",
+    
+    // Gamification Pillar
+    pillarGamificationTitle: "משחקיות וגמיפיקציה",
+    pillarGamificationDesc: "המערכת הופכת כל פעולה להתקדמות מדידה. צבור XP, עלה ברמות ופתח הישגים.",
+    pillarGamificationFeature1: "מערכת Level ו-XP",
+    pillarGamificationFeature2: "רצפים יומיים ובונוסים",
+    pillarGamificationFeature3: "20+ הישגים לפתיחה",
+    
+    // Hypnosis Pillar
+    pillarHypnosisTitle: "היפנוזה מותאמת אישית",
+    pillarHypnosisDesc: "סשנים של מדיטציה והיפנוזה שנבנים בזמן אמת בהתאם למה שאתה צריך.",
+    pillarHypnosisFeature1: "סקריפטים שנכתבים עבורך",
+    pillarHypnosisFeature2: "קול סינתטי איכותי",
+    pillarHypnosisFeature3: "12 מצבי תודעה לבחירה",
+    
+    // Value Props
+    valueAvailable247: "זמין 24/7",
+    valuePersonalizedAI: "AI מותאם אישית",
+    valueNoJudgment: "ללא שיפוטיות",
+    
     // Mock Dashboard
     mockLevel: "Level 12",
     mockXp: "1,240 XP",

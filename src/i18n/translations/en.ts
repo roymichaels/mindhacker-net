@@ -2299,6 +2299,37 @@ export const en: TranslationKeys = {
     heroCta: "Start the Game - Free",
     heroMeta: "10 steps • 20 minutes • Complete plan",
     
+    // What Is This Section
+    whatBadge: "What Is This App?",
+    whatTitle: "AI-Powered Life Coaching App",
+    whatSubtitle: "A unique combination of 3 technologies that change the way you grow, improve, and achieve your goals",
+    
+    // AI Pillar
+    pillarAiTitle: "Personal AI Coach",
+    pillarAiDesc: "Aurora is an AI coach who knows you, remembers your conversations, and guides you at any hour.",
+    pillarAiFeature1: "Available 24/7 for any question",
+    pillarAiFeature2: "Learns your style",
+    pillarAiFeature3: "Remembers everything",
+    
+    // Gamification Pillar
+    pillarGamificationTitle: "Gamification System",
+    pillarGamificationDesc: "The system turns every action into measurable progress. Earn XP, level up, and unlock achievements.",
+    pillarGamificationFeature1: "Level & XP system",
+    pillarGamificationFeature2: "Daily streaks and bonuses",
+    pillarGamificationFeature3: "20+ achievements to unlock",
+    
+    // Hypnosis Pillar
+    pillarHypnosisTitle: "Personalized Hypnosis",
+    pillarHypnosisDesc: "Meditation and hypnosis sessions built in real-time based on what you need.",
+    pillarHypnosisFeature1: "Scripts written for you",
+    pillarHypnosisFeature2: "High-quality synthetic voice",
+    pillarHypnosisFeature3: "12 consciousness states to choose",
+    
+    // Value Props
+    valueAvailable247: "Available 24/7",
+    valuePersonalizedAI: "Personalized AI",
+    valueNoJudgment: "No Judgment",
+    
     // Mock Dashboard
     mockLevel: "Level 12",
     mockXp: "1,240 XP",
