@@ -1,237 +1,224 @@
 
-# תוכנית: אפשור גישה חזרה ל-Launchpad כהגדרות
+# תוכנית: שדרוג עמוד "הפרופיל שלי" - תרגום לעברית וסיכומי AI
 
-## סיכום המטרה
-לאפשר למשתמשים שסיימו את ה-Launchpad לחזור ולראות/לערוך את התשובות שלהם, כאילו מדובר במסך "הגדרות" או "הפרופיל שלי".
+## הבעיות שזוהו
 
----
-
-## שלב 1: יצירת דף הגדרות Launchpad חדש
-
-**קובץ:** `src/pages/LaunchpadSettings.tsx` (חדש)
-
-דף שמציג את כל ה-Launchpad בתצוגת "עריכה" עם:
-- כל התשובות מסומנות מראש מהנתונים השמורים
-- אפשרות לנווט בין שלבים בחופשיות
-- כפתור "שמור שינויים" שמעדכן את הנתונים
+1. **הפרופיל מציג ערכים באנגלית** (entrepreneur, ambivert, deep-connection) - אלו ערכי ה-value ששמורים ב-DB, לא הלייבלים בעברית
+2. **חסר ניתוח AI ותובנות** - עמוד הפרופיל מציג רק את המידע הגולמי, לא את הסיכומים והניתוחים שה-AI יצר
+3. **הסיכומים הקיימים באנגלית** - הנתונים ב-launchpad_summaries נוצרו לפני התיקון לעברית
 
 ---
 
-## שלב 2: שינוי LaunchpadFlow לתמיכה ב-"מצב הגדרות"
+## שלב 1: יצירת מפת תרגום ערכים
 
-**קובץ:** `src/components/launchpad/LaunchpadFlow.tsx`
+**קובץ חדש:** `src/utils/profileTranslations.ts`
 
-להוסיף prop חדש `mode: 'onboarding' | 'settings'`:
-- **onboarding mode** (ברירת מחדל): ההתנהגות הנוכחית - שלב אחרי שלב
-- **settings mode**: כל השלבים נגישים, טוען נתונים קיימים, מאפשר עריכה
+מילון שממפה את הערכים באנגלית (כמו `entrepreneur`) לתוויות בעברית (כמו `יזם`):
 
 ```typescript
-interface LaunchpadFlowProps {
-  mode?: 'onboarding' | 'settings';
-  className?: string;
-  onComplete?: () => void;
-  onClose?: () => void;
+export const PROFILE_VALUE_TRANSLATIONS: Record<string, { he: string; en: string }> = {
+  // Employment
+  'entrepreneur': { he: 'יזם', en: 'Entrepreneur' },
+  'business-owner': { he: 'בעל עסק', en: 'Business Owner' },
+  'self-employed': { he: 'עצמאי / פרילנסר', en: 'Freelancer' },
+  
+  // Social
+  'ambivert': { he: 'באמצע', en: 'Ambivert' },
+  'introvert': { he: 'מופנם', en: 'Introvert' },
+  'extrovert': { he: 'מוחצן', en: 'Extrovert' },
+  
+  // Relationship style
+  'deep-connection': { he: 'מחפש חיבור עמוק', en: 'Seek deep connection' },
+  'needs-space': { he: 'צריך הרבה זמן לבד', en: 'Need alone time' },
+  
+  // ... כל הערכים האחרים
+};
+
+export function translateProfileValue(value: string, language: string): string {
+  const translation = PROFILE_VALUE_TRANSLATIONS[value];
+  return translation 
+    ? (language === 'he' ? translation.he : translation.en)
+    : value; // fallback to original value
 }
 ```
 
 ---
 
-## שלב 3: עדכון כל Step להיות "Editable"
+## שלב 2: שדרוג קומפוננטת PersonalProfileDisplay
 
-לעדכן כל קומפוננטת שלב (WelcomeStep, PersonalProfileStep וכו') לטעון נתונים קיימים:
+**קובץ:** `src/pages/LaunchpadSettings.tsx`
 
-**קבצים:**
-- `src/components/launchpad/steps/WelcomeStep.tsx`
-- `src/components/launchpad/steps/PersonalProfileStep.tsx`  
-- `src/components/launchpad/steps/FocusAreasStep.tsx`
-- `src/components/launchpad/steps/FirstWeekStep.tsx`
-
-כל Step יקבל prop אופציונלי `initialData` שימלא את הטופס עם הנתונים הקיימים:
+לשנות את `PersonalProfileDisplay` להשתמש בפונקציית התרגום:
 
 ```typescript
-interface WelcomeStepProps {
-  onComplete: (data: {...}) => void;
-  isCompleting: boolean;
-  rewards: {...};
-  initialData?: Record<string, string | string[]>; // חדש
-  isEditMode?: boolean; // חדש
-}
+import { translateProfileValue } from '@/utils/profileTranslations';
+
+// בתוך הקומפוננטה:
+<p className="text-foreground">
+  {translateProfileValue(String(value), language)}
+</p>
 ```
 
 ---
 
-## שלב 4: הוספת קישור בסיידבר
+## שלב 3: הוספת טאב חדש - "ניתוח AI"
 
-**קובץ:** `src/components/dashboard/DashboardSidebar.tsx`
+**קובץ:** `src/pages/LaunchpadSettings.tsx`
 
-להוסיף פריט ניווט חדש בסקשן "התוכן שלך":
+להוסיף טאב חמישי שמציג את הסיכומים והניתוחים מ-launchpad_summaries:
 
 ```typescript
-const contentItems = [
-  // ... existing items
-  { path: '/launchpad/settings', icon: Settings, label: language === 'he' ? 'הפרופיל שלי' : 'My Profile' },
+const TABS = [
+  { id: 'welcome', label: 'שאלון התחלתי', ... },
+  { id: 'profile', label: 'פרופיל אישי', ... },
+  { id: 'focus', label: 'תחומי פוקוס', ... },
+  { id: 'transformation', label: 'תוכנית טרנספורמציה', ... },
+  { id: 'analysis', label: 'ניתוח AI', labelEn: 'AI Analysis', icon: '🧠' }, // חדש!
 ];
 ```
 
 ---
 
-## שלב 5: הוספת Route חדש
+## שלב 4: יצירת קומפוננטת AIAnalysisDisplay
 
-**קובץ:** `src/App.tsx`
+**קובץ:** `src/pages/LaunchpadSettings.tsx`
 
-להוסיף route חדש:
-
-```typescript
-<Route path="/launchpad/settings" element={<LaunchpadSettings />} />
-```
-
----
-
-## שלב 6: Hook לטעינת נתוני Launchpad קיימים
-
-**קובץ:** `src/hooks/useLaunchpadData.ts` (חדש)
-
-Hook שטוען את כל הנתונים השמורים מ-launchpad_progress:
+קומפוננטה חדשה שמביאה וממציגה את הסיכום מ-launchpad_summaries:
 
 ```typescript
-export function useLaunchpadData() {
+function AIAnalysisDisplay({ language }: { language: string }) {
   const { user } = useAuth();
-  
-  return useQuery({
-    queryKey: ['launchpad-data', user?.id],
-    queryFn: async () => {
-      const { data: progress } = await supabase
-        .from('launchpad_progress')
+  const [summary, setSummary] = useState<SummaryData | null>(null);
+  const [scores, setScores] = useState({ consciousness: 0, clarity: 0, readiness: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSummary() {
+      const { data } = await supabase
+        .from('launchpad_summaries')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user?.id)
         .single();
       
-      return {
-        welcomeQuiz: JSON.parse(progress.step_1_intention || '{}'),
-        personalProfile: progress.step_2_profile_data,
-        focusAreas: progress.step_5_focus_areas_selected,
-        firstWeek: {
-          actions: progress.step_6_actions,
-          anchorHabit: progress.step_6_anchor_habit,
-        },
-      };
-    },
-    enabled: !!user?.id,
-  });
+      if (data) {
+        setSummary(data.summary_data);
+        setScores({
+          consciousness: data.consciousness_score,
+          clarity: data.clarity_score,
+          readiness: data.transformation_readiness,
+        });
+      }
+      setLoading(false);
+    }
+    fetchSummary();
+  }, [user]);
+
+  // Display sections: Scores, Consciousness Analysis, Identity, Career, Behavioral
 }
 ```
 
 ---
 
-## ארכיטקטורה ויזואלית
+## שלב 5: עדכון נתוני ה-AI הקיימים לעברית
 
-```text
-DashboardSidebar
-    └── "הפרופיל שלי" / "My Profile"
-           ↓
-    /launchpad/settings
-           ↓
-    LaunchpadSettings page
-           ↓
-    LaunchpadFlow (mode="settings")
-           ↓
-    ┌─────────────────────────────┐
-    │ Header: כל השלבים נגישים   │
-    │ (tabs או dots לניווט)      │
-    ├─────────────────────────────┤
-    │ WelcomeStep                 │
-    │   └── initialData from DB   │
-    ├─────────────────────────────┤
-    │ PersonalProfileStep         │
-    │   └── initialData from DB   │
-    ├─────────────────────────────┤
-    │ FocusAreasStep              │
-    │   └── initialData from DB   │
-    ├─────────────────────────────┤
-    │ FirstWeekStep               │
-    │   └── initialData from DB   │
-    └─────────────────────────────┘
-           ↓
-    "שמור שינויים" → Update launchpad_progress
-                   → Re-trigger AI analysis
-```
+**פעולה:** הפעלה ידנית של "חשב מחדש" לייצור סיכום חדש בעברית
+
+כרגע הסיכום שמור באנגלית בגלל שנוצר לפני התיקון. בלחיצה על "חשב מחדש" יווצר סיכום חדש בעברית.
 
 ---
 
-## שלב 7: אופציה לעדכון הסיכום מחדש
+## שלב 6: עדכון Hook לטעינת סיכום
 
-כש-user משנה תשובות משמעותיות, להציע לו לרענן את הסיכום:
+**קובץ:** `src/hooks/useLaunchpadData.ts`
+
+להוסיף לחזרה גם את הסיכום וה-scores:
 
 ```typescript
-const handleSaveSettings = async () => {
-  // Save changes to launchpad_progress
-  await updateProgress(newData);
-  
-  // Ask if user wants to regenerate summary
-  toast({
-    title: 'השינויים נשמרו',
-    description: 'האם לחשב מחדש את הסיכום וההמלצות?',
-    action: <Button onClick={regenerateSummary}>חשב מחדש</Button>,
-  });
-};
+export interface LaunchpadData {
+  // ... existing fields
+  summary?: {
+    consciousness_analysis: {...};
+    identity_profile: {...};
+    behavioral_insights: {...};
+    career_path: {...};
+  };
+  scores?: {
+    consciousness: number;
+    clarity: number;
+    readiness: number;
+  };
+}
 ```
 
 ---
 
-## קבצים שייווצרו/יעודכנו
+## קבצים שיעודכנו/ייווצרו
 
 | קובץ | פעולה |
 |------|-------|
-| `src/pages/LaunchpadSettings.tsx` | חדש - דף הגדרות |
-| `src/hooks/useLaunchpadData.ts` | חדש - Hook לטעינת נתונים |
-| `src/components/launchpad/LaunchpadFlow.tsx` | עדכון - תמיכה ב-settings mode |
-| `src/components/launchpad/steps/WelcomeStep.tsx` | עדכון - initialData prop |
-| `src/components/launchpad/steps/PersonalProfileStep.tsx` | עדכון - initialData prop |
-| `src/components/launchpad/steps/FocusAreasStep.tsx` | עדכון - initialData prop |
-| `src/components/launchpad/steps/FirstWeekStep.tsx` | עדכון - initialData prop |
-| `src/components/dashboard/DashboardSidebar.tsx` | עדכון - הוספת לינק |
-| `src/components/aurora/AuroraSidebar.tsx` | עדכון - הוספת לינק |
-| `src/App.tsx` | עדכון - הוספת route |
+| `src/utils/profileTranslations.ts` | **חדש** - מפת תרגום ערכי פרופיל |
+| `src/pages/LaunchpadSettings.tsx` | עדכון - תרגום + טאב AI חדש |
+| `src/hooks/useLaunchpadData.ts` | עדכון - טעינת סיכום |
 
 ---
 
-## פרטים טכניים
+## תצוגה סופית
 
-### מקורות הנתונים בטבלת launchpad_progress:
+```text
+עמוד הפרופיל שלי:
 
-| שלב | שדה בטבלה | סוג |
-|-----|-----------|-----|
-| Welcome Quiz | `step_1_intention` | JSON (quizAnswers) |
-| Personal Profile | `step_2_profile_data` | JSON (full profile) |
-| Focus Areas | `step_5_focus_areas_selected` | JSON (array of areas) |
-| First Week | `step_6_actions`, `step_6_anchor_habit` | JSON + string |
+┌─────────────────────────────────────────────────────────┐
+│  [שאלון] [פרופיל אישי] [תחומי פוקוס] [תוכנית] [ניתוח AI] │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  🧠 ניתוח AI                                            │
+│  ─────────────────                                      │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ 📊 ציונים                                          │ │
+│  │ [70 תודעה]  [65 בהירות]  [75 מוכנות]             │ │
+│  └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ 🧠 ניתוח מצב התודעה                                │ │
+│  │ מצב נוכחי: [טקסט בעברית...]                       │ │
+│  │ חוזקות: [מודעות עצמית] [נכונות לצמוח]            │ │
+│  │ דפוסים: [חשיבה מוכוונת מטרה]                      │ │
+│  │ נקודות עיוורון: [עקביות] [שחיקה]                 │ │
+│  └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ 🎭 פרופיל הזהות                                    │ │
+│  │ מצב אגו: 🛡️ שומר                                   │ │
+│  │ תכונות: [נחוש] [מתפתח] [מחשב]                     │ │
+│  │ ערכים: [צמיחה] → [אותנטיות] → [הצלחה]            │ │
+│  └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ 💼 נתיב קריירה                                     │ │
+│  │ סטטוס: בתקופת מעבר או צמיחה                        │ │
+│  │ שאיפה: אוטונומיה והשפעה גדולה יותר                │ │
+│  │ צעדים: [הגדרת מטרות] [פיתוח מיומנויות] [...]     │ │
+│  └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ 🔄 תובנות התנהגותיות                               │ │
+│  │ 🚫 לשנות: [דחיינות] [ספק עצמי]                   │ │
+│  │ ✅ לפתח: [שגרת בוקר] [רפלקציה יומית]             │ │
+│  │ ⚠️ התנגדות: [פחד מכישלון] [פרפקציוניזם]          │ │
+│  └─────────────────────────────────────────────────────┘ │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 
-### שמירה:
-
-כל שינוי ישמר ישירות לטבלת `launchpad_progress` באמצעות:
-
-```typescript
-await supabase
-  .from('launchpad_progress')
-  .update({
-    step_1_intention: JSON.stringify(welcomeData),
-    step_2_profile_data: profileData,
-    step_5_focus_areas_selected: focusAreas,
-    step_6_actions: actions,
-    step_6_anchor_habit: anchorHabit,
-    updated_at: new Date().toISOString(),
-  })
-  .eq('user_id', userId);
+* לחיצה על "חשב מחדש" תייצר סיכום חדש בעברית
 ```
 
 ---
 
 ## סיכום
 
-התוכנית יוצרת "מצב הגדרות" ל-Launchpad שמאפשר:
-1. גישה לכל השלבים בכל רגע
-2. צפייה בתשובות הקיימות
-3. עריכה ועדכון
-4. אופציה לחישוב מחדש של הסיכום
-
-זה הופך את ה-Launchpad מ"חד-פעמי" ל"פרופיל דינמי" שמשתמשים יכולים לעדכן לאורך זמן.
+התוכנית תתקן:
+1. ✅ כל הערכים יוצגו בעברית (יזם, באמצע, חיבור עמוק במקום entrepreneur, ambivert, deep-connection)
+2. ✅ טאב חדש עם ניתוח AI מלא - תודעה, זהות, קריירה, התנהגות
+3. ✅ ציונים ותובנות מה-AI
+4. ✅ כפתור "חשב מחדש" לייצור סיכום חדש בעברית במקום הישן באנגלית
