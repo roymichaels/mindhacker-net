@@ -1,159 +1,201 @@
 
 
-# תוכנית: שיפור אפשרויות פרופיל אישי
+# תוכנית: המרת שלב 1 לפורמט QUIZ אינטראקטיבי
 
-## סקירת השינויים הנדרשים
+## הבעיה הנוכחית
+שלב ה-Welcome דורש תשובה פתוחה של "מה אתה רוצה שיקרה בחיים שלך?" - זה קשה למשתמשים:
+- חוסר כיוון
+- לחץ לכתוב משהו "נכון"
+- מחסום כניסה גבוה מדי
 
-משתמש ביקש לשפר את שלב הפרופיל האישי ב-Launchpad עם מספר שיפורים חשובים:
+## הפתרון: Quiz מתפצל בסגנון Typeform
 
-### 1. הוספת סוגי אימונים נוספים
-**נוסיף:**
-- קליסטניקס (Calisthenics)
-- קרוספיט (CrossFit)
-- טאי צ'י (Tai Chi)
-- הליכה מהירה (Power Walking)
-- ריקוד (Dance)
-- ספורט קבוצתי (Team Sports)
-- טיפוס (Climbing)
-- סקייטבורד/רולרבלייד (Skateboarding)
-- **אחר** (Other)
+במקום שאלה פתוחה אחת, ניצור מסע של שאלות עם כפתורים שמתפצלים לאפשרויות ספציפיות יותר.
 
-### 2. שינוי "שתיית מים" לקטגוריית "שתייה והידרציה יומית"
-**הבהרה + אפשרויות חדשות:**
-- כותרת חדשה: "שתייה יומית (הידרציה)"
-- מים רגילים
-- מיצים טבעיים
-- מי קוקוס
-- תה צמחים
-- שייקים ירוקים
-- משקאות אלקטרוליטים
-- אחר
+### מבנה ה-Quiz
 
-### 3. הוספת סוגי תזונה נוספים
-**נוסיף לתזונה:**
-- טבעוני אלקלייני (Alkaline Vegan)
-- גלם טבעוני (Raw Vegan)
-- ים תיכוני (Mediterranean)
-- אינטואיטיבי (Intuitive)
-- ללא גלוטן (Gluten-Free)
-- ללא סוכר (Sugar-Free)
-- **אחר** (Other) - כבר קיים ✓
-
-### 4. הוספת "אחר" לכל קטגוריה שחסרה
-קטגוריות שחסרה בהן אפשרות "אחר":
-- `exercise_types` - סוגי אימונים ← נוסיף אחר
-- `smoking` - כבר יש "none"
-- `supplements` - נוסיף אחר
-- `music_genres` - נוסיף אחר
-- `sports` - נוסיף אחר
-- `hobbies` - נוסיף אחר
-- `life_priorities` - נוסיף אחר
-- `age_group` - לא רלוונטי (טווחי גילאים)
-- `sleep_hours` - לא רלוונטי (טווחים מספריים)
+```text
+שאלה 1: מה הכי מטריד אותך עכשיו?
+┌─────────────────┐  ┌─────────────────┐
+│  💼 קריירה      │  │  ❤️ מערכות יחסים │
+└─────────────────┘  └─────────────────┘
+┌─────────────────┐  ┌─────────────────┐
+│  🧘 בריאות      │  │  💰 כסף/פיננסים │
+└─────────────────┘  └─────────────────┘
+┌─────────────────┐  ┌─────────────────┐
+│  🎯 מטרה/כיוון  │  │  😰 רגשות/מנטלי │
+└─────────────────┘  └─────────────────┘
+                ↓
+        (על פי הבחירה)
+                ↓
+שאלה 2: מה בדיוק ב[קריירה]? (מתפצל)
+    • רוצה להתקדם בתפקיד
+    • רוצה לשנות מקצוע
+    • מרגיש תקוע
+    • רוצה יותר סיפוק
+    • מחפש עבודה
+    • רוצה להיות עצמאי
+                ↓
+שאלה 3: מה המצב הרגשי שלך לגבי זה?
+    • מתוסכל/מיואש
+    • סקרן/מוטיבציה
+    • מבולבל/לא בטוח
+    • מודאג/חרד
+    • מלא תקווה
+                ↓
+שאלה 4: כמה זמן זה מטריד אותך?
+    • התחיל לאחרונה (פחות מחודש)
+    • כבר כמה חודשים
+    • שנה ויותר
+    • תמיד היה ככה
+                ↓
+שאלה 5: מה ניסית עד עכשיו?
+    • קראתי ספרים/מאמרים
+    • דיברתי עם חברים/משפחה
+    • עבדתי עם מאמן/יועץ
+    • ניסיתי לבד
+    • לא הרבה, מחפש עזרה
+                ↓
+שאלה 6: מה הכי חשוב לך כשאתה מקבל עזרה?
+    • פתרונות מעשיים
+    • הקשבה והבנה
+    • תוכנית מסודרת
+    • דחיפה לפעולה
+    • הבנה עמוקה של עצמי
+                ↓
+        [סיכום + המשך]
+```
 
 ---
 
 ## פרטים טכניים
 
 ### קובץ לעריכה:
-`src/components/launchpad/steps/PersonalProfileStep.tsx`
+`src/components/launchpad/steps/WelcomeStep.tsx`
 
-### שינויים בפירוט:
+### מבנה הקוד החדש:
 
-#### A. עדכון קטגוריית `exercise_types` (שורות 197-214)
 ```typescript
-exercise_types: {
-  section: 'health',
-  title: 'סוגי אימונים',
-  titleEn: 'Exercise Types',
-  icon: '🏋️',
-  multiSelect: true,
-  options: [
-    { value: 'gym', label: 'חדר כושר', labelEn: 'Gym' },
-    { value: 'running', label: 'ריצה', labelEn: 'Running' },
-    { value: 'swimming', label: 'שחייה', labelEn: 'Swimming' },
-    { value: 'yoga', label: 'יוגה', labelEn: 'Yoga' },
-    { value: 'pilates', label: 'פילאטיס', labelEn: 'Pilates' },
-    { value: 'calisthenics', label: 'קליסטניקס', labelEn: 'Calisthenics' },  // NEW
-    { value: 'crossfit', label: 'קרוספיט', labelEn: 'CrossFit' },            // NEW
-    { value: 'martial-arts', label: 'אומנויות לחימה', labelEn: 'Martial Arts' },
-    { value: 'cycling', label: 'רכיבה', labelEn: 'Cycling' },
-    { value: 'hiking', label: 'טיולים', labelEn: 'Hiking' },
-    { value: 'dancing', label: 'ריקוד', labelEn: 'Dancing' },                // NEW
-    { value: 'climbing', label: 'טיפוס', labelEn: 'Climbing' },              // NEW
-    { value: 'tai-chi', label: 'טאי צ\'י', labelEn: 'Tai Chi' },             // NEW
-    { value: 'power-walking', label: 'הליכה מהירה', labelEn: 'Power Walking' }, // NEW
-    { value: 'team-sports', label: 'ספורט קבוצתי', labelEn: 'Team Sports' }, // NEW
-    { value: 'none', label: 'לא מתאמן', labelEn: 'None' },
-    { value: 'other', label: 'אחר', labelEn: 'Other' },                      // NEW
-  ],
+interface QuizQuestion {
+  id: string;
+  question: string;
+  questionEn: string;
+  options: QuizOption[];
+  dependsOn?: { questionId: string; values: string[] }; // Branching logic
 }
+
+interface QuizOption {
+  value: string;
+  label: string;
+  labelEn: string;
+  icon: string;
+}
+
+const WELCOME_QUIZ: QuizQuestion[] = [
+  {
+    id: 'main_area',
+    question: 'מה הכי מטריד אותך עכשיו?',
+    questionEn: 'What concerns you the most right now?',
+    options: [
+      { value: 'career', label: 'קריירה/עבודה', labelEn: 'Career/Work', icon: '💼' },
+      { value: 'relationships', label: 'מערכות יחסים', labelEn: 'Relationships', icon: '❤️' },
+      { value: 'health', label: 'בריאות/אנרגיה', labelEn: 'Health/Energy', icon: '🧘' },
+      { value: 'finance', label: 'כסף/פיננסים', labelEn: 'Money/Finances', icon: '💰' },
+      { value: 'purpose', label: 'מטרה/כיוון בחיים', labelEn: 'Purpose/Direction', icon: '🎯' },
+      { value: 'emotional', label: 'רגשות/מנטלי', labelEn: 'Emotions/Mental', icon: '😰' },
+    ],
+  },
+  // Sub-questions based on main_area choice...
+];
 ```
 
-#### B. שינוי קטגוריית `water_intake` ל-`hydration` (שורות 256-268)
+### מצב (State):
 ```typescript
-hydration: {
-  section: 'health',
-  title: 'שתייה יומית (הידרציה)',
-  titleEn: 'Daily Hydration',
-  icon: '💧',
-  multiSelect: true,  // Changed to multi-select
-  options: [
-    { value: 'water', label: 'מים', labelEn: 'Water' },
-    { value: 'natural-juice', label: 'מיצים טבעיים', labelEn: 'Natural Juices' },
-    { value: 'coconut-water', label: 'מי קוקוס', labelEn: 'Coconut Water' },
-    { value: 'herbal-tea', label: 'תה צמחים', labelEn: 'Herbal Tea' },
-    { value: 'green-smoothies', label: 'שייקים ירוקים', labelEn: 'Green Smoothies' },
-    { value: 'electrolytes', label: 'משקאות אלקטרוליטים', labelEn: 'Electrolyte Drinks' },
-    { value: 'other', label: 'אחר', labelEn: 'Other' },
-  ],
-}
+const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+const [answers, setAnswers] = useState<Record<string, string>>({});
+const [isAnimating, setIsAnimating] = useState(false);
 ```
 
-#### C. עדכון קטגוריית `diet` (שורות 152-168)
-```typescript
-diet: {
-  section: 'health',
-  title: 'סוג תזונה',
-  titleEn: 'Diet Type',
-  icon: '🍽️',
-  multiSelect: false,
-  options: [
-    { value: 'regular', label: 'רגיל', labelEn: 'Regular' },
-    { value: 'vegetarian', label: 'צמחוני', labelEn: 'Vegetarian' },
-    { value: 'vegan', label: 'טבעוני', labelEn: 'Vegan' },
-    { value: 'alkaline-vegan', label: 'טבעוני אלקלייני', labelEn: 'Alkaline Vegan' }, // NEW
-    { value: 'raw-vegan', label: 'גלם טבעוני', labelEn: 'Raw Vegan' },                // NEW
-    { value: 'keto', label: 'קטו', labelEn: 'Keto' },
-    { value: 'carnivore', label: 'קרניבור', labelEn: 'Carnivore' },
-    { value: 'paleo', label: 'פליאו', labelEn: 'Paleo' },
-    { value: 'mediterranean', label: 'ים תיכוני', labelEn: 'Mediterranean' },         // NEW
-    { value: 'gluten-free', label: 'ללא גלוטן', labelEn: 'Gluten-Free' },             // NEW
-    { value: 'sugar-free', label: 'ללא סוכר', labelEn: 'Sugar-Free' },                // NEW
-    { value: 'intuitive', label: 'אינטואיטיבי', labelEn: 'Intuitive' },               // NEW
-    { value: 'other', label: 'אחר', labelEn: 'Other' },
-  ],
-}
+### UI עיקריים:
+1. **Progress bar** - מראה את ההתקדמות דרך ה-Quiz
+2. **Question display** - עם אנימציית כניסה
+3. **Option buttons** - כפתורים גדולים עם אייקונים
+4. **Auto-advance** - מעבר אוטומטי לשאלה הבאה אחרי בחירה
+
+### תצוגת סיכום:
+בסוף ה-Quiz, נציג סיכום קצר של הבחירות לפני ההמשך:
+```text
+"אני רואה שאתה מתמקד ב[קריירה], מרגיש [מתוסכל], 
+וזה כבר [כמה חודשים]. יחד נמצא את הדרך הנכונה בשבילך."
 ```
 
-#### D. הוספת "אחר" לקטגוריות שחסרות
-- `supplements` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
-- `music_genres` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
-- `sports` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
-- `hobbies` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
-- `life_priorities` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
+---
 
-#### E. עדכון הטיפוסים (interfaces)
-נעדכן את `ProfileData`, `MultiSelectCategory`, ואת `getDefaultProfileData()` לתמוך בשינוי מ-`water_intake` (string) ל-`hydration` (string[]).
+## אפשרויות מתפצלות לפי תחום
+
+### 🎯 קריירה/עבודה:
+- רוצה להתקדם בתפקיד הנוכחי
+- רוצה לשנות מקצוע לגמרי
+- מרגיש תקוע ומשועמם
+- מחפש עבודה
+- רוצה להפוך לעצמאי
+- רוצה יותר איזון עבודה-חיים
+
+### ❤️ מערכות יחסים:
+- רוצה למצוא בן/בת זוג
+- בעיות בזוגיות הנוכחית
+- קשיים עם ילדים/משפחה
+- קשיים חברתיים
+- ריפוי מפרידה
+- רוצה לשפר תקשורת
+
+### 🧘 בריאות/אנרגיה:
+- רוצה לרדת במשקל
+- חסר אנרגיה/עייפות
+- בעיות שינה
+- רוצה להתחיל להתאמן
+- להתמודד עם כאבים כרוניים
+- לשפר תזונה
+
+### 💰 כסף/פיננסים:
+- רוצה לחסוך יותר
+- חובות שמטרידים
+- רוצה להרוויח יותר
+- לא יודע לנהל תקציב
+- רוצה להשקיע
+- חרדות כלכליות
+
+### 🎯 מטרה/כיוון:
+- לא יודע מה אני רוצה בחיים
+- מרגיש אבוד
+- רוצה למצוא תשוקה
+- מחפש משמעות
+- רוצה לעשות שינוי גדול
+
+### 😰 רגשות/מנטלי:
+- התמודדות עם חרדה
+- התמודדות עם דיכאון
+- בעיות ביטחון עצמי
+- ויסות רגשי
+- ניהול כעסים
+- טראומה מהעבר
 
 ---
 
 ## סיכום השינויים
 
-| קטגוריה | שינוי |
-|---------|-------|
-| סוגי אימונים | +8 אפשרויות חדשות (כולל קליסטניקס, קרוספיט, ריקוד, טיפוס, טאי צ'י, הליכה מהירה, ספורט קבוצתי, אחר) |
-| שתייה יומית | שינוי שם + הפיכה ל-multi-select + אפשרויות מגוונות (מיצים, מי קוקוס, תה וכו') |
-| סוג תזונה | +6 אפשרויות (טבעוני אלקלייני, גלם טבעוני, ים תיכוני, ללא גלוטן, ללא סוכר, אינטואיטיבי) |
-| כל הקטגוריות | וידוא שיש אפשרות "אחר" בכל מקום רלוונטי |
+| לפני | אחרי |
+|------|------|
+| שאלה פתוחה אחת | 5-6 שאלות עם כפתורים |
+| כתיבה חופשית | בחירה מאפשרויות |
+| מחסום כניסה גבוה | קל ומהיר |
+| מידע כללי | מידע מובנה ומפורט |
+| טקסט לניתוח | נתונים מסווגים |
+
+### יתרונות:
+1. **קל יותר למשתמש** - רק לחיצות
+2. **מידע מובנה** - קל לניתוח AI
+3. **מתפצל** - שאלות ספציפיות לפי בחירה
+4. **מהיר** - 30 שניות במקום כתיבה
+5. **פחות לחץ** - אין צורך לנסח
 
