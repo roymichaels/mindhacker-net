@@ -18,6 +18,7 @@ import {
   CommitmentsCard,
   TraitsCard,
   ChecklistsCard,
+  LaunchpadSummaryCard,
 } from './unified';
 import LifePlanCard from './unified/LifePlanCard';
 
@@ -40,7 +41,54 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
     );
   }
 
-  // Empty state - Game Start screen for new users
+  // If launchpad is complete but life model is empty - show summary card instead of empty state
+  if (isLaunchpadComplete && dashboard.isEmpty) {
+    return (
+      <div 
+        className={cn("space-y-4", className)}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        {/* Welcome message */}
+        <div className="text-center py-4">
+          <h2 className="text-xl font-bold">
+            {language === 'he' ? '🎉 ברוך הבא למסע!' : '🎉 Welcome to Your Journey!'}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {language === 'he' 
+              ? 'סיימת את ה-Launchpad! הנה הסיכום שלך:' 
+              : 'You completed the Launchpad! Here\'s your summary:'}
+          </p>
+        </div>
+
+        {/* XP Progress */}
+        <XpProgressSection
+          level={dashboard.level}
+          current={dashboard.xpProgress.current}
+          required={dashboard.xpProgress.required}
+          percentage={dashboard.xpProgress.percentage}
+        />
+
+        {/* Stats Bar */}
+        <StatsBar
+          streak={dashboard.streak}
+          tokens={dashboard.tokens}
+          sessions={dashboard.totalSessions}
+          level={dashboard.level}
+        />
+
+        {/* Launchpad Summary Card */}
+        <LaunchpadSummaryCard />
+
+        {/* Life Plan Card */}
+        <LifePlanCard />
+
+        {/* Checklists */}
+        <ChecklistsCard />
+      </div>
+    );
+  }
+
+  // Empty state - Game Start screen for new users (not completed launchpad)
   if (dashboard.isEmpty) {
     return (
       <div className="space-y-6">
