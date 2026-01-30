@@ -64,7 +64,7 @@ export default function GameHeroSection() {
             className="mx-auto"
           >
             <Orb 
-              size={120}
+              size={180}
               state={orbState}
               egoState="guardian"
               showGlow={false}
