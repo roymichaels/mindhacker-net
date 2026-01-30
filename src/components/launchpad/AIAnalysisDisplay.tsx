@@ -6,6 +6,7 @@ import { Loader2, Brain, User, Briefcase, RefreshCw, Sparkles, Target, AlertTria
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { HawkinsScale } from './HawkinsScale';
 
 interface AIAnalysisDisplayProps {
   language: string;
@@ -139,6 +140,13 @@ export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayPro
 
   return (
     <div className="space-y-6">
+      {/* Hawkins Scale - NEW! */}
+      <Card className="bg-gradient-to-br from-violet-500/5 to-purple-500/10 border-violet-500/20">
+        <CardContent className="pt-6">
+          <HawkinsScale userScore={scores.consciousness} />
+        </CardContent>
+      </Card>
+
       {/* Scores Section */}
       <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <CardHeader className="pb-2">
