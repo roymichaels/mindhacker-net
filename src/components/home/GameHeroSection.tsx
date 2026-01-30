@@ -3,11 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { Rocket, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import MockDashboard from './MockDashboard';
+import { Orb } from '@/components/orb';
+import { useState, useEffect } from 'react';
 
 export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
+
+  // Cycle through orb states for visual interest
+  useEffect(() => {
+    const states: Array<'idle' | 'speaking' | 'thinking'> = ['idle', 'speaking', 'thinking'];
+    let index = 0;
+    
+    const interval = setInterval(() => {
+      index = (index + 1) % states.length;
+      setOrbState(states[index]);
+    }, 4000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-16 px-4">
@@ -41,11 +56,33 @@ export default function GameHeroSection() {
             </span>
           </motion.div>
 
+          {/* 3D Orb */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="relative mx-auto"
+          >
+            {/* Glow effect behind orb */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-48 h-48 sm:w-64 sm:h-64 bg-primary/20 rounded-full blur-3xl" />
+            </div>
+            
+            <div className="relative z-10">
+              <Orb 
+                size={200}
+                state={orbState}
+                egoState="guardian"
+                className="mx-auto"
+              />
+            </div>
+          </motion.div>
+
           {/* Main Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight"
           >
             <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
@@ -57,27 +94,17 @@ export default function GameHeroSection() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
           >
             {t('home.heroSubtitle')}
           </motion.p>
 
-          {/* Mock Dashboard Preview */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="py-6"
-          >
-            <MockDashboard />
-          </motion.div>
-
           {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col items-center gap-4"
           >
             <Button
