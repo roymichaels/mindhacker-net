@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useLaunchpadProgress, STEPS } from '@/hooks/useLaunchpadProgress';
+import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep, isLastStepInPhase } from '@/hooks/useLaunchpadProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
@@ -14,7 +14,8 @@ import { LifePlanStep } from './steps/LifePlanStep';
 import { FocusAreasStep } from './steps/FocusAreasStep';
 import { FirstWeekStep } from './steps/FirstWeekStep';
 import { DashboardActivation } from './steps/DashboardActivation';
-import { LaunchpadProgress } from './LaunchpadProgress';
+import { PhaseIndicator } from './PhaseIndicator';
+import { PhaseTransition } from './PhaseTransition';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
@@ -33,16 +34,18 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     completeStep, 
     isCompleting,
     getStepRewards,
-    isStepCompleted,
     totalSteps,
   } = useLaunchpadProgress();
   
-  const [stepData, setStepData] = useState<Record<string, unknown>>({});
   const [viewingStep, setViewingStep] = useState<number | null>(null);
   const [profileData, setProfileData] = useState<Record<string, unknown> | null>(null);
+  const [showingPhaseTransition, setShowingPhaseTransition] = useState(false);
+  const [completedPhaseId, setCompletedPhaseId] = useState<number | null>(null);
   
   // The step we're actually showing (could be current or a past step we're reviewing)
   const displayedStep = viewingStep ?? currentStep;
+  const currentStepMeta = STEPS.find(s => s.id === displayedStep);
+  const currentPhase = getPhaseForStep(displayedStep);
 
   const handleStepComplete = (data?: Record<string, unknown>) => {
     // If viewing a past step, just go back to current
@@ -56,10 +59,25 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       setProfileData(data);
     }
     
+    // Check if this step completes a phase
+    if (isLastStepInPhase(currentStep) && currentStep < 10) {
+      const phase = getPhaseForStep(currentStep);
+      if (phase) {
+        setCompletedPhaseId(phase.id);
+        setShowingPhaseTransition(true);
+      }
+    }
+    
     completeStep({ step: currentStep, data });
+    
     if (currentStep === 10 && onComplete) {
       onComplete();
     }
+  };
+
+  const handlePhaseTransitionContinue = () => {
+    setShowingPhaseTransition(false);
+    setCompletedPhaseId(null);
   };
 
   const handleClose = () => {
@@ -72,7 +90,6 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
 
   const handleNavigatePrev = () => {
     if (displayedStep > 1) {
-      // Allow going back if the previous step is completed OR we're already viewing a past step
       setViewingStep(displayedStep - 1);
     }
   };
@@ -80,16 +97,14 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   const handleNavigateNext = () => {
     if (displayedStep < currentStep) {
       if (displayedStep + 1 === currentStep) {
-        setViewingStep(null); // Go back to current step
+        setViewingStep(null);
       } else {
         setViewingStep(displayedStep + 1);
       }
     }
   };
 
-  // Can go back if we're not on step 1
   const canGoPrev = displayedStep > 1;
-  // Can go forward if we're viewing a past step (not at current)
   const canGoNext = displayedStep < currentStep;
 
   const renderCurrentStep = () => {
@@ -99,21 +114,26 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       rewards: getStepRewards(displayedStep),
     };
 
+    // New step order based on phases:
+    // Phase 1 (Who you are): 1-Welcome, 2-Profile
+    // Phase 2 (What's not working): 3-GrowthDeepDive, 4-FirstChat, 5-Introspection, 6-LifePlan
+    // Phase 3 (Who you want to be): 7-IdentityBuilding, 8-FocusAreas, 9-FirstWeek, 10-Dashboard
+    
     switch (displayedStep) {
       case 1:
         return <WelcomeStep {...stepProps} />;
       case 2:
         return <PersonalProfileStep {...stepProps} />;
       case 3:
-        return <IdentityBuildingStep {...stepProps} />;
-      case 4:
         return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
-      case 5:
+      case 4:
         return <FirstChatStep {...stepProps} />;
-      case 6:
+      case 5:
         return <IntrospectionStep {...stepProps} />;
-      case 7:
+      case 6:
         return <LifePlanStep {...stepProps} />;
+      case 7:
+        return <IdentityBuildingStep {...stepProps} />;
       case 8:
         return <FocusAreasStep {...stepProps} />;
       case 9:
@@ -129,16 +149,31 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     return null;
   }
 
-  const currentStepMeta = STEPS.find(s => s.id === displayedStep);
+  // Show phase transition screen
+  if (showingPhaseTransition && completedPhaseId) {
+    const completedPhase = PHASES.find(p => p.id === completedPhaseId);
+    const nextPhase = PHASES.find(p => p.id === completedPhaseId + 1);
+    
+    if (completedPhase) {
+      return (
+        <div className={cn("min-h-screen flex flex-col", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+          <PhaseTransition
+            completedPhase={completedPhase}
+            nextPhase={nextPhase}
+            onContinue={handlePhaseTransitionContinue}
+          />
+        </div>
+      );
+    }
+  }
 
   return (
     <div className={cn("min-h-screen flex flex-col", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header with progress and navigation */}
+      {/* Header with phase indicator and navigation */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
-        <div className="max-w-2xl mx-auto p-4">
-          {/* Top row: Close button and navigation */}
-          <div className="flex items-center justify-between mb-3">
-            {/* Close button */}
+        <div className="max-w-2xl mx-auto p-4 space-y-4">
+          {/* Top row: Close button, step counter, navigation */}
+          <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="icon"
@@ -148,15 +183,22 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
               <X className="w-5 h-5" />
             </Button>
 
-            {/* Step indicator */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium">
-                {displayedStep}/{totalSteps}
-              </span>
-              {viewingStep !== null && (
-                <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-600 rounded-full">
-                  {language === 'he' ? 'צפייה' : 'Viewing'}
+            {/* Step and phase info */}
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-medium">
+                  {displayedStep}/{totalSteps}
                 </span>
+                {viewingStep !== null && (
+                  <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-600 rounded-full">
+                    {language === 'he' ? 'צפייה' : 'Viewing'}
+                  </span>
+                )}
+              </div>
+              {currentStepMeta && (
+                <p className="text-xs text-muted-foreground">
+                  {language === 'he' ? currentStepMeta.subtitle : currentStepMeta.subtitleEn}
+                </p>
               )}
             </div>
 
@@ -183,8 +225,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
             </div>
           </div>
 
-          {/* Progress bar */}
-          <LaunchpadProgress compact />
+          {/* Phase indicator */}
+          <PhaseIndicator currentStep={displayedStep} />
         </div>
       </div>
       
