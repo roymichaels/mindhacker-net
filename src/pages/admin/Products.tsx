@@ -58,6 +58,13 @@ interface Product {
   product_type: string;
   settings: Record<string, any>;
   brand_color: string | null;
+  practitioner_id: string | null;
+}
+
+interface Practitioner {
+  id: string;
+  display_name: string;
+  display_name_en: string | null;
 }
 
 interface Order {
@@ -118,16 +125,30 @@ const Products = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [newStatus, setNewStatus] = useState("");
 
+  // Fetch practitioners
+  const { data: practitioners } = useQuery({
+    queryKey: ["admin-practitioners"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("practitioners")
+        .select("id, display_name, display_name_en")
+        .eq("status", "active")
+        .order("display_name", { ascending: true });
+      if (error) throw error;
+      return data as Practitioner[];
+    },
+  });
+
   // Fetch products
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, practitioners(display_name, display_name_en)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Product[];
+      return data as (Product & { practitioners?: { display_name: string; display_name_en: string | null } })[];
     },
   });
 
@@ -199,6 +220,7 @@ const Products = () => {
           price_usd: product.price_usd,
           status: product.status,
           brand_color: product.brand_color,
+          practitioner_id: product.practitioner_id,
         })
         .eq("id", product.id);
       if (error) throw error;
@@ -671,6 +693,27 @@ const Products = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">{t('admin.brandColorDesc')}</p>
+                </div>
+
+                {/* Practitioner Selection */}
+                <div className="space-y-2">
+                  <Label>{language === 'he' ? 'מאמן' : 'Practitioner'}</Label>
+                  <Select
+                    value={editingProduct.practitioner_id || 'none'}
+                    onValueChange={(value) => setEditingProduct({...editingProduct, practitioner_id: value === 'none' ? null : value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={language === 'he' ? 'בחר מאמן' : 'Select practitioner'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{language === 'he' ? 'ללא מאמן' : 'No practitioner'}</SelectItem>
+                      {practitioners?.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {language === 'he' ? p.display_name : (p.display_name_en || p.display_name)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="flex justify-end gap-2">

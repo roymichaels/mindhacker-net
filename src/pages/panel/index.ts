@@ -6,3 +6,4 @@ export { default as MyEarnings } from './MyEarnings';
 export { default as MyLinks } from './MyLinks';
 export { default as MyReferrals } from './MyReferrals';
 export { default as MyPayouts } from './MyPayouts';
+export { default as MyProducts } from './MyProducts';
