@@ -100,6 +100,11 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<LifePlanAnalysis | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
+  const [showSkipOption, setShowSkipOption] = useState(false);
+
+  const handleSkip = () => {
+    onComplete({});
+  };
 
   const toggleSection = (id: string) => {
     setOpenSections(prev => 
@@ -450,6 +455,47 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
             }
           </p>
         )}
+
+        {/* Skip Option */}
+        <div className="pt-4 border-t border-border/50">
+          {showSkipOption ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {language === 'he' 
+                  ? 'מילאת תוכנית חיים בעבר? תוכל לדלג ולהמשיך.'
+                  : 'Created a life plan before? You can skip and continue.'
+                }
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowSkipOption(false)}
+                >
+                  {language === 'he' ? 'ביטול' : 'Cancel'}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={handleSkip}
+                  disabled={isCompleting}
+                >
+                  {isCompleting 
+                    ? (language === 'he' ? 'ממשיך...' : 'Continuing...')
+                    : (language === 'he' ? 'דלג והמשך' : 'Skip & Continue')
+                  }
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowSkipOption(true)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            >
+              {language === 'he' ? 'כבר מילאתי תוכנית חיים' : 'I already have a life plan'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
