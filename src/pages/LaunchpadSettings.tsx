@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadData } from '@/hooks/useLaunchpadData';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,11 +33,13 @@ export default function LaunchpadSettings() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data: launchpadData, isLoading, updateData, isUpdating } = useLaunchpadData();
   
   const [activeTab, setActiveTab] = useState('welcome');
   const [hasChanges, setHasChanges] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0);
 
   // Track changes
   const [localData, setLocalData] = useState<{
@@ -75,6 +78,25 @@ export default function LaunchpadSettings() {
       });
 
       if (error) throw error;
+
+      // Force immediate refetch so UI doesn't rely on realtime latency
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['launchpad-data', user.id],
+          refetchType: 'active',
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['launchpad-summary', user.id],
+          refetchType: 'active',
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['life-plan', user.id],
+          refetchType: 'active',
+        }),
+      ]);
+
+      // Also refresh local non-react-query summary component
+      setAnalysisRefreshKey((k) => k + 1);
 
       toast.success(
         language === 'he' 
@@ -265,7 +287,7 @@ export default function LaunchpadSettings() {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[600px] pr-4">
-                  <AIAnalysisDisplay language={language} />
+                  <AIAnalysisDisplay language={language} refreshKey={analysisRefreshKey} />
                 </ScrollArea>
               </CardContent>
             </Card>
