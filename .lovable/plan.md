@@ -1,141 +1,62 @@
 
 # תוכנית: שיפור דף ההיפנוזה והתאמה אישית מלאה
 
-## סקירה
-המטרה היא להפוך את חוויית ההיפנוזה לאישית לחלוטין, קשורה לפרופיל המשתמש מה-Launchpad, עם תפריט ניווט אחיד לכל המערכת.
+## סטטוס: ✅ הושלם
 
 ---
 
-## 1. הוספת תפריט הסיידבר לדף ההיפנוזה
+## מה בוצע:
 
-**בעיה נוכחית:** דף `/hypnosis` (HypnosisLibrary.tsx) לא משתמש ב-DashboardLayout ולכן חסר בו תפריט הניווט.
+### 1. ✅ איחוד Layout לכל הדפים
+- דף ההיפנוזה (`/hypnosis`) - משתמש ב-`DashboardLayout`
+- דף Aurora (`/aurora`) - משתמש ב-`DashboardLayout`
+- דף הקהילה (`/community`) - משתמש ב-`DashboardLayout`
+- כל הדפים משתמשים באותו Sidebar ו-Right Panel
 
-**פתרון:**
-- לעטוף את תוכן הדף ברכיב `DashboardLayout` (בדיוק כמו בדפים Messages ו-Community)
-- הסרת ה-header הנפרד שקיים בדף והחלפתו בעיצוב המותאם ל-Layout החדש
+### 2. ✅ הסרת בחירת ארכיטיפ ידנית
+- הוסר `EgoStateSelector` מדף ההיפנוזה
+- הארכיטיפ נשלף אוטומטית מ-`profiles.active_ego_state` או מ-Launchpad Summary
 
----
+### 3. ✅ סשן יומי מותאם אישית
+- נוסף כרטיס "הסשן היומי שלך" בראש דף ההיפנוזה
+- 15 דקות קבועות
+- מטרה נקבעת אוטומטית על בסיס:
+  - ה-milestone השבועי הנוכחי
+  - נתוני Launchpad Summary
+  - הארכיטיפ של המשתמש
 
-## 2. הסרת בחירת ארכיטיפ ידנית
+### 4. ✅ הרחבת Edge Function
+- `generate-hypnosis-script` טוען עכשיו:
+  - `launchpad_summaries.summary_data` (consciousness analysis, blind spots, strengths)
+  - `life_plan_milestones` (יעד שבועי נוכחי)
+- System prompt מורחב להתחשב בכל הנתונים האישיים
 
-**בעיה נוכחית:** המשתמש יכול לבחור את הארכיטיפ שלו בדף ההיפנוזה דרך `EgoStateSelector`.
+### 5. ✅ הוק חדש useDailyHypnosis
+- טוען ארכיטיפ מ-Launchpad/Profile
+- מציע מטרה יומית מבוססת על milestone נוכחי
+- מנהל את ההקשר לסשן היומי
 
-**מה המערכת עושה היום:**
-- הארכיטיפ נקבע אוטומטית ב-Launchpad Summarization (שדה `suggested_ego_state` ב-`summary_data.identity_profile`)
-- אבל בדף ההיפנוזה, המשתמש יכול לדרוס את הבחירה
-
-**פתרון:**
-- הסרת רכיב `EgoStateSelector` מדף ההיפנוזה
-- שליפת הארכיטיפ ישירות מ-`profiles.active_ego_state` או מ-`launchpad_summaries.summary_data.identity_profile.suggested_ego_state`
-- הצגת הארכיטיפ של המשתמש כמידע בלבד (לא ניתן לשינוי)
-
----
-
-## 3. התאמה אישית של סקריפט ההיפנוזה על בסיס Launchpad
-
-**מה קיים היום:**
-- הפונקציה `generate-hypnosis-script` כבר טוענת נתונים מ-Aurora Life Model (direction, values, energy patterns, focus)
-
-**מה חסר:**
-- אין שילוב של נתוני ה-Launchpad Summary (consciousness analysis, behavioral insights, blind spots, strengths)
-- אין יצירת סקריפט יומי אוטומטי
-
-**פתרון:**
-- הרחבת Edge Function `generate-hypnosis-script` לטעון גם:
-  - `launchpad_summaries.summary_data` - ניתוח התודעה, דפוסים, נקודות עיוורות, חוזקות
-  - `life_plans` / `life_plan_milestones` - היעדים השבועיים הנוכחיים
-- הוספת הנתונים ל-system prompt כדי ליצור סקריפט מותאם אישית
+### 6. ✅ איחוד Aurora עם Layout
+- Aurora משתמש עכשיו ב-`DashboardLayout` כמו שאר הדפים
+- נשמרה פונקציונליות הצ'אט והיסטוריית השיחות
+- הוסר Sidebar כפול ו-modals מיותרים
 
 ---
 
-## 4. יצירת "סשן יומי" אוטומטי
-
-**פתרון:**
-- הוספת כרטיס "הסשן היומי שלך" בראש דף ההיפנוזה
-- הסשן היומי נוצר על בסיס:
-  - הארכיטיפ מה-Launchpad
-  - ה-milestone השבועי הנוכחי מתוכנית ה-90 יום
-  - דפוסי אנרגיה ונקודות עיוורות מהניתוח
-- משך קבוע של 15 דקות
-- המטרה נקבעת אוטומטית על ידי AI על בסיס ההקשר האישי
-
----
-
-## פירוט טכני
-
-### קבצים לעריכה:
-
-**1. `src/pages/HypnosisLibrary.tsx`**
-- עטיפה ב-DashboardLayout
-- הסרת EgoStateSelector
-- הסרת ה-header הנפרד
-- הוספת שליפת נתוני Launchpad (suggested_ego_state)
-- הוספת כרטיס "הסשן היומי שלך" עם מטרה אוטומטית
-- הצגת הארכיטיפ כמידע בלבד
-
-**2. `supabase/functions/generate-hypnosis-script/index.ts`**
-- הוספת שליפת `launchpad_summaries` (consciousness_analysis, behavioral_insights)
-- הוספת שליפת `life_plan_milestones` (ה-milestone הנוכחי)
-- הרחבת ה-personalizationContext עם כל המידע הנוסף
-- שיפור ה-system prompt להתחשב בכל הנתונים
-
-**3. `src/services/hypnosis.ts`**
-- הוספת פונקציה `getDailySessionContext` שמחזירה את המטרה המותאמת ליום
-- אפשרות לקרוא ל-Edge Function עם `autoGenerateGoal: true`
-
-**4. יצירת הוק חדש `src/hooks/useDailyHypnosis.ts`**
-- טעינת הארכיטיפ מ-Launchpad Summary
-- יצירת מטרה יומית אוטומטית בהתבסס על milestones ודפוסים
-- ניהול מצב הסשן היומי
-
----
-
-## זרימת המשתמש החדשה
-
-```text
-                      ┌────────────────────────────────────────┐
-                      │           דף ההיפנוזה                  │
-                      │        (עם Sidebar ו-Layout)           │
-                      └────────────────────────────────────────┘
-                                        │
-                 ┌──────────────────────┼──────────────────────┐
-                 │                      │                      │
-                 ▼                      ▼                      ▼
-    ┌─────────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-    │   הסשן היומי שלך    │  │   סשנים מהירים   │  │   סשנים אחרונים  │
-    │   15 דק׳ - אוטומטי  │  │  (5-15 דקות)     │  │                  │
-    │  מטרה: מ-AI + Plan  │  │                  │  │                  │
-    └─────────────────────┘  └──────────────────┘  └──────────────────┘
-             │
-             ▼
-    ┌─────────────────────────────────────────────────────────────────┐
-    │                    יצירת סקריפט מותאם                          │
-    │                                                                 │
-    │  • Launchpad Summary (consciousness, patterns, blind spots)    │
-    │  • Life Plan Milestone (יעד שבועי נוכחי)                       │
-    │  • Aurora Life Model (values, direction, energy)               │
-    │  • Archetype (מ-suggested_ego_state - לא ניתן לשינוי)          │
-    └─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## צבע האווטאר/Orb
-
-**מצב נוכחי:** הארכיטיפ קובע את צבעי ה-Orb (מוגדר ב-`egoStates.ts`)
-
-**פתרון:**
-- לוודא שה-`active_ego_state` בטבלת profiles מתעדכן מה-`suggested_ego_state` בסיום ה-Launchpad
-- זה כבר צריך לקרות ב-`generate-launchpad-summary` Edge Function
-- אם לא - להוסיף עדכון אוטומטי של profiles.active_ego_state
-
----
-
-## סיכום שינויים
+## קבצים שעודכנו:
 
 | קובץ | סוג שינוי |
 |------|-----------|
-| `src/pages/HypnosisLibrary.tsx` | עריכה משמעותית |
-| `supabase/functions/generate-hypnosis-script/index.ts` | הרחבה |
-| `src/services/hypnosis.ts` | הוספת פונקציות |
+| `src/pages/HypnosisLibrary.tsx` | עריכה מלאה - DashboardLayout + Daily Session |
+| `src/components/aurora/AuroraLayout.tsx` | עריכה מלאה - DashboardLayout |
+| `src/components/aurora/AuroraChatArea.tsx` | עריכה קלה |
+| `src/components/aurora/index.ts` | ניקוי exports |
+| `supabase/functions/generate-hypnosis-script/index.ts` | הרחבה - Launchpad data |
 | `src/hooks/useDailyHypnosis.ts` | חדש |
+| `src/services/hypnosis.ts` | הרחבה - getDailySessionContext |
+
+## קבצים שנמחקו (כפילות):
+- `src/components/aurora/AuroraSidebar.tsx`
+- `src/components/aurora/AuroraDashboardModal.tsx`
+- `src/components/aurora/AuroraSettingsModal.tsx`
+- `src/components/aurora/AuroraChecklistModal.tsx`
