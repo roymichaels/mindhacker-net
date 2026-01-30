@@ -33,36 +33,40 @@ interface ProfileData {
   smoking: string[];
   alcohol: string;
   caffeine: string;
-  hydration: string[];  // Changed from water_intake: string
+  hydration: string[];
   supplements: string[];
   
   // Mental & Emotional
   stress_level: string;
   meditation_practice: string;
   therapy_experience: string;
+  challenge_response: string;
+  energy_source: string[];
+  relaxation_methods: string[];
   
   // Interests & Hobbies
-  music_genres: string[];
-  sports: string[];
   hobbies: string[];
   reading_habits: string;
-  gaming: string;
   
   // Social & Lifestyle
   social_preference: string;
   morning_evening: string;
   learning_style: string;
   communication_style: string;
+  life_approach: string;
+  decision_making: string;
+  change_attitude: string;
   
   // Goals & Values
   life_priorities: string[];
   spiritual_practice: string;
+  growth_focus: string[];
 }
 
 const STORAGE_KEY = 'launchpad_personal_profile';
 
 type CategoryKey = keyof typeof CATEGORIES;
-type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'music_genres' | 'sports' | 'hobbies' | 'life_priorities';
+type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'hobbies' | 'life_priorities' | 'energy_source' | 'relaxation_methods' | 'growth_focus';
 
 const CATEGORIES = {
   // === DEMOGRAPHICS ===
@@ -343,45 +347,56 @@ const CATEGORIES = {
     ],
   },
 
+  // === MENTAL & EMOTIONAL (continued) ===
+  challenge_response: {
+    section: 'mental',
+    title: 'איך אתה מגיב לאתגרים?',
+    titleEn: 'How do you respond to challenges?',
+    icon: '💪',
+    multiSelect: false,
+    options: [
+      { value: 'head-on', label: 'ישר פונה לפתרון', labelEn: 'Head-on' },
+      { value: 'reflect', label: 'קודם חושב', labelEn: 'Reflect first' },
+      { value: 'avoid', label: 'נוטה להימנע', labelEn: 'Tend to avoid' },
+      { value: 'seek-help', label: 'מבקש עזרה', labelEn: 'Seek help' },
+      { value: 'adapt', label: 'מסתגל', labelEn: 'Adapt' },
+    ],
+  },
+  energy_source: {
+    section: 'mental',
+    title: 'מה נותן לך אנרגיה?',
+    titleEn: 'What gives you energy?',
+    icon: '⚡',
+    multiSelect: true,
+    options: [
+      { value: 'people', label: 'אנשים', labelEn: 'People' },
+      { value: 'solitude', label: 'זמן לבד', labelEn: 'Solitude' },
+      { value: 'nature', label: 'טבע', labelEn: 'Nature' },
+      { value: 'creativity', label: 'יצירה', labelEn: 'Creativity' },
+      { value: 'learning', label: 'למידה', labelEn: 'Learning' },
+      { value: 'achievement', label: 'הישגים', labelEn: 'Achievement' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
+    ],
+  },
+  relaxation_methods: {
+    section: 'mental',
+    title: 'מה מרגיע אותך?',
+    titleEn: 'What relaxes you?',
+    icon: '🌿',
+    multiSelect: true,
+    options: [
+      { value: 'music', label: 'מוזיקה', labelEn: 'Music' },
+      { value: 'nature', label: 'טבע', labelEn: 'Nature' },
+      { value: 'exercise', label: 'פעילות גופנית', labelEn: 'Exercise' },
+      { value: 'meditation', label: 'מדיטציה', labelEn: 'Meditation' },
+      { value: 'social', label: 'חברים/משפחה', labelEn: 'Friends/Family' },
+      { value: 'alone', label: 'זמן לבד', labelEn: 'Alone time' },
+      { value: 'hobbies', label: 'תחביבים', labelEn: 'Hobbies' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
+    ],
+  },
+
   // === INTERESTS & HOBBIES ===
-  music_genres: {
-    section: 'interests',
-    title: 'טעם מוזיקלי',
-    titleEn: 'Music Taste',
-    icon: '🎵',
-    multiSelect: true,
-    options: [
-      { value: 'pop', label: 'פופ', labelEn: 'Pop' },
-      { value: 'rock', label: 'רוק', labelEn: 'Rock' },
-      { value: 'hip-hop', label: 'היפ-הופ', labelEn: 'Hip-Hop' },
-      { value: 'electronic', label: 'אלקטרונית', labelEn: 'Electronic' },
-      { value: 'jazz', label: 'ג\'אז', labelEn: 'Jazz' },
-      { value: 'classical', label: 'קלאסית', labelEn: 'Classical' },
-      { value: 'israeli', label: 'ישראלית', labelEn: 'Israeli' },
-      { value: 'metal', label: 'מטאל', labelEn: 'Metal' },
-      { value: 'indie', label: 'אינדי', labelEn: 'Indie' },
-      { value: 'rnb', label: 'R&B', labelEn: 'R&B' },
-      { value: 'other', label: 'אחר', labelEn: 'Other' },
-    ],
-  },
-  sports: {
-    section: 'interests',
-    title: 'ספורט (צפייה/עניין)',
-    titleEn: 'Sports Interest',
-    icon: '⚽',
-    multiSelect: true,
-    options: [
-      { value: 'soccer', label: 'כדורגל', labelEn: 'Soccer' },
-      { value: 'basketball', label: 'כדורסל', labelEn: 'Basketball' },
-      { value: 'tennis', label: 'טניס', labelEn: 'Tennis' },
-      { value: 'mma', label: 'MMA', labelEn: 'MMA' },
-      { value: 'f1', label: 'פורמולה 1', labelEn: 'Formula 1' },
-      { value: 'esports', label: 'אי-ספורט', labelEn: 'Esports' },
-      { value: 'surfing', label: 'גלישה', labelEn: 'Surfing' },
-      { value: 'none', label: 'לא מעניין', labelEn: 'Not interested' },
-      { value: 'other', label: 'אחר', labelEn: 'Other' },
-    ],
-  },
   hobbies: {
     section: 'interests',
     title: 'תחביבים',
@@ -392,7 +407,7 @@ const CATEGORIES = {
       { value: 'reading', label: 'קריאה', labelEn: 'Reading' },
       { value: 'gaming', label: 'גיימינג', labelEn: 'Gaming' },
       { value: 'cooking', label: 'בישול', labelEn: 'Cooking' },
-      { value: 'music', label: 'נגינה', labelEn: 'Playing music' },
+      { value: 'music', label: 'נגינה/האזנה', labelEn: 'Music' },
       { value: 'art', label: 'אמנות', labelEn: 'Art' },
       { value: 'photography', label: 'צילום', labelEn: 'Photography' },
       { value: 'travel', label: 'טיולים', labelEn: 'Travel' },
@@ -400,14 +415,17 @@ const CATEGORIES = {
       { value: 'gardening', label: 'גינון', labelEn: 'Gardening' },
       { value: 'writing', label: 'כתיבה', labelEn: 'Writing' },
       { value: 'podcasts', label: 'פודקאסטים', labelEn: 'Podcasts' },
-      { value: 'movies', label: 'סרטים', labelEn: 'Movies' },
+      { value: 'movies', label: 'סרטים/סדרות', labelEn: 'Movies/Shows' },
+      { value: 'sports-watching', label: 'צפייה בספורט', labelEn: 'Watching Sports' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
   reading_habits: {
     section: 'interests',
-    title: 'הרגלי קריאה',
-    titleEn: 'Reading Habits',
+    title: 'קריאת ספרים (לא לימודי)',
+    titleEn: 'Book Reading (non-academic)',
+    description: 'ספרי פיתוח עצמי, בדיוני, ביוגרפיות וכו׳',
+    descriptionEn: 'Self-help, fiction, biographies, etc.',
     icon: '📚',
     multiSelect: false,
     options: [
@@ -416,19 +434,6 @@ const CATEGORIES = {
       { value: 'sometimes', label: 'לפעמים', labelEn: 'Sometimes' },
       { value: 'often', label: 'הרבה', labelEn: 'Often' },
       { value: 'daily', label: 'כל יום', labelEn: 'Daily' },
-    ],
-  },
-  gaming: {
-    section: 'interests',
-    title: 'גיימינג',
-    titleEn: 'Gaming',
-    icon: '🎮',
-    multiSelect: false,
-    options: [
-      { value: 'never', label: 'לא משחק', labelEn: 'Never' },
-      { value: 'casual', label: 'קז\'ואל', labelEn: 'Casual' },
-      { value: 'regular', label: 'באופן קבוע', labelEn: 'Regular' },
-      { value: 'hardcore', label: 'הארדקור', labelEn: 'Hardcore' },
     ],
   },
 
@@ -483,6 +488,47 @@ const CATEGORIES = {
       { value: 'emotional', label: 'רגשי', labelEn: 'Emotional' },
     ],
   },
+  life_approach: {
+    section: 'social',
+    title: 'גישה לחיים',
+    titleEn: 'Life Approach',
+    icon: '🧭',
+    multiSelect: false,
+    options: [
+      { value: 'optimistic', label: 'אופטימי', labelEn: 'Optimistic' },
+      { value: 'realistic', label: 'ריאליסטי', labelEn: 'Realistic' },
+      { value: 'cautious', label: 'זהיר', labelEn: 'Cautious' },
+      { value: 'adventurous', label: 'הרפתקני', labelEn: 'Adventurous' },
+      { value: 'philosophical', label: 'פילוסופי', labelEn: 'Philosophical' },
+    ],
+  },
+  decision_making: {
+    section: 'social',
+    title: 'איך אתה מקבל החלטות?',
+    titleEn: 'How do you make decisions?',
+    icon: '🤔',
+    multiSelect: false,
+    options: [
+      { value: 'intuition', label: 'אינטואיציה', labelEn: 'Intuition' },
+      { value: 'analysis', label: 'ניתוח', labelEn: 'Analysis' },
+      { value: 'feelings', label: 'רגשות', labelEn: 'Feelings' },
+      { value: 'advice', label: 'עצות מאחרים', labelEn: 'Others\' advice' },
+      { value: 'mixed', label: 'משולב', labelEn: 'Mixed' },
+    ],
+  },
+  change_attitude: {
+    section: 'social',
+    title: 'יחס לשינויים',
+    titleEn: 'Attitude to Change',
+    icon: '🔄',
+    multiSelect: false,
+    options: [
+      { value: 'embrace', label: 'מחבק שינויים', labelEn: 'Embrace change' },
+      { value: 'cautious', label: 'זהיר עם שינויים', labelEn: 'Cautious about change' },
+      { value: 'resist', label: 'מעדיף יציבות', labelEn: 'Prefer stability' },
+      { value: 'depends', label: 'תלוי בסיטואציה', labelEn: 'Depends on situation' },
+    ],
+  },
 
   // === GOALS & VALUES ===
   life_priorities: {
@@ -520,6 +566,24 @@ const CATEGORIES = {
       { value: 'spiritual', label: 'רוחני חופשי', labelEn: 'Spiritual' },
     ],
   },
+  growth_focus: {
+    section: 'values',
+    title: 'במה אתה רוצה לצמוח? (בחר עד 3)',
+    titleEn: 'Where do you want to grow? (pick up to 3)',
+    icon: '🌱',
+    multiSelect: true,
+    maxSelect: 3,
+    options: [
+      { value: 'confidence', label: 'ביטחון עצמי', labelEn: 'Self-confidence' },
+      { value: 'discipline', label: 'משמעת', labelEn: 'Discipline' },
+      { value: 'emotional', label: 'אינטליגנציה רגשית', labelEn: 'Emotional intelligence' },
+      { value: 'communication', label: 'תקשורת', labelEn: 'Communication' },
+      { value: 'leadership', label: 'מנהיגות', labelEn: 'Leadership' },
+      { value: 'creativity', label: 'יצירתיות', labelEn: 'Creativity' },
+      { value: 'mindfulness', label: 'מודעות עצמית', labelEn: 'Mindfulness' },
+      { value: 'other', label: 'אחר', labelEn: 'Other' },
+    ],
+  },
 } as const;
 
 const SECTIONS = [
@@ -537,13 +601,13 @@ const CATEGORY_ORDER: CategoryKey[] = [
   // Health
   'diet', 'sleep_hours', 'exercise_frequency', 'exercise_types', 'smoking', 'alcohol', 'caffeine', 'hydration', 'supplements',
   // Mental
-  'stress_level', 'meditation_practice', 'therapy_experience',
+  'stress_level', 'meditation_practice', 'therapy_experience', 'challenge_response', 'energy_source', 'relaxation_methods',
   // Interests
-  'music_genres', 'sports', 'hobbies', 'reading_habits', 'gaming',
+  'hobbies', 'reading_habits',
   // Social
-  'social_preference', 'morning_evening', 'learning_style', 'communication_style',
+  'social_preference', 'morning_evening', 'learning_style', 'communication_style', 'life_approach', 'decision_making', 'change_attitude',
   // Values
-  'life_priorities', 'spiritual_practice',
+  'life_priorities', 'spiritual_practice', 'growth_focus',
 ];
 
 const getDefaultProfileData = (): ProfileData => ({
@@ -567,17 +631,21 @@ const getDefaultProfileData = (): ProfileData => ({
   stress_level: '',
   meditation_practice: '',
   therapy_experience: '',
-  music_genres: [],
-  sports: [],
+  challenge_response: '',
+  energy_source: [],
+  relaxation_methods: [],
   hobbies: [],
   reading_habits: '',
-  gaming: '',
   social_preference: '',
   morning_evening: '',
   learning_style: '',
   communication_style: '',
+  life_approach: '',
+  decision_making: '',
+  change_attitude: '',
   life_priorities: [],
   spiritual_practice: '',
+  growth_focus: [],
 });
 
 export function PersonalProfileStep({ onComplete, isCompleting, rewards }: PersonalProfileStepProps) {
