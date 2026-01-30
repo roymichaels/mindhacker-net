@@ -24,7 +24,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const { language } = useTranslation();
   const queryClient = useQueryClient();
-  const { createChecklist, addChecklistItem, completeChecklistItem } = useChecklistsData(user);
+  const { createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem } = useChecklistsData(user);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -117,7 +117,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
-    // Checklist item completion
+    // Checklist item completion (legacy format)
     const checklistCompleteMatches = [...content.matchAll(/\[checklist:complete:(.+?):(.+?)\]/g)];
     for (const match of checklistCompleteMatches) {
       const checklistTitle = match[1].trim();
@@ -127,9 +127,92 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
+    // Task completion (new format)
+    const taskCompleteMatches = [...content.matchAll(/\[task:complete:(.+?):(.+?)\]/g)];
+    for (const match of taskCompleteMatches) {
+      const checklistTitle = match[1].trim();
+      const itemContent = match[2].trim();
+      if (checklistTitle && itemContent) {
+        await completeChecklistItem(checklistTitle, itemContent);
+      }
+    }
+
+    // Task reschedule
+    const taskRescheduleMatches = [...content.matchAll(/\[task:reschedule:(.+?):(.+?):(\d{4}-\d{2}-\d{2})\]/g)];
+    for (const match of taskRescheduleMatches) {
+      const checklistTitle = match[1].trim();
+      const itemContent = match[2].trim();
+      const newDate = match[3];
+      if (checklistTitle && itemContent && newDate) {
+        await rescheduleItem(checklistTitle, itemContent, newDate);
+      }
+    }
+
+    // Milestone completion
+    const milestoneCompleteMatches = [...content.matchAll(/\[milestone:complete:(\d+)\]/g)];
+    for (const match of milestoneCompleteMatches) {
+      const weekNumber = parseInt(match[1]);
+      if (user?.id && weekNumber > 0) {
+        await completeMilestoneByWeek(weekNumber);
+      }
+    }
+
     // Return cleaned content (without silent action tags, but keep CTAs)
-    return content.replace(/\[action:\w+\]/g, '').replace(/\[checklist:[^\]]+\]/g, '').trim();
-  }, [user?.id, createChecklist, addChecklistItem, completeChecklistItem]);
+    return content
+      .replace(/\[action:\w+\]/g, '')
+      .replace(/\[checklist:[^\]]+\]/g, '')
+      .replace(/\[task:[^\]]+\]/g, '')
+      .replace(/\[milestone:[^\]]+\]/g, '')
+      .trim();
+  }, [user?.id, createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem]);
+
+  // Complete milestone by week number
+  const completeMilestoneByWeek = useCallback(async (weekNumber: number) => {
+    if (!user?.id) return false;
+
+    try {
+      // Find the active life plan
+      const { data: plan } = await supabase
+        .from('life_plans')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (!plan) return false;
+
+      // Update the milestone
+      const { error } = await supabase
+        .from('life_plan_milestones')
+        .update({ 
+          is_completed: true, 
+          completed_at: new Date().toISOString() 
+        })
+        .eq('plan_id', plan.id)
+        .eq('week_number', weekNumber);
+
+      if (error) {
+        console.error('Failed to complete milestone:', error);
+        return false;
+      }
+
+      // Award XP
+      await supabase.rpc('award_unified_xp', {
+        p_user_id: user.id,
+        p_amount: 50,
+        p_source: 'milestone',
+        p_reason: `Week ${weekNumber} milestone completed`,
+      });
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+
+      return true;
+    } catch (err) {
+      console.error('Error completing milestone:', err);
+      return false;
+    }
+  }, [user?.id, queryClient]);
 
   // Trigger background analysis every 4 messages
   const triggerBackgroundAnalysis = useCallback(async () => {

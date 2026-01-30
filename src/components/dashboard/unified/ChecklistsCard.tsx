@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, ChevronUp, Sparkles, ListTodo } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Sparkles, ListTodo, Calendar, AlertCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChecklistsData } from '@/hooks/aurora/useChecklistsData';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 interface ChecklistItem {
@@ -15,6 +16,8 @@ interface ChecklistItem {
   is_completed: boolean;
   order_index: number;
   created_at: string;
+  due_date?: string | null;
+  completed_at?: string | null;
 }
 
 interface Checklist {
@@ -27,6 +30,48 @@ interface Checklist {
   created_at: string;
   aurora_checklist_items?: ChecklistItem[];
 }
+
+// Helper to get date status
+const getDateStatus = (dueDate: string | null | undefined, isCompleted: boolean): 'overdue' | 'today' | 'tomorrow' | 'upcoming' | 'completed' | 'none' => {
+  if (isCompleted) return 'completed';
+  if (!dueDate) return 'none';
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  
+  const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'overdue';
+  if (diffDays === 0) return 'today';
+  if (diffDays === 1) return 'tomorrow';
+  return 'upcoming';
+};
+
+// Format date for display
+const formatDueDate = (dueDate: string | null | undefined, language: string): string => {
+  if (!dueDate) return '';
+  
+  const status = getDateStatus(dueDate, false);
+  const date = new Date(dueDate);
+  
+  if (language === 'he') {
+    switch (status) {
+      case 'overdue': return `${Math.abs(Math.ceil((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)))} ימים באיחור`;
+      case 'today': return 'היום';
+      case 'tomorrow': return 'מחר';
+      default: return date.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
+    }
+  }
+  
+  switch (status) {
+    case 'overdue': return `${Math.abs(Math.ceil((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)))} days overdue`;
+    case 'today': return 'Today';
+    case 'tomorrow': return 'Tomorrow';
+    default: return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+  }
+};
 
 // Icon mapping based on checklist title
 const getChecklistIcon = (title: string): string => {
@@ -210,7 +255,8 @@ export function ChecklistsCard() {
                             className={cn(
                               "flex items-center gap-3 p-3 rounded-lg bg-background/80 backdrop-blur-sm",
                               "border border-border/50 transition-all cursor-pointer hover:border-primary/30",
-                              item.is_completed && "opacity-60"
+                              item.is_completed && "opacity-60",
+                              getDateStatus(item.due_date, item.is_completed) === 'overdue' && "border-destructive/50 bg-destructive/5"
                             )}
                             onClick={() => handleToggleItem(item.id, item.is_completed)}
                           >
@@ -226,14 +272,43 @@ export function ChecklistsCard() {
                                 <Check className="w-3 h-3 text-primary-foreground" />
                               )}
                             </div>
-                            <span
-                              className={cn(
-                                "text-sm flex-1",
-                                item.is_completed && "line-through text-muted-foreground"
+                            <div className="flex-1 min-w-0">
+                              <span
+                                className={cn(
+                                  "text-sm block",
+                                  item.is_completed && "line-through text-muted-foreground"
+                                )}
+                              >
+                                {item.content}
+                              </span>
+                              {/* Due date badge */}
+                              {item.due_date && !item.is_completed && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  {getDateStatus(item.due_date, item.is_completed) === 'overdue' ? (
+                                    <Badge variant="destructive" className="text-[10px] h-5 gap-1">
+                                      <AlertCircle className="w-3 h-3" />
+                                      {formatDueDate(item.due_date, language)}
+                                    </Badge>
+                                  ) : getDateStatus(item.due_date, item.is_completed) === 'today' ? (
+                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-amber-500/20 text-amber-700 border-amber-500/30">
+                                      <Clock className="w-3 h-3" />
+                                      {formatDueDate(item.due_date, language)}
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-[10px] h-5 gap-1">
+                                      <Calendar className="w-3 h-3" />
+                                      {formatDueDate(item.due_date, language)}
+                                    </Badge>
+                                  )}
+                                </div>
                               )}
-                            >
-                              {item.content}
-                            </span>
+                              {/* Completed date */}
+                              {item.is_completed && item.completed_at && (
+                                <span className="text-[10px] text-muted-foreground mt-1 block">
+                                  ✓ {new Date(item.completed_at).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
                             {item.is_completed && (
                               <Sparkles className="w-4 h-4 text-primary shrink-0" />
                             )}
