@@ -35,13 +35,22 @@ export function useLaunchpadData() {
         return null;
       }
 
-      // Parse the stored data
+      // Parse the stored data - step_1_intention can be plain text or JSON
       let welcomeQuiz: Record<string, string | string[]> = {};
       try {
         if (progress.step_1_intention) {
-          welcomeQuiz = typeof progress.step_1_intention === 'string'
-            ? JSON.parse(progress.step_1_intention)
-            : progress.step_1_intention;
+          const intention = progress.step_1_intention;
+          if (typeof intention === 'string') {
+            // Try to parse as JSON first
+            try {
+              welcomeQuiz = JSON.parse(intention);
+            } catch {
+              // If not JSON, treat as plain text intention
+              welcomeQuiz = { intention: intention };
+            }
+          } else if (typeof intention === 'object') {
+            welcomeQuiz = intention as Record<string, string | string[]>;
+          }
         }
       } catch (e) {
         console.error('Error parsing welcome quiz data:', e);
