@@ -1,383 +1,301 @@
 
-# סיכום Launchpad מקיף + תוכנית חיים ל-3 חודשים + פאנל אדמין לאורורה
 
-## סקירה כללית
+# תאריכי תוקף ומעקב משימות ע"י Aurora
 
-הוספת מנגנון מלא שכולל:
-1. **שלב סיכום מקיף** - Aurora מנתחת את כל נתוני ה-Launchpad ויוצרת סיכום מעמיק
-2. **תוכנית חיים ל-3 חודשים** - עם Milestones שבועיים
-3. **פאנל אדמין חדש** - צפייה בסיכומים ותוכניות של כל המשתמשים
+## סקירת הבעיה
+
+כרגע המערכת חסרה:
+1. **תאריכי יעד** על משימות בצ'קליסטים ו-milestones
+2. **מעקב אקטיבי** של Aurora אחרי משימות שלא בוצעו
+3. **יכולת לאורורה לשאול** באלגנטיות על משימות שפג תוקפן
+4. **הקשר תאריכים** ב-System Prompt של Aurora
 
 ---
 
-## ארכיטקטורה
+## הפתרון
+
+### 1. הוספת תאריכי יעד לטבלאות
+
+**aurora_checklist_items** - הוספת:
+```sql
+due_date DATE                   -- תאריך יעד למשימה
+completed_at TIMESTAMP          -- מתי הושלמה (כבר קיים)
+```
+
+**life_plan_milestones** - כבר יש `week_number` ו-`completed_at`, נוסיף:
+```sql
+start_date DATE                 -- תאריך התחלת השבוע
+end_date DATE                   -- תאריך סיום השבוע
+```
+
+### 2. שיפור System Prompt של Aurora
+
+Aurora תקבל מידע על:
+- תאריך נוכחי
+- משימות שעברו את תאריך היעד
+- משימות שמתקרבות לתאריך היעד
+- שבוע נוכחי בתוכנית החיים
+- מתי נוצרה התוכנית האחרונה
+
+### 3. תגיות חדשות ל-Aurora
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                     LAUNCHPAD COMPLETION                         │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Step 9: First Week → Step 10: Dashboard Activation             │
-│                              ↓                                  │
-│                    [User clicks "Activate"]                     │
-│                              ↓                                  │
-│              ┌───────────────────────────────┐                  │
-│              │  Edge Function:                │                  │
-│              │  generate-launchpad-summary    │                  │
-│              │  (AI - Gemini 2.5 Pro)        │                  │
-│              └───────────────┬───────────────┘                  │
-│                              ↓                                  │
-│              ┌───────────────────────────────┐                  │
-│              │  Creates:                      │                  │
-│              │  • Comprehensive Summary       │                  │
-│              │  • 3-Month Plan                │                  │
-│              │  • Weekly Milestones           │                  │
-│              │  • Auto-Checklists             │                  │
-│              └───────────────────────────────┘                  │
-│                              ↓                                  │
-│  ┌──────────────────┬──────────────────┬──────────────────┐    │
-│  │    User          │     Dashboard    │      Admin       │    │
-│  │    Sees          │     Updated      │      Panel       │    │
-│  │    Summary       │     With Plan    │      Views All   │    │
-│  └──────────────────┴──────────────────┴──────────────────┘    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+## מעקב משימות (חדש!)
+כשמתחילה שיחה, בדוק:
+1. האם יש משימות שעבר תאריך היעד שלהן?
+2. האם יש milestone שבועי שלא הושלם?
+
+אם כן, שאל באלגנטיות:
+- "ראיתי שהמשימה 'X' הייתה אמורה להסתיים עד אתמול. מה קרה?"
+- "איך הולך עם האתגר השבועי שלך?"
+- "שמתי לב שהשבוע הקודם בתוכנית לא סומן כהושלם - רוצה לעדכן?"
+
+## סימון משימות כבוצעו
+- [task:complete:checklist:item] - סמן משימה כהושלמה
+- [task:reschedule:checklist:item:new_date] - דחה תאריך יעד
+- [milestone:complete:week_number] - סמן milestone כהושלם
 ```
 
 ---
 
-## מה יכלול הסיכום המקיף
+## מבנה הנתונים המעודכן
 
-### מקורות נתונים לניתוח:
+### 1. עדכון aurora_checklist_items
 
-| שלב | נתונים |
-|-----|--------|
-| Step 1: Welcome | כוונה ראשונית, תחום עניין |
-| Step 2: Personal Profile | 27+ קטגוריות נתונים אישיים |
-| Step 3: Identity Building | תכונות אופי נבחרות, קטגוריות |
-| Step 4: Growth Deep Dive | תשובות AI follow-up |
-| Step 5: First Chat | סיכום שיחה עם Aurora |
-| Step 6: Introspection | שאלון עומק + ניתוח AI |
-| Step 7: Life Plan | חזון + מטרות + 90 ימים |
-| Step 8: Focus Areas | 3 תחומי פוקוס נבחרים |
-| Step 9: First Week | הרגלים, קריירה, אתגרים |
+```sql
+ALTER TABLE aurora_checklist_items
+ADD COLUMN due_date DATE,
+ADD COLUMN completed_at TIMESTAMP WITH TIME ZONE;
+```
 
-### מבנה הסיכום:
+### 2. עדכון life_plan_milestones
 
-```json
-{
-  "consciousness_analysis": {
-    "current_state": "תיאור מצב התודעה הנוכחי",
-    "dominant_patterns": ["דפוס 1", "דפוס 2"],
-    "blind_spots": ["נקודה עיוורת 1"],
-    "strengths": ["חוזקה 1", "חוזקה 2"],
-    "growth_edges": ["קצה צמיחה 1"]
-  },
-  "life_direction": {
-    "core_aspiration": "לאן שואף",
-    "clarity_score": 85,
-    "vision_summary": "חזון ב-2 משפטים"
-  },
-  "identity_profile": {
-    "dominant_traits": ["אומץ", "יצירתיות"],
-    "suggested_ego_state": "warrior",
-    "values_hierarchy": ["משפחה", "עצמאות", "צמיחה"]
-  },
-  "behavioral_insights": {
-    "habits_to_transform": ["דחיינות", "אכילה רגשית"],
-    "habits_to_cultivate": ["שגרת בוקר", "פעילות גופנית"],
-    "resistance_patterns": ["פחד מכישלון", "פרפקציוניזם"]
-  },
-  "career_path": {
-    "current_status": "שכיר",
-    "aspiration": "בעל עסק",
-    "key_steps": ["צעד 1", "צעד 2"]
-  },
-  "transformation_potential": {
-    "readiness_score": 78,
-    "primary_focus": "בניית עסק עצמאי",
-    "secondary_focus": "שיפור בריאות"
-  }
+```sql
+ALTER TABLE life_plan_milestones
+ADD COLUMN start_date DATE,
+ADD COLUMN end_date DATE;
+```
+
+### 3. פונקציה לחישוב תאריכי Milestone
+
+בעת יצירת תוכנית חיים, נחשב אוטומטית:
+- שבוע 1: start_date = plan.start_date, end_date = start_date + 6 ימים
+- שבוע 2: start_date = end_date של שבוע 1 + 1, וכו'
+
+---
+
+## זרימת המידע ל-Aurora
+
+```text
+┌────────────────────────────────────────────────────────────────┐
+│                    Aurora Chat Request                          │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  buildUserContext() - מורחב:                                    │
+│                                                                │
+│  ## תאריכים ומעקב (חדש!)                                        │
+│  - תאריך נוכחי: 2026-01-30                                      │
+│  - תוכנית חיים פעילה מאז: 2026-01-15                            │
+│  - שבוע נוכחי: 3/12                                             │
+│                                                                │
+│  ## משימות באיחור (חדש!)                                        │
+│  - "התאמנות בוקר" (due: 2026-01-28) - 2 ימים באיחור            │
+│  - "פגישה עם מנטור" (due: 2026-01-29) - יום באיחור              │
+│                                                                │
+│  ## Milestone שבועי                                             │
+│  - שבוע 2: "ביסוס שגרת בוקר" - לא הושלם (הסתיים 2026-01-28)     │
+│  - שבוע 3 (נוכחי): "הרחבת הרגלים" - בתהליך                      │
+│                                                                │
+│  ## משימות להיום                                                │
+│  - "מדיטציה 10 דקות" (due: היום)                                │
+│  - "קריאה 30 דקות" (due: היום)                                  │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## שיפור ה-Edge Function
+
+### עדכון buildUserContext()
+
+```typescript
+// Add to aurora-chat/index.ts
+
+// Fetch overdue tasks
+const overdueTasksRes = await supabase
+  .from('aurora_checklist_items')
+  .select('*, aurora_checklists!inner(title)')
+  .eq('aurora_checklists.user_id', userId)
+  .eq('is_completed', false)
+  .lt('due_date', new Date().toISOString().split('T')[0]);
+
+// Fetch today's tasks
+const todayTasksRes = await supabase
+  .from('aurora_checklist_items')
+  .select('*, aurora_checklists!inner(title)')
+  .eq('aurora_checklists.user_id', userId)
+  .eq('is_completed', false)
+  .eq('due_date', new Date().toISOString().split('T')[0]);
+
+// Fetch life plan status
+const lifePlanRes = await supabase
+  .from('life_plans')
+  .select('*, life_plan_milestones(*)')
+  .eq('user_id', userId)
+  .eq('status', 'active')
+  .single();
+
+// Build context with dates
+const overdueTasks = overdueTasksRes.data || [];
+const todayTasks = todayTasksRes.data || [];
+const lifePlan = lifePlanRes.data;
+
+// Add to context string...
+```
+
+### עדכון System Prompt
+
+```typescript
+// Add to Hebrew system prompt:
+
+## מעקב תאריכים ומשימות
+אתה מודע לתאריכים ולמצב המשימות של המשתמש.
+
+כשמתחילה שיחה חדשה ויש משימות באיחור:
+1. שאל בעדינות מה קרה - לא בתוקפנות
+2. הצע לעדכן את התאריך אם צריך
+3. עזור למשתמש להבין את החסם
+
+דוגמאות:
+- "הי! שמתי לב שהמשימה 'פגישה עם מנטור' הייתה אמורה לקרות אתמול. איך הלך?"
+- "רציתי לשאול על השבוע הקודם בתוכנית - הצלחת להשלים את היעדים?"
+
+## סימון משימות
+כשמשתמש אומר שביצע משימה:
+- [task:complete:שם_רשימה:שם_משימה] - סמן כהושלם
+- אם לא ברור איזו משימה - שאל
+- תמיד חגוג הצלחה!
+
+כשמשתמש מבקש לדחות:
+- [task:reschedule:שם_רשימה:שם_משימה:YYYY-MM-DD]
+- אל תשפוט, פשוט עזור
+
+כשמשתמש השלים שבוע בתוכנית:
+- [milestone:complete:מספר_שבוע]
+```
+
+---
+
+## עדכון processActionTags()
+
+```typescript
+// In useAuroraChat.tsx
+
+// Task completion with date tracking
+const taskCompleteMatches = [...content.matchAll(/\[task:complete:(.+?):(.+?)\]/g)];
+for (const match of taskCompleteMatches) {
+  const checklistTitle = match[1].trim();
+  const itemContent = match[2].trim();
+  await completeChecklistItem(checklistTitle, itemContent);
+}
+
+// Task reschedule
+const taskRescheduleMatches = [...content.matchAll(/\[task:reschedule:(.+?):(.+?):(\d{4}-\d{2}-\d{2})\]/g)];
+for (const match of taskRescheduleMatches) {
+  const checklistTitle = match[1].trim();
+  const itemContent = match[2].trim();
+  const newDate = match[3];
+  await rescheduleChecklistItem(checklistTitle, itemContent, newDate);
+}
+
+// Milestone completion
+const milestoneCompleteMatches = [...content.matchAll(/\[milestone:complete:(\d+)\]/g)];
+for (const match of milestoneCompleteMatches) {
+  const weekNumber = parseInt(match[1]);
+  await completeMilestone(weekNumber);
 }
 ```
 
 ---
 
-## תוכנית חיים ל-3 חודשים
-
-### מבנה התוכנית:
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│               תוכנית טרנספורמציה - 90 ימים                  │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  חודש 1: יסודות (Foundations)                              │
-│  ├── שבוע 1-2: הרגלים בסיסיים                              │
-│  ├── שבוע 3-4: ביסוס שגרה                                   │
-│  └── Milestone: "3 הרגלים חדשים פעילים"                     │
-│                                                             │
-│  חודש 2: בנייה (Building)                                   │
-│  ├── שבוע 5-6: התמקדות בקריירה                              │
-│  ├── שבוע 7-8: יישום מתקדם                                  │
-│  └── Milestone: "צעד עסקי ראשון הושלם"                      │
-│                                                             │
-│  חודש 3: תנופה (Momentum)                                   │
-│  ├── שבוע 9-10: הרחבה והתמקצעות                             │
-│  ├── שבוע 11-12: סיכום והכנה לשלב הבא                       │
-│  └── Milestone: "תכנית מוכחת + 10 הרגלים"                   │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Milestones שבועיים:
-
-כל שבוע יכלול:
-- 3-5 משימות ספציפיות
-- יעד מדיד אחד
-- אתגר אחד
-- סשן היפנוזה מומלץ
-
----
-
-## טבלאות DB חדשות
-
-### 1. launchpad_summaries
-
-```sql
-CREATE TABLE launchpad_summaries (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  summary_data JSONB NOT NULL, -- הסיכום המלא
-  consciousness_score INTEGER DEFAULT 0,
-  transformation_readiness INTEGER DEFAULT 0,
-  generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id)
-);
-```
-
-### 2. life_plans
-
-```sql
-CREATE TABLE life_plans (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  duration_months INTEGER DEFAULT 3,
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
-  plan_data JSONB NOT NULL, -- מבנה התוכנית המלא
-  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'completed', 'paused')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-### 3. life_plan_milestones
-
-```sql
-CREATE TABLE life_plan_milestones (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  plan_id UUID REFERENCES life_plans(id) ON DELETE CASCADE NOT NULL,
-  week_number INTEGER NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  tasks JSONB DEFAULT '[]',
-  is_completed BOOLEAN DEFAULT FALSE,
-  completed_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
----
-
-## Edge Function חדשה: generate-launchpad-summary
-
-```typescript
-// supabase/functions/generate-launchpad-summary/index.ts
-
-// Flow:
-// 1. קבלת userId
-// 2. משיכת כל הנתונים מ-launchpad_progress
-// 3. משיכת form_submissions (introspection + life_plan)
-// 4. משיכת aurora_identity_elements
-// 5. משיכת aurora_life_direction
-// 6. שליחה ל-AI לניתוח מקיף
-// 7. יצירת סיכום
-// 8. יצירת תוכנית 3 חודשים
-// 9. יצירת milestones שבועיים
-// 10. יצירת צ'קליסטים לכל שבוע
-// 11. שמירה ב-DB
-```
-
-### System Prompt לניתוח:
-
-```text
-אתה מאמן חיים אליטיסטי עם התמחות בטרנספורמציה אישית.
-
-קיבלת את כל הנתונים של המשתמש מתהליך ה-Launchpad.
-תפקידך:
-1. לנתח את מצב התודעה הנוכחי
-2. לזהות דפוסים, חסמים וחוזקות
-3. לחלץ את הכיוון האמיתי בחיים
-4. לבנות תוכנית 90 ימים מדויקת ומותאמת אישית
-5. לפרק ל-milestones שבועיים עם משימות קונקרטיות
-
-הנחיות:
-- היה ישיר ומאתגר, לא מתפנק
-- התמקד בתוצאות ופעולה
-- זהה את הפער בין איפה המשתמש ולאן הוא צריך להגיע
-- הצע אתגרים שידחפו לצמיחה
-```
-
----
-
-## פאנל אדמין חדש: Aurora Insights
-
-### Route חדש:
-`/admin/aurora-insights`
-
-### מה יציג:
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Aurora Insights - ניתוחי משתמשים                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  [חיפוש משתמש]                    סה"כ: 127 משתמשים עברו        │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ משתמש      │ תאריך     │ ציון תודעה │ מוכנות │ פעולות  │   │
-│  ├─────────────────────────────────────────────────────────┤   │
-│  │ user@...   │ 30/01/26  │ 72/100     │ גבוהה  │ [צפה]   │   │
-│  │ user2@...  │ 29/01/26  │ 58/100     │ בינונית│ [צפה]   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  [פילטרים: תאריך | ציון | מוכנות | סטטוס תוכנית]              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### עמוד צפייה במשתמש בודד:
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  👤 user@example.com                                            │
-│  הצטרף: 25/01/26  |  סיים Launchpad: 30/01/26                   │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  📊 ציונים                                                       │
-│  ┌──────────────┬──────────────┬──────────────┐                │
-│  │ תודעה: 72   │ מוכנות: 85  │ בהירות: 78  │                │
-│  └──────────────┴──────────────┴──────────────┘                │
-│                                                                 │
-│  🧠 ניתוח תודעה (מורחב)                                         │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ מצב נוכחי:                                               │   │
-│  │ "המשתמש נמצא בנקודת מפנה משמעותית. יש לו חזון ברור       │   │
-│  │  לעסק עצמאי אך מתמודד עם דחיינות ופחד מכישלון..."        │   │
-│  │                                                           │   │
-│  │ דפוסים דומיננטיים:                                        │   │
-│  │ • דחיינות כמנגנון הגנה                                    │   │
-│  │ • פרפקציוניזם משתק                                        │   │
-│  │ • תלות באישור חיצוני                                      │   │
-│  │                                                           │   │
-│  │ חוזקות:                                                    │   │
-│  │ • יצירתיות גבוהה                                           │   │
-│  │ • יכולת ניתוח עצמי                                        │   │
-│  │ • מוטיבציה פנימית חזקה                                    │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  📋 תוכנית 90 ימים                                              │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ חודש 1: יסודות                                           │   │
-│  │   שבוע 1: [✓] [✓] [✓] [ ] [ ] - 60%                      │   │
-│  │   שבוע 2: [ ] [ ] [ ] [ ] [ ] - 0%                       │   │
-│  │   ...                                                     │   │
-│  │                                                           │   │
-│  │ חודש 2: בנייה                                             │   │
-│  │   ...                                                     │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  🎯 צ'קליסטים פעילים                                            │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ 🚫 הרגלים להפסיק (2/5 הושלמו)                             │   │
-│  │ 🏗️ הרגלים לבנות (1/4 הושלמו)                             │   │
-│  │ 💼 צעדים לקריירה (0/3 הושלמו)                             │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## קבצים חדשים
-
-| קובץ | תיאור |
-|------|-------|
-| `supabase/functions/generate-launchpad-summary/index.ts` | Edge function לניתוח מקיף |
-| `src/pages/admin/AuroraInsights.tsx` | דף אדמין ראשי |
-| `src/components/admin/aurora/UserSummaryView.tsx` | תצוגת סיכום משתמש |
-| `src/components/admin/aurora/LifePlanView.tsx` | תצוגת תוכנית חיים |
-| `src/components/admin/aurora/MilestonesProgress.tsx` | התקדמות milestones |
-| `src/hooks/useAdminAuroraInsights.ts` | Hook למשיכת נתונים |
-
-## קבצים לעריכה
+## קבצים לשינוי
 
 | קובץ | שינוי |
 |------|-------|
-| `src/components/admin/AdminSidebar.tsx` | הוספת לינק ל-Aurora Insights |
-| `src/App.tsx` | הוספת route חדש |
-| `src/components/launchpad/steps/DashboardActivation.tsx` | הפעלת generate-launchpad-summary |
-| `src/components/dashboard/UnifiedDashboardView.tsx` | הצגת תוכנית + milestones |
-| `src/hooks/useUnifiedDashboard.ts` | משיכת נתוני תוכנית חיים |
-| `supabase/config.toml` | הוספת function חדשה |
+| **Migration חדש** | הוספת due_date, completed_at, start_date, end_date |
+| `supabase/functions/aurora-chat/index.ts` | שליפת משימות באיחור + הוספה ל-context |
+| `supabase/functions/generate-launchpad-summary/index.ts` | חישוב תאריכי milestone בעת יצירה |
+| `src/hooks/aurora/useAuroraChat.tsx` | עיבוד תגיות חדשות + פונקציות reschedule/complete |
+| `src/hooks/aurora/useChecklistsData.tsx` | הוספת rescheduleItem, completeMilestone |
+| `src/components/dashboard/unified/ChecklistsCard.tsx` | הצגת תאריכי יעד |
+| `src/components/dashboard/unified/LifePlanCard.tsx` | הצגת תאריכי milestone |
 
 ---
 
-## זרימת המשתמש
+## UI - הצגת תאריכים
+
+### בצ'קליסט
 
 ```text
-1. משתמש מגיע לשלב 10 (Dashboard Activation)
-                    ↓
-2. לוחץ "הפעל את הדשבורד"
-                    ↓
-3. generate-launchpad-summary נקרא
-   • מאסף את כל הנתונים
-   • מנתח עם AI
-   • יוצר סיכום מקיף
-   • יוצר תוכנית 90 ימים
-   • יוצר 12 milestones שבועיים
-   • יוצר צ'קליסטים לכל שבוע
-                    ↓
-4. המשתמש מועבר לדשבורד עם:
-   • סיכום קצר (expandable)
-   • תוכנית השבוע הנוכחי
-   • משימות פעילות
-   • כפתור "צפה בתוכנית המלאה"
-                    ↓
-5. אדמין יכול לצפות בכל זה ב-Aurora Insights
+┌─────────────────────────────────────────┐
+│ 🏗️ הרגלים לבנות                         │
+├─────────────────────────────────────────┤
+│ ☐ התאמנות בוקר      📅 היום            │
+│ ☐ מדיטציה 10 דק'    📅 מחר             │
+│ ⚠️ פגישה עם מנטור   📅 אתמול (באיחור!) │
+│ ☑ קריאה 30 דקות    ✓ הושלם 28/01       │
+└─────────────────────────────────────────┘
+```
+
+### ב-Milestone
+
+```text
+┌─────────────────────────────────────────┐
+│ 📅 שבוע 3: הרחבת הרגלים                  │
+│ 23/01 - 29/01                           │
+├─────────────────────────────────────────┤
+│ ⏰ נותרו 2 ימים                          │
+│ ☐ משימה 1                               │
+│ ☐ משימה 2                               │
+│ ☑ משימה 3                               │
+└─────────────────────────────────────────┘
 ```
 
 ---
 
-## Gamification
+## דוגמת שיחה עם Aurora
 
-| אירוע | XP | Tokens |
-|-------|----|----|
-| יצירת סיכום + תוכנית | 100 | 15 |
-| השלמת milestone שבועי | 50 | 5 |
-| השלמת חודש מלא | 150 | 20 |
-| השלמת תוכנית 90 ימים | 500 | 50 |
+```text
+[Aurora מזהה משימות באיחור ושבוע שלא הושלם]
+
+Aurora: "הי! 👋 איך היום שלך?
+
+אגב, שמתי לב שהמשימה 'פגישה עם מנטור' הייתה מתוכננת לאתמול. 
+הצלחת לקיים אותה, או שנדחה?"
+
+User: "כן, דיברנו בטלפון"
+
+Aurora: "מעולה! 🎉 סימנתי את זה כהושלם.
+[task:complete:צעדים לקריירה:פגישה עם מנטור]
+
+איך היה? למדת משהו חדש?"
 
 ---
 
-## חיבור להיפנוזה
+User: "לא הספקתי להתאמן השבוע"
 
-הסיכום והתוכנית יזינו את מנוע ההיפנוזה:
-- סשנים ממוקדים לפי אתגרי השבוע
-- חיזוק הרגלים שנבחרו
-- עבודה על חסמים שזוהו בניתוח
+Aurora: "קורה. מה הכי הפריע - זמן, מוטיבציה, או משהו אחר?
+אם רוצה, נוכל לקבוע תאריך חדש ריאלי יותר. 
+מתי תרצה לנסות שוב?"
+
+User: "נגיד יום שישי"
+
+Aurora: "מסודר 📅
+[task:reschedule:הרגלים לבנות:התאמנות בוקר:2026-01-31]
+
+יום שישי בבוקר מתאים? אני אזכיר לך 😊"
+```
 
 ---
 
@@ -385,9 +303,9 @@ CREATE TABLE life_plan_milestones (
 
 | פריט | כמות |
 |------|------|
-| טבלאות DB חדשות | 3 |
-| Edge functions חדשות | 1 |
-| דפי אדמין חדשים | 1 |
-| קומפוננטות חדשות | 4 |
-| קבצים לעריכה | 6 |
-| Hooks חדשים | 1 |
+| Migration חדש | 1 |
+| שינויים ב-Edge functions | 2 |
+| שינויים ב-Hooks | 2 |
+| שינויים ב-Components | 2 |
+| תגיות חדשות ל-Aurora | 3 |
+
