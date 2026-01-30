@@ -360,11 +360,20 @@ async function generateAISummaryAndPlan(data: LaunchpadData, userEmail: string):
 }> {
   const prompt = buildAnalysisPrompt(data);
   
-  const response = await fetch('https://lovable.dev/api/chat', {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    console.error('LOVABLE_API_KEY not configured');
+    return getDefaultSummaryAndPlan(data);
+  }
+
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+    },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-pro',
+      model: 'google/gemini-3-flash-preview',
       messages: [
         {
           role: 'system',

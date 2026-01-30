@@ -64,6 +64,7 @@ const Aurora = lazy(() => import("./pages/Aurora"));
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
 const Launchpad = lazy(() => import("./pages/Launchpad"));
+const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
@@ -319,6 +320,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <Launchpad />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/launchpad/complete"
+                          element={
+                            <ProtectedRoute>
+                              <LaunchpadComplete />
                             </ProtectedRoute>
                           }
                         />

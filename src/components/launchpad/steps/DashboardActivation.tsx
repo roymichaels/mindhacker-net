@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Gift, Rocket, Check, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,6 +26,7 @@ const UNLOCKS = [
 export function DashboardActivation({ onComplete, isCompleting, rewards }: DashboardActivationProps) {
   const { language, isRTL } = useTranslation();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
 
@@ -73,8 +75,8 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
       console.error('Error:', err);
     } finally {
       setIsGenerating(false);
-      // Complete the flow even if summary generation failed
-      onComplete();
+      // Navigate to summary page instead of dashboard
+      navigate('/launchpad/complete');
     }
   };
 
