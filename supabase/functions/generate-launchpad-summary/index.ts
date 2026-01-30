@@ -198,14 +198,79 @@ Deno.serve(async (req) => {
     await supabase.rpc('increment_user_xp', { user_id: userId, xp_amount: 100 });
     await supabase.rpc('increment_user_tokens', { user_id: userId, token_amount: 15 });
 
-    // Mark launchpad as complete
+    // ========== POPULATE LIFE MODEL TABLES ==========
+    
+    // 1. Create life_direction from summary
+    console.log('Populating aurora_life_direction...');
+    await supabase
+      .from('aurora_life_direction')
+      .upsert({
+        user_id: userId,
+        content: summary.life_direction?.core_aspiration || 'בניית מודל חיים משמעותי',
+        clarity_score: summary.life_direction?.clarity_score || scores.clarity,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+
+    // 2. Create identity elements from summary (traits, values)
+    console.log('Populating aurora_identity_elements...');
+    
+    // Clear existing launchpad-generated elements to avoid duplicates
+    await supabase
+      .from('aurora_identity_elements')
+      .delete()
+      .eq('user_id', userId)
+      .like('metadata->source', '%launchpad%');
+
+    // Insert dominant traits (using 'character_trait' as per constraint)
+    if (summary.identity_profile?.dominant_traits?.length) {
+      for (const trait of summary.identity_profile.dominant_traits) {
+        await supabase.from('aurora_identity_elements').insert({
+          user_id: userId,
+          element_type: 'character_trait',
+          content: trait,
+          metadata: { source: 'launchpad_summary' },
+        });
+      }
+    }
+
+    // Insert values hierarchy
+    if (summary.identity_profile?.values_hierarchy?.length) {
+      for (const value of summary.identity_profile.values_hierarchy) {
+        await supabase.from('aurora_identity_elements').insert({
+          user_id: userId,
+          element_type: 'value',
+          content: value,
+          metadata: { source: 'launchpad_summary' },
+        });
+      }
+    }
+
+    // Insert behavioral insights as principles
+    if (summary.behavioral_insights?.habits_to_cultivate?.length) {
+      for (const habit of summary.behavioral_insights.habits_to_cultivate) {
+        await supabase.from('aurora_identity_elements').insert({
+          user_id: userId,
+          element_type: 'principle',
+          content: habit,
+          metadata: { source: 'launchpad_summary' },
+        });
+      }
+    }
+
+    // 3. Mark launchpad as complete with PROPER scores
+    console.log('Updating aurora_onboarding_progress...');
     await supabase
       .from('aurora_onboarding_progress')
       .upsert({
         user_id: userId,
         onboarding_complete: true,
+        direction_clarity: scores.clarity >= 70 ? 'stable' : 'emerging',
+        identity_understanding: scores.consciousness >= 70 ? 'clear' : 'partial',
+        energy_patterns_status: scores.readiness >= 70 ? 'mapped' : 'partial',
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
+
+    console.log('Life Model tables populated successfully');
 
     return new Response(JSON.stringify({
       success: true,

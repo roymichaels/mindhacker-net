@@ -108,7 +108,7 @@ export function useUnifiedDashboard(): UnifiedDashboardData {
     return Math.max(0, diffDays);
   };
 
-  const isEmpty = !hasDirection && !hasIdentity && !hasEnergy && (sessionStats?.totalSessions ?? 0) === 0;
+  const isEmpty = !hasDirection && !hasIdentity && !hasEnergy && (sessionStats?.totalSessions ?? 0) === 0 && !isLifeModelComplete;
 
   return {
     // User
