@@ -78,6 +78,7 @@ const MyEarnings = lazy(() => import("./pages/panel/MyEarnings"));
 const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
 const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
+const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -397,7 +398,7 @@ const App = () => (
                           <Route path="my-calendar" element={<MyCalendar />} />
                           <Route path="my-earnings" element={<MyEarnings />} />
                           <Route path="my-profile" element={<Settings />} />
-                          <Route path="my-products" element={<AdminProducts />} />
+                          <Route path="my-products" element={<MyProducts />} />
                           {/* Affiliate routes */}
                           <Route path="my-links" element={<MyLinks />} />
                           <Route path="my-referrals" element={<MyReferrals />} />

@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit, Trash2, ExternalLink, Copy, Sparkles } from "lucide-react";
+import { Plus, Edit, Trash2, ExternalLink, Copy, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { colorOptions, getOfferColors } from "@/lib/productColors";
 
@@ -47,7 +47,15 @@ interface Offer {
   seo_title_en: string | null;
   seo_description: string | null;
   seo_description_en: string | null;
+  practitioner_id: string | null;
   [key: string]: any;
+}
+
+interface Practitioner {
+  id: string;
+  display_name: string;
+  display_name_en: string | null;
+  slug: string;
 }
 
 const Offers = () => {
@@ -82,6 +90,21 @@ const Offers = () => {
     show_on_homepage: true,
     homepage_order: 0,
     status: "draft",
+    practitioner_id: null,
+  });
+
+  // Fetch all practitioners
+  const { data: practitioners } = useQuery({
+    queryKey: ["admin-practitioners"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("practitioners")
+        .select("id, display_name, display_name_en, slug")
+        .eq("status", "active")
+        .order("display_name", { ascending: true });
+      if (error) throw error;
+      return data as Practitioner[];
+    },
   });
 
   // Fetch all offers
@@ -90,10 +113,10 @@ const Offers = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("offers")
-        .select("*")
+        .select("*, practitioners(display_name, display_name_en)")
         .order("homepage_order", { ascending: true });
       if (error) throw error;
-      return data as Offer[];
+      return data as (Offer & { practitioners?: { display_name: string; display_name_en: string | null } })[];
     },
   });
 
@@ -126,6 +149,7 @@ const Offers = () => {
         seo_title_en: data.seo_title_en,
         seo_description: data.seo_description,
         seo_description_en: data.seo_description_en,
+        practitioner_id: data.practitioner_id,
       };
       const { error } = await supabase.from("offers").insert([insertData]);
       if (error) throw error;
@@ -227,6 +251,7 @@ const Offers = () => {
         show_on_homepage: true,
         homepage_order: (offers?.length || 0) + 1,
         status: "draft",
+        practitioner_id: null,
       });
     }
     setActiveTab("basic");
@@ -348,6 +373,15 @@ const Offers = () => {
 
                   {/* Settings indicators */}
                   <div className="flex flex-wrap gap-1">
+                    {offer.practitioners && (
+                      <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
+                        <User className="w-3 h-3 me-1" />
+                        {language === "he" 
+                          ? offer.practitioners.display_name 
+                          : (offer.practitioners.display_name_en || offer.practitioners.display_name)
+                        }
+                      </Badge>
+                    )}
                     {offer.show_on_homepage && (
                       <Badge variant="outline" className="text-xs">
                         {language === "he" ? "בעמוד הבית" : "Homepage"}
@@ -479,6 +513,27 @@ const Offers = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Practitioner Selection */}
+              <div className="space-y-2">
+                <Label>{language === "he" ? "מאמן" : "Practitioner"}</Label>
+                <Select
+                  value={formData.practitioner_id || "none"}
+                  onValueChange={(value) => setFormData({ ...formData, practitioner_id: value === "none" ? null : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={language === "he" ? "בחר מאמן" : "Select practitioner"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{language === "he" ? "ללא מאמן" : "No practitioner"}</SelectItem>
+                    {practitioners?.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {language === "he" ? p.display_name : (p.display_name_en || p.display_name)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

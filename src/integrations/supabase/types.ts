@@ -2765,6 +2765,7 @@ export type Database = {
           original_price: number | null
           original_price_usd: number | null
           pain_points: Json | null
+          practitioner_id: string | null
           price: number
           price_usd: number | null
           process_steps: Json | null
@@ -2809,6 +2810,7 @@ export type Database = {
           original_price?: number | null
           original_price_usd?: number | null
           pain_points?: Json | null
+          practitioner_id?: string | null
           price?: number
           price_usd?: number | null
           process_steps?: Json | null
@@ -2853,6 +2855,7 @@ export type Database = {
           original_price?: number | null
           original_price_usd?: number | null
           pain_points?: Json | null
+          practitioner_id?: string | null
           price?: number
           price_usd?: number | null
           process_steps?: Json | null
@@ -2876,6 +2879,13 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
             referencedColumns: ["id"]
           },
           {
@@ -3242,6 +3252,7 @@ export type Database = {
           description: string | null
           description_en: string | null
           id: string
+          practitioner_id: string | null
           price: number
           price_usd: number | null
           product_type: string
@@ -3258,6 +3269,7 @@ export type Database = {
           description?: string | null
           description_en?: string | null
           id?: string
+          practitioner_id?: string | null
           price: number
           price_usd?: number | null
           product_type: string
@@ -3274,6 +3286,7 @@ export type Database = {
           description?: string | null
           description_en?: string | null
           id?: string
+          practitioner_id?: string | null
           price?: number
           price_usd?: number | null
           product_type?: string
@@ -3284,7 +3297,15 @@ export type Database = {
           title_en?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
