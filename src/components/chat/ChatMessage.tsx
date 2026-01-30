@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
-// Default logo from public folder (same as Header)
-const defaultLogo = "/icons/icon-96x96.png";
+// Default logo from public folder (new orb logo)
+const defaultLogo = "/icons/icon-96x96.png?v=4";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
