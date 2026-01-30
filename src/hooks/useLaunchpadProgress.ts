@@ -108,28 +108,27 @@ export const PHASES: Phase[] = [
     descriptionEn: 'Build your vision and new identity',
     icon: '🚀',
     color: 'emerald',
-    steps: [7, 8, 9, 10],
+    steps: [7, 8, 9],
   },
 ];
 
-// XP and tokens for each step (now 10 steps)
+// XP and tokens for each step (now 9 steps)
 export const STEP_REWARDS = {
   1: { xp: 25, tokens: 0, unlock: 'personal_profile' },
   2: { xp: 40, tokens: 5, unlock: 'growth_deep_dive' },
   3: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
   4: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
   5: { xp: 50, tokens: 5, unlock: 'introspection_complete' },
-  6: { xp: 100, tokens: 10, unlock: 'identity_building' },
-  7: { xp: 100, tokens: 15, unlock: 'life_plan_questionnaire' },
-  8: { xp: 50, tokens: 0, unlock: 'focus_areas_selection' },
-  9: { xp: 75, tokens: 0, unlock: 'first_week_planning' },
-  10: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
+  6: { xp: 100, tokens: 10, unlock: 'life_plan_complete' },
+  7: { xp: 50, tokens: 0, unlock: 'focus_areas_selection' },
+  8: { xp: 75, tokens: 0, unlock: 'first_week_planning' },
+  9: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
 };
 
-// Step metadata (now 10 steps with phase info)
+// Step metadata (now 9 steps with phase info)
 // PHASE 1: Who Are You Now? (Steps 1-2)
 // PHASE 2: What's Not Working? (Steps 3-6)
-// PHASE 3: Who Do You Want to Be? (Steps 7-10)
+// PHASE 3: Who Do You Want to Be? (Steps 7-9)
 export const STEPS = [
   // === PHASE 1: מי אתה עכשיו? ===
   {
@@ -208,18 +207,6 @@ export const STEPS = [
   // === PHASE 3: מי אתה רוצה להיות? ===
   {
     id: 7,
-    key: 'identity_building',
-    phase: 3 as const,
-    title: 'בניית זהות',
-    titleEn: 'Build Your Identity',
-    subtitle: 'מי אתה רוצה להיות?',
-    subtitleEn: 'Who do you want to be?',
-    description: 'בחר את תכונות האופי שאתה רוצה לפתח',
-    descriptionEn: 'Choose the character traits you want to develop',
-    icon: '🎭',
-  },
-  {
-    id: 8,
     key: 'focus_areas',
     phase: 3 as const,
     title: 'תחומי פוקוס',
@@ -231,7 +218,7 @@ export const STEPS = [
     icon: '🎪',
   },
   {
-    id: 9,
+    id: 8,
     key: 'first_week',
     phase: 3 as const,
     title: 'שבוע ראשון',
@@ -243,7 +230,7 @@ export const STEPS = [
     icon: '📅',
   },
   {
-    id: 10,
+    id: 9,
     key: 'dashboard_activation',
     phase: 3 as const,
     title: 'הפעלת הדשבורד',
@@ -386,9 +373,9 @@ export function useLaunchpadProgress() {
     },
   });
 
-  // Calculate completion percentage (now 10 steps)
+  // Calculate completion percentage (now 9 steps)
   const completionPercentage = progress ? 
-    Math.round(((actualCurrentStep - 1) / 10) * 100) : 0;
+    Math.round(((actualCurrentStep - 1) / 9) * 100) : 0;
 
   // Get completed steps count
   const completedSteps = progress ? actualCurrentStep - 1 : 0;
@@ -406,7 +393,7 @@ export function useLaunchpadProgress() {
     return (progress.current_step || 1) > stepNumber;
   };
 
-  // Check if launchpad is truly complete (all 10 steps done)
+  // Check if launchpad is truly complete (all 9 steps done)
   const isActuallyComplete = progress?.launchpad_complete || false;
 
   // Get current step metadata
@@ -425,7 +412,7 @@ export function useLaunchpadProgress() {
     isCompleting: completeStepMutation.isPending,
     completionPercentage,
     completedSteps,
-    totalSteps: 10,
+    totalSteps: 9,
     isStepAccessible,
     isStepCompleted,
     isLaunchpadComplete: isActuallyComplete,

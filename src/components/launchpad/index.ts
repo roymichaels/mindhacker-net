@@ -4,7 +4,6 @@ export { PhaseIndicator } from './PhaseIndicator';
 export { PhaseTransition } from './PhaseTransition';
 export { WelcomeStep } from './steps/WelcomeStep';
 export { PersonalProfileStep } from './steps/PersonalProfileStep';
-export { IdentityBuildingStep } from './steps/IdentityBuildingStep';
 export { FirstChatStep } from './steps/FirstChatStep';
 export { IntrospectionStep } from './steps/IntrospectionStep';
 export { LifePlanStep } from './steps/LifePlanStep';

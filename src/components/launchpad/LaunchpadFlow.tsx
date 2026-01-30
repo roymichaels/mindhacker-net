@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
-import { IdentityBuildingStep } from './steps/IdentityBuildingStep';
 import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
@@ -60,7 +59,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     }
     
     // Check if this step completes a phase
-    if (isLastStepInPhase(currentStep) && currentStep < 10) {
+    if (isLastStepInPhase(currentStep) && currentStep < 9) {
       const phase = getPhaseForStep(currentStep);
       if (phase) {
         setCompletedPhaseId(phase.id);
@@ -70,7 +69,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     
     completeStep({ step: currentStep, data });
     
-    if (currentStep === 10 && onComplete) {
+    if (currentStep === 9 && onComplete) {
       onComplete();
     }
   };
@@ -117,7 +116,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     // New step order based on phases:
     // Phase 1 (Who you are): 1-Welcome, 2-Profile
     // Phase 2 (What's not working): 3-GrowthDeepDive, 4-FirstChat, 5-Introspection, 6-LifePlan
-    // Phase 3 (Who you want to be): 7-IdentityBuilding, 8-FocusAreas, 9-FirstWeek, 10-Dashboard
+    // Phase 3 (Who you want to be): 7-FocusAreas, 8-FirstWeek, 9-Dashboard
     
     switch (displayedStep) {
       case 1:
@@ -133,12 +132,10 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 6:
         return <LifePlanStep {...stepProps} />;
       case 7:
-        return <IdentityBuildingStep {...stepProps} />;
-      case 8:
         return <FocusAreasStep {...stepProps} />;
-      case 9:
+      case 8:
         return <FirstWeekStep {...stepProps} />;
-      case 10:
+      case 9:
         return <DashboardActivation {...stepProps} />;
       default:
         return null;
