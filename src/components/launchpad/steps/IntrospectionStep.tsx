@@ -8,7 +8,7 @@ import { Sparkles, Gift, ChevronDown, ChevronUp, Loader2, Brain } from 'lucide-r
 import { motion, AnimatePresence } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { handleError } from '@/lib/errorHandling';
 
 interface IntrospectionStepProps {
   onComplete: (data: { form_submission_id?: string }) => void;
@@ -108,7 +108,24 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
   const isValid = completedCount >= 3;
 
   const handleSubmit = async () => {
-    if (!isValid || !user?.id) return;
+    if (!user?.id) return;
+
+    if (!isValid) {
+      const missingTitles = QUESTIONS
+        .filter((q) => (answers[q.id] || '').trim().length < 30)
+        .slice(0, 3)
+        .map((q) => (language === 'he' ? q.title : q.titleEn));
+
+      handleError(
+        new Error('Validation: Introspection incomplete'),
+        language === 'he'
+          ? `כדי להמשיך ענה על לפחות 3 שאלות (30+ תווים). חסר עדיין: ${missingTitles.join(', ')}`
+          : `To continue, answer at least 3 questions (30+ chars). Still missing: ${missingTitles.join(', ')}`,
+        'IntrospectionStep.handleSubmit',
+        language === 'he' ? 'חסר מידע' : 'Missing info'
+      );
+      return;
+    }
     
     setIsAnalyzing(true);
     
@@ -165,7 +182,12 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
       }
     } catch (error) {
       console.error('Introspection step error:', error);
-      toast.error(language === 'he' ? 'שגיאה בשמירת התשובות' : 'Error saving responses');
+      handleError(
+        error,
+        language === 'he' ? 'שגיאה בשמירת התשובות' : 'Error saving responses',
+        'IntrospectionStep.handleSubmit',
+        language === 'he' ? 'שגיאה' : 'Error'
+      );
     } finally {
       setIsAnalyzing(false);
     }
@@ -410,7 +432,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
         <Button 
           size="lg" 
           onClick={handleSubmit}
-          disabled={!isValid || isAnalyzing}
+          disabled={isAnalyzing}
           className="min-w-[200px] gap-2"
         >
           {isAnalyzing ? (
