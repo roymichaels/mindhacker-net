@@ -10,6 +10,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+const LIFE_PLAN_FORM_ID = 'f2b4e2c6-40a8-4b8b-9a35-6a1e5c54a6f3';
+
 interface LifePlanStepProps {
   onComplete: (data: { form_submission_id?: string }) => void;
   isCompleting: boolean;
@@ -101,6 +103,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
   const [analysis, setAnalysis] = useState<LifePlanAnalysis | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
   const [showSkipOption, setShowSkipOption] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const handleSkip = () => {
     onComplete({});
@@ -129,11 +132,11 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
         answer: answers[s.id] || '',
       }));
 
-      // Save to form_submissions (using a generated form ID for life plan)
+      // Save to form_submissions
       const { data: submission, error: submissionError } = await supabase
         .from('form_submissions')
         .insert({
-          form_id: '00000000-0000-0000-0000-000000000001', // Life Plan pseudo-form ID
+          form_id: LIFE_PLAN_FORM_ID,
           user_id: user.id,
           email: user.email,
           responses,
@@ -147,6 +150,8 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
         console.error('Failed to save submission:', submissionError);
         throw new Error('Failed to save your responses');
       }
+
+      setSubmissionId(submission.id);
 
       // Also save to aurora_life_visions for the dashboard
       const vision3y = answers.vision_3y?.trim();
@@ -211,7 +216,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
   };
 
   const handleContinueAfterAnalysis = () => {
-    onComplete({});
+    onComplete(submissionId ? { form_submission_id: submissionId } : {});
   };
 
   // Analysis View
