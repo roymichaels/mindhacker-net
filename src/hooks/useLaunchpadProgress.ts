@@ -218,16 +218,45 @@ export function useLaunchpadProgress() {
 
   const actualCurrentStep = calculateActualCurrentStep();
 
+  // Helper to safely serialize data for JSON (removes circular refs, DOM nodes, etc.)
+  const safeSerialize = (obj: unknown): unknown => {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') return obj;
+    if (Array.isArray(obj)) return obj.map(safeSerialize);
+    if (typeof obj === 'object') {
+      // Skip DOM nodes, React Fiber nodes, etc.
+      if (obj instanceof Element || obj instanceof Node) return undefined;
+      if ('$$typeof' in obj) return undefined;
+      if ('__reactFiber' in obj) return undefined;
+      
+      const result: Record<string, unknown> = {};
+      for (const key of Object.keys(obj)) {
+        // Skip internal React/DOM properties
+        if (key.startsWith('__react') || key.startsWith('_react')) continue;
+        const value = (obj as Record<string, unknown>)[key];
+        const serialized = safeSerialize(value);
+        if (serialized !== undefined) {
+          result[key] = serialized;
+        }
+      }
+      return result;
+    }
+    return undefined;
+  };
+
   // Complete step mutation
   const completeStepMutation = useMutation({
     mutationFn: async ({ step, data }: { step: number; data?: StepCompletionData }): Promise<StepCompletionResult> => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      // Safely serialize data to avoid circular reference errors
+      const safeData = safeSerialize(data || {}) as Record<string, unknown>;
+
       const { data: result, error } = await supabase
         .rpc('complete_launchpad_step', {
           p_user_id: user.id,
           p_step: step,
-          p_data: JSON.parse(JSON.stringify(data || {})) as Json,
+          p_data: safeData as Json,
         });
 
       if (error) throw error;
