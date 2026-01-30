@@ -47,14 +47,14 @@ interface ProfileData {
   hobbies: string[];
   reading_habits: string;
   
-  // Situational & Behavioral
-  conflict_handling: string;
-  problem_approach: string;
-  decision_style: string;
-  opportunity_response: string;
-  failure_response: string;
-  time_management: string;
-  relationship_style: string;
+  // Situational & Behavioral (multi-select)
+  conflict_handling: string[];
+  problem_approach: string[];
+  decision_style: string[];
+  opportunity_response: string[];
+  failure_response: string[];
+  time_management: string[];
+  relationship_style: string[];
   
   // Social & Lifestyle
   social_preference: string;
@@ -71,7 +71,7 @@ interface ProfileData {
 const STORAGE_KEY = 'launchpad_personal_profile';
 
 type CategoryKey = keyof typeof CATEGORIES;
-type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'hobbies' | 'life_priorities' | 'energy_source' | 'relaxation_methods' | 'growth_focus' | 'obstacles';
+type MultiSelectCategory = 'exercise_types' | 'smoking' | 'supplements' | 'hydration' | 'hobbies' | 'life_priorities' | 'energy_source' | 'relaxation_methods' | 'growth_focus' | 'obstacles' | 'conflict_handling' | 'problem_approach' | 'decision_style' | 'opportunity_response' | 'failure_response' | 'time_management' | 'relationship_style';
 
 const CATEGORIES = {
   // === DEMOGRAPHICS ===
@@ -896,13 +896,13 @@ const getDefaultProfileData = (): ProfileData => ({
   relaxation_methods: [],
   hobbies: [],
   reading_habits: '',
-  conflict_handling: '',
-  problem_approach: '',
-  decision_style: '',
-  opportunity_response: '',
-  failure_response: '',
-  time_management: '',
-  relationship_style: '',
+  conflict_handling: [],
+  problem_approach: [],
+  decision_style: [],
+  opportunity_response: [],
+  failure_response: [],
+  time_management: [],
+  relationship_style: [],
   social_preference: '',
   morning_evening: '',
   learning_style: '',
@@ -920,7 +920,17 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return { ...getDefaultProfileData(), ...parsed };
+        const defaults = getDefaultProfileData();
+        
+        // Migrate old string values to arrays for behavioral fields
+        const behavioralFields = ['conflict_handling', 'problem_approach', 'decision_style', 'opportunity_response', 'failure_response', 'time_management', 'relationship_style'] as const;
+        behavioralFields.forEach(field => {
+          if (parsed[field] && typeof parsed[field] === 'string') {
+            parsed[field] = parsed[field] ? [parsed[field]] : [];
+          }
+        });
+        
+        return { ...defaults, ...parsed };
       } catch {
         // fallback to defaults
       }
@@ -939,7 +949,9 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
 
   const handleMultiSelect = (category: MultiSelectCategory, value: string) => {
     setProfileData(prev => {
-      const current = prev[category] as string[];
+      const rawValue = prev[category];
+      // Ensure current is always an array (migration safety)
+      const current = Array.isArray(rawValue) ? rawValue : (rawValue ? [rawValue] : []);
       
       // If selecting "none", clear all others
       if (value === 'none') {
