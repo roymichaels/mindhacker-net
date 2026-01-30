@@ -18,7 +18,7 @@ export function supportsWebGL(): boolean {
 }
 
 export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
-  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, onReady },
+  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -89,15 +89,17 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     scene.add(mesh);
     meshRef.current = mesh;
 
-    // Inner glow sphere
-    const glowGeometry = new THREE.SphereGeometry(0.9, 32, 32);
-    const glowMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(colors.glow),
-      transparent: true,
-      opacity: 0.3,
-    });
-    const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-    scene.add(glowMesh);
+    // Inner glow sphere - only add if showGlow is true
+    if (showGlow) {
+      const glowGeometry = new THREE.SphereGeometry(0.9, 32, 32);
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(colors.glow),
+        transparent: true,
+        opacity: 0.3,
+      });
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      scene.add(glowMesh);
+    }
 
     onReady?.();
 
@@ -107,13 +109,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       renderer.dispose();
       geometry.dispose();
       material.dispose();
-      glowGeometry.dispose();
-      glowMaterial.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [size, colors.primary, colors.glow, onReady]);
+  }, [size, colors.primary, colors.glow, showGlow, onReady]);
 
   // Update colors when egoState changes
   useEffect(() => {

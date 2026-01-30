@@ -4,7 +4,7 @@ import type { OrbRef, OrbProps, OrbState } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
 
 export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
-  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, onReady },
+  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady },
   ref
 ) {
   const [internalState, setInternalState] = useState<OrbState>('idle');
@@ -54,28 +54,32 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
       )}
       style={{ width: size, height: size }}
     >
-      {/* Outer glow rings */}
-      <div
-        className="absolute rounded-full opacity-20 blur-xl"
-        style={{
-          width: size * 1.4,
-          height: size * 1.4,
-          background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
-          transform: `scale(${totalScale})`,
-          transition: 'transform 0.1s ease-out',
-        }}
-      />
-      
-      <div
-        className="absolute rounded-full opacity-30 blur-lg"
-        style={{
-          width: size * 1.2,
-          height: size * 1.2,
-          background: `radial-gradient(circle, ${colors.accent} 0%, transparent 60%)`,
-          transform: `scale(${totalScale})`,
-          transition: 'transform 0.1s ease-out',
-        }}
-      />
+      {/* Outer glow rings - only show if showGlow is true */}
+      {showGlow && (
+        <>
+          <div
+            className="absolute rounded-full opacity-20 blur-xl"
+            style={{
+              width: size * 1.4,
+              height: size * 1.4,
+              background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
+              transform: `scale(${totalScale})`,
+              transition: 'transform 0.1s ease-out',
+            }}
+          />
+          
+          <div
+            className="absolute rounded-full opacity-30 blur-lg"
+            style={{
+              width: size * 1.2,
+              height: size * 1.2,
+              background: `radial-gradient(circle, ${colors.accent} 0%, transparent 60%)`,
+              transform: `scale(${totalScale})`,
+              transition: 'transform 0.1s ease-out',
+            }}
+          />
+        </>
+      )}
 
       {/* Main orb */}
       <div

@@ -22,6 +22,7 @@ export interface OrbProps {
   tunnelMode?: boolean;
   egoState?: string;
   className?: string;
+  showGlow?: boolean;
   onReady?: () => void;
 }
 
