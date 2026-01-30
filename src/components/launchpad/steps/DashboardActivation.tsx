@@ -1,8 +1,11 @@
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Gift, Rocket, Check } from 'lucide-react';
+import { Sparkles, Gift, Rocket, Check, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface DashboardActivationProps {
   onComplete: () => void;
@@ -21,6 +24,59 @@ const UNLOCKS = [
 
 export function DashboardActivation({ onComplete, isCompleting, rewards }: DashboardActivationProps) {
   const { language, isRTL } = useTranslation();
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationComplete, setGenerationComplete] = useState(false);
+
+  const handleActivate = async () => {
+    setIsGenerating(true);
+    
+    try {
+      // Get current session for auth
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        toast({
+          title: language === 'he' ? 'שגיאה' : 'Error',
+          description: language === 'he' ? 'יש להתחבר מחדש' : 'Please log in again',
+          variant: 'destructive',
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      // Call edge function to generate summary and plan
+      const { data, error } = await supabase.functions.invoke('generate-launchpad-summary', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error generating summary:', error);
+        toast({
+          title: language === 'he' ? 'שגיאה ביצירת הסיכום' : 'Error generating summary',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        console.log('Summary generated:', data);
+        setGenerationComplete(true);
+        toast({
+          title: language === 'he' ? '🎉 הסיכום נוצר!' : '🎉 Summary generated!',
+          description: language === 'he' 
+            ? 'התוכנית שלך ל-90 ימים מוכנה' 
+            : 'Your 90-day plan is ready',
+        });
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setIsGenerating(false);
+      // Complete the flow even if summary generation failed
+      onComplete();
+    }
+  };
 
   return (
     <div className="space-y-8 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -111,20 +167,35 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
       >
         <Button 
           size="lg" 
-          onClick={onComplete}
-          disabled={isCompleting}
+          onClick={handleActivate}
+          disabled={isCompleting || isGenerating}
           className="min-w-[250px] h-14 text-lg gap-2"
         >
-          {isCompleting 
-            ? (language === 'he' ? 'מפעיל...' : 'Activating...') 
-            : (
-              <>
-                <Rocket className="w-5 h-5" />
-                {language === 'he' ? 'הפעל את הדשבורד' : 'Activate Dashboard'}
-              </>
-            )
-          }
+          {isGenerating ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              {language === 'he' ? 'יוצר סיכום ותוכנית...' : 'Creating summary & plan...'}
+            </>
+          ) : isCompleting ? (
+            language === 'he' ? 'מפעיל...' : 'Activating...'
+          ) : (
+            <>
+              <Rocket className="w-5 h-5" />
+              {language === 'he' ? 'הפעל את הדשבורד' : 'Activate Dashboard'}
+            </>
+          )}
         </Button>
+        
+        {generationComplete && (
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-sm text-green-500 mt-2 flex items-center justify-center gap-1"
+          >
+            <Check className="w-4 h-4" />
+            {language === 'he' ? 'התוכנית נוצרה בהצלחה!' : 'Plan created successfully!'}
+          </motion.p>
+        )}
       </motion.div>
     </div>
   );

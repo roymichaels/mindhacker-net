@@ -78,3 +78,6 @@ verify_jwt = false
 
 [functions.generate-first-week-actions]
 verify_jwt = false
+
+[functions.generate-launchpad-summary]
+verify_jwt = true

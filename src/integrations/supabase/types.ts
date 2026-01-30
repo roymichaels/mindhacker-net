@@ -2339,6 +2339,39 @@ export type Database = {
           },
         ]
       }
+      launchpad_summaries: {
+        Row: {
+          clarity_score: number | null
+          consciousness_score: number | null
+          generated_at: string | null
+          id: string
+          summary_data: Json
+          transformation_readiness: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          clarity_score?: number | null
+          consciousness_score?: number | null
+          generated_at?: string | null
+          id?: string
+          summary_data?: Json
+          transformation_readiness?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          clarity_score?: number | null
+          consciousness_score?: number | null
+          generated_at?: string | null
+          id?: string
+          summary_data?: Json
+          transformation_readiness?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           affiliate_code: string | null
@@ -2383,6 +2416,121 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      life_plan_milestones: {
+        Row: {
+          challenge: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          focus_area: string | null
+          goal: string | null
+          hypnosis_recommendation: string | null
+          id: string
+          is_completed: boolean | null
+          month_number: number
+          plan_id: string
+          tasks: Json | null
+          title: string
+          tokens_reward: number | null
+          week_number: number
+          xp_reward: number | null
+        }
+        Insert: {
+          challenge?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          focus_area?: string | null
+          goal?: string | null
+          hypnosis_recommendation?: string | null
+          id?: string
+          is_completed?: boolean | null
+          month_number: number
+          plan_id: string
+          tasks?: Json | null
+          title: string
+          tokens_reward?: number | null
+          week_number: number
+          xp_reward?: number | null
+        }
+        Update: {
+          challenge?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          focus_area?: string | null
+          goal?: string | null
+          hypnosis_recommendation?: string | null
+          id?: string
+          is_completed?: boolean | null
+          month_number?: number
+          plan_id?: string
+          tasks?: Json | null
+          title?: string
+          tokens_reward?: number | null
+          week_number?: number
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_plan_milestones_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      life_plans: {
+        Row: {
+          created_at: string | null
+          duration_months: number | null
+          end_date: string
+          id: string
+          plan_data: Json
+          progress_percentage: number | null
+          start_date: string
+          status: string | null
+          summary_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_months?: number | null
+          end_date?: string
+          id?: string
+          plan_data?: Json
+          progress_percentage?: number | null
+          start_date?: string
+          status?: string | null
+          summary_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_months?: number | null
+          end_date?: string
+          id?: string
+          plan_data?: Json
+          progress_percentage?: number | null
+          start_date?: string
+          status?: string | null
+          summary_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_plans_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "launchpad_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       menu_items: {
         Row: {
