@@ -137,7 +137,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
           user_id: user.id,
           email: user.email,
           responses,
-          status: 'completed',
+          status: 'new',
           metadata: { type: 'life_plan', source: 'launchpad' },
         })
         .select()
