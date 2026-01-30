@@ -43,10 +43,10 @@ const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterPr
   const selectedCategoryData = allCategories.find(c => c.id === selectedCategory) || allCategory;
 
   return (
-    <div className="flex items-center gap-2 p-3 border-b bg-background/95 backdrop-blur sticky top-0 z-10">
+    <div className="flex items-center justify-end gap-2 p-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 bg-background/50">
             <Filter className="h-4 w-4" />
             <span>{isRTL ? selectedCategoryData.name : selectedCategoryData.name_en || selectedCategoryData.name}</span>
           </Button>
