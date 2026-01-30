@@ -118,7 +118,7 @@ const DashboardSidebar = ({
       collapsible="offcanvas"
       side={isRTL ? "right" : "left"}
     >
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-2 flex flex-col h-full">
         {/* Hamburger toggle at top */}
         <div className="flex justify-end mb-2">
           <SidebarTrigger className="shrink-0 p-2 hover:bg-muted rounded-lg">
@@ -150,54 +150,8 @@ const DashboardSidebar = ({
           </Button>
         )}
 
-        {/* Recent Conversations - ChatGPT style (only on Aurora page) */}
-        {isAuroraPage && !isCollapsed && conversations.length > 0 && (
-          <div className="mb-4">
-            <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
-              {language === 'he' ? 'שיחות אחרונות' : 'Recent Chats'}
-            </p>
-            <div className="space-y-1 max-h-[200px] overflow-y-auto">
-              {conversations.slice(0, 10).map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => onSelectConversation?.(conv.id)}
-                  className={cn(
-                    "w-full text-start px-3 py-2 rounded-lg text-sm transition-colors group flex items-center justify-between gap-2",
-                    "hover:bg-muted",
-                    conv.id === currentConversationId && "bg-primary/10 text-primary"
-                  )}
-                >
-                  <div className="flex-1 min-w-0">
-                    <span className="truncate block text-sm">{conv.title}</span>
-                    {conv.last_message_at && (
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(conv.last_message_at), 'dd/MM', {
-                          locale: language === 'he' ? he : enUS,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                    onClick={(e) => handleDeleteConversation(e, conv.id)}
-                  >
-                    <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Divider */}
-        {isAuroraPage && !isCollapsed && conversations.length > 0 && (
-          <div className="border-t border-border mb-3" />
-        )}
-
-        <ScrollArea className="flex-1">
-          {/* Navigation Section */}
+        {/* Navigation Section */}
+        <div className="mb-4">
           {!isCollapsed && (
             <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
               {language === 'he' ? 'ניווט' : 'Navigate'}
@@ -225,7 +179,58 @@ const DashboardSidebar = ({
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
+
+        {/* Spacer to push conversations to bottom */}
+        <div className="flex-1" />
+
+        {/* Divider */}
+        {isAuroraPage && !isCollapsed && conversations.length > 0 && (
+          <div className="border-t border-border mb-3" />
+        )}
+
+        {/* Recent Conversations - ChatGPT style at BOTTOM (only on Aurora page) */}
+        {isAuroraPage && !isCollapsed && conversations.length > 0 && (
+          <div className="mb-2">
+            <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
+              {language === 'he' ? 'שיחות אחרונות' : 'Recent Chats'}
+            </p>
+            <ScrollArea className="max-h-[250px]">
+              <div className="space-y-1">
+                {conversations.slice(0, 10).map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => onSelectConversation?.(conv.id)}
+                    className={cn(
+                      "w-full text-start px-3 py-2 rounded-lg text-sm transition-colors group flex items-center justify-between gap-2",
+                      "hover:bg-muted",
+                      conv.id === currentConversationId && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <span className="truncate block text-sm">{conv.title}</span>
+                      {conv.last_message_at && (
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(conv.last_message_at), 'dd/MM', {
+                            locale: language === 'he' ? he : enUS,
+                          })}
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                      onClick={(e) => handleDeleteConversation(e, conv.id)}
+                    >
+                      <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t border-border">
