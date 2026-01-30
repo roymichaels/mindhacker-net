@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,16 +94,37 @@ interface LifePlanAnalysis {
   next_steps: string[];
 }
 
+const LIFE_PLAN_STORAGE_KEY = 'launchpad_life_plan_answers';
+
 export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    // Load saved answers from localStorage on mount
+    try {
+      const saved = localStorage.getItem(LIFE_PLAN_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
   const [openSections, setOpenSections] = useState<string[]>(['vision_3y']);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<LifePlanAnalysis | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
   const [showSkipOption, setShowSkipOption] = useState(false);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+
+  // Persist answers to localStorage on every change
+  useEffect(() => {
+    if (Object.keys(answers).length > 0) {
+      localStorage.setItem(LIFE_PLAN_STORAGE_KEY, JSON.stringify(answers));
+    }
+  }, [answers]);
+
+  // Clear localStorage after successful submission
+  const clearSavedAnswers = () => {
+    localStorage.removeItem(LIFE_PLAN_STORAGE_KEY);
+  };
 
   const handleSkip = () => {
     onComplete({});
@@ -169,6 +190,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
       }
 
       setSubmissionId(submission.id);
+      clearSavedAnswers(); // Clear localStorage after successful submission
 
       // Also save to aurora_life_visions for the dashboard
       const vision3y = answers.vision_3y?.trim();
