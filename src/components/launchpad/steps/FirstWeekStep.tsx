@@ -168,12 +168,12 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-sm">
+              <Target className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-base">
                 {language === 'he' ? '3 פעולות לשבוע' : '3 Actions for the Week'}
               </h3>
             </div>
-            <span className="text-xs font-medium text-primary">
+            <span className="text-sm font-medium text-primary">
               {selectedActions.length}/3
             </span>
           </div>
@@ -192,7 +192,7 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
                   transition={{ delay: 0.03 * index }}
                   onClick={() => toggleAction(label)}
                   className={cn(
-                    "relative flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-all",
+                    "relative flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all min-w-fit",
                     isSelected 
                       ? "bg-primary text-primary-foreground shadow-md" 
                       : "bg-muted/50 hover:bg-muted border border-muted-foreground/20"
@@ -202,13 +202,13 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold"
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold"
                     >
                       {selectionIndex + 1}
                     </motion.span>
                   )}
-                  <span>{action.icon}</span>
-                  <span className="text-xs">{label}</span>
+                  <span className="text-lg">{action.icon}</span>
+                  <span className="text-sm font-medium">{label}</span>
                 </motion.button>
               );
             })}
@@ -242,8 +242,8 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
       {!isLoadingSuggestions && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Anchor className="w-4 h-4 text-amber-500" />
-            <h3 className="font-semibold text-sm">
+            <Anchor className="w-5 h-5 text-amber-500" />
+            <h3 className="font-semibold text-base">
               {language === 'he' ? 'הרגל עוגן (קטן במיוחד!)' : 'Anchor Habit (super tiny!)'}
             </h3>
           </div>
@@ -261,21 +261,21 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
               const isSelected = selectedAnchor === label;
               
               return (
-                <motion.button
+              <motion.button
                   key={anchor.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.05 * index }}
                   onClick={() => selectAnchor(label)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-all",
+                    "flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all min-w-fit",
                     isSelected 
                       ? "bg-amber-500 text-white shadow-md" 
                       : "bg-muted/50 hover:bg-muted border border-muted-foreground/20"
                   )}
                 >
-                  <span>{anchor.icon}</span>
-                  <span className="text-xs">{label}</span>
+                  <span className="text-lg">{anchor.icon}</span>
+                  <span className="text-sm font-medium">{label}</span>
                 </motion.button>
               );
             })}
