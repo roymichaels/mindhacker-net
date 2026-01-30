@@ -10,9 +10,18 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  // Aurora-specific props for sidebar integration
+  currentConversationId?: string | null;
+  onNewChat?: () => void;
+  onSelectConversation?: (id: string) => void;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ 
+  children,
+  currentConversationId,
+  onNewChat,
+  onSelectConversation,
+}: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
@@ -32,7 +41,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </SheetTrigger>
               <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0">
                 <SidebarProvider>
-                  <DashboardSidebar onNavigate={() => setLeftSheetOpen(false)} />
+                  <DashboardSidebar 
+                    onNavigate={() => setLeftSheetOpen(false)}
+                    currentConversationId={currentConversationId}
+                    onNewChat={onNewChat}
+                    onSelectConversation={onSelectConversation}
+                  />
                 </SidebarProvider>
               </SheetContent>
             </Sheet>
@@ -62,7 +76,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="min-h-screen bg-background flex w-full" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Left Sidebar - Aurora style */}
-        <DashboardSidebar />
+        <DashboardSidebar 
+          currentConversationId={currentConversationId}
+          onNewChat={onNewChat}
+          onSelectConversation={onSelectConversation}
+        />
 
         {/* Main Content */}
         <main className="flex-1 min-w-0 p-4 lg:p-6">
