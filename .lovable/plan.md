@@ -1,300 +1,371 @@
 
 
-# תאריכי תוקף ומעקב משימות ע"י Aurora
+# תוכנית: הפיכת Mind Hacker לפלטפורמת מאמנים
 
-## סקירת הבעיה
+## סקירה כללית
 
-כרגע המערכת חסרה:
-1. **תאריכי יעד** על משימות בצ'קליסטים ו-milestones
-2. **מעקב אקטיבי** של Aurora אחרי משימות שלא בוצעו
-3. **יכולת לאורורה לשאול** באלגנטיות על משימות שפג תוקפן
-4. **הקשר תאריכים** ב-System Prompt של Aurora
-
----
-
-## הפתרון
-
-### 1. הוספת תאריכי יעד לטבלאות
-
-**aurora_checklist_items** - הוספת:
-```sql
-due_date DATE                   -- תאריך יעד למשימה
-completed_at TIMESTAMP          -- מתי הושלמה (כבר קיים)
-```
-
-**life_plan_milestones** - כבר יש `week_number` ו-`completed_at`, נוסיף:
-```sql
-start_date DATE                 -- תאריך התחלת השבוע
-end_date DATE                   -- תאריך סיום השבוע
-```
-
-### 2. שיפור System Prompt של Aurora
-
-Aurora תקבל מידע על:
-- תאריך נוכחי
-- משימות שעברו את תאריך היעד
-- משימות שמתקרבות לתאריך היעד
-- שבוע נוכחי בתוכנית החיים
-- מתי נוצרה התוכנית האחרונה
-
-### 3. תגיות חדשות ל-Aurora
+המעבר מאפליקציה אישית של דין → **פלטפורמת התפתחות אישית מבוססת AI** עם מאמני תודעה והיפנוטרפיסטים מרובים.
 
 ```text
-## מעקב משימות (חדש!)
-כשמתחילה שיחה, בדוק:
-1. האם יש משימות שעבר תאריך היעד שלהן?
-2. האם יש milestone שבועי שלא הושלם?
-
-אם כן, שאל באלגנטיות:
-- "ראיתי שהמשימה 'X' הייתה אמורה להסתיים עד אתמול. מה קרה?"
-- "איך הולך עם האתגר השבועי שלך?"
-- "שמתי לב שהשבוע הקודם בתוכנית לא סומן כהושלם - רוצה לעדכן?"
-
-## סימון משימות כבוצעו
-- [task:complete:checklist:item] - סמן משימה כהושלמה
-- [task:reschedule:checklist:item:new_date] - דחה תאריך יעד
-- [milestone:complete:week_number] - סמן milestone כהושלם
+לפני:                                    אחרי:
+┌─────────────────────────┐             ┌──────────────────────────────────────┐
+│  Mind Hacker            │             │  Mind Hacker Platform                │
+│  ─────────────────────  │             │  ───────────────────────────────     │
+│  • Dean - מייסד יחיד    │      →      │  • Aurora AI - הליבה                 │
+│  • כל התוכן מקושר לדין  │             │  • Directory מאמנים/מטפלים          │
+│  • אין הפרדה מאמן/תוכן   │             │  • Dean - מאמן ראשון בפלטפורמה       │
+│                         │             │  • מבנה Multi-practitioner           │
+└─────────────────────────┘             └──────────────────────────────────────┘
 ```
 
 ---
 
-## מבנה הנתונים המעודכן
+## ארכיטקטורה החדשה
 
-### 1. עדכון aurora_checklist_items
-
-```sql
-ALTER TABLE aurora_checklist_items
-ADD COLUMN due_date DATE,
-ADD COLUMN completed_at TIMESTAMP WITH TIME ZONE;
-```
-
-### 2. עדכון life_plan_milestones
-
-```sql
-ALTER TABLE life_plan_milestones
-ADD COLUMN start_date DATE,
-ADD COLUMN end_date DATE;
-```
-
-### 3. פונקציה לחישוב תאריכי Milestone
-
-בעת יצירת תוכנית חיים, נחשב אוטומטית:
-- שבוע 1: start_date = plan.start_date, end_date = start_date + 6 ימים
-- שבוע 2: start_date = end_date של שבוע 1 + 1, וכו'
-
----
-
-## זרימת המידע ל-Aurora
+### שכבות המערכת
 
 ```text
-┌────────────────────────────────────────────────────────────────┐
-│                    Aurora Chat Request                          │
-├────────────────────────────────────────────────────────────────┤
-│                                                                │
-│  buildUserContext() - מורחב:                                    │
-│                                                                │
-│  ## תאריכים ומעקב (חדש!)                                        │
-│  - תאריך נוכחי: 2026-01-30                                      │
-│  - תוכנית חיים פעילה מאז: 2026-01-15                            │
-│  - שבוע נוכחי: 3/12                                             │
-│                                                                │
-│  ## משימות באיחור (חדש!)                                        │
-│  - "התאמנות בוקר" (due: 2026-01-28) - 2 ימים באיחור            │
-│  - "פגישה עם מנטור" (due: 2026-01-29) - יום באיחור              │
-│                                                                │
-│  ## Milestone שבועי                                             │
-│  - שבוע 2: "ביסוס שגרת בוקר" - לא הושלם (הסתיים 2026-01-28)     │
-│  - שבוע 3 (נוכחי): "הרחבת הרגלים" - בתהליך                      │
-│                                                                │
-│  ## משימות להיום                                                │
-│  - "מדיטציה 10 דקות" (due: היום)                                │
-│  - "קריאה 30 דקות" (due: היום)                                  │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                        MIND HACKER PLATFORM                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │                      🧠 AURORA AI LAYER                        │ │
+│  │  • מאמן AI אישי לכל משתמש                                      │ │
+│  │  • Launchpad + Life Plans                                      │ │
+│  │  • Hypnosis AI                                                 │ │
+│  │  • Gamification                                                │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │               👥 PRACTITIONER DIRECTORY                        │ │
+│  │  • רשימת מאמנים/מטפלים                                        │ │
+│  │  • פרופילים אישיים                                             │ │
+│  │  • שירותים והתמחויות                                          │ │
+│  │  • הזמנת פגישות                                                │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────┐ │
+│  │   🎓 CONTENT            │  │   🏪 MARKETPLACE                 │ │
+│  │   • קורסים              │  │   • מוצרים של מאמנים            │ │
+│  │   • סדרות              │  │   • היפנוזות אישיות              │ │
+│  │   • ספריית משאבים       │  │   • תהליכי ליווי                │ │
+│  └─────────────────────────┘  └─────────────────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## שיפור ה-Edge Function
+## סכמת Database חדשה
 
-### עדכון buildUserContext()
+### 1. טבלת מאמנים/מטפלים (practitioners)
 
-```typescript
-// Add to aurora-chat/index.ts
-
-// Fetch overdue tasks
-const overdueTasksRes = await supabase
-  .from('aurora_checklist_items')
-  .select('*, aurora_checklists!inner(title)')
-  .eq('aurora_checklists.user_id', userId)
-  .eq('is_completed', false)
-  .lt('due_date', new Date().toISOString().split('T')[0]);
-
-// Fetch today's tasks
-const todayTasksRes = await supabase
-  .from('aurora_checklist_items')
-  .select('*, aurora_checklists!inner(title)')
-  .eq('aurora_checklists.user_id', userId)
-  .eq('is_completed', false)
-  .eq('due_date', new Date().toISOString().split('T')[0]);
-
-// Fetch life plan status
-const lifePlanRes = await supabase
-  .from('life_plans')
-  .select('*, life_plan_milestones(*)')
-  .eq('user_id', userId)
-  .eq('status', 'active')
-  .single();
-
-// Build context with dates
-const overdueTasks = overdueTasksRes.data || [];
-const todayTasks = todayTasksRes.data || [];
-const lifePlan = lifePlanRes.data;
-
-// Add to context string...
+```sql
+CREATE TABLE practitioners (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  
+  -- Basic Info
+  display_name TEXT NOT NULL,
+  display_name_en TEXT,
+  title TEXT NOT NULL,                -- "מאמן תודעה", "היפנוטרפיסט"
+  title_en TEXT,
+  short_name TEXT,
+  short_name_en TEXT,
+  bio TEXT,
+  bio_en TEXT,
+  
+  -- Media
+  avatar_url TEXT,
+  hero_image_url TEXT,
+  intro_video_url TEXT,
+  
+  -- Contact & Social
+  whatsapp TEXT,
+  calendly_url TEXT,
+  instagram_url TEXT,
+  website_url TEXT,
+  
+  -- Location & Availability
+  country TEXT DEFAULT 'Israel',
+  languages TEXT[] DEFAULT '{"he"}',
+  timezone TEXT DEFAULT 'Asia/Jerusalem',
+  
+  -- Platform settings
+  slug TEXT UNIQUE NOT NULL,          -- URL: /practitioner/dean
+  is_featured BOOLEAN DEFAULT false,
+  is_verified BOOLEAN DEFAULT false,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'suspended')),
+  
+  -- Commission (for future marketplace)
+  commission_rate DECIMAL DEFAULT 20, -- Platform takes 20%
+  
+  -- Stats
+  clients_count INTEGER DEFAULT 0,
+  rating DECIMAL DEFAULT 0,
+  reviews_count INTEGER DEFAULT 0,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 ```
 
-### עדכון System Prompt
+### 2. התמחויות והסמכות (practitioner_specialties)
 
-```typescript
-// Add to Hebrew system prompt:
+```sql
+CREATE TABLE practitioner_specialties (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE NOT NULL,
+  specialty TEXT NOT NULL,            -- "hypnotherapy", "coaching", "nlp"
+  specialty_label TEXT NOT NULL,      -- "היפנותרפיה"
+  specialty_label_en TEXT,
+  years_experience INTEGER DEFAULT 0,
+  certification_name TEXT,            -- "תעודת NLP מוסמך"
+  certification_url TEXT,             -- לינק לתעודה
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
 
-## מעקב תאריכים ומשימות
-אתה מודע לתאריכים ולמצב המשימות של המשתמש.
+### 3. שירותים של מאמנים (practitioner_services)
 
-כשמתחילה שיחה חדשה ויש משימות באיחור:
-1. שאל בעדינות מה קרה - לא בתוקפנות
-2. הצע לעדכן את התאריך אם צריך
-3. עזור למשתמש להבין את החסם
+```sql
+CREATE TABLE practitioner_services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE NOT NULL,
+  
+  title TEXT NOT NULL,
+  title_en TEXT,
+  description TEXT,
+  description_en TEXT,
+  
+  service_type TEXT NOT NULL,         -- "session", "package", "product"
+  price DECIMAL NOT NULL,
+  price_currency TEXT DEFAULT 'ILS',
+  
+  duration_minutes INTEGER,           -- למפגשים
+  sessions_count INTEGER,             -- לחבילות
+  
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
 
-דוגמאות:
-- "הי! שמתי לב שהמשימה 'פגישה עם מנטור' הייתה אמורה לקרות אתמול. איך הלך?"
-- "רציתי לשאול על השבוע הקודם בתוכנית - הצלחת להשלים את היעדים?"
+### 4. עדכון app_role enum
 
-## סימון משימות
-כשמשתמש אומר שביצע משימה:
-- [task:complete:שם_רשימה:שם_משימה] - סמן כהושלם
-- אם לא ברור איזו משימה - שאל
-- תמיד חגוג הצלחה!
-
-כשמשתמש מבקש לדחות:
-- [task:reschedule:שם_רשימה:שם_משימה:YYYY-MM-DD]
-- אל תשפוט, פשוט עזור
-
-כשמשתמש השלים שבוע בתוכנית:
-- [milestone:complete:מספר_שבוע]
+```sql
+-- הוספת role חדש למאמנים
+ALTER TYPE app_role ADD VALUE 'practitioner';
 ```
 
 ---
 
-## עדכון processActionTags()
+## מבנה הדפים החדש
 
-```typescript
-// In useAuroraChat.tsx
+### דפים ציבוריים
 
-// Task completion with date tracking
-const taskCompleteMatches = [...content.matchAll(/\[task:complete:(.+?):(.+?)\]/g)];
-for (const match of taskCompleteMatches) {
-  const checklistTitle = match[1].trim();
-  const itemContent = match[2].trim();
-  await completeChecklistItem(checklistTitle, itemContent);
-}
-
-// Task reschedule
-const taskRescheduleMatches = [...content.matchAll(/\[task:reschedule:(.+?):(.+?):(\d{4}-\d{2}-\d{2})\]/g)];
-for (const match of taskRescheduleMatches) {
-  const checklistTitle = match[1].trim();
-  const itemContent = match[2].trim();
-  const newDate = match[3];
-  await rescheduleChecklistItem(checklistTitle, itemContent, newDate);
-}
-
-// Milestone completion
-const milestoneCompleteMatches = [...content.matchAll(/\[milestone:complete:(\d+)\]/g)];
-for (const match of milestoneCompleteMatches) {
-  const weekNumber = parseInt(match[1]);
-  await completeMilestone(weekNumber);
-}
-```
-
----
-
-## קבצים לשינוי
-
-| קובץ | שינוי |
+| נתיב | תיאור |
 |------|-------|
-| **Migration חדש** | הוספת due_date, completed_at, start_date, end_date |
-| `supabase/functions/aurora-chat/index.ts` | שליפת משימות באיחור + הוספה ל-context |
-| `supabase/functions/generate-launchpad-summary/index.ts` | חישוב תאריכי milestone בעת יצירה |
-| `src/hooks/aurora/useAuroraChat.tsx` | עיבוד תגיות חדשות + פונקציות reschedule/complete |
-| `src/hooks/aurora/useChecklistsData.tsx` | הוספת rescheduleItem, completeMilestone |
-| `src/components/dashboard/unified/ChecklistsCard.tsx` | הצגת תאריכי יעד |
-| `src/components/dashboard/unified/LifePlanCard.tsx` | הצגת תאריכי milestone |
+| `/` | דף בית - Aurora + רשימת מאמנים |
+| `/practitioners` | מאגר מאמנים ומטפלים |
+| `/practitioner/:slug` | פרופיל מאמן (למשל /practitioner/dean) |
+| `/practitioner/:slug/book` | הזמנת פגישה עם מאמן |
+| `/aurora` | Aurora AI (נשאר כמו שהוא) |
+
+### דפי מאמן (Practitioner Dashboard)
+
+| נתיב | תיאור |
+|------|-------|
+| `/my-practice` | דשבורד מאמן |
+| `/my-practice/clients` | רשימת לקוחות |
+| `/my-practice/calendar` | יומן פגישות |
+| `/my-practice/services` | ניהול שירותים |
+| `/my-practice/products` | מוצרים שלי |
+| `/my-practice/earnings` | הכנסות ועמלות |
+| `/my-practice/profile` | עריכת פרופיל |
 
 ---
 
-## UI - הצגת תאריכים
+## עדכונים לקוד קיים
 
-### בצ'קליסט
+### 1. שינויים בדף הבית (Index.tsx)
 
-```text
-┌─────────────────────────────────────────┐
-│ 🏗️ הרגלים לבנות                         │
-├─────────────────────────────────────────┤
-│ ☐ התאמנות בוקר      📅 היום            │
-│ ☐ מדיטציה 10 דק'    📅 מחר             │
-│ ⚠️ פגישה עם מנטור   📅 אתמול (באיחור!) │
-│ ☑ קריאה 30 דקות    ✓ הושלם 28/01       │
-└─────────────────────────────────────────┘
+**לפני:**
+- HeroSection עם דין
+- About עם סיפור אישי של דין
+- IntrospectionPromo / PersonalVideoPromo / ConsciousnessLeapPromo
+
+**אחרי:**
+- HeroSection - Platform-focused (Aurora AI + מציאת מאמן)
+- FeaturedPractitioners - מאמנים מומלצים
+- HowItWorks - כיצד הפלטפורמה עובדת
+- Aurora Promo - הדגשת הליווי ה-AI
+- Testimonials - מכלל המאמנים
+
+### 2. Theme Settings - מ-founder לplatform
+
+**לפני:**
+```typescript
+founder_name: string;
+founder_name_en: string;
+founder_title: string;
 ```
 
-### ב-Milestone
+**אחרי:**
+```typescript
+// Platform info (נשאר)
+brand_name: string;
+brand_name_en: string;
 
-```text
-┌─────────────────────────────────────────┐
-│ 📅 שבוע 3: הרחבת הרגלים                  │
-│ 23/01 - 29/01                           │
-├─────────────────────────────────────────┤
-│ ⏰ נותרו 2 ימים                          │
-│ ☐ משימה 1                               │
-│ ☐ משימה 2                               │
-│ ☑ משימה 3                               │
-└─────────────────────────────────────────┘
+// Founder info (נשאר להיסטוריה/SEO)
+founder_name: string;
+founder_name_en: string;
+
+// כל מאמן יש לו פרופיל נפרד בטבלת practitioners
+```
+
+### 3. שינויים ב-Aurora Chat System Prompt
+
+**לפני:**
+```
+אתה העוזר האישי של דין אושר אזולאי מאתר מיינד-האקר.
+```
+
+**אחרי:**
+```
+אני Aurora - מערכת הליווי האישי של פלטפורמת Mind Hacker.
+אני עוזרת למשתמשים למצוא את דרכם, לבנות תוכנית התפתחות אישית,
+ולהתאים להם מאמן או מטפל במידת הצורך.
+```
+
+### 4. Products → קישור למאמן
+
+```sql
+ALTER TABLE products 
+ADD COLUMN practitioner_id UUID REFERENCES practitioners(id);
+```
+
+### 5. Orders → קישור למאמן
+
+```sql
+ALTER TABLE orders 
+ADD COLUMN practitioner_id UUID REFERENCES practitioners(id);
 ```
 
 ---
 
-## דוגמת שיחה עם Aurora
+## Dean כמאמן ראשון
 
-```text
-[Aurora מזהה משימות באיחור ושבוע שלא הושלם]
+### Seed Data - יצירת פרופיל דין
 
-Aurora: "הי! 👋 איך היום שלך?
-
-אגב, שמתי לב שהמשימה 'פגישה עם מנטור' הייתה מתוכננת לאתמול. 
-הצלחת לקיים אותה, או שנדחה?"
-
-User: "כן, דיברנו בטלפון"
-
-Aurora: "מעולה! 🎉 סימנתי את זה כהושלם.
-[task:complete:צעדים לקריירה:פגישה עם מנטור]
-
-איך היה? למדת משהו חדש?"
+```sql
+-- יצירת Dean כמאמן ראשון
+INSERT INTO practitioners (
+  user_id,
+  display_name,
+  display_name_en,
+  title,
+  title_en,
+  short_name,
+  short_name_en,
+  bio,
+  bio_en,
+  slug,
+  is_featured,
+  is_verified,
+  status,
+  country,
+  languages,
+  whatsapp,
+  calendly_url,
+  instagram_url
+) VALUES (
+  (SELECT id FROM auth.users WHERE email = 'dean@mindhacker.net'),
+  'דין אושר אזולאי',
+  'Dean Osher Azulay',
+  'מאמן תודעה | מייסד Mind Hacker',
+  'Consciousness Coach | Mind Hacker Founder',
+  'דין',
+  'Dean',
+  'סיפור אישי כאן...',
+  'Personal story here...',
+  'dean',
+  true,
+  true,
+  'active',
+  'International',
+  '{"he", "en"}',
+  -- WhatsApp, Calendly from site_settings
+  NULL,
+  NULL,
+  NULL
+);
+```
 
 ---
 
-User: "לא הספקתי להתאמן השבוע"
+## קומפוננטות חדשות
 
-Aurora: "קורה. מה הכי הפריע - זמן, מוטיבציה, או משהו אחר?
-אם רוצה, נוכל לקבוע תאריך חדש ריאלי יותר. 
-מתי תרצה לנסות שוב?"
+| קומפוננטה | תיאור |
+|-----------|--------|
+| `PractitionerCard.tsx` | כרטיס מאמן ברשימה |
+| `PractitionerProfile.tsx` | עמוד פרופיל מלא |
+| `PractitionerDirectory.tsx` | דף רשימת מאמנים |
+| `PractitionerServices.tsx` | רשימת שירותים של מאמן |
+| `PractitionerBooking.tsx` | מודל הזמנת פגישה |
+| `FeaturedPractitioners.tsx` | רכיב מאמנים מומלצים |
 
-User: "נגיד יום שישי"
+---
 
-Aurora: "מסודר 📅
-[task:reschedule:הרגלים לבנות:התאמנות בוקר:2026-01-31]
+## שלבי יישום
 
-יום שישי בבוקר מתאים? אני אזכיר לך 😊"
+### שלב 1: תשתית (Database + Types)
+- [ ] יצירת טבלאות practitioners, practitioner_specialties, practitioner_services
+- [ ] עדכון app_role enum
+- [ ] הוספת practitioner_id לטבלאות קיימות
+- [ ] יצירת RLS policies
+
+### שלב 2: Dean כמאמן ראשון
+- [ ] יצירת פרופיל Dean
+- [ ] העברת נתונים מ-theme_settings לפרופיל
+- [ ] קישור מוצרים קיימים לדין
+
+### שלב 3: דף פרופיל מאמן
+- [ ] יצירת `/practitioner/:slug`
+- [ ] הצגת פרופיל, שירותים, ביקורות
+- [ ] כפתור הזמנת פגישה
+
+### שלב 4: מאגר מאמנים
+- [ ] יצירת `/practitioners`
+- [ ] פילטרים (התמחות, שפה, מדינה)
+- [ ] חיפוש
+
+### שלב 5: דשבורד מאמן
+- [ ] יצירת `/my-practice`
+- [ ] ניהול לקוחות, שירותים, הכנסות
+- [ ] עריכת פרופיל
+
+### שלב 6: עדכון דף הבית
+- [ ] HeroSection חדש (Platform-focused)
+- [ ] FeaturedPractitioners section
+- [ ] עדכון ניווט
+
+### שלב 7: עדכון Aurora
+- [ ] System prompt platform-oriented
+- [ ] יכולת להמליץ על מאמנים
+- [ ] אינטגרציה עם Directory
+
+---
+
+## Migration Path
+
+```text
+Phase 1: Foundation               Phase 2: Features              Phase 3: Scale
+─────────────────────            ─────────────────              ─────────────
+• DB Schema                      • Practitioner UI              • More practitioners
+• Dean profile                   • Booking system               • Payment split
+• Basic routing                  • Reviews system               • Analytics
+• RLS policies                   • Aurora integration           • Marketing tools
 ```
 
 ---
@@ -303,9 +374,10 @@ Aurora: "מסודר 📅
 
 | פריט | כמות |
 |------|------|
-| Migration חדש | 1 |
-| שינויים ב-Edge functions | 2 |
-| שינויים ב-Hooks | 2 |
-| שינויים ב-Components | 2 |
-| תגיות חדשות ל-Aurora | 3 |
+| טבלאות DB חדשות | 3 |
+| עמודות חדשות בטבלאות קיימות | 4 |
+| דפים חדשים | 8 |
+| קומפוננטות חדשות | 6 |
+| עדכונים ל-Edge functions | 2 |
+| Roles חדשים | 1 (practitioner) |
 
