@@ -2241,6 +2241,9 @@ export type Database = {
           step_1_welcome: boolean | null
           step_2_completed_at: string | null
           step_2_first_chat: boolean | null
+          step_2_profile: boolean
+          step_2_profile_completed_at: string | null
+          step_2_profile_data: Json | null
           step_2_summary: string | null
           step_3_completed_at: string | null
           step_3_form_submission_id: string | null
@@ -2271,6 +2274,9 @@ export type Database = {
           step_1_welcome?: boolean | null
           step_2_completed_at?: string | null
           step_2_first_chat?: boolean | null
+          step_2_profile?: boolean
+          step_2_profile_completed_at?: string | null
+          step_2_profile_data?: Json | null
           step_2_summary?: string | null
           step_3_completed_at?: string | null
           step_3_form_submission_id?: string | null
@@ -2301,6 +2307,9 @@ export type Database = {
           step_1_welcome?: boolean | null
           step_2_completed_at?: string | null
           step_2_first_chat?: boolean | null
+          step_2_profile?: boolean
+          step_2_profile_completed_at?: string | null
+          step_2_profile_data?: Json | null
           step_2_summary?: string | null
           step_3_completed_at?: string | null
           step_3_form_submission_id?: string | null
