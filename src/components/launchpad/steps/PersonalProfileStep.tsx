@@ -399,18 +399,112 @@ const CATEGORIES = {
     icon: '🎨',
     multiSelect: true,
     options: [
-      { value: 'reading', label: 'קריאה', labelEn: 'Reading' },
-      { value: 'gaming', label: 'גיימינג', labelEn: 'Gaming' },
-      { value: 'cooking', label: 'בישול', labelEn: 'Cooking' },
-      { value: 'music', label: 'נגינה/האזנה', labelEn: 'Music' },
-      { value: 'art', label: 'אמנות', labelEn: 'Art' },
+      // 🎨 יצירה ואמנות
+      { value: 'painting', label: 'ציור / צביעה', labelEn: 'Painting / Drawing' },
       { value: 'photography', label: 'צילום', labelEn: 'Photography' },
-      { value: 'travel', label: 'טיולים', labelEn: 'Travel' },
-      { value: 'diy', label: 'עשה זאת בעצמך', labelEn: 'DIY' },
+      { value: 'sketching', label: 'סריטוט / איור', labelEn: 'Sketching / Illustration' },
+      { value: 'graphic-design', label: 'עיצוב גרפי', labelEn: 'Graphic Design' },
+      { value: 'interior-design', label: 'עיצוב פנים', labelEn: 'Interior Design' },
+      { value: 'creative-writing', label: 'כתיבה יוצרת', labelEn: 'Creative Writing' },
+      { value: 'poetry', label: 'שירה', labelEn: 'Poetry' },
+      { value: 'calligraphy', label: 'קליגרפיה', labelEn: 'Calligraphy' },
+      { value: 'collage', label: 'קולאז\'', labelEn: 'Collage' },
+      { value: 'sculpting', label: 'פיסול', labelEn: 'Sculpting' },
+      
+      // 🎵 מוזיקה
+      { value: 'playing-instrument', label: 'נגינה (גיטרה, פסנתר...)', labelEn: 'Playing Instrument' },
+      { value: 'singing', label: 'שירה', labelEn: 'Singing' },
+      { value: 'music-production', label: 'הפקת מוזיקה', labelEn: 'Music Production' },
+      { value: 'djing', label: 'DJ', labelEn: 'DJing' },
+      { value: 'active-listening', label: 'האזנה פעילה למוזיקה', labelEn: 'Active Music Listening' },
+      { value: 'live-concerts', label: 'הופעות חיות', labelEn: 'Live Concerts' },
+      
+      // 🏃 ספורט ותנועה
+      { value: 'running', label: 'ריצה / הליכה', labelEn: 'Running / Walking' },
+      { value: 'soccer', label: 'כדורגל', labelEn: 'Soccer' },
+      { value: 'basketball', label: 'כדורסל', labelEn: 'Basketball' },
+      { value: 'tennis', label: 'טניס / פאדל', labelEn: 'Tennis / Padel' },
+      { value: 'swimming', label: 'שחייה', labelEn: 'Swimming' },
+      { value: 'cycling', label: 'רכיבה על אופניים', labelEn: 'Cycling' },
+      { value: 'yoga-hobby', label: 'יוגה / פילאטיס', labelEn: 'Yoga / Pilates' },
+      { value: 'gym', label: 'חדר כושר', labelEn: 'Gym / Fitness' },
+      { value: 'martial-arts', label: 'אומנויות לחימה', labelEn: 'Martial Arts' },
+      { value: 'climbing', label: 'טיפוס', labelEn: 'Climbing' },
+      { value: 'skiing', label: 'סקי / סנובורד', labelEn: 'Skiing / Snowboarding' },
+      { value: 'surfing', label: 'גלישה', labelEn: 'Surfing' },
+      { value: 'dancing', label: 'ריקוד', labelEn: 'Dancing' },
+      
+      // 🌿 טבע ואאוטדור
+      { value: 'hiking', label: 'טיולים וטרקים', labelEn: 'Hiking & Trekking' },
+      { value: 'camping', label: 'קמפינג', labelEn: 'Camping' },
+      { value: 'fishing', label: 'דיג', labelEn: 'Fishing' },
+      { value: 'birdwatching', label: 'צפרות', labelEn: 'Birdwatching' },
       { value: 'gardening', label: 'גינון', labelEn: 'Gardening' },
-      { value: 'writing', label: 'כתיבה', labelEn: 'Writing' },
+      { value: 'pet-care', label: 'טיפול בחיות', labelEn: 'Pet Care' },
+      
+      // 🍳 אוכל ומשקאות
+      { value: 'cooking', label: 'בישול', labelEn: 'Cooking' },
+      { value: 'baking', label: 'אפייה', labelEn: 'Baking' },
+      { value: 'wine', label: 'יין ואלכוהול', labelEn: 'Wine & Alcohol' },
+      { value: 'coffee', label: 'קפה', labelEn: 'Coffee' },
+      { value: 'home-chef', label: 'שף ביתי', labelEn: 'Home Chef' },
+      { value: 'ethnic-food', label: 'אוכל אתני', labelEn: 'Ethnic Cuisine' },
+      
+      // 🎮 בידור וטכנולוגיה
+      { value: 'gaming', label: 'גיימינג', labelEn: 'Gaming' },
+      { value: 'board-games', label: 'משחקי לוח', labelEn: 'Board Games' },
+      { value: 'card-games', label: 'משחקי קלפים', labelEn: 'Card Games' },
+      { value: 'puzzles', label: 'פאזלים', labelEn: 'Puzzles' },
+      { value: 'coding', label: 'קידוד ותכנות', labelEn: 'Coding & Programming' },
+      { value: 'electronics-diy', label: 'אלקטרוניקה DIY', labelEn: 'Electronics DIY' },
+      { value: 'drones', label: 'דרונים', labelEn: 'Drones' },
+      { value: 'robotics', label: 'רובוטיקה', labelEn: 'Robotics' },
+      { value: '3d-printing', label: 'הדפסת 3D', labelEn: '3D Printing' },
+      
+      // 📚 למידה והשכלה
+      { value: 'reading', label: 'קריאה', labelEn: 'Reading' },
+      { value: 'language-learning', label: 'לימוד שפות', labelEn: 'Language Learning' },
+      { value: 'history', label: 'היסטוריה', labelEn: 'History' },
+      { value: 'science', label: 'מדע', labelEn: 'Science' },
+      { value: 'philosophy', label: 'פילוסופיה', labelEn: 'Philosophy' },
+      { value: 'psychology', label: 'פסיכולוגיה', labelEn: 'Psychology' },
+      
+      // 🎭 תרבות ובידור
+      { value: 'movies', label: 'סרטים וסדרות', labelEn: 'Movies & TV Shows' },
+      { value: 'theater', label: 'תיאטרון', labelEn: 'Theater' },
+      { value: 'standup', label: 'סטנדאפ', labelEn: 'Stand-up Comedy' },
       { value: 'podcasts', label: 'פודקאסטים', labelEn: 'Podcasts' },
-      { value: 'movies', label: 'סרטים/סדרות', labelEn: 'Movies/Shows' },
+      { value: 'anime-manga', label: 'אנימה / מנגה', labelEn: 'Anime / Manga' },
+      { value: 'cosplay', label: 'קוספליי', labelEn: 'Cosplay' },
+      
+      // 🧶 מלאכת יד
+      { value: 'knitting', label: 'סריגה / סרוגה', labelEn: 'Knitting / Crocheting' },
+      { value: 'sewing', label: 'תפירה', labelEn: 'Sewing' },
+      { value: 'woodworking', label: 'עבודות עץ', labelEn: 'Woodworking' },
+      { value: 'ceramics', label: 'קרמיקה', labelEn: 'Ceramics' },
+      { value: 'jewelry', label: 'תכשיטים', labelEn: 'Jewelry Making' },
+      { value: 'miniatures', label: 'מיניאטורות', labelEn: 'Miniatures' },
+      { value: 'leatherwork', label: 'עור', labelEn: 'Leatherwork' },
+      
+      // ✈️ נסיעות וחוויות
+      { value: 'travel-abroad', label: 'טיולים בחו"ל', labelEn: 'Travel Abroad' },
+      { value: 'travel-local', label: 'טיולים בארץ', labelEn: 'Local Travel' },
+      { value: 'nightlife', label: 'מסיבות / חיי לילה', labelEn: 'Parties / Nightlife' },
+      { value: 'cultural-events', label: 'אירועי תרבות', labelEn: 'Cultural Events' },
+      { value: 'festivals', label: 'פסטיבלים', labelEn: 'Festivals' },
+      
+      // 🤝 חברתי וקהילתי
+      { value: 'volunteering', label: 'התנדבות', labelEn: 'Volunteering' },
+      { value: 'community', label: 'פעילות קהילתית', labelEn: 'Community Activity' },
+      { value: 'mentoring', label: 'הדרכה / מנטורינג', labelEn: 'Mentoring / Coaching' },
+      { value: 'clubs', label: 'מועדונים וקבוצות', labelEn: 'Clubs & Groups' },
+      
+      // 💡 אחר
+      { value: 'collecting', label: 'אוסף (בולים, מטבעות...)', labelEn: 'Collecting (stamps, coins...)' },
+      { value: 'astronomy', label: 'אסטרונומיה', labelEn: 'Astronomy' },
+      { value: 'magic', label: 'קסמים', labelEn: 'Magic Tricks' },
+      { value: 'feng-shui', label: 'פנג שואי', labelEn: 'Feng Shui' },
+      { value: 'tarot', label: 'טארוט / מיסטיקה', labelEn: 'Tarot / Mysticism' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
@@ -621,21 +715,77 @@ const CATEGORIES = {
     icon: '🌱',
     multiSelect: true,
     options: [
+      // 💼 קריירה ועבודה
+      { value: 'career-purpose', label: 'מציאת ייעוד מקצועי', labelEn: 'Finding Professional Purpose' },
+      { value: 'career-advancement', label: 'התקדמות בקריירה', labelEn: 'Career Advancement' },
+      { value: 'entrepreneurship', label: 'מעבר לעצמאות / יזמות', labelEn: 'Becoming Self-employed / Entrepreneurship' },
+      { value: 'work-leadership', label: 'מנהיגות בעבודה', labelEn: 'Leadership at Work' },
+      { value: 'work-life-balance', label: 'איזון עבודה-חיים', labelEn: 'Work-Life Balance' },
+      { value: 'job-situation', label: 'התמודדות עם מצב תעסוקתי', labelEn: 'Dealing with Employment Situation' },
+      
+      // 💰 כסף ושפע
+      { value: 'increase-income', label: 'הגדלת הכנסה', labelEn: 'Increasing Income' },
+      { value: 'money-management', label: 'ניהול כספים', labelEn: 'Money Management' },
+      { value: 'savings-investments', label: 'חיסכון והשקעות', labelEn: 'Savings & Investments' },
+      { value: 'financial-blocks', label: 'שחרור חסמים פיננסיים', labelEn: 'Releasing Financial Blocks' },
+      { value: 'business', label: 'יזמות ועסקים', labelEn: 'Business & Entrepreneurship' },
+      
+      // 💪 גוף ובריאות
+      { value: 'weight-loss', label: 'ירידה במשקל', labelEn: 'Weight Loss' },
+      { value: 'muscle-building', label: 'בניית שרירים', labelEn: 'Muscle Building' },
+      { value: 'energy-vitality', label: 'אנרגיה וחיוניות', labelEn: 'Energy & Vitality' },
+      { value: 'quality-sleep', label: 'שינה איכותית', labelEn: 'Quality Sleep' },
+      { value: 'nutrition', label: 'תזונה נכונה', labelEn: 'Proper Nutrition' },
+      { value: 'chronic-pain', label: 'התמודדות עם כאב כרוני', labelEn: 'Dealing with Chronic Pain' },
+      { value: 'quit-habits', label: 'הפסקת הרגלים מזיקים', labelEn: 'Quitting Bad Habits' },
+      
+      // 🧠 מנטלי ורגשי
       { value: 'confidence', label: 'ביטחון עצמי', labelEn: 'Self-confidence' },
-      { value: 'discipline', label: 'משמעת ועקביות', labelEn: 'Discipline & Consistency' },
-      { value: 'emotional', label: 'אינטליגנציה רגשית', labelEn: 'Emotional intelligence' },
-      { value: 'communication', label: 'תקשורת בינאישית', labelEn: 'Interpersonal Communication' },
-      { value: 'leadership', label: 'מנהיגות והשפעה', labelEn: 'Leadership & Influence' },
-      { value: 'creativity', label: 'יצירתיות וחשיבה מחוץ לקופסה', labelEn: 'Creativity & Thinking Outside the Box' },
-      { value: 'mindfulness', label: 'מודעות עצמית', labelEn: 'Self-awareness' },
-      { value: 'time-management', label: 'ניהול זמן', labelEn: 'Time Management' },
-      { value: 'boundaries', label: 'גבולות בריאים', labelEn: 'Healthy Boundaries' },
-      { value: 'asking-for-help', label: 'קבלת עזרה', labelEn: 'Accepting Help' },
-      { value: 'patience', label: 'סבלנות', labelEn: 'Patience' },
-      { value: 'flexibility', label: 'גמישות מחשבתית', labelEn: 'Mental Flexibility' },
-      { value: 'assertiveness', label: 'אסרטיביות', labelEn: 'Assertiveness' },
-      { value: 'focus', label: 'ריכוז ופוקוס', labelEn: 'Focus & Concentration' },
+      { value: 'emotional-regulation', label: 'ויסות רגשי', labelEn: 'Emotional Regulation' },
+      { value: 'anxiety', label: 'התמודדות עם חרדה', labelEn: 'Dealing with Anxiety' },
+      { value: 'depression', label: 'התמודדות עם דיכאון', labelEn: 'Dealing with Depression' },
+      { value: 'trauma-healing', label: 'ריפוי טראומה', labelEn: 'Trauma Healing' },
+      { value: 'anger-release', label: 'שחרור כעסים', labelEn: 'Releasing Anger' },
+      { value: 'self-awareness', label: 'מודעות עצמית', labelEn: 'Self-awareness' },
       { value: 'resilience', label: 'חוסן נפשי', labelEn: 'Mental Resilience' },
+      
+      // ❤️ מערכות יחסים
+      { value: 'find-partner', label: 'מציאת בן/בת זוג', labelEn: 'Finding a Partner' },
+      { value: 'improve-relationship', label: 'שיפור הזוגיות', labelEn: 'Improving Relationship' },
+      { value: 'communication-partner', label: 'תקשורת בזוגיות', labelEn: 'Communication in Relationship' },
+      { value: 'parents-relationship', label: 'יחסים עם הורים', labelEn: 'Relationship with Parents' },
+      { value: 'children-relationship', label: 'יחסים עם ילדים', labelEn: 'Relationship with Children' },
+      { value: 'friendships', label: 'חברויות', labelEn: 'Friendships' },
+      { value: 'boundaries', label: 'גבולות בריאים', labelEn: 'Healthy Boundaries' },
+      { value: 'forgiveness', label: 'סליחה ושחרור', labelEn: 'Forgiveness & Letting Go' },
+      
+      // 🧘 רוחניות ומשמעות
+      { value: 'find-meaning', label: 'מציאת משמעות', labelEn: 'Finding Meaning' },
+      { value: 'self-connection', label: 'חיבור לעצמי', labelEn: 'Connecting with Myself' },
+      { value: 'meditation-practice', label: 'מדיטציה ונוכחות', labelEn: 'Meditation & Presence' },
+      { value: 'spiritual-practice', label: 'פרקטיקה רוחנית', labelEn: 'Spiritual Practice' },
+      { value: 'values-ethics', label: 'ערכים ומוסר', labelEn: 'Values & Ethics' },
+      { value: 'life-purpose', label: 'מטרה בחיים', labelEn: 'Life Purpose' },
+      
+      // ⚙️ יכולות ומיומנויות
+      { value: 'discipline', label: 'משמעת ועקביות', labelEn: 'Discipline & Consistency' },
+      { value: 'time-management', label: 'ניהול זמן', labelEn: 'Time Management' },
+      { value: 'communication', label: 'תקשורת בינאישית', labelEn: 'Interpersonal Communication' },
+      { value: 'assertiveness', label: 'אסרטיביות', labelEn: 'Assertiveness' },
+      { value: 'creativity', label: 'יצירתיות', labelEn: 'Creativity' },
+      { value: 'decision-making', label: 'קבלת החלטות', labelEn: 'Decision Making' },
+      { value: 'problem-solving', label: 'פתרון בעיות', labelEn: 'Problem Solving' },
+      { value: 'fast-learning', label: 'למידה מהירה', labelEn: 'Fast Learning' },
+      { value: 'focus', label: 'ריכוז ופוקוס', labelEn: 'Focus & Concentration' },
+      { value: 'patience', label: 'סבלנות', labelEn: 'Patience' },
+      
+      // 🌍 חיים ואורח חיים
+      { value: 'home-organization', label: 'ארגון הבית והסביבה', labelEn: 'Home & Environment Organization' },
+      { value: 'minimalism', label: 'מינימליזם', labelEn: 'Minimalism' },
+      { value: 'find-hobbies', label: 'מציאת תחביבים', labelEn: 'Finding Hobbies' },
+      { value: 'community-connection', label: 'חיבור לקהילה', labelEn: 'Connecting with Community' },
+      { value: 'quality-of-life', label: 'איכות חיים', labelEn: 'Quality of Life' },
+      { value: 'relocation', label: 'הגירה / מעבר דירה', labelEn: 'Relocation / Moving' },
       { value: 'other', label: 'אחר', labelEn: 'Other' },
     ],
   },
