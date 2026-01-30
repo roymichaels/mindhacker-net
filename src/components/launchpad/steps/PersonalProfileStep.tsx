@@ -432,7 +432,7 @@ const CATEGORIES = {
       // 🎨 יצירה ואמנות
       { value: 'painting', label: 'ציור / צביעה', labelEn: 'Painting / Drawing' },
       { value: 'photography', label: 'צילום', labelEn: 'Photography' },
-      { value: 'sketching', label: 'סריטוט / איור', labelEn: 'Sketching / Illustration' },
+      { value: 'sketching', label: 'שרטוט / איור', labelEn: 'Sketching / Illustration' },
       { value: 'graphic-design', label: 'עיצוב גרפי', labelEn: 'Graphic Design' },
       { value: 'interior-design', label: 'עיצוב פנים', labelEn: 'Interior Design' },
       { value: 'creative-writing', label: 'כתיבה יוצרת', labelEn: 'Creative Writing' },
