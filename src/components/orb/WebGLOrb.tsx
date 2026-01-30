@@ -207,7 +207,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     <div
       ref={containerRef}
       className={className}
-      style={{ width: size, height: size }}
+      style={{ 
+        width: size, 
+        height: size, 
+        background: 'transparent',
+        overflow: 'visible'
+      }}
     />
   );
 });
