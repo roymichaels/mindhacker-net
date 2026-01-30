@@ -122,13 +122,17 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
   };
 
   return (
-    <div className="bg-background">
+    <div className="space-y-4">
       {/* Post Editor */}
-      {user && !editingPost && <PostEditor />}
+      {user && !editingPost && (
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+          <PostEditor />
+        </div>
+      )}
       
       {/* Editing Post */}
       {editingPost && (
-        <div className="p-4">
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4">
           <PostEditor 
             editPost={editingPost}
             onSuccess={() => setEditingPost(null)}
@@ -138,15 +142,17 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
       )}
 
       {/* Category Filter */}
-      <CategoryFilter 
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-      />
+      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+        <CategoryFilter 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+      </div>
 
       {/* Posts */}
-      <div>
+      <div className="space-y-4">
         {isLoading ? (
-          <div className="p-4 space-y-4">
+          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex gap-3">
                 <Skeleton className="h-9 w-9 rounded-full shrink-0" />
@@ -159,17 +165,18 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
           </div>
         ) : posts && posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard 
-              key={post.id} 
-              post={post}
-              onEdit={() => setEditingPost(post)}
-              onDelete={() => setDeletePostId(post.id)}
-            />
+            <div key={post.id} className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+              <PostCard 
+                post={post}
+                onEdit={() => setEditingPost(post)}
+                onDelete={() => setDeletePostId(post.id)}
+              />
+            </div>
           ))
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>{t('community.noPosts')}</p>
-            <p className="text-sm mt-2">{t('community.beFirstToPost')}</p>
+          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-center py-12">
+            <p className="text-muted-foreground">{t('community.noPosts')}</p>
+            <p className="text-sm mt-2 text-muted-foreground/70">{t('community.beFirstToPost')}</p>
           </div>
         )}
       </div>

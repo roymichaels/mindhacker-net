@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import CommunityLayout from '@/components/community/CommunityLayout';
 import CommunityFeed from '@/components/community/CommunityFeed';
+import CommunityNavTabs from '@/components/community/CommunityNavTabs';
 import { useSEO } from '@/hooks/useSEO';
 
 const Community = () => {
@@ -35,15 +35,19 @@ const Community = () => {
 
   return (
     <DashboardLayout>
-      <CommunityLayout>
-        <div className="space-y-4">
-          <div>
-            <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
-            <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
-          </div>
-          <CommunityFeed />
+      <div className="space-y-6">
+        {/* Community Navigation Tabs */}
+        <CommunityNavTabs />
+        
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
+          <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
         </div>
-      </CommunityLayout>
+        
+        {/* Feed Content */}
+        <CommunityFeed />
+      </div>
     </DashboardLayout>
   );
 };

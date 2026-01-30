@@ -165,8 +165,8 @@ const PostEditor = ({ onSuccess, editPost, onCancel }: PostEditorProps) => {
 
   return (
     <div className={cn(
-      "border-b bg-background px-4 py-3",
-      editPost && "border rounded-lg mb-4"
+      "px-4 py-4",
+      editPost && "border-t"
     )}>
       <div className="flex gap-3">
         <Avatar className="h-9 w-9 shrink-0">
