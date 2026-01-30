@@ -2897,6 +2897,60 @@ export type Database = {
           },
         ]
       }
+      orb_profiles: {
+        Row: {
+          accent_color: string | null
+          computed_from: Json | null
+          core_intensity: number
+          created_at: string
+          geometry_detail: number
+          id: string
+          layer_count: number
+          morph_intensity: number
+          morph_speed: number
+          particle_count: number
+          particle_enabled: boolean
+          primary_color: string
+          secondary_colors: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          computed_from?: Json | null
+          core_intensity?: number
+          created_at?: string
+          geometry_detail?: number
+          id?: string
+          layer_count?: number
+          morph_intensity?: number
+          morph_speed?: number
+          particle_count?: number
+          particle_enabled?: boolean
+          primary_color?: string
+          secondary_colors?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          computed_from?: Json | null
+          core_intensity?: number
+          created_at?: string
+          geometry_detail?: number
+          id?: string
+          layer_count?: number
+          morph_intensity?: number
+          morph_speed?: number
+          particle_count?: number
+          particle_enabled?: boolean
+          primary_color?: string
+          secondary_colors?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           affiliate_code: string | null
