@@ -3531,6 +3531,42 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          id: string
+          is_enabled: boolean | null
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          permission_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           description: string | null
@@ -4268,6 +4304,10 @@ export type Database = {
         Returns: string
       }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
+      has_permission: {
+        Args: { _permission_key: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4277,7 +4317,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "practitioner"
+      app_role: "admin" | "user" | "practitioner" | "affiliate"
       content_access_level: "free" | "basic" | "premium" | "vip"
       content_status: "draft" | "published" | "archived"
       content_type: "course" | "masterclass" | "workshop" | "guide" | "toolkit"
@@ -4438,7 +4478,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "practitioner"],
+      app_role: ["admin", "user", "practitioner", "affiliate"],
       content_access_level: ["free", "basic", "premium", "vip"],
       content_status: ["draft", "published", "archived"],
       content_type: ["course", "masterclass", "workshop", "guide", "toolkit"],

@@ -2142,6 +2142,156 @@ export const he = {
     anonymous: "אנונימי",
     loading: "טוען...",
   },
+  panel: {
+    // General
+    overview: "סקירה כללית",
+    dashboard: "דאשבורד",
+    analytics: "אנליטיקס",
+    welcomeBack: "ברוך הבא לפאנל",
+    dashboardSubtitle: "כאן תוכל לנהל את כל הפעילות שלך",
+    yourRoles: "התפקידים שלך",
+    noAccess: "אין גישה",
+    noAccessDescription: "אין לך הרשאה לצפות בתוכן זה. פנה למנהל המערכת.",
+    
+    // Navigation groups
+    administration: "ניהול",
+    campaigns: "קמפיינים",
+    content: "תוכן",
+    contentMgmt: "ניהול תוכן",
+    site: "אתר",
+    myPractice: "הפרקטיקה שלי",
+    affiliate: "שותפים",
+    
+    // Admin items
+    users: "משתמשים",
+    usersDescription: "נהל משתמשים והרשאות",
+    manageUsers: "ניהול משתמשים",
+    roles: "תפקידים",
+    rolesManager: "ניהול תפקידים והרשאות",
+    rolesManagerDescription: "נהל תפקידים, הרשאות וגישות של משתמשים",
+    practitioners: "מאמנים",
+    leads: "לידים",
+    newsletter: "ניוזלטר",
+    affiliates: "שותפים",
+    products: "מוצרים",
+    productsDescription: "נהל מוצרים ושירותים",
+    manageProducts: "ניהול מוצרים",
+    recordings: "הקלטות",
+    settings: "הגדרות",
+    theme: "עיצוב",
+    landingPages: "דפי נחיתה",
+    
+    // Practitioner items
+    clients: "לקוחות",
+    clientsDescription: "נהל את הלקוחות שלך",
+    viewClients: "צפה בלקוחות",
+    services: "שירותים",
+    calendar: "יומן",
+    calendarDescription: "נהל את הפגישות שלך",
+    viewCalendar: "צפה ביומן",
+    myProducts: "המוצרים שלי",
+    earnings: "הכנסות",
+    earningsDescription: "צפה בהכנסות שלך",
+    viewEarnings: "צפה בהכנסות",
+    profile: "פרופיל",
+    
+    // Affiliate items
+    links: "לינקים",
+    linksDescription: "נהל את הלינקים שלך",
+    viewLinks: "צפה בלינקים",
+    referrals: "הפניות",
+    payouts: "תשלומים",
+    payoutsDescription: "צפה בתשלומים שלך",
+    viewPayouts: "צפה בתשלומים",
+    
+    // Analytics
+    viewAnalytics: "צפה באנליטיקס",
+    analyticsDescription: "סקירה של הביצועים שלך",
+    
+    // Roles
+    role: {
+      admin: "מנהל",
+      practitioner: "מאמן",
+      affiliate: "שותף",
+      user: "משתמש",
+    },
+    roleDescription: {
+      admin: "גישה מלאה לכל הפאנל ולכל הנתונים",
+      practitioner: "ניהול הפרקטיקה האישית, לקוחות ושירותים",
+      affiliate: "צפייה בלינקים, הפניות ותשלומים",
+      user: "משתמש רגיל",
+    },
+    
+    // Roles Manager
+    usersTab: "משתמשים",
+    rolesTab: "תפקידים",
+    permissionsTab: "הרשאות",
+    userRoles: "תפקידי משתמשים",
+    userRolesDescription: "נהל את התפקידים של כל משתמש",
+    searchUsers: "חפש משתמש...",
+    userName: "משתמש",
+    actions: "פעולות",
+    noRoles: "ללא תפקידים",
+    permissions: "הרשאות",
+    editUserRoles: "עריכת תפקידים",
+    rolesUpdated: "התפקידים עודכנו בהצלחה",
+    rolesUpdateError: "שגיאה בעדכון התפקידים",
+    permissionUpdated: "ההרשאה עודכנה",
+    permissionUpdateError: "שגיאה בעדכון ההרשאה",
+    
+    // Practitioner pages
+    clientsPageDescription: "כאן תוכל לנהל את כל הלקוחות שלך",
+    totalClients: "סה״כ לקוחות",
+    activeClients: "לקוחות פעילים",
+    upcomingSessions: "פגישות קרובות",
+    clientsList: "רשימת לקוחות",
+    noClientsYet: "עדיין אין לך לקוחות",
+    clientsWillAppearHere: "הלקוחות שלך יופיעו כאן",
+    
+    servicesPageDescription: "נהל את השירותים שאתה מציע",
+    yourServices: "השירותים שלך",
+    noServicesYet: "עדיין אין לך שירותים",
+    servicesWillAppearHere: "השירותים שלך יופיעו כאן",
+    addService: "הוסף שירות",
+    createFirstService: "צור שירות ראשון",
+    
+    calendarPageDescription: "נהל את הפגישות והאירועים שלך",
+    upcomingAppointments: "פגישות קרובות",
+    noAppointmentsYet: "אין פגישות מתוכננות",
+    appointmentsWillAppearHere: "הפגישות שלך יופיעו כאן",
+    
+    earningsPageDescription: "סקירה של ההכנסות שלך",
+    totalEarnings: "סה״כ הכנסות",
+    thisMonth: "החודש",
+    pendingPayout: "ממתין לתשלום",
+    earningsHistory: "היסטוריית הכנסות",
+    noEarningsYet: "עדיין אין הכנסות",
+    earningsWillAppearHere: "ההכנסות שלך יופיעו כאן",
+    
+    // Affiliate pages
+    affiliateLinks: "לינקים שותפים",
+    affiliateLinksDescription: "שתף את הלינק שלך והרווח עמלות",
+    yourAffiliateLink: "הלינק שלך",
+    shareThisLink: "שתף לינק זה כדי להרוויח עמלות",
+    linkCopied: "הלינק הועתק!",
+    affiliateLinkInstructions: "שתף את הלינק עם אנשים שאתה רוצה להפנות. תקבל עמלה על כל רכישה.",
+    
+    referralsPageDescription: "צפה בכל ההפניות שלך",
+    totalReferrals: "סה״כ הפניות",
+    conversions: "המרות",
+    commissionEarned: "עמלות שהרווחת",
+    referralsList: "רשימת הפניות",
+    noReferralsYet: "עדיין אין לך הפניות",
+    referralsWillAppearHere: "ההפניות שלך יופיעו כאן",
+    
+    payoutsPageDescription: "סקירה של התשלומים שלך",
+    availableBalance: "יתרה זמינה",
+    pending: "ממתין",
+    totalPaid: "סה״כ שולם",
+    payoutHistory: "היסטוריית תשלומים",
+    noPayoutsYet: "עדיין אין תשלומים",
+    payoutsWillAppearHere: "התשלומים שלך יופיעו כאן",
+  },
 };
 
 export type TranslationKeys = typeof he;
