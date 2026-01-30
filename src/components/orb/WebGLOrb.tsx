@@ -58,9 +58,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    camera.position.z = 2;
+    // Camera - moved further back to prevent clipping
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    camera.position.z = 3;
     cameraRef.current = camera;
 
     // Renderer
@@ -74,8 +74,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Geometry - Icosahedron for organic shape
-    const geometry = new THREE.IcosahedronGeometry(1, 4);
+    // Geometry - Icosahedron for organic shape (smaller radius to avoid clipping)
+    const geometry = new THREE.IcosahedronGeometry(0.7, 4);
     
     // Material - Wireframe with glow
     const material = new THREE.MeshBasicMaterial({
