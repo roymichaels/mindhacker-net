@@ -563,7 +563,7 @@ const CATEGORIES = {
     title: 'כשיש לך דעה שונה מאחרים, אתה בדרך כלל...',
     titleEn: 'When you have a different opinion from others, you usually...',
     icon: '💬',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'direct', label: 'אומר ישר מה שאתה חושב', labelEn: 'Say exactly what you think' },
       { value: 'diplomatic', label: 'מנסה למצוא דרך עדינה לומר', labelEn: 'Try to find a gentle way to say it' },
@@ -577,7 +577,7 @@ const CATEGORIES = {
     title: 'כשאתה נתקל בבעיה בלתי צפויה...',
     titleEn: 'When you encounter an unexpected problem...',
     icon: '🔧',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'solve-immediately', label: 'מיד מתחיל לחפש פתרונות', labelEn: 'Immediately start looking for solutions' },
       { value: 'calm-first', label: 'קודם נרגע, אחר כך פותר', labelEn: 'First calm down, then solve' },
@@ -591,7 +591,7 @@ const CATEGORIES = {
     title: 'כשיש לך החלטה גדולה לקבל, אתה...',
     titleEn: 'When you have a big decision to make, you...',
     icon: '🤔',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'gut', label: 'הולך עם הבטן', labelEn: 'Go with your gut' },
       { value: 'pros-cons', label: 'בונה רשימת יתרונות וחסרונות', labelEn: 'Make a pros and cons list' },
@@ -605,7 +605,7 @@ const CATEGORIES = {
     title: 'כשמציעים לך הזדמנות חדשה לא מתוכננת...',
     titleEn: 'When offered an unexpected new opportunity...',
     icon: '🚀',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'excited', label: 'נרגש ומתלהב מיד', labelEn: 'Get excited immediately' },
       { value: 'think-first', label: 'צריך זמן לחשוב על זה', labelEn: 'Need time to think about it' },
@@ -619,7 +619,7 @@ const CATEGORIES = {
     title: 'אחרי כישלון או אכזבה, אתה בדרך כלל...',
     titleEn: 'After a failure or disappointment, you usually...',
     icon: '💔',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'bounce-back', label: 'קם ומתחיל מחדש מהר', labelEn: 'Bounce back quickly' },
       { value: 'process', label: 'צריך זמן לעכל', labelEn: 'Need time to process' },
@@ -633,7 +633,7 @@ const CATEGORIES = {
     title: 'כשיש לך הרבה משימות...',
     titleEn: 'When you have many tasks...',
     icon: '⏰',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'organized', label: 'עושה רשימה ומסדר לפי חשיבות', labelEn: 'Make a list and prioritize' },
       { value: 'easy-first', label: 'מתחיל ממה שהכי קל', labelEn: 'Start with the easiest' },
@@ -647,7 +647,7 @@ const CATEGORIES = {
     title: 'ביחסים עם אנשים קרובים, אתה...',
     titleEn: 'In relationships with close people, you...',
     icon: '❤️',
-    multiSelect: false,
+    multiSelect: true,
     options: [
       { value: 'giver', label: 'נותן הרבה ומבקש מעט', labelEn: 'Give a lot and ask for little' },
       { value: 'needs-space', label: 'צריך הרבה זמן לבד', labelEn: 'Need a lot of alone time' },
