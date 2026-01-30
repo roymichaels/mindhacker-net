@@ -14,9 +14,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { 
-  TRAIT_CATEGORIES, 
-  getAllCategories,
-  type TraitCategory 
+  CHARACTER_TRAITS, 
+  TRAIT_CATEGORIES,
+  suggestEgoState,
+  getTrait,
+  type TraitCategory,
+  type CharacterTrait 
 } from '@/lib/characterTraits';
 
 interface IdentityBuildingStepProps {
@@ -25,20 +28,10 @@ interface IdentityBuildingStepProps {
   rewards?: { xp: number; tokens: number; unlock: string };
 }
 
-const STORAGE_KEY = 'launchpad_identity_categories';
+const STORAGE_KEY = 'launchpad_identity_traits_v2';
 const STORAGE_KEY_ROLEMODELS = 'launchpad_identity_rolemodels';
 
 type Phase = 'prioritize' | 'rolemodels';
-
-// Map categories to ego states
-const categoryToEgoState: Record<TraitCategory, string> = {
-  inner_strength: 'warrior',
-  thinking: 'sage',
-  heart: 'healer',
-  leadership: 'king',
-  social: 'lover',
-  spiritual: 'mystic',
-};
 
 export function IdentityBuildingStep({ 
   onComplete, 
@@ -48,7 +41,10 @@ export function IdentityBuildingStep({
   const { t, isRTL, language } = useTranslation();
   const { user } = useAuth();
   const [phase, setPhase] = useState<Phase>('prioritize');
-  const [prioritizedCategories, setPrioritizedCategories] = useState<TraitCategory[]>(getAllCategories());
+  // All 30 traits - user prioritizes all of them
+  const [prioritizedTraits, setPrioritizedTraits] = useState<string[]>(
+    CHARACTER_TRAITS.map(t => t.id)
+  );
   const [roleModels, setRoleModels] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -58,8 +54,8 @@ export function IdentityBuildingStep({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === 6) {
-          setPrioritizedCategories(parsed as TraitCategory[]);
+        if (Array.isArray(parsed) && parsed.length === CHARACTER_TRAITS.length) {
+          setPrioritizedTraits(parsed);
         }
       } catch {
         // Ignore parse errors
@@ -74,8 +70,8 @@ export function IdentityBuildingStep({
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prioritizedCategories));
-  }, [prioritizedCategories]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prioritizedTraits));
+  }, [prioritizedTraits]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_ROLEMODELS, roleModels);
@@ -100,30 +96,31 @@ export function IdentityBuildingStep({
         .from('aurora_identity_elements')
         .delete()
         .eq('user_id', user.id)
-        .in('element_type', ['category_priority', 'role_model']);
+        .in('element_type', ['character_trait', 'role_model']);
 
-      // Insert prioritized categories
-      const categoriesToInsert = prioritizedCategories.map((category, index) => {
-        const categoryInfo = TRAIT_CATEGORIES[category];
+      // Insert all prioritized traits
+      const traitsToInsert = prioritizedTraits.map((traitId, index) => {
+        const trait = getTrait(traitId);
         return {
           user_id: user.id,
-          element_type: 'category_priority' as const,
-          content: category,
+          element_type: 'character_trait' as const,
+          content: traitId,
           metadata: {
             priority: index + 1,
-            isCore: index < 3, // Top 3 are core categories
-            color: categoryInfo.color,
-            icon: categoryInfo.icon,
+            isCore: index < 6, // Top 6 are core traits
+            category: trait?.category,
+            color: trait?.color,
+            icon: trait?.icon,
             selected_at: new Date().toISOString(),
           },
         };
       });
 
-      const { error: categoriesError } = await supabase
+      const { error: traitsError } = await supabase
         .from('aurora_identity_elements')
-        .insert(categoriesToInsert);
+        .insert(traitsToInsert);
 
-      if (categoriesError) throw categoriesError;
+      if (traitsError) throw traitsError;
 
       // Insert role models if provided
       if (roleModels.trim()) {
@@ -141,18 +138,17 @@ export function IdentityBuildingStep({
         if (roleModelError) throw roleModelError;
       }
 
-      // Suggested ego state based on top category
-      const suggestedEgoState = categoryToEgoState[prioritizedCategories[0]] || 'guardian';
+      const suggestedEgoState = suggestEgoState(prioritizedTraits.slice(0, 10));
 
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STORAGE_KEY_ROLEMODELS);
 
       onComplete({
-        prioritizedCategories,
+        prioritizedTraits,
+        coreTraits: prioritizedTraits.slice(0, 6),
         roleModels: roleModels.trim(),
         suggestedEgoState,
-        coreCategories: prioritizedCategories.slice(0, 3),
       });
     } catch (error) {
       console.error('Failed to save priorities:', error);
@@ -187,8 +183,8 @@ export function IdentityBuildingStep({
             key="prioritize"
             language={language}
             isRTL={isRTL}
-            prioritizedCategories={prioritizedCategories}
-            setPrioritizedCategories={setPrioritizedCategories}
+            prioritizedTraits={prioritizedTraits}
+            setPrioritizedTraits={setPrioritizedTraits}
             onContinue={handleGoToRoleModels}
           />
         )}
@@ -200,7 +196,7 @@ export function IdentityBuildingStep({
             isRTL={isRTL}
             roleModels={roleModels}
             setRoleModels={setRoleModels}
-            prioritizedCategories={prioritizedCategories}
+            prioritizedTraits={prioritizedTraits}
             rewards={rewards}
             isSaving={isSaving}
             isCompleting={isCompleting}
@@ -217,16 +213,16 @@ export function IdentityBuildingStep({
 interface PrioritizePhaseProps {
   language: string;
   isRTL: boolean;
-  prioritizedCategories: TraitCategory[];
-  setPrioritizedCategories: (categories: TraitCategory[]) => void;
+  prioritizedTraits: string[];
+  setPrioritizedTraits: (traits: string[]) => void;
   onContinue: () => void;
 }
 
 function PrioritizePhase({
   language,
   isRTL,
-  prioritizedCategories,
-  setPrioritizedCategories,
+  prioritizedTraits,
+  setPrioritizedTraits,
   onContinue,
 }: PrioritizePhaseProps) {
   return (
@@ -247,67 +243,79 @@ function PrioritizePhase({
         </motion.div>
         
         <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-          {language === 'he' ? 'מה הכי חשוב לכם?' : 'What matters most to you?'}
+          {language === 'he' ? 'סדרו את התכונות שלכם' : 'Prioritize Your Traits'}
         </h2>
         
         <p className="text-muted-foreground max-w-md mx-auto">
           {language === 'he' 
-            ? 'סדרו את התחומים לפי החשיבות שלהם עבורכם. גררו למעלה את מה שהכי חשוב.'
-            : 'Order these areas by importance. Drag up what matters most.'}
+            ? 'גררו את התכונות לפי החשיבות שלהן עבורכם. 6 הראשונות הן תכונות הליבה.'
+            : 'Drag traits to order by importance. Top 6 are your core traits.'}
         </p>
       </div>
 
       {/* Priority List */}
-      <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20">
-        <div className="flex items-center gap-2 mb-4">
+      <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20 max-h-[50vh] overflow-y-auto">
+        <div className="flex items-center gap-2 mb-4 sticky top-0 bg-violet-50/95 dark:bg-violet-950/95 py-2 z-10">
           <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
           <h4 className="font-semibold">
             {language === 'he' ? 'סדר העדיפויות שלי' : 'My Priority Order'}
           </h4>
+          <Badge className="bg-violet-600 text-white mr-auto">
+            {prioritizedTraits.length} {language === 'he' ? 'תכונות' : 'traits'}
+          </Badge>
         </div>
 
         <Reorder.Group
           axis="y"
-          values={prioritizedCategories}
-          onReorder={setPrioritizedCategories}
-          className="space-y-2"
+          values={prioritizedTraits}
+          onReorder={setPrioritizedTraits}
+          className="space-y-1.5"
         >
-          {prioritizedCategories.map((category, index) => {
-            const categoryInfo = TRAIT_CATEGORIES[category];
-            const isCore = index < 3;
+          {prioritizedTraits.map((traitId, index) => {
+            const trait = getTrait(traitId);
+            if (!trait) return null;
+            const isCore = index < 6;
+            const categoryInfo = TRAIT_CATEGORIES[trait.category];
 
             return (
               <Reorder.Item
-                key={category}
-                value={category}
+                key={traitId}
+                value={traitId}
                 className={cn(
-                  "flex items-center gap-3 p-4 rounded-xl border cursor-grab active:cursor-grabbing transition-all",
+                  "flex items-center gap-2 p-2.5 rounded-lg border cursor-grab active:cursor-grabbing transition-all",
                   isCore 
                     ? "border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 shadow-sm"
                     : "border-border bg-background hover:bg-muted/50"
                 )}
               >
-                <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
+                <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
                 
                 <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0",
+                  "w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0",
                   isCore 
-                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md" 
+                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-sm" 
                     : "bg-muted text-muted-foreground"
                 )}>
                   {index + 1}
                 </div>
                 
-                <span className="text-2xl shrink-0">{categoryInfo.icon}</span>
+                <span className="text-lg shrink-0">{trait.icon}</span>
                 
                 <div className="flex-1 min-w-0">
-                  <span className="font-semibold block">
-                    {language === 'he' ? categoryInfo.nameHe : categoryInfo.name}
+                  <span className="font-medium text-sm block truncate">
+                    {language === 'he' ? trait.nameHe : trait.name}
                   </span>
                 </div>
 
+                <Badge 
+                  variant="outline" 
+                  className={cn("text-xs shrink-0", categoryInfo.bgClass, categoryInfo.textClass)}
+                >
+                  {language === 'he' ? categoryInfo.nameHe : categoryInfo.name}
+                </Badge>
+
                 {isCore && (
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shrink-0">
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs shrink-0">
                     {language === 'he' ? 'ליבה' : 'Core'}
                   </Badge>
                 )}
@@ -316,7 +324,7 @@ function PrioritizePhase({
           })}
         </Reorder.Group>
 
-        <p className="text-sm text-muted-foreground mt-4 text-center flex items-center justify-center gap-2">
+        <p className="text-sm text-muted-foreground mt-4 text-center flex items-center justify-center gap-2 sticky bottom-0 bg-violet-50/95 dark:bg-violet-950/95 py-2">
           <span>↕️</span>
           {language === 'he' ? 'גררו לשינוי סדר העדיפויות' : 'Drag to reorder priorities'}
         </p>
@@ -345,7 +353,7 @@ interface RoleModelsPhaseProps {
   isRTL: boolean;
   roleModels: string;
   setRoleModels: (value: string) => void;
-  prioritizedCategories: TraitCategory[];
+  prioritizedTraits: string[];
   rewards?: { xp: number; tokens: number; unlock: string };
   isSaving: boolean;
   isCompleting?: boolean;
@@ -358,14 +366,14 @@ function RoleModelsPhase({
   isRTL,
   roleModels,
   setRoleModels,
-  prioritizedCategories,
+  prioritizedTraits,
   rewards,
   isSaving,
   isCompleting,
   onBack,
   onComplete,
 }: RoleModelsPhaseProps) {
-  const topCategories = prioritizedCategories.slice(0, 3);
+  const coreTraits = prioritizedTraits.slice(0, 6).map(id => getTrait(id)).filter(Boolean) as CharacterTrait[];
 
   return (
     <motion.div
@@ -395,25 +403,25 @@ function RoleModelsPhase({
         </p>
       </div>
 
-      {/* Summary of Core Categories */}
+      {/* Summary of Core Traits */}
       <Card className="p-4 border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-950/20">
         <p className="text-sm text-muted-foreground mb-3 text-center">
-          {language === 'he' ? 'התחומים העיקריים שלכם:' : 'Your core areas:'}
+          {language === 'he' ? 'תכונות הליבה שלכם:' : 'Your core traits:'}
         </p>
         <div className="flex flex-wrap justify-center gap-2">
-          {topCategories.map((category, index) => {
-            const categoryInfo = TRAIT_CATEGORIES[category];
+          {coreTraits.map((trait) => {
+            const categoryInfo = TRAIT_CATEGORIES[trait.category];
             return (
               <Badge 
-                key={category} 
+                key={trait.id} 
                 className={cn(
                   "text-sm py-1.5 px-3",
                   categoryInfo.bgClass, 
                   categoryInfo.textClass
                 )}
               >
-                <span className="mr-1">{categoryInfo.icon}</span>
-                {language === 'he' ? categoryInfo.nameHe : categoryInfo.name}
+                <span className="mr-1">{trait.icon}</span>
+                {language === 'he' ? trait.nameHe : trait.name}
               </Badge>
             );
           })}
