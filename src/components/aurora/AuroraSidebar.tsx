@@ -1,4 +1,4 @@
-import { Plus, Sparkles, Trash2, Menu, LayoutDashboard, MessageSquare, BookOpen, Users, Compass } from 'lucide-react';
+import { Plus, Sparkles, Trash2, Menu, LayoutDashboard, MessageSquare, BookOpen, Users, Compass, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -62,6 +62,11 @@ const AuroraSidebar = ({
       icon: MessageSquare, 
       label: language === 'he' ? 'הודעות' : 'Messages', 
       path: '/messages' 
+    },
+    { 
+      icon: UserCog, 
+      label: language === 'he' ? 'הפרופיל שלי' : 'My Profile', 
+      path: '/launchpad/settings' 
     },
     { 
       icon: BookOpen, 

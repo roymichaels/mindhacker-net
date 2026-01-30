@@ -65,6 +65,7 @@ const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
 const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
+const LaunchpadSettings = lazy(() => import("./pages/LaunchpadSettings"));
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
@@ -328,6 +329,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <LaunchpadComplete />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/launchpad/settings"
+                          element={
+                            <ProtectedRoute>
+                              <LaunchpadSettings />
                             </ProtectedRoute>
                           }
                         />
