@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -81,16 +81,37 @@ interface AnalysisResult {
   recommendation: string;
 }
 
+const INTROSPECTION_STORAGE_KEY = 'launchpad_introspection_answers';
+
 export function IntrospectionStep({ onComplete, isCompleting, rewards }: IntrospectionStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    // Load saved answers from localStorage on mount
+    try {
+      const saved = localStorage.getItem(INTROSPECTION_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
   const [openSections, setOpenSections] = useState<string[]>(['life_end']);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [step, setStep] = useState<'questions' | 'analysis'>('questions');
   const [showSkipOption, setShowSkipOption] = useState(false);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+
+  // Persist answers to localStorage on every change
+  useEffect(() => {
+    if (Object.keys(answers).length > 0) {
+      localStorage.setItem(INTROSPECTION_STORAGE_KEY, JSON.stringify(answers));
+    }
+  }, [answers]);
+
+  // Clear localStorage after successful submission
+  const clearSavedAnswers = () => {
+    localStorage.removeItem(INTROSPECTION_STORAGE_KEY);
+  };
 
   const handleSkip = () => {
     onComplete({});
@@ -155,6 +176,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
       }
 
       setSubmissionId(submission.id);
+      clearSavedAnswers(); // Clear localStorage after successful submission
 
       // Call AI analysis
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
