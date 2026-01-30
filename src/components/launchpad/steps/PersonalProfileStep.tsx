@@ -450,7 +450,8 @@ const CATEGORIES = {
       { value: 'live-concerts', label: 'הופעות חיות', labelEn: 'Live Concerts' },
       
       // 🏃 ספורט ותנועה
-      { value: 'running', label: 'ריצה / הליכה', labelEn: 'Running / Walking' },
+      { value: 'running', label: 'ריצה', labelEn: 'Running' },
+      { value: 'walking', label: 'הליכה', labelEn: 'Walking' },
       { value: 'soccer', label: 'כדורגל', labelEn: 'Soccer' },
       { value: 'basketball', label: 'כדורסל', labelEn: 'Basketball' },
       { value: 'tennis', label: 'טניס / פאדל', labelEn: 'Tennis / Padel' },
