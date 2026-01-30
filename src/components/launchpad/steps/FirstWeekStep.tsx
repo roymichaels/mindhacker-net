@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sparkles, Plus, X, Target, Anchor } from 'lucide-react';
+import { Sparkles, Target, Anchor, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FirstWeekStepProps {
@@ -12,165 +11,218 @@ interface FirstWeekStepProps {
   rewards: { xp: number; tokens: number; unlock: string };
 }
 
+// Action suggestions - easy, small daily actions
+const ACTION_SUGGESTIONS = [
+  { id: 'walk', icon: '🚶', label: 'הליכה של 20 דקות', labelEn: 'Walk for 20 minutes' },
+  { id: 'water', icon: '💧', label: 'לשתות 8 כוסות מים', labelEn: 'Drink 8 glasses of water' },
+  { id: 'sleep', icon: '😴', label: 'לישון לפני 23:00', labelEn: 'Sleep before 11 PM' },
+  { id: 'stretch', icon: '🧘', label: 'מתיחות בוקר 5 דקות', labelEn: '5 min morning stretch' },
+  { id: 'gratitude', icon: '🙏', label: 'לכתוב 3 דברים טובים', labelEn: 'Write 3 good things' },
+  { id: 'breathe', icon: '🌬️', label: 'נשימות עמוקות 3 פעמים', labelEn: 'Deep breaths 3 times' },
+  { id: 'noPhone', icon: '📵', label: 'שעה ללא טלפון', labelEn: 'One hour phone-free' },
+  { id: 'read', icon: '📖', label: 'לקרוא 10 דקות', labelEn: 'Read for 10 minutes' },
+  { id: 'tidy', icon: '🧹', label: 'לסדר פינה אחת בבית', labelEn: 'Tidy one corner' },
+  { id: 'smile', icon: '😊', label: 'לחייך ל-3 אנשים', labelEn: 'Smile at 3 people' },
+  { id: 'journal', icon: '✍️', label: 'לכתוב ביומן 5 דקות', labelEn: 'Journal for 5 min' },
+  { id: 'outdoors', icon: '🌳', label: '10 דקות בטבע', labelEn: '10 min in nature' },
+];
+
+// Anchor habit suggestions - super tiny daily habits
+const ANCHOR_SUGGESTIONS = [
+  { id: 'morning', icon: '☀️', label: 'נשימה עמוקה אחת אחרי שקמתי', labelEn: 'One deep breath after waking' },
+  { id: 'coffee', icon: '☕', label: '10 שניות של שקט לפני קפה', labelEn: '10 sec silence before coffee' },
+  { id: 'mirror', icon: '🪞', label: 'חיוך למראה בבוקר', labelEn: 'Smile in the mirror' },
+  { id: 'thanks', icon: '💭', label: 'מחשבת תודה אחת ביום', labelEn: 'One grateful thought daily' },
+  { id: 'water_first', icon: '💧', label: 'כוס מים ראשונה בבוקר', labelEn: 'First glass of water' },
+];
+
 export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
-  const [actions, setActions] = useState<string[]>(['', '', '']);
-  const [anchorHabit, setAnchorHabit] = useState('');
+  const [selectedActions, setSelectedActions] = useState<string[]>([]);
+  const [selectedAnchor, setSelectedAnchor] = useState<string>('');
 
-  const filledActions = actions.filter(a => a.trim().length >= 5);
-  const isValid = filledActions.length >= 3 && anchorHabit.trim().length >= 5;
-
-  const updateAction = (index: number, value: string) => {
-    setActions(prev => {
-      const newActions = [...prev];
-      newActions[index] = value;
-      return newActions;
+  const toggleAction = (label: string) => {
+    setSelectedActions(prev => {
+      if (prev.includes(label)) {
+        return prev.filter(a => a !== label);
+      }
+      if (prev.length >= 3) {
+        return [...prev.slice(1), label]; // Replace oldest selection
+      }
+      return [...prev, label];
     });
   };
+
+  const selectAnchor = (label: string) => {
+    setSelectedAnchor(label);
+  };
+
+  const isValid = selectedActions.length === 3 && selectedAnchor.length > 0;
 
   const handleSubmit = () => {
     if (isValid) {
       onComplete({ 
-        actions: filledActions,
-        anchor_habit: anchorHabit.trim()
+        actions: selectedActions,
+        anchor_habit: selectedAnchor
       });
     }
   };
 
   return (
-    <div className="space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-          <span className="text-4xl">📅</span>
+      <div className="text-center space-y-3">
+        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+          <span className="text-3xl">📅</span>
         </div>
         
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-2xl font-bold">
           {language === 'he' ? 'תכנון השבוע הראשון' : 'Planning Your First Week'}
         </h1>
         
-        <p className="text-muted-foreground max-w-md mx-auto">
+        <p className="text-muted-foreground text-sm max-w-md mx-auto">
           {language === 'he' 
-            ? 'הגדר 3 פעולות קטנות והרגל עוגן אחד שתתחיל כבר השבוע.'
-            : 'Set 3 small actions and one anchor habit you\'ll start this week.'
+            ? 'בחר 3 פעולות קטנות והרגל עוגן אחד. התחל קל!'
+            : 'Choose 3 small actions and one anchor habit. Start easy!'
           }
         </p>
       </div>
 
-      {/* 3 Actions */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold">
-            {language === 'he' ? '3 פעולות לשבוע' : '3 Actions for the Week'}
-          </h3>
+      {/* 3 Actions Selection */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-primary" />
+            <h3 className="font-semibold text-sm">
+              {language === 'he' ? '3 פעולות לשבוע' : '3 Actions for the Week'}
+            </h3>
+          </div>
+          <span className="text-xs font-medium text-primary">
+            {selectedActions.length}/3
+          </span>
         </div>
         
-        <div className="space-y-3">
-          {actions.map((action, index) => (
+        <div className="flex flex-wrap gap-2">
+          {ACTION_SUGGESTIONS.map((action, index) => {
+            const label = language === 'he' ? action.label : action.labelEn;
+            const isSelected = selectedActions.includes(label);
+            const selectionIndex = selectedActions.indexOf(label);
+            
+            return (
+              <motion.button
+                key={action.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.03 * index }}
+                onClick={() => toggleAction(label)}
+                className={cn(
+                  "relative flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-all",
+                  isSelected 
+                    ? "bg-primary text-primary-foreground shadow-md" 
+                    : "bg-muted/50 hover:bg-muted border border-muted-foreground/20"
+                )}
+              >
+                {isSelected && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold"
+                  >
+                    {selectionIndex + 1}
+                  </motion.span>
+                )}
+                <span>{action.icon}</span>
+                <span className="text-xs">{label}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+        
+        {/* Selected Actions Display */}
+        <AnimatePresence>
+          {selectedActions.length > 0 && (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className="flex items-center gap-3"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-primary/5 rounded-lg p-3 space-y-1"
             >
-              <span className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
-                action.trim().length >= 5 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-muted text-muted-foreground"
-              )}>
-                {index + 1}
-              </span>
-              <Input
-                value={action}
-                onChange={(e) => updateAction(index, e.target.value)}
-                placeholder={language === 'he' 
-                  ? `פעולה ${index + 1} (למשל: ללכת 30 דקות)` 
-                  : `Action ${index + 1} (e.g., Walk 30 minutes)`
-                }
-                className="flex-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Anchor Habit */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Anchor className="w-5 h-5 text-accent" />
-          <h3 className="font-semibold">
-            {language === 'he' ? 'הרגל עוגן' : 'Anchor Habit'}
-          </h3>
-        </div>
-        
-        <p className="text-sm text-muted-foreground">
-          {language === 'he' 
-            ? 'הרגל עוגן הוא פעולה קטנה שתעשה כל יום, ללא יוצא מן הכלל. הוא יהפוך לבסיס של כל ההרגלים האחרים.'
-            : 'An anchor habit is a small action you\'ll do every day, no exceptions. It will become the foundation for all other habits.'
-          }
-        </p>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="relative"
-        >
-          <Input
-            value={anchorHabit}
-            onChange={(e) => setAnchorHabit(e.target.value)}
-            placeholder={language === 'he' 
-              ? 'למשל: 5 דקות מדיטציה כל בוקר' 
-              : 'e.g., 5 minutes of meditation every morning'
-            }
-            className="pr-10"
-            dir={isRTL ? 'rtl' : 'ltr'}
-          />
-          {anchorHabit.trim().length >= 5 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute top-1/2 left-3 -translate-y-1/2 text-primary"
-            >
-              ✓
+              <p className="text-xs font-medium text-muted-foreground">
+                {language === 'he' ? 'הפעולות שבחרת:' : 'Your chosen actions:'}
+              </p>
+              {selectedActions.map((action, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <Check className="w-3 h-3 text-primary" />
+                  <span>{action}</span>
+                </div>
+              ))}
             </motion.div>
           )}
-        </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Tips */}
-      <div className="bg-muted/30 rounded-xl p-4 text-sm space-y-2">
-        <p className="font-medium">
-          {language === 'he' ? '💡 טיפים:' : '💡 Tips:'}
+      {/* Anchor Habit Selection */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Anchor className="w-4 h-4 text-amber-500" />
+          <h3 className="font-semibold text-sm">
+            {language === 'he' ? 'הרגל עוגן (קטן במיוחד!)' : 'Anchor Habit (super tiny!)'}
+          </h3>
+        </div>
+        
+        <p className="text-xs text-muted-foreground">
+          {language === 'he' 
+            ? 'פעולה כל כך קטנה שאי אפשר לא לעשות אותה. זה הבסיס!'
+            : 'So tiny you can\'t NOT do it. This is your foundation!'
+          }
         </p>
-        <ul className="space-y-1 text-muted-foreground">
-          <li>
-            {language === 'he' 
-              ? '• הפעולות צריכות להיות קטנות וברות ביצוע'
-              : '• Actions should be small and achievable'
-            }
-          </li>
-          <li>
-            {language === 'he' 
-              ? '• הרגל העוגן צריך להיות כל כך קטן שאי אפשר לא לעשות אותו'
-              : '• The anchor habit should be so small you can\'t not do it'
-            }
-          </li>
-          <li>
-            {language === 'he' 
-              ? '• חבר את ההרגל לפעולה שכבר עושה (אחרי קפה הבוקר...)'
-              : '• Connect the habit to something you already do (after morning coffee...)'
-            }
-          </li>
-        </ul>
+        
+        <div className="flex flex-wrap gap-2">
+          {ANCHOR_SUGGESTIONS.map((anchor, index) => {
+            const label = language === 'he' ? anchor.label : anchor.labelEn;
+            const isSelected = selectedAnchor === label;
+            
+            return (
+              <motion.button
+                key={anchor.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.05 * index }}
+                onClick={() => selectAnchor(label)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-all",
+                  isSelected 
+                    ? "bg-amber-500 text-white shadow-md" 
+                    : "bg-muted/50 hover:bg-muted border border-muted-foreground/20"
+                )}
+              >
+                <span>{anchor.icon}</span>
+                <span className="text-xs">{label}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+        
+        {/* Selected Anchor Display */}
+        <AnimatePresence>
+          {selectedAnchor && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-amber-500/10 rounded-lg p-3"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <Anchor className="w-4 h-4 text-amber-500" />
+                <span className="font-medium">{selectedAnchor}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Submit */}
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-3 pt-2">
         <div className="flex items-center justify-center gap-4 text-sm">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
             <Sparkles className="w-4 h-4" />
@@ -193,8 +245,8 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
         {!isValid && (
           <p className="text-xs text-muted-foreground">
             {language === 'he' 
-              ? 'מלא את 3 הפעולות והרגל העוגן (לפחות 5 תווים בכל אחד)'
-              : 'Fill all 3 actions and the anchor habit (at least 5 characters each)'
+              ? `בחר ${3 - selectedActions.length > 0 ? `עוד ${3 - selectedActions.length} פעולות` : ''} ${!selectedAnchor ? 'והרגל עוגן' : ''}`
+              : `Select ${3 - selectedActions.length > 0 ? `${3 - selectedActions.length} more actions` : ''} ${!selectedAnchor ? 'and an anchor habit' : ''}`
             }
           </p>
         )}
