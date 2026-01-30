@@ -30,19 +30,25 @@ interface QuizQuestion {
 
 // All quiz questions with branching logic
 const WELCOME_QUIZ: QuizQuestion[] = [
-  // Question 1: Main Areas - MULTI-SELECT
+  // Question 1: Life Areas - MULTI-SELECT - What are you dealing with
   {
     id: 'main_area',
-    question: 'מה מטריד אותך עכשיו? (בחר כמה שתרצה)',
-    questionEn: 'What concerns you right now? (Select all that apply)',
+    question: 'במה אתה מתעסק כרגע בחיים? (בחר הכל שרלוונטי)',
+    questionEn: 'What are you currently dealing with in life? (Select all that apply)',
     multiSelect: true,
     options: [
       { value: 'career', label: 'קריירה/עבודה', labelEn: 'Career/Work', icon: '💼' },
-      { value: 'relationships', label: 'מערכות יחסים', labelEn: 'Relationships', icon: '❤️' },
-      { value: 'health', label: 'בריאות/אנרגיה', labelEn: 'Health/Energy', icon: '🧘' },
+      { value: 'business', label: 'עסק/יזמות', labelEn: 'Business/Entrepreneurship', icon: '🚀' },
+      { value: 'relationships', label: 'זוגיות/מערכות יחסים', labelEn: 'Relationships', icon: '❤️' },
+      { value: 'family', label: 'משפחה/ילדים', labelEn: 'Family/Children', icon: '👨‍👩‍👧' },
+      { value: 'health', label: 'בריאות/כושר', labelEn: 'Health/Fitness', icon: '💪' },
+      { value: 'energy', label: 'אנרגיה/שינה', labelEn: 'Energy/Sleep', icon: '🔋' },
       { value: 'finance', label: 'כסף/פיננסים', labelEn: 'Money/Finances', icon: '💰' },
       { value: 'purpose', label: 'מטרה/כיוון בחיים', labelEn: 'Purpose/Direction', icon: '🎯' },
-      { value: 'emotional', label: 'רגשות/מנטלי', labelEn: 'Emotions/Mental', icon: '😰' },
+      { value: 'emotional', label: 'רגשות/בריאות נפשית', labelEn: 'Emotions/Mental Health', icon: '🧠' },
+      { value: 'social', label: 'חברים/קהילה', labelEn: 'Friends/Community', icon: '👥' },
+      { value: 'learning', label: 'לימודים/התפתחות', labelEn: 'Learning/Growth', icon: '📚' },
+      { value: 'spirituality', label: 'רוחניות/משמעות', labelEn: 'Spirituality/Meaning', icon: '✨' },
     ],
   },
   // Career sub-questions
@@ -335,8 +341,13 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
               </h2>
             </div>
 
-            {/* Options Grid */}
-            <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
+            {/* Options Grid - 3 columns for multi-select, 2 for single */}
+            <div className={cn(
+              "grid gap-3 mx-auto",
+              currentQuestion.multiSelect 
+                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 max-w-3xl" 
+                : "grid-cols-2 max-w-lg"
+            )}>
               {currentQuestion.options.map((option) => {
                 // Check if option is selected (handle both single and multi-select)
                 const isSelected = currentQuestion.multiSelect
@@ -350,15 +361,15 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleOptionSelect(option.value)}
                     className={cn(
-                      "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                      "flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all",
                       "hover:border-primary hover:bg-primary/5",
                       isSelected
                         ? "border-primary bg-primary/10"
                         : "border-border bg-card"
                     )}
                   >
-                    <span className="text-3xl">{option.icon}</span>
-                    <span className="text-sm font-medium text-center">
+                    <span className="text-2xl">{option.icon}</span>
+                    <span className="text-xs font-medium text-center leading-tight">
                       {language === 'he' ? option.label : option.labelEn}
                     </span>
                   </motion.button>
