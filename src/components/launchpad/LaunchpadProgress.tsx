@@ -18,6 +18,7 @@ export function LaunchpadProgress({ className, compact = false, onClick }: Launc
     progress, 
     completionPercentage, 
     currentStep, 
+    completedSteps,
     isStepCompleted, 
     isStepAccessible,
     isLaunchpadComplete 
@@ -48,7 +49,7 @@ export function LaunchpadProgress({ className, compact = false, onClick }: Launc
           </span>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
-              {currentStep}/{STEPS.length}
+              {completedSteps}/{STEPS.length}
             </span>
             {isRTL ? (
               <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -60,8 +61,8 @@ export function LaunchpadProgress({ className, compact = false, onClick }: Launc
         <Progress value={completionPercentage} className="h-2" />
         <p className="text-xs text-muted-foreground mt-2">
           {language === 'he' 
-            ? `שלב נוכחי: ${STEPS[currentStep - 1]?.title || 'סיום'}`
-            : `Current: ${STEPS[currentStep - 1]?.titleEn || 'Complete'}`
+            ? `שלב הבא: ${STEPS[currentStep - 1]?.title || 'סיום'}`
+            : `Next: ${STEPS[currentStep - 1]?.titleEn || 'Complete'}`
           }
         </p>
       </button>
