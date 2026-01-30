@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useSEO } from "@/hooks/useSEO";
@@ -14,10 +14,6 @@ import {
   LifePlanPreviewSection,
   DashboardPreviewSection
 } from "@/components/home";
-
-// Lazy load below-the-fold components
-const FAQSection = lazy(() => import("@/components/FAQSection"));
-const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const { t, isRTL } = useTranslation();
@@ -84,10 +80,6 @@ const Index = () => {
         <ConsciousnessCoachingSection />
         <LifePlanPreviewSection />
         <DashboardPreviewSection />
-        <Suspense fallback={null}>
-          <FAQSection />
-          <Footer />
-        </Suspense>
       </main>
     </div>
   );
