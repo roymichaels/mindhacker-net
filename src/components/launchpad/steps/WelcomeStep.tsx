@@ -7,7 +7,7 @@ import { Sparkles, Gift, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface WelcomeStepProps {
-  onComplete: (data: { quizAnswers: Record<string, string> }) => void;
+  onComplete: (data: { quizAnswers: Record<string, string | string[]> }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
 }
@@ -24,16 +24,18 @@ interface QuizQuestion {
   question: string;
   questionEn: string;
   options: QuizOption[];
+  multiSelect?: boolean; // Allow multiple selections
   dependsOn?: { questionId: string; values: string[] };
 }
 
 // All quiz questions with branching logic
 const WELCOME_QUIZ: QuizQuestion[] = [
-  // Question 1: Main Area
+  // Question 1: Main Areas - MULTI-SELECT
   {
     id: 'main_area',
-    question: 'מה הכי מטריד אותך עכשיו?',
-    questionEn: 'What concerns you the most right now?',
+    question: 'מה מטריד אותך עכשיו? (בחר כמה שתרצה)',
+    questionEn: 'What concerns you right now? (Select all that apply)',
+    multiSelect: true,
     options: [
       { value: 'career', label: 'קריירה/עבודה', labelEn: 'Career/Work', icon: '💼' },
       { value: 'relationships', label: 'מערכות יחסים', labelEn: 'Relationships', icon: '❤️' },
@@ -186,32 +188,43 @@ const WELCOME_QUIZ: QuizQuestion[] = [
 ];
 
 // Get visible questions based on current answers
-function getVisibleQuestions(answers: Record<string, string>): QuizQuestion[] {
+function getVisibleQuestions(answers: Record<string, string | string[]>): QuizQuestion[] {
   return WELCOME_QUIZ.filter(q => {
     if (!q.dependsOn) return true;
     const parentAnswer = answers[q.dependsOn.questionId];
-    return parentAnswer && q.dependsOn.values.includes(parentAnswer);
+    // Support both single string and array of strings
+    if (Array.isArray(parentAnswer)) {
+      return parentAnswer.some(val => q.dependsOn!.values.includes(val));
+    }
+    return parentAnswer && q.dependsOn.values.includes(parentAnswer as string);
   });
 }
 
 // Get summary text based on answers
-function getSummaryText(answers: Record<string, string>, language: string): string {
-  const mainArea = WELCOME_QUIZ[0].options.find(o => o.value === answers.main_area);
+function getSummaryText(answers: Record<string, string | string[]>, language: string): string {
+  const mainAreaValue = answers.main_area;
+  const mainAreas = Array.isArray(mainAreaValue) ? mainAreaValue : [mainAreaValue];
+  const mainAreaLabels = mainAreas
+    .map(val => WELCOME_QUIZ[0].options.find(o => o.value === val))
+    .filter(Boolean);
+  
   const emotionalState = WELCOME_QUIZ.find(q => q.id === 'emotional_state')?.options.find(o => o.value === answers.emotional_state);
   const duration = WELCOME_QUIZ.find(q => q.id === 'duration')?.options.find(o => o.value === answers.duration);
   
-  if (!mainArea || !emotionalState || !duration) return '';
+  if (mainAreaLabels.length === 0 || !emotionalState || !duration) return '';
   
   if (language === 'he') {
-    return `אני רואה שאתה מתמקד ב${mainArea.label}, מרגיש ${emotionalState.label}, וזה כבר ${duration.label}. יחד נמצא את הדרך הנכונה בשבילך.`;
+    const areasText = mainAreaLabels.map(a => a?.label).join(', ');
+    return `אני רואה שאתה מתמקד ב${areasText}, מרגיש ${emotionalState.label}, וזה כבר ${duration.label}. יחד נמצא את הדרך הנכונה בשבילך.`;
   }
   
-  return `I see that you're focused on ${mainArea.labelEn}, feeling ${emotionalState.labelEn}, and it's been ${duration.labelEn}. Together we'll find the right path for you.`;
+  const areasTextEn = mainAreaLabels.map(a => a?.labelEn).join(', ');
+  return `I see that you're focused on ${areasTextEn}, feeling ${emotionalState.labelEn}, and it's been ${duration.labelEn}. Together we'll find the right path for you.`;
 }
 
 export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepProps) {
   const { language, isRTL } = useTranslation();
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
   
@@ -228,18 +241,44 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
   }, [isQuizComplete, showSummary]);
 
   const handleOptionSelect = (value: string) => {
-    const newAnswers = { ...answers, [currentQuestion.id]: value };
-    setAnswers(newAnswers);
-    
-    // Auto-advance after short delay
-    setTimeout(() => {
-      const newVisibleQuestions = getVisibleQuestions(newAnswers);
-      if (currentQuestionIndex + 1 < newVisibleQuestions.length) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-      } else {
-        setShowSummary(true);
-      }
-    }, 300);
+    if (currentQuestion.multiSelect) {
+      // Multi-select: toggle the value in the array
+      const currentValues = (answers[currentQuestion.id] as string[]) || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      setAnswers({ ...answers, [currentQuestion.id]: newValues });
+      // Don't auto-advance for multi-select
+    } else {
+      // Single select: set value and auto-advance
+      const newAnswers = { ...answers, [currentQuestion.id]: value };
+      setAnswers(newAnswers);
+      
+      // Auto-advance after short delay
+      setTimeout(() => {
+        const newVisibleQuestions = getVisibleQuestions(newAnswers);
+        if (currentQuestionIndex + 1 < newVisibleQuestions.length) {
+          setCurrentQuestionIndex(currentQuestionIndex + 1);
+        } else {
+          setShowSummary(true);
+        }
+      }, 300);
+    }
+  };
+
+  const handleMultiSelectContinue = () => {
+    const newVisibleQuestions = getVisibleQuestions(answers);
+    if (currentQuestionIndex + 1 < newVisibleQuestions.length) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setShowSummary(true);
+    }
+  };
+
+  const canContinueMultiSelect = () => {
+    if (!currentQuestion?.multiSelect) return false;
+    const currentValues = (answers[currentQuestion.id] as string[]) || [];
+    return currentValues.length > 0;
   };
 
   const handleBack = () => {
@@ -298,27 +337,46 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
 
             {/* Options Grid */}
             <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-              {currentQuestion.options.map((option) => (
-                <motion.button
-                  key={option.value}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleOptionSelect(option.value)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                    "hover:border-primary hover:bg-primary/5",
-                    answers[currentQuestion.id] === option.value
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-card"
-                  )}
-                >
-                  <span className="text-3xl">{option.icon}</span>
-                  <span className="text-sm font-medium text-center">
-                    {language === 'he' ? option.label : option.labelEn}
-                  </span>
-                </motion.button>
-              ))}
+              {currentQuestion.options.map((option) => {
+                // Check if option is selected (handle both single and multi-select)
+                const isSelected = currentQuestion.multiSelect
+                  ? ((answers[currentQuestion.id] as string[]) || []).includes(option.value)
+                  : answers[currentQuestion.id] === option.value;
+
+                return (
+                  <motion.button
+                    key={option.value}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleOptionSelect(option.value)}
+                    className={cn(
+                      "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                      "hover:border-primary hover:bg-primary/5",
+                      isSelected
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-card"
+                    )}
+                  >
+                    <span className="text-3xl">{option.icon}</span>
+                    <span className="text-sm font-medium text-center">
+                      {language === 'he' ? option.label : option.labelEn}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </div>
+
+            {/* Continue button for multi-select */}
+            {currentQuestion.multiSelect && (
+              <Button
+                onClick={handleMultiSelectContinue}
+                disabled={!canContinueMultiSelect()}
+                className="mt-4"
+                size="lg"
+              >
+                {language === 'he' ? 'המשך' : 'Continue'}
+              </Button>
+            )}
           </motion.div>
         ) : showSummary ? (
           <motion.div
