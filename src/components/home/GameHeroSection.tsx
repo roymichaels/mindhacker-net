@@ -61,21 +61,14 @@ export default function GameHeroSection() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="relative mx-auto"
+            className="mx-auto"
           >
-            {/* Glow effect behind orb */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-48 h-48 sm:w-64 sm:h-64 bg-primary/20 rounded-full blur-3xl" />
-            </div>
-            
-            <div className="relative z-10">
-              <Orb 
-                size={200}
-                state={orbState}
-                egoState="guardian"
-                className="mx-auto"
-              />
-            </div>
+            <Orb 
+              size={150}
+              state={orbState}
+              egoState="guardian"
+              className="mx-auto"
+            />
           </motion.div>
 
           {/* Main Title */}
