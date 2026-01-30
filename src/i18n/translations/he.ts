@@ -38,6 +38,18 @@ export const he = {
     email: "אימייל",
     language: "שפה",
   },
+  avatar: {
+    badge: "האווטר הדיגיטלי שלך",
+    title: "האורב שלך מתפתח איתך",
+    subtitle: "צבעים, צורות וטקסטורות ייחודיות לך בלבד",
+    colors: "צבעים",
+    colorsDesc: "צבעים ייחודיים לפי מצב האגו שלך",
+    shapes: "צורות",
+    shapesDesc: "צורות גיאומטריות לפי התכונות שבחרת",
+    textures: "טקסטורות",
+    texturesDesc: "מורכבות גיאומטרית שעולה עם הרמה",
+    evolution: "ככל שתתקדם - האורב ישתנה",
+  },
   header: {
     brandName: "מיינד האקר",
     navigationMenu: "תפריט ניווט",
