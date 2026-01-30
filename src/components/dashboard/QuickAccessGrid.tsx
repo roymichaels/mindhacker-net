@@ -7,10 +7,13 @@ import {
   UserCircle, 
   Heart, 
   Target, 
-  Anchor 
+  Anchor,
+  FileDown,
+  Loader2
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useProfilePDF } from '@/hooks/useProfilePDF';
 
 interface QuickAccessItem {
   id: string;
@@ -19,6 +22,7 @@ interface QuickAccessItem {
   labelHe: string;
   gradient: string;
   onClick: () => void;
+  isLoading?: boolean;
 }
 
 interface QuickAccessGridProps {
@@ -50,6 +54,8 @@ export function QuickAccessGrid({
   onOpenFocus,
   hasFocusPlan,
 }: QuickAccessGridProps) {
+  const { downloadPDF, generating } = useProfilePDF();
+
   const items: QuickAccessItem[] = [
     {
       id: 'ai',
@@ -123,6 +129,15 @@ export function QuickAccessGrid({
       gradient: 'from-sky-500/20 to-blue-500/20',
       onClick: onOpenAnchors,
     },
+    {
+      id: 'pdf',
+      icon: generating ? Loader2 : FileDown,
+      label: 'Download PDF',
+      labelHe: 'הורד PDF',
+      gradient: 'from-indigo-500/20 to-blue-500/20',
+      onClick: downloadPDF,
+      isLoading: generating,
+    },
   ];
 
   // Add focus if exists
@@ -142,15 +157,16 @@ export function QuickAccessGrid({
       {items.map((item) => (
         <Card
           key={item.id}
-          onClick={item.onClick}
+          onClick={item.isLoading ? undefined : item.onClick}
           className={cn(
             "p-4 cursor-pointer transition-all duration-200",
             "hover:scale-105 hover:shadow-lg active:scale-95",
             "flex flex-col items-center justify-center gap-2 text-center",
-            `bg-gradient-to-br ${item.gradient}`
+            `bg-gradient-to-br ${item.gradient}`,
+            item.isLoading && "opacity-70 cursor-wait"
           )}
         >
-          <item.icon className="h-6 w-6 text-primary" />
+          <item.icon className={cn("h-6 w-6 text-primary", item.isLoading && "animate-spin")} />
           <span className="text-xs font-medium">
             {language === 'he' ? item.labelHe : item.label}
           </span>
