@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 
 interface AIAnalysisDisplayProps {
   language: string;
+  refreshKey?: number;
 }
 
 interface SummaryData {
@@ -62,7 +63,7 @@ const EGO_STATE_LABELS: Record<string, { en: string; he: string }> = {
   sage: { en: 'Sage', he: 'חכם' },
 };
 
-export function AIAnalysisDisplay({ language }: AIAnalysisDisplayProps) {
+export function AIAnalysisDisplay({ language, refreshKey }: AIAnalysisDisplayProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<SummaryData | null>(null);
@@ -80,6 +81,7 @@ export function AIAnalysisDisplay({ language }: AIAnalysisDisplayProps) {
       }
 
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('launchpad_summaries')
           .select('*')
@@ -104,7 +106,7 @@ export function AIAnalysisDisplay({ language }: AIAnalysisDisplayProps) {
     }
 
     fetchSummary();
-  }, [user?.id]);
+  }, [user?.id, refreshKey]);
 
   if (loading) {
     return (
