@@ -1,19 +1,14 @@
 import { lazy, Suspense, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
-// Note: AffiliateTracker is rendered globally in App.tsx
+import { PlatformHeroSection, AuroraPromoSection, HowItWorksSection, FeaturedPractitionersSection } from "@/components/platform";
 
-// Lazy load below-the-fold components - ordered by journey progression
-const IntrospectionPromo = lazy(() => import("@/components/IntrospectionPromo"));
-const PersonalVideoPromo = lazy(() => import("@/components/PersonalVideoPromo"));
-const ConsciousnessLeapPromo = lazy(() => import("@/components/ConsciousnessLeapPromo"));
-const AboutSection = lazy(() => import("@/components/AboutSection"));
+// Lazy load below-the-fold components
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const Footer = lazy(() => import("@/components/Footer"));
@@ -42,8 +37,6 @@ const Index = () => {
     siteUrl: theme.site_url || window.location.origin,
     ogImageUrl: theme.og_image_url,
   };
-  
-  // Affiliate tracking is handled globally by AffiliateTracker component
 
   useSEO({
     title: t('seo.indexTitle'),
@@ -68,30 +61,27 @@ const Index = () => {
   }
 
   // If user is logged in, they will be redirected by the useEffect above
-  // But render null while redirecting to prevent flash
   if (user) {
     return null;
   }
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <Header />
       
-      {/* Main content - Journey order: Free → Recording → Process */}
+      {/* Main content - Platform sections */}
       <main className="relative z-10">
-        <HeroSection />
+        <PlatformHeroSection />
+        <AuroraPromoSection />
+        <FeaturedPractitionersSection />
+        <HowItWorksSection />
         <Suspense fallback={null}>
-          <IntrospectionPromo />
-          <PersonalVideoPromo />
-          <ConsciousnessLeapPromo />
-          <AboutSection />
           <TestimonialsSection />
           <FAQSection />
           <Footer />
         </Suspense>
       </main>
-
     </div>
   );
 };
