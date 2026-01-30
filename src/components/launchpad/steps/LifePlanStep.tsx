@@ -8,7 +8,7 @@ import { Sparkles, Gift, ChevronDown, ChevronUp, Loader2, Target } from 'lucide-
 import { motion, AnimatePresence } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { handleError } from '@/lib/errorHandling';
 
 const LIFE_PLAN_FORM_ID = 'f2b4e2c6-40a8-4b8b-9a35-6a1e5c54a6f3';
 
@@ -121,7 +121,24 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
   const isValid = completedCount >= 3; // At least 3 sections filled
 
   const handleSubmit = async () => {
-    if (!isValid || !user?.id) return;
+    if (!user?.id) return;
+
+    if (!isValid) {
+      const missingTitles = SECTIONS
+        .filter((s) => (answers[s.id] || '').trim().length < 20)
+        .slice(0, 3)
+        .map((s) => (language === 'he' ? s.title : s.titleEn));
+
+      handleError(
+        new Error('Validation: Life plan incomplete'),
+        language === 'he'
+          ? `כדי להמשיך מלא לפחות 3 סעיפים (20+ תווים). חסר עדיין: ${missingTitles.join(', ')}`
+          : `To continue, fill at least 3 sections (20+ chars). Still missing: ${missingTitles.join(', ')}`,
+        'LifePlanStep.handleSubmit',
+        language === 'he' ? 'חסר מידע' : 'Missing info'
+      );
+      return;
+    }
 
     setIsAnalyzing(true);
 
@@ -209,7 +226,12 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
       }
     } catch (error) {
       console.error('Life plan step error:', error);
-      toast.error(language === 'he' ? 'שגיאה בשמירת התוכנית' : 'Error saving plan');
+      handleError(
+        error,
+        language === 'he' ? 'שגיאה בשמירת התוכנית' : 'Error saving plan',
+        'LifePlanStep.handleSubmit',
+        language === 'he' ? 'שגיאה' : 'Error'
+      );
     } finally {
       setIsAnalyzing(false);
     }
@@ -439,7 +461,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
         <Button 
           size="lg" 
           onClick={handleSubmit}
-          disabled={!isValid || isAnalyzing}
+          disabled={isAnalyzing}
           className="min-w-[200px] gap-2"
         >
           {isAnalyzing ? (
