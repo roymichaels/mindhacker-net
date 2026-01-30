@@ -1,4 +1,4 @@
-import { Plus, Sparkles, Trash2, Menu, LayoutDashboard, MessageSquare, BookOpen, Users, Compass } from 'lucide-react';
+import { Plus, Sparkles, Trash2, Menu, LayoutDashboard, MessageSquare, Users, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -51,33 +51,13 @@ const AuroraSidebar = ({
   const queryClient = useQueryClient();
   const isCollapsed = state === 'collapsed';
 
-  // Navigation items that match the bottom nav
+  // Navigation items - matching Dashboard sidebar
   const navItems = [
-    { 
-      icon: LayoutDashboard, 
-      label: language === 'he' ? 'דשבורד' : 'Dashboard', 
-      path: '/dashboard' 
-    },
-    { 
-      icon: MessageSquare, 
-      label: language === 'he' ? 'הודעות' : 'Messages', 
-      path: '/messages' 
-    },
-    { 
-      icon: BookOpen, 
-      label: language === 'he' ? 'קטלוג' : 'Catalog', 
-      path: '/courses' 
-    },
-    { 
-      icon: Users, 
-      label: language === 'he' ? 'קהילה' : 'Community', 
-      path: '/community' 
-    },
-    { 
-      icon: Compass, 
-      label: language === 'he' ? 'היפנוזה' : 'Hypnosis', 
-      path: '/hypnosis' 
-    },
+    { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
+    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
+    { path: '/aurora', icon: Sparkles, label: language === 'he' ? 'אורורה' : 'Aurora' },
+    { path: '/community', icon: Users, label: language === 'he' ? 'קהילה' : 'Community' },
+    { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
   ];
 
   // Fetch user's AI conversations
