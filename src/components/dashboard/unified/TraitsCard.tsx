@@ -1,156 +1,163 @@
-import { Sparkles, Star } from 'lucide-react';
+import { Sparkles, Star, TrendingUp, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { 
-  CHARACTER_TRAITS, 
-  TRAIT_CATEGORIES, 
-  type CharacterTrait 
-} from '@/lib/characterTraits';
 
-interface TraitWithPriority {
-  trait: CharacterTrait;
-  priority: number;
-  isCore: boolean;
+interface ArchetypeData {
+  archetype: {
+    name: string;
+    nameEn: string;
+    description: string;
+    descriptionEn: string;
+    icon: string;
+  };
+  coreTraits: Array<{
+    name: string;
+    nameEn: string;
+    icon: string;
+    reason: string;
+    reasonEn: string;
+  }>;
+  growthEdges: Array<{
+    area: string;
+    areaEn: string;
+  }>;
+  uniqueStrength: string;
+  uniqueStrengthEn: string;
 }
 
 interface TraitsCardProps {
-  traitIds: string[];
-  traitMetadata?: Record<string, { priority?: number; isCore?: boolean }>;
+  archetypeData?: ArchetypeData | null;
   roleModels?: string;
   className?: string;
+  // Legacy props - kept for backwards compatibility
+  traitIds?: string[];
+  traitMetadata?: Record<string, { priority?: number; isCore?: boolean }>;
 }
 
-export function TraitsCard({ traitIds, traitMetadata, roleModels, className }: TraitsCardProps) {
-  const { t, isRTL, language } = useTranslation();
+export function TraitsCard({ archetypeData, roleModels, className, traitIds, traitMetadata }: TraitsCardProps) {
+  const { isRTL, language } = useTranslation();
+  const isHebrew = language === 'he';
 
-  if (!traitIds || traitIds.length === 0) return null;
+  // If no archetype data and no legacy traits, don't render
+  if (!archetypeData && (!traitIds || traitIds.length === 0)) return null;
 
-  // Get full trait objects with priority info
-  const traitsWithPriority: TraitWithPriority[] = traitIds
-    .map((id) => {
-      const trait = CHARACTER_TRAITS.find((t) => t.id === id);
-      if (!trait) return null;
-      
-      const metadata = traitMetadata?.[id];
-      return {
-        trait,
-        priority: metadata?.priority ?? 999,
-        isCore: metadata?.isCore ?? false,
-      };
-    })
-    .filter(Boolean) as TraitWithPriority[];
+  // Render AI-generated archetype
+  if (archetypeData) {
+    return (
+      <Card className={cn("overflow-hidden", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <CardHeader className="pb-3 bg-gradient-to-br from-violet-500/10 to-purple-600/10">
+          <CardTitle className="flex items-center gap-3">
+            <span className="text-3xl">{archetypeData.archetype.icon}</span>
+            <div>
+              <p className="text-xs text-muted-foreground font-normal mb-0.5">
+                {isHebrew ? 'הארכיטייפ שלך' : 'Your Archetype'}
+              </p>
+              <span className="text-lg bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                {isHebrew ? archetypeData.archetype.name : archetypeData.archetype.nameEn}
+              </span>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 pt-4">
+          {/* Description */}
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {isHebrew ? archetypeData.archetype.description : archetypeData.archetype.descriptionEn}
+          </p>
 
-  if (traitsWithPriority.length === 0) return null;
+          {/* Core Traits */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {isHebrew ? 'תכונות ליבה' : 'Core Traits'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {archetypeData.coreTraits.map((trait, index) => (
+                <Badge
+                  key={index}
+                  className="text-sm py-1.5 px-3 bg-gradient-to-r from-violet-500/20 to-purple-600/20 text-foreground border-violet-500/30 hover:from-violet-500/30 hover:to-purple-600/30"
+                >
+                  <span className={isRTL ? "ml-1.5" : "mr-1.5"}>{trait.icon}</span>
+                  {isHebrew ? trait.name : trait.nameEn}
+                </Badge>
+              ))}
+            </div>
+          </div>
 
-  // Sort by priority
-  const sortedTraits = [...traitsWithPriority].sort((a, b) => a.priority - b.priority);
-  const coreTraits = sortedTraits.filter(t => t.isCore || t.priority <= 3);
-  const secondaryTraits = sortedTraits.filter(t => !t.isCore && t.priority > 3);
+          {/* Unique Strength */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-500" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {isHebrew ? 'הכוח הייחודי' : 'Unique Strength'}
+              </span>
+            </div>
+            <p className="text-sm text-foreground font-medium bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-3 rounded-lg border border-amber-500/20">
+              {isHebrew ? archetypeData.uniqueStrength : archetypeData.uniqueStrengthEn}
+            </p>
+          </div>
 
+          {/* Growth Edges */}
+          {archetypeData.growthEdges && archetypeData.growthEdges.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  {isHebrew ? 'תחומי צמיחה' : 'Growth Areas'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {archetypeData.growthEdges.map((edge, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="text-xs py-0.5 px-2 text-emerald-600 border-emerald-500/30"
+                  >
+                    🌱 {isHebrew ? edge.area : edge.areaEn}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Role Models */}
+          {roleModels && roleModels.trim() && (
+            <div className="pt-2 border-t space-y-2">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">
+                  {isHebrew ? 'דמויות השראה' : 'Role Models'}
+                </span>
+              </div>
+              <p className="text-sm text-foreground/80 italic line-clamp-3 whitespace-pre-line">
+                "{roleModels.trim()}"
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Legacy fallback - simple trait list
   return (
     <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
           <Sparkles className="h-5 w-5 text-violet-500" />
-          {language === 'he' ? 'הזהות שאני בונה' : 'Identity I\'m Building'}
+          {isHebrew ? 'הזהות שאני בונה' : 'Identity I\'m Building'}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Core Traits - Prominent */}
-        {coreTraits.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {language === 'he' ? 'תכונות ליבה' : 'Core Traits'}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {coreTraits.map(({ trait, priority }) => {
-                const categoryInfo = TRAIT_CATEGORIES[trait.category];
-                
-                return (
-                  <Badge
-                    key={trait.id}
-                    className={cn(
-                      "text-sm py-1.5 px-3 shadow-sm",
-                      `bg-gradient-to-r ${trait.gradient}`,
-                      "text-white border-0"
-                    )}
-                  >
-                    <span className={isRTL ? "ml-1.5" : "mr-1.5"}>{trait.icon}</span>
-                    {language === 'he' ? trait.nameHe : trait.name}
-                  </Badge>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Secondary Traits - Smaller */}
-        {secondaryTraits.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-xs text-muted-foreground">
-              {language === 'he' ? 'תכונות נוספות' : 'Additional Traits'}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {secondaryTraits.map(({ trait }) => {
-                const categoryInfo = TRAIT_CATEGORIES[trait.category];
-                
-                return (
-                  <Badge
-                    key={trait.id}
-                    variant="outline"
-                    className={cn(
-                      "text-xs py-0.5 px-2",
-                      categoryInfo.textClass
-                    )}
-                  >
-                    <span className={isRTL ? "ml-1" : "mr-1"}>{trait.icon}</span>
-                    {language === 'he' ? trait.nameHe : trait.name}
-                  </Badge>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Role Models Quote */}
-        {roleModels && roleModels.trim() && (
-          <div className="pt-2 border-t space-y-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              {language === 'he' ? '💫 דמויות השראה' : '💫 Role Models'}
-            </span>
-            <p className="text-sm text-foreground/80 italic line-clamp-3 whitespace-pre-line">
-              "{roleModels.trim()}"
-            </p>
-          </div>
-        )}
-
-        {/* Category Summary */}
-        <div className="flex flex-wrap gap-1.5 pt-2 border-t">
-          {Object.entries(
-            sortedTraits.reduce((acc, { trait }) => {
-              if (!acc[trait.category]) acc[trait.category] = 0;
-              acc[trait.category]++;
-              return acc;
-            }, {} as Record<string, number>)
-          ).map(([category, count]) => {
-            const categoryInfo = TRAIT_CATEGORIES[category as keyof typeof TRAIT_CATEGORIES];
-            
-            return (
-              <div
-                key={category}
-                className="flex items-center gap-1 text-xs text-muted-foreground"
-              >
-                <span>{categoryInfo.icon}</span>
-                <span>{count}</span>
-              </div>
-            );
-          })}
-        </div>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          {isHebrew 
+            ? 'השלם את שלב בניית הזהות כדי לראות את הארכיטייפ שלך'
+            : 'Complete the identity building step to see your archetype'
+          }
+        </p>
       </CardContent>
     </Card>
   );
