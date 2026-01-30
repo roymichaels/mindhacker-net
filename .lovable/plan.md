@@ -1,192 +1,159 @@
 
 
-# תכנית: הוספת שלב "פרופיל אישי" ל-Launchpad + ניווט משופר
+# תוכנית: שיפור אפשרויות פרופיל אישי
 
-## סקירת השינויים
+## סקירת השינויים הנדרשים
 
-### 1. שלב חדש: "Personal Profile" (שלב 2 חדש)
-שלב חדש שאוסף מידע אישי מקיף כמו אפליקציית דייטינג - באמצעות כפתורי בחירה גדולים ואטרקטיביים.
+משתמש ביקש לשפר את שלב הפרופיל האישי ב-Launchpad עם מספר שיפורים חשובים:
 
-### 2. ניווט משופר
-- כפתור X לסגירת ה-Launchpad
-- כפתורי קדימה/אחורה לניווט בין שלבים
-- שמירה אוטומטית של כל תשובה
+### 1. הוספת סוגי אימונים נוספים
+**נוסיף:**
+- קליסטניקס (Calisthenics)
+- קרוספיט (CrossFit)
+- טאי צ'י (Tai Chi)
+- הליכה מהירה (Power Walking)
+- ריקוד (Dance)
+- ספורט קבוצתי (Team Sports)
+- טיפוס (Climbing)
+- סקייטבורד/רולרבלייד (Skateboarding)
+- **אחר** (Other)
 
----
+### 2. שינוי "שתיית מים" לקטגוריית "שתייה והידרציה יומית"
+**הבהרה + אפשרויות חדשות:**
+- כותרת חדשה: "שתייה יומית (הידרציה)"
+- מים רגילים
+- מיצים טבעיים
+- מי קוקוס
+- תה צמחים
+- שייקים ירוקים
+- משקאות אלקטרוליטים
+- אחר
 
-## מה נאסוף בשלב הפרופיל האישי
+### 3. הוספת סוגי תזונה נוספים
+**נוסיף לתזונה:**
+- טבעוני אלקלייני (Alkaline Vegan)
+- גלם טבעוני (Raw Vegan)
+- ים תיכוני (Mediterranean)
+- אינטואיטיבי (Intuitive)
+- ללא גלוטן (Gluten-Free)
+- ללא סוכר (Sugar-Free)
+- **אחר** (Other) - כבר קיים ✓
 
-**קטגוריות עם כפתורי בחירה:**
-
-```text
-1. גיל (Age Group)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │  18-24   │ │  25-34   │ │  35-44   │ │  45-54   │ │   55+    │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-2. מין (Gender)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │   גבר   │ │   אישה   │ │   אחר    │
-   └──────────┘ └──────────┘ └──────────┘
-
-3. סוג תזונה (Diet Type)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │ קרניבור  │ │  טבעוני  │ │  צמחוני  │ │  רגיל   │ │   אחר    │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-4. שינה (Sleep)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │ פחות מ-6 │ │  6-8     │ │ יותר מ-8 │
-   └──────────┘ └──────────┘ └──────────┘
-
-5. פעילות גופנית (Exercise)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │ אף פעם   │ │ 1-2/שבוע │ │ 3-4/שבוע │ │ כל יום  │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-6. עישון (Smoking) - Multi-select
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │  לא מעשן │ │ סיגריות │ │   וייפ   │ │   קנאביס │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-7. אלכוהול (Alcohol)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │  לא שותה │ │  לפעמים │ │ סופ"ש   │ │  הרבה   │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-8. קפאין (Caffeine)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │   בלי    │ │  1-2/יום │ │  3-5/יום │ │  יותר   │
-   └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-9. מים (Water intake)
-   ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │ פחות מ-4 │ │  4-8     │ │ יותר מ-8 │
-   └──────────┘ └──────────┘ └──────────┘
-
-10. גובה ומשקל (Sliders)
-    גובה: [====●========] 175 ס"מ
-    משקל: [======●======] 70 ק"ג
-```
-
-**הודעת פרטיות:**
-> "🔒 המידע הזה נשאר רק בינינו. אנחנו לא משתפים עם אף אחד, כולל לא עם המשטרה. הכל כאן כדי שנוכל לעזור לך בצורה הכי מדויקת."
-
----
-
-## שינויי ניווט ב-Launchpad
-
-### Header חדש:
-```text
-┌──────────────────────────────────────────────────────┐
-│  [X]     Progress: ████░░░ 2/8              [<] [>]  │
-│         Step 2: Personal Profile                     │
-└──────────────────────────────────────────────────────┘
-```
-
-### פונקציונליות:
-- **כפתור X**: חוזר לדשבורד (אם ב-/aurora) או לעמוד הקודם
-- **כפתור <**: חוזר לשלב הקודם (אם השלב הושלם)
-- **כפתור >**: עובר לשלב הבא (רק אם השלב הנוכחי הושלם)
-
-### שמירה אוטומטית:
-- כל בחירה נשמרת מיידית ב-localStorage
-- מפתח: `launchpad_personal_profile`
-- נמחק רק אחרי השלמה מוצלחת
-
----
-
-## שינויי מבנה
-
-### סדר השלבים החדש (8 שלבים במקום 7):
-1. Welcome (ברוך הבא)
-2. **Personal Profile (פרופיל אישי)** ← חדש!
-3. First Chat (שיחה ראשונה)
-4. Introspection (התבוננות פנימית)
-5. Life Plan (תוכנית חיים)
-6. Focus Areas (תחומי פוקוס)
-7. First Week (שבוע ראשון)
-8. Dashboard Activation (הפעלת הדשבורד)
+### 4. הוספת "אחר" לכל קטגוריה שחסרה
+קטגוריות שחסרה בהן אפשרות "אחר":
+- `exercise_types` - סוגי אימונים ← נוסיף אחר
+- `smoking` - כבר יש "none"
+- `supplements` - נוסיף אחר
+- `music_genres` - נוסיף אחר
+- `sports` - נוסיף אחר
+- `hobbies` - נוסיף אחר
+- `life_priorities` - נוסיף אחר
+- `age_group` - לא רלוונטי (טווחי גילאים)
+- `sleep_hours` - לא רלוונטי (טווחים מספריים)
 
 ---
 
 ## פרטים טכניים
 
-### 1. Database Migration
+### קובץ לעריכה:
+`src/components/launchpad/steps/PersonalProfileStep.tsx`
 
-**טבלת `launchpad_progress`:**
-- הוספת עמודות חדשות לשלב 2:
-  - `step_2_profile BOOLEAN`
-  - `step_2_profile_data JSONB`
-  - `step_2_profile_completed_at TIMESTAMPTZ`
-- שינוי מספרי השלבים הקיימים (2→3, 3→4, וכו')
-- עדכון פונקציית `complete_launchpad_step`
+### שינויים בפירוט:
 
-**JSONB Structure for profile_data:**
-```json
-{
-  "age_group": "25-34",
-  "gender": "male",
-  "diet": "carnivore",
-  "sleep_hours": "6-8",
-  "exercise_frequency": "3-4/week",
-  "smoking": ["none"],
-  "alcohol": "sometimes",
-  "caffeine": "1-2/day",
-  "water_intake": "4-8",
-  "height_cm": 175,
-  "weight_kg": 70
+#### A. עדכון קטגוריית `exercise_types` (שורות 197-214)
+```typescript
+exercise_types: {
+  section: 'health',
+  title: 'סוגי אימונים',
+  titleEn: 'Exercise Types',
+  icon: '🏋️',
+  multiSelect: true,
+  options: [
+    { value: 'gym', label: 'חדר כושר', labelEn: 'Gym' },
+    { value: 'running', label: 'ריצה', labelEn: 'Running' },
+    { value: 'swimming', label: 'שחייה', labelEn: 'Swimming' },
+    { value: 'yoga', label: 'יוגה', labelEn: 'Yoga' },
+    { value: 'pilates', label: 'פילאטיס', labelEn: 'Pilates' },
+    { value: 'calisthenics', label: 'קליסטניקס', labelEn: 'Calisthenics' },  // NEW
+    { value: 'crossfit', label: 'קרוספיט', labelEn: 'CrossFit' },            // NEW
+    { value: 'martial-arts', label: 'אומנויות לחימה', labelEn: 'Martial Arts' },
+    { value: 'cycling', label: 'רכיבה', labelEn: 'Cycling' },
+    { value: 'hiking', label: 'טיולים', labelEn: 'Hiking' },
+    { value: 'dancing', label: 'ריקוד', labelEn: 'Dancing' },                // NEW
+    { value: 'climbing', label: 'טיפוס', labelEn: 'Climbing' },              // NEW
+    { value: 'tai-chi', label: 'טאי צ\'י', labelEn: 'Tai Chi' },             // NEW
+    { value: 'power-walking', label: 'הליכה מהירה', labelEn: 'Power Walking' }, // NEW
+    { value: 'team-sports', label: 'ספורט קבוצתי', labelEn: 'Team Sports' }, // NEW
+    { value: 'none', label: 'לא מתאמן', labelEn: 'None' },
+    { value: 'other', label: 'אחר', labelEn: 'Other' },                      // NEW
+  ],
 }
 ```
 
-### 2. קובץ חדש: `PersonalProfileStep.tsx`
+#### B. שינוי קטגוריית `water_intake` ל-`hydration` (שורות 256-268)
+```typescript
+hydration: {
+  section: 'health',
+  title: 'שתייה יומית (הידרציה)',
+  titleEn: 'Daily Hydration',
+  icon: '💧',
+  multiSelect: true,  // Changed to multi-select
+  options: [
+    { value: 'water', label: 'מים', labelEn: 'Water' },
+    { value: 'natural-juice', label: 'מיצים טבעיים', labelEn: 'Natural Juices' },
+    { value: 'coconut-water', label: 'מי קוקוס', labelEn: 'Coconut Water' },
+    { value: 'herbal-tea', label: 'תה צמחים', labelEn: 'Herbal Tea' },
+    { value: 'green-smoothies', label: 'שייקים ירוקים', labelEn: 'Green Smoothies' },
+    { value: 'electrolytes', label: 'משקאות אלקטרוליטים', labelEn: 'Electrolyte Drinks' },
+    { value: 'other', label: 'אחר', labelEn: 'Other' },
+  ],
+}
+```
 
-**מבנה הקומפוננטה:**
-- State management עם localStorage persistence
-- קטגוריות בחירה (single/multi-select)
-- Sliders לגובה ומשקל
-- הודעת פרטיות
-- Validation: לפחות 5 שדות מלאים
+#### C. עדכון קטגוריית `diet` (שורות 152-168)
+```typescript
+diet: {
+  section: 'health',
+  title: 'סוג תזונה',
+  titleEn: 'Diet Type',
+  icon: '🍽️',
+  multiSelect: false,
+  options: [
+    { value: 'regular', label: 'רגיל', labelEn: 'Regular' },
+    { value: 'vegetarian', label: 'צמחוני', labelEn: 'Vegetarian' },
+    { value: 'vegan', label: 'טבעוני', labelEn: 'Vegan' },
+    { value: 'alkaline-vegan', label: 'טבעוני אלקלייני', labelEn: 'Alkaline Vegan' }, // NEW
+    { value: 'raw-vegan', label: 'גלם טבעוני', labelEn: 'Raw Vegan' },                // NEW
+    { value: 'keto', label: 'קטו', labelEn: 'Keto' },
+    { value: 'carnivore', label: 'קרניבור', labelEn: 'Carnivore' },
+    { value: 'paleo', label: 'פליאו', labelEn: 'Paleo' },
+    { value: 'mediterranean', label: 'ים תיכוני', labelEn: 'Mediterranean' },         // NEW
+    { value: 'gluten-free', label: 'ללא גלוטן', labelEn: 'Gluten-Free' },             // NEW
+    { value: 'sugar-free', label: 'ללא סוכר', labelEn: 'Sugar-Free' },                // NEW
+    { value: 'intuitive', label: 'אינטואיטיבי', labelEn: 'Intuitive' },               // NEW
+    { value: 'other', label: 'אחר', labelEn: 'Other' },
+  ],
+}
+```
 
-### 3. עדכון `LaunchpadFlow.tsx`
+#### D. הוספת "אחר" לקטגוריות שחסרות
+- `supplements` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
+- `music_genres` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
+- `sports` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
+- `hobbies` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
+- `life_priorities` - נוסיף `{ value: 'other', label: 'אחר', labelEn: 'Other' }`
 
-- הוספת כפתור X בפינה
-- הוספת ניווט קדימה/אחורה
-- Import וrendor של PersonalProfileStep
-- עדכון switch case ל-8 שלבים
-
-### 4. עדכון `useLaunchpadProgress.ts`
-
-- עדכון STEPS array ל-8 שלבים
-- עדכון STEP_REWARDS
-- עדכון interface של LaunchpadProgress
-
-### 5. עדכון `LaunchpadProgress.tsx`
-
-- עדכון חישוב האחוזים ל-8 שלבים
-
-### 6. עדכון index.ts
-
-- Export של PersonalProfileStep
+#### E. עדכון הטיפוסים (interfaces)
+נעדכן את `ProfileData`, `MultiSelectCategory`, ואת `getDefaultProfileData()` לתמוך בשינוי מ-`water_intake` (string) ל-`hydration` (string[]).
 
 ---
 
-## קבצים שיושפעו
+## סיכום השינויים
 
-| קובץ | פעולה |
-|------|-------|
-| `src/components/launchpad/steps/PersonalProfileStep.tsx` | יצירה |
-| `src/components/launchpad/LaunchpadFlow.tsx` | עריכה |
-| `src/hooks/useLaunchpadProgress.ts` | עריכה |
-| `src/components/launchpad/LaunchpadProgress.tsx` | עריכה |
-| `src/components/launchpad/index.ts` | עריכה |
-| `supabase/migrations/xxx.sql` | יצירה (migration) |
-
----
-
-## תגמולים לשלב החדש
-
-- **XP**: 40
-- **Tokens**: 5
-- **Unlock**: `personal_profile_complete`
+| קטגוריה | שינוי |
+|---------|-------|
+| סוגי אימונים | +8 אפשרויות חדשות (כולל קליסטניקס, קרוספיט, ריקוד, טיפוס, טאי צ'י, הליכה מהירה, ספורט קבוצתי, אחר) |
+| שתייה יומית | שינוי שם + הפיכה ל-multi-select + אפשרויות מגוונות (מיצים, מי קוקוס, תה וכו') |
+| סוג תזונה | +6 אפשרויות (טבעוני אלקלייני, גלם טבעוני, ים תיכוני, ללא גלוטן, ללא סוכר, אינטואיטיבי) |
+| כל הקטגוריות | וידוא שיש אפשרות "אחר" בכל מקום רלוונטי |
 
