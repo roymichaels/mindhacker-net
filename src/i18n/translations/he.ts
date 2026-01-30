@@ -2343,6 +2343,64 @@ export const he = {
     viewAllPractitioners: "ראה את כל המאמנים",
   },
 
+  home: {
+    // Hero
+    heroTitle: "בנה את תוכנית החיים שלך",
+    heroAnimation1: "ל-3 החודשים הקרובים",
+    heroAnimation2: "לשנה הבאה",
+    heroAnimation3: "לחיים שלך",
+    heroSubtitle: "מאמן AI אישי שיוציא ממך מטרות, משימות ותוכנית פעולה",
+    heroCta: "התחל את המסע - חינם",
+    heroMeta: "10 שלבים • 20 דקות • תוכנית מלאה",
+    
+    // Launchpad Preview
+    launchpadTitle: "מה תקבל במסע ה-Launchpad:",
+    step1Name: "ברוך הבא",
+    step2Name: "פרופיל אישי",
+    step3Name: "בניית זהות",
+    step4Name: "העמקה",
+    step5Name: "שיחה ראשונה",
+    step6Name: "התבוננות",
+    step7Name: "תוכנית חיים",
+    step8Name: "תחומי פוקוס",
+    step9Name: "שבוע ראשון",
+    step10Name: "הפעלת דשבורד",
+    
+    outcomesTitle: "בסוף התהליך תקבל:",
+    outcome1: "מטרות ברורות ל-3 החודשים הקרובים",
+    outcome2: "משימות יומיות ושבועיות מותאמות אישית",
+    outcome3: "הרגלי עוגן שיעזרו לך להתמיד",
+    outcome4: "דשבורד אישי עם מעקב התקדמות",
+    outcome5: "מאמן AI זמין 24/7 לשאלות וליווי",
+    launchpadCta: "בוא נתחיל!",
+    
+    // Aurora Section
+    aiPowered: "מונע על ידי AI",
+    auroraTitle: "הכר את Aurora - המאמן שלך",
+    auroraDesc: "מערכת AI מתקדמת שלומדת אותך ובונה תוכנית מותאמת אישית",
+    auroraFeature1: "זמינה 24/7 בכל שאלה",
+    auroraFeature2: "לומדת אותך עם כל שיחה",
+    auroraFeature3: "בונה תוכנית מותאמת במיוחד לך",
+    auroraFeature4: "משימות ומטרות שמתעדכנות",
+    startWithAurora: "התחל עם Aurora - חינם",
+    available: "זמין",
+    personalizedAI: "AI אישי",
+    
+    // How It Works
+    howItWorksTitle: "איך זה עובד?",
+    howItWorksSubtitle: "4 צעדים פשוטים להתחלה",
+    howStep1Title: "הרשם",
+    howStep1Desc: "בחינם, בדקה אחת",
+    howStep2Title: "עבור את ה-Launchpad",
+    howStep2Desc: "10 שלבים מהנים ומעשירים",
+    howStep3Title: "קבל תוכנית",
+    howStep3Desc: "מטרות ומשימות ל-3 חודשים",
+    howStep4Title: "התחל לפעול",
+    howStep4Desc: "עם ליווי Aurora 24/7",
+    getStartedFree: "התחל עכשיו - חינם",
+    noCardRequired: "לא נדרש כרטיס אשראי",
+  },
+
   practitionerLanding: {
     backToDirectory: "חזור למאגר המאמנים",
     aboutTitle: "על המאמן",

@@ -6,10 +6,10 @@ import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/se
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
-import { PlatformHeroSection, AuroraPromoSection, HowItWorksSection, FeaturedPractitionersSection } from "@/components/platform";
+import { NewHeroSection, LaunchpadPreviewSection } from "@/components/home";
+import { AuroraPromoSection, HowItWorksSection } from "@/components/platform";
 
 // Lazy load below-the-fold components
-const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 
@@ -72,12 +72,11 @@ const Index = () => {
       
       {/* Main content - Platform sections */}
       <main className="relative z-10">
-        <PlatformHeroSection />
+        <NewHeroSection />
+        <LaunchpadPreviewSection />
         <AuroraPromoSection />
-        <FeaturedPractitionersSection />
         <HowItWorksSection />
         <Suspense fallback={null}>
-          <TestimonialsSection />
           <FAQSection />
           <Footer />
         </Suspense>

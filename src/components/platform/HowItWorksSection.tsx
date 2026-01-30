@@ -20,8 +20,8 @@ const HowItWorksSection = () => {
     {
       number: 1,
       icon: UserPlus,
-      title: t('platform.step1Title'),
-      description: t('platform.step1Desc'),
+      title: t('home.howStep1Title'),
+      description: t('home.howStep1Desc'),
       color: 'text-primary',
       bgColor: 'bg-primary/10',
       borderColor: 'border-primary/30',
@@ -29,8 +29,8 @@ const HowItWorksSection = () => {
     {
       number: 2,
       icon: ClipboardCheck,
-      title: t('platform.step2Title'),
-      description: t('platform.step2Desc'),
+      title: t('home.howStep2Title'),
+      description: t('home.howStep2Desc'),
       color: 'text-secondary',
       bgColor: 'bg-secondary/10',
       borderColor: 'border-secondary/30',
@@ -38,8 +38,8 @@ const HowItWorksSection = () => {
     {
       number: 3,
       icon: Route,
-      title: t('platform.step3Title'),
-      description: t('platform.step3Desc'),
+      title: t('home.howStep3Title'),
+      description: t('home.howStep3Desc'),
       color: 'text-accent',
       bgColor: 'bg-accent/10',
       borderColor: 'border-accent/30',
@@ -47,8 +47,8 @@ const HowItWorksSection = () => {
     {
       number: 4,
       icon: Rocket,
-      title: t('platform.step4Title'),
-      description: t('platform.step4Desc'),
+      title: t('home.howStep4Title'),
+      description: t('home.howStep4Desc'),
       color: 'text-primary',
       bgColor: 'bg-primary/10',
       borderColor: 'border-primary/30',
@@ -69,10 +69,10 @@ const HowItWorksSection = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            {t('platform.howItWorksTitle')}
+            {t('home.howItWorksTitle')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t('platform.howItWorksSubtitle')}
+            {t('home.howItWorksSubtitle')}
           </p>
         </motion.div>
 
@@ -116,13 +116,13 @@ const HowItWorksSection = () => {
           <Button 
             size="lg" 
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/launchpad')}
           >
-            {t('platform.getStartedFree')}
+            {t('home.getStartedFree')}
             <ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
           </Button>
           <p className="text-sm text-muted-foreground mt-3">
-            {t('platform.noCardRequired')}
+            {t('home.noCardRequired')}
           </p>
         </motion.div>
       </div>
