@@ -17,11 +17,35 @@ export function IdentityProfileCard({
   selfConcepts,
   className 
 }: IdentityProfileCardProps) {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
 
   const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0;
   
-  if (!hasContent) return null;
+  if (!hasContent) {
+    return (
+      <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Heart className="h-5 w-5 text-rose-500" />
+            {t('unified.identity.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <Heart className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground mb-2">
+            {language === 'he' 
+              ? 'עדיין אין נתוני זהות' 
+              : 'No identity data yet'}
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            {language === 'he' 
+              ? 'השלם את ה-Launchpad או דבר עם אורורה'
+              : 'Complete the Launchpad or chat with Aurora'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
