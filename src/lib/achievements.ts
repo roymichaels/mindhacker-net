@@ -167,6 +167,30 @@ export const ACHIEVEMENTS: Record<string, Achievement> = {
     category: 'exploration',
     condition: { type: 'ego_states_used', value: 12 },
   },
+  // Identity Building Achievements
+  trait_selector: {
+    id: 'trait_selector',
+    name: 'Identity Builder',
+    nameHe: 'בונה זהות',
+    description: 'Selected your core character traits',
+    descriptionHe: 'בחרת את תכונות האופי המרכזיות שלך',
+    icon: '🎭',
+    xp: 30,
+    tokens: 5,
+    category: 'exploration',
+  },
+  balanced_person: {
+    id: 'balanced_person',
+    name: 'Renaissance Soul',
+    nameHe: 'נשמה רנסנסית',
+    description: 'Selected traits from all 6 categories',
+    descriptionHe: 'בחרת תכונות מכל 6 הקטגוריות',
+    icon: '⚖️',
+    xp: 50,
+    tokens: 10,
+    category: 'exploration',
+  },
+
 
   // Duration Achievements
   hour_total: {

@@ -52,6 +52,7 @@ export interface UnifiedDashboardData {
   values: string[];
   principles: string[];
   selfConcepts: string[];
+  characterTraits: string[];
   
   // Vision
   fiveYearVision: {
@@ -86,7 +87,7 @@ export function useUnifiedDashboard(): UnifiedDashboardData {
   const { user } = useAuth();
   const { gameState, sessionStats, loading: gameLoading } = useGameState();
   const { lifeDirection, activeFocusPlan, dailyMinimums } = useLifeModel();
-  const { values, principles, selfConcepts, fiveYearVision, tenYearVision, activeCommitments } = useDashboard();
+  const { values, principles, selfConcepts, characterTraits, fiveYearVision, tenYearVision, activeCommitments } = useDashboard();
   const { progressPercentage, hasDirection, hasIdentity, hasEnergy, isLifeModelComplete } = useOnboardingProgress();
 
   // Calculate XP progress
@@ -157,6 +158,7 @@ export function useUnifiedDashboard(): UnifiedDashboardData {
     values: values.map((v) => v.content),
     principles: principles.map((p) => p.content),
     selfConcepts: selfConcepts.map((s) => s.content),
+    characterTraits: characterTraits.map((t) => t.content),
     
     // Vision
     fiveYearVision: fiveYearVision ? {
