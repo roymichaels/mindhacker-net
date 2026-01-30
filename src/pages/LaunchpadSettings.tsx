@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { translateProfileValue, translateFieldLabel } from '@/utils/profileTranslations';
+import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 
 // Import step components
 import { WelcomeStep } from '@/components/launchpad/steps/WelcomeStep';
@@ -23,6 +25,7 @@ const TABS = [
   { id: 'profile', label: 'פרופיל אישי', labelEn: 'Personal Profile', icon: '👤' },
   { id: 'focus', label: 'תחומי פוקוס', labelEn: 'Focus Areas', icon: '🎪' },
   { id: 'transformation', label: 'תוכנית טרנספורמציה', labelEn: 'Transformation Plan', icon: '🚀' },
+  { id: 'analysis', label: 'ניתוח AI', labelEn: 'AI Analysis', icon: '🧠' },
 ];
 
 export default function LaunchpadSettings() {
@@ -150,11 +153,11 @@ export default function LaunchpadSettings() {
       <main className="container max-w-4xl mx-auto py-6 px-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Tabs Navigation */}
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             {TABS.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
+              <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-1 px-2">
                 <span className="hidden sm:inline">{tab.icon}</span>
-                <span className="text-xs sm:text-sm">
+                <span className="text-[10px] sm:text-xs">
                   {language === 'he' ? tab.label : tab.labelEn}
                 </span>
               </TabsTrigger>
@@ -250,6 +253,23 @@ export default function LaunchpadSettings() {
                     }}
                     language={language}
                   />
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI Analysis Tab */}
+          <TabsContent value="analysis">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>🧠</span>
+                  {language === 'he' ? 'ניתוח AI' : 'AI Analysis'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[600px] pr-4">
+                  <AIAnalysisDisplay language={language} />
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -351,17 +371,21 @@ function PersonalProfileDisplay({ data, onChange, language }: PersonalProfileDis
         <div className="grid gap-3">
           {items.map(([key, value]) => (
             <div key={key} className="p-3 rounded-lg bg-muted/50 border">
-              <p className="text-xs font-medium text-muted-foreground mb-1">{key}</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">
+                {translateFieldLabel(key, language)}
+              </p>
               {Array.isArray(value) ? (
                 <div className="flex flex-wrap gap-1">
                   {value.map((v, i) => (
                     <span key={i} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-sm">
-                      {String(v)}
+                      {translateProfileValue(String(v), language)}
                     </span>
                   ))}
                 </div>
               ) : (
-                <p className="text-foreground">{String(value)}</p>
+                <p className="text-foreground">
+                  {translateProfileValue(String(value), language)}
+                </p>
               )}
             </div>
           ))}
