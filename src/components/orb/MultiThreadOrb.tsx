@@ -168,9 +168,10 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera - positioned further back to see full sphere
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.z = 3.5;
+    // Camera - positioned to see the FULL sphere with proper near/far planes
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 100);
+    camera.position.set(0, 0, 2.8);
+    camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
     // Renderer with high quality
@@ -228,8 +229,17 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     bottomLight.position.set(0, -5, 3);
     scene.add(bottomLight);
 
-    // === UNIFIED MAIN ORB - Single solid liquid chrome sphere ===
-    const mainGeometry = new THREE.SphereGeometry(1.0, 128, 128); // Full sphere
+    // === UNIFIED MAIN ORB - Full solid sphere with complete geometry ===
+    // Using full sphere with all parameters explicit to avoid clipping
+    const mainGeometry = new THREE.SphereGeometry(
+      0.85,   // radius - slightly smaller to ensure it fits in view
+      96,     // widthSegments
+      96,     // heightSegments
+      0,      // phiStart
+      Math.PI * 2,  // phiLength (full 360 degrees)
+      0,      // thetaStart  
+      Math.PI // thetaLength (full top to bottom)
+    );
     const positions = mainGeometry.attributes.position.array as Float32Array;
     basePositionsRef.current = positions.slice();
 
@@ -437,12 +447,13 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
 
       // === CAMERA MOVEMENT ===
       if (isTunnel) {
-        camera.position.z = 3.2 + Math.sin(time * 0.5) * 0.5;
+        camera.position.z = 2.6 + Math.sin(time * 0.5) * 0.3;
         mainOrb.rotation.z += 0.008;
       } else {
-        // Subtle camera breathing
-        camera.position.z = 3.5 + Math.sin(time * 0.18) * 0.06;
+        // Subtle camera breathing - keep orb fully visible
+        camera.position.z = 2.8 + Math.sin(time * 0.18) * 0.05;
       }
+      camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
     };
@@ -467,8 +478,13 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       style={{
         width: size,
         height: size,
+        minWidth: size,
+        minHeight: size,
         background: 'transparent',
         overflow: 'visible',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     />
   );
