@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUserRoles, AppRole } from '@/hooks/useUserRoles';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Shield, Briefcase, Link2, ChevronDown, Check } from 'lucide-react';
 
 interface PanelConfig {
@@ -29,12 +29,14 @@ const panelConfigs: PanelConfig[] = [
 ];
 
 const RoleSwitcher = () => {
-  const { roles, hasRole } = useUserRoles();
+  const { hasRole } = useUserRoles();
   const { user } = useAuth();
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isHebrew = language === 'he';
+
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   // Get available panels for this user
   const availablePanels = panelConfigs.filter(config => hasRole(config.role));
@@ -74,12 +76,9 @@ const RoleSwitcher = () => {
             variant="ghost"
             className="w-full justify-start gap-3 h-auto py-3 px-3"
           >
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {displayName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-10 w-10 rounded-full overflow-hidden shrink-0">
+              <MultiThreadOrb size={40} showGlow={false} profile={orbProfile} />
+            </div>
             <div className="flex-1 text-start">
               <div className="font-medium text-sm">{displayName}</div>
               {currentPanel && (
@@ -92,7 +91,7 @@ const RoleSwitcher = () => {
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuContent align="start" className="w-56 bg-card border border-border shadow-xl z-50">
           {availablePanels.map((panel) => {
             const isActive = currentPanel?.role === panel.role;
             return (

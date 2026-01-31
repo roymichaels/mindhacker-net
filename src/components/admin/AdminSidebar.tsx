@@ -1,19 +1,19 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { 
-  Settings, HelpCircle, Quote, ShoppingBag, LogOut, Users, Library, 
+  Settings, HelpCircle, Quote, ShoppingBag, Users, Library, 
   BarChart3, Bell, Mail, Headphones, FileEdit, Layout, 
   Newspaper, ChevronDown, ChevronRight, LayoutDashboard, Target, UserPlus,
   FileVideo, Globe, Plus, Bot, Palette, Sparkles, PanelTop, Brain
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import {
   Collapsible,
   CollapsibleContent,
@@ -43,7 +43,6 @@ interface NavGroup {
 const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const { t, isRTL } = useTranslation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
@@ -162,17 +161,6 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
     setOpenGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: t('messages.logoutSuccess'),
-      description: t('messages.goodbye'),
-    });
-    navigate("/admin/login");
-    onNavigate?.();
-  };
-
-  const isItemActive = (path: string) => location.pathname === path;
   const isGroupActive = (group: NavGroup) => 
     group.items.some(item => location.pathname.startsWith(item.to));
 
@@ -300,15 +288,9 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 border-t border-primary/20 flex-shrink-0">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg transition-all hover:bg-destructive/10 text-destructive"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">{t('common.logout')}</span>
-        </button>
+      {/* Account Dropdown (replaces logout button) */}
+      <div className="p-3 border-t border-border flex-shrink-0">
+        <AuroraAccountDropdown showBackToAurora />
       </div>
     </aside>
   );

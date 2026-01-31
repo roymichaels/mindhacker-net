@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { usePermissions } from '@/hooks/usePermissions';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import {
   LayoutDashboard,
   BarChart3,
@@ -50,7 +51,6 @@ const UnifiedSidebar = () => {
   const { t } = useTranslation();
   const { hasRole } = useUserRoles();
   const { hasPermission } = usePermissions();
-  const location = useLocation();
 
   const navGroups = useMemo(() => {
     const groups: NavGroup[] = [];
@@ -156,8 +156,8 @@ const UnifiedSidebar = () => {
   }, [navGroups, hasPermission]);
 
   return (
-    <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16">
-      <ScrollArea className="h-[calc(100vh-64px)]">
+    <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16 flex flex-col">
+      <ScrollArea className="flex-1">
         <nav className="p-4 space-y-6">
           {filteredGroups.map((group) => (
             <div key={group.id}>
@@ -190,6 +190,11 @@ const UnifiedSidebar = () => {
           ))}
         </nav>
       </ScrollArea>
+
+      {/* Account Dropdown at Bottom - using shared component */}
+      <div className="border-t border-border p-3 mt-auto">
+        <AuroraAccountDropdown showBackToAurora />
+      </div>
     </aside>
   );
 };
