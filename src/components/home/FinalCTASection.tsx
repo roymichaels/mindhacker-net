@@ -1,5 +1,6 @@
 /**
- * FinalCTASection - The ultimate closer with all psychological triggers combined
+ * FinalCTASection - The ultimate closer
+ * NO FAKE DATA - only authentic messaging and real guarantees
  */
 
 import { motion } from 'framer-motion';
@@ -10,12 +11,7 @@ import {
   Shield, 
   Clock, 
   CreditCard, 
-  CheckCircle2, 
-  ArrowRight,
-  Sparkles,
-  Star,
-  Zap,
-  Trophy
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -46,7 +42,7 @@ export default function FinalCTASection() {
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="container mx-auto max-w-5xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -54,10 +50,10 @@ export default function FinalCTASection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-card via-card/95 to-card/90 border-2 border-primary/30 shadow-2xl shadow-primary/20"
+          className="relative p-8 sm:p-12 rounded-3xl bg-card border-2 border-primary/30 shadow-2xl shadow-primary/10"
         >
           {/* Glowing border effect */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/20 via-cyan-500/20 to-primary/20 blur-xl" />
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/10 via-primary/20 to-primary/10 blur-xl" />
           
           <div className="relative z-10">
             {/* Orb */}
@@ -79,7 +75,7 @@ export default function FinalCTASection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-4"
+              className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-4 text-foreground"
             >
               {isRTL 
                 ? 'מוכן לשחק את המשחק של החיים שלך?'
@@ -95,8 +91,8 @@ export default function FinalCTASection() {
               className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-8"
             >
               {isRTL 
-                ? 'הצטרף לאלפי אנשים שכבר הפכו את החיים שלהם למשחק שהם מנצחים בו כל יום'
-                : 'Join thousands who already turned their lives into a game they win every day'
+                ? 'הצטרף לאנשים שהפכו את החיים שלהם למשחק שהם מנצחים בו כל יום'
+                : 'Join people who turned their lives into a game they win every day'
               }
             </motion.p>
 
@@ -114,7 +110,7 @@ export default function FinalCTASection() {
                   className="flex items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20"
                 >
                   <span className="text-xl">{item.emoji}</span>
-                  <span className="text-sm font-medium">{isRTL ? item.keyHe : item.keyEn}</span>
+                  <span className="text-sm font-medium text-foreground">{isRTL ? item.keyHe : item.keyEn}</span>
                 </div>
               ))}
             </motion.div>
@@ -131,12 +127,12 @@ export default function FinalCTASection() {
                 size="lg"
                 onClick={() => navigate('/signup')}
                 className="group text-xl px-12 py-8 rounded-2xl 
-                  bg-gradient-to-br from-emerald-400 via-cyan-500 to-primary
-                  hover:from-emerald-300 hover:via-cyan-400 hover:to-primary/90
-                  text-white font-black
-                  shadow-[0_0_40px_rgba(34,211,238,0.6),0_15px_40px_rgba(0,0,0,0.3)]
-                  hover:shadow-[0_0_60px_rgba(34,211,238,0.8),0_20px_50px_rgba(0,0,0,0.4)]
-                  border-2 border-white/20
+                  bg-gradient-to-br from-primary via-primary to-primary/80
+                  hover:from-primary/90 hover:via-primary/90 hover:to-primary/70
+                  text-primary-foreground font-black
+                  shadow-[0_0_40px_hsl(var(--primary)/0.6),0_15px_40px_rgba(0,0,0,0.3)]
+                  hover:shadow-[0_0_60px_hsl(var(--primary)/0.8),0_20px_50px_rgba(0,0,0,0.4)]
+                  border-2 border-primary/20
                   transition-all duration-300 hover:scale-105
                   animate-pulse-glow"
               >
@@ -146,14 +142,6 @@ export default function FinalCTASection() {
                 )} />
                 {isRTL ? '🚀 התחל את המשחק - חינם!' : '🚀 Start The Game - Free!'}
               </Button>
-
-              {/* Urgency text */}
-              <p className="text-sm text-orange-400 font-medium animate-pulse">
-                {isRTL 
-                  ? '⚡ 47 אנשים התחילו בשעה האחרונה'
-                  : '⚡ 47 people started in the last hour'
-                }
-              </p>
             </motion.div>
 
             {/* Guarantees */}
@@ -172,30 +160,6 @@ export default function FinalCTASection() {
               ))}
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Bottom testimonial */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="mt-8 text-center"
-        >
-          <div className="inline-flex items-center gap-1 mb-2">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-5 w-5 text-amber-400 fill-amber-400" />
-            ))}
-          </div>
-          <p className="text-muted-foreground italic max-w-md mx-auto">
-            {isRTL 
-              ? '"תוך שבוע הרגשתי שינוי אמיתי. האפליקציה הזו היא משחק משנה חיים."'
-              : '"Within a week I felt real change. This app is a life-changing game."'
-            }
-          </p>
-          <p className="text-sm text-primary font-medium mt-2">
-            {isRTL ? '- דני מ., Level 12' : '- Danny M., Level 12'}
-          </p>
         </motion.div>
       </div>
     </section>
