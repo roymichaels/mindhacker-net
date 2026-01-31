@@ -6,6 +6,10 @@ import { PDFConsciousnessPage } from './PDFConsciousnessPage';
 import { PDFIdentityPage } from './PDFIdentityPage';
 import { PDFBehavioralPage } from './PDFBehavioralPage';
 import { PDFLifePlanPage } from './PDFLifePlanPage';
+import { PDFOrbPage } from './PDFOrbPage';
+import { PDFDashboardPage } from './PDFDashboardPage';
+import { PDFHawkinsPage } from './PDFHawkinsPage';
+import type { MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
 
 export interface ProfilePDFData {
   userName: string;
@@ -53,6 +57,22 @@ export interface ProfilePDFData {
   }>;
   planTitle?: string;
   language: string;
+  // New data for enhanced PDF
+  orbProfile?: MultiThreadOrbProfile;
+  identityTitle?: {
+    title: string;
+    icon: string;
+  } | null;
+  dashboard?: {
+    values: string[];
+    principles: string[];
+    selfConcepts: string[];
+    characterTraits: string[];
+    fiveYearVision?: { title: string; description: string | null } | null;
+    tenYearVision?: { title: string; description: string | null } | null;
+    activeCommitments: Array<{ title: string; description: string | null }>;
+    dailyAnchors: Array<{ title: string; category: string | null }>;
+  };
 }
 
 interface ProfilePDFRendererProps {
@@ -89,10 +109,37 @@ export const ProfilePDFRenderer = forwardRef<HTMLDivElement, ProfilePDFRendererP
           <PDFCoverPage userName={data.userName} language={data.language} />
         </div>
 
-        {/* Page 2: Scores */}
+        {/* Page 2: Orb / Digital DNA */}
+        {data.orbProfile && (
+          <div data-page="orb">
+            <PDFOrbPage 
+              profile={data.orbProfile} 
+              identityTitle={data.identityTitle}
+              userName={data.userName}
+              language={data.language} 
+            />
+          </div>
+        )}
+
+        {/* Page 3: Scores */}
         <div data-page="scores">
           <PDFScoresPage scores={data.scores} language={data.language} />
         </div>
+
+        {/* Page 4: Hawkins Scale & Consciousness Analysis */}
+        {data.summary.consciousness_analysis && (
+          <div data-page="hawkins">
+            <PDFHawkinsPage 
+              consciousnessScore={data.scores.consciousness}
+              dominantPatterns={data.summary.consciousness_analysis.dominant_patterns}
+              strengths={data.summary.consciousness_analysis.strengths}
+              growthEdges={data.summary.consciousness_analysis.growth_edges}
+              blindSpots={data.summary.consciousness_analysis.blind_spots}
+              currentState={data.summary.consciousness_analysis.current_state}
+              language={data.language} 
+            />
+          </div>
+        )}
 
         {/* Page 3: Life Direction */}
         {data.summary.life_direction && (
@@ -135,7 +182,24 @@ export const ProfilePDFRenderer = forwardRef<HTMLDivElement, ProfilePDFRendererP
           </div>
         )}
 
-        {/* Pages 7+: Life Plan */}
+        {/* Dashboard / Life Model Page */}
+        {data.dashboard && (
+          <div data-page="dashboard">
+            <PDFDashboardPage 
+              values={data.dashboard.values}
+              principles={data.dashboard.principles}
+              selfConcepts={data.dashboard.selfConcepts}
+              characterTraits={data.dashboard.characterTraits}
+              fiveYearVision={data.dashboard.fiveYearVision}
+              tenYearVision={data.dashboard.tenYearVision}
+              activeCommitments={data.dashboard.activeCommitments}
+              dailyAnchors={data.dashboard.dailyAnchors}
+              language={data.language}
+            />
+          </div>
+        )}
+
+        {/* Life Plan Pages */}
         {milestonePages.map((pageMilestones, pageIndex) => (
           <div key={`plan-${pageIndex}`} data-page={`plan-${pageIndex}`}>
             <PDFLifePlanPage 

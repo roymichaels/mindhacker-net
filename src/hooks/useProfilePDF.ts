@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import type { ProfilePDFData } from '@/components/pdf/ProfilePDFRenderer';
+import { generateOrbThreads, DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
 
 interface LaunchpadSummary {
   summary_data: Record<string, unknown>;
@@ -28,6 +29,32 @@ interface LifePlan {
   id: string;
   plan_data?: Record<string, unknown>;
   life_plan_milestones: LifePlanMilestone[];
+}
+
+interface IdentityElement {
+  id: string;
+  element_type: string;
+  content: string;
+  metadata?: Record<string, unknown> | null;
+}
+
+interface LifeVision {
+  id: string;
+  title: string;
+  description: string | null;
+  timeframe: string;
+}
+
+interface Commitment {
+  id: string;
+  title: string;
+  description: string | null;
+}
+
+interface DailyMinimum {
+  id: string;
+  title: string;
+  category: string | null;
 }
 
 // Helper function to wait for DOM to be ready
@@ -63,41 +90,47 @@ export function useProfilePDF() {
     }
 
     try {
-      // Fetch profile for user name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
+      // Fetch all data in parallel
+      const [
+        profileRes,
+        summaryRes,
+        planRes,
+        identityRes,
+        visionsRes,
+        commitmentsRes,
+        dailyMinimumsRes,
+        launchpadProgressRes,
+      ] = await Promise.all([
+        supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+        supabase.from('launchpad_summaries').select('summary_data, consciousness_score, clarity_score, transformation_readiness').eq('user_id', user.id).single(),
+        supabase.from('life_plans').select('id, plan_data, life_plan_milestones(*)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single(),
+        supabase.from('aurora_identity_elements').select('*').eq('user_id', user.id),
+        supabase.from('aurora_life_visions').select('*').eq('user_id', user.id),
+        supabase.from('aurora_commitments').select('*').eq('user_id', user.id).eq('status', 'active'),
+        supabase.from('aurora_daily_minimums').select('*').eq('user_id', user.id).eq('is_active', true),
+        supabase.from('launchpad_progress').select('step_2_profile_data').eq('user_id', user.id).single(),
+      ]);
 
-      // Fetch summary
-      const { data: summary, error: summaryError } = await supabase
-        .from('launchpad_summaries')
-        .select('summary_data, consciousness_score, clarity_score, transformation_readiness')
-        .eq('user_id', user.id)
-        .single();
-
-      if (summaryError || !summary) {
+      const profile = profileRes.data;
+      const summary = summaryRes.data;
+      
+      if (summaryRes.error || !summary) {
         toast.error(
           language === 'he' 
-            ? 'לא נמצאו נתוני פרופיל. יש להשלים את Launchpad תחילה.' 
-            : 'No profile data found. Please complete the Launchpad first.'
+            ? 'לא נמצאו נתוני פרופיל. יש להשלים את מסע הטרנספורמציה תחילה.' 
+            : 'No profile data found. Please complete the Transformation Journey first.'
         );
         return null;
       }
 
-      // Fetch plan + milestones
-      const { data: plan } = await supabase
-        .from('life_plans')
-        .select('id, plan_data, life_plan_milestones(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
       const userName = profile?.full_name || user.email?.split('@')[0] || 'User';
       const summaryData = summary.summary_data as Record<string, unknown>;
-      const typedPlan = plan as unknown as LifePlan | null;
+      const typedPlan = planRes.data as unknown as LifePlan | null;
+      const identityElements = (identityRes.data || []) as IdentityElement[];
+      const visions = (visionsRes.data || []) as LifeVision[];
+      const commitments = (commitmentsRes.data || []) as Commitment[];
+      const dailyMinimums = (dailyMinimumsRes.data || []) as DailyMinimum[];
+      const launchpadProgress = launchpadProgressRes.data;
 
       // Map milestones and normalize the weekly_challenge field
       const milestones = (typedPlan?.life_plan_milestones || []).map(m => ({
@@ -105,13 +138,39 @@ export function useProfilePDF() {
         title: m.title,
         goal: m.goal,
         tasks: m.tasks,
-        weekly_challenge: m.weekly_challenge || m.challenge, // Handle both field names
+        weekly_challenge: m.weekly_challenge || m.challenge,
         hypnosis_recommendation: m.hypnosis_recommendation,
       }));
 
       // Extract plan title from plan_data or use default
       const planData = typedPlan?.plan_data as Record<string, unknown> | undefined;
       const planTitle = (planData?.title as string) || (language === 'he' ? 'תוכנית הטרנספורמציה שלך' : 'Your Transformation Plan');
+
+      // Parse identity elements
+      const values = identityElements.filter(e => e.element_type === 'value').map(e => e.content);
+      const principles = identityElements.filter(e => e.element_type === 'principle').map(e => e.content);
+      const selfConcepts = identityElements.filter(e => e.element_type === 'self_concept').map(e => e.content);
+      const characterTraits = identityElements.filter(e => e.element_type === 'character_trait').map(e => e.content);
+      
+      // Find identity title
+      const identityTitleElement = identityElements.find(e => e.element_type === 'identity_title');
+      const identityTitle = identityTitleElement ? {
+        title: identityTitleElement.content,
+        icon: (identityTitleElement.metadata as { icon?: string })?.icon || '✨',
+      } : null;
+
+      // Parse visions
+      const fiveYearVision = visions.find(v => v.timeframe === '5-year');
+      const tenYearVision = visions.find(v => v.timeframe === '10-year');
+
+      // Generate orb profile from summary data
+      const profileData = launchpadProgress?.step_2_profile_data as Record<string, unknown> | null;
+      const hobbies = (profileData?.hobbies as string[]) || [];
+      const orbProfile = generateOrbThreads(
+        summaryData as any, 
+        hobbies, 
+        summary.consciousness_score || 50
+      );
 
       return {
         userName,
@@ -130,6 +189,19 @@ export function useProfilePDF() {
         milestones,
         planTitle,
         language,
+        // New enhanced data
+        orbProfile,
+        identityTitle,
+        dashboard: {
+          values,
+          principles,
+          selfConcepts,
+          characterTraits,
+          fiveYearVision: fiveYearVision ? { title: fiveYearVision.title, description: fiveYearVision.description } : null,
+          tenYearVision: tenYearVision ? { title: tenYearVision.title, description: tenYearVision.description } : null,
+          activeCommitments: commitments.map(c => ({ title: c.title, description: c.description })),
+          dailyAnchors: dailyMinimums.map(d => ({ title: d.title, category: d.category })),
+        },
       };
     } catch (error) {
       console.error('Error fetching PDF data:', error);
