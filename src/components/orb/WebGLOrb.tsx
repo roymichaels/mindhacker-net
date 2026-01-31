@@ -276,192 +276,146 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // ===== LIGHTING SETUP - MAXIMUM RADIANCE =====
-    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+    // ===== LIGHTING SETUP FOR GLASS =====
+    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambient);
 
-    // Key light - strong directional
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    keyLight.position.set(2.5, 2.0, 4);
+    // Key light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    keyLight.position.set(3, 2, 4);
     scene.add(keyLight);
 
-    // Rim light - accent color for edge glow
-    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(activePalette.accent), 2.2);
-    rimLight.position.set(-3.0, -1.5, -2.5);
+    // Fill light for glass reflections
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    fillLight.position.set(-3, -1, 2);
+    scene.add(fillLight);
+
+    // Rim light for edge definition
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    rimLight.position.set(0, -2, -3);
     scene.add(rimLight);
 
-    // Center glow point light
-    const glowLight = new THREE.PointLight(parseHslToThreeColor(activePalette.glow), 3.5, 20);
-    glowLight.position.set(0, 0, 3.0);
-    scene.add(glowLight);
+    // Top accent light
+    const topLight = new THREE.PointLight(parseHslToThreeColor(activePalette.primary), 1.5, 10);
+    topLight.position.set(0, 3, 2);
+    scene.add(topLight);
 
-    // Secondary color point light
-    const secondaryLight = new THREE.PointLight(parseHslToThreeColor(activePalette.secondary), 2.5, 15);
-    secondaryLight.position.set(-2.0, 1.5, 2.0);
-    scene.add(secondaryLight);
-
-    // Bottom rim for depth
-    const bottomRim = new THREE.DirectionalLight(parseHslToThreeColor(activePalette.primary), 1.5);
-    bottomRim.position.set(0, -3.0, 1.0);
-    scene.add(bottomRim);
-
-    // Front accent
-    const frontAccent = new THREE.PointLight(parseHslToThreeColor(activePalette.accent), 2.0, 12);
-    frontAccent.position.set(0, 0.5, 5);
-    scene.add(frontAccent);
-
-    // ===== CORE GRADIENT LAYERS - 6 LAYER ALIEN GLOW =====
-    const coreLayers: THREE.Mesh[] = [];
+    const glassColor = parseHslToThreeColor(activePalette.primary);
     
-    if (showGlow) {
-      // Layer 1: Hot white-cyan center (alien core)
-      const core1Geo = new THREE.SphereGeometry(coreSize * 0.8, 32, 32);
-      const core1Mat = new THREE.MeshBasicMaterial({
-        color: 0xeeffff,  // Slight cyan tint
-        transparent: true,
-        opacity: 1.0,
-      });
-      const core1 = new THREE.Mesh(core1Geo, core1Mat);
-      scene.add(core1);
-      coreLayers.push(core1);
-
-      // Layer 2: Bright accent inner glow
-      const core2Geo = new THREE.SphereGeometry(coreSize * 1.2, 32, 32);
-      const core2Mat = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activePalette.accent),
-        transparent: true,
-        opacity: 0.95,
-      });
-      const core2 = new THREE.Mesh(core2Geo, core2Mat);
-      scene.add(core2);
-      coreLayers.push(core2);
-
-      // Layer 3: Secondary color pulse
-      const core3Geo = new THREE.SphereGeometry(coreSize * 1.6, 32, 32);
-      const core3Mat = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activePalette.secondary),
-        transparent: true,
-        opacity: 0.85,
-      });
-      const core3 = new THREE.Mesh(core3Geo, core3Mat);
-      scene.add(core3);
-      coreLayers.push(core3);
-
-      // Layer 4: Primary color halo
-      const core4Geo = new THREE.SphereGeometry(coreSize * 2.0, 32, 32);
-      const core4Mat = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activePalette.primary),
-        transparent: true,
-        opacity: 0.7,
-      });
-      const core4 = new THREE.Mesh(core4Geo, core4Mat);
-      scene.add(core4);
-      coreLayers.push(core4);
-
-      // Layer 5: Outer glow aura
-      const core5Geo = new THREE.SphereGeometry(coreSize * 2.5, 32, 32);
-      const core5Mat = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activePalette.glow),
-        transparent: true,
-        opacity: 0.55,
-      });
-      const core5 = new THREE.Mesh(core5Geo, core5Mat);
-      scene.add(core5);
-      coreLayers.push(core5);
-      
-      // Layer 6: Very faint outer nebula
-      const core6Geo = new THREE.SphereGeometry(coreSize * 3.2, 32, 32);
-      const core6Mat = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activePalette.accent),
-        transparent: true,
-        opacity: 0.25,
-      });
-      const core6 = new THREE.Mesh(core6Geo, core6Mat);
-      scene.add(core6);
-      coreLayers.push(core6);
-    }
-    coreLayersRef.current = coreLayers;
-
-    // ===== GRADIENT INNER SHELL =====
-    const innerShellGeometry = new THREE.SphereGeometry(0.58, 48, 48);
-    const [r1, g1, b1] = hslToRgb(activePalette.primary);
-    const [r2, g2, b2] = hslToRgb(activePalette.secondary);
-    const [r3, g3, b3] = hslToRgb(activePalette.accent);
-    
-    const shaderUniforms = {
-      colorA: { value: new THREE.Vector3(r1, g1, b1) },
-      colorB: { value: new THREE.Vector3(r2, g2, b2) },
-      colorC: { value: new THREE.Vector3(r3, g3, b3) },
-      time: { value: 0 },
-      intensity: { value: coreIntensity + 0.3 },
-    };
-    shaderUniformsRef.current = shaderUniforms;
-
-    const gradientMaterial = new THREE.ShaderMaterial({
-      vertexShader: GRADIENT_VERTEX_SHADER,
-      fragmentShader: GRADIENT_FRAGMENT_SHADER,
-      uniforms: shaderUniforms,
+    // ===== OUTER GLASS SPHERE =====
+    const outerSphereGeo = new THREE.SphereGeometry(0.95, 64, 64);
+    const glassMaterial = new THREE.MeshPhysicalMaterial({
+      color: glassColor,
       transparent: true,
+      opacity: 0.15,
+      metalness: 0.0,
+      roughness: 0.0,
+      transmission: 0.95,      // High transparency
+      thickness: 0.5,
+      ior: 1.5,                // Glass refraction
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.0,
+      envMapIntensity: 1.0,
       side: THREE.DoubleSide,
     });
+    const outerSphere = new THREE.Mesh(outerSphereGeo, glassMaterial);
+    scene.add(outerSphere);
 
-    const innerShell = new THREE.Mesh(innerShellGeometry, gradientMaterial);
-    scene.add(innerShell);
+    // ===== INNER CRYSTAL WIREFRAME STRUCTURE =====
+    // Create multiple nested geometric wireframes
+    const wireframeMaterial = new THREE.MeshPhysicalMaterial({
+      color: glassColor,
+      transparent: true,
+      opacity: 0.9,
+      metalness: 0.1,
+      roughness: 0.0,
+      transmission: 0.6,
+      thickness: 1.0,
+      ior: 2.0,                // Higher refraction for crystal
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.0,
+      envMapIntensity: 2.0,
+    });
 
-    // ===== OUTER LAYERS - SEPARATED COLORS =====
-    const layerConfigs = getLayerConfigs();
     const newLayers: THREE.Mesh[] = [];
     const newBasePositions = new Map<THREE.Mesh, Float32Array>();
 
-    layerConfigs.forEach((config, index) => {
-      const geometry = new THREE.IcosahedronGeometry(config.radius, config.detail);
-      const positions = geometry.attributes.position.array as Float32Array;
+    // Inner icosahedron wireframe - larger
+    const icosaGeo1 = new THREE.IcosahedronGeometry(0.45, 0);
+    const icosaEdges1 = new THREE.EdgesGeometry(icosaGeo1);
+    const tubeRadius = 0.025;
+    
+    // Create tube geometry along edges for crystal bars
+    const createCrystalStructure = (edgesGeo: THREE.EdgesGeometry, radius: number, scale: number = 1) => {
+      const positions = edgesGeo.attributes.position.array;
+      const group = new THREE.Group();
       
-      // Blend colors for gradient slime effect
-      const primaryColor = parseHslToThreeColor(activePalette.primary);
-      const secondaryColor = parseHslToThreeColor(activePalette.secondary);
-      const accentColor = parseHslToThreeColor(activePalette.accent);
-      
-      // Create rich blended color based on layer
-      const blendedColor = new THREE.Color();
-      if (index === 0) {
-        blendedColor.copy(primaryColor).lerp(accentColor, 0.3);
-      } else if (index === 1) {
-        blendedColor.copy(secondaryColor).lerp(primaryColor, 0.4);
-      } else {
-        blendedColor.copy(accentColor).lerp(secondaryColor, 0.35);
+      for (let i = 0; i < positions.length; i += 6) {
+        const start = new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]);
+        const end = new THREE.Vector3(positions[i + 3], positions[i + 4], positions[i + 5]);
+        
+        const direction = new THREE.Vector3().subVectors(end, start);
+        const length = direction.length();
+        const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+        
+        const tubeGeo = new THREE.CylinderGeometry(radius * scale, radius * scale, length, 8);
+        const tube = new THREE.Mesh(tubeGeo, wireframeMaterial);
+        
+        tube.position.copy(midpoint);
+        tube.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+        
+        group.add(tube);
+        
+        // Add small spheres at vertices
+        const sphereGeo = new THREE.SphereGeometry(radius * 1.5 * scale, 8, 8);
+        const sphereStart = new THREE.Mesh(sphereGeo, wireframeMaterial);
+        sphereStart.position.copy(start);
+        group.add(sphereStart);
       }
       
-      // SLIME/GEL MATERIAL - Solid, vibrant, gradient-like
-      const material = new THREE.MeshPhysicalMaterial({
-        color: blendedColor,
-        emissive: blendedColor.clone().multiplyScalar(0.4),
-        emissiveIntensity: 1.8,
-        metalness: 0.1,          // Low metalness for gel look
-        roughness: 0.15,         // Slightly rough for gel texture
-        clearcoat: 1.0,          // Maximum clearcoat for shiny gel
-        clearcoatRoughness: 0.05, // Smooth clear coat
-        transmission: 0.2,        // Slight translucency
-        thickness: 2.0,          // Thick gel appearance
-        ior: 1.5,                // Glass-like refraction
-        iridescence: 0.6,        // Rainbow shimmer
-        iridescenceIOR: 1.8,     
-        iridescenceThicknessRange: [200, 600], 
-        sheen: 1.0,              // Soft sheen
-        sheenRoughness: 0.2,
-        sheenColor: accentColor.clone().lerp(secondaryColor, 0.5),
-        transparent: true,
-        opacity: 0.92,           // More solid/opaque
-        envMapIntensity: 1.5,
-        specularIntensity: 2.0,  // More specular highlights
-        specularColor: new THREE.Color(0xffffff),
-      });
+      return group;
+    };
 
-      const mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);
-      newLayers.push(mesh);
-      newBasePositions.set(mesh, positions.slice());
+    // Primary icosahedron structure
+    const crystalGroup1 = createCrystalStructure(icosaEdges1, tubeRadius, 1.0);
+    scene.add(crystalGroup1);
+
+    // Secondary octahedron - rotated
+    const octaGeo = new THREE.OctahedronGeometry(0.35, 0);
+    const octaEdges = new THREE.EdgesGeometry(octaGeo);
+    const crystalGroup2 = createCrystalStructure(octaEdges, tubeRadius * 0.8, 0.9);
+    crystalGroup2.rotation.set(Math.PI / 4, Math.PI / 4, 0);
+    scene.add(crystalGroup2);
+
+    // Inner tetrahedron - smaller
+    const tetraGeo = new THREE.TetrahedronGeometry(0.25, 0);
+    const tetraEdges = new THREE.EdgesGeometry(tetraGeo);
+    const crystalGroup3 = createCrystalStructure(tetraEdges, tubeRadius * 0.6, 0.7);
+    crystalGroup3.rotation.set(0, Math.PI / 6, Math.PI / 6);
+    scene.add(crystalGroup3);
+
+    // Store references for animation
+    layersRef.current = [outerSphere];
+    
+    // Small floating bubble on top
+    const bubbleGeo = new THREE.SphereGeometry(0.08, 16, 16);
+    const bubbleMat = new THREE.MeshPhysicalMaterial({
+      color: glassColor,
+      transparent: true,
+      opacity: 0.6,
+      metalness: 0.0,
+      roughness: 0.0,
+      transmission: 0.9,
+      thickness: 0.2,
+      ior: 1.5,
+      clearcoat: 1.0,
     });
+    const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
+    bubble.position.set(0, 1.05, 0);
+    scene.add(bubble);
+
+    // Store crystal groups for animation
+    coreLayersRef.current = [crystalGroup1 as unknown as THREE.Mesh, crystalGroup2 as unknown as THREE.Mesh, crystalGroup3 as unknown as THREE.Mesh, bubble];
 
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
@@ -481,23 +435,28 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
-      newLayers.forEach(mesh => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
+      // Dispose outer sphere
+      outerSphere.geometry.dispose();
+      (outerSphere.material as THREE.Material).dispose();
+      // Dispose crystal groups
+      [crystalGroup1, crystalGroup2, crystalGroup3].forEach(group => {
+        group.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.geometry.dispose();
+            (child.material as THREE.Material).dispose();
+          }
+        });
       });
-      coreLayers.forEach(mesh => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
-      });
-      innerShell.geometry.dispose();
-      gradientMaterial.dispose();
+      bubble.geometry.dispose();
+      (bubble.material as THREE.Material).dispose();
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
       ambient.dispose();
       keyLight.dispose();
+      fillLight.dispose();
       rimLight.dispose();
-      glowLight.dispose();
+      topLight.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -507,36 +466,27 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   // Update colors when palette changes
   useEffect(() => {
     const layers = layersRef.current;
-    const layerConfigs = getLayerConfigs();
     
-    layers.forEach((mesh, index) => {
-      if (index < layerConfigs.length) {
-        const material = mesh.material as THREE.MeshPhysicalMaterial;
-        const c = parseHslToThreeColor(getPaletteColor(layerConfigs[index].colorIndex));
-        material.color = c;
-        material.emissive = c.clone().multiplyScalar(0.6);
-        material.sheenColor = parseHslToThreeColor(activePalette.glow);
+    // Update outer sphere color
+    layers.forEach((mesh) => {
+      if (mesh.material instanceof THREE.MeshPhysicalMaterial) {
+        mesh.material.color = parseHslToThreeColor(activePalette.primary);
       }
     });
 
-    // Update core layers
-    const coreLayers = coreLayersRef.current;
-    if (coreLayers.length >= 5) {
-      (coreLayers[1].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.accent);
-      (coreLayers[2].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.secondary);
-      (coreLayers[3].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.primary);
-      (coreLayers[4].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.glow);
-    }
-
-    // Update shader uniforms
-    if (shaderUniformsRef.current) {
-      const [r1, g1, b1] = hslToRgb(activePalette.primary);
-      const [r2, g2, b2] = hslToRgb(activePalette.secondary);
-      const [r3, g3, b3] = hslToRgb(activePalette.accent);
-      shaderUniformsRef.current.colorA.value.set(r1, g1, b1);
-      shaderUniformsRef.current.colorB.value.set(r2, g2, b2);
-      shaderUniformsRef.current.colorC.value.set(r3, g3, b3);
-    }
+    // Update crystal groups - they are stored in coreLayersRef
+    const crystalGroups = coreLayersRef.current;
+    crystalGroups.forEach((group) => {
+      if (group instanceof THREE.Group) {
+        group.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshPhysicalMaterial) {
+            child.material.color = parseHslToThreeColor(activePalette.primary);
+          }
+        });
+      } else if (group instanceof THREE.Mesh && group.material instanceof THREE.MeshPhysicalMaterial) {
+        group.material.color = parseHslToThreeColor(activePalette.primary);
+      }
+    });
 
     if (particleSystemRef.current) {
       particleSystemRef.current.setColor(activePalette.glow);
@@ -579,170 +529,42 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // Animate outer layers
-      layers.forEach((mesh, index) => {
-        const config = layerConfigs[index];
-        if (!config) return;
-
-        // Morphology-based rotation
-        const rotAxis = activeMorphology.rotationAxis;
-        const wobbleAmount = rotAxis === 'wobble' ? Math.sin(time * 0.5 + index) * 0.003 : 0;
-        
-        if (rotAxis === 'y' || rotAxis === 'wobble') {
-          mesh.rotation.y += config.rotationSpeed * rotMod + wobbleAmount;
-        }
-        if (rotAxis === 'x' || rotAxis === 'diagonal') {
-          mesh.rotation.x += config.rotationSpeed * 0.8 * rotMod + wobbleAmount;
-        }
-        if (rotAxis === 'z' || rotAxis === 'diagonal') {
-          mesh.rotation.z += config.rotationSpeed * 0.6 * rotMod;
-        }
-
-        // Morphology-based pulse pattern
-        let pulseValue = 0;
-        const pulseTime = time * pulseMod * activeMorphology.breathingRate;
-        
-        switch (activeMorphology.pulsePattern) {
-          case 'sine':
-            pulseValue = Math.sin(pulseTime + index * 0.5) * 0.08;
-            break;
-          case 'square':
-            pulseValue = (Math.sin(pulseTime + index * 0.5) > 0 ? 1 : -1) * 0.05;
-            break;
-          case 'triangle':
-            pulseValue = (Math.abs((pulseTime / Math.PI) % 2 - 1) - 0.5) * 0.12;
-            break;
-          case 'sawtooth':
-            pulseValue = ((pulseTime / Math.PI) % 1 - 0.5) * 0.1;
-            break;
-          case 'organic':
-          default:
-            pulseValue = Math.sin(pulseTime) * 0.06 + Math.sin(pulseTime * 1.7) * 0.03 + Math.sin(pulseTime * 0.4) * 0.04;
-            break;
-        }
-        
-        const audioBoost = audioLevel * 0.35;
-        const breathEffect = state === 'breathing' ? Math.sin(time * 0.5) * 0.1 : 0;
-        
-        const targetScale = 1 + pulseValue + audioBoost + breathEffect;
-        mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
-
-        // Vertex morphing with DYNAMIC GEOMETRIC SHAPE transitions
-        const positions = mesh.geometry.attributes.position;
-        const basePositions = basePositionsRef.current.get(mesh);
-        
-        if (basePositions) {
-          // Dynamic shape morphing - smoothly transition between different geometric shapes
-          // Use slow-moving noise to randomly select target shape
-          const shapeTransitionSpeed = 0.15;
-          const shapeCycleA = Math.sin(time * shapeTransitionSpeed) * 0.5 + 0.5;
-          const shapeCycleB = Math.sin(time * shapeTransitionSpeed * 0.7 + 2.1) * 0.5 + 0.5;
-          const shapeCycleC = Math.sin(time * shapeTransitionSpeed * 1.3 + 4.2) * 0.5 + 0.5;
-          
-          // Blend between different spike counts for shape morphing
-          // Shapes: 0=sphere, 4=tetrahedron, 6=cube, 8=octahedron, 12=dodecahedron, 20=icosahedron
-          const shapeBlend = shapeCycleA * shapeCycleB;
-          const dynamicSpikeCount = 4 + Math.floor(shapeBlend * 16); // 4-20 spikes
-          const dynamicEdgeSharpness = 0.3 + shapeCycleC * 0.5; // Varying sharpness
-          
-          const noiseScale = activeMorphology.noiseScale;
-          const waveFreq = activeMorphology.waveFrequency;
-          
-          for (let i = 0; i < positions.count; i++) {
-            const idx = i * 3;
-            const x = basePositions[idx];
-            const y = basePositions[idx + 1];
-            const z = basePositions[idx + 2];
-            
-            const dist = Math.sqrt(x * x + y * y + z * z);
-            const nx = x / dist;
-            const ny = y / dist;
-            const nz = z / dist;
-            
-            // DYNAMIC geometric spike deformation - morphing between shapes
-            const phi = Math.atan2(ny, nx);
-            const theta = Math.acos(Math.max(-1, Math.min(1, nz)));
-            
-            // Multiple overlapping geometric patterns for organic shape-shifting
-            const spikePhase1 = morphPhase * 0.3;
-            const spikePhase2 = morphPhase * 0.5 + 1.5;
-            const spikePhase3 = morphPhase * 0.2 + 3.0;
-            
-            // Primary shape
-            const pattern1 = Math.pow(
-              Math.abs(Math.sin(phi * dynamicSpikeCount / 2 + spikePhase1) * Math.sin(theta * dynamicSpikeCount / 2 + spikePhase1)),
-              dynamicEdgeSharpness * 2
-            );
-            
-            // Secondary shape (different spike count) blended in
-            const secondarySpikeCount = 4 + Math.floor(shapeCycleC * 8);
-            const pattern2 = Math.pow(
-              Math.abs(Math.sin(phi * secondarySpikeCount / 2 + spikePhase2) * Math.sin(theta * secondarySpikeCount / 2 + spikePhase2)),
-              0.4
-            );
-            
-            // Tertiary flowing pattern
-            const pattern3 = Math.sin(phi * 3 + theta * 2 + spikePhase3) * 0.5 + 0.5;
-            
-            // Blend patterns based on time for organic transitions
-            const blendWeight1 = shapeCycleA;
-            const blendWeight2 = shapeCycleB * 0.6;
-            const blendWeight3 = (1 - shapeCycleA) * 0.4;
-            
-            const geometricDeform = (
-              pattern1 * blendWeight1 + 
-              pattern2 * blendWeight2 + 
-              pattern3 * blendWeight3
-            ) * 0.15 * (1 + Math.sin(time * 1.5) * 0.4);
-            
-            // Fractal noise for organic randomness
-            const fractalNoise = fbm(
-              x * noiseScale + morphPhase + config.morphOffset,
-              y * noiseScale + morphPhase * 0.7 + config.morphOffset,
-              z * noiseScale + morphPhase * 1.3,
-              activeMorphology.noiseOctaves
-            );
-            
-            // Flowing wave deformation
-            const wavePhase = Math.sin(x * waveFreq + y * waveFreq * 0.7 + z * waveFreq * 1.2 + time * 2) * 0.04;
-            const radialPulse = Math.sin(dist * 6 - time * 2.5) * 0.025;
-            
-            // Organic breathing motion
-            const breathe = Math.sin(time * 0.8 + dist * 2) * 0.03;
-            
-            // Combine all deformations
-            const adjustedMorphIntensity = morphIntensity * morphMod;
-            const organicDeform = fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse + breathe;
-            
-            // Final blend - more organic, less rigid
-            const totalDeform = (geometricDeform * 0.6 + organicDeform * 0.8) * (1 + audioLevel * 0.5);
-            
-            positions.setXYZ(
-              i,
-              x + nx * totalDeform,
-              y + ny * totalDeform,
-              z + nz * totalDeform
-            );
-          }
-          positions.needsUpdate = true;
-        }
-
-        // Dynamic opacity
-        const material = mesh.material as THREE.MeshPhysicalMaterial;
-        const opacityPulse = (layerConfigs[index]?.opacity || 0.7) + Math.sin(time * 1.5 + index) * 0.1 + audioLevel * 0.15;
-        material.opacity = Math.min(opacityPulse, 0.95);
+      // Animate outer glass sphere - gentle rotation
+      layers.forEach((mesh) => {
+        mesh.rotation.y += 0.001 * rotMod;
+        mesh.rotation.x += 0.0005 * rotMod;
       });
 
-      // Animate core layers with cascading pulse
-      coreLayers.forEach((core, index) => {
-        const delay = index * 0.15;
-        const pulse = 1 + Math.sin(time * 2 - delay) * 0.12 + audioLevel * 0.2;
-        core.scale.set(pulse, pulse, pulse);
+      // Animate crystal structures - each rotates differently
+      if (coreLayers.length >= 3) {
+        // Main icosahedron - slow rotation
+        const crystalGroup1 = coreLayers[0];
+        if (crystalGroup1) {
+          crystalGroup1.rotation.y += 0.003 * rotMod;
+          crystalGroup1.rotation.x += 0.001 * rotMod;
+        }
         
-        const mat = core.material as THREE.MeshBasicMaterial;
-        const baseOpacity = [0.98, 0.9, 0.75, 0.6, 0.45][index] || 0.5;
-        mat.opacity = baseOpacity + Math.sin(time * 1.5 - delay) * 0.1;
-      });
+        // Octahedron - counter rotation
+        const crystalGroup2 = coreLayers[1];
+        if (crystalGroup2) {
+          crystalGroup2.rotation.y -= 0.004 * rotMod;
+          crystalGroup2.rotation.z += 0.002 * rotMod;
+        }
+        
+        // Tetrahedron - different axis
+        const crystalGroup3 = coreLayers[2];
+        if (crystalGroup3) {
+          crystalGroup3.rotation.x += 0.005 * rotMod;
+          crystalGroup3.rotation.z -= 0.003 * rotMod;
+        }
+        
+        // Floating bubble - bobbing motion
+        if (coreLayers[3]) {
+          const bubble = coreLayers[3];
+          bubble.position.y = 1.05 + Math.sin(time * 2) * 0.03;
+          bubble.position.x = Math.sin(time * 0.7) * 0.02;
+        }
+      }
 
       // Update particles
       if (particleSystemRef.current) {
@@ -767,7 +589,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, coreIntensity, activeMorphology]);
+  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, activeMorphology]);
 
   // Resize handling
   useEffect(() => {
