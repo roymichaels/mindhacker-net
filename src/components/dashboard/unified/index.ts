@@ -12,3 +12,4 @@ export { DailyHabitsCard } from './DailyHabitsCard';
 export { LaunchpadSummaryCard } from './LaunchpadSummaryCard';
 export { ConsciousnessCard } from './ConsciousnessCard';
 export { BehavioralInsightsCard } from './BehavioralInsightsCard';
+export { OrbHeroSection } from './OrbHeroSection';
