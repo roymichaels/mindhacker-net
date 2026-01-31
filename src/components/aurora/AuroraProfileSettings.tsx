@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 interface AuroraPreferences {
   tone: 'warm' | 'direct' | 'playful';
   intensity: 'gentle' | 'balanced' | 'challenging';
+  gender: 'male' | 'female' | 'neutral';
 }
 
 const AuroraProfileSettings = () => {
@@ -25,6 +26,7 @@ const AuroraProfileSettings = () => {
   const [preferences, setPreferences] = useState<AuroraPreferences>({
     tone: 'warm',
     intensity: 'balanced',
+    gender: 'neutral',
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -51,6 +53,7 @@ const AuroraProfileSettings = () => {
         setPreferences({
           tone: (prefs.tone as AuroraPreferences['tone']) || 'warm',
           intensity: (prefs.intensity as AuroraPreferences['intensity']) || 'balanced',
+          gender: (prefs.gender as AuroraPreferences['gender']) || 'neutral',
         });
       }
     };
@@ -68,7 +71,7 @@ const AuroraProfileSettings = () => {
         .update({
           full_name: displayName,
           bio,
-          aurora_preferences: { tone: preferences.tone, intensity: preferences.intensity },
+          aurora_preferences: { tone: preferences.tone, intensity: preferences.intensity, gender: preferences.gender },
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -200,6 +203,44 @@ const AuroraProfileSettings = () => {
                   className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
                 >
                   <span className="text-xs font-medium">{t('aurora.settings.intensityChallenging')}</span>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Gender */}
+          <div className="space-y-3">
+            <Label>{t('aurora.settings.gender')}</Label>
+            <RadioGroup
+              value={preferences.gender}
+              onValueChange={(value) => setPreferences((p) => ({ ...p, gender: value as AuroraPreferences['gender'] }))}
+              className="grid grid-cols-3 gap-2"
+            >
+              <div>
+                <RadioGroupItem value="male" id="gender-male" className="peer sr-only" />
+                <Label
+                  htmlFor="gender-male"
+                  className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                >
+                  <span className="text-xs font-medium">{t('aurora.settings.genderMale')}</span>
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="female" id="gender-female" className="peer sr-only" />
+                <Label
+                  htmlFor="gender-female"
+                  className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                >
+                  <span className="text-xs font-medium">{t('aurora.settings.genderFemale')}</span>
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="neutral" id="gender-neutral" className="peer sr-only" />
+                <Label
+                  htmlFor="gender-neutral"
+                  className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                >
+                  <span className="text-xs font-medium">{t('aurora.settings.genderNeutral')}</span>
                 </Label>
               </div>
             </RadioGroup>
