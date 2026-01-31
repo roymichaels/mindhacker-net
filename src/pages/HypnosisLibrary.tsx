@@ -145,8 +145,7 @@ const HypnosisLibrary = () => {
               
               <Button
                 size="lg"
-                variant="secondary"
-                className="gap-2 h-11 sm:h-12 text-sm sm:text-base touch-manipulation"
+                className="gap-2 h-11 sm:h-12 text-sm sm:text-base touch-manipulation bg-background/90 text-foreground hover:bg-background border border-border/50"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" />
                 {language === 'he' ? 'התחל סשן יומי' : 'Start Daily Session'}
