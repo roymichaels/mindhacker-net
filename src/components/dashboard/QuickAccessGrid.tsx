@@ -14,6 +14,7 @@ import {
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useProfilePDF } from '@/hooks/useProfilePDF';
+import { ProfilePDFRenderer } from '@/components/pdf/ProfilePDFRenderer';
 
 interface QuickAccessItem {
   id: string;
@@ -54,7 +55,7 @@ export function QuickAccessGrid({
   onOpenFocus,
   hasFocusPlan,
 }: QuickAccessGridProps) {
-  const { downloadPDF, generating } = useProfilePDF();
+  const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useProfilePDF();
 
   const items: QuickAccessItem[] = [
     {
@@ -153,25 +154,32 @@ export function QuickAccessGrid({
   }
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-      {items.map((item) => (
-        <Card
-          key={item.id}
-          onClick={item.isLoading ? undefined : item.onClick}
-          className={cn(
-            "p-4 cursor-pointer transition-all duration-200",
-            "hover:scale-105 hover:shadow-lg active:scale-95",
-            "flex flex-col items-center justify-center gap-2 text-center",
-            `bg-gradient-to-br ${item.gradient}`,
-            item.isLoading && "opacity-70 cursor-wait"
-          )}
-        >
-          <item.icon className={cn("h-6 w-6 text-primary", item.isLoading && "animate-spin")} />
-          <span className="text-xs font-medium">
-            {language === 'he' ? item.labelHe : item.label}
-          </span>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+        {items.map((item) => (
+          <Card
+            key={item.id}
+            onClick={item.isLoading ? undefined : item.onClick}
+            className={cn(
+              "p-4 cursor-pointer transition-all duration-200",
+              "hover:scale-105 hover:shadow-lg active:scale-95",
+              "flex flex-col items-center justify-center gap-2 text-center",
+              `bg-gradient-to-br ${item.gradient}`,
+              item.isLoading && "opacity-70 cursor-wait"
+            )}
+          >
+            <item.icon className={cn("h-6 w-6 text-primary", item.isLoading && "animate-spin")} />
+            <span className="text-xs font-medium">
+              {language === 'he' ? item.labelHe : item.label}
+            </span>
+          </Card>
+        ))}
+      </div>
+      
+      {/* Hidden PDF Renderer */}
+      {showRenderer && pdfData && (
+        <ProfilePDFRenderer ref={containerRef} data={pdfData} />
+      )}
+    </>
   );
 }

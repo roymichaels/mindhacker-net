@@ -13,6 +13,7 @@ import { PlanPreview } from '@/components/launchpad/summary/PlanPreview';
 import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirectionSection';
 import { AnswersReview } from '@/components/launchpad/summary/AnswersReview';
 import { useProfilePDF } from '@/hooks/useProfilePDF';
+import { ProfilePDFRenderer } from '@/components/pdf/ProfilePDFRenderer';
 
 interface SummaryData {
   consciousness_analysis: {
@@ -67,7 +68,7 @@ export default function LaunchpadComplete() {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { downloadPDF, generating } = useProfilePDF();
+  const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useProfilePDF();
   
   const [loading, setLoading] = useState(true);
   const [scores, setScores] = useState({ consciousness: 0, clarity: 0, readiness: 0 });
@@ -368,6 +369,11 @@ export default function LaunchpadComplete() {
           </Button>
         </motion.div>
       </div>
+
+      {/* Hidden PDF Renderer */}
+      {showRenderer && pdfData && (
+        <ProfilePDFRenderer ref={containerRef} data={pdfData} />
+      )}
     </div>
   );
 }
