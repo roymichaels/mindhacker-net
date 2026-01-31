@@ -57,6 +57,7 @@ const CommunityPost = lazy(() => import("./pages/CommunityPost"));
 const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
 const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
 const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
+const CommunityProfile = lazy(() => import("./pages/CommunityProfile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 const Aurora = lazy(() => import("./pages/Aurora"));
@@ -86,6 +87,7 @@ const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
 const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
+const ClientProfile = lazy(() => import("./pages/panel/ClientProfile"));
 const Profile = lazy(() => import("./pages/Profile"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
@@ -237,6 +239,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <CommunityLeaderboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/community/profile/:userId"
+                          element={
+                            <ProtectedRoute>
+                              <CommunityProfile />
                             </ProtectedRoute>
                           }
                         />
@@ -404,6 +414,7 @@ const App = () => (
                         >
                           <Route index element={<CoachDashboard />} />
                           <Route path="clients" element={<MyClients />} />
+                          <Route path="clients/:clientId" element={<ClientProfile />} />
                           <Route path="services" element={<MyServices />} />
                           <Route path="calendar" element={<MyCalendar />} />
                           <Route path="products" element={<MyProducts />} />
