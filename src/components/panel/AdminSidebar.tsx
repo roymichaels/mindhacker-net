@@ -108,13 +108,9 @@ const AdminSidebar = () => {
   const location = useLocation();
   const isHebrew = language === 'he';
 
-  // Track which groups are open - default open the group containing current route
+  // All groups open by default
   const [openGroups, setOpenGroups] = useState<string[]>(() => {
-    const currentPath = location.pathname;
-    const activeGroup = navGroups.find(g => g.items.some(item => 
-      item.to === currentPath || (item.to === '/panel' && currentPath === '/panel')
-    ));
-    return activeGroup ? [activeGroup.id] : ['dashboard'];
+    return navGroups.map(g => g.id);
   });
 
   const toggleGroup = (groupId: string) => {
