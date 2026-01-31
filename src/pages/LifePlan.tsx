@@ -64,13 +64,16 @@ const LifePlan = () => {
     if (!user) return;
 
     try {
-      // Fetch the life plan
-      const { data: planData, error: planError } = await supabase
+      // Fetch the most recent active life plan
+      const { data: planDataArray, error: planError } = await supabase
         .from('life_plans')
         .select('*')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const planData = planDataArray?.[0] || null;
 
       if (planError) throw planError;
 
