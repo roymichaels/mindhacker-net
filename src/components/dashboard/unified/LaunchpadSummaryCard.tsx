@@ -39,7 +39,7 @@ export function LaunchpadSummaryCard({ className }: LaunchpadSummaryCardProps) {
           .from('launchpad_summaries')
           .select('consciousness_score, clarity_score, transformation_readiness')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('generated_at', { ascending: false })
           .limit(1)
           .single();
 
