@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -100,10 +100,10 @@ const AuroraAccountDropdown = ({
         >
           {/* Avatar - Always show orb (default or personalized) */}
           <div className={cn("shrink-0 rounded-full overflow-hidden", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
-            <PersonalizedOrb 
+            <MultiThreadOrb 
               size={isCollapsed ? 36 : 40}
               showGlow={false}
-              disablePersonalization={!isPersonalized}
+              profile={orbProfile}
             />
           </div>
           
