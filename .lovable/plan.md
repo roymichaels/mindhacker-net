@@ -1,186 +1,160 @@
 
+# תוספת שלבים למסע הטרנספורמציה
 
-# תיקון בעיות יישור וחיתוך ב-PDF של תוכנית 90 יום
+## הבעיה שזוהתה
 
-## בעיות שזוהו מהתמונות
+התוכנית הומלצה לך ללכת לישון עד 23:00, אבל אתה קם ב-3 בלילה לעבודה!
 
-### 1. כרטיסי שבועות נחתכים בין עמודים
-- שבוע 8 נראה רק בכותרת - התוכן נחתך
-- התוכן "זולג" מתחת לגובה העמוד
-
-### 2. משימות נחתכות באמצע
-- הטקסט `truncate max-w-[150px]` גורם לחיתוך לא אסתטי
-- משימות ארוכות לא נראות במלואן
-
-### 3. כותרת עמוד (Footer) חופפת לתוכן
-- `absolute bottom-6` יכול להיכנס לתוך הכרטיס האחרון
-
-### 4. 4 שבועות לעמוד - לא מספיק גמיש
-- כשיש הרבה תוכן בשבוע, הגובה חורג
+**הסיבה:** אין שלב במסע שאוסף מידע על:
+- שעות שינה ויקיצה
+- לוח זמנים יומי  
+- משמרות / עבודה מיוחדת
+- הגבלות אישיות
 
 ---
 
-## הפתרון
+## הפתרון: 2 שלבים חדשים
 
-### גישה: 3 שבועות לעמוד + עיצוב קומפקטי יותר
+### שלב חדש 1: "שגרת חיים" (Lifestyle & Routine)
 
-במקום 4 שבועות לעמוד שנחתכים, נעבור ל-3 שבועות עם יותר מרווח.
+**מיקום:** בין פרופיל אישי (שלב 2) לבין העמקה אישית (שלב 3)
 
----
+**תוכן:**
+| קטגוריה | שאלות |
+|---------|--------|
+| **שינה** | שעת קימה, שעת שינה, איכות שינה, זמן ליפול לשינה |
+| **עבודה** | שעות עבודה, עבודה מהבית/משרד, משמרות, גמישות |
+| **ארוחות** | מתי אוכל ארוחת בוקר/צהריים/ערב, האם מתכננים ארוחות |
+| **אנרגיה** | מתי הכי פרודוקטיבי, מתי עייף, "שעות מת" ביום |
+| **הגבלות** | ילדים/משפחה, מחויבויות קבועות, עבודה בשעות לא שגרתיות |
 
-## שינויים נדרשים
+**דוגמאות שאלות:**
+```text
+באיזו שעה אתה קם בדרך כלל?
+├── 4:00-5:00 (השכמה מוקדמת)
+├── 5:00-6:00
+├── 6:00-7:00
+├── 7:00-8:00
+├── 8:00-9:00
+├── 9:00+
+└── משתנה (משמרות)
 
-### קובץ 1: `src/components/pdf/ProfilePDFRenderer.tsx`
+באיזו שעה אתה הולך לישון?
+├── לפני 21:00
+├── 21:00-22:00
+├── 22:00-23:00
+├── 23:00-00:00
+├── אחרי חצות
+└── משתנה
 
-**שינוי:** הורדת מספר ה-milestones לעמוד מ-4 ל-3
+האם אתה עובד במשמרות?
+├── לא
+├── כן, משמרות קבועות
+├── כן, משמרות מתחלפות
+└── עבודה גמישה
 
-```typescript
-// שינוי מ:
-const MILESTONES_PER_PAGE = 4;
-// ל:
-const MILESTONES_PER_PAGE = 3;
-```
-
-**סיבה:** 3 שבועות לעמוד מבטיחים שהתוכן לא ייחתך גם כשיש הרבה משימות.
-
----
-
-### קובץ 2: `src/components/pdf/PDFLifePlanPage.tsx`
-
-**תיקונים:**
-
-1. **הסרת Footer החופף**
-   - הוצאת ה-`absolute` מה-footer
-   - שימוש ב-flexbox עם `flex-grow` לדחיפת ה-footer לתחתית
-
-2. **הורדת הגבלת רוחב מהמשימות**
-   - הסרת `truncate` ו-`max-w-[150px]`
-   - להשתמש ב-`text-wrap` רגיל
-
-3. **הקטנת padding וגודל אלמנטים**
-   - הקטנת `padding` מ-40px ל-32px
-   - הקטנת ה-`mb` בין אלמנטים
-
-4. **שיפור layout לכרטיס שבוע**
-   - שימוש ב-`break-inside: avoid` למניעת חיתוך כרטיסים
-
-**קוד מעודכן:**
-```tsx
-<div 
-  className="pdf-page bg-gradient-to-br from-[#0f0f14] via-[#1a1a2e] to-[#0f0f14] flex flex-col"
-  dir={isRTL ? 'rtl' : 'ltr'}
-  style={{ width: '595px', minHeight: '842px', padding: '32px', boxSizing: 'border-box' }}
->
-  {/* Header */}
-  {pageNumber === 0 && (
-    <div className="mb-5">
-      {/* ... */}
-    </div>
-  )}
-
-  {/* Milestones - flex-1 לדחיפת footer */}
-  <div className="flex-1 space-y-3">
-    {milestones.map((milestone) => (
-      <div 
-        key={milestone.week_number}
-        className="p-3 rounded-xl bg-white/5 border border-white/10"
-        style={{ breakInside: 'avoid' }}
-      >
-        {/* Week Header - קומפקטי יותר */}
-        <div className="flex items-center gap-2 mb-2">
-          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
-            {isRTL ? `שבוע ${milestone.week_number}` : `Week ${milestone.week_number}`}
-          </span>
-          {milestone.title && (
-            <span className="text-white/80 font-medium text-xs">
-              {milestone.title}
-            </span>
-          )}
-        </div>
-
-        {/* Goal - קומפקטי */}
-        {milestone.goal && (
-          <div className="mb-2">
-            <div className="flex items-center gap-1 mb-0.5">
-              <Target className="w-3 h-3 text-violet-400" />
-              <span className="text-xs text-violet-400 font-medium">
-                {isRTL ? 'מטרה' : 'Goal'}
-              </span>
-            </div>
-            <p className="text-white/70 text-xs leading-snug">{milestone.goal}</p>
-          </div>
-        )}
-
-        {/* Tasks - ללא חיתוך */}
-        {milestone.tasks && milestone.tasks.length > 0 && (
-          <div className="mb-2">
-            <span className="text-xs text-white/50">
-              {isRTL ? 'משימות:' : 'Tasks:'}
-            </span>
-            <div className="mt-1 flex flex-wrap gap-1">
-              {milestone.tasks.slice(0, 5).map((task, i) => (
-                <span 
-                  key={i}
-                  className="px-1.5 py-0.5 rounded bg-white/5 text-white/60 text-xs border border-white/10"
-                >
-                  {task}
-                </span>
-              ))}
-              {milestone.tasks.length > 5 && (
-                <span className="text-white/40 text-xs">
-                  +{milestone.tasks.length - 5}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Challenge */}
-        {milestone.weekly_challenge && (
-          <div className="flex items-center gap-1 text-xs text-amber-400/70">
-            <Zap className="w-3 h-3" />
-            <span>{milestone.weekly_challenge}</span>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-
-  {/* Footer - לא absolute */}
-  <div className="mt-4 text-center">
-    <span className="text-xs text-white/30">
-      {isRTL ? `תוכנית 90 יום - עמוד ${pageNumber + 1}` : `90-Day Plan - Page ${pageNumber + 1}`}
-    </span>
-  </div>
-</div>
+מתי ביום אתה הכי פרודוקטיבי?
+├── בוקר מוקדם (5:00-8:00)
+├── בוקר (8:00-12:00)
+├── צהריים (12:00-16:00)
+├── אחר הצהריים (16:00-20:00)
+├── ערב (20:00-00:00)
+└── לילה מאוחר
 ```
 
 ---
 
-## סיכום טכני
+### שלב חדש 2: "הערות נוספות" (Final Notes)
 
-| בעיה | גורם | פתרון |
-|------|------|-------|
-| כרטיסים נחתכים | 4 שבועות לעמוד = צפוף מדי | הורדה ל-3 שבועות לעמוד |
-| Footer חופף | `position: absolute` | הסרת absolute, שימוש ב-flexbox |
-| משימות קטועות | `truncate max-w-[150px]` | הסרת הגבלת רוחב |
-| ריווח לא אחיד | padding גדול מדי | הקטנת padding ומרווחים |
+**מיקום:** לפני הפעלת הדשבורד (שלב אחרון לפני סיום)
+
+**תוכן:**
+- שדה טקסט חופשי
+- מקום לציין כל דבר שלא נשאל
+- הגבלות / מצבים מיוחדים
+- מסרים ל-Aurora
+
+**ממשק:**
+```text
+┌─────────────────────────────────────────┐
+│ 📝 יש משהו נוסף שחשוב לנו לדעת?        │
+│                                         │
+│ זה המקום לכל מה שלא נשאלת:             │
+│ - מגבלות בריאותיות                      │
+│ - מצבים מיוחדים בחיים                   │
+│ - דברים שחשוב ש-Aurora תדע              │
+│ - כל הערה או תוספת                      │
+│                                         │
+│ ┌─────────────────────────────────────┐ │
+│ │                                     │ │
+│ │ (טקסט חופשי...)                     │ │
+│ │                                     │ │
+│ │                                     │ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ [דלג] [המשך →]                          │
+└─────────────────────────────────────────┘
+```
 
 ---
 
-## קבצים לעדכון
+## מבנה חדש של המסע (11 שלבים)
+
+| # | שלב | פאזה | מה חדש? |
+|---|-----|------|---------|
+| 1 | ברוך הבא | 1 | ✓ קיים |
+| 2 | פרופיל אישי | 1 | ✓ קיים |
+| **3** | **שגרת חיים** | **1** | **🆕 חדש!** |
+| 4 | העמקה אישית | 2 | ✓ קיים (היה 3) |
+| 5 | שיחה ראשונה | 2 | ✓ קיים (היה 4) |
+| 6 | התבוננות פנימית | 2 | ✓ קיים (היה 5) |
+| 7 | חזון וכיוון | 2 | ✓ קיים (היה 6) |
+| 8 | תחומי פוקוס | 3 | ✓ קיים (היה 7) |
+| 9 | שבוע ראשון | 3 | ✓ קיים (היה 8) |
+| **10** | **הערות נוספות** | **3** | **🆕 חדש!** |
+| 11 | הפעלת הדשבורד | 3 | ✓ קיים (היה 9) |
+
+---
+
+## שינויים בקוד
+
+### קבצים חדשים
+
+| קובץ | תיאור |
+|------|-------|
+| `src/components/launchpad/steps/LifestyleRoutineStep.tsx` | קומפוננטת שלב שגרת החיים |
+| `src/components/launchpad/steps/FinalNotesStep.tsx` | קומפוננטת הערות נוספות |
+
+### קבצים לעדכון
 
 | קובץ | שינוי |
 |------|-------|
-| `src/components/pdf/ProfilePDFRenderer.tsx` | `MILESTONES_PER_PAGE = 3` |
-| `src/components/pdf/PDFLifePlanPage.tsx` | עיצוב מחודש + הסרת absolute footer |
+| `src/hooks/useLaunchpadProgress.ts` | עדכון STEPS ל-11 שלבים, עדכון PHASES, עדכון STEP_REWARDS |
+| `src/components/launchpad/LaunchpadFlow.tsx` | הוספת 2 הקומפוננטות החדשות ל-switch |
+| `src/components/launchpad/index.ts` | ייצוא הקומפוננטות החדשות |
+| `supabase/functions/generate-launchpad-summary/index.ts` | קליטת הנתונים החדשים והזנתם ל-AI |
+
+### עדכון DB (Migration)
+
+```sql
+-- Add new columns to launchpad_progress
+ALTER TABLE launchpad_progress 
+ADD COLUMN IF NOT EXISTS step_3_lifestyle_data jsonb DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS step_3_lifestyle_completed_at timestamptz DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS step_10_final_notes text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS step_10_completed_at timestamptz DEFAULT NULL;
+```
 
 ---
 
-## תוצאה צפויה
+## התוצאה
 
-- 12 שבועות ÷ 3 = **4 עמודי תוכנית** (במקום 3 צפופים)
-- כל שבוע נראה במלואו ללא חיתוך
-- Footer קבוע בתחתית כל עמוד
-- משימות מוצגות ללא קיצוץ טקסט
+לאחר השינויים:
+- Aurora תדע שאתה קם ב-3 בלילה
+- התוכנית תותאם ללוח הזמנים שלך
+- משתמשים יוכלו להוסיף כל מידע רלוונטי בסוף
+- ההמלצות יהיו מדויקות יותר
 
+**דוגמה לשינוי בהמלצה:**
+- ❌ לפני: "כניסה למיטה ב-23:00 ללא מסכים"
+- ✅ אחרי: "כניסה למיטה ב-19:00 ללא מסכים (בהתאם לקימה ב-3:00)"
