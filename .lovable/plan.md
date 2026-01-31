@@ -1,87 +1,119 @@
 
-## ממצאים (מה קורה בפועל ולמה זה “לא נשמר”)
-בדקתי את הבקשות לרשת והדאטאבייס:
+# תיקון איסוף הנתונים לסיכום הטרנספורמציה
 
-- בזמן השיחה — כן נשמר transcript מלא. ראיתי PATCHים שמכילים את כל ההודעות, השאלות והתשובות.
-- אבל אחרי שסיימת / כשחזרת אחורה — נשלח PATCH נוסף שמחזיר את `step_2_summary` למצב התחלתי (רק greeting + שאלה ראשונה), והוא **דורס** את מה שנשמר קודם.
+## הבעיה שמצאתי
 
-הגורם המרכזי:
-- כשאתה חוזר לצעד 4, `getSavedData(4)` מחזיר `null` בזמן שהדאטה עדיין בטעינה (`isLoading === true`).
-- בגלל זה `FirstChatStep` עולה בלי `savedData`, מפעיל “greeting” חדש, ואז `onAutoSave` שומר לדאטאבייס את ההתחלה החדשה — וזה בדיוק ה-PATCH שראיתי שדורס את השיחה הקודמת.
+הפונקציה `gatherLaunchpadData` ב-edge function מנסה לקרוא נתונים משדות שלא קיימים בבסיס הנתונים. היא מחפשת `progress.step_data.welcome` אבל הנתונים נמצאים בעמודות אחרות לגמרי.
 
-בנוסף (תיקון קטן אבל חשוב):
-- ראיתי פעם אחת שנשמרה הודעה בצורה לא תקינה `{ role: "assistant" }` בלי `content`. זה יכול לקרות כשיש state רגעי/תחרות בין עדכונים. נרצה לסנן הודעות לא תקינות לפני שמירת JSON.
+### מיפוי שגוי נוכחי:
+| מה הפונקציה מחפשת | איפה הנתונים באמת |
+|---|---|
+| `progress.step_data.welcome` | `step_1_intention` |
+| `progress.step_data.personal_profile` | `step_2_profile_data` |
+| `progress.step_data.growth_deep_dive` | `step_2_profile_data.deep_dive` |
+| `progress.step_data.first_week` | `step_6_actions` |
+| *לא נקרא בכלל* | `step_5_focus_areas_selected` |
+| *לא נקרא בכלל* | `step_2_summary` (תמליל השיחה) |
+
+## מה נתקן
+
+### 1. תיקון הפונקציה `gatherLaunchpadData`
+
+נעדכן את המיפוי לקרוא מהעמודות הנכונות:
+
+```typescript
+return {
+  // צעד 1: כוונה ראשונית
+  welcomeQuiz: progress?.step_1_intention 
+    ? (typeof progress.step_1_intention === 'string' 
+        ? { intention: progress.step_1_intention } 
+        : progress.step_1_intention)
+    : {},
+    
+  // צעד 2: פרופיל אישי + Deep Dive
+  personalProfile: progress?.step_2_profile_data || {},
+  growthDeepDive: progress?.step_2_profile_data?.deep_dive?.answers || {},
+  
+  // צעד 4: תמליל השיחה הראשונה (step_2_summary)
+  firstChatTranscript: progress?.step_2_summary 
+    ? parseFirstChatTranscript(progress.step_2_summary)
+    : null,
+    
+  // צעד 5: תחומי ההתמקדות שנבחרו
+  selectedFocusAreas: progress?.step_5_focus_areas_selected || [],
+  
+  // צעד 6: פעולות השבוע הראשון
+  firstWeekActions: progress?.step_6_actions || {},
+  
+  // שאר הנתונים נשאר כמו שהיה...
+}
+```
+
+### 2. עדכון ה-prompt builder
+
+נוסיף את הסעיפים החסרים ל-`buildAnalysisPrompt`:
+
+```typescript
+// הוספת תחומי ההתמקדות שנבחרו
+sections.push('\n## Selected Focus Areas (Step 5)');
+sections.push(JSON.stringify(data.selectedFocusAreas, null, 2));
+
+// הוספת תמליל השיחה הראשונה
+if (data.firstChatTranscript?.messages) {
+  sections.push('\n## First Chat Transcript (Aurora Conversation)');
+  sections.push(data.firstChatTranscript.messages
+    .map((m: any) => `${m.role}: ${m.content}`)
+    .join('\n'));
+  sections.push(`\nAnswers given: ${data.firstChatTranscript.answers?.join(', ')}`);
+}
+
+// הוספת פעולות השבוע הראשון
+sections.push('\n## First Week Actions (Step 6)');
+sections.push(JSON.stringify(data.firstWeekActions, null, 2));
+```
+
+### 3. עדכון ה-interface
+
+נוסיף את השדות החדשים:
+
+```typescript
+interface LaunchpadData {
+  welcomeQuiz: any;
+  personalProfile: any;
+  identityBuilding: any;
+  growthDeepDive: any;
+  firstChat: any;           // מ-conversations table
+  firstChatTranscript: any; // חדש! מ-step_2_summary
+  introspection: any;
+  lifePlan: any;
+  focusAreas: any;
+  selectedFocusAreas: any;  // חדש! מ-step_5_focus_areas_selected
+  firstWeek: any;
+  firstWeekActions: any;    // חדש! מ-step_6_actions
+}
+```
 
 ---
 
-## מטרת התיקון
-1. למנוע מצב שבו חזרה לצעד 4 בזמן טעינת דאטה “מאתחלת” שיחה ושומרת אותה על הדאטאבייס.
-2. להבטיח שתמיד נטען משהו יציב (לפחות localStorage) במקום `null` בזמן loading.
-3. לוודא שלא נשמרות הודעות שבורות (ללא `content`).
+## פירוט טכני: הקובץ שיתוקן
 
----
+**`supabase/functions/generate-launchpad-summary/index.ts`**
 
-## מה נשנה (ברמת קוד)
+שינויים:
+1. שורות 8-18: עדכון ה-interface להוספת שדות חדשים
+2. שורות 399-438: תיקון המיפוי ב-`gatherLaunchpadData` לקרוא מהעמודות הנכונות
+3. שורות 586-654: עדכון `buildAnalysisPrompt` להוסיף את הסעיפים החסרים
 
-### 1) `useLaunchpadAutoSave.ts` — לא מחזירים `null` בזמן טעינה + לא שומרים ל-DB בזמן טעינה
-**שינוי A: getSavedData**
-במקום:
-- אם `isLoading` → `return null`
+## תוצאה צפויה
 
-נעשה:
-- אם `isLoading` → נחזיר **localStorage** (fallback) כדי שהקומפוננטה לא תאתחל שיחה חדשה בטעות.
+לאחר התיקון, ה-AI יקבל **את כל המידע** שהמשתמש הזין:
+- ✅ כוונה ראשונית (צעד 1)
+- ✅ פרופיל אישי (צעד 2) 
+- ✅ תמליל השיחה עם אורורה (צעד 4)
+- ✅ תשובות ה-Deep Dive (צעד 3)
+- ✅ שאלון האינטרוספקציה (צעד 5)
+- ✅ תוכנית החיים (צעד 6)
+- ✅ תחומי ההתמקדות שנבחרו (צעד 7)
+- ✅ הרגלים לעזוב/לבנות + מטרות קריירה (צעד 8)
 
-כלומר:
-- `if (isLoading) return loadFromLocalStorage(step);`
-
-**שינוי B: autoSave**
-במקום:
-- כל `autoSave` תמיד מתזמן שמירה לדאטאבייס
-
-נעשה:
-- בזמן `isLoading` נשמור **רק ל-localStorage** ולא נתזמן DB update.
-זה מונע לחלוטין את ה-overwrite שהתרחש לך (ה-PATCH שמחזיר את השיחה להתחלה).
-
-### 2) `useLaunchpadAutoSave.ts` — invalidate/refetch אחרי שמירה ל-DB
-כדי שכשחוזרים לצעד נקבל את מה שנשמר (ולא נתונים ישנים), נוסיף `queryClient.invalidateQueries` אחרי update מוצלח:
-- `invalidateQueries({ queryKey: ['launchpad-data', user.id] })`
-
-זה גם ימנע מצבים שבהם ה-UI נשאר עם cache ישן אחרי שמירה.
-
-### 3) `FirstChatStep.tsx` — סניטציה לפני auto-save
-ב-`useEffect` שמפעיל `onAutoSave`, נוסיף סינון:
-- נשמור רק הודעות עם `role` תקין ו-`content` שהוא string לא ריק.
-זה מונע שמירת JSON פגום (כמו `{role:'assistant'}` בלי content).
-
-דוגמה לוגית:
-- `const safeMessages = messages.filter(m => m && (m.role==='user'||m.role==='assistant') && typeof m.content==='string' && m.content.trim().length>0);`
-- ואז נשלח `safeMessages` ל-`onAutoSave`.
-
-### 4) `LaunchpadFlow.tsx` — אופציונלי אך מומלץ: לא להציג Step בזמן ש-data-loading
-כרגע יש `isLoadingData` אבל לא משתמשים בו.
-נוסיף guard:
-- אם `isLoadingData` → נציג loader במקום להריץ Step שמאותחל בלי savedData.
-זה עוד שכבת הגנה שמקטינה סיכוי ל-regressions.
-
----
-
-## איך נאמת שזה תוקן (בדיקה מדויקת)
-1. להיכנס לצעד 4, לענות לפחות 2 שאלות.
-2. לצאת לצעד אחר ולחזור לצעד 4.
-3. לוודא שהשיחה חוזרת בדיוק (כולל ההודעות של המשתמש).
-4. לבדוק ברשת שאין PATCH שמחזיר את `step_2_summary` למצב התחלתי בעת חזרה לצעד 4.
-5. לבדוק שגם refresh לדף לא מוחק את השיחה.
-
----
-
-## קבצים שנעדכן
-- `src/hooks/useLaunchpadAutoSave.ts` (העיקר: loading behavior + invalidate)
-- `src/components/launchpad/steps/FirstChatStep.tsx` (סינון הודעות לפני שמירה)
-- `src/components/launchpad/LaunchpadFlow.tsx` (loader בזמן isLoadingData – מומלץ)
-
----
-
-## למה זה יפתור את זה בוודאות
-הבעיה אצלך היא לא “לא נשמר” אלא “נשמר ואז נדרס”.
-הדריסה קרתה בדיוק בגלל `null` בזמן loading שגרם ל-init מחדש ול-autoSave לדאטאבייס.
-ברגע שנמנע שמירה ל-DB בזמן loading + נשתמש ב-localStorage בזמן הזה, אין יותר אפשרות טכנית לדריסה הזו להתרחש.
+הסיכום יהיה מבוסס על **כל השאלון** ולא רק על חלקים ממנו.
