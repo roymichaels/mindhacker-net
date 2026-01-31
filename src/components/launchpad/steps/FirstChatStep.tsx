@@ -73,15 +73,28 @@ export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, on
     setAnswers(savedData.answers ?? []);
   }, [savedData, answers.length]);
 
-  // Auto-save whenever state changes
+  // Auto-save whenever state changes - with message sanitization
   useEffect(() => {
     if (messages.length > 0 && onAutoSave) {
-      onAutoSave({
-        messages,
-        questionIndex,
-        answers,
-        isComplete: questionIndex >= 5,
-      });
+      // CRITICAL: Filter out malformed messages before saving
+      // This prevents saving broken JSON like { role: 'assistant' } without content
+      const safeMessages = messages.filter(
+        (m) =>
+          m &&
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string' &&
+          m.content.trim().length > 0
+      );
+      
+      // Only save if we have valid messages
+      if (safeMessages.length > 0) {
+        onAutoSave({
+          messages: safeMessages,
+          questionIndex,
+          answers,
+          isComplete: questionIndex >= 5,
+        });
+      }
     }
   }, [messages, questionIndex, answers, onAutoSave]);
 

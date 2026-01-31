@@ -2,6 +2,7 @@ import { useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLaunchpadData } from './useLaunchpadData';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface StepSaveData {
   step: number;
@@ -11,9 +12,14 @@ export interface StepSaveData {
 /**
  * Hook for auto-saving launchpad step data with debouncing
  * Saves to both localStorage (immediate) and database (debounced)
+ * 
+ * CRITICAL FIX: During loading state, we:
+ * 1. Return localStorage data from getSavedData (not null) to prevent component re-initialization
+ * 2. Skip database saves in autoSave to prevent overwriting existing data
  */
 export function useLaunchpadAutoSave() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data: launchpadData, isLoading } = useLaunchpadData();
   const debounceTimers = useRef<Record<number, NodeJS.Timeout>>({});
 
@@ -100,18 +106,32 @@ export function useLaunchpadAutoSave() {
 
       if (error) {
         console.error('Error saving to database:', error);
+      } else {
+        // Invalidate cache to ensure fresh data on next fetch
+        queryClient.invalidateQueries({ queryKey: ['launchpad-data', user.id] });
       }
     } catch (e) {
       console.error('Error in saveToDatabase:', e);
     }
-  }, [user?.id, launchpadData?.personalProfile]);
+  }, [user?.id, launchpadData?.personalProfile, queryClient]);
 
   /**
    * Auto-save with debouncing - saves to localStorage immediately and DB after 500ms
+   * 
+   * CRITICAL: During loading state, we ONLY save to localStorage to prevent
+   * overwriting database data with initial/empty component state
    */
   const autoSave = useCallback((step: number, data: Record<string, unknown>) => {
-    // Save to localStorage immediately
+    // Save to localStorage immediately (always safe)
     saveToLocalStorage(step, data);
+
+    // CRITICAL FIX: Do NOT save to database while still loading
+    // This prevents the race condition where a component initializes with empty state
+    // and immediately overwrites the existing database data
+    if (isLoading) {
+      console.log(`[AutoSave] Skipping DB save for step ${step} - still loading`);
+      return;
+    }
 
     // Clear existing timer for this step
     if (debounceTimers.current[step]) {
@@ -122,14 +142,26 @@ export function useLaunchpadAutoSave() {
     debounceTimers.current[step] = setTimeout(() => {
       saveToDatabase(step, data);
     }, 500);
-  }, [saveToLocalStorage, saveToDatabase]);
+  }, [saveToLocalStorage, saveToDatabase, isLoading]);
 
   /**
    * Get saved data for a step - prioritizes database over localStorage
+   * 
+   * CRITICAL FIX: During loading, we return localStorage data instead of null.
+   * This prevents components from re-initializing with empty state and
+   * triggering auto-save that overwrites database data.
    */
   const getSavedData = useCallback((step: number): Record<string, unknown> | null => {
-    // If loading, return null
-    if (isLoading) return null;
+    // CRITICAL FIX: During loading, return localStorage fallback instead of null
+    // This ensures components have SOME data to hydrate from, preventing
+    // the "init new chat -> autoSave -> overwrite DB" race condition
+    if (isLoading) {
+      const localData = loadFromLocalStorage(step);
+      if (localData) {
+        console.log(`[getSavedData] Loading in progress, using localStorage for step ${step}`);
+      }
+      return localData;
+    }
 
     // Try database first
     let dbData: Record<string, unknown> | null = null;
