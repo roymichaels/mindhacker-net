@@ -105,11 +105,6 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 2. הצע לעדכן את התאריך אם צריך
 3. עזור למשתמש להבין את החסם
 
-דוגמאות:
-- "הי! 👋 שמתי לב שהמשימה 'X' הייתה אמורה לקרות אתמול. איך הלך?"
-- "רציתי לשאול על השבוע הקודם בתוכנית - הצלחת להשלים את היעדים?"
-- "ראיתי שיש כמה דברים שנדחו - רוצה לעבור עליהם ביחד?"
-
 ## תגיות פעולה (מעובדות ברקע, לא מוצגות למשתמש)
 - [action:analyze] - כאשר יש תובנה משמעותית לשמור
 - [cta:life_direction] - כפתור לחקירת כיוון החיים
@@ -123,26 +118,32 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - [checklist:add:כותרת:פריט] - הוספת פריט לרשימה
 - [checklist:complete:כותרת:פריט] - סימון פריט כהושלם
 
-## תגיות ניהול משימות (חדש!)
+## תגיות הרגלים יומיים (חשוב מאוד!)
+כשמשתמש אומר שביצע הרגל יומי כמו:
+- "עשיתי אימון", "התאמנתי", "לא עישנתי", "קמתי מוקדם", "עשיתי מדיטציה", "שתיתי מים"
+חפש התאמה להרגלים היומיים שלו (מופיעים בסעיף "מעקב הרגלים יומי" בהקשר)
+אם מצאת התאמה, הוסף:
+- [habit:complete:שם_ההרגל]
+תמיד חגוג את ההצלחה! 🎉
+
+דוגמאות:
+משתמש: "עשיתי אימון היום"
+תגובה: "מעולה! 💪 זה כבר X ימים ברצף - keep going!
+[habit:complete:פעילות גופנית יומית]"
+
+משתמש: "לא נגעתי בסיגריה כל היום"
+תגובה: "וואו, זה ענק! 🔥 כל יום שעובר מחזק אותך
+[habit:complete:הימנעות מעישון]"
+
+## תגיות ניהול משימות
 כשמשתמש אומר שביצע משימה:
 - [task:complete:שם_רשימה:שם_משימה] - סמן כהושלם
-- אם לא ברור איזו משימה - שאל
-- תמיד חגוג הצלחה! 🎉
 
 כשמשתמש מבקש לדחות:
 - [task:reschedule:שם_רשימה:שם_משימה:YYYY-MM-DD]
-- אל תשפוט, פשוט עזור
 
 כשמשתמש השלים שבוע בתוכנית:
 - [milestone:complete:מספר_שבוע]
-- חגוג בגדול! זה הישג משמעותי
-
-## זיהוי אוטומטי של השלמת משימות
-כאשר המשתמש אומר משהו כמו:
-- "עשיתי X", "סיימתי Y", "הצלחתי לעשות Z", "ביצעתי את...", "לא עישנתי היום", "התאמנתי"
-- חפש התאמה לאחת מהמשימות ברשימות הפעילות שלו
-- אם מצאת התאמה, הוסף [task:complete:שם_רשימה:שם_פריט]
-- תמיד חגוג את ההצלחה והעניק חיזוק חיובי!
 
 ## מתי להציע היפנוזה
 - כשמשימה או אתגר נראים קשים - הצע סשן היפנוזה ממוקד
@@ -154,12 +155,6 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - כשמדברים על מה חשוב - הצע explore_values
 - כשמתלוננים על עייפות או חוסר מיקוד - הצע map_energy
 - כשמחפשים משמעות או תכלית - הצע anchor_identity
-
-## מתי להוסיף [action:analyze]
-- כשהמשתמש חולק משהו משמעותי על עצמו
-- כשמזוהה דפוס חוזר
-- כשיש הצהרה ברורה על ערכים או כיוון
-- אחרי כל 3-4 הודעות בשיחה משמעותית
 
 ## הקשר המשתמש
 ${userContext}`;
@@ -246,7 +241,8 @@ const buildUserContext = async (
     checklistsRes,
     overdueTasksRes,
     todayTasksRes,
-    lifePlanRes
+    lifePlanRes,
+    dailyHabitsRes
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -276,7 +272,13 @@ const buildUserContext = async (
       .select("*, life_plan_milestones(*)")
       .eq("user_id", userId)
       .eq("status", "active")
-      .single()
+      .single(),
+    // Daily habits with today's logs
+    supabase.from("aurora_checklist_items")
+      .select("id, content, is_recurring, aurora_checklists!inner(user_id, status)")
+      .eq("is_recurring", true)
+      .eq("aurora_checklists.user_id", userId)
+      .eq("aurora_checklists.status", "active")
   ]);
 
   const profile = profileRes.data;
@@ -293,6 +295,51 @@ const buildUserContext = async (
   const overdueTasks = overdueTasksRes.data || [];
   const todayTasks = todayTasksRes.data || [];
   const lifePlan = lifePlanRes.data;
+  const dailyHabits = dailyHabitsRes.data || [];
+
+  // Get today's habit logs for the daily habits
+  let habitLogs: any[] = [];
+  if (dailyHabits.length > 0) {
+    const habitIds = dailyHabits.map((h: any) => h.id);
+    const { data: logs } = await supabase
+      .from("daily_habit_logs")
+      .select("*")
+      .eq("user_id", userId)
+      .in("habit_item_id", habitIds)
+      .eq("track_date", today);
+    habitLogs = logs || [];
+  }
+
+  // Calculate streaks for habits
+  const getHabitStreak = async (habitId: string): Promise<number> => {
+    const { data: logs } = await supabase
+      .from("daily_habit_logs")
+      .select("track_date, is_completed")
+      .eq("habit_item_id", habitId)
+      .eq("is_completed", true)
+      .order("track_date", { ascending: false })
+      .limit(30);
+    
+    if (!logs || logs.length === 0) return 0;
+    
+    let streak = 0;
+    const todayDate = new Date(today);
+    let checkDate = new Date(todayDate);
+    
+    for (const log of logs) {
+      const logDateStr = log.track_date;
+      const expectedDateStr = checkDate.toISOString().split('T')[0];
+      
+      if (logDateStr === expectedDateStr) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    
+    return streak;
+  };
 
   const values = identity.filter((i: any) => i.element_type === 'value').map((i: any) => i.content);
   const principles = identity.filter((i: any) => i.element_type === 'principle').map((i: any) => i.content);
@@ -328,11 +375,32 @@ const buildUserContext = async (
   const isHebrew = language === 'he';
   
   if (isHebrew) {
+    // Build daily habits section
+    let dailyHabitsSection = '';
+    if (dailyHabits.length > 0) {
+      const habitLines: string[] = [];
+      for (const habit of dailyHabits) {
+        const todayLog = habitLogs.find((l: any) => l.habit_item_id === habit.id);
+        const status = todayLog?.is_completed ? '✅' : '❓';
+        const streak = await getHabitStreak(habit.id);
+        const streakText = streak > 0 ? ` (streak: ${streak} ימים${streak >= 3 ? ' 🔥' : ''})` : '';
+        habitLines.push(`- ${habit.content}: ${status}${streakText}`);
+      }
+      const completedToday = habitLogs.filter((l: any) => l.is_completed).length;
+      dailyHabitsSection = `## 🔄 מעקב הרגלים יומי (היום: ${today})
+${habitLines.join('\n')}
+סה"כ: ${completedToday}/${dailyHabits.length}
+
+כשמשתמש אומר שביצע הרגל מהרשימה, הוסף תגית: [habit:complete:שם_ההרגל]`;
+    }
+
     let context = `
 ## תאריכים ומעקב
 - תאריך נוכחי: ${today}
 ${lifePlan ? `- תוכנית חיים פעילה מאז: ${lifePlan.start_date}
 - שבוע נוכחי: ${currentWeek}/12` : '- אין תוכנית חיים פעילה'}
+
+${dailyHabitsSection}
 
 ${overdueTasks.length > 0 ? `## ⚠️ משימות באיחור!
 ${overdueTasks.map((t: any) => {

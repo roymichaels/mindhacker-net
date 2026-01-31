@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useChecklistsData } from './useChecklistsData';
+import { useDailyHabits } from './useDailyHabits';
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const { language } = useTranslation();
   const queryClient = useQueryClient();
   const { createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem } = useChecklistsData(user);
+  const { habits, completeHabit } = useDailyHabits(user);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -157,14 +159,31 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
+    // Daily habit completion (new!)
+    const habitCompleteMatches = [...content.matchAll(/\[habit:complete:(.+?)\]/g)];
+    for (const match of habitCompleteMatches) {
+      const habitName = match[1].trim();
+      if (habitName && habits.length > 0) {
+        // Find matching habit by partial content match
+        const matchingHabit = habits.find(h => 
+          h.content.toLowerCase().includes(habitName.toLowerCase()) ||
+          habitName.toLowerCase().includes(h.content.toLowerCase())
+        );
+        if (matchingHabit) {
+          await completeHabit(matchingHabit.id, 'aurora');
+        }
+      }
+    }
+
     // Return cleaned content (without silent action tags, but keep CTAs)
     return content
       .replace(/\[action:\w+\]/g, '')
       .replace(/\[checklist:[^\]]+\]/g, '')
       .replace(/\[task:[^\]]+\]/g, '')
       .replace(/\[milestone:[^\]]+\]/g, '')
+      .replace(/\[habit:[^\]]+\]/g, '')
       .trim();
-  }, [user?.id, createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem]);
+  }, [user?.id, createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem, habits, completeHabit]);
 
   // Complete milestone by week number
   const completeMilestoneByWeek = useCallback(async (weekNumber: number) => {
