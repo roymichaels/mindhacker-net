@@ -73,8 +73,19 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, messages } = await req.json();
+    const body = await req.json();
+    const { userId, messages, type, data } = body;
 
+    // Handle growth_deep_dive type - just return success (analysis done elsewhere)
+    if (type === 'growth_deep_dive') {
+      console.log('Growth deep dive analysis requested - returning success');
+      return new Response(
+        JSON.stringify({ success: true, insight: null }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Standard conversation analysis requires userId and messages
     if (!userId || !messages || !Array.isArray(messages)) {
       throw new Error("userId and messages array are required");
     }
