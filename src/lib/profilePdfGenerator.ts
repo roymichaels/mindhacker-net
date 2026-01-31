@@ -88,10 +88,18 @@ const addSectionTitle = (doc: jsPDF, title: string, y: number, isRTL: boolean) =
   return y + 10;
 };
 
+// Helper to ensure we have an array
+const toArray = (items: unknown): string[] => {
+  if (!items) return [];
+  if (Array.isArray(items)) return items.filter(item => typeof item === 'string');
+  if (typeof items === 'string') return [items];
+  return [];
+};
+
 // Add bullet list
 const addBulletList = (
   doc: jsPDF, 
-  items: string[] | string | undefined | null, 
+  items: unknown, 
   startY: number, 
   isRTL: boolean,
   maxWidth: number = 170
@@ -99,13 +107,10 @@ const addBulletList = (
   let y = startY;
   const bullet = isRTL ? '•' : '•';
   
-  // Handle non-array inputs gracefully
-  if (!items) return y;
-  const itemsArray = Array.isArray(items) ? items : [items];
+  const itemsArray = toArray(items);
+  if (itemsArray.length === 0) return y;
   
   itemsArray.forEach((item) => {
-    if (!item || typeof item !== 'string') return;
-    
     const bulletX = isRTL ? 190 : 20;
     const textX = isRTL ? 185 : 25;
     
@@ -364,9 +369,10 @@ export const generateProfilePDF = async (data: ProfilePDFData) => {
       y += 5;
     }
     
-    if (ip.values_hierarchy?.length) {
+    const valuesArray = toArray(ip.values_hierarchy);
+    if (valuesArray.length > 0) {
       y = addSectionTitle(doc, isRTL ? 'היררכיית ערכים' : 'Values Hierarchy', y, isRTL);
-      ip.values_hierarchy.forEach((value, i) => {
+      valuesArray.forEach((value, i) => {
         const num = `${i + 1}. `;
         addText(doc, num + value, isRTL ? 190 : 20, y, { align: isRTL ? 'right' : 'left' });
         y += 7;
@@ -501,9 +507,10 @@ export const generateProfilePDF = async (data: ProfilePDFData) => {
         y += 8;
       }
       
-      if (milestone.tasks?.length) {
+      const tasksArray = toArray(milestone.tasks);
+      if (tasksArray.length > 0) {
         doc.setTextColor(255, 255, 255);
-        milestone.tasks.slice(0, 3).forEach((task) => {
+        tasksArray.slice(0, 3).forEach((task) => {
           const taskText = `• ${task}`;
           const lines = doc.splitTextToSize(taskText, contentWidth - 5);
           doc.text(lines, isRTL ? 190 : margin, y, { align: isRTL ? 'right' : 'left' });
