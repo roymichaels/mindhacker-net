@@ -39,6 +39,9 @@ export interface LaunchpadData {
   lifePlanId: string | null;
   firstChat: FirstChatData | null;
   deepDive: Record<string, string[]> | null;
+  // Form submission IDs for steps 5 & 6
+  step_3_form_submission_id: string | null;
+  step_4_form_submission_id: string | null;
 }
 
 export function useLaunchpadData() {
@@ -202,6 +205,8 @@ export function useLaunchpadData() {
         lifePlanId,
         firstChat,
         deepDive,
+        step_3_form_submission_id: progress.step_3_form_submission_id || null,
+        step_4_form_submission_id: progress.step_4_form_submission_id || null,
       };
     },
     enabled: !!user?.id,

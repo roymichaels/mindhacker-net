@@ -16,6 +16,7 @@ interface LifePlanStepProps {
   onComplete: (data: { form_submission_id?: string }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
+  savedFormSubmissionId?: string;
 }
 
 interface Section {
@@ -96,7 +97,7 @@ interface LifePlanAnalysis {
 
 const LIFE_PLAN_STORAGE_KEY = 'launchpad_life_plan_answers';
 
-export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStepProps) {
+export function LifePlanStep({ onComplete, isCompleting, rewards, savedFormSubmissionId }: LifePlanStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
@@ -125,28 +126,79 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
       }
 
       try {
-        // Check for existing form submission
-        const { data: submissions } = await supabase
-          .from('form_submissions')
-          .select('*, form_analyses(*)')
-          .eq('form_id', LIFE_PLAN_FORM_ID)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (submissions && submissions.length > 0) {
-          const submission = submissions[0];
+        let submissionToLoad = null;
+        
+        // Priority 1: If we have a saved form submission ID from launchpad_progress, load it directly
+        if (savedFormSubmissionId) {
+          console.log('[LifePlanStep] Loading from savedFormSubmissionId:', savedFormSubmissionId);
+          const { data: submission } = await supabase
+            .from('form_submissions')
+            .select('*, form_analyses(*)')
+            .eq('id', savedFormSubmissionId)
+            .single();
+          
+          if (submission) {
+            submissionToLoad = submission;
+          }
+        }
+        
+        // Priority 2: Fallback to searching by form_id
+        if (!submissionToLoad) {
+          const { data: submissions } = await supabase
+            .from('form_submissions')
+            .select('*, form_analyses(*)')
+            .eq('form_id', LIFE_PLAN_FORM_ID)
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+          
+          if (submissions && submissions.length > 0) {
+            submissionToLoad = submissions[0];
+          }
+        }
+        
+        if (submissionToLoad) {
+          const submission = submissionToLoad;
           setExistingSubmission(submission);
           setSubmissionId(submission.id);
           
+          console.log('[LifePlanStep] Raw responses:', submission.responses);
+          console.log('[LifePlanStep] Loaded submission ID:', submission.id);
           // Load answers from submission responses
-          if (submission.responses && Array.isArray(submission.responses)) {
+          if (submission.responses) {
             const loadedAnswers: Record<string, string> = {};
-            submission.responses.forEach((r: any, index: number) => {
-              if (SECTIONS[index]) {
-                loadedAnswers[SECTIONS[index].id] = r.answer || '';
-              }
-            });
+            
+            // Handle array format: [{question: "...", answer: "..."}, ...]
+            if (Array.isArray(submission.responses)) {
+              submission.responses.forEach((r: any, index: number) => {
+                // Method 1: Match by index to SECTIONS array
+                if (SECTIONS[index] && r.answer) {
+                  loadedAnswers[SECTIONS[index].id] = r.answer;
+                }
+                
+                // Method 2: Also try to match by question text as fallback
+                if (r.question && r.answer) {
+                  const matchedSection = SECTIONS.find(s => 
+                    s.question === r.question || s.questionEn === r.question
+                  );
+                  if (matchedSection) {
+                    loadedAnswers[matchedSection.id] = r.answer;
+                  }
+                }
+              });
+            } else if (typeof submission.responses === 'object') {
+              // If responses is an object with section IDs as keys
+              Object.entries(submission.responses).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  loadedAnswers[key] = value;
+                } else if (value && typeof value === 'object' && 'answer' in (value as any)) {
+                  loadedAnswers[key] = (value as any).answer;
+                }
+              });
+            }
+            
+            console.log('[LifePlanStep] Loaded answers:', loadedAnswers);
+            console.log('[LifePlanStep] Answer count:', Object.keys(loadedAnswers).length);
             setAnswers(loadedAnswers);
           }
 
@@ -173,7 +225,7 @@ export function LifePlanStep({ onComplete, isCompleting, rewards }: LifePlanStep
     };
 
     checkExistingSubmission();
-  }, [user?.id, language]);
+  }, [user?.id, language, savedFormSubmissionId]);
 
   // Persist answers to localStorage on every change (only if not from existing submission)
   useEffect(() => {

@@ -14,6 +14,7 @@ interface IntrospectionStepProps {
   onComplete: (data: { form_submission_id?: string }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
+  savedFormSubmissionId?: string;
 }
 
 interface Question {
@@ -85,7 +86,7 @@ const INTROSPECTION_STORAGE_KEY = 'launchpad_introspection_answers';
 
 const INTROSPECTION_FORM_ID = '45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308';
 
-export function IntrospectionStep({ onComplete, isCompleting, rewards }: IntrospectionStepProps) {
+export function IntrospectionStep({ onComplete, isCompleting, rewards, savedFormSubmissionId }: IntrospectionStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
@@ -114,17 +115,39 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
       }
 
       try {
-        // Check for existing form submission
-        const { data: submissions } = await supabase
-          .from('form_submissions')
-          .select('*, form_analyses(*)')
-          .eq('form_id', INTROSPECTION_FORM_ID)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
+        let submissionToLoad = null;
+        
+        // Priority 1: If we have a saved form submission ID from launchpad_progress, load it directly
+        if (savedFormSubmissionId) {
+          console.log('[IntrospectionStep] Loading from savedFormSubmissionId:', savedFormSubmissionId);
+          const { data: submission } = await supabase
+            .from('form_submissions')
+            .select('*, form_analyses(*)')
+            .eq('id', savedFormSubmissionId)
+            .single();
+          
+          if (submission) {
+            submissionToLoad = submission;
+          }
+        }
+        
+        // Priority 2: Fallback to searching by form_id
+        if (!submissionToLoad) {
+          const { data: submissions } = await supabase
+            .from('form_submissions')
+            .select('*, form_analyses(*)')
+            .eq('form_id', INTROSPECTION_FORM_ID)
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+          
+          if (submissions && submissions.length > 0) {
+            submissionToLoad = submissions[0];
+          }
+        }
 
-        if (submissions && submissions.length > 0) {
-          const submission = submissions[0];
+        if (submissionToLoad) {
+          const submission = submissionToLoad;
           setExistingSubmission(submission);
           setSubmissionId(submission.id);
           
@@ -199,7 +222,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
     };
 
     checkExistingSubmission();
-  }, [user?.id]);
+  }, [user?.id, savedFormSubmissionId]);
 
   // Persist answers to localStorage on every change (only if not from existing submission)
   useEffect(() => {
