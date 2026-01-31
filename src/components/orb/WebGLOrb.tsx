@@ -322,10 +322,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     // Store inner structures separately for different animation
     coreLayersRef.current = [icosaWireframe, octaWireframe] as unknown as THREE.Mesh[];
 
-    // ===== PARTICLES =====
+    // ===== PARTICLES - Same color as wireframe =====
     if (particleEnabled) {
       const actualParticleCount = Math.max(30, particleCount);
-      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.5, 2.0);
+      const ps = new ParticleSystem(actualParticleCount, activePalette.primary, 0.5, 2.0);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
@@ -371,7 +371,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     });
 
     if (particleSystemRef.current) {
-      particleSystemRef.current.setColor(activePalette.glow);
+      particleSystemRef.current.setColor(activePalette.primary);
     }
   }, [activePalette]);
 
