@@ -612,14 +612,24 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         const targetScale = 1 + pulseValue + audioBoost + breathEffect;
         mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
 
-        // Vertex morphing with GEOMETRIC SHAPE deformation based on morphology
+        // Vertex morphing with DYNAMIC GEOMETRIC SHAPE transitions
         const positions = mesh.geometry.attributes.position;
         const basePositions = basePositionsRef.current.get(mesh);
         
         if (basePositions) {
-          const spikeCount = activeMorphology.spikeCount;
-          const spikeIntensity = activeMorphology.spikeIntensity;
-          const edgeSharpness = activeMorphology.edgeSharpness;
+          // Dynamic shape morphing - smoothly transition between different geometric shapes
+          // Use slow-moving noise to randomly select target shape
+          const shapeTransitionSpeed = 0.15;
+          const shapeCycleA = Math.sin(time * shapeTransitionSpeed) * 0.5 + 0.5;
+          const shapeCycleB = Math.sin(time * shapeTransitionSpeed * 0.7 + 2.1) * 0.5 + 0.5;
+          const shapeCycleC = Math.sin(time * shapeTransitionSpeed * 1.3 + 4.2) * 0.5 + 0.5;
+          
+          // Blend between different spike counts for shape morphing
+          // Shapes: 0=sphere, 4=tetrahedron, 6=cube, 8=octahedron, 12=dodecahedron, 20=icosahedron
+          const shapeBlend = shapeCycleA * shapeCycleB;
+          const dynamicSpikeCount = 4 + Math.floor(shapeBlend * 16); // 4-20 spikes
+          const dynamicEdgeSharpness = 0.3 + shapeCycleC * 0.5; // Varying sharpness
+          
           const noiseScale = activeMorphology.noiseScale;
           const waveFreq = activeMorphology.waveFrequency;
           
@@ -634,24 +644,43 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
             const ny = y / dist;
             const nz = z / dist;
             
-            // Geometric spike deformation based on morphology
-            let geometricDeform = 0;
+            // DYNAMIC geometric spike deformation - morphing between shapes
+            const phi = Math.atan2(ny, nx);
+            const theta = Math.acos(Math.max(-1, Math.min(1, nz)));
             
-            if (spikeCount > 0) {
-              // Create geometric spikes based on vertex angle
-              const phi = Math.atan2(ny, nx);
-              const theta = Math.acos(nz);
-              
-              // Spike pattern based on spikeCount (creates platonic solid-like shapes)
-              const spikePhase = morphPhase * 0.5;
-              const spikeFactor = Math.pow(
-                Math.abs(Math.sin(phi * spikeCount / 2 + spikePhase) * Math.sin(theta * spikeCount / 2 + spikePhase)),
-                edgeSharpness * 2
-              );
-              geometricDeform = spikeFactor * spikeIntensity * (1 + Math.sin(time * 2) * 0.3);
-            }
+            // Multiple overlapping geometric patterns for organic shape-shifting
+            const spikePhase1 = morphPhase * 0.3;
+            const spikePhase2 = morphPhase * 0.5 + 1.5;
+            const spikePhase3 = morphPhase * 0.2 + 3.0;
             
-            // Fractal noise with morphology-specific scale
+            // Primary shape
+            const pattern1 = Math.pow(
+              Math.abs(Math.sin(phi * dynamicSpikeCount / 2 + spikePhase1) * Math.sin(theta * dynamicSpikeCount / 2 + spikePhase1)),
+              dynamicEdgeSharpness * 2
+            );
+            
+            // Secondary shape (different spike count) blended in
+            const secondarySpikeCount = 4 + Math.floor(shapeCycleC * 8);
+            const pattern2 = Math.pow(
+              Math.abs(Math.sin(phi * secondarySpikeCount / 2 + spikePhase2) * Math.sin(theta * secondarySpikeCount / 2 + spikePhase2)),
+              0.4
+            );
+            
+            // Tertiary flowing pattern
+            const pattern3 = Math.sin(phi * 3 + theta * 2 + spikePhase3) * 0.5 + 0.5;
+            
+            // Blend patterns based on time for organic transitions
+            const blendWeight1 = shapeCycleA;
+            const blendWeight2 = shapeCycleB * 0.6;
+            const blendWeight3 = (1 - shapeCycleA) * 0.4;
+            
+            const geometricDeform = (
+              pattern1 * blendWeight1 + 
+              pattern2 * blendWeight2 + 
+              pattern3 * blendWeight3
+            ) * 0.15 * (1 + Math.sin(time * 1.5) * 0.4);
+            
+            // Fractal noise for organic randomness
             const fractalNoise = fbm(
               x * noiseScale + morphPhase + config.morphOffset,
               y * noiseScale + morphPhase * 0.7 + config.morphOffset,
@@ -659,16 +688,19 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
               activeMorphology.noiseOctaves
             );
             
-            // Wave deformation with morphology-specific frequency
-            const wavePhase = Math.sin(x * waveFreq + y * waveFreq * 0.7 + z * waveFreq * 1.2 + time * 2) * 0.03;
-            const radialPulse = Math.sin(dist * 8 - time * 3) * 0.02;
+            // Flowing wave deformation
+            const wavePhase = Math.sin(x * waveFreq + y * waveFreq * 0.7 + z * waveFreq * 1.2 + time * 2) * 0.04;
+            const radialPulse = Math.sin(dist * 6 - time * 2.5) * 0.025;
+            
+            // Organic breathing motion
+            const breathe = Math.sin(time * 0.8 + dist * 2) * 0.03;
             
             // Combine all deformations
             const adjustedMorphIntensity = morphIntensity * morphMod;
-            const organicDeform = (fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse);
+            const organicDeform = fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse + breathe;
             
-            // Blend geometric and organic based on symmetry
-            const totalDeform = (geometricDeform * activeMorphology.symmetry + organicDeform * (1 - activeMorphology.symmetry * 0.5)) * (1 + audioLevel * 0.5);
+            // Final blend - more organic, less rigid
+            const totalDeform = (geometricDeform * 0.6 + organicDeform * 0.8) * (1 + audioLevel * 0.5);
             
             positions.setXYZ(
               i,
