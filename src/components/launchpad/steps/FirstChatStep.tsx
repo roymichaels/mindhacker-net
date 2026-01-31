@@ -45,12 +45,14 @@ export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, on
   const { language, isRTL } = useTranslation();
   const hasInitialized = useRef(false);
   
-  // Initialize state from savedData
-  const [messages, setMessages] = useState<Message[]>(savedData?.messages || []);
+  // Initialize state from savedData (check if savedData has messages)
+  const hasSavedChat = savedData?.messages && savedData.messages.length > 0;
+  
+  const [messages, setMessages] = useState<Message[]>(hasSavedChat ? savedData.messages : []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [questionIndex, setQuestionIndex] = useState(savedData?.questionIndex || 0);
-  const [answers, setAnswers] = useState<string[]>(savedData?.answers || []);
+  const [questionIndex, setQuestionIndex] = useState(hasSavedChat ? (savedData.questionIndex ?? 0) : 0);
+  const [answers, setAnswers] = useState<string[]>(hasSavedChat ? (savedData.answers ?? []) : []);
   
   const questions = language === 'he' ? ONBOARDING_QUESTIONS_HE : ONBOARDING_QUESTIONS_EN;
   const isComplete = questionIndex >= 5;
@@ -72,8 +74,8 @@ export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, on
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
-    // If we have saved messages, don't create new greeting
-    if (savedData?.messages && savedData.messages.length > 0) {
+    // If we already have messages (from savedData initialization), don't create new greeting
+    if (messages.length > 0) {
       return;
     }
 
@@ -87,7 +89,7 @@ export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, on
     setTimeout(() => {
       setMessages(prev => [...prev, { role: 'assistant', content: questions[0] }]);
     }, 1500);
-  }, [language, questions, savedData?.messages]);
+  }, [language, questions, messages.length]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
