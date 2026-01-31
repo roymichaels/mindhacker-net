@@ -129,27 +129,51 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
           setSubmissionId(submission.id);
           
           // Load answers from submission responses
-          if (submission.responses && Array.isArray(submission.responses)) {
+          if (submission.responses) {
             const loadedAnswers: Record<string, string> = {};
-            submission.responses.forEach((r: any, index: number) => {
-              if (QUESTIONS[index]) {
-                loadedAnswers[QUESTIONS[index].id] = r.answer || '';
-              }
-            });
+            
+            // Handle both array format and object format
+            if (Array.isArray(submission.responses)) {
+              submission.responses.forEach((r: any, index: number) => {
+                if (QUESTIONS[index] && r.answer) {
+                  loadedAnswers[QUESTIONS[index].id] = r.answer;
+                }
+              });
+            } else if (typeof submission.responses === 'object') {
+              // If responses is an object with question IDs as keys
+              Object.entries(submission.responses).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  loadedAnswers[key] = value;
+                } else if (value && typeof value === 'object' && 'answer' in (value as any)) {
+                  loadedAnswers[key] = (value as any).answer;
+                }
+              });
+            }
+            
+            console.log('[IntrospectionStep] Loaded answers:', loadedAnswers);
             setAnswers(loadedAnswers);
           }
 
           // If there's an analysis, load it
           if (submission.form_analyses && submission.form_analyses.length > 0) {
             const analysisData = submission.form_analyses[0];
-            if (analysisData.patterns) {
-              setAnalysis({
-                summary: analysisData.analysis_summary || '',
-                patterns: Array.isArray(analysisData.patterns) ? analysisData.patterns.map(String) : [],
-                transformation_potential: analysisData.transformation_potential || '',
-                recommendation: analysisData.recommendation || '',
-              });
+            const patterns = analysisData.patterns;
+            
+            // Handle patterns that might be nested
+            let patternsList: string[] = [];
+            if (Array.isArray(patterns)) {
+              patternsList = patterns.map(String);
+            } else if (patterns && typeof patterns === 'object') {
+              // If patterns is an object with arrays inside
+              patternsList = Object.values(patterns).flat().map(String);
             }
+            
+            setAnalysis({
+              summary: analysisData.analysis_summary || '',
+              patterns: patternsList,
+              transformation_potential: analysisData.transformation_potential || '',
+              recommendation: analysisData.recommendation || '',
+            });
           }
           
           setStep('completed');
