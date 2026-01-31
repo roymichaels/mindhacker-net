@@ -39,7 +39,7 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     ref
   ) {
     const { user } = useAuth();
-    const { profile, isLoading, isPersonalized } = useOrbProfile();
+    const { profile, isLoading, isPersonalized, storedProfile } = useOrbProfile();
     const { theme, loading: themeLoading } = useThemeSettings();
 
     // Create theme-based colors from admin panel settings
@@ -70,7 +70,10 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     const egoState = forceEgoState || activeProfile.computedFrom.egoState || 'guardian';
 
     // Show skeleton while loading if requested
-    if (showLoadingSkeleton && (isLoading || themeLoading)) {
+    // Avoid "flash then disappear": during background refetches `isLoading` can flip true and
+    // would replace a rendered orb with the skeleton. Only show skeleton on the initial load
+    // when we don't have a stored profile yet.
+    if (showLoadingSkeleton && (themeLoading || (isLoading && !storedProfile))) {
       return (
         <div
           className={className}

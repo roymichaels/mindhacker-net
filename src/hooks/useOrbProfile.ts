@@ -287,12 +287,24 @@ export function useOrbProfile() {
     
     if (!hasSignificantData) return;
 
-    // Check if profile needs updating
-    const needsUpdate = !storedProfile ||
+    // Check if profile needs updating (include visual/dna-affecting fields to avoid stale reverts)
+    const needsUpdate =
+      !storedProfile ||
+      storedProfile.primaryColor !== computedProfile.primaryColor ||
+      storedProfile.accentColor !== computedProfile.accentColor ||
+      JSON.stringify(storedProfile.secondaryColors) !== JSON.stringify(computedProfile.secondaryColors) ||
+      storedProfile.morphIntensity !== computedProfile.morphIntensity ||
+      storedProfile.morphSpeed !== computedProfile.morphSpeed ||
+      storedProfile.coreIntensity !== computedProfile.coreIntensity ||
+      storedProfile.layerCount !== computedProfile.layerCount ||
+      storedProfile.geometryDetail !== computedProfile.geometryDetail ||
+      storedProfile.particleEnabled !== computedProfile.particleEnabled ||
+      storedProfile.particleCount !== computedProfile.particleCount ||
+      storedProfile.particleColor !== computedProfile.particleColor ||
       storedProfile.computedFrom.dominantArchetype !== computedProfile.computedFrom.dominantArchetype ||
       storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
       storedProfile.computedFrom.streak !== computedProfile.computedFrom.streak ||
-      JSON.stringify(storedProfile.computedFrom.dominantHobbies) !== 
+      JSON.stringify(storedProfile.computedFrom.dominantHobbies) !==
         JSON.stringify(computedProfile.computedFrom.dominantHobbies);
 
     if (needsUpdate) {
@@ -309,8 +321,21 @@ export function useOrbProfile() {
     isLaunchpadComplete,
   ]);
 
-  // Return the stored profile if available, otherwise computed
-  const profile = storedProfile || computedProfile;
+  /**
+   * IMPORTANT UX FIX:
+   * We used to prefer `storedProfile` when present. If that row is stale (e.g., saved before
+   * Launchpad summary / DNA improvements), the orb "reverts" to older colors/shape.
+   *
+   * Once the user has meaningful personalization signals, prefer the live computed profile
+   * and keep DB in sync via the auto-save mutation.
+   */
+  const hasPersonalizationSignals =
+    (launchpadProfile.hobbies && launchpadProfile.hobbies.length > 0) ||
+    selectedTraitIds.length > 0 ||
+    !!summaryData ||
+    isLaunchpadComplete;
+
+  const profile = hasPersonalizationSignals ? computedProfile : (storedProfile || computedProfile);
 
   return {
     profile,
