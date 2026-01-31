@@ -31,7 +31,6 @@ const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
@@ -69,9 +68,14 @@ const LifePlan = lazy(() => import("./pages/LifePlan"));
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
-// Unified Panel
-const UnifiedPanel = lazy(() => import("./components/panel/UnifiedPanel"));
+// Panels
+const AdminPanel = lazy(() => import("./components/panel/AdminPanel"));
+const CoachPanel = lazy(() => import("./components/panel/CoachPanel"));
+const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
 const PanelDashboard = lazy(() => import("./components/panel/PanelDashboard"));
+const CoachDashboard = lazy(() => import("./pages/panel/CoachDashboard"));
+const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
+const CoachTheme = lazy(() => import("./pages/panel/CoachTheme"));
 const RolesManager = lazy(() => import("./pages/panel/RolesManager"));
 const MyClients = lazy(() => import("./pages/panel/MyClients"));
 const MyServices = lazy(() => import("./pages/panel/MyServices"));
@@ -350,49 +354,12 @@ const App = () => (
                           }
                         />
 
-                        {/* Admin routes */}
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route
-                          path="/admin"
-                          element={
-                            <AdminRoute>
-                              <AdminDashboard />
-                            </AdminRoute>
-                          }
-                        >
-                          <Route index element={<Navigate to="/admin/analytics" replace />} />
-                          <Route path="analytics" element={<Analytics />} />
-                          <Route path="notifications" element={<NotificationCenter />} />
-                          <Route path="settings" element={<Settings />} />
-                          <Route path="faqs" element={<FAQs />} />
-                          <Route path="testimonials" element={<Testimonials />} />
-                          <Route path="purchases" element={<Purchases />} />
-                          <Route path="users" element={<Users />} />
-                          <Route path="leads" element={<Leads />} />
-                          <Route path="content" element={<Content />} />
-                          <Route path="menu" element={<MenuManagement />} />
-                          <Route path="videos" element={<Videos />} />
-                          <Route path="recordings" element={<Recordings />} />
-                          <Route path="forms" element={<Forms />} />
-                          <Route path="newsletter" element={<Newsletter />} />
-                          <Route path="homepage" element={<HomepageSections />} />
-                          <Route path="landing-pages" element={<LandingPages />} />
-                          <Route path="landing-pages/new" element={<LandingPageBuilder />} />
-                          <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
-                          <Route path="theme" element={<AdminTheme />} />
-                          <Route path="chat-assistant" element={<ChatAssistant />} />
-                          <Route path="aurora-insights" element={<AuroraInsights />} />
-                          <Route path="products" element={<AdminProducts />} />
-                          <Route path="affiliates" element={<AdminAffiliates />} />
-                          <Route path="offers" element={<AdminOffers />} />
-                        </Route>
-
-                        {/* Unified Panel routes */}
+                        {/* Admin Panel routes */}
                         <Route
                           path="/panel"
                           element={
-                            <RoleRoute allowedRoles={['admin', 'practitioner', 'affiliate']}>
-                              <UnifiedPanel />
+                            <RoleRoute allowedRoles={['admin']}>
+                              <AdminPanel />
                             </RoleRoute>
                           }
                         >
@@ -411,17 +378,42 @@ const App = () => (
                           <Route path="settings" element={<Settings />} />
                           <Route path="theme" element={<AdminTheme />} />
                           <Route path="landing-pages" element={<LandingPages />} />
-                          {/* Practitioner routes */}
-                          <Route path="my-clients" element={<MyClients />} />
-                          <Route path="my-services" element={<MyServices />} />
-                          <Route path="my-calendar" element={<MyCalendar />} />
-                          <Route path="my-earnings" element={<MyEarnings />} />
-                          <Route path="my-profile" element={<Settings />} />
-                          <Route path="my-products" element={<MyProducts />} />
-                          {/* Affiliate routes */}
-                          <Route path="my-links" element={<MyLinks />} />
-                          <Route path="my-referrals" element={<MyReferrals />} />
-                          <Route path="my-payouts" element={<MyPayouts />} />
+                          <Route path="landing-pages/new" element={<LandingPageBuilder />} />
+                          <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
+                        </Route>
+
+                        {/* Coach Panel routes */}
+                        <Route
+                          path="/coach"
+                          element={
+                            <RoleRoute allowedRoles={['practitioner']}>
+                              <CoachPanel />
+                            </RoleRoute>
+                          }
+                        >
+                          <Route index element={<CoachDashboard />} />
+                          <Route path="clients" element={<MyClients />} />
+                          <Route path="services" element={<MyServices />} />
+                          <Route path="calendar" element={<MyCalendar />} />
+                          <Route path="products" element={<MyProducts />} />
+                          <Route path="earnings" element={<MyEarnings />} />
+                          <Route path="profile" element={<Settings />} />
+                          <Route path="theme" element={<CoachTheme />} />
+                        </Route>
+
+                        {/* Affiliate Panel routes */}
+                        <Route
+                          path="/affiliate"
+                          element={
+                            <RoleRoute allowedRoles={['affiliate']}>
+                              <AffiliatePanel />
+                            </RoleRoute>
+                          }
+                        >
+                          <Route index element={<AffiliateDashboardPanel />} />
+                          <Route path="links" element={<MyLinks />} />
+                          <Route path="referrals" element={<MyReferrals />} />
+                          <Route path="payouts" element={<MyPayouts />} />
                         </Route>
 
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
