@@ -97,7 +97,7 @@ export default function FreeTransformationJourney() {
       </button>
 
       {/* Full-height flex container */}
-      <section className="relative z-10 flex flex-col h-full px-4 py-4">
+      <section className="relative z-10 flex flex-col h-full px-4 pt-14 pb-4">
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
         
