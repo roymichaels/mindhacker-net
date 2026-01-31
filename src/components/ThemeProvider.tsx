@@ -63,15 +63,18 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
+    // Brand colors (primary/secondary/accent) should come from Admin theme
+    // in BOTH light and dark modes.
+    applyThemeBrandToDOM(theme);
+
     if (resolvedTheme === "light") {
-      // Light mode: use CSS-defined values, clear DB overrides
+      // Light mode: keep the clean surface palette from CSS, clear any DB surface overrides
       clearThemeSurfaceOverrides();
-      clearThemeBrandOverrides();
-    } else {
-      // Dark mode: apply DB palette overrides (cyber aesthetic)
-      applyThemeBrandToDOM(theme);
-      applyThemeSurfaceToDOM(theme);
+      return;
     }
+
+    // Dark mode: apply DB surface palette overrides (cyber aesthetic)
+    applyThemeSurfaceToDOM(theme);
   }, [loading, resolvedTheme, theme]);
 
   return <>{children}</>;
