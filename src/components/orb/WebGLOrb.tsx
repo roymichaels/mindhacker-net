@@ -5,10 +5,13 @@ import { getEgoStateColors } from '@/lib/egoStates';
 import { ParticleSystem } from './OrbParticles';
 import { 
   COLOR_PALETTES, 
+  MORPHOLOGY_PROFILES,
+  getMorphology,
   hslToRgb, 
   GRADIENT_VERTEX_SHADER, 
   GRADIENT_FRAGMENT_SHADER,
-  type ColorPalette 
+  type ColorPalette,
+  type MorphologyProfile 
 } from '@/lib/orbVisualSystem';
 
 // Check WebGL support
@@ -189,7 +192,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return COLOR_PALETTES.explorer;
   }, [profile, themeColors]);
 
-  // Get profile-based parameters or defaults
+  // Get morphology profile based on palette
+  const activeMorphology = useMemo((): MorphologyProfile => {
+    return getMorphology(activePalette.id);
+  }, [activePalette.id]);
+
+  // Get profile-based parameters or defaults - ENHANCED with more particles
   const layerCount = profile?.layerCount ?? 3;
   const geometryDetail = profile?.geometryDetail ?? 5;
   const morphIntensity = profile?.morphIntensity ?? 0.18;
@@ -197,8 +205,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const fractalOctaves = profile?.fractalOctaves ?? 4;
   const coreIntensity = profile?.coreIntensity ?? 0.7;
   const coreSize = profile?.coreSize ?? 0.35;
-  const particleEnabled = profile?.particleEnabled ?? true;
-  const particleCount = profile?.particleCount ?? 30;
+  const particleEnabled = true; // Always enable particles
+  const particleCount = Math.max(50, profile?.particleCount ?? 50); // Minimum 50 particles
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
@@ -546,26 +554,60 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         const config = layerConfigs[index];
         if (!config) return;
 
-        // Organic rotation
-        const wobble = Math.sin(time * 0.7 + index) * 0.001;
-        mesh.rotation.x += config.rotationSpeed * rotMod + wobble;
-        mesh.rotation.y += config.rotationSpeed * 1.3 * rotMod + Math.cos(time * 0.5) * 0.001;
-        mesh.rotation.z += Math.sin(time * 0.3 + index * 0.5) * 0.0005;
+        // Morphology-based rotation
+        const rotAxis = activeMorphology.rotationAxis;
+        const wobbleAmount = rotAxis === 'wobble' ? Math.sin(time * 0.5 + index) * 0.003 : 0;
+        
+        if (rotAxis === 'y' || rotAxis === 'wobble') {
+          mesh.rotation.y += config.rotationSpeed * rotMod + wobbleAmount;
+        }
+        if (rotAxis === 'x' || rotAxis === 'diagonal') {
+          mesh.rotation.x += config.rotationSpeed * 0.8 * rotMod + wobbleAmount;
+        }
+        if (rotAxis === 'z' || rotAxis === 'diagonal') {
+          mesh.rotation.z += config.rotationSpeed * 0.6 * rotMod;
+        }
 
-        // Pulsating scale
-        const basePulse = Math.sin(time * pulseMod + index * 0.5) * 0.08;
-        const secondaryPulse = Math.sin(time * pulseMod * 2.3 + index) * 0.03;
+        // Morphology-based pulse pattern
+        let pulseValue = 0;
+        const pulseTime = time * pulseMod * activeMorphology.breathingRate;
+        
+        switch (activeMorphology.pulsePattern) {
+          case 'sine':
+            pulseValue = Math.sin(pulseTime + index * 0.5) * 0.08;
+            break;
+          case 'square':
+            pulseValue = (Math.sin(pulseTime + index * 0.5) > 0 ? 1 : -1) * 0.05;
+            break;
+          case 'triangle':
+            pulseValue = (Math.abs((pulseTime / Math.PI) % 2 - 1) - 0.5) * 0.12;
+            break;
+          case 'sawtooth':
+            pulseValue = ((pulseTime / Math.PI) % 1 - 0.5) * 0.1;
+            break;
+          case 'organic':
+          default:
+            pulseValue = Math.sin(pulseTime) * 0.06 + Math.sin(pulseTime * 1.7) * 0.03 + Math.sin(pulseTime * 0.4) * 0.04;
+            break;
+        }
+        
         const audioBoost = audioLevel * 0.35;
         const breathEffect = state === 'breathing' ? Math.sin(time * 0.5) * 0.1 : 0;
         
-        const targetScale = 1 + basePulse + secondaryPulse + audioBoost + breathEffect;
+        const targetScale = 1 + pulseValue + audioBoost + breathEffect;
         mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
 
-        // Vertex morphing with fractal noise
+        // Vertex morphing with GEOMETRIC SHAPE deformation based on morphology
         const positions = mesh.geometry.attributes.position;
         const basePositions = basePositionsRef.current.get(mesh);
         
         if (basePositions) {
+          const spikeCount = activeMorphology.spikeCount;
+          const spikeIntensity = activeMorphology.spikeIntensity;
+          const edgeSharpness = activeMorphology.edgeSharpness;
+          const noiseScale = activeMorphology.noiseScale;
+          const waveFreq = activeMorphology.waveFrequency;
+          
           for (let i = 0; i < positions.count; i++) {
             const idx = i * 3;
             const x = basePositions[idx];
@@ -573,23 +615,45 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
             const z = basePositions[idx + 2];
             
             const dist = Math.sqrt(x * x + y * y + z * z);
-            
-            const fractalNoise = fbm(
-              x * 2 + morphPhase + config.morphOffset,
-              y * 2 + morphPhase * 0.7 + config.morphOffset,
-              z * 2 + morphPhase * 1.3,
-              fractalOctaves
-            );
-            
-            const wavePhase = Math.sin(x * 3 + y * 2 + z * 4 + time * 2) * 0.03;
-            const radialPulse = Math.sin(dist * 8 - time * 3) * 0.02;
-            
-            const adjustedMorphIntensity = morphIntensity * morphMod;
-            const totalDeform = (fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse) * (1 + audioLevel * 0.5);
-            
             const nx = x / dist;
             const ny = y / dist;
             const nz = z / dist;
+            
+            // Geometric spike deformation based on morphology
+            let geometricDeform = 0;
+            
+            if (spikeCount > 0) {
+              // Create geometric spikes based on vertex angle
+              const phi = Math.atan2(ny, nx);
+              const theta = Math.acos(nz);
+              
+              // Spike pattern based on spikeCount (creates platonic solid-like shapes)
+              const spikePhase = morphPhase * 0.5;
+              const spikeFactor = Math.pow(
+                Math.abs(Math.sin(phi * spikeCount / 2 + spikePhase) * Math.sin(theta * spikeCount / 2 + spikePhase)),
+                edgeSharpness * 2
+              );
+              geometricDeform = spikeFactor * spikeIntensity * (1 + Math.sin(time * 2) * 0.3);
+            }
+            
+            // Fractal noise with morphology-specific scale
+            const fractalNoise = fbm(
+              x * noiseScale + morphPhase + config.morphOffset,
+              y * noiseScale + morphPhase * 0.7 + config.morphOffset,
+              z * noiseScale + morphPhase * 1.3,
+              activeMorphology.noiseOctaves
+            );
+            
+            // Wave deformation with morphology-specific frequency
+            const wavePhase = Math.sin(x * waveFreq + y * waveFreq * 0.7 + z * waveFreq * 1.2 + time * 2) * 0.03;
+            const radialPulse = Math.sin(dist * 8 - time * 3) * 0.02;
+            
+            // Combine all deformations
+            const adjustedMorphIntensity = morphIntensity * morphMod;
+            const organicDeform = (fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse);
+            
+            // Blend geometric and organic based on symmetry
+            const totalDeform = (geometricDeform * activeMorphology.symmetry + organicDeform * (1 - activeMorphology.symmetry * 0.5)) * (1 + audioLevel * 0.5);
             
             positions.setXYZ(
               i,
@@ -641,7 +705,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, coreIntensity]);
+  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, coreIntensity, activeMorphology]);
 
   // Resize handling
   useEffect(() => {

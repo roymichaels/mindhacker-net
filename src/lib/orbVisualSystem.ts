@@ -19,6 +19,113 @@ export interface ColorPalette {
   gradient: string[];   // For layered effects
 }
 
+// ============== MORPHOLOGY - GEOMETRIC SHAPES ==============
+// Each life approach creates distinct geometric pulsation patterns
+
+export interface MorphologyProfile {
+  // Shape deformation
+  edgeSharpness: number;    // 0=smooth organic, 1=sharp crystalline
+  spikeCount: number;       // Number of geometric spikes (0=sphere, 4=tetrahedron, 6=cube, 12=dodecahedron)
+  spikeIntensity: number;   // How pronounced the spikes are
+  symmetry: number;         // Symmetry level (higher = more geometric)
+  
+  // Animation pattern
+  pulsePattern: 'sine' | 'square' | 'triangle' | 'sawtooth' | 'organic';
+  rotationAxis: 'y' | 'x' | 'z' | 'diagonal' | 'wobble';
+  breathingRate: number;    // Speed of breathing animation
+  
+  // Fractal complexity
+  noiseScale: number;       // Scale of fractal noise
+  noiseOctaves: number;     // Complexity layers
+  waveFrequency: number;    // Wave deformation frequency
+}
+
+export const MORPHOLOGY_PROFILES: Record<string, MorphologyProfile> = {
+  // Tech - Crystalline Icosahedron (sharp, geometric, digital)
+  tech: {
+    edgeSharpness: 0.85,
+    spikeCount: 20,         // Icosahedron-like
+    spikeIntensity: 0.15,
+    symmetry: 0.95,
+    pulsePattern: 'square',
+    rotationAxis: 'y',
+    breathingRate: 1.2,
+    noiseScale: 2.5,
+    noiseOctaves: 3,
+    waveFrequency: 8,
+  },
+  
+  // Creative - Fluid Star (asymmetric, flowing, expressive)
+  creative: {
+    edgeSharpness: 0.4,
+    spikeCount: 7,          // Star-like
+    spikeIntensity: 0.25,
+    symmetry: 0.3,
+    pulsePattern: 'organic',
+    rotationAxis: 'wobble',
+    breathingRate: 0.9,
+    noiseScale: 1.8,
+    noiseOctaves: 5,
+    waveFrequency: 3,
+  },
+  
+  // Action - Octahedron (dynamic, angular, powerful)
+  action: {
+    edgeSharpness: 0.75,
+    spikeCount: 8,          // Octahedron
+    spikeIntensity: 0.3,
+    symmetry: 0.8,
+    pulsePattern: 'triangle',
+    rotationAxis: 'diagonal',
+    breathingRate: 1.5,
+    noiseScale: 2.0,
+    noiseOctaves: 2,
+    waveFrequency: 6,
+  },
+  
+  // Mystic - Ethereal Dodecahedron (flowing, mystical, complex)
+  mystic: {
+    edgeSharpness: 0.3,
+    spikeCount: 12,         // Dodecahedron
+    spikeIntensity: 0.12,
+    symmetry: 0.6,
+    pulsePattern: 'sine',
+    rotationAxis: 'x',
+    breathingRate: 0.6,
+    noiseScale: 1.2,
+    noiseOctaves: 6,
+    waveFrequency: 2,
+  },
+  
+  // Healing - Soft Sphere (smooth, organic, nurturing)
+  healing: {
+    edgeSharpness: 0.1,
+    spikeCount: 0,          // Pure sphere
+    spikeIntensity: 0.05,
+    symmetry: 0.9,
+    pulsePattern: 'sine',
+    rotationAxis: 'y',
+    breathingRate: 0.5,
+    noiseScale: 0.8,
+    noiseOctaves: 4,
+    waveFrequency: 1,
+  },
+  
+  // Explorer - Tetrahedron Burst (adventurous, multi-faceted)
+  explorer: {
+    edgeSharpness: 0.6,
+    spikeCount: 4,          // Tetrahedron base
+    spikeIntensity: 0.2,
+    symmetry: 0.7,
+    pulsePattern: 'sawtooth',
+    rotationAxis: 'wobble',
+    breathingRate: 1.0,
+    noiseScale: 1.5,
+    noiseOctaves: 4,
+    waveFrequency: 4,
+  },
+};
+
 export const COLOR_PALETTES: Record<string, ColorPalette> = {
   // טכנולוגיה - ציאן-כחול חשמלי
   tech: {
@@ -169,6 +276,9 @@ export interface OrbVisualProfile {
   palette: ColorPalette;
   secondaryPalette: ColorPalette | null;
   
+  // Morphology - geometric shape behavior
+  morphology: MorphologyProfile;
+  
   // Intensity based on level
   intensity: number;        // 0-1
   glowStrength: number;     // 0-1
@@ -194,6 +304,13 @@ export interface OrbVisualProfile {
   // Metadata
   dominantHobbyCategory: string;
   level: number;
+}
+
+/**
+ * Get morphology profile for a palette ID
+ */
+export function getMorphology(paletteId: string): MorphologyProfile {
+  return MORPHOLOGY_PROFILES[paletteId] || MORPHOLOGY_PROFILES.explorer;
 }
 
 // ============== CORE FUNCTIONS ==============
@@ -278,6 +395,7 @@ export function generateVisualProfile(
   const { primary, secondary } = hobbyToPalette(hobbies);
   const { intensity, glowStrength } = levelToIntensity(level);
   const complexity = levelToComplexity(level);
+  const morphology = getMorphology(primary.id);
   
   // Streak bonus
   const streakBonus = Math.min(streak, 30) / 30 * 0.15;
@@ -285,6 +403,7 @@ export function generateVisualProfile(
   return {
     palette: primary,
     secondaryPalette: secondary,
+    morphology,
     
     intensity: Math.min(1, intensity + streakBonus),
     glowStrength: Math.min(1, glowStrength + streakBonus * 0.5),
@@ -293,8 +412,8 @@ export function generateVisualProfile(
     geometryDetail: complexity.geometryDetail,
     fractalOctaves: complexity.fractalOctaves,
     
-    particleEnabled: complexity.particleCount > 0,
-    particleCount: complexity.particleCount,
+    particleEnabled: true, // Always enable particles
+    particleCount: Math.max(40, complexity.particleCount), // Minimum 40 particles
     
     coreSize: 0.25 + level * 0.012,
     coreIntensity: 0.6 + (level / 30) * 0.4,
