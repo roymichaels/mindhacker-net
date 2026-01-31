@@ -89,7 +89,46 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get auth header and verify user
+    // Parse request body
+    const body = await req.json().catch(() => ({}));
+    
+    // Check for guest mode
+    if (body.mode === 'guest' && body.guestData) {
+      console.log('Processing guest mode request');
+      
+      // Convert guest data to LaunchpadData format
+      const launchpadData: LaunchpadData = {
+        welcomeQuiz: body.guestData.welcomeQuiz || {},
+        personalProfile: body.guestData.personalProfile || {},
+        identityBuilding: { elements: [], traits: [], values: [], principles: [] },
+        growthDeepDive: body.guestData.personalProfile?.deep_dive?.answers || {},
+        firstChat: null,
+        firstChatTranscript: body.guestData.firstChatTranscript || null,
+        introspection: body.guestData.introspection || {},
+        lifePlan: body.guestData.lifePlan || {},
+        focusAreas: { plans: [], dailyMinimums: [], commitments: [] },
+        selectedFocusAreas: body.guestData.selectedFocusAreas || [],
+        firstWeek: { checklists: [], stepData: body.guestData.firstWeekActions || {} },
+        firstWeekActions: body.guestData.firstWeekActions || {},
+      };
+
+      // Generate AI summary and plan (no DB saves)
+      const { summary, plan, scores } = await generateAISummaryAndPlan(launchpadData, '');
+      console.log('Guest AI analysis complete');
+
+      // Return results directly without saving to DB
+      return new Response(JSON.stringify({
+        success: true,
+        mode: 'guest',
+        summary,
+        plan,
+        scores,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Regular authenticated flow
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {

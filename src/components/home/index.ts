@@ -17,6 +17,9 @@ export { default as JobShowcaseSection } from './JobShowcaseSection';
 export { default as FearOfMissingOutSection } from './FearOfMissingOutSection';
 export { default as FinalCTASection } from './FinalCTASection';
 
+// Free journey banner
+export { default as FreeJourneyBannerSection } from './FreeJourneyBannerSection';
+
 // Legacy exports
 export { default as ConsciousnessCoachingSection } from './ConsciousnessCoachingSection';
 export { default as NewHeroSection } from './NewHeroSection';
