@@ -16,9 +16,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "מיינד האקר - פלטפורמת אימון תודעתי",
-        short_name: "מיינד האקר",
-        description: "פלטפורמת האימון התודעתי המתקדמת - מאמן AI אישי, היפנוזה מותאמת וגיימיפיקציה",
+        name: "MindOS - מערכת ההפעלה לחיים שלך",
+        short_name: "MindOS",
+        description: "משחק החיים האמיתי. AI + היפנוזה + גיימיפיקציה = Level Up Your Life",
         theme_color: "#00f0ff",
         background_color: "#0a0a0f",
         display: "standalone",
