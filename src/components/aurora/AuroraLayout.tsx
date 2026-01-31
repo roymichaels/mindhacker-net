@@ -77,6 +77,7 @@ const AuroraLayout = () => {
     return (
       <LaunchpadFlow 
         onComplete={() => setShowLaunchpad(false)}
+        onClose={() => setShowLaunchpad(false)}
       />
     );
   }
