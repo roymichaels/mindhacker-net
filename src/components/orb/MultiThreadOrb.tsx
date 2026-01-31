@@ -1,16 +1,15 @@
 /**
- * MultiThreadOrb - Unified Liquid Mercury Alien Orb
+ * MultiThreadOrb - Wireframe Cyber Orb
  * 
- * A single unified SOLID 3D orb with:
- * - Full sphere (not half-moon cutoff)
- * - Liquid chrome/mercury iridescent material
- * - Beautiful organic flowing motion with strong deformation
- * - DNA-driven visual properties
+ * A retro-cyber wireframe 3D orb with:
+ * - Line-based rendering (no solid surfaces)
+ * - Organic morphing deformation
+ * - Inner geometric structures
+ * - DNA-driven color properties
  */
 
 import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbRef, OrbState } from './types';
 import type { MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
 import { DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
@@ -40,39 +39,15 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   return new THREE.Color(0x8844ff);
 }
 
-// Simplex-like noise for organic deformation
-function noise3D(x: number, y: number, z: number, seed: number = 0): number {
-  const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142];
-  const perm = [...p, ...p, ...p, ...p, ...p, ...p, ...p, ...p, ...p, ...p, ...p, ...p];
-  
-  x += seed * 0.1;
-  const X = Math.floor(x) & 255;
-  const Y = Math.floor(y) & 255;
-  const Z = Math.floor(z) & 255;
-  
-  x -= Math.floor(x);
-  y -= Math.floor(y);
-  z -= Math.floor(z);
-  
-  const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
-  const lerp = (t: number, a: number, b: number) => a + t * (b - a);
-  
-  const u = fade(x), v = fade(y), w = fade(z);
-  const A = perm[X] + Y, AA = perm[A] + Z, AB = perm[A + 1] + Z;
-  const B = perm[X + 1] + Y, BA = perm[B] + Z, BB = perm[B + 1] + Z;
-  
-  return lerp(w, lerp(v, lerp(u, perm[AA], perm[BA]), lerp(u, perm[AB], perm[BB])),
-    lerp(v, lerp(u, perm[AA + 1], perm[BA + 1]), lerp(u, perm[AB + 1], perm[BB + 1]))) / 255;
-}
-
-// Fractal Brownian Motion for organic surface
+// Fractal Brownian Motion for organic morphing
 function fbm(x: number, y: number, z: number, octaves: number = 4): number {
   let value = 0;
   let amplitude = 0.5;
   let frequency = 1;
   
   for (let i = 0; i < octaves; i++) {
-    value += amplitude * noise3D(x * frequency, y * frequency, z * frequency, i * 100);
+    const noise = Math.sin(x * frequency + i) * Math.cos(y * frequency + i * 0.7) * Math.sin(z * frequency + i * 1.3);
+    value += amplitude * noise;
     amplitude *= 0.5;
     frequency *= 2;
   }
@@ -96,13 +71,11 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const mainOrbRef = useRef<THREE.Mesh | null>(null);
-  const innerCoreRef = useRef<THREE.Mesh | null>(null);
+  const mainWireframeRef = useRef<THREE.LineSegments | null>(null);
+  const innerStructuresRef = useRef<THREE.LineSegments[]>([]);
   const basePositionsRef = useRef<Float32Array | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
-  const envRTRef = useRef<THREE.WebGLRenderTarget | null>(null);
-  const pmremRef = useRef<THREE.PMREMGenerator | null>(null);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
   const [internalAudioLevel, setInternalAudioLevel] = useState(0);
@@ -126,31 +99,14 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
   // Extract visual properties from profile
   const getVisualProperties = () => {
     const threads = activeProfile.threads;
-    const shape = activeProfile.shape;
     const motion = activeProfile.motionProfile;
     
-    // Primary color from first trait
     const primaryColor = threads[0] ? parseHslToThreeColor(threads[0].color) : new THREE.Color(0x8844ff);
-    
-    // Secondary color from hobbies or second trait
-    const hobbyThread = threads.find(t => t.source === 'hobby');
-    const secondaryColor = hobbyThread 
-      ? parseHslToThreeColor(hobbyThread.color) 
-      : threads[1] ? parseHslToThreeColor(threads[1].color) : new THREE.Color(0x00ffaa);
-    
-    // Accent color from strengths
-    const strengthThread = threads.find(t => t.source === 'strength');
-    const accentColor = strengthThread 
-      ? parseHslToThreeColor(strengthThread.color)
-      : new THREE.Color(0xff44aa);
+    const secondaryColor = threads[1] ? parseHslToThreeColor(threads[1].color) : new THREE.Color(0x00ffaa);
     
     return {
       primaryColor,
       secondaryColor,
-      accentColor,
-      organicFlow: shape.organicFlow,
-      edgeSharpness: shape.edgeSharpness,
-      complexity: shape.complexity,
       speed: motion.speed,
       pulseRate: motion.pulseRate,
       reactivity: motion.reactivity,
@@ -168,127 +124,80 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera - positioned to see the FULL sphere with proper near/far planes
+    // Camera
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
     camera.position.set(0, 0, 3.5);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer with high quality
+    // Renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
-      powerPreference: 'high-performance',
     });
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 2.0;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // === ENVIRONMENT MAP (critical for metallic/mercury look) ===
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    pmremRef.current = pmrem;
-    const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
-    envRTRef.current = envRT;
-    scene.environment = envRT.texture;
+    // Minimal lighting for wireframe
+    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+    scene.add(ambient);
 
-    // === LIGHTING - Rich and dramatic ===
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
-
-    // Hemisphere light for natural gradient
-    const hemiLight = new THREE.HemisphereLight(0xffffff, vis.primaryColor.getHex(), 0.8);
-    scene.add(hemiLight);
-
-    // Main key light - strong front
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
-    keyLight.position.set(2, 3, 5);
-    scene.add(keyLight);
-
-    // Fill light - colored, soft
-    const fillLight = new THREE.DirectionalLight(vis.secondaryColor.getHex(), 1.5);
-    fillLight.position.set(-4, 0, 2);
-    scene.add(fillLight);
-
-    // Rim light - dramatic back glow
-    const rimLight = new THREE.PointLight(vis.accentColor.getHex(), 4.0, 15);
-    rimLight.position.set(0, 0, -5);
-    scene.add(rimLight);
-
-    // Top highlight
-    const topLight = new THREE.PointLight(0xffffff, 2.5, 12);
-    topLight.position.set(0, 6, 4);
-    scene.add(topLight);
-
-    // Bottom accent
-    const bottomLight = new THREE.PointLight(vis.primaryColor.getHex(), 2.0, 10);
-    bottomLight.position.set(0, -5, 3);
-    scene.add(bottomLight);
-
-    // === UNIFIED MAIN ORB - Full solid sphere with complete geometry ===
-    // Higher resolution sphere for smooth liquid mercury look
-    const mainGeometry = new THREE.SphereGeometry(0.9, 128, 128);
-    const positions = mainGeometry.attributes.position.array as Float32Array;
-    basePositionsRef.current = positions.slice();
-
-    // Liquid chrome/mercury material - solid, highly reflective
-    const mainMaterial = new THREE.MeshPhysicalMaterial({
+    // ===== WIREFRAME LINE MATERIAL =====
+    const lineMaterial = new THREE.LineBasicMaterial({
       color: vis.primaryColor,
-      emissive: vis.primaryColor.clone().multiplyScalar(0.3),
-      emissiveIntensity: 0.8,
-      roughness: 0.02, // Super smooth like liquid chrome
-      metalness: 1.0, // Fully metallic
-      clearcoat: 1.0, // Glass-like layer on top
-      clearcoatRoughness: 0.03,
-      reflectivity: 1.0,
-      sheen: 1.0,
-      sheenColor: vis.secondaryColor,
-      sheenRoughness: 0.15,
-      envMapIntensity: 2.5, // Strong environment reflections
-      specularIntensity: 1.0,
-      specularColor: vis.secondaryColor,
-      iridescence: 0.3,
-      iridescenceIOR: 1.5,
-      side: THREE.DoubleSide, // Render both sides for full solid sphere
-      depthWrite: true,
-    });
-
-    const mainOrb = new THREE.Mesh(mainGeometry, mainMaterial);
-    mainOrb.frustumCulled = false; // Prevent clipping when orb deforms
-    scene.add(mainOrb);
-    mainOrbRef.current = mainOrb;
-
-    // === INNER GLOWING CORE - Adds depth and life ===
-    const coreGeometry = new THREE.SphereGeometry(0.6, 64, 64);
-    const coreMaterial = new THREE.MeshBasicMaterial({
-      color: vis.primaryColor.clone().multiplyScalar(2.5),
       transparent: true,
-      opacity: 0.25, // Increased opacity for more visible depth
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide, // Also double-sided for consistency
+      opacity: 0.9,
     });
-    const coreOrb = new THREE.Mesh(coreGeometry, coreMaterial);
-    coreOrb.frustumCulled = false;
-    mainOrb.add(coreOrb);
-    innerCoreRef.current = coreOrb;
+
+    // ===== MAIN WIREFRAME SPHERE =====
+    const sphereGeo = new THREE.IcosahedronGeometry(0.85, 4);
+    const sphereEdges = new THREE.WireframeGeometry(sphereGeo);
+    const mainWireframe = new THREE.LineSegments(sphereEdges, lineMaterial.clone());
+    scene.add(mainWireframe);
+    mainWireframeRef.current = mainWireframe;
+
+    // Store base positions for morphing
+    basePositionsRef.current = sphereGeo.attributes.position.array.slice() as Float32Array;
+
+    // ===== INNER GEOMETRIC STRUCTURES =====
+    const innerStructures: THREE.LineSegments[] = [];
+
+    // Icosahedron
+    const icosaGeo = new THREE.IcosahedronGeometry(0.4, 1);
+    const icosaEdges = new THREE.WireframeGeometry(icosaGeo);
+    const icosaWireframe = new THREE.LineSegments(icosaEdges, lineMaterial.clone());
+    scene.add(icosaWireframe);
+    innerStructures.push(icosaWireframe);
+
+    // Octahedron
+    const octaGeo = new THREE.OctahedronGeometry(0.25, 0);
+    const octaEdges = new THREE.WireframeGeometry(octaGeo);
+    const octaWireframe = new THREE.LineSegments(octaEdges, lineMaterial.clone());
+    scene.add(octaWireframe);
+    innerStructures.push(octaWireframe);
+
+    innerStructuresRef.current = innerStructures;
+
+    // Cleanup geometries
+    sphereGeo.dispose();
+    icosaGeo.dispose();
+    octaGeo.dispose();
 
     onReady?.();
 
     // Cleanup
     return () => {
       cancelAnimationFrame(frameRef.current);
-      if (envRTRef.current) envRTRef.current.dispose();
-      if (pmremRef.current) pmremRef.current.dispose();
       renderer.dispose();
-      mainGeometry.dispose();
-      mainMaterial.dispose();
-      coreGeometry.dispose();
-      coreMaterial.dispose();
+      mainWireframe.geometry.dispose();
+      (mainWireframe.material as THREE.Material).dispose();
+      innerStructures.forEach(s => {
+        s.geometry.dispose();
+        (s.material as THREE.Material).dispose();
+      });
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -299,157 +208,108 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
   useEffect(() => {
     const vis = getVisualProperties();
 
-    if (mainOrbRef.current) {
-      const material = mainOrbRef.current.material as THREE.MeshPhysicalMaterial;
-      material.color = vis.primaryColor;
-      material.emissive = vis.primaryColor.clone().multiplyScalar(0.3);
-      material.sheenColor = vis.secondaryColor;
-      material.specularColor = vis.secondaryColor;
+    if (mainWireframeRef.current) {
+      (mainWireframeRef.current.material as THREE.LineBasicMaterial).color = vis.primaryColor;
     }
 
-    if (innerCoreRef.current) {
-      const material = innerCoreRef.current.material as THREE.MeshBasicMaterial;
-      material.color = vis.primaryColor.clone().multiplyScalar(2.5);
-    }
-  }, [activeProfile.threads, activeProfile.coreGlow]);
+    innerStructuresRef.current.forEach(structure => {
+      (structure.material as THREE.LineBasicMaterial).color = vis.primaryColor;
+    });
+  }, [activeProfile.threads]);
 
-  // Animation loop - smooth, organic, mesmerizing
+  // Animation loop
   useEffect(() => {
-    if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !mainOrbRef.current) return;
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !mainWireframeRef.current) return;
 
     const renderer = rendererRef.current;
     const scene = sceneRef.current;
     const camera = cameraRef.current;
-    const mainOrb = mainOrbRef.current;
+    const mainWireframe = mainWireframeRef.current;
+    const innerStructures = innerStructuresRef.current;
     const basePositions = basePositionsRef.current;
     
     const vis = getVisualProperties();
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
-      timeRef.current += 0.012 * vis.speed;
+      timeRef.current += 0.01 * vis.speed;
 
       const time = timeRef.current;
 
-      // State modifiers for different behaviors
+      // State modifiers
       const stateModifier = {
-        idle: { rotMod: 1, morphMod: 1, pulseMod: 1, breathMod: 1 },
-        listening: { rotMod: 1.3, morphMod: 1.5, pulseMod: 1.5, breathMod: 1.3 },
-        speaking: { rotMod: 2.0, morphMod: 2.0, pulseMod: 2.5, breathMod: 1.8 },
-        thinking: { rotMod: 2.5, morphMod: 1.8, pulseMod: 2.0, breathMod: 1.5 },
-        session: { rotMod: 1.3, morphMod: 1.4, pulseMod: 1.3, breathMod: 1.2 },
-        breathing: { rotMod: 0.5, morphMod: 1.8, pulseMod: 0.6, breathMod: 2.5 },
+        idle: { rotMod: 1, morphMod: 1, pulseMod: 1 },
+        listening: { rotMod: 1.5, morphMod: 1.5, pulseMod: 1.5 },
+        speaking: { rotMod: 2.0, morphMod: 2.0, pulseMod: 2.0 },
+        thinking: { rotMod: 2.5, morphMod: 1.8, pulseMod: 1.8 },
+        session: { rotMod: 1.3, morphMod: 1.4, pulseMod: 1.3 },
+        breathing: { rotMod: 0.5, morphMod: 1.5, pulseMod: 0.6 },
       }[state];
 
-      const { rotMod, morphMod, pulseMod, breathMod } = stateModifier;
+      const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // === SMOOTH ROTATION - Elegant slow tumble ===
-      mainOrb.rotation.y += 0.004 * rotMod;
-      mainOrb.rotation.x += 0.002 * rotMod;
-      mainOrb.rotation.z = Math.sin(time * 0.25) * 0.08;
+      // Rotate main wireframe
+      mainWireframe.rotation.y += 0.003 * rotMod;
+      mainWireframe.rotation.x += 0.001 * rotMod;
 
-      // === BREATHING SCALE - Natural pulsation ===
-      const breathe = Math.sin(time * vis.pulseRate * pulseMod) * 0.04 * breathMod;
-      const breathe2 = Math.sin(time * vis.pulseRate * 1.8 * pulseMod) * 0.02;
-      const breathe3 = Math.sin(time * vis.pulseRate * 2.7 * pulseMod) * 0.01;
-      const audioBoost = audioLevel * vis.reactivity * 0.15;
-      const targetScale = 1 + breathe + breathe2 + breathe3 + audioBoost;
-      mainOrb.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-
-      // === STRONG ORGANIC VERTEX MORPHING - Liquid flow effect ===
+      // Morph main wireframe vertices
       if (basePositions) {
-        const positions = mainOrb.geometry.attributes.position;
-        const morphIntensity = vis.organicFlow * 0.08 * morphMod; // Controlled deformation to prevent clipping
-        const octaves = Math.max(2, Math.min(4, Math.floor(vis.complexity)));
-
+        const positions = mainWireframe.geometry.attributes.position;
+        
         for (let i = 0; i < positions.count; i++) {
           const idx = i * 3;
-          const x = basePositions[idx];
-          const y = basePositions[idx + 1];
-          const z = basePositions[idx + 2];
+          const baseX = basePositions[idx];
+          const baseY = basePositions[idx + 1];
+          const baseZ = basePositions[idx + 2];
           
-          const dist = Math.sqrt(x * x + y * y + z * z);
-          if (!Number.isFinite(dist) || dist === 0) {
-            positions.setXYZ(i, x, y, z);
-            continue;
-          }
+          const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
+          if (dist === 0) continue;
           
-          // Multi-layer organic noise for flowing liquid effect
-          const noise1 = fbm(x * 1.8 + time * 0.25, y * 1.8 + time * 0.18, z * 1.8 + time * 0.3, octaves);
-          const noise2 = fbm(x * 3.5 - time * 0.12, y * 3.5 + time * 0.1, z * 3.5 - time * 0.15, 2) * 0.4;
+          const nx = baseX / dist;
+          const ny = baseY / dist;
+          const nz = baseZ / dist;
           
-          // Stronger wave patterns
-          const wave = Math.sin(x * 3.5 + time * 2) * Math.cos(y * 3 + time * 1.2) * 0.012;
-          const wave2 = Math.sin(z * 4.5 + time * 2.5) * Math.sin(x * 3.5 - time * 1.5) * 0.008;
+          // Organic deformation
+          const noiseVal = fbm(nx * 2 + time * 0.5, ny * 2 + time * 0.3, nz * 2 + time * 0.7, 3);
+          const waveDistort = Math.sin(ny * 4 + time * 2) * Math.cos(nx * 3 + time * 1.5) * 0.06;
+          const pulse = Math.sin(time * pulseMod + dist * 3) * 0.03;
+          const audioBoost = audioLevel * 0.15;
           
-          const totalNoise = (noise1 - 0.5 + noise2) * morphIntensity + wave + wave2;
-          const audioMorph = audioLevel * 0.04 * Math.sin(x * 10 + time * 5);
-          const deform = totalNoise + audioMorph;
-          
-          const nx = x / dist;
-          const ny = y / dist;
-          const nz = z / dist;
+          const deform = (noiseVal * 0.12 * morphMod + waveDistort + pulse + audioBoost) * 0.8;
           
           positions.setXYZ(
             i,
-            x + nx * deform,
-            y + ny * deform,
-            z + nz * deform
+            baseX + nx * deform,
+            baseY + ny * deform,
+            baseZ + nz * deform
           );
         }
+        
         positions.needsUpdate = true;
-        mainOrb.geometry.computeVertexNormals();
       }
 
-      // === MATERIAL ANIMATION - Iridescent color shifting ===
-      const material = mainOrb.material as THREE.MeshPhysicalMaterial;
+      // Animate inner structures
+      if (innerStructures[0]) {
+        innerStructures[0].rotation.y += 0.005 * rotMod;
+        innerStructures[0].rotation.x -= 0.003 * rotMod;
+        const scale = 1 + Math.sin(time * 1.5) * 0.08 + audioLevel * 0.1;
+        innerStructures[0].scale.setScalar(scale);
+      }
       
-      // Pulsing emissive intensity
-      const emissivePulse = 0.7 + Math.sin(time * 2.5) * 0.35 + audioLevel * 0.35;
-      material.emissiveIntensity = emissivePulse;
-      
-      // Subtle hue shift for iridescence
-      const baseHSL = { h: 0, s: 0, l: 0 };
-      material.color.getHSL(baseHSL);
-      const hueShift = Math.sin(time * 0.35) * 0.04;
-      material.emissive.setHSL((baseHSL.h + hueShift + 1) % 1, 0.85, 0.3);
-      
-      // Animate clearcoat for living surface
-      material.clearcoatRoughness = 0.02 + Math.sin(time * 1.8) * 0.015;
-      
-      // Animate sheen
-      material.sheenRoughness = 0.12 + Math.sin(time * 1.0) * 0.08;
-      
-      // Animate iridescence
-      material.iridescence = 0.25 + Math.sin(time * 0.8) * 0.15;
-
-      // === INNER CORE ANIMATION ===
-      if (innerCoreRef.current) {
-        const core = innerCoreRef.current;
-        const coreMat = core.material as THREE.MeshBasicMaterial;
-        
-        // Pulsing glow
-        const corePulse = 0.12 + Math.sin(time * 3.5) * 0.08 + audioLevel * 0.1;
-        coreMat.opacity = Math.min(0.25, corePulse);
-        
-        // Subtle scale pulse
-        const coreScale = 1 + Math.sin(time * 3) * 0.15;
-        core.scale.set(coreScale, coreScale, coreScale);
-        
-        // Counter-rotate for depth effect
-        core.rotation.y -= 0.006 * rotMod;
-        core.rotation.x += 0.004 * rotMod;
+      if (innerStructures[1]) {
+        innerStructures[1].rotation.y -= 0.006 * rotMod;
+        innerStructures[1].rotation.z += 0.004 * rotMod;
+        const scale = 1 + Math.sin(time * 2 + 1) * 0.1 + audioLevel * 0.1;
+        innerStructures[1].scale.setScalar(scale);
       }
 
-      // === CAMERA MOVEMENT - Stable distance to prevent clipping ===
+      // Camera
       if (isTunnel) {
-        camera.position.z = 3.3 + Math.sin(time * 0.5) * 0.2;
-        mainOrb.rotation.z += 0.008;
+        camera.position.z = 3.0 + Math.sin(time * 0.5) * 0.3;
+        mainWireframe.rotation.z += 0.01;
       } else {
-        // Subtle camera breathing - keep stable distance
-        camera.position.z = 3.5 + Math.sin(time * 0.18) * 0.03;
+        camera.position.z = 3.5;
       }
-      camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
     };
@@ -478,9 +338,6 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
         minHeight: size,
         background: 'transparent',
         overflow: 'visible',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     />
   );
