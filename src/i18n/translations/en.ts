@@ -70,6 +70,7 @@ export const en: TranslationKeys = {
     brandName: "Mind Hacker",
     navigationMenu: "Navigation Menu",
     adminPanel: "Admin Panel",
+    practitionerPanel: "Coach Panel",
     myDashboard: "My Dashboard",
     notifications: "Notifications",
     startChangeNow: "Start Change Now",
