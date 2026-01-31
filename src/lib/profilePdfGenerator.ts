@@ -91,7 +91,7 @@ const addSectionTitle = (doc: jsPDF, title: string, y: number, isRTL: boolean) =
 // Add bullet list
 const addBulletList = (
   doc: jsPDF, 
-  items: string[], 
+  items: string[] | string | undefined | null, 
   startY: number, 
   isRTL: boolean,
   maxWidth: number = 170
@@ -99,7 +99,13 @@ const addBulletList = (
   let y = startY;
   const bullet = isRTL ? '•' : '•';
   
-  items.forEach((item) => {
+  // Handle non-array inputs gracefully
+  if (!items) return y;
+  const itemsArray = Array.isArray(items) ? items : [items];
+  
+  itemsArray.forEach((item) => {
+    if (!item || typeof item !== 'string') return;
+    
     const bulletX = isRTL ? 190 : 20;
     const textX = isRTL ? 185 : 25;
     

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { getEgoState, type EgoState } from '@/lib/egoStates';
 
 interface LaunchpadSummary {
   consciousness_analysis?: {
@@ -11,12 +10,15 @@ interface LaunchpadSummary {
     blind_spots?: string[];
   };
   identity_profile?: {
-    suggested_ego_state?: string;
+    identity_title?: string;
     core_values?: string[];
   };
   behavioral_insights?: {
     dominant_patterns?: string[];
     growth_areas?: string[];
+  };
+  life_direction?: {
+    central_aspiration?: string;
   };
 }
 
@@ -29,8 +31,6 @@ interface LifePlanMilestone {
 }
 
 interface DailyHypnosisContext {
-  egoState: EgoState | null;
-  egoStateId: string;
   currentMilestone: LifePlanMilestone | null;
   launchpadSummary: LaunchpadSummary | null;
   suggestedGoal: string;
@@ -39,7 +39,6 @@ interface DailyHypnosisContext {
 
 export function useDailyHypnosis(): DailyHypnosisContext {
   const { user } = useAuth();
-  const [egoStateId, setEgoStateId] = useState<string>('guardian');
   const [currentMilestone, setCurrentMilestone] = useState<LifePlanMilestone | null>(null);
   const [launchpadSummary, setLaunchpadSummary] = useState<LaunchpadSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,14 +51,7 @@ export function useDailyHypnosis(): DailyHypnosisContext {
 
     const fetchData = async () => {
       try {
-        // Fetch profile for active_ego_state
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('active_ego_state')
-          .eq('id', user.id)
-          .single();
-
-        // Fetch launchpad summary
+        // Fetch launchpad summary for personalization context
         const { data: summary } = await supabase
           .from('launchpad_summaries')
           .select('summary_data')
@@ -94,12 +86,7 @@ export function useDailyHypnosis(): DailyHypnosisContext {
           }
         }
 
-        // Determine ego state
         const summaryData = summary?.summary_data as LaunchpadSummary | null;
-        const suggestedEgoState = summaryData?.identity_profile?.suggested_ego_state;
-        const activeEgoState = profile?.active_ego_state || suggestedEgoState || 'guardian';
-
-        setEgoStateId(activeEgoState);
         setCurrentMilestone(milestone);
         setLaunchpadSummary(summaryData);
       } catch (error) {
@@ -112,41 +99,33 @@ export function useDailyHypnosis(): DailyHypnosisContext {
     fetchData();
   }, [user?.id]);
 
-  // Generate suggested goal based on context
+  // Generate suggested goal based on context (profile-based, not ego state)
   const generateSuggestedGoal = (): string => {
+    // Priority 1: Current milestone from 90-day plan
     if (currentMilestone?.title) {
       return currentMilestone.title;
     }
 
+    // Priority 2: Central aspiration from life direction
+    if (launchpadSummary?.life_direction?.central_aspiration) {
+      return launchpadSummary.life_direction.central_aspiration;
+    }
+
+    // Priority 3: First growth area
+    if (launchpadSummary?.behavioral_insights?.growth_areas?.[0]) {
+      return launchpadSummary.behavioral_insights.growth_areas[0];
+    }
+
+    // Priority 4: Current consciousness state
     if (launchpadSummary?.consciousness_analysis?.current_state) {
       return launchpadSummary.consciousness_analysis.current_state;
     }
 
-    // Fallback based on ego state
-    const egoGoals: Record<string, string> = {
-      guardian: 'חיזוק תחושת הביטחון הפנימי',
-      healer: 'טיפוח אהבה עצמית וריפוי רגשי',
-      mystic: 'חיבור לחוכמה פנימית עמוקה',
-      visionary: 'בהירות חזון והגשמת מטרות',
-      warrior: 'אומץ ונחישות לפעולה',
-      rebel: 'שחרור מוגבלות והתעוררות אותנטית',
-      creator: 'פתיחת הפוטנציאל היצירתי',
-      sage: 'בהירות מחשבתית ותובנות',
-      lover: 'פתיחת הלב וחיבור עמוק',
-      innocent: 'שמחה ורעננות פנימית',
-      explorer: 'גילוי אופקים חדשים',
-      jester: 'קלילות ושחרור',
-      ruler: 'שליטה עצמית ומנהיגות',
-    };
-
-    return egoGoals[egoStateId] || 'התפתחות אישית והתעלות';
+    // Fallback
+    return 'התפתחות אישית והתעלות';
   };
 
-  const egoState = getEgoState(egoStateId);
-
   return {
-    egoState,
-    egoStateId,
     currentMilestone,
     launchpadSummary,
     suggestedGoal: generateSuggestedGoal(),

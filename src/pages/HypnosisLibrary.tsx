@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Clock, Sparkles, Zap, Star, Target } from 'lucide-react';
+import { Play, Clock, Sparkles, Zap, Star, Target, Lock, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { RecentSessions, SessionStats } from '@/components/hypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { cn } from '@/lib/utils';
 
@@ -21,12 +22,42 @@ const HypnosisLibrary = () => {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const { impact } = useHaptics();
-  const { egoState, egoStateId, currentMilestone, suggestedGoal, isLoading } = useDailyHypnosis();
+  const { currentMilestone, suggestedGoal, isLoading: isLoadingHypnosis } = useDailyHypnosis();
+  const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
+
+  // Gate: redirect to launchpad if not complete
+  if (!isLoadingLaunchpad && !isLaunchpadComplete) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4" dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+            <Lock className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold mb-3">
+            {language === 'he' ? 'סשנים מותאמים אישית' : 'Personalized Sessions'}
+          </h1>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            {language === 'he' 
+              ? 'כדי ליצור סשנים מותאמים אישית בדיוק לפי הפרופיל שלך, עליך להשלים את מסע הטרנספורמציה תחילה.'
+              : 'To create sessions tailored specifically to your profile, complete the Transformation Journey first.'
+            }
+          </p>
+          <Button 
+            size="lg" 
+            onClick={() => navigate('/launchpad')}
+            className="gap-2"
+          >
+            <Rocket className="w-5 h-5" />
+            {language === 'he' ? 'התחל את המסע' : 'Start the Journey'}
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const handleStartSession = (preset?: string, duration?: number) => {
     impact('medium');
     const params = new URLSearchParams();
-    params.set('ego', egoStateId);
     if (preset) params.set('preset', preset);
     if (duration) params.set('duration', duration.toString());
     navigate(`/hypnosis/session?${params.toString()}`);
@@ -35,7 +66,6 @@ const HypnosisLibrary = () => {
   const handleStartDailySession = () => {
     impact('medium');
     const params = new URLSearchParams();
-    params.set('ego', egoStateId);
     params.set('duration', '15');
     params.set('goal', suggestedGoal);
     params.set('daily', 'true');
@@ -45,18 +75,15 @@ const HypnosisLibrary = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 sm:space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Page Header with Archetype Display */}
+        {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">
               {language === 'he' ? 'סשנים' : 'Sessions'}
             </h1>
-            {egoState && (
-              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                <span className="text-lg">{egoState.icon}</span>
-                {language === 'he' ? egoState.nameHe : egoState.name}
-              </p>
-            )}
+            <p className="text-sm text-muted-foreground mt-1">
+              {language === 'he' ? 'סשנים מותאמים אישית לפי הפרופיל שלך' : 'Sessions personalized to your profile'}
+            </p>
           </div>
         </div>
 
@@ -74,7 +101,7 @@ const HypnosisLibrary = () => {
             className={cn(
               "relative overflow-hidden rounded-2xl p-5 sm:p-6 cursor-pointer",
               "bg-gradient-to-br active:brightness-95 transition-all",
-              egoState?.colors.gradient || 'from-primary to-primary/80'
+              "from-primary to-primary/80"
             )}
             onClick={handleStartDailySession}
           >
@@ -89,7 +116,7 @@ const HypnosisLibrary = () => {
             
             <div className="relative z-10 text-white">
               <div className="flex items-center gap-2 mb-2 mt-6">
-                <span className="text-2xl sm:text-3xl">{egoState?.icon || '✨'}</span>
+                <span className="text-2xl sm:text-3xl">✨</span>
                 <div className="flex items-center gap-1.5 text-xs sm:text-sm opacity-80">
                   <Clock className="w-3.5 h-3.5" />
                   15 {language === 'he' ? 'דקות' : 'minutes'}

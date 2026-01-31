@@ -34,20 +34,13 @@ const SEGMENT_STRUCTURE = [
   { id: 'emergence', percent: 5, mood: 'energizing' },
 ];
 
-const EGO_STATE_PROMPTS: Record<string, string> = {
-  guardian: 'Focus on building inner strength, protection, and secure boundaries. Use metaphors of shields, fortresses, and protective light.',
-  rebel: 'Focus on breaking free from limitations, embracing authenticity, and finding personal power. Use metaphors of breaking chains, fire, and liberation.',
-  healer: 'Focus on self-compassion, emotional healing, and nurturing the inner self. Use metaphors of healing waters, gentle light, and growing gardens.',
-  explorer: 'Focus on curiosity, discovery, and expanding horizons. Use metaphors of journeys, maps, and undiscovered territories.',
-  mystic: 'Focus on connecting to deeper wisdom, intuition, and spiritual insight. Use metaphors of stars, cosmic connection, and ancient knowledge.',
-  creator: 'Focus on imagination, creative potential, and manifesting vision. Use metaphors of blank canvases, clay, and infinite possibilities.',
-  sage: 'Focus on wisdom, clarity, and understanding. Use metaphors of clear skies, mountain peaks, and illuminating light.',
-  lover: 'Focus on connection, self-love, and opening the heart. Use metaphors of warmth, embrace, and blooming flowers.',
-  warrior: 'Focus on courage, determination, and taking action. Use metaphors of paths, strength, and overcoming obstacles.',
-  innocent: 'Focus on wonder, trust, and seeing fresh perspectives. Use metaphors of sunrise, dewdrops, and playful exploration.',
-  jester: 'Focus on lightness, joy, and releasing heavy patterns. Use metaphors of laughter, dancing, and colorful celebrations.',
-  ruler: 'Focus on self-mastery, order, and taking charge of life. Use metaphors of thrones, kingdoms, and commanding presence.',
-  visionary: 'Focus on future vision, clarity of purpose, and manifesting dreams. Use metaphors of horizons, light paths, and blueprints.',
+// Session themes based on preset goals (no longer ego state based)
+const SESSION_THEMES: Record<string, string> = {
+  calm: 'Focus on deep relaxation, letting go of tension, and finding inner peace. Use metaphors of gentle waters, soft clouds, and peaceful gardens.',
+  focus: 'Focus on mental clarity, concentration, and sharpening attention. Use metaphors of laser beams, clear skies, and focused energy.',
+  energy: 'Focus on vitality, motivation, and inner power. Use metaphors of rising sun, fire, and unstoppable momentum.',
+  sleep: 'Focus on deep rest, surrendering to relaxation, and transitioning to peaceful sleep. Use metaphors of drifting clouds, soft blankets, and gentle night.',
+  personalized: 'Create a deeply personalized experience based on the user\'s profile, values, goals, and current life situation. Use metaphors that resonate with their journey.',
 };
 
 serve(async (req) => {
@@ -224,8 +217,10 @@ serve(async (req) => {
 
     const wordsPerMinute = 130;
     const totalWords = durationMinutes * wordsPerMinute;
-    const egoStateContext = EGO_STATE_PROMPTS[egoState] || EGO_STATE_PROMPTS.guardian;
-
+    
+    // Determine session theme based on preset or personalized
+    const presetTheme = SESSION_THEMES[egoState] || SESSION_THEMES.personalized;
+    const sessionThemeContext = presetTheme;
     // Build gender-specific Hebrew grammar instruction
     let hebrewGrammarInstruction = '';
     if (userGender === 'male') {
@@ -262,8 +257,8 @@ Your scripts are warm, flowing, and deeply relaxing.
 You use Ericksonian techniques, embedded commands, and metaphorical language.
 ${languageInstruction}
 
-ARCHETYPE ENERGY:
-${egoStateContext}
+SESSION THEME:
+${sessionThemeContext}
 
 USER EXPERIENCE:
 ${experienceContext}
@@ -288,7 +283,7 @@ Mark each segment clearly with [SEGMENT_NAME] at the start.`;
 
     const userPrompt = `Create a ${durationMinutes}-minute hypnosis script for:
 Goal: ${goal}
-Archetype: ${egoState}
+Session Type: Personalized based on user's complete profile
 User Level: ${userLevel}
 
 Remember to mark each segment with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WORK], [INTEGRATION], [EMERGENCE].`;

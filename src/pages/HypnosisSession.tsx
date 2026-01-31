@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, X, ChevronDown, Wind, Loader2, Sparkles } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, X, ChevronDown, Wind, Loader2, Sparkles, Lock, Rocket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { Orb } from '@/components/orb';
 import { BreathingGuide } from '@/components/hypnosis';
-import { getEgoState } from '@/lib/egoStates';
 import { 
   generateHypnosisScript, 
   type HypnosisScript,
@@ -52,15 +52,13 @@ const HypnosisSession = () => {
   const { t, isRTL, language } = useTranslation();
   const { user } = useAuth();
   const { gameState, recordSession } = useGameState();
+  const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern, heartbeat } = useHaptics();
 
-  const egoStateId = searchParams.get('ego') || gameState?.activeEgoState || 'guardian';
   const presetId = searchParams.get('preset');
   const presetDuration = searchParams.get('duration');
   const urlGoal = searchParams.get('goal');
   const isDailySession = searchParams.get('daily') === 'true';
-
-  const egoState = getEgoState(egoStateId);
 
   const [state, setState] = useState<SessionState>('setup');
   const [goal, setGoal] = useState(urlGoal || '');
@@ -132,9 +130,9 @@ const HypnosisSession = () => {
     hapticPattern('selection');
 
     try {
-      // Generate cache key
+      // Generate cache key (without ego state)
       const cacheKey = generateCacheKey({
-        egoState: egoStateId,
+        egoState: 'personalized', // Use fixed key since personalization is from profile
         goal,
         durationMinutes: duration,
         language: language as 'he' | 'en',
@@ -172,10 +170,10 @@ const HypnosisSession = () => {
         }
       }
 
-      // No cache - generate new script
-      console.log('🆕 Generating new script...');
+      // No cache - generate new script (without ego state)
+      console.log('🆕 Generating new personalized script...');
       const generatedScript = await generateHypnosisScript({
-        egoState: egoStateId,
+        egoState: 'personalized', // Personalization comes from full profile on backend
         goal,
         durationMinutes: duration,
         userLevel: gameState?.level || 1,
@@ -192,7 +190,7 @@ const HypnosisSession = () => {
       // Save to cache
       if (user?.id) {
         await saveScriptToCache(user.id, cacheKey, generatedScript, {
-          egoState: egoStateId,
+          egoState: 'personalized',
           goal,
           durationMinutes: duration,
           language: language as 'he' | 'en',
@@ -412,7 +410,7 @@ const HypnosisSession = () => {
     if (user?.id) {
       // Save session to hypnosis_sessions
       await saveSession(user.id, {
-        egoState: egoStateId,
+        egoState: 'personalized',
         action: goal,
         durationSeconds: sessionDuration,
         experienceGained: xpGained,
@@ -421,14 +419,14 @@ const HypnosisSession = () => {
 
       // Record session in game state
       await recordSession({
-        egoState: egoStateId,
+        egoState: 'personalized',
         durationSeconds: sessionDuration,
         action: goal,
         experienceGained: xpGained,
       });
 
       // Award XP through unified system
-      await awardXp(user.id, xpGained, 'hypnosis', `${egoStateId} session: ${goal}`);
+      await awardXp(user.id, xpGained, 'hypnosis', `personalized session: ${goal}`);
 
       // Feed session insights to Aurora Life Model (for significant sessions)
       if (sessionDuration >= 300) { // 5+ minute sessions
@@ -436,7 +434,7 @@ const HypnosisSession = () => {
           await supabase.from('aurora_energy_patterns').insert({
             user_id: user.id,
             pattern_type: 'hypnosis_session',
-            description: `${Math.round(sessionDuration / 60)} min ${language === 'he' ? egoState.nameHe : egoState.name} session: "${goal}"`,
+            description: `${Math.round(sessionDuration / 60)} min personalized session: "${goal}"`,
           });
         } catch (e) {
           console.warn('Failed to log session to Aurora:', e);
@@ -483,12 +481,40 @@ const HypnosisSession = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Gate: block access if launchpad not complete
+  if (!isLoadingLaunchpad && !isLaunchpadComplete) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-white px-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-6">
+          <Lock className="w-10 h-10" />
+        </div>
+        <h1 className="text-2xl font-bold mb-3 text-center">
+          {language === 'he' ? 'סשנים מותאמים אישית' : 'Personalized Sessions'}
+        </h1>
+        <p className="text-white/80 mb-6 max-w-md text-center">
+          {language === 'he' 
+            ? 'השלם את מסע הטרנספורמציה כדי לפתוח סשנים מותאמים אישית'
+            : 'Complete the Transformation Journey to unlock personalized sessions'
+          }
+        </p>
+        <Button 
+          size="lg" 
+          variant="secondary"
+          onClick={() => navigate('/launchpad')}
+          className="gap-2"
+        >
+          <Rocket className="w-5 h-5" />
+          {language === 'he' ? 'התחל את המסע' : 'Start the Journey'}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div 
       className={cn(
         "min-h-screen flex flex-col",
-        "bg-gradient-to-br",
-        egoState.colors.gradient
+        "bg-gradient-to-br from-primary to-primary/80"
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -538,9 +564,9 @@ const HypnosisSession = () => {
               className="w-full max-w-md text-center text-white"
             >
               <div className="mb-6 sm:mb-8">
-                <span className="text-4xl sm:text-5xl mb-3 sm:mb-4 block">{egoState.icon}</span>
+                <span className="text-4xl sm:text-5xl mb-3 sm:mb-4 block">✨</span>
                 <h1 className="text-xl sm:text-2xl font-bold mb-2">
-                  {language === 'he' ? egoState.nameHe : egoState.name}
+                  {language === 'he' ? 'סשן מותאם אישית' : 'Personalized Session'}
                 </h1>
                 <p className="text-white/70 text-sm">
                   {language === 'he' 
