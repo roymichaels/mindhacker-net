@@ -8,14 +8,13 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   GameHeroSection,
-  DigitalAvatarSection,
+  TransformationProofSection,
+  JobShowcaseSection,
   WhatIsThisSection,
-  ChatManagesEverythingSection,
-  GamificationFeaturesSection,
   AuroraCoachSection,
-  LifeWrappingSection,
-  LifePlanPreviewSection,
-  DashboardPreviewSection
+  GamificationFeaturesSection,
+  FearOfMissingOutSection,
+  FinalCTASection,
 } from "@/components/home";
 
 const Index = () => {
@@ -76,15 +75,29 @@ const Index = () => {
       <Header />
       
       <main className="relative z-10">
+        {/* Hero with urgency, social proof, typing effect */}
         <GameHeroSection />
-        <DigitalAvatarSection />
+        
+        {/* Before/After transformation with loss aversion */}
+        <TransformationProofSection />
+        
+        {/* RPG Job System showcase - character selection feel */}
+        <JobShowcaseSection />
+        
+        {/* What is this platform - the 3 pillars */}
         <WhatIsThisSection />
+        
+        {/* Aurora AI Coach section */}
         <AuroraCoachSection />
-        <LifeWrappingSection />
-        <ChatManagesEverythingSection />
+        
+        {/* Gamification features with XP, levels, streaks */}
         <GamificationFeaturesSection />
-        <LifePlanPreviewSection />
-        <DashboardPreviewSection />
+        
+        {/* FOMO section with countdown */}
+        <FearOfMissingOutSection />
+        
+        {/* Final CTA with all psychological triggers */}
+        <FinalCTASection />
       </main>
     </div>
   );
