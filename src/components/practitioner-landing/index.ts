@@ -5,3 +5,4 @@ export { default as PractitionerServices } from './PractitionerServices';
 export { default as PractitionerTestimonials } from './PractitionerTestimonials';
 export { default as PractitionerCTA } from './PractitionerCTA';
 export { default as PractitionerCatalog } from './PractitionerCatalog';
+export { default as PractitionerFAQ } from './PractitionerFAQ';

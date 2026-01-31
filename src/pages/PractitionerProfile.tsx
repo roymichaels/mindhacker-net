@@ -15,6 +15,7 @@ import {
   PractitionerTestimonials,
   PractitionerCTA,
   PractitionerCatalog,
+  PractitionerFAQ,
 } from '@/components/practitioner-landing';
 
 const PractitionerProfile = () => {
@@ -82,6 +83,7 @@ const PractitionerProfile = () => {
         <PractitionerCatalog practitionerId={practitioner.id} />
         <PractitionerServices practitioner={practitioner} />
         <PractitionerTestimonials practitioner={practitioner} />
+        <PractitionerFAQ />
         <PractitionerCTA practitioner={practitioner} />
       </main>
 
