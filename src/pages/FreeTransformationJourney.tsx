@@ -148,13 +148,13 @@ export default function FreeTransformationJourney() {
             transition={{ duration: 0.8, type: 'spring' }}
             className="relative flex justify-center mb-4"
           >
-            {/* The Orb - Clean 3D with integrated particles */}
+            {/* The Orb - Pure 3D orb only, no decorative rings */}
             <div className="relative w-52 h-52 sm:w-64 sm:h-64">
               <Orb 
-                profile={orbProfile} 
+                profile={orbProfile ? { ...orbProfile, particleEnabled: false } : undefined} 
                 size={256} 
                 className="w-full h-full"
-                showGlow={true}
+                showGlow={false}
               />
             </div>
             
