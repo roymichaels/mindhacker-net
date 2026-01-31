@@ -144,6 +144,13 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
           {/* Left side: Logo, Sidebar Trigger and Admin panel title */}
           <div className="flex items-center gap-1 sm:gap-3 justify-start">
+            {/* Sidebar Toggle - for authenticated users (non-admin)
+                In RTL we render it BEFORE the logo so it appears to the right of it visually.
+            */}
+            {user && !isAdminMode && isRTL && (
+              <SidebarToggle onMenuClick={onMenuClick} />
+            )}
+
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0">
                 <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" loading="eager" decoding="async" />
@@ -153,8 +160,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
               </span>
             </Link>
 
-            {/* Sidebar Toggle - for authenticated users (non-admin) */}
-            {user && !isAdminMode && (
+            {/* LTR: render after logo (to the left of it visually) */}
+            {user && !isAdminMode && !isRTL && (
               <SidebarToggle onMenuClick={onMenuClick} />
             )}
 

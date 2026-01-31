@@ -6,7 +6,6 @@ import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
-import Header from "@/components/Header";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import CompactRecordings from "@/components/dashboard/CompactRecordings";
 import CompactSessions from "@/components/dashboard/CompactSessions";
@@ -59,24 +58,21 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="p-8" dir={isRTL ? 'rtl' : 'ltr'}>
+      <DashboardLayout>
+        <div className="p-4 sm:p-6" dir={isRTL ? "rtl" : "ltr"}>
           <div className="max-w-6xl mx-auto space-y-6">
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-40 w-full" />
             <Skeleton className="h-40 w-full" />
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
     <div className="min-h-screen relative">
       <PullToRefreshIndicator {...pullToRefresh} />
-      <Header />
-      
       <DashboardLayout>
         {/* Dashboard Content - Unified View */}
         <div className="space-y-6">
