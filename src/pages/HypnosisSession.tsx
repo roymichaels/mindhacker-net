@@ -57,11 +57,13 @@ const HypnosisSession = () => {
   const egoStateId = searchParams.get('ego') || gameState?.activeEgoState || 'guardian';
   const presetId = searchParams.get('preset');
   const presetDuration = searchParams.get('duration');
+  const urlGoal = searchParams.get('goal');
+  const isDailySession = searchParams.get('daily') === 'true';
 
   const egoState = getEgoState(egoStateId);
 
   const [state, setState] = useState<SessionState>('setup');
-  const [goal, setGoal] = useState('');
+  const [goal, setGoal] = useState(urlGoal || '');
   const [duration, setDuration] = useState(presetDuration ? parseInt(presetDuration) : 10);
   const [script, setScript] = useState<HypnosisScript | null>(null);
   const scriptRef = useRef<HypnosisScript | null>(null); // Sync ref for script

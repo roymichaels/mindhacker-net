@@ -222,7 +222,11 @@ serve(async (req) => {
     const egoStateContext = EGO_STATE_PROMPTS[egoState] || EGO_STATE_PROMPTS.guardian;
 
     const languageInstruction = language === 'he' 
-      ? 'Write the entire script in Hebrew. Use warm, flowing Hebrew that feels natural and poetic.'
+      ? `Write the entire script in Hebrew. Use warm, flowing Hebrew that feels natural and poetic.
+CRITICAL HEBREW GRAMMAR: Address the listener using MASCULINE singular forms (לשון זכר יחיד). 
+Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
+Do NOT use feminine forms like "את מרגישה" or "תני לעצמך".
+This creates a neutral, universal tone appropriate for guided meditation.`
       : 'Write the entire script in English. Use warm, flowing language that feels natural and poetic.';
 
     const experienceContext = previousSessions === 0
