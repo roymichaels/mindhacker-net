@@ -231,7 +231,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 <div className="md:hidden">
                   <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
+                      <Button variant="ghost" className="relative h-10 w-10 p-0 hover:ring-2 hover:ring-primary/50 transition-all">
                         <MultiThreadOrb 
                           size={40}
                           showGlow={false}
