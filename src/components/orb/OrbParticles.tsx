@@ -30,7 +30,7 @@ function parseHslColor(hsl: string): { h: number; s: number; l: number } {
 }
 
 /**
- * Generate particle positions in a sphere around the orb
+ * Generate particle positions - some inside, some outside for energy being effect
  */
 export function generateParticlePositions(
   count: number,
@@ -40,21 +40,27 @@ export function generateParticlePositions(
   const positions = new Float32Array(count * 3);
   
   for (let i = 0; i < count; i++) {
-    // Random point on sphere shell
+    // Random point on sphere shell - mix of inner and outer particles
     const phi = Math.random() * Math.PI * 2;
     const theta = Math.acos(2 * Math.random() - 1);
-    const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
     
-    positions[i * 3] = radius * Math.sin(theta) * Math.cos(phi);
-    positions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
-    positions[i * 3 + 2] = radius * Math.cos(theta);
+    // Some particles start inside the orb (30%), some outside (70%)
+    const isInner = Math.random() < 0.3;
+    const baseRadius = isInner 
+      ? innerRadius * 0.3 + Math.random() * innerRadius * 0.5
+      : innerRadius + Math.random() * (outerRadius - innerRadius);
+    
+    positions[i * 3] = baseRadius * Math.sin(theta) * Math.cos(phi);
+    positions[i * 3 + 1] = baseRadius * Math.sin(theta) * Math.sin(phi);
+    positions[i * 3 + 2] = baseRadius * Math.cos(theta);
   }
   
   return positions;
 }
 
 /**
- * Update particle positions with ALIEN organic swirling movement
+ * Update particle positions - ENERGY BEING pulsating in/out effect
+ * Particles flow from the orb outward and merge back in
  */
 export function updateParticlePositions(
   positions: Float32Array,
@@ -72,50 +78,71 @@ export function updateParticlePositions(
     
     // Distance from center
     const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
+    const nx = baseX / dist;
+    const ny = baseY / dist;
+    const nz = baseZ / dist;
     
-    // Multi-axis orbital swirling - alien effect
-    const swirl1 = time * 0.4 + i * 0.15 + dist * 2;
-    const swirl2 = time * 0.25 + i * 0.08;
-    const swirl3 = time * 0.6 + i * 0.2;
+    // Each particle has its own phase offset for varied timing
+    const particlePhase = i * 0.15;
     
-    // Orbital movement - more complex
-    const orbitRadius = 0.12 + Math.sin(swirl2) * 0.06 + Math.cos(swirl3) * 0.04;
+    // PULSATING IN/OUT - main breathing effect
+    // Creates waves of particles moving outward then returning
+    const breathCycle = time * 0.8 + particlePhase;
+    const breathWave = Math.sin(breathCycle) * 0.5 + Math.sin(breathCycle * 2.3) * 0.2;
     
-    // Vertical/horizontal waves - more dynamic
-    const waveY = Math.sin(swirl1) * 0.15 + Math.cos(time * 0.3 + i) * 0.08;
-    const waveX = Math.cos(swirl2) * 0.1;
-    const waveZ = Math.sin(swirl3) * 0.1;
+    // Energy burst waves - periodic ejection of particles
+    const burstPhase = time * 0.4 + particlePhase * 0.5;
+    const burst = Math.pow(Math.max(0, Math.sin(burstPhase)), 3) * 0.6;
     
-    // Pulsing expansion - breathing effect
-    const pulseExpansion = 1 + Math.sin(time * 0.8 + dist * 3) * 0.15;
+    // Spiral motion around the orb
+    const spiralAngle = time * 0.5 + particlePhase + dist * 2;
+    const spiralRadius = 0.08 + Math.sin(time * 0.7 + i) * 0.04;
     
-    // Audio reactivity - particles expand outward more dramatically
-    const audioExpansion = 1 + audioLevel * 0.5;
+    // Vertical oscillation
+    const verticalWave = Math.sin(time * 0.6 + particlePhase * 1.5) * 0.12;
     
-    const totalExpansion = pulseExpansion * audioExpansion;
+    // Combined radial pulsation - in and out of the orb
+    const radialPulse = breathWave * 0.35 + burst * 0.4;
     
-    positions[idx] = (baseX + Math.cos(swirl1) * orbitRadius + waveX) * totalExpansion;
-    positions[idx + 1] = (baseY + waveY) * totalExpansion;
-    positions[idx + 2] = (baseZ + Math.sin(swirl1) * orbitRadius + waveZ) * totalExpansion;
+    // Some particles should occasionally dive deep into the orb core
+    const diveFactor = Math.sin(time * 0.3 + i * 0.7);
+    const diveInward = diveFactor > 0.7 ? (diveFactor - 0.7) * 1.5 : 0;
+    
+    // Audio reactivity - more dramatic expansion
+    const audioExpansion = 1 + audioLevel * 0.8;
+    
+    // Calculate final position
+    // Base distance + pulsation - dive creates merging effect
+    const finalDist = (dist + radialPulse - diveInward * 0.4) * audioExpansion;
+    
+    // Apply spiral motion perpendicular to radial direction
+    const perpX = Math.cos(spiralAngle) * spiralRadius;
+    const perpY = verticalWave;
+    const perpZ = Math.sin(spiralAngle) * spiralRadius;
+    
+    positions[idx] = nx * finalDist + perpX;
+    positions[idx + 1] = ny * finalDist + perpY;
+    positions[idx + 2] = nz * finalDist + perpZ;
   }
 }
 
 /**
- * Create particle material with custom color - ENHANCED for alien glow effect
+ * Create particle material - ENERGY BEING glow effect
  */
 export function createParticleMaterial(color: string): THREE.PointsMaterial {
   const hsl = parseHslColor(color);
   const threeColor = new THREE.Color();
-  // Boost saturation and lightness for more vibrant particles
-  threeColor.setHSL(hsl.h, Math.min(1, hsl.s * 1.2), Math.min(0.85, hsl.l * 1.3));
+  // Bright, saturated colors for energy effect
+  threeColor.setHSL(hsl.h, Math.min(1, hsl.s * 1.3), Math.min(0.9, hsl.l * 1.4));
   
   return new THREE.PointsMaterial({
     color: threeColor,
-    size: 0.06, // Bigger particles
+    size: 0.08,          // Larger particles
     transparent: true,
-    opacity: 0.95,
+    opacity: 0.9,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
+    depthWrite: false,   // Better blending with orb
   });
 }
 
@@ -132,21 +159,21 @@ export class ParticleSystem {
   constructor(
     count: number,
     color: string,
-    innerRadius: number = 0.8,
-    outerRadius: number = 1.8
+    innerRadius: number = 0.5,  // Start closer to orb
+    outerRadius: number = 2.2   // Extend further out
   ) {
-    this.count = Math.max(80, count); // Minimum 80 particles for alien effect
+    this.count = Math.max(120, count); // Minimum 120 particles for energy effect
     this.geometry = new THREE.BufferGeometry();
     this.material = createParticleMaterial(color);
     
-    // Generate initial positions - wider spread for alien effect
+    // Generate initial positions - mix of inner and outer
     this.basePositions = generateParticlePositions(this.count, innerRadius, outerRadius);
     const positions = new Float32Array(this.basePositions);
     
-    // Add size variation for each particle
+    // Add size variation for each particle - creates depth
     const sizes = new Float32Array(this.count);
     for (let i = 0; i < this.count; i++) {
-      sizes[i] = 0.4 + Math.random() * 0.8; // Size variation
+      sizes[i] = 0.3 + Math.random() * 1.0; // Wide size variation
     }
     
     this.geometry.setAttribute(
@@ -170,9 +197,12 @@ export class ParticleSystem {
     updateParticlePositions(positions, this.basePositions, time, audioLevel);
     this.geometry.attributes.position.needsUpdate = true;
     
-    // Subtle rotation
-    this.points.rotation.y = time * 0.1;
-    this.points.rotation.x = Math.sin(time * 0.2) * 0.1;
+    // Gentle rotation of entire particle system
+    this.points.rotation.y = time * 0.08;
+    this.points.rotation.x = Math.sin(time * 0.15) * 0.08;
+    
+    // Pulsating opacity for energy breathing
+    this.material.opacity = 0.7 + Math.sin(time * 1.2) * 0.25;
   }
   
   setColor(color: string): void {
