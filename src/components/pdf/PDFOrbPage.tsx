@@ -16,6 +16,57 @@ interface PDFOrbPageProps {
   language: string;
 }
 
+// Hebrew translations for thread labels (hobbies, traits, etc.)
+const THREAD_LABEL_TRANSLATIONS: Record<string, string> = {
+  // Hobbies
+  'martial-arts': 'אומנויות לחימה',
+  'martial_arts': 'אומנויות לחימה',
+  'fitness': 'כושר',
+  'sports': 'ספורט',
+  'hiking': 'טיולים',
+  'dancing': 'ריקוד',
+  'science': 'מדע',
+  'psychology': 'פסיכולוגיה',
+  'reading': 'קריאה',
+  'technology': 'טכנולוגיה',
+  'philosophy': 'פילוסופיה',
+  'meditation': 'מדיטציה',
+  'yoga': 'יוגה',
+  'tarot': 'טארוט',
+  'magic': 'מאגיה',
+  'music': 'מוזיקה',
+  'art': 'אומנות',
+  'writing': 'כתיבה',
+  'photography': 'צילום',
+  'gaming': 'משחקים',
+  'mentoring': 'חונכות',
+  'teaching': 'הוראה',
+  'volunteering': 'התנדבות',
+  // Personality traits
+  'analytical': 'אנליטי',
+  'intuitive': 'אינטואיטיבי',
+  'decisive': 'נחוש',
+  'morning': 'בוקר',
+  'evening': 'ערב',
+  'fluctuates': 'משתנה',
+  'structured': 'מסודר',
+  'flexible': 'גמיש',
+  'balanced': 'מאוזן',
+  // Sources
+  'trait': 'תכונה',
+  'hobby': 'תחביב',
+  'strength': 'חוזקה',
+  'growth_edge': 'תחום צמיחה',
+};
+
+// Helper to translate thread label
+function translateLabel(label: string, language: string): string {
+  if (language !== 'he') return label;
+  return THREAD_LABEL_TRANSLATIONS[label.toLowerCase()] || 
+         THREAD_LABEL_TRANSLATIONS[label.replace(/-/g, '_').toLowerCase()] || 
+         label;
+}
+
 export function PDFOrbPage({ profile, identityTitle, userName, language }: PDFOrbPageProps) {
   const isRTL = language === 'he';
 
@@ -170,16 +221,18 @@ export function PDFOrbPage({ profile, identityTitle, userName, language }: PDFOr
         <div className="grid grid-cols-2 gap-2">
           {profile.threads.slice(0, 8).map((thread) => {
             const [h, s, l] = thread.color.split(' ').map(v => parseFloat(v));
+            const translatedLabel = translateLabel(thread.label, language);
             return (
               <div 
                 key={thread.id}
                 className="flex items-center gap-2 p-2 rounded-lg bg-white/5"
+                dir={isRTL ? 'rtl' : 'ltr'}
               >
                 <div 
                   className="w-3 h-3 rounded-full shrink-0"
                   style={{ background: `hsl(${h}, ${s}%, ${l}%)` }}
                 />
-                <span className="text-xs text-white/70 truncate">{thread.label}</span>
+                <span className="text-xs text-white/70 truncate">{translatedLabel}</span>
               </div>
             );
           })}

@@ -28,6 +28,12 @@ export function PDFDashboardPage({
   language,
 }: PDFDashboardPageProps) {
   const isRTL = language === 'he';
+  
+  // Remove duplicates from arrays
+  const uniqueValues = [...new Set(values)];
+  const uniquePrinciples = [...new Set(principles)];
+  const uniqueSelfConcepts = [...new Set(selfConcepts)];
+  const uniqueCharacterTraits = [...new Set(characterTraits)];
 
   return (
     <div 
@@ -48,7 +54,7 @@ export function PDFDashboardPage({
       {/* Values & Principles Row */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         {/* Values */}
-        {values.length > 0 && (
+        {uniqueValues.length > 0 && (
           <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20">
             <div className="flex items-center gap-2 mb-3">
               <Heart className="w-4 h-4 text-rose-400" />
@@ -57,9 +63,9 @@ export function PDFDashboardPage({
               </h3>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {values.slice(0, 6).map((value, i) => (
+              {uniqueValues.slice(0, 6).map((value, i) => (
                 <span 
-                  key={i}
+                  key={`value-${i}`}
                   className="px-2 py-1 rounded-md bg-rose-500/20 text-rose-200 text-xs"
                 >
                   {value}
@@ -70,7 +76,7 @@ export function PDFDashboardPage({
         )}
 
         {/* Principles */}
-        {principles.length > 0 && (
+        {uniquePrinciples.length > 0 && (
           <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
             <div className="flex items-center gap-2 mb-3">
               <BookOpen className="w-4 h-4 text-blue-400" />
@@ -79,9 +85,9 @@ export function PDFDashboardPage({
               </h3>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {principles.slice(0, 6).map((principle, i) => (
+              {uniquePrinciples.slice(0, 6).map((principle, i) => (
                 <span 
-                  key={i}
+                  key={`principle-${i}`}
                   className="px-2 py-1 rounded-md bg-blue-500/20 text-blue-200 text-xs"
                 >
                   {principle}
@@ -95,7 +101,7 @@ export function PDFDashboardPage({
       {/* Self Concepts & Character Traits Row */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         {/* Self Concepts */}
-        {selfConcepts.length > 0 && (
+        {uniqueSelfConcepts.length > 0 && (
           <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-purple-400" />
@@ -104,8 +110,8 @@ export function PDFDashboardPage({
               </h3>
             </div>
             <div className="space-y-1">
-              {selfConcepts.slice(0, 4).map((concept, i) => (
-                <p key={i} className="text-xs text-purple-200/80">
+              {uniqueSelfConcepts.slice(0, 4).map((concept, i) => (
+                <p key={`concept-${i}`} className="text-xs text-purple-200/80">
                   • {concept}
                 </p>
               ))}
@@ -114,7 +120,7 @@ export function PDFDashboardPage({
         )}
 
         {/* Character Traits */}
-        {characterTraits.length > 0 && (
+        {uniqueCharacterTraits.length > 0 && (
           <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
             <div className="flex items-center gap-2 mb-3">
               <Star className="w-4 h-4 text-amber-400" />
@@ -123,9 +129,9 @@ export function PDFDashboardPage({
               </h3>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {characterTraits.slice(0, 6).map((trait, i) => (
+              {uniqueCharacterTraits.slice(0, 6).map((trait, i) => (
                 <span 
-                  key={i}
+                  key={`trait-${i}`}
                   className="px-2 py-1 rounded-md bg-amber-500/20 text-amber-200 text-xs"
                 >
                   {trait}
