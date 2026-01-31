@@ -134,12 +134,12 @@ export const getOrganizationSchema = (brand?: BrandSettings): StructuredData => 
   alternateName: brand?.brandNameEn || 'Mind Hacker',
   url: brand?.siteUrl || window.location.origin,
   logo: brand?.ogImageUrl || 'https://lovable.dev/opengraph-image-p98pqg.png',
-  description: 'אימון תודעתי עמוק, תכנות תודעה מתקדם, היפנוזה מודעת',
-  founder: {
+  description: 'פלטפורמת התפתחות אישית מבוססת AI - אימון תודעתי, היפנוזה מותאמת וגיימיפיקציה',
+  founder: brand?.founderName ? {
     '@type': 'Person',
-    name: brand?.founderName || 'דין אזולאי',
-    jobTitle: brand?.founderTitle || 'מאמן תודעה',
-  },
+    name: brand.founderName,
+    jobTitle: brand?.founderTitle || 'מייסד',
+  } : undefined,
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'Customer Service',
