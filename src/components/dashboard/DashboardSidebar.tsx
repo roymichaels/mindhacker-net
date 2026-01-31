@@ -13,12 +13,14 @@ import {
   Sparkles,
   Compass,
   Plus,
-  Trash2
+  Trash2,
+  Menu
 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
@@ -247,6 +249,21 @@ const DashboardSidebar = ({
       collapsible="icon"
       side={isRTL ? "right" : "left"}
     >
+      {/* Hamburger toggle at top of collapsed sidebar - aligned with menu icons */}
+      {isCollapsed && (
+        <SidebarHeader className="p-0 flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => sidebar?.toggleSidebar()}
+            title={language === 'he' ? 'הרחב תפריט' : 'Expand Menu'}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+        </SidebarHeader>
+      )}
+
       <SidebarContent className="p-2 flex flex-col h-full">
         <SidebarInnerContent />
       </SidebarContent>
