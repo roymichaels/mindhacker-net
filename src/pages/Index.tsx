@@ -16,6 +16,7 @@ import {
   GamificationFeaturesSection,
   FearOfMissingOutSection,
   FinalCTASection,
+  FreeJourneyBannerSection,
 } from "@/components/home";
 
 const Index = () => {
@@ -87,6 +88,9 @@ const Index = () => {
         
         {/* What is this platform - the 3 pillars */}
         <WhatIsThisSection />
+        
+        {/* Free Transformation Journey Banner */}
+        <FreeJourneyBannerSection />
         
         {/* Aurora AI Coach section */}
         <AuroraCoachSection />
