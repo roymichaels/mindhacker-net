@@ -73,7 +73,7 @@ const PractitionerProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-transparent" dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
       
       <main>
@@ -81,7 +81,6 @@ const PractitionerProfile = () => {
         <PractitionerAbout practitioner={practitioner} />
         <PractitionerSpecialties practitioner={practitioner} />
         <PractitionerCatalog practitionerId={practitioner.id} />
-        <PractitionerServices practitioner={practitioner} />
         <PractitionerTestimonials practitioner={practitioner} />
         <PractitionerFAQ />
         <PractitionerCTA practitioner={practitioner} />
