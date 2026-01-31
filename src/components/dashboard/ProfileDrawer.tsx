@@ -69,6 +69,14 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
         queryClient.invalidateQueries({ queryKey: ['launchpad-data', user.id], refetchType: 'active' }),
         queryClient.invalidateQueries({ queryKey: ['launchpad-summary', user.id], refetchType: 'active' }),
         queryClient.invalidateQueries({ queryKey: ['life-plan', user.id], refetchType: 'active' }),
+
+        // Ensure the dashboard "Job" / identity updates immediately after reanalysis
+        queryClient.invalidateQueries({ queryKey: ['aurora-identity-elements', user.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['aurora-life-direction', user.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['aurora-life-visions', user.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['aurora-commitments', user.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['aurora-onboarding-progress', user.id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['game-state'], refetchType: 'active' }),
       ]);
 
       toast.success(language === 'he' ? 'הניתוח עודכן בהצלחה!' : 'Analysis regenerated!');
