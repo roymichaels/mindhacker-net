@@ -61,7 +61,7 @@ export const NotificationBell = () => {
       <PopoverContent
         align="end"
         side="bottom"
-        className="p-0 w-auto"
+        className="p-0 w-auto z-[100] bg-card border border-border shadow-xl"
         dir="rtl"
       >
         <NotificationPanel

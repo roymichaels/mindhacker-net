@@ -53,9 +53,9 @@ export const NotificationPanel = ({
   const unreadNotifications = notifications.filter(n => !n.is_read);
 
   return (
-    <div className="w-[380px] sm:w-[420px]">
+    <div className="w-[380px] sm:w-[420px] bg-card rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5" />
           <h3 className="font-semibold">התראות</h3>
@@ -144,7 +144,7 @@ export const NotificationPanel = ({
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="p-3 border-t">
+        <div className="p-3 border-t bg-card">
           <Button
             variant="ghost"
             className="w-full text-sm"
