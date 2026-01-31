@@ -16,9 +16,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false,
-      strategies: "injectManifest",
-      srcDir: "public",
-      filename: "custom-sw.js",
+      strategies: "generateSW",
       includeAssets: ["robots.txt", "sitemap.xml", "*.png"],
       manifest: {
         name: "מיינד האקר - אימון תודעתי עמוק",
@@ -54,9 +52,27 @@ export default defineConfig(({ mode }) => ({
           }
         ]
       },
-      injectManifest: {
+      workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        injectionPoint: undefined
+        navigateFallback: "/index.html",
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-stylesheets",
+              expiration: { maxEntries: 10, maxAgeSeconds: 31536000 }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-webfonts",
+              expiration: { maxEntries: 30, maxAgeSeconds: 31536000 }
+            }
+          }
+        ]
       },
       devOptions: {
         enabled: false

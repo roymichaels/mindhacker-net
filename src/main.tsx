@@ -1,44 +1,23 @@
+/// <reference types="vite-plugin-pwa/client" />
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Defer service worker registration until after page load for better LCP
+// Service worker registration handled by vite-plugin-pwa
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/custom-sw.js');
-      
-      // Check for updates periodically (every 60 seconds)
-      setInterval(() => {
-        registration.update();
-      }, 60 * 1000);
-      
-      // Listen for new service worker waiting
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New update available - show toast notification
-              showUpdateToast();
-            }
-          });
-        }
-      });
-    } catch {
-      // SW registration failed silently in production
-    }
-  });
-  
-  // Reload on controller change ONLY once per session to prevent loops
-  let hasReloaded = sessionStorage.getItem('sw-reloaded');
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hasReloaded) {
-      sessionStorage.setItem('sw-reloaded', 'true');
-      window.location.reload();
-    }
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({
+      onNeedRefresh() {
+        showUpdateToast();
+      },
+      onOfflineReady() {
+        console.log('App ready for offline use');
+      },
+    });
+  }).catch(() => {
+    // PWA registration failed silently
   });
 }
 
