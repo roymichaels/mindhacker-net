@@ -155,16 +155,16 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     glow: themeColors.glow,
   } : egoStateColors;
 
-  // Get profile-based parameters or defaults
-  const layerCount = profile?.layerCount ?? 1;
-  const geometryDetail = profile?.geometryDetail ?? 4;
-  const morphIntensity = profile?.morphIntensity ?? 0.15;
+  // Get profile-based parameters or defaults - enhanced defaults for beautiful orb
+  const layerCount = profile?.layerCount ?? 3; // More layers by default
+  const geometryDetail = profile?.geometryDetail ?? 5; // Higher detail
+  const morphIntensity = profile?.morphIntensity ?? 0.18;
   const morphSpeed = profile?.morphSpeed ?? 1.0;
-  const fractalOctaves = profile?.fractalOctaves ?? 3;
-  const coreIntensity = profile?.coreIntensity ?? 0.5;
-  const coreSize = profile?.coreSize ?? 0.3;
-  const particleEnabled = profile?.particleEnabled ?? false;
-  const particleCount = profile?.particleCount ?? 0;
+  const fractalOctaves = profile?.fractalOctaves ?? 4;
+  const coreIntensity = profile?.coreIntensity ?? 0.6;
+  const coreSize = profile?.coreSize ?? 0.35;
+  const particleEnabled = profile?.particleEnabled ?? true; // Enable particles by default
+  const particleCount = profile?.particleCount ?? 30;
   const particleColor = profile?.particleColor ?? colors.glow;
 
   useImperativeHandle(ref, () => ({
@@ -176,20 +176,20 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     setTunnelMode: setInternalTunnelMode,
   }), []);
 
-  // Generate layer configurations based on profile
+  // Generate layer configurations based on profile - enhanced for 3D depth
   const getLayerConfigs = (): LayerConfig[] => {
     const configs: LayerConfig[] = [];
-    const secondaryColors = profile?.secondaryColors || [colors.secondary];
+    const secondaryColors = profile?.secondaryColors || [colors.secondary, colors.accent];
     
     for (let i = 0; i < layerCount; i++) {
       const t = i / Math.max(layerCount - 1, 1);
       configs.push({
-        radius: 0.75 - i * 0.15,
+        radius: 0.72 - i * 0.12, // Slightly larger base, tighter spacing
         detail: Math.max(geometryDetail - i, 3),
-        opacity: 0.7 - i * 0.15,
+        opacity: 0.75 - i * 0.12, // Higher base opacity
         color: i === 0 ? colors.primary : (secondaryColors[i - 1] || colors.secondary),
-        rotationSpeed: 0.002 * (1 + i * 0.3) * (i % 2 === 0 ? 1 : -1),
-        morphOffset: i * 0.5,
+        rotationSpeed: 0.003 * (1 + i * 0.4) * (i % 2 === 0 ? 1 : -1), // Faster rotation
+        morphOffset: i * 0.6,
       });
     }
     
@@ -206,9 +206,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    camera.position.z = 3;
+    // Camera - adjusted for better full-sphere visibility
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.z = 3.5;
     cameraRef.current = camera;
 
     // Renderer
@@ -221,6 +221,28 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // Create outer glow sphere first (behind everything)
+    const outerGlowGeometry = new THREE.SphereGeometry(1.1, 32, 32);
+    const outerGlowMaterial = new THREE.MeshBasicMaterial({
+      color: parseHslToThreeColor(colors.primary),
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.BackSide,
+    });
+    const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
+    scene.add(outerGlow);
+
+    // Create ambient atmosphere layer
+    const atmosphereGeometry = new THREE.SphereGeometry(0.95, 32, 32);
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: parseHslToThreeColor(colors.accent),
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.BackSide,
+    });
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    scene.add(atmosphere);
 
     // Create layers
     const layerConfigs = getLayerConfigs();
@@ -247,22 +269,32 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // Core glow sphere
+    // Inner core glow sphere - brighter and more defined
     if (showGlow) {
-      const glowGeometry = new THREE.SphereGeometry(coreSize, 16, 16);
+      const glowGeometry = new THREE.SphereGeometry(coreSize * 1.2, 24, 24);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.glow || colors.accent),
         transparent: true,
-        opacity: coreIntensity,
+        opacity: coreIntensity * 0.7,
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       scene.add(glowMesh);
       coreRef.current = glowMesh;
+
+      // Add a secondary inner core for depth
+      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 0.6, 16, 16);
+      const innerCoreMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(0xffffff),
+        transparent: true,
+        opacity: 0.4,
+      });
+      const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial);
+      scene.add(innerCore);
     }
 
-    // Particle system
+    // Enhanced particle system
     if (particleEnabled && particleCount > 0) {
-      const ps = new ParticleSystem(particleCount, particleColor, 0.9, 1.4);
+      const ps = new ParticleSystem(particleCount, particleColor, 0.85, 1.5);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
@@ -284,6 +316,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
+      // Dispose glow meshes
+      outerGlow.geometry.dispose();
+      outerGlowMaterial.dispose();
+      atmosphere.geometry.dispose();
+      atmosphereMaterial.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
