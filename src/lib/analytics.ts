@@ -100,22 +100,10 @@ export const initSession = async (): Promise<void> => {
   getVisitorId();
 
   try {
-    // Try to update existing session
-    const { data: existing } = await supabase
-      .from("visitor_sessions")
-      .select("id")
-      .eq("session_id", sessionId)
-      .single();
-
-    if (existing) {
-      // Update last seen
-      await supabase
-        .from("visitor_sessions")
-        .update({ last_seen: new Date().toISOString() })
-        .eq("session_id", sessionId);
-    } else {
-      // Create new session
-      await supabase.from("visitor_sessions").insert({
+    // Upsert avoids 406s from `.single()` when no row exists
+    // and gracefully handles unique conflicts (we saw 409s in the console).
+    await supabase.from("visitor_sessions").upsert(
+      {
         session_id: sessionId,
         device_type: getDeviceType(),
         browser: getBrowser(),
@@ -125,9 +113,11 @@ export const initSession = async (): Promise<void> => {
         referrer: document.referrer || undefined,
         landing_page: window.location.pathname,
         is_returning: isReturning,
+        last_seen: new Date().toISOString(),
         ...utmParams,
-      });
-    }
+      },
+      { onConflict: "session_id" }
+    );
   } catch (error) {
     console.debug("Analytics: Failed to init session", error);
   }
@@ -148,27 +138,18 @@ export const trackPageView = async (path: string, title?: string): Promise<void>
   maxScrollDepth = 0;
 
   try {
-    const { data } = await supabase
+    // Insert only (avoid SELECT which can trigger 406s/extra permissions)
+    await supabase
       .from("page_views")
       .insert({
         session_id: sessionId,
         page_path: path,
         page_title: title || document.title,
         referrer_path: referrerPath,
-      })
-      .select("id")
-      .single();
+      });
 
-    if (data) {
-      currentPageViewId = data.id;
-      sessionStorage.setItem(PAGE_VIEW_KEY, path);
-    }
-
-    // Update session last seen
-    await supabase
-      .from("visitor_sessions")
-      .update({ last_seen: new Date().toISOString() })
-      .eq("session_id", sessionId);
+    currentPageViewId = null;
+    sessionStorage.setItem(PAGE_VIEW_KEY, path);
   } catch (error) {
     console.debug("Analytics: Failed to track page view", error);
   }

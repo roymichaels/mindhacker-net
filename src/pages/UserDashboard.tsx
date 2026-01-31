@@ -7,7 +7,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import CompactRecordings from "@/components/dashboard/CompactRecordings";
 import CompactSessions from "@/components/dashboard/CompactSessions";
 import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardView";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -80,11 +79,10 @@ const UserDashboard = () => {
           
           {/* Unified Life Model + Gamification Dashboard */}
           <UnifiedDashboardView />
-          
-          {/* Sessions & Recordings */}
-          <div className="grid gap-6 md:grid-cols-2">
+
+          {/* Sessions */}
+          <div className="grid gap-6">
             <CompactSessions />
-            <CompactRecordings />
           </div>
         </div>
       </DashboardLayout>
