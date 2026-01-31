@@ -15,18 +15,30 @@ interface OrbParticlesProps {
 }
 
 /**
- * Parse HSL color string to components
+ * Parse HSL color string to components - handles multiple formats
  */
 function parseHslColor(hsl: string): { h: number; s: number; l: number } {
-  const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
-  if (match) {
+  // Format: hsl(270, 80%, 60%) or hsl(270 80% 60%)
+  const hslFuncMatch = hsl.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/);
+  if (hslFuncMatch) {
     return {
-      h: parseInt(match[1]) / 360,
-      s: parseInt(match[2]) / 100,
-      l: parseInt(match[3]) / 100,
+      h: parseInt(hslFuncMatch[1]) / 360,
+      s: parseInt(hslFuncMatch[2]) / 100,
+      l: parseInt(hslFuncMatch[3]) / 100,
     };
   }
-  return { h: 0.6, s: 1, l: 0.5 }; // Default blue
+  
+  // Format: "270 80% 60%" (space-separated without hsl wrapper)
+  const spaceMatch = hsl.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
+  if (spaceMatch) {
+    return {
+      h: parseInt(spaceMatch[1]) / 360,
+      s: parseInt(spaceMatch[2]) / 100,
+      l: parseInt(spaceMatch[3]) / 100,
+    };
+  }
+  
+  return { h: 0.8, s: 0.8, l: 0.6 }; // Default purple-pink
 }
 
 /**
