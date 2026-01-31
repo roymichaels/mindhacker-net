@@ -155,11 +155,16 @@ export function FocusAreasStep({ onComplete, isCompleting, rewards, savedData, o
           size="lg" 
           onClick={handleSubmit}
           disabled={!isValid || isCompleting}
-          className="min-w-[200px]"
+          className={cn(
+            "min-w-[220px] h-14 text-lg font-bold transition-all duration-300",
+            isValid
+              ? "bg-gradient-to-r from-primary via-accent to-primary hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+              : "bg-muted text-muted-foreground opacity-60"
+          )}
         >
           {isCompleting 
             ? (language === 'he' ? 'שומר...' : 'Saving...') 
-            : (language === 'he' ? 'המשך' : 'Continue')
+            : (language === 'he' ? '🚀 המשך' : '🚀 Continue')
           }
         </Button>
       </motion.div>

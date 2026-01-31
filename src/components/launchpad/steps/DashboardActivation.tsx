@@ -167,19 +167,24 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
           size="lg" 
           onClick={handleActivate}
           disabled={isCompleting || isGenerating}
-          className="min-w-[220px] h-12 text-base gap-2"
+          className={cn(
+            "min-w-[260px] h-16 text-lg font-bold gap-2 transition-all duration-300",
+            "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500",
+            "hover:shadow-2xl hover:shadow-emerald-500/40 hover:scale-105",
+            (isCompleting || isGenerating) && "opacity-60"
+          )}
         >
           {isGenerating ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
               {language === 'he' ? 'יוצר סיכום...' : 'Creating...'}
             </>
           ) : isCompleting ? (
             language === 'he' ? 'מפעיל...' : 'Activating...'
           ) : (
             <>
-              <Rocket className="w-4 h-4" />
-              {language === 'he' ? 'הפעל את הדשבורד' : 'Activate Dashboard'}
+              <Rocket className="w-5 h-5" />
+              {language === 'he' ? '🚀 הפעל את הדשבורד' : '🚀 Activate Dashboard'}
             </>
           )}
         </Button>

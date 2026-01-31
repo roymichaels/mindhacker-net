@@ -1220,7 +1220,12 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards, savedDa
         <Button
           onClick={handleComplete}
           disabled={!canComplete || isCompleting}
-          className="w-full py-6 text-lg relative overflow-hidden group"
+          className={cn(
+            "w-full py-6 text-lg font-bold relative overflow-hidden transition-all duration-300",
+            canComplete 
+              ? "bg-gradient-to-r from-primary via-accent to-primary hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]"
+              : "bg-muted text-muted-foreground opacity-60"
+          )}
           size="lg"
         >
           <span className="relative z-10 flex items-center gap-2">
@@ -1232,7 +1237,7 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards, savedDa
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
-                {language === 'he' ? 'שמור והמשך' : 'Save & Continue'}
+                {language === 'he' ? '🚀 שמור והמשך' : '🚀 Save & Continue'}
               </>
             )}
           </span>
