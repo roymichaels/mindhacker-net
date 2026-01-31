@@ -35,55 +35,55 @@ export default defineConfig(({ mode }) => ({
         categories: ["health", "lifestyle", "education"],
         icons: [
           {
-            src: "/icons/icon-72x72.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "72x72",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-96x96.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "96x96",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-128x128.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "128x128",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-144x144.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "144x144",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-152x152.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "152x152",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-192x192.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "192x192",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-384x384.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "384x384",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/icon-512x512.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "512x512",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/icons/maskable-icon-512x512.png?v=4",
+            src: "/logo.png?v=5",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"
