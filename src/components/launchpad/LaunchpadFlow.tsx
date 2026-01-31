@@ -189,9 +189,21 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
           />
         );
       case 5:
-        return <IntrospectionStep key={`step-5-${viewingStep ?? 'current'}`} {...stepProps} />;
+        return (
+          <IntrospectionStep 
+            key={`step-5-${viewingStep ?? 'current'}`} 
+            {...stepProps}
+            savedFormSubmissionId={launchpadData?.step_3_form_submission_id ?? undefined}
+          />
+        );
       case 6:
-        return <LifePlanStep key={`step-6-${viewingStep ?? 'current'}`} {...stepProps} />;
+        return (
+          <LifePlanStep 
+            key={`step-6-${viewingStep ?? 'current'}`} 
+            {...stepProps}
+            savedFormSubmissionId={launchpadData?.step_4_form_submission_id ?? undefined}
+          />
+        );
       case 7:
         return (
           <FocusAreasStep 
