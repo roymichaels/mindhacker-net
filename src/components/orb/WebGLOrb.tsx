@@ -68,17 +68,32 @@ function fbm(x: number, y: number, z: number, octaves: number = 4): number {
 }
 
 // Parse HSL color string to THREE.Color
-function parseHslToThreeColor(hsl: string): THREE.Color {
-  const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
-  if (match) {
-    const h = parseInt(match[1]) / 360;
-    const s = parseInt(match[2]) / 100;
-    const l = parseInt(match[3]) / 100;
+// Supports formats: "hsl(200, 80%, 50%)", "200 80% 50%", "#ff0000", "red"
+function parseHslToThreeColor(colorStr: string): THREE.Color {
+  // Check for "h s% l%" format (without hsl wrapper)
+  const hslSpaceMatch = colorStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
+  if (hslSpaceMatch) {
+    const h = parseInt(hslSpaceMatch[1]) / 360;
+    const s = parseInt(hslSpaceMatch[2]) / 100;
+    const l = parseInt(hslSpaceMatch[3]) / 100;
     const color = new THREE.Color();
     color.setHSL(h, s, l);
     return color;
   }
-  return new THREE.Color(hsl);
+  
+  // Check for "hsl(h, s%, l%)" format
+  const hslFuncMatch = colorStr.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/);
+  if (hslFuncMatch) {
+    const h = parseInt(hslFuncMatch[1]) / 360;
+    const s = parseInt(hslFuncMatch[2]) / 100;
+    const l = parseInt(hslFuncMatch[3]) / 100;
+    const color = new THREE.Color();
+    color.setHSL(h, s, l);
+    return color;
+  }
+  
+  // Fallback to THREE.Color parser (handles hex, named colors)
+  return new THREE.Color(colorStr);
 }
 
 // Layer configuration for multi-layer orb

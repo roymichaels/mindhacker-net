@@ -47,7 +47,7 @@ export function StatsBar({ streak, tokens, sessions, level, className }: StatsBa
   return (
     <div 
       className={cn(
-        "grid grid-cols-4 gap-2 p-3 rounded-xl bg-card border",
+        "grid grid-cols-4 gap-1.5 p-2 rounded-lg bg-card border",
         className
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -56,13 +56,13 @@ export function StatsBar({ streak, tokens, sessions, level, className }: StatsBa
         <div 
           key={index}
           className={cn(
-            "flex flex-col items-center justify-center p-2 rounded-lg",
+            "flex flex-col items-center justify-center p-1.5 rounded-md",
             stat.bgColor
           )}
         >
-          <stat.icon className={cn("h-4 w-4 mb-1", stat.color)} />
-          <span className="font-bold text-sm">{stat.value}</span>
-          <span className="text-[10px] text-muted-foreground truncate max-w-full">
+          <stat.icon className={cn("h-3.5 w-3.5 mb-0.5", stat.color)} />
+          <span className="font-bold text-xs">{stat.value}</span>
+          <span className="text-[9px] text-muted-foreground truncate max-w-full">
             {stat.label}
           </span>
         </div>
