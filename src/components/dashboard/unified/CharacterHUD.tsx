@@ -50,7 +50,7 @@ export function CharacterHUD({
   return (
     <motion.div
       className={cn(
-        "relative flex items-center gap-4 p-3 rounded-xl",
+        "relative flex items-center gap-4 p-4 rounded-xl w-full",
         "backdrop-blur-xl bg-card/60 border border-primary/20",
         "shadow-[0_0_20px_rgba(var(--primary),0.15)]",
         onClick && "cursor-pointer hover:border-primary/40 hover:shadow-[0_0_30px_rgba(var(--primary),0.25)] transition-all duration-200",
@@ -71,24 +71,24 @@ export function CharacterHUD({
         }}
       />
       
-      {/* Orb - Large with DNA Threads */}
+      {/* Orb - Larger Avatar */}
       <div className="relative z-10 flex-shrink-0">
         <MultiThreadOrb
-          size={80}
+          size={100}
           showGlow={true}
           profile={profile}
         />
       </div>
       
-      {/* Info Section */}
-      <div className="flex-1 min-w-0 z-10 space-y-1.5">
-        {/* Top Row: Identity Title only */}
-        <div className="flex items-center gap-1.5 min-w-0">
+      {/* Info Section - Full Width */}
+      <div className="flex-1 min-w-0 z-10 space-y-2">
+        {/* Top Row: Identity Title */}
+        <div className="flex items-center gap-2 min-w-0">
           {identityTitle && (
             <>
-              <span className="text-base flex-shrink-0">{identityTitle.icon}</span>
+              <span className="text-lg flex-shrink-0">{identityTitle.icon}</span>
               <span 
-                className="text-sm font-semibold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                className="text-base font-semibold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
               >
                 {identityTitle.title}
               </span>
@@ -96,27 +96,27 @@ export function CharacterHUD({
           )}
         </div>
         
-        {/* XP Progress Bar */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1 relative">
-            <Progress 
-              value={xp.percentage} 
-              className="h-2 bg-muted/50"
-            />
-            {/* XP Glow overlay */}
-            <div 
-              className="absolute inset-0 rounded-full pointer-events-none"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${primaryColor.replace(')', '/0.3)')} ${xp.percentage}%, transparent ${xp.percentage}%)`,
-              }}
-            />
-          </div>
-          <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
-            {xp.current}/{xp.required} XP
-          </span>
+        {/* XP Text Above Bar */}
+        <div className="text-xs text-muted-foreground font-medium">
+          XP {xp.current}/{xp.required}
         </div>
         
-        {/* Bottom Row: Level + Streak + Tokens */}
+        {/* XP Progress Bar - Full Width */}
+        <div className="w-full relative">
+          <Progress 
+            value={xp.percentage} 
+            className="h-2.5 bg-muted/50 w-full"
+          />
+          {/* XP Glow overlay */}
+          <div 
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${primaryColor.replace(')', '/0.3)')} ${xp.percentage}%, transparent ${xp.percentage}%)`,
+            }}
+          />
+        </div>
+        
+        {/* Bottom Row: Level + Tokens + Streak */}
         <div className="flex items-center gap-3 text-xs">
           {/* Level Badge */}
           <div 

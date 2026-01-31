@@ -76,7 +76,7 @@ const UserDashboard = () => {
       <DashboardLayout>
         {/* Dashboard Content - Unified View */}
         <div className="space-y-6">
-          <p className="text-2xl font-bold">{t('dashboard.welcomeBack')}</p>
+          <p className="text-lg font-semibold text-muted-foreground">{t('dashboard.welcomeBack')}</p>
           
           {/* Unified Life Model + Gamification Dashboard */}
           <UnifiedDashboardView />
