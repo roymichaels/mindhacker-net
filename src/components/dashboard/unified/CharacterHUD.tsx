@@ -65,16 +65,16 @@ export function CharacterHUD({
         }}
       />
       
-      {/* Orb - Small with DNA Threads */}
+      {/* Orb - Large with DNA Threads */}
       <div className="relative z-10 flex-shrink-0">
         <div 
-          className="rounded-full ring-2 ring-primary/40 overflow-hidden w-16 h-16 flex items-center justify-center"
+          className="rounded-full ring-2 ring-primary/40 overflow-hidden w-20 h-20 flex items-center justify-center"
           style={{
             boxShadow: `0 0 12px ${primaryColor.replace(')', '/0.4)')}`,
           }}
         >
           <MultiThreadOrb
-            size={64}
+            size={80}
             showGlow={true}
             profile={profile}
           />

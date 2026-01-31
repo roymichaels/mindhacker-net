@@ -217,13 +217,13 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
+                    <Button variant="ghost" className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
                       {/* Site Logo as Avatar for logged-in users */}
-                      <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30 bg-background/50">
+                      <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30 bg-background/50 p-1">
                         <img 
                           src={logoUrl} 
                           alt="Avatar" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                     </Button>
