@@ -242,19 +242,11 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
-                        {isPersonalized ? (
-                          <MultiThreadOrb 
-                            size={40}
-                            showGlow={false}
-                            profile={orbProfile}
-                          />
-                        ) : (
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
-                              {getUserInitials()}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
+                        <MultiThreadOrb 
+                          size={40}
+                          showGlow={false}
+                          profile={orbProfile}
+                        />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
