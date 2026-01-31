@@ -132,11 +132,22 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
           if (submission.responses) {
             const loadedAnswers: Record<string, string> = {};
             
-            // Handle both array format and object format
+            // Handle array format: [{question: "...", answer: "..."}, ...]
             if (Array.isArray(submission.responses)) {
               submission.responses.forEach((r: any, index: number) => {
+                // Method 1: Match by index to QUESTIONS array
                 if (QUESTIONS[index] && r.answer) {
                   loadedAnswers[QUESTIONS[index].id] = r.answer;
+                }
+                
+                // Method 2: Also try to match by question text as fallback
+                if (r.question && r.answer) {
+                  const matchedQuestion = QUESTIONS.find(q => 
+                    q.question === r.question || q.questionEn === r.question
+                  );
+                  if (matchedQuestion) {
+                    loadedAnswers[matchedQuestion.id] = r.answer;
+                  }
                 }
               });
             } else if (typeof submission.responses === 'object') {
@@ -150,7 +161,9 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
               });
             }
             
+            console.log('[IntrospectionStep] Raw responses:', submission.responses);
             console.log('[IntrospectionStep] Loaded answers:', loadedAnswers);
+            console.log('[IntrospectionStep] Answer count:', Object.keys(loadedAnswers).length);
             setAnswers(loadedAnswers);
           }
 
