@@ -59,8 +59,8 @@ export function generateParticlePositions(
 }
 
 /**
- * Update particle positions - ENERGY BEING pulsating in/out effect
- * Particles flow from the orb outward and merge back in
+ * Update particle positions - DRAMATIC ENERGY BEING pulsating in/out effect
+ * Particles actively merge with and eject from the orb
  */
 export function updateParticlePositions(
   positions: Float32Array,
@@ -77,52 +77,64 @@ export function updateParticlePositions(
     const baseZ = basePositions[idx + 2];
     
     // Distance from center
-    const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
-    const nx = baseX / dist;
-    const ny = baseY / dist;
-    const nz = baseZ / dist;
+    const baseDist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
+    const nx = baseX / baseDist;
+    const ny = baseY / baseDist;
+    const nz = baseZ / baseDist;
     
-    // Each particle has its own phase offset for varied timing
-    const particlePhase = i * 0.15;
+    // Each particle has unique timing
+    const particleId = i / count;
+    const particlePhase = i * 0.25 + particleId * Math.PI * 2;
     
-    // PULSATING IN/OUT - main breathing effect
-    // Creates waves of particles moving outward then returning
-    const breathCycle = time * 0.8 + particlePhase;
-    const breathWave = Math.sin(breathCycle) * 0.5 + Math.sin(breathCycle * 2.3) * 0.2;
+    // === DRAMATIC PULSATION - Main in/out breathing ===
+    // Fast breathing cycle - particles rush in and out
+    const fastBreath = Math.sin(time * 1.5 + particlePhase) * 0.6;
+    const slowBreath = Math.sin(time * 0.4 + particlePhase * 0.5) * 0.3;
     
-    // Energy burst waves - periodic ejection of particles
-    const burstPhase = time * 0.4 + particlePhase * 0.5;
-    const burst = Math.pow(Math.max(0, Math.sin(burstPhase)), 3) * 0.6;
+    // === ENERGY BURSTS - Periodic ejection waves ===
+    const burstPhase = time * 0.8 + particlePhase * 0.3;
+    const burst = Math.pow(Math.max(0, Math.sin(burstPhase)), 2) * 0.8;
     
-    // Spiral motion around the orb
-    const spiralAngle = time * 0.5 + particlePhase + dist * 2;
-    const spiralRadius = 0.08 + Math.sin(time * 0.7 + i) * 0.04;
+    // === MERGING EFFECT - Particles dive deep into orb ===
+    // Some particles periodically merge completely into the orb
+    const mergeCycle = Math.sin(time * 0.5 + i * 0.4);
+    const mergeDepth = mergeCycle > 0.6 ? (mergeCycle - 0.6) * 2.5 : 0; // Deep dive
     
-    // Vertical oscillation
-    const verticalWave = Math.sin(time * 0.6 + particlePhase * 1.5) * 0.12;
+    // === SPIRAL ORBIT around orb ===
+    const spiralSpeed = 0.8 + particleId * 0.4;
+    const spiralAngle = time * spiralSpeed + particlePhase + baseDist * 3;
+    const spiralRadius = 0.15 + Math.sin(time * 0.9 + i) * 0.1;
     
-    // Combined radial pulsation - in and out of the orb
-    const radialPulse = breathWave * 0.35 + burst * 0.4;
+    // === WAVE MOTION ===
+    const waveX = Math.sin(time * 1.2 + particlePhase) * 0.12;
+    const waveY = Math.cos(time * 0.8 + particlePhase * 1.3) * 0.15;
+    const waveZ = Math.sin(time * 1.0 + particlePhase * 0.7) * 0.12;
     
-    // Some particles should occasionally dive deep into the orb core
-    const diveFactor = Math.sin(time * 0.3 + i * 0.7);
-    const diveInward = diveFactor > 0.7 ? (diveFactor - 0.7) * 1.5 : 0;
+    // === RANDOM JITTER for organic feel ===
+    const jitterX = Math.sin(time * 3 + i * 7.3) * 0.03;
+    const jitterY = Math.cos(time * 2.7 + i * 5.1) * 0.03;
+    const jitterZ = Math.sin(time * 2.3 + i * 6.7) * 0.03;
     
-    // Audio reactivity - more dramatic expansion
-    const audioExpansion = 1 + audioLevel * 0.8;
+    // === COMBINE ALL EFFECTS ===
+    // Radial movement: breathe + burst - merge
+    const radialOffset = fastBreath + slowBreath + burst - mergeDepth * 0.6;
     
-    // Calculate final position
-    // Base distance + pulsation - dive creates merging effect
-    const finalDist = (dist + radialPulse - diveInward * 0.4) * audioExpansion;
+    // Audio makes particles expand dramatically
+    const audioExpansion = 1 + audioLevel * 1.2;
     
-    // Apply spiral motion perpendicular to radial direction
-    const perpX = Math.cos(spiralAngle) * spiralRadius;
-    const perpY = verticalWave;
-    const perpZ = Math.sin(spiralAngle) * spiralRadius;
+    // Final radial distance - can go inside the orb!
+    const minDist = 0.2; // Allow particles to get very close to center
+    const finalDist = Math.max(minDist, (baseDist * 0.7 + radialOffset * 0.5)) * audioExpansion;
     
-    positions[idx] = nx * finalDist + perpX;
-    positions[idx + 1] = ny * finalDist + perpY;
-    positions[idx + 2] = nz * finalDist + perpZ;
+    // Orbital position
+    const orbitalX = Math.cos(spiralAngle) * spiralRadius;
+    const orbitalY = Math.sin(spiralAngle * 0.7) * spiralRadius * 0.8;
+    const orbitalZ = Math.sin(spiralAngle) * spiralRadius;
+    
+    // Final position
+    positions[idx] = nx * finalDist + orbitalX + waveX + jitterX;
+    positions[idx + 1] = ny * finalDist + orbitalY + waveY + jitterY;
+    positions[idx + 2] = nz * finalDist + orbitalZ + waveZ + jitterZ;
   }
 }
 
@@ -197,12 +209,16 @@ export class ParticleSystem {
     updateParticlePositions(positions, this.basePositions, time, audioLevel);
     this.geometry.attributes.position.needsUpdate = true;
     
-    // Gentle rotation of entire particle system
-    this.points.rotation.y = time * 0.08;
-    this.points.rotation.x = Math.sin(time * 0.15) * 0.08;
+    // Rotate entire particle cloud for added dynamism
+    this.points.rotation.y = time * 0.12;
+    this.points.rotation.x = Math.sin(time * 0.2) * 0.15;
+    this.points.rotation.z = Math.cos(time * 0.15) * 0.08;
     
-    // Pulsating opacity for energy breathing
-    this.material.opacity = 0.7 + Math.sin(time * 1.2) * 0.25;
+    // Pulsating size for energy effect
+    this.material.size = 0.06 + Math.sin(time * 2) * 0.025;
+    
+    // Pulsating opacity - breathing glow
+    this.material.opacity = 0.75 + Math.sin(time * 1.5) * 0.2;
   }
   
   setColor(color: string): void {
