@@ -19,7 +19,8 @@ interface LifestyleData {
   sleep_time: string;
   sleep_quality: string;
   shift_work: string;
-  work_hours: string;
+  work_start_time: string;
+  work_end_time: string;
   work_flexibility: string;
   breakfast_time: string;
   lunch_time: string;
@@ -36,7 +37,7 @@ type CategoryKey = keyof typeof CATEGORIES;
 type MultiSelectCategory = 'family_commitments' | 'special_constraints';
 
 // Categories that use time picker instead of options
-const TIME_PICKER_CATEGORIES = ['wake_time', 'sleep_time'];
+const TIME_PICKER_CATEGORIES = ['wake_time', 'sleep_time', 'work_start_time', 'work_end_time'];
 
 const CATEGORIES = {
   // === SLEEP ===
@@ -93,22 +94,27 @@ const CATEGORIES = {
       { value: 'not-working', label: 'לא עובד כרגע', labelEn: 'Not currently working' },
     ],
   },
-  work_hours: {
+  work_start_time: {
     section: 'work',
-    title: 'מה שעות העבודה שלך?',
-    titleEn: 'What are your work hours?',
-    icon: '⏰',
+    title: 'מתי אתה מתחיל לעבוד?',
+    titleEn: 'When do you start work?',
+    icon: '🌅',
     multiSelect: false,
-    options: [
-      { value: 'early-morning', label: 'בוקר מוקדם (עד 06:00-14:00)', labelEn: 'Early morning (6 AM-2 PM)' },
-      { value: 'morning', label: 'בוקר רגיל (08:00-17:00)', labelEn: 'Regular morning (8 AM-5 PM)' },
-      { value: 'afternoon', label: 'אחר הצהריים (12:00-20:00)', labelEn: 'Afternoon (12-8 PM)' },
-      { value: 'evening', label: 'ערב (16:00-00:00)', labelEn: 'Evening (4 PM-12 AM)' },
-      { value: 'night', label: 'לילה (22:00-06:00)', labelEn: 'Night (10 PM-6 AM)' },
-      { value: 'flexible', label: 'גמיש', labelEn: 'Flexible' },
-      { value: 'varies', label: 'משתנה', labelEn: 'Varies' },
-      { value: 'not-applicable', label: 'לא רלוונטי', labelEn: 'Not applicable' },
-    ],
+    isTimePicker: true,
+    minHour: 0,
+    maxHour: 23,
+    options: [],
+  },
+  work_end_time: {
+    section: 'work',
+    title: 'מתי אתה מסיים לעבוד?',
+    titleEn: 'When do you finish work?',
+    icon: '🌆',
+    multiSelect: false,
+    isTimePicker: true,
+    minHour: 0,
+    maxHour: 23,
+    options: [],
   },
   work_flexibility: {
     section: 'work',
@@ -431,10 +437,12 @@ export function LifestyleRoutineStep({
                   onChange={(time) => handleSelect(key, time)}
                   label={language === 'he' ? category.title : category.titleEn}
                   placeholder={language === 'he' ? 'בחר שעה' : 'Select time'}
-                  minHour={key === 'wake_time' ? 3 : 18}
-                  maxHour={key === 'wake_time' ? 12 : 23}
-                  showVaries
-                  variesLabel={language === 'he' ? 'משתנה (משמרות)' : 'Varies (shifts)'}
+                  minHour={(category as any).minHour ?? 0}
+                  maxHour={(category as any).maxHour ?? 23}
+                  showVaries={['wake_time', 'sleep_time', 'work_start_time', 'work_end_time'].includes(key)}
+                  variesLabel={key.includes('work') 
+                    ? (language === 'he' ? 'לא עובד / גמיש' : 'Not working / Flexible')
+                    : (language === 'he' ? 'משתנה (משמרות)' : 'Varies (shifts)')}
                   isVaries={isVaries}
                   onVariesChange={(v) => {
                     if (v) handleSelect(key, 'varies');
