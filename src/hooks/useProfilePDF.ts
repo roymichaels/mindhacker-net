@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +25,24 @@ interface LifePlan {
     hypnosis_recommendation?: string;
   }>;
 }
+
+// Helper function to wait for DOM to be ready
+const waitForElement = (ref: React.RefObject<HTMLDivElement>, maxAttempts = 20): Promise<HTMLDivElement> => {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+    const check = () => {
+      attempts++;
+      if (ref.current && ref.current.querySelectorAll('[data-page]').length > 0) {
+        resolve(ref.current);
+      } else if (attempts >= maxAttempts) {
+        reject(new Error('PDF container not ready after max attempts'));
+      } else {
+        setTimeout(check, 100);
+      }
+    };
+    check();
+  });
+};
 
 export function useProfilePDF() {
   const { user } = useAuth();
@@ -175,9 +193,8 @@ export function useProfilePDF() {
       setPdfData(data);
       setShowRenderer(true);
 
-      // Step 3: Wait for render then capture
-      // Small delay to ensure DOM is rendered
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Step 3: Wait for DOM to be ready with retry logic
+      await waitForElement(containerRef);
 
       const pdf = await capturePDF();
       
