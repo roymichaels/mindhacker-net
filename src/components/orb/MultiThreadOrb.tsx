@@ -36,20 +36,24 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   return new THREE.Color(0x00ff88);
 }
 
-// Create geometry based on type
+// Create geometry based on type with validation
 function createGeometry(type: BaseGeometry, radius: number, detail: number): THREE.BufferGeometry {
+  // Ensure valid radius and detail values to prevent NaN in geometry
+  const safeRadius = Number.isFinite(radius) && radius > 0 ? radius : 0.5;
+  const safeDetail = Number.isFinite(detail) && detail >= 0 ? Math.min(Math.max(Math.round(detail), 0), 5) : 2;
+  
   switch (type) {
     case 'sphere':
-      return new THREE.SphereGeometry(radius, 32, 32);
+      return new THREE.SphereGeometry(safeRadius, 32, 32);
     case 'octahedron':
-      return new THREE.OctahedronGeometry(radius, detail);
+      return new THREE.OctahedronGeometry(safeRadius, safeDetail);
     case 'dodecahedron':
-      return new THREE.DodecahedronGeometry(radius, detail);
+      return new THREE.DodecahedronGeometry(safeRadius, safeDetail);
     case 'torus':
-      return new THREE.TorusGeometry(radius * 0.8, radius * 0.3, 16, 32);
+      return new THREE.TorusGeometry(safeRadius * 0.8, safeRadius * 0.3, 16, 32);
     case 'icosahedron':
     default:
-      return new THREE.IcosahedronGeometry(radius, detail);
+      return new THREE.IcosahedronGeometry(safeRadius, safeDetail);
   }
 }
 
@@ -156,9 +160,11 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     const { threads, shape } = activeProfile;
 
     threads.forEach((thread, index) => {
-      // Calculate radius based on layer (inner layers smaller)
-      const baseRadius = 0.85 - thread.layer * 0.12;
-      const detail = Math.max(3, shape.complexity - thread.layer);
+      // Calculate radius based on layer (inner layers smaller) with validation
+      const layer = Number.isFinite(thread.layer) ? thread.layer : 0;
+      const baseRadius = Math.max(0.3, 0.85 - layer * 0.12);
+      const complexity = Number.isFinite(shape.complexity) ? shape.complexity : 3;
+      const detail = Math.max(1, Math.min(5, complexity - layer));
       
       const geometry = createGeometry(shape.baseGeometry, baseRadius, detail);
       const positions = geometry.attributes.position.array as Float32Array;
@@ -179,11 +185,11 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       
       scene.add(mesh);
       
-      const axis = new THREE.Vector3(
-        thread.rotationAxis.x,
-        thread.rotationAxis.y,
-        thread.rotationAxis.z
-      ).normalize();
+      // Validate rotation axis values to prevent NaN
+      const axisX = Number.isFinite(thread.rotationAxis?.x) ? thread.rotationAxis.x : 0.5;
+      const axisY = Number.isFinite(thread.rotationAxis?.y) ? thread.rotationAxis.y : 0.8;
+      const axisZ = Number.isFinite(thread.rotationAxis?.z) ? thread.rotationAxis.z : 0.3;
+      const axis = new THREE.Vector3(axisX, axisY, axisZ).normalize();
       
       newThreadMeshes.push({
         mesh,

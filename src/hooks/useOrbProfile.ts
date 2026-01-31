@@ -140,7 +140,7 @@ export function useOrbProfile() {
     return extractLaunchpadProfile(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
 
-  // Fetch launchpad summary for AI-derived insights
+  // Fetch launchpad summary for AI-derived insights - use maybeSingle() to avoid 406
   const { data: launchpadSummary } = useQuery({
     queryKey: ['launchpad-summary-orb', user?.id],
     queryFn: async () => {
@@ -150,9 +150,9 @@ export function useOrbProfile() {
         .from('launchpad_summaries')
         .select('summary_data, consciousness_score, transformation_readiness')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching launchpad summary:', error);
         return null;
       }
