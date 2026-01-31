@@ -21,6 +21,7 @@ interface CharacterHUDProps {
   streak: number;
   tokens: number;
   className?: string;
+  onClick?: () => void;
 }
 
 // Convert HSL string like "200 80% 50%" to proper CSS format
@@ -37,6 +38,7 @@ export function CharacterHUD({
   streak,
   tokens,
   className,
+  onClick,
 }: CharacterHUDProps) {
   const { profile, isPersonalized, threadCount } = useMultiThreadOrbProfile();
   
@@ -51,11 +53,15 @@ export function CharacterHUD({
         "relative flex items-center gap-4 p-3 rounded-xl",
         "backdrop-blur-xl bg-card/60 border border-primary/20",
         "shadow-[0_0_20px_rgba(var(--primary),0.15)]",
+        onClick && "cursor-pointer hover:border-primary/40 hover:shadow-[0_0_30px_rgba(var(--primary),0.25)] transition-all duration-200",
         className
       )}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      onClick={onClick}
+      whileHover={onClick ? { scale: 1.01 } : undefined}
+      whileTap={onClick ? { scale: 0.99 } : undefined}
     >
       {/* Glow effect behind */}
       <div 

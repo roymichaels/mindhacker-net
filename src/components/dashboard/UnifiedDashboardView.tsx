@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Rocket, Sparkles, UserCog } from 'lucide-react';
+import { Loader2, Rocket, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
@@ -72,25 +72,15 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
         className={cn("space-y-4", className)}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* MapleStory-style Character HUD - Compact with Orb, XP, Stats */}
+        {/* MapleStory-style Character HUD - Compact with Orb, XP, Stats - Clickable to open Profile */}
         <CharacterHUD
           identityTitle={dashboard.identityTitle}
           level={dashboard.level}
           xp={dashboard.xpProgress}
           streak={dashboard.streak}
           tokens={dashboard.tokens}
-        />
-
-        {/* Edit Profile Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
           onClick={() => setProfileOpen(true)}
-        >
-          <UserCog className="h-4 w-4" />
-          {language === 'he' ? 'ערוך פרופיל' : 'Edit Profile'}
-        </Button>
+        />
         <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
         {/* Quick Access Grid - Opens Modals */}
