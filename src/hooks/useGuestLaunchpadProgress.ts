@@ -7,11 +7,14 @@ export interface GuestLaunchpadProgress {
   current_step: number;
   step_1_intention: string | null;
   step_2_profile_data: Record<string, unknown> | null;
-  step_2_summary: string | null;
-  step_3_form_submission_id: string | null;
-  step_4_form_submission_id: string | null;
-  step_5_focus_areas_selected: string[];
-  step_6_actions: Record<string, unknown> | null;
+  step_3_lifestyle_data: Record<string, unknown> | null;
+  step_4_growth_data: Record<string, unknown> | null;
+  step_5_chat_summary: string | null;
+  step_6_introspection_data: Record<string, unknown> | null;
+  step_7_life_plan_data: Record<string, unknown> | null;
+  step_8_focus_areas: string[];
+  step_9_first_week_actions: Record<string, unknown> | null;
+  step_10_final_notes: string | null;
   launchpad_complete: boolean;
   completed_at: string | null;
 }
@@ -19,21 +22,29 @@ export interface GuestLaunchpadProgress {
 export interface GuestStepCompletionData {
   intention?: string;
   profile_data?: Record<string, unknown>;
+  lifestyle_data?: Record<string, unknown>;
+  growth_data?: Record<string, unknown>;
   summary?: string;
   form_data?: Record<string, unknown>;
   focus_areas?: string[];
   actions?: Record<string, unknown>;
+  final_notes?: string;
 }
+
+const TOTAL_STEPS = 11;
 
 const getDefaultProgress = (): GuestLaunchpadProgress => ({
   current_step: 1,
   step_1_intention: null,
   step_2_profile_data: null,
-  step_2_summary: null,
-  step_3_form_submission_id: null,
-  step_4_form_submission_id: null,
-  step_5_focus_areas_selected: [],
-  step_6_actions: null,
+  step_3_lifestyle_data: null,
+  step_4_growth_data: null,
+  step_5_chat_summary: null,
+  step_6_introspection_data: null,
+  step_7_life_plan_data: null,
+  step_8_focus_areas: [],
+  step_9_first_week_actions: null,
+  step_10_final_notes: null,
   launchpad_complete: false,
   completed_at: null,
 });
@@ -42,7 +53,16 @@ export function useGuestLaunchpadProgress() {
   const [progress, setProgress] = useState<GuestLaunchpadProgress>(() => {
     try {
       const stored = localStorage.getItem(`${STORAGE_PREFIX}progress`);
-      return stored ? JSON.parse(stored) : getDefaultProgress();
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Migration: if old 9-step progress, convert to 11-step
+        if (parsed.current_step && !parsed.step_3_lifestyle_data && parsed.step_3_form_submission_id !== undefined) {
+          // Old format detected - reset to default
+          return getDefaultProgress();
+        }
+        return { ...getDefaultProgress(), ...parsed };
+      }
+      return getDefaultProgress();
     } catch {
       return getDefaultProgress();
     }
@@ -66,7 +86,10 @@ export function useGuestLaunchpadProgress() {
     setProgress(prev => {
       const updated = { ...prev };
       
-      // Update step-specific data
+      // Update step-specific data - same structure as LaunchpadFlow
+      // Phase 1 (Who you are): 1-Welcome, 2-Profile, 3-LifestyleRoutine
+      // Phase 2 (What's not working): 4-GrowthDeepDive, 5-FirstChat, 6-Introspection, 7-LifePlan
+      // Phase 3 (Who you want to be): 8-FocusAreas, 9-FirstWeek, 10-FinalNotes, 11-Dashboard
       switch (step) {
         case 1:
           if (data?.intention) {
@@ -78,48 +101,63 @@ export function useGuestLaunchpadProgress() {
             updated.step_2_profile_data = data.profile_data;
           }
           break;
+        case 3:
+          if (data?.lifestyle_data) {
+            updated.step_3_lifestyle_data = data.lifestyle_data;
+          }
+          break;
         case 4:
-          if (data?.summary) {
-            updated.step_2_summary = data.summary;
+          if (data?.growth_data) {
+            updated.step_4_growth_data = data.growth_data;
           }
           break;
         case 5:
+          if (data?.summary) {
+            updated.step_5_chat_summary = data.summary;
+          }
+          break;
+        case 6:
           if (data?.form_data) {
-            // Store introspection data
+            updated.step_6_introspection_data = data.form_data;
             try {
               localStorage.setItem(`${STORAGE_PREFIX}introspection`, JSON.stringify(data.form_data));
             } catch {}
           }
           break;
-        case 6:
+        case 7:
           if (data?.form_data) {
-            // Store life plan data
+            updated.step_7_life_plan_data = data.form_data;
             try {
               localStorage.setItem(`${STORAGE_PREFIX}life_plan`, JSON.stringify(data.form_data));
             } catch {}
           }
           break;
-        case 7:
-          if (data?.focus_areas) {
-            updated.step_5_focus_areas_selected = data.focus_areas;
-          }
-          break;
         case 8:
-          if (data?.actions) {
-            updated.step_6_actions = data.actions;
+          if (data?.focus_areas) {
+            updated.step_8_focus_areas = data.focus_areas;
           }
           break;
         case 9:
+          if (data?.actions) {
+            updated.step_9_first_week_actions = data.actions;
+          }
+          break;
+        case 10:
+          if (data?.final_notes) {
+            updated.step_10_final_notes = data.final_notes;
+          }
+          break;
+        case 11:
           updated.launchpad_complete = true;
           updated.completed_at = new Date().toISOString();
           break;
       }
       
       // Advance to next step if completing current step
-      if (step === updated.current_step && step < 9) {
+      if (step === updated.current_step && step < TOTAL_STEPS) {
         updated.current_step = step + 1;
-      } else if (step === 9) {
-        updated.current_step = 9;
+      } else if (step === TOTAL_STEPS) {
+        updated.current_step = TOTAL_STEPS;
       }
       
       return updated;
@@ -156,8 +194,12 @@ export function useGuestLaunchpadProgress() {
         `${STORAGE_PREFIX}step_7`,
         `${STORAGE_PREFIX}step_8`,
         `${STORAGE_PREFIX}step_9`,
+        `${STORAGE_PREFIX}step_10`,
+        `${STORAGE_PREFIX}step_11`,
         `${STORAGE_PREFIX}personal_profile`,
+        `${STORAGE_PREFIX}lifestyle_routine`,
         `${STORAGE_PREFIX}first_week`,
+        `${STORAGE_PREFIX}final_notes`,
       ];
       keysToRemove.forEach(key => localStorage.removeItem(key));
     } catch (e) {
@@ -170,10 +212,14 @@ export function useGuestLaunchpadProgress() {
     const result: Record<string, unknown> = {
       welcomeQuiz: {},
       personalProfile: {},
+      lifestyleRoutine: {},
+      growthDeepDive: {},
+      firstChatTranscript: {},
       introspection: {},
       lifePlan: {},
       focusAreas: [],
-      firstWeek: {},
+      firstWeekActions: {},
+      finalNotes: '',
     };
 
     try {
@@ -193,35 +239,58 @@ export function useGuestLaunchpadProgress() {
         result.personalProfile = progress.step_2_profile_data;
       }
 
-      // First chat transcript (step 4)
-      if (progress.step_2_summary) {
+      // Lifestyle routine (step 3)
+      if (progress.step_3_lifestyle_data) {
+        result.lifestyleRoutine = progress.step_3_lifestyle_data;
+      }
+
+      // Growth deep dive (step 4)
+      if (progress.step_4_growth_data) {
+        result.growthDeepDive = progress.step_4_growth_data;
+      }
+
+      // First chat transcript (step 5)
+      if (progress.step_5_chat_summary) {
         try {
-          result.firstChatTranscript = typeof progress.step_2_summary === 'string'
-            ? JSON.parse(progress.step_2_summary)
-            : progress.step_2_summary;
+          result.firstChatTranscript = typeof progress.step_5_chat_summary === 'string'
+            ? JSON.parse(progress.step_5_chat_summary)
+            : progress.step_5_chat_summary;
         } catch {
-          result.firstChatTranscript = { summary: progress.step_2_summary };
+          result.firstChatTranscript = { summary: progress.step_5_chat_summary };
         }
       }
 
-      // Introspection (step 5)
-      const introspection = localStorage.getItem(`${STORAGE_PREFIX}introspection`);
-      if (introspection) {
-        result.introspection = JSON.parse(introspection);
+      // Introspection (step 6)
+      if (progress.step_6_introspection_data) {
+        result.introspection = progress.step_6_introspection_data;
+      } else {
+        const introspection = localStorage.getItem(`${STORAGE_PREFIX}introspection`);
+        if (introspection) {
+          result.introspection = JSON.parse(introspection);
+        }
       }
 
-      // Life plan (step 6)
-      const lifePlan = localStorage.getItem(`${STORAGE_PREFIX}life_plan`);
-      if (lifePlan) {
-        result.lifePlan = JSON.parse(lifePlan);
+      // Life plan (step 7)
+      if (progress.step_7_life_plan_data) {
+        result.lifePlan = progress.step_7_life_plan_data;
+      } else {
+        const lifePlan = localStorage.getItem(`${STORAGE_PREFIX}life_plan`);
+        if (lifePlan) {
+          result.lifePlan = JSON.parse(lifePlan);
+        }
       }
 
-      // Focus areas (step 7)
-      result.selectedFocusAreas = progress.step_5_focus_areas_selected || [];
+      // Focus areas (step 8)
+      result.selectedFocusAreas = progress.step_8_focus_areas || [];
 
-      // First week (step 8)
-      if (progress.step_6_actions) {
-        result.firstWeekActions = progress.step_6_actions;
+      // First week (step 9)
+      if (progress.step_9_first_week_actions) {
+        result.firstWeekActions = progress.step_9_first_week_actions;
+      }
+
+      // Final notes (step 10)
+      if (progress.step_10_final_notes) {
+        result.finalNotes = progress.step_10_final_notes;
       }
     } catch (e) {
       console.error('Error getting guest data:', e);
@@ -232,7 +301,7 @@ export function useGuestLaunchpadProgress() {
 
   const actualCurrentStep = progress.current_step || 1;
   const currentPhase = getPhaseForStep(actualCurrentStep);
-  const completionPercentage = Math.round(((actualCurrentStep - 1) / 9) * 100);
+  const completionPercentage = Math.round(((actualCurrentStep - 1) / TOTAL_STEPS) * 100);
   const completedSteps = actualCurrentStep - 1;
 
   const isStepAccessible = (stepNumber: number): boolean => {
@@ -259,7 +328,7 @@ export function useGuestLaunchpadProgress() {
     isResetting: false,
     completionPercentage,
     completedSteps,
-    totalSteps: 9,
+    totalSteps: TOTAL_STEPS,
     isStepAccessible,
     isStepCompleted,
     isLaunchpadComplete: progress.launchpad_complete,
