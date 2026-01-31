@@ -85,6 +85,8 @@ const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
 const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
+const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
+const Profile = lazy(() => import("./pages/Profile"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -353,6 +355,14 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        <Route
+                          path="/profile"
+                          element={
+                            <ProtectedRoute>
+                              <Profile />
+                            </ProtectedRoute>
+                          }
+                        />
 
                         {/* Admin Panel routes */}
                         <Route
@@ -367,6 +377,7 @@ const App = () => (
                           <Route path="analytics" element={<Analytics />} />
                           <Route path="roles" element={<RolesManager />} />
                           <Route path="users" element={<Users />} />
+                          <Route path="users/:userId" element={<UserProfile />} />
                           <Route path="practitioners" element={<Users />} />
                           <Route path="leads" element={<Leads />} />
                           <Route path="aurora-insights" element={<AuroraInsights />} />
