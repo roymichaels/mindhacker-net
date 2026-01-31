@@ -129,7 +129,7 @@ serve(async (req: Request): Promise<Response> => {
         <p style="margin: 0; color: #f59e0b;"><strong>שים לב:</strong> ההזמנה תישמר ל-7 ימים. אם לא התקבל תשלום, ההזמנה תבוטל אוטומטית.</p>
       </div>
       
-      <p style="margin-top: 30px;">מחכה לשמוע ממך,<br/><strong style="color: #00f0ff;">דין אושר אזולאי</strong></p>
+      <p style="margin-top: 30px;">מחכים לשמוע ממך,<br/><strong style="color: #00f0ff;">צוות Mind Hacker</strong></p>
     `;
 
     // English content
@@ -188,7 +188,7 @@ serve(async (req: Request): Promise<Response> => {
         <p style="margin: 0; color: #f59e0b;"><strong>Note:</strong> Your order will be held for 7 days. If payment is not received, it will be automatically cancelled.</p>
       </div>
       
-      <p style="margin-top: 30px;">Looking forward to hearing from you,<br/><strong style="color: #00f0ff;">Dean Osher Azulay</strong></p>
+      <p style="margin-top: 30px;">Looking forward to hearing from you,<br/><strong style="color: #00f0ff;">Mind Hacker Team</strong></p>
     `;
 
     const emailContent = isRTL ? hebrewContent : englishContent;
@@ -214,7 +214,7 @@ serve(async (req: Request): Promise<Response> => {
           </div>
           <div class="content">${emailContent}</div>
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'מיינד האקר - דין אושר אזולאי' : 'Mind Hacker - Dean Osher Azulay'}</p>
+            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind Hacker - פלטפורמת התפתחות אישית' : 'Mind Hacker - Personal Development Platform'}</p>
             <p style="color: #6b7280; font-size: 12px;">
               <a href="${siteUrl}/dashboard" style="color: #00f0ff;">${isRTL ? 'צפה בהזמנות שלי' : 'View My Orders'}</a>
             </p>
