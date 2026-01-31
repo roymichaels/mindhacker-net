@@ -278,19 +278,22 @@ const Users = () => {
 
                 return (
                   <TableRow key={user.id} className="group">
-                    {/* User Info - Compact */}
+                    {/* User Info - Compact & Clickable */}
                     <TableCell className="py-2">
-                      <div className="flex items-center gap-2">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => navigate(`/panel/users/${user.id}`)}
+                      >
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs bg-primary/10 text-primary">
                             {getInitials(user.profiles?.full_name, user.email)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm truncate">
+                          <p className="font-medium text-sm truncate hover:text-primary transition-colors">
                             {user.profiles?.full_name || t('adminUsers.notDefined')}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-xs text-muted-foreground truncate hover:text-primary/70 transition-colors">
                             {user.email}
                           </p>
                         </div>
