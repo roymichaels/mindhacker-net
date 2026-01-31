@@ -2474,9 +2474,13 @@ export const he = {
     coachingFeature4: "ניתוח דפוסים והתנהגויות",
     coachingFeature5: "זמינה בכל שעה, כל יום",
     
-    // Life Plan / Launchpad
+    // Life Plan / Transformation Journey
     lifePlanTitle: "תוכנית 90 ימים לחיים חדשים",
-    lifePlanSubtitle: "10 שלבים ב-Launchpad → תוכנית אישית מלאה",
+    lifePlanSubtitle: "9 שלבים במסע הטרנספורמציה → תוכנית אישית מלאה",
+    transformationJourney: "מסע הטרנספורמציה",
+    editTransformationJourney: "ערוך מסע טרנספורמציה",
+    startTransformationJourney: "התחל מסע טרנספורמציה",
+    continueTransformationJourney: "המשך מסע טרנספורמציה",
     step1Name: "ברוך הבא",
     step2Name: "פרופיל אישי",
     step3Name: "בניית זהות",
