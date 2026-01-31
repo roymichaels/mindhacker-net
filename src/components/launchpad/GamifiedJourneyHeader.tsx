@@ -170,12 +170,12 @@ export function GamifiedJourneyHeader({
                 
                 <div className={cn(
                   "relative w-16 h-16 md:w-20 md:h-20 rounded-full",
-                  "ring-2 ring-primary/60 shadow-xl overflow-visible",
+                  "ring-2 ring-primary/60 shadow-xl overflow-hidden",
                   "bg-gradient-to-br from-background/90 to-background/60 backdrop-blur-sm",
                   hasPersonalization && "ring-primary shadow-primary/50 shadow-2xl"
                 )}>
-                  <div className="absolute inset-[-10%] flex items-center justify-center">
-                    <MultiThreadOrb profile={orbProfile} size={88} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <MultiThreadOrb profile={orbProfile} size={80} />
                   </div>
                 </div>
                 
