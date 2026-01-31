@@ -104,7 +104,10 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   };
 
   const canGoPrev = displayedStep > 1;
-  const canGoNext = displayedStep < currentStep;
+  // If complete, allow navigating through all steps; otherwise only to current
+  const canGoNext = isLaunchpadComplete 
+    ? displayedStep < 9 
+    : (viewingStep !== null && displayedStep < currentStep);
 
   const renderCurrentStep = () => {
     const stepProps = {
@@ -142,9 +145,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     }
   };
 
-  if (isLaunchpadComplete) {
-    return null;
-  }
+  // Allow completed users to view the journey (removed redirect)
 
   // Show phase transition screen
   if (showingPhaseTransition && completedPhaseId) {
