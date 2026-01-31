@@ -36,7 +36,7 @@ import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
-import { PersonalizedOrb } from "@/components/orb";
+
 
 // Default logo from public folder - new orb logo
 const defaultLogo = "/logo.png?v=5";
@@ -218,13 +218,12 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
-                      {/* Personalized Orb Avatar for logged-in users */}
-                      <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30">
-                        <PersonalizedOrb 
-                          size={44}
-                          state="idle"
-                          showGlow={false}
-                          className="absolute inset-0 scale-125"
+                      {/* Site Logo as Avatar for logged-in users */}
+                      <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30 bg-background/50">
+                        <img 
+                          src={logoUrl} 
+                          alt="Avatar" 
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     </Button>
