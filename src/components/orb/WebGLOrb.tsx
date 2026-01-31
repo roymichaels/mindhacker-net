@@ -259,49 +259,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     frontAccent.position.set(0, 0.5, 4.5);
     scene.add(frontAccent);
 
-    // Create outer glow sphere first (behind everything) - ULTRA VIBRANT
-    const outerGlowGeometry = new THREE.SphereGeometry(1.35, 32, 32);
-    const outerGlowMaterial = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.primary),
-      transparent: true,
-      opacity: 0.32,
-      side: THREE.BackSide,
-    });
-    const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
-    scene.add(outerGlow);
-
-    // Secondary outer glow for color richness - stronger
-    const outerGlow2Geometry = new THREE.SphereGeometry(1.25, 32, 32);
-    const outerGlow2Material = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.accent),
-      transparent: true,
-      opacity: 0.28,
-      side: THREE.BackSide,
-    });
-    const outerGlow2 = new THREE.Mesh(outerGlow2Geometry, outerGlow2Material);
-    scene.add(outerGlow2);
-
-    // Tertiary outer glow - secondary color halo
-    const outerGlow3Geometry = new THREE.SphereGeometry(1.15, 32, 32);
-    const outerGlow3Material = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.secondary),
-      transparent: true,
-      opacity: 0.22,
-      side: THREE.BackSide,
-    });
-    const outerGlow3 = new THREE.Mesh(outerGlow3Geometry, outerGlow3Material);
-    scene.add(outerGlow3);
-
-    // Create ambient atmosphere layer - brighter and thicker
-    const atmosphereGeometry = new THREE.SphereGeometry(1.08, 32, 32);
-    const atmosphereMaterial = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.accent),
-      transparent: true,
-      opacity: 0.35,
-      side: THREE.BackSide,
-    });
-    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-    scene.add(atmosphere);
+    // No outer ring glows - glow comes naturally from the orb's emissive materials and core
 
     // *** Inner fill sphere - VIBRANT glowing core ***
     const innerFillGeometry = new THREE.SphereGeometry(0.52, 48, 48);
@@ -470,11 +428,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
-      // Dispose all glow/fill meshes
-      outerGlow.geometry.dispose();
-      outerGlowMaterial.dispose();
-      atmosphere.geometry.dispose();
-      atmosphereMaterial.dispose();
+      // Dispose fill meshes
       innerFill.geometry.dispose();
       innerFillMaterial.dispose();
       gradientShell.geometry.dispose();
