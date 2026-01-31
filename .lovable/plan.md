@@ -1,107 +1,186 @@
 
 
-# תיקון PDF - סגמנטים חסרים, יישור וסימטריה
+# תיקון בעיות יישור וחיתוך ב-PDF של תוכנית 90 יום
 
-## הבעיות שזוהו מהתמונות
+## בעיות שזוהו מהתמונות
 
-### 1. דף השער (Cover Page)
-- כותרת "פרופיל הטרנספורמציה שלי" לא מופיעה
-- התאריך והשם לא מיושרים כראוי
-- יש מלבן סגול ריק במקום הכותרת
+### 1. כרטיסי שבועות נחתכים בין עמודים
+- שבוע 8 נראה רק בכותרת - התוכן נחתך
+- התוכן "זולג" מתחת לגובה העמוד
 
-### 2. דף הציונים (Scores Page)
-- המספרים בתוך העיגולים (55, 68, 90) לא ממורכזים אנכית ואופקית
-- צריך לתקן את ה-flexbox alignment
+### 2. משימות נחתכות באמצע
+- הטקסט `truncate max-w-[150px]` גורם לחיתוך לא אסתטי
+- משימות ארוכות לא נראות במלואן
 
-### 3. תוכנית 90 יום חסרה לחלוטין
-- הסיבה: שאילתת ה-DB מחפשת שדה `title` בטבלת `life_plans` שלא קיים
-- השאילתה נכשלת בשקט וה-milestones ריקים
+### 3. כותרת עמוד (Footer) חופפת לתוכן
+- `absolute bottom-6` יכול להיכנס לתוך הכרטיס האחרון
 
-### 4. כותרות דפים ריקות
-- כל דף מציג מלבן צבעוני ריק במקום הכותרת
-- הסיבה: `bg-clip-text text-transparent` עם גרדיאנטים לא עובד טוב ב-html2canvas
-- הפתרון: להשתמש בצבע טקסט רגיל במקום גרדיאנט
-
-### 5. מספרי היררכיית ערכים לא ממורכזים
-- העיגולים עם המספרים 1, 2, 3 לא מיושרים נכון
+### 4. 4 שבועות לעמוד - לא מספיק גמיש
+- כשיש הרבה תוכן בשבוע, הגובה חורג
 
 ---
 
-## תיקונים נדרשים
+## הפתרון
 
-### קובץ 1: `src/hooks/useProfilePDF.ts`
-**בעיה:** שאילתת life_plans מחפשת שדה title שלא קיים
-**תיקון:**
+### גישה: 3 שבועות לעמוד + עיצוב קומפקטי יותר
+
+במקום 4 שבועות לעמוד שנחתכים, נעבור ל-3 שבועות עם יותר מרווח.
+
+---
+
+## שינויים נדרשים
+
+### קובץ 1: `src/components/pdf/ProfilePDFRenderer.tsx`
+
+**שינוי:** הורדת מספר ה-milestones לעמוד מ-4 ל-3
+
 ```typescript
 // שינוי מ:
-.select('title, life_plan_milestones(*)')
+const MILESTONES_PER_PAGE = 4;
 // ל:
-.select('id, plan_data, life_plan_milestones(*)')
-```
-וחילוץ הכותרת מתוך plan_data או שימוש בכותרת ברירת מחדל.
-
-**בנוסף:** צריך להוסיף לוגיקה לקריאת שדה weekly_challenge מהמילסטון - נכון לעכשיו הוא מופיע כ-`challenge` בטבלה אבל הקוד מחפש `weekly_challenge`.
-
-### קובץ 2: `src/components/pdf/PDFCoverPage.tsx`
-**בעיה:** bg-clip-text + text-transparent לא נתמך ב-html2canvas
-**תיקון:** להחליף את הגרדיאנט לצבע רגיל:
-```typescript
-// במקום:
-className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent"
-// להשתמש ב:
-className="text-violet-300"
+const MILESTONES_PER_PAGE = 3;
 ```
 
-### קובץ 3: `src/components/pdf/PDFScoresPage.tsx`
-**בעיה 1:** כותרת לא מופיעה (gradient text)
-**בעיה 2:** מספרים לא ממורכזים בעיגולים
-**תיקון:**
-- החלפת gradient text לצבע רגיל
-- הוספת `items-center justify-center` ו-`text-center` לעיגול המספר
-- שימוש ב-line-height מתאים
+**סיבה:** 3 שבועות לעמוד מבטיחים שהתוכן לא ייחתך גם כשיש הרבה משימות.
 
-### קובץ 4: `src/components/pdf/PDFLifeDirectionPage.tsx`
-**תיקון:** החלפת gradient text לצבע רגיל
+---
 
-### קובץ 5: `src/components/pdf/PDFConsciousnessPage.tsx`
-**תיקון:** החלפת gradient text לצבע רגיל
+### קובץ 2: `src/components/pdf/PDFLifePlanPage.tsx`
 
-### קובץ 6: `src/components/pdf/PDFIdentityPage.tsx`
-**בעיה 1:** כותרת לא מופיעה
-**בעיה 2:** מספרי הערכים (1, 2, 3) לא ממורכזים
-**תיקון:**
-- החלפת gradient text לצבע רגיל
-- הוספת flexbox centering למספרים
+**תיקונים:**
 
-### קובץ 7: `src/components/pdf/PDFBehavioralPage.tsx`
-**תיקון:** החלפת gradient text לצבע רגיל
+1. **הסרת Footer החופף**
+   - הוצאת ה-`absolute` מה-footer
+   - שימוש ב-flexbox עם `flex-grow` לדחיפת ה-footer לתחתית
 
-### קובץ 8: `src/components/pdf/PDFLifePlanPage.tsx`
-**תיקון:** החלפת gradient text לצבע רגיל
+2. **הורדת הגבלת רוחב מהמשימות**
+   - הסרת `truncate` ו-`max-w-[150px]`
+   - להשתמש ב-`text-wrap` רגיל
+
+3. **הקטנת padding וגודל אלמנטים**
+   - הקטנת `padding` מ-40px ל-32px
+   - הקטנת ה-`mb` בין אלמנטים
+
+4. **שיפור layout לכרטיס שבוע**
+   - שימוש ב-`break-inside: avoid` למניעת חיתוך כרטיסים
+
+**קוד מעודכן:**
+```tsx
+<div 
+  className="pdf-page bg-gradient-to-br from-[#0f0f14] via-[#1a1a2e] to-[#0f0f14] flex flex-col"
+  dir={isRTL ? 'rtl' : 'ltr'}
+  style={{ width: '595px', minHeight: '842px', padding: '32px', boxSizing: 'border-box' }}
+>
+  {/* Header */}
+  {pageNumber === 0 && (
+    <div className="mb-5">
+      {/* ... */}
+    </div>
+  )}
+
+  {/* Milestones - flex-1 לדחיפת footer */}
+  <div className="flex-1 space-y-3">
+    {milestones.map((milestone) => (
+      <div 
+        key={milestone.week_number}
+        className="p-3 rounded-xl bg-white/5 border border-white/10"
+        style={{ breakInside: 'avoid' }}
+      >
+        {/* Week Header - קומפקטי יותר */}
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
+            {isRTL ? `שבוע ${milestone.week_number}` : `Week ${milestone.week_number}`}
+          </span>
+          {milestone.title && (
+            <span className="text-white/80 font-medium text-xs">
+              {milestone.title}
+            </span>
+          )}
+        </div>
+
+        {/* Goal - קומפקטי */}
+        {milestone.goal && (
+          <div className="mb-2">
+            <div className="flex items-center gap-1 mb-0.5">
+              <Target className="w-3 h-3 text-violet-400" />
+              <span className="text-xs text-violet-400 font-medium">
+                {isRTL ? 'מטרה' : 'Goal'}
+              </span>
+            </div>
+            <p className="text-white/70 text-xs leading-snug">{milestone.goal}</p>
+          </div>
+        )}
+
+        {/* Tasks - ללא חיתוך */}
+        {milestone.tasks && milestone.tasks.length > 0 && (
+          <div className="mb-2">
+            <span className="text-xs text-white/50">
+              {isRTL ? 'משימות:' : 'Tasks:'}
+            </span>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {milestone.tasks.slice(0, 5).map((task, i) => (
+                <span 
+                  key={i}
+                  className="px-1.5 py-0.5 rounded bg-white/5 text-white/60 text-xs border border-white/10"
+                >
+                  {task}
+                </span>
+              ))}
+              {milestone.tasks.length > 5 && (
+                <span className="text-white/40 text-xs">
+                  +{milestone.tasks.length - 5}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Challenge */}
+        {milestone.weekly_challenge && (
+          <div className="flex items-center gap-1 text-xs text-amber-400/70">
+            <Zap className="w-3 h-3" />
+            <span>{milestone.weekly_challenge}</span>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+
+  {/* Footer - לא absolute */}
+  <div className="mt-4 text-center">
+    <span className="text-xs text-white/30">
+      {isRTL ? `תוכנית 90 יום - עמוד ${pageNumber + 1}` : `90-Day Plan - Page ${pageNumber + 1}`}
+    </span>
+  </div>
+</div>
+```
 
 ---
 
 ## סיכום טכני
 
-| בעיה | גורם | תיקון |
+| בעיה | גורם | פתרון |
 |------|------|-------|
-| כותרות לא מופיעות | `bg-clip-text text-transparent` לא נתמך ב-html2canvas | צבע טקסט רגיל |
-| מספרים לא ממורכזים | חסר flexbox alignment | הוספת `flex items-center justify-center` |
-| תוכנית 90 יום חסרה | שאילתה לשדה `title` שלא קיים | תיקון השאילתה ל-`plan_data` |
-| `weekly_challenge` ריק | שדה נקרא `challenge` ב-DB | מיפוי נכון של השדה |
+| כרטיסים נחתכים | 4 שבועות לעמוד = צפוף מדי | הורדה ל-3 שבועות לעמוד |
+| Footer חופף | `position: absolute` | הסרת absolute, שימוש ב-flexbox |
+| משימות קטועות | `truncate max-w-[150px]` | הסרת הגבלת רוחב |
+| ריווח לא אחיד | padding גדול מדי | הקטנת padding ומרווחים |
 
 ---
 
 ## קבצים לעדכון
 
-| קובץ | סוג שינוי |
-|------|-----------|
-| `src/hooks/useProfilePDF.ts` | תיקון שאילתת DB |
-| `src/components/pdf/PDFCoverPage.tsx` | תיקון צבע טקסט |
-| `src/components/pdf/PDFScoresPage.tsx` | תיקון צבע טקסט + מיקום מספרים |
-| `src/components/pdf/PDFLifeDirectionPage.tsx` | תיקון צבע טקסט |
-| `src/components/pdf/PDFConsciousnessPage.tsx` | תיקון צבע טקסט |
-| `src/components/pdf/PDFIdentityPage.tsx` | תיקון צבע טקסט + מיקום מספרים |
-| `src/components/pdf/PDFBehavioralPage.tsx` | תיקון צבע טקסט |
-| `src/components/pdf/PDFLifePlanPage.tsx` | תיקון צבע טקסט |
+| קובץ | שינוי |
+|------|-------|
+| `src/components/pdf/ProfilePDFRenderer.tsx` | `MILESTONES_PER_PAGE = 3` |
+| `src/components/pdf/PDFLifePlanPage.tsx` | עיצוב מחודש + הסרת absolute footer |
+
+---
+
+## תוצאה צפויה
+
+- 12 שבועות ÷ 3 = **4 עמודי תוכנית** (במקום 3 צפופים)
+- כל שבוע נראה במלואו ללא חיתוך
+- Footer קבוע בתחתית כל עמוד
+- משימות מוצגות ללא קיצוץ טקסט
 
