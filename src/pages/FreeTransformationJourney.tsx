@@ -108,8 +108,8 @@ export default function FreeTransformationJourney() {
           transition={{ duration: 0.8 }}
           className="relative flex justify-center mb-3"
         >
-          <div className="w-24 h-24 sm:w-28 sm:h-28">
-            <PersonalizedOrb size={112} showGlow disablePersonalization />
+          <div className="w-32 h-32 sm:w-40 sm:h-40">
+            <PersonalizedOrb size={160} showGlow disablePersonalization />
           </div>
           
           {/* Free badge - Purple/Yellow gradient */}
