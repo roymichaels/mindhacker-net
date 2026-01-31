@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag, Briefcase } from "lucide-react";
 import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
 import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
+import { useLiveOrbProfile } from "@/hooks/useLiveOrbProfile";
 import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -111,8 +112,14 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   // Get user roles for panel access
   const { hasPanelAccess } = useUserRoles();
   
-  // Get multi-thread orb profile for avatar
+  // Get multi-thread orb profile for avatar (finalized summary)
   const { profile: orbProfile, isPersonalized } = useMultiThreadOrbProfile();
+  
+  // Get LIVE orb profile that updates during journey
+  const { profile: liveOrbProfile, isInJourney, hasPersonalization: hasLiveData } = useLiveOrbProfile();
+  
+  // Use live profile during journey, otherwise use finalized profile
+  const activeOrbProfile = isInJourney && hasLiveData ? liveOrbProfile : orbProfile;
 
   // Get brand name from theme settings based on language
   const brandName = isRTL ? brandTheme.brand_name : brandTheme.brand_name_en;
@@ -235,7 +242,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                         <MultiThreadOrb 
                           size={40}
                           showGlow={false}
-                          profile={orbProfile}
+                          profile={activeOrbProfile}
                         />
                       </Button>
                     </DropdownMenuTrigger>
