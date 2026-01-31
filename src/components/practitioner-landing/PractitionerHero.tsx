@@ -39,23 +39,11 @@ const PractitionerHero = ({ practitioner }: PractitionerHeroProps) => {
   const initials = displayName.split(' ').map((n) => n[0]).join('').slice(0, 2);
 
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
+    <section className="relative min-h-[70vh] flex items-center justify-center px-4 pt-20 pb-12 md:pt-24 md:pb-20 overflow-hidden">
       {/* Background with gradient */}
       <div 
         className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background"
       />
-      
-      {/* Hero image background if exists */}
-      {practitioner.hero_image_url && (
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url(${practitioner.hero_image_url})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      )}
 
       <div className="container mx-auto max-w-5xl relative z-10">
         {/* Back link */}
