@@ -380,23 +380,40 @@ export function useLaunchpadProgress() {
       if (error) throw error;
       return result as unknown as StepCompletionResult;
     },
+    onMutate: async ({ step }) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['launchpad-progress', user?.id] });
+      
+      // Snapshot the previous value
+      const previousProgress = queryClient.getQueryData<LaunchpadProgress>(['launchpad-progress', user?.id]);
+      
+      // Optimistically update to the new value
+      if (user?.id && previousProgress) {
+        const nextStep = Math.min(step + 1, 11);
+        queryClient.setQueryData(['launchpad-progress', user.id], {
+          ...previousProgress,
+          current_step: nextStep,
+          launchpad_complete: step >= 11,
+        } as LaunchpadProgress);
+      }
+      
+      return { previousProgress };
+    },
     onSuccess: (result) => {
-      // Optimistic UI: advance current_step immediately so the journey doesn't feel stuck
-      // even if query invalidation/refetch is delayed.
+      // Update cache with the confirmed step from server
       if (user?.id) {
         queryClient.setQueryData(['launchpad-progress', user.id], (prev: LaunchpadProgress | null | undefined) => {
           if (!prev) return prev ?? null;
           const nextStep = Math.min((result.step || prev.current_step || 1) + 1, 11);
           return {
             ...prev,
-            current_step: Math.max(prev.current_step || 1, nextStep),
-            // if the backend marks completion, reflect it
+            current_step: nextStep,
             launchpad_complete: result.step >= 11 ? true : prev.launchpad_complete,
           } as LaunchpadProgress;
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['launchpad-progress'] });
+      // Invalidate related queries but NOT launchpad-progress (we already have the right data)
       queryClient.invalidateQueries({ queryKey: ['game-state'] });
       queryClient.invalidateQueries({ queryKey: ['feature-unlocks'] });
       
@@ -408,7 +425,11 @@ export function useLaunchpadProgress() {
         });
       }
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      // Rollback to previous state on error
+      if (user?.id && context?.previousProgress) {
+        queryClient.setQueryData(['launchpad-progress', user.id], context.previousProgress);
+      }
       console.error('Failed to complete step:', error);
       toast.error('שגיאה בהשלמת השלב');
     },
