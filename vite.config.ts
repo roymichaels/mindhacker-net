@@ -16,9 +16,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "מיינד האקר - אימון תודעתי עמוק",
+        name: "מיינד האקר - פלטפורמת אימון תודעתי",
         short_name: "מיינד האקר",
-        description: "אימון תודעתי עמוק עם דין אזולאי",
+        description: "פלטפורמת האימון התודעתי המתקדמת - מאמן AI אישי, היפנוזה מותאמת וגיימיפיקציה",
         theme_color: "#00f0ff",
         background_color: "#0a0a0f",
         display: "standalone",

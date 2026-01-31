@@ -135,7 +135,7 @@ const CourseDetail = () => {
       getCourseSchema({
         name: course.title,
         description: course.description || "",
-        provider: language === 'en' ? "Mind-Hacker - Dean Azoulay" : "מיינד-האקר - דין אזולאי",
+        provider: "Mind Hacker",
         image: course.thumbnail_url || undefined,
         price: course.price || undefined,
         currency: getCurrencyCode(language),
