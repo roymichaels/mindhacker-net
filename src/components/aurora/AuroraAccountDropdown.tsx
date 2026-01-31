@@ -1,4 +1,5 @@
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -35,7 +36,7 @@ const AuroraAccountDropdown = ({
   const { setLanguage } = useLanguage();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
+  const { profile: orbProfile, isPersonalized } = useMultiThreadOrbProfile();
   const { hasRole } = useUserRoles();
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,6 +66,7 @@ const AuroraAccountDropdown = ({
   });
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User';
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'he' ? 'en' : 'he');
@@ -96,13 +98,21 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* MultiThread Orb Avatar - consistent with header */}
+          {/* Avatar - Orb if personalized, grey initials if not */}
           <div className={cn("shrink-0 rounded-full overflow-hidden", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
-            <MultiThreadOrb 
-              size={isCollapsed ? 36 : 40}
-              showGlow={false}
-              profile={orbProfile}
-            />
+            {isPersonalized ? (
+              <MultiThreadOrb 
+                size={isCollapsed ? 36 : 40}
+                showGlow={false}
+                profile={orbProfile}
+              />
+            ) : (
+              <Avatar className={cn(isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
+                <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            )}
           </div>
           
           {!isCollapsed && (
