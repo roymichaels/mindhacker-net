@@ -451,11 +451,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // ===== PARTICLES - Enhanced Alien Swarm =====
+    // ===== PARTICLES - Energy Being Effect (pulsating in/out) =====
     if (particleEnabled) {
-      // More particles with wider spread for alien effect
-      const actualParticleCount = Math.max(100, particleCount);
-      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.7, 2.0);
+      // More particles, starting close to orb surface for merging effect
+      const actualParticleCount = Math.max(150, particleCount);
+      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.4, 2.5);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
