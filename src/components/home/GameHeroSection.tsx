@@ -221,9 +221,10 @@ export default function GameHeroSection() {
             transition={{ duration: 0.6, delay: 0.7 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
+            {/* Free Transformation Journey - Primary CTA */}
             <Button
               size="lg"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/free-journey')}
               className="group relative text-lg px-10 py-7 rounded-2xl 
                 bg-gradient-to-br from-primary via-primary to-primary/80
                 hover:from-primary/90 hover:via-primary/90 hover:to-primary/70
@@ -234,8 +235,8 @@ export default function GameHeroSection() {
                 transition-all duration-300 hover:scale-105
                 animate-pulse-glow"
             >
-              <Play className={cn("h-6 w-6 fill-current", isRTL ? "ml-3" : "mr-3")} />
-              {isRTL ? 'התחל את המשחק' : 'Start The Game'}
+              <Sparkles className={cn("h-6 w-6", isRTL ? "ml-3" : "mr-3")} />
+              {isRTL ? '🎁 מסע טרנספורמציה חינם' : '🎁 Free Transformation'}
               <motion.div
                 className="absolute inset-0 rounded-2xl bg-white/20"
                 animate={{ opacity: [0, 0.3, 0] }}
@@ -246,16 +247,11 @@ export default function GameHeroSection() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => {
-                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() => navigate('/signup')}
               className="text-lg px-8 py-6 rounded-2xl border-2 group"
             >
-              {isRTL ? 'איך זה עובד?' : 'How It Works?'}
-              <ArrowRight className={cn(
-                "h-5 w-5 transition-transform group-hover:translate-x-1",
-                isRTL ? "mr-2 rotate-180 group-hover:-translate-x-1" : "ml-2"
-              )} />
+              <Play className={cn("h-5 w-5 fill-current", isRTL ? "ml-2" : "mr-2")} />
+              {isRTL ? 'הרשמה למערכת' : 'Sign Up'}
             </Button>
           </motion.div>
 
