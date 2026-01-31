@@ -18,6 +18,13 @@ export interface Milestone {
   tokens_reward: number;
 }
 
+export interface FirstChatData {
+  messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  questionIndex?: number;
+  answers?: string[];
+  isComplete?: boolean;
+}
+
 export interface LaunchpadData {
   welcomeQuiz: Record<string, string | string[]>;
   personalProfile: Record<string, unknown>;
@@ -30,6 +37,8 @@ export interface LaunchpadData {
   };
   milestones: Milestone[];
   lifePlanId: string | null;
+  firstChat: FirstChatData | null;
+  deepDive: Record<string, string[]> | null;
 }
 
 export function useLaunchpadData() {
@@ -106,6 +115,40 @@ export function useLaunchpadData() {
         console.error('Error parsing first week data:', e);
       }
 
+      // Parse the first chat data (step 4)
+      let firstChat: FirstChatData | null = null;
+      try {
+        if (progress.step_2_summary) {
+          const summary = progress.step_2_summary;
+          if (typeof summary === 'string') {
+            try {
+              firstChat = JSON.parse(summary);
+            } catch {
+              // Old format - just a summary string, not JSON
+              firstChat = null;
+            }
+          } else if (typeof summary === 'object') {
+            firstChat = summary as FirstChatData;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing first chat data:', e);
+      }
+
+      // Parse deep dive data (step 3) - stored in profile_data.deep_dive
+      let deepDive: Record<string, string[]> | null = null;
+      try {
+        const profileDeepDive = (personalProfile as Record<string, unknown>)?.deep_dive;
+        if (profileDeepDive && typeof profileDeepDive === 'object') {
+          const dd = profileDeepDive as Record<string, unknown>;
+          if (dd.answers && typeof dd.answers === 'object') {
+            deepDive = dd.answers as Record<string, string[]>;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing deep dive data:', e);
+      }
+
       // Fetch the transformation plan (milestones)
       let milestones: Milestone[] = [];
       let lifePlanId: string | null = null;
@@ -157,6 +200,8 @@ export function useLaunchpadData() {
         firstWeek,
         milestones,
         lifePlanId,
+        firstChat,
+        deepDive,
       };
     },
     enabled: !!user?.id,

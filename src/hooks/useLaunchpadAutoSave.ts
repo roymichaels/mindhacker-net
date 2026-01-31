@@ -79,6 +79,9 @@ export function useLaunchpadAutoSave() {
             deep_dive: data,
           };
           break;
+        case 4: // First Chat with Aurora
+          updates.step_2_summary = JSON.stringify(data);
+          break;
         case 7: // Focus Areas
           updates.step_5_focus_areas_selected = data.focus_areas || [];
           break;
@@ -86,7 +89,7 @@ export function useLaunchpadAutoSave() {
           updates.step_6_actions = data;
           break;
         default:
-          // Steps 4, 5, 6, 9 have their own completion logic (forms/chat/dashboard)
+          // Steps 5, 6, 9 have their own completion logic (forms/chat/dashboard)
           return;
       }
 
@@ -144,9 +147,13 @@ export function useLaunchpadAutoSave() {
           }
           break;
         case 3: // Growth Deep Dive
-          const deepDive = (launchpadData.personalProfile as Record<string, unknown>)?.deep_dive;
-          if (deepDive && typeof deepDive === 'object') {
-            dbData = deepDive as Record<string, unknown>;
+          if (launchpadData.deepDive) {
+            dbData = { answers: launchpadData.deepDive };
+          }
+          break;
+        case 4: // First Chat with Aurora
+          if (launchpadData.firstChat) {
+            dbData = launchpadData.firstChat as Record<string, unknown>;
           }
           break;
         case 7: // Focus Areas

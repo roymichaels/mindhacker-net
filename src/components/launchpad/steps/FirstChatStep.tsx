@@ -1,22 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sparkles, Send, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 interface FirstChatStepProps {
   onComplete: (data: { summary: string }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
-}
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
+  savedData?: {
+    messages?: Message[];
+    questionIndex?: number;
+    answers?: string[];
+    isComplete?: boolean;
+  };
+  onAutoSave?: (data: { messages: Message[]; questionIndex: number; answers: string[]; isComplete: boolean }) => void;
 }
 
 const ONBOARDING_QUESTIONS_HE = [
@@ -35,19 +41,42 @@ const ONBOARDING_QUESTIONS_EN = [
   'When was the last time you felt truly connected to yourself?',
 ];
 
-export function FirstChatStep({ onComplete, isCompleting, rewards }: FirstChatStepProps) {
+export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FirstChatStepProps) {
   const { language, isRTL } = useTranslation();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const hasInitialized = useRef(false);
+  
+  // Initialize state from savedData
+  const [messages, setMessages] = useState<Message[]>(savedData?.messages || []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [questionIndex, setQuestionIndex] = useState(savedData?.questionIndex || 0);
+  const [answers, setAnswers] = useState<string[]>(savedData?.answers || []);
   
   const questions = language === 'he' ? ONBOARDING_QUESTIONS_HE : ONBOARDING_QUESTIONS_EN;
   const isComplete = questionIndex >= 5;
 
-  // Initial greeting
+  // Auto-save whenever state changes
   useEffect(() => {
+    if (messages.length > 0 && onAutoSave) {
+      onAutoSave({
+        messages,
+        questionIndex,
+        answers,
+        isComplete: questionIndex >= 5,
+      });
+    }
+  }, [messages, questionIndex, answers, onAutoSave]);
+
+  // Initial greeting - only if no saved messages
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have saved messages, don't create new greeting
+    if (savedData?.messages && savedData.messages.length > 0) {
+      return;
+    }
+
     const greeting = language === 'he' 
       ? 'היי! אני אורורה. אשמח להכיר אותך קצת יותר. אשאל אותך 5 שאלות קצרות, ובסוף אתן לך סיכום קצר של מה שלמדתי עליך. מוכן?'
       : "Hi! I'm Aurora. I'd love to get to know you a bit better. I'll ask you 5 short questions, and at the end I'll give you a brief summary of what I learned about you. Ready?";
@@ -58,7 +87,7 @@ export function FirstChatStep({ onComplete, isCompleting, rewards }: FirstChatSt
     setTimeout(() => {
       setMessages(prev => [...prev, { role: 'assistant', content: questions[0] }]);
     }, 1500);
-  }, []);
+  }, [language, questions, savedData?.messages]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
