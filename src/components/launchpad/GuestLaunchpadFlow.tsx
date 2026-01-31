@@ -303,7 +303,7 @@ export function GuestLaunchpadFlow({ className, onComplete, onClose }: GuestLaun
       </header>
 
       {/* Step content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-24 md:pb-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`guest-step-${displayedStep}`}
