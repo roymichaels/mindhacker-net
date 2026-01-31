@@ -59,9 +59,9 @@ export function useLifePlan() {
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as LifePlan | null;
     },
     enabled: !!user?.id,
@@ -105,9 +105,9 @@ export function useCurrentWeekMilestone(planId: string | null, startDate: string
         .select('*')
         .eq('plan_id', planId)
         .eq('week_number', currentWeek)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as Milestone | null;
     },
     enabled: !!planId && !!startDate,
@@ -126,9 +126,12 @@ export function useLaunchpadSummary() {
         .from('launchpad_summaries')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        // Regenerations can create multiple rows; always take the newest.
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as LaunchpadSummary | null;
     },
     enabled: !!user?.id,
