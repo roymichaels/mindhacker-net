@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { Progress } from '@/components/ui/progress';
 import { Flame, Gem, Star } from 'lucide-react';
@@ -71,12 +71,12 @@ export function CharacterHUD({
         }}
       />
       
-      {/* Orb - Larger Avatar */}
+      {/* Orb - Using MultiThreadOrb for DNA visualization */}
       <div className="relative z-10 flex-shrink-0">
-        <PersonalizedOrb
+        <MultiThreadOrb
           size={140}
           showGlow={true}
-          disablePersonalization={!isPersonalized}
+          profile={profile}
         />
       </div>
       
