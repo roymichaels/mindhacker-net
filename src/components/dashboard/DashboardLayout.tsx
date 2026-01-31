@@ -6,6 +6,7 @@ import DashboardRightPanel from './DashboardRightPanel';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import Header from '@/components/Header';
+import { ProfileDrawer } from './ProfileDrawer';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -27,6 +28,12 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [rightSheetOpen, setRightSheetOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const handleOpenSettings = () => {
+    setLeftSheetOpen(false); // Close sidebar sheet on mobile
+    setProfileOpen(true);
+  };
 
   if (isMobile) {
     return (
@@ -44,6 +51,7 @@ const DashboardLayout = ({
                 currentConversationId={currentConversationId}
                 onNewChat={onNewChat}
                 onSelectConversation={onSelectConversation}
+                onOpenSettings={handleOpenSettings}
               />
             </SheetContent>
           </Sheet>
@@ -56,6 +64,9 @@ const DashboardLayout = ({
               </SheetContent>
             </Sheet>
           )}
+
+          {/* Profile/Settings Drawer */}
+          <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 pb-20 min-h-0">
@@ -80,6 +91,7 @@ const DashboardLayout = ({
             currentConversationId={currentConversationId}
             onNewChat={onNewChat}
             onSelectConversation={onSelectConversation}
+            onOpenSettings={handleOpenSettings}
           />
 
           {/* Main Content */}
@@ -94,6 +106,9 @@ const DashboardLayout = ({
             </aside>
           )}
         </div>
+
+        {/* Profile/Settings Drawer */}
+        <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
       </div>
     </SidebarProvider>
   );
