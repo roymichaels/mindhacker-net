@@ -10,6 +10,8 @@ interface WelcomeStepProps {
   onComplete: (data: { quizAnswers: Record<string, string | string[]> }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
+  savedData?: Record<string, string | string[]>;
+  onAutoSave?: (data: Record<string, string | string[]>) => void;
 }
 
 interface QuizOption {
@@ -350,11 +352,25 @@ function getSummaryText(answers: Record<string, string | string[]>, language: st
   return `I see that you're focused on ${areasTextEn}. You feel ${emotionalTextEn}. Together we'll find the right path for you.`;
 }
 
-export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepProps) {
+export function WelcomeStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: WelcomeStepProps) {
   const { language, isRTL } = useTranslation();
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  
+  // Initialize from savedData (DB) first
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>(() => {
+    if (savedData && Object.keys(savedData).length > 0) {
+      return savedData;
+    }
+    return {};
+  });
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
+  
+  // Update state when savedData changes (DB loaded after initial render)
+  useEffect(() => {
+    if (savedData && Object.keys(savedData).length > 0 && Object.keys(answers).length === 0) {
+      setAnswers(savedData);
+    }
+  }, [savedData]);
   
   // Calculate visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers);
@@ -369,6 +385,13 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
       setShowSummary(true);
     }
   }, [isQuizComplete, showSummary]);
+  
+  // Auto-save helper
+  const triggerAutoSave = (newAnswers: Record<string, string | string[]>) => {
+    if (onAutoSave) {
+      onAutoSave(newAnswers);
+    }
+  };
 
   const handleOptionSelect = (value: string) => {
     if (currentQuestion.multiSelect) {
@@ -377,12 +400,15 @@ export function WelcomeStep({ onComplete, isCompleting, rewards }: WelcomeStepPr
       const newValues = currentValues.includes(value)
         ? currentValues.filter(v => v !== value)
         : [...currentValues, value];
-      setAnswers({ ...answers, [currentQuestion.id]: newValues });
+      const newAnswers = { ...answers, [currentQuestion.id]: newValues };
+      setAnswers(newAnswers);
+      triggerAutoSave(newAnswers); // Auto-save on every selection
       // Don't auto-advance for multi-select
     } else {
       // Single select: set value and auto-advance
       const newAnswers = { ...answers, [currentQuestion.id]: value };
       setAnswers(newAnswers);
+      triggerAutoSave(newAnswers); // Auto-save on every selection
       
       // Auto-advance after short delay
       setTimeout(() => {
