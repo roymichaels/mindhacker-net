@@ -1942,7 +1942,11 @@ export const en: TranslationKeys = {
     name: "Aurora",
     subtitle: "Your life design companion",
     welcomeTitle: "Hey, I'm Aurora 💜",
+    // Gendered welcome subtitles (English doesn't need gendering, but keys must exist)
     welcomeSubtitle: "Let's explore what truly matters to you...",
+    welcomeSubtitle_male: "Let's explore what truly matters to you...",
+    welcomeSubtitle_female: "Let's explore what truly matters to you...",
+    welcomeSubtitle_neutral: "Let's explore what truly matters to you...",
     suggestions: {
       direction: "I want to talk about my direction",
       values: "What values guide me?",
@@ -1951,14 +1955,29 @@ export const en: TranslationKeys = {
     },
     chat: {
       placeholder: "Share what's on your mind...",
+      placeholder_male: "Share what's on your mind...",
+      placeholder_female: "Share what's on your mind...",
+      placeholder_neutral: "Share what's on your mind...",
       startRecording: "Start recording",
       stopRecording: "Stop recording"
     },
     cta: {
       life_direction: "Let's explore your direction",
+      life_direction_male: "Let's explore your direction",
+      life_direction_female: "Let's explore your direction",
+      life_direction_neutral: "Let's explore your direction",
       explore_values: "Let's discover what matters to you",
+      explore_values_male: "Let's discover what matters to you",
+      explore_values_female: "Let's discover what matters to you",
+      explore_values_neutral: "Let's discover what matters to you",
       map_energy: "Let's map your energy",
-      anchor_identity: "Let's anchor your identity"
+      map_energy_male: "Let's map your energy",
+      map_energy_female: "Let's map your energy",
+      map_energy_neutral: "Let's map your energy",
+      anchor_identity: "Let's anchor your identity",
+      anchor_identity_male: "Let's anchor your identity",
+      anchor_identity_female: "Let's anchor your identity",
+      anchor_identity_neutral: "Let's anchor your identity"
     },
     dashboard: {
       title: "My Life Model",
@@ -1990,6 +2009,9 @@ export const en: TranslationKeys = {
       displayNamePlaceholder: "What should I call you?",
       bio: "About Me",
       bioPlaceholder: "Tell me a bit about yourself...",
+      bioPlaceholder_male: "Tell me a bit about yourself...",
+      bioPlaceholder_female: "Tell me a bit about yourself...",
+      bioPlaceholder_neutral: "Tell me a bit about yourself...",
       communication: "Communication Preferences",
       tone: "Tone",
       toneWarm: "Warm",

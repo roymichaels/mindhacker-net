@@ -1993,7 +1993,11 @@ export const he = {
     name: "אורורה",
     subtitle: "מלווה אישית לעיצוב חיים",
     welcomeTitle: "היי, אני אורורה 💜",
-    welcomeSubtitle: "בואי נתחיל לחקור מה באמת חשוב לך...",
+    // Gendered welcome subtitles
+    welcomeSubtitle: "בוא/י נתחיל לחקור מה באמת חשוב לך...",
+    welcomeSubtitle_male: "בוא נתחיל לחקור מה באמת חשוב לך...",
+    welcomeSubtitle_female: "בואי נתחיל לחקור מה באמת חשוב לך...",
+    welcomeSubtitle_neutral: "בוא/י נתחיל לחקור מה באמת חשוב לך...",
     suggestions: {
       direction: "אני רוצה לדבר על הכיוון שלי",
       values: "מה הערכים שמנחים אותי?",
@@ -2001,15 +2005,32 @@ export const he = {
       identity: "מי אני באמת?"
     },
     chat: {
-      placeholder: "שתפי את מה שעובר עלייך...",
+      // Gendered placeholders
+      placeholder: "שתף/י את מה שעובר עלייך...",
+      placeholder_male: "שתף את מה שעובר עליך...",
+      placeholder_female: "שתפי את מה שעובר עלייך...",
+      placeholder_neutral: "שתף/י את מה שעובר עלייך...",
       startRecording: "התחל הקלטה",
       stopRecording: "עצור הקלטה"
     },
     cta: {
-      life_direction: "בואי נחקור את הכיוון שלך",
-      explore_values: "בואי נגלה מה באמת חשוב לך",
-      map_energy: "בואי נמפה את האנרגיה שלך",
-      anchor_identity: "בואי נעגן את הזהות שלך"
+      // Gendered CTAs
+      life_direction: "בוא/י נחקור את הכיוון שלך",
+      life_direction_male: "בוא נחקור את הכיוון שלך",
+      life_direction_female: "בואי נחקור את הכיוון שלך",
+      life_direction_neutral: "בוא/י נחקור את הכיוון שלך",
+      explore_values: "בוא/י נגלה מה באמת חשוב לך",
+      explore_values_male: "בוא נגלה מה באמת חשוב לך",
+      explore_values_female: "בואי נגלה מה באמת חשוב לך",
+      explore_values_neutral: "בוא/י נגלה מה באמת חשוב לך",
+      map_energy: "בוא/י נמפה את האנרגיה שלך",
+      map_energy_male: "בוא נמפה את האנרגיה שלך",
+      map_energy_female: "בואי נמפה את האנרגיה שלך",
+      map_energy_neutral: "בוא/י נמפה את האנרגיה שלך",
+      anchor_identity: "בוא/י נעגן את הזהות שלך",
+      anchor_identity_male: "בוא נעגן את הזהות שלך",
+      anchor_identity_female: "בואי נעגן את הזהות שלך",
+      anchor_identity_neutral: "בוא/י נעגן את הזהות שלך"
     },
     dashboard: {
       title: "מודל החיים שלי",
@@ -2040,7 +2061,11 @@ export const he = {
       displayName: "שם תצוגה",
       displayNamePlaceholder: "איך לקרוא לך?",
       bio: "קצת עליי",
-      bioPlaceholder: "ספרי קצת על עצמך...",
+      // Gendered bio placeholder
+      bioPlaceholder: "ספר/י קצת על עצמך...",
+      bioPlaceholder_male: "ספר קצת על עצמך...",
+      bioPlaceholder_female: "ספרי קצת על עצמך...",
+      bioPlaceholder_neutral: "ספר/י קצת על עצמך...",
       communication: "העדפות תקשורת",
       tone: "סגנון",
       toneWarm: "חם",

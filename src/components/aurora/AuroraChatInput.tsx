@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,7 @@ interface AuroraChatInputProps {
 }
 
 const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
-  const { t, isRTL } = useTranslation();
+  const { t, tg, isRTL } = useGenderedTranslation();
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,7 +72,7 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('aurora.chat.placeholder')}
+              placeholder={tg('aurora.chat.placeholder')}
               disabled={disabled}
               rows={1}
               className={cn(
