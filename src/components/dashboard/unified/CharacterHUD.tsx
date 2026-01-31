@@ -1,6 +1,6 @@
 /**
  * CharacterHUD - MapleStory-style compact HUD displaying:
- * - Avatar/Orb (small)
+ * - Avatar/Orb (small) with DNA Threads
  * - Identity title + Level
  * - XP Progress bar
  * - Streak + Tokens
@@ -8,8 +8,8 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { PersonalizedOrb } from '@/components/orb';
-import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { Progress } from '@/components/ui/progress';
 import { Flame, Gem, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -38,8 +38,12 @@ export function CharacterHUD({
   tokens,
   className,
 }: CharacterHUDProps) {
-  const { profile, isPersonalized } = useOrbProfile();
-  const primaryColor = hslToColor(profile.primaryColor);
+  const { profile, isPersonalized, threadCount } = useMultiThreadOrbProfile();
+  
+  // Get primary color from dominant thread or default
+  const primaryColor = profile.dominantColors[0] 
+    ? hslToColor(profile.dominantColors[0]) 
+    : 'hsl(var(--primary))';
   
   return (
     <motion.div
@@ -61,7 +65,7 @@ export function CharacterHUD({
         }}
       />
       
-      {/* Orb - Small */}
+      {/* Orb - Small with DNA Threads */}
       <div className="relative z-10 flex-shrink-0">
         <div 
           className="rounded-full ring-2 ring-primary/40 p-0.5"
@@ -69,10 +73,10 @@ export function CharacterHUD({
             boxShadow: `0 0 12px ${primaryColor.replace(')', '/0.4)')}`,
           }}
         >
-          <PersonalizedOrb
+          <MultiThreadOrb
             size={56}
-            showGlow={false}
-            showLoadingSkeleton={true}
+            showGlow={true}
+            profile={profile}
           />
         </div>
       </div>
