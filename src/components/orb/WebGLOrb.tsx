@@ -417,29 +417,44 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const geometry = new THREE.IcosahedronGeometry(config.radius, config.detail);
       const positions = geometry.attributes.position.array as Float32Array;
       
-      const layerColor = parseHslToThreeColor(getPaletteColor(config.colorIndex));
+      // Blend colors for gradient slime effect
+      const primaryColor = parseHslToThreeColor(activePalette.primary);
+      const secondaryColor = parseHslToThreeColor(activePalette.secondary);
+      const accentColor = parseHslToThreeColor(activePalette.accent);
       
-      // Ultra-vibrant ALIEN MERCURY material with maximum iridescence
+      // Create rich blended color based on layer
+      const blendedColor = new THREE.Color();
+      if (index === 0) {
+        blendedColor.copy(primaryColor).lerp(accentColor, 0.3);
+      } else if (index === 1) {
+        blendedColor.copy(secondaryColor).lerp(primaryColor, 0.4);
+      } else {
+        blendedColor.copy(accentColor).lerp(secondaryColor, 0.35);
+      }
+      
+      // SLIME/GEL MATERIAL - Solid, vibrant, gradient-like
       const material = new THREE.MeshPhysicalMaterial({
-        color: layerColor,
-        emissive: layerColor.clone().multiplyScalar(0.8),
-        emissiveIntensity: 2.5,
-        metalness: 1.0,          // Maximum metallic for mercury effect
-        roughness: 0.01,         // Almost perfect mirror
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.0, // Perfect clear coat
-        transmission: 0.0,       // No transmission - solid mercury
-        thickness: 0,
-        ior: 2.5,                // High refraction
-        iridescence: 1.0,        // Maximum iridescence
-        iridescenceIOR: 2.2,     // Strong rainbow effect
-        iridescenceThicknessRange: [100, 800], // Wide rainbow spectrum
-        sheen: 1.0,
-        sheenRoughness: 0.0,
-        sheenColor: parseHslToThreeColor(activePalette.accent),
+        color: blendedColor,
+        emissive: blendedColor.clone().multiplyScalar(0.4),
+        emissiveIntensity: 1.8,
+        metalness: 0.1,          // Low metalness for gel look
+        roughness: 0.15,         // Slightly rough for gel texture
+        clearcoat: 1.0,          // Maximum clearcoat for shiny gel
+        clearcoatRoughness: 0.05, // Smooth clear coat
+        transmission: 0.2,        // Slight translucency
+        thickness: 2.0,          // Thick gel appearance
+        ior: 1.5,                // Glass-like refraction
+        iridescence: 0.6,        // Rainbow shimmer
+        iridescenceIOR: 1.8,     
+        iridescenceThicknessRange: [200, 600], 
+        sheen: 1.0,              // Soft sheen
+        sheenRoughness: 0.2,
+        sheenColor: accentColor.clone().lerp(secondaryColor, 0.5),
         transparent: true,
-        opacity: config.opacity,
-        envMapIntensity: 2.0,    // Strong reflections
+        opacity: 0.92,           // More solid/opaque
+        envMapIntensity: 1.5,
+        specularIntensity: 2.0,  // More specular highlights
+        specularColor: new THREE.Color(0xffffff),
       });
 
       const mesh = new THREE.Mesh(geometry, material);
