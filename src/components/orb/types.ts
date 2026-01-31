@@ -54,6 +54,13 @@ export interface OrbProfile {
   };
 }
 
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+  glow: string;
+}
+
 export interface OrbProps {
   size?: number;
   state?: OrbState;
@@ -65,6 +72,8 @@ export interface OrbProps {
   onReady?: () => void;
   /** Personalized orb profile */
   profile?: OrbProfile;
+  /** Theme colors from admin panel */
+  themeColors?: ThemeColors;
 }
 
 export interface OrbContextValue {

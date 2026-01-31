@@ -4,7 +4,7 @@ import type { OrbRef, OrbProps, OrbState } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
 
 export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
-  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady, profile },
+  { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady, profile, themeColors },
   ref
 ) {
   const [internalState, setInternalState] = useState<OrbState>('idle');
@@ -15,7 +15,7 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   const audioLevel = externalAudioLevel ?? internalAudioLevel;
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
-  // Use profile colors if available, otherwise fall back to ego state colors
+  // Use profile colors first, then theme colors, then fall back to ego state colors
   const egoColors = getEgoStateColors(egoState);
   const colors = profile ? {
     primary: profile.primaryColor,
@@ -24,6 +24,13 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
     glow: profile.accentColor,
     highlight: egoColors.highlight,
     shadow: egoColors.shadow,
+  } : themeColors ? {
+    primary: themeColors.primary,
+    secondary: themeColors.secondary,
+    accent: themeColors.accent,
+    glow: themeColors.glow,
+    highlight: `${themeColors.primary.replace(')', ', 0.8)')}`,
+    shadow: `${themeColors.secondary.replace(')', ', 0.6)')}`,
   } : egoColors;
 
   useImperativeHandle(ref, () => ({
