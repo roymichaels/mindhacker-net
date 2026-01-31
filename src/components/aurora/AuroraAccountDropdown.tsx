@@ -103,8 +103,8 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* Avatar - Always show orb (default or personalized) */}
-          <div className={cn("shrink-0 rounded-full overflow-hidden", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
+          {/* Avatar - 3D Orb without clipping */}
+          <div className={cn("shrink-0", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
             <MultiThreadOrb 
               size={isCollapsed ? 36 : 40}
               showGlow={false}
