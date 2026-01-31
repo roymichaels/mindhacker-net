@@ -3,7 +3,7 @@
  * Combines data from game state, dashboard, life model, and launchpad profile
  */
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/hooks/useGameState';
@@ -128,6 +128,7 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
 export function useOrbProfile() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const lastSavedRef = useRef<{ signature: string; at: number } | null>(null);
   
   // Get user data from various sources
   const { gameState } = useGameState();
@@ -188,9 +189,9 @@ export function useOrbProfile() {
         .from('orb_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching orb profile:', error);
         return null;
       }
@@ -200,6 +201,33 @@ export function useOrbProfile() {
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  const approxEqual = (a: number, b: number, eps = 1e-4) => Math.abs(a - b) <= eps;
+  const round4 = (n: number) => Math.round(n * 10000) / 10000;
+  const profileSignature = (p: OrbProfile) =>
+    JSON.stringify({
+      primaryColor: p.primaryColor,
+      secondaryColors: p.secondaryColors,
+      accentColor: p.accentColor,
+      morphIntensity: round4(p.morphIntensity),
+      morphSpeed: round4(p.morphSpeed),
+      coreIntensity: round4(p.coreIntensity),
+      coreSize: round4(p.coreSize),
+      layerCount: p.layerCount,
+      geometryDetail: p.geometryDetail,
+      particleEnabled: p.particleEnabled,
+      particleCount: p.particleCount,
+      particleColor: p.particleColor,
+      computedFrom: {
+        dominantArchetype: p.computedFrom.dominantArchetype,
+        secondaryArchetype: p.computedFrom.secondaryArchetype,
+        level: p.computedFrom.level,
+        streak: p.computedFrom.streak,
+        dominantHobbies: p.computedFrom.dominantHobbies,
+        clarityScore: round4(p.computedFrom.clarityScore),
+        egoState: p.computedFrom.egoState,
+      },
+    });
 
   // Extract trait IDs from character traits
   const selectedTraitIds = useMemo(() => {
@@ -293,23 +321,39 @@ export function useOrbProfile() {
       storedProfile.primaryColor !== computedProfile.primaryColor ||
       storedProfile.accentColor !== computedProfile.accentColor ||
       JSON.stringify(storedProfile.secondaryColors) !== JSON.stringify(computedProfile.secondaryColors) ||
-      storedProfile.morphIntensity !== computedProfile.morphIntensity ||
-      storedProfile.morphSpeed !== computedProfile.morphSpeed ||
-      storedProfile.coreIntensity !== computedProfile.coreIntensity ||
+      !approxEqual(storedProfile.morphIntensity, computedProfile.morphIntensity) ||
+      !approxEqual(storedProfile.morphSpeed, computedProfile.morphSpeed) ||
+      !approxEqual(storedProfile.coreIntensity, computedProfile.coreIntensity) ||
+      !approxEqual(storedProfile.coreSize, computedProfile.coreSize) ||
       storedProfile.layerCount !== computedProfile.layerCount ||
       storedProfile.geometryDetail !== computedProfile.geometryDetail ||
       storedProfile.particleEnabled !== computedProfile.particleEnabled ||
       storedProfile.particleCount !== computedProfile.particleCount ||
       storedProfile.particleColor !== computedProfile.particleColor ||
       storedProfile.computedFrom.dominantArchetype !== computedProfile.computedFrom.dominantArchetype ||
+      storedProfile.computedFrom.secondaryArchetype !== computedProfile.computedFrom.secondaryArchetype ||
       storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
       storedProfile.computedFrom.streak !== computedProfile.computedFrom.streak ||
+      !approxEqual(
+        storedProfile.computedFrom.clarityScore ?? 0,
+        computedProfile.computedFrom.clarityScore ?? 0
+      ) ||
       JSON.stringify(storedProfile.computedFrom.dominantHobbies) !==
         JSON.stringify(computedProfile.computedFrom.dominantHobbies);
 
-    if (needsUpdate) {
-      saveProfileMutation.mutate(computedProfile);
-    }
+    if (!needsUpdate) return;
+
+    // Guard against rapid re-saves due to floating precision differences.
+    const signature = profileSignature(computedProfile);
+    const now = Date.now();
+    const last = lastSavedRef.current;
+    const recentlySavedSame = !!last && last.signature === signature;
+    const recentlySavedAny = !!last && now - last.at < 3000;
+
+    if (recentlySavedSame || (recentlySavedAny && saveProfileMutation.isPending)) return;
+
+    lastSavedRef.current = { signature, at: now };
+    saveProfileMutation.mutate(computedProfile);
   }, [
     user?.id,
     isLoading,
