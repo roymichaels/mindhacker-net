@@ -166,15 +166,17 @@ export function GamifiedJourneyHeader({
                 className="relative"
               >
                 {/* Glow backdrop for orb visibility */}
-                <div className="absolute inset-0 rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-xl scale-150" />
+                <div className="absolute inset-[-50%] rounded-full bg-gradient-radial from-primary/50 via-primary/20 to-transparent blur-2xl" />
                 
                 <div className={cn(
-                  "relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden",
-                  "ring-2 ring-primary/50 shadow-xl",
-                  "bg-gradient-to-br from-background/80 to-background/40",
-                  hasPersonalization && "ring-primary shadow-primary/40 shadow-2xl"
+                  "relative w-16 h-16 md:w-20 md:h-20 rounded-full",
+                  "ring-2 ring-primary/60 shadow-xl overflow-visible",
+                  "bg-gradient-to-br from-background/90 to-background/60 backdrop-blur-sm",
+                  hasPersonalization && "ring-primary shadow-primary/50 shadow-2xl"
                 )}>
-                  <MultiThreadOrb profile={orbProfile} size={64} />
+                  <div className="absolute inset-[-10%] flex items-center justify-center">
+                    <MultiThreadOrb profile={orbProfile} size={88} />
+                  </div>
                 </div>
                 
                 {/* Evolution indicator when orb changes */}
