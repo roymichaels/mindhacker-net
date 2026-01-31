@@ -375,7 +375,10 @@ export function LifePlanStep({ onComplete, isCompleting, rewards, savedFormSubmi
   };
 
   const handleContinueAfterAnalysis = () => {
-    onComplete(submissionId ? { form_submission_id: submissionId } : {});
+    // Use submissionId (from new submission) or existingSubmission.id (when revisiting)
+    const idToPass = submissionId || existingSubmission?.id;
+    console.log('[LifePlanStep] Completing with form_submission_id:', idToPass);
+    onComplete(idToPass ? { form_submission_id: idToPass } : {});
   };
 
   // Loading state
