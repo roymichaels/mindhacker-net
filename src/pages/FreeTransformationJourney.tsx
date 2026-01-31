@@ -182,22 +182,26 @@ export default function FreeTransformationJourney() {
           </span>
         </motion.div>
 
-        {/* CTA Button */}
+        {/* Sticky CTA (prevents overlap on mobile) */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="w-full max-w-sm"
+          className="fixed inset-x-0 bottom-0 z-50 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+16px)]"
         >
-          <Button
-            size="lg"
-            onClick={handleStart}
-            className="w-full h-14 text-lg gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-xl shadow-emerald-500/25 font-bold border-0"
-          >
-            <Sparkles className="w-5 h-5" />
-            {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
-            <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-          </Button>
+          <div className="mx-auto w-full max-w-sm rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-lg">
+            <div className="p-2">
+              <Button
+                size="lg"
+                onClick={handleStart}
+                className="w-full h-14 text-lg gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 font-bold"
+              >
+                <Sparkles className="w-5 h-5" />
+                {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
+                <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+          </div>
         </motion.div>
 
         {/* Social proof */}
@@ -211,6 +215,9 @@ export default function FreeTransformationJourney() {
             ? '⭐ כבר יותר מ-2,000 אנשים התחילו את המסע שלהם' 
             : '⭐ Over 2,000 people have already started their journey'}
         </motion.p>
+
+        {/* Spacer so the fixed CTA doesn't cover content */}
+        <div className="h-28" aria-hidden="true" />
       </section>
     </div>
   );
