@@ -1,6 +1,6 @@
 /**
  * Hook to generate and manage personalized orb profile
- * Combines data from game state, dashboard, and life model
+ * Combines data from game state, dashboard, life model, and launchpad profile
  */
 
 import { useMemo, useEffect } from 'react';
@@ -16,6 +16,7 @@ import {
   DEFAULT_ORB_PROFILE,
   generateOrbProfile,
 } from '@/lib/orbProfileGenerator';
+import type { ArchetypeId } from '@/lib/archetypes';
 
 interface OrbProfileRow {
   id: string;
@@ -36,9 +37,39 @@ interface OrbProfileRow {
 }
 
 /**
+ * Extract user data from launchpad profile for DNA computation
+ */
+interface LaunchpadProfileData {
+  hobbies?: string[];
+  decisionStyle?: string;
+  conflictStyle?: string;
+  problemSolvingStyle?: string;
+  priorities?: string[];
+  // Additional fields from step_2_profile_data
+  sleep_schedule?: string;
+  exercise_frequency?: string;
+  diet_type?: string;
+  meditation_practice?: string;
+}
+
+function extractLaunchpadProfile(profileData: Record<string, unknown> | null): LaunchpadProfileData {
+  if (!profileData) return {};
+  
+  return {
+    hobbies: (profileData.hobbies as string[]) || [],
+    decisionStyle: profileData.decision_making as string,
+    conflictStyle: profileData.conflict_handling as string,
+    problemSolvingStyle: profileData.problem_solving as string,
+    priorities: (profileData.life_priorities as string[]) || [],
+  };
+}
+
+/**
  * Convert database row to OrbProfile
  */
 function rowToProfile(row: OrbProfileRow): OrbProfile {
+  const computedFrom = row.computed_from as Record<string, unknown>;
+  
   return {
     primaryColor: row.primary_color,
     secondaryColors: row.secondary_colors || [],
@@ -47,18 +78,29 @@ function rowToProfile(row: OrbProfileRow): OrbProfile {
     morphSpeed: row.morph_speed,
     fractalOctaves: Math.max(2, Math.min(6, row.geometry_detail)),
     coreIntensity: row.core_intensity,
-    coreSize: 0.2 + Math.min((row.computed_from as any)?.level || 1, 15) * 0.02,
+    coreSize: 0.2 + Math.min((computedFrom?.level as number) || 1, 15) * 0.02,
     layerCount: row.layer_count,
     geometryDetail: row.geometry_detail,
     particleEnabled: row.particle_enabled,
     particleCount: row.particle_count,
     particleColor: row.secondary_colors?.[0] || row.primary_color,
+    // Motion profile defaults
+    motionSpeed: 1.0,
+    pulseRate: 1.0,
+    smoothness: 0.6,
+    // Texture defaults
+    textureType: 'flowing',
+    textureIntensity: 0.5,
     computedFrom: {
-      egoState: (row.computed_from as any)?.egoState || 'guardian',
-      level: (row.computed_from as any)?.level || 1,
-      streak: (row.computed_from as any)?.streak || 0,
-      topTraitCategories: (row.computed_from as any)?.topTraitCategories || [],
-      clarityScore: (row.computed_from as any)?.clarityScore || 0,
+      dominantArchetype: (computedFrom?.dominantArchetype as ArchetypeId) || 'explorer',
+      secondaryArchetype: (computedFrom?.secondaryArchetype as ArchetypeId) || null,
+      archetypeWeights: (computedFrom?.archetypeWeights as { id: ArchetypeId; weight: number }[]) || [],
+      dominantHobbies: (computedFrom?.dominantHobbies as string[]) || [],
+      egoState: (computedFrom?.egoState as string) || 'guardian',
+      level: (computedFrom?.level as number) || 1,
+      streak: (computedFrom?.streak as number) || 0,
+      topTraitCategories: (computedFrom?.topTraitCategories as string[]) || [],
+      clarityScore: (computedFrom?.clarityScore as number) || 0,
     },
   };
 }
@@ -66,7 +108,7 @@ function rowToProfile(row: OrbProfileRow): OrbProfile {
 /**
  * Convert OrbProfile to database row format
  */
-function profileToRow(profile: OrbProfile, userId: string): Partial<OrbProfileRow> {
+function profileToRow(profile: OrbProfile, userId: string): Record<string, unknown> {
   return {
     user_id: userId,
     primary_color: profile.primaryColor,
@@ -79,7 +121,7 @@ function profileToRow(profile: OrbProfile, userId: string): Partial<OrbProfileRo
     particle_enabled: profile.particleEnabled,
     particle_count: profile.particleCount,
     geometry_detail: profile.geometryDetail,
-    computed_from: profile.computedFrom as unknown as Record<string, unknown>,
+    computed_from: profile.computedFrom as Record<string, unknown>,
   };
 }
 
@@ -91,7 +133,12 @@ export function useOrbProfile() {
   const { gameState } = useGameState();
   const { characterTraits } = useDashboard();
   const { lifeDirection } = useLifeModel();
-  const { isLaunchpadComplete } = useLaunchpadProgress();
+  const { isLaunchpadComplete, progress } = useLaunchpadProgress();
+
+  // Extract launchpad profile data
+  const launchpadProfile = useMemo(() => {
+    return extractLaunchpadProfile(progress?.step_2_profile_data as Record<string, unknown> | null);
+  }, [progress?.step_2_profile_data]);
 
   // Fetch stored profile from database
   const { data: storedProfile, isLoading } = useQuery({
@@ -123,27 +170,42 @@ export function useOrbProfile() {
       .map((t) => t.content);
   }, [characterTraits]);
 
-  // Compute profile from current user data
+  // Compute profile from current user data using the new DNA system
   const computedProfile = useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
 
     return generateOrbProfile({
-      egoState: gameState?.activeEgoState || 'guardian',
+      // Launchpad profile data
+      hobbies: launchpadProfile.hobbies,
+      decisionStyle: launchpadProfile.decisionStyle,
+      conflictStyle: launchpadProfile.conflictStyle,
+      problemSolvingStyle: launchpadProfile.problemSolvingStyle,
+      priorities: launchpadProfile.priorities,
+      
+      // Identity elements
+      selectedTraitIds,
+      
+      // Game state
       level: gameState?.level || 1,
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
-      selectedTraitIds,
+      
+      // Aurora data
       clarityScore: lifeDirection?.clarity_score || 0,
-      consciousnessScore: 50, // Default, can be enhanced with actual data
+      consciousnessScore: 50,
       transformationReadiness: isLaunchpadComplete ? 70 : 30,
+      
+      // Legacy
+      egoState: gameState?.activeEgoState,
     });
   }, [
     user?.id,
+    launchpadProfile,
+    selectedTraitIds,
     gameState?.activeEgoState,
     gameState?.level,
     gameState?.experience,
     gameState?.sessionStreak,
-    selectedTraitIds,
     lifeDirection?.clarity_score,
     isLaunchpadComplete,
   ]);
@@ -157,7 +219,7 @@ export function useOrbProfile() {
       
       const { error } = await supabase
         .from('orb_profiles')
-        .upsert([row as any], { onConflict: 'user_id' });
+        .upsert([row as { user_id: string; [key: string]: unknown }], { onConflict: 'user_id' });
       
       if (error) throw error;
     },
@@ -170,8 +232,9 @@ export function useOrbProfile() {
   useEffect(() => {
     if (!user?.id || isLoading) return;
     
-    // Only save if user has completed launchpad or has significant data
+    // Only save if user has launchpad profile data or significant game progress
     const hasSignificantData = 
+      (launchpadProfile.hobbies && launchpadProfile.hobbies.length > 0) ||
       selectedTraitIds.length > 0 ||
       (gameState?.level || 1) > 1 ||
       isLaunchpadComplete;
@@ -180,11 +243,11 @@ export function useOrbProfile() {
 
     // Check if profile needs updating
     const needsUpdate = !storedProfile ||
-      storedProfile.computedFrom.egoState !== computedProfile.computedFrom.egoState ||
+      storedProfile.computedFrom.dominantArchetype !== computedProfile.computedFrom.dominantArchetype ||
       storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
       storedProfile.computedFrom.streak !== computedProfile.computedFrom.streak ||
-      JSON.stringify(storedProfile.computedFrom.topTraitCategories) !== 
-        JSON.stringify(computedProfile.computedFrom.topTraitCategories);
+      JSON.stringify(storedProfile.computedFrom.dominantHobbies) !== 
+        JSON.stringify(computedProfile.computedFrom.dominantHobbies);
 
     if (needsUpdate) {
       saveProfileMutation.mutate(computedProfile);
@@ -194,6 +257,7 @@ export function useOrbProfile() {
     isLoading,
     storedProfile,
     computedProfile,
+    launchpadProfile.hobbies,
     selectedTraitIds.length,
     gameState?.level,
     isLaunchpadComplete,
@@ -207,7 +271,11 @@ export function useOrbProfile() {
     computedProfile,
     storedProfile,
     isLoading,
-    isPersonalized: !!user?.id && (selectedTraitIds.length > 0 || (gameState?.level || 1) > 1),
+    isPersonalized: !!user?.id && (
+      (launchpadProfile.hobbies && launchpadProfile.hobbies.length > 0) ||
+      selectedTraitIds.length > 0 || 
+      (gameState?.level || 1) > 1
+    ),
     saveProfile: saveProfileMutation.mutate,
     isSaving: saveProfileMutation.isPending,
   };
@@ -221,7 +289,11 @@ export function useOrbProfileComputed() {
   const { gameState } = useGameState();
   const { characterTraits } = useDashboard();
   const { lifeDirection } = useLifeModel();
-  const { isLaunchpadComplete } = useLaunchpadProgress();
+  const { isLaunchpadComplete, progress } = useLaunchpadProgress();
+
+  const launchpadProfile = useMemo(() => {
+    return extractLaunchpadProfile(progress?.step_2_profile_data as Record<string, unknown> | null);
+  }, [progress?.step_2_profile_data]);
 
   const selectedTraitIds = useMemo(() => {
     return characterTraits
@@ -233,22 +305,28 @@ export function useOrbProfileComputed() {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
 
     return generateOrbProfile({
-      egoState: gameState?.activeEgoState || 'guardian',
+      hobbies: launchpadProfile.hobbies,
+      decisionStyle: launchpadProfile.decisionStyle,
+      conflictStyle: launchpadProfile.conflictStyle,
+      problemSolvingStyle: launchpadProfile.problemSolvingStyle,
+      priorities: launchpadProfile.priorities,
+      selectedTraitIds,
       level: gameState?.level || 1,
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
-      selectedTraitIds,
       clarityScore: lifeDirection?.clarity_score || 0,
       consciousnessScore: 50,
       transformationReadiness: isLaunchpadComplete ? 70 : 30,
+      egoState: gameState?.activeEgoState,
     });
   }, [
     user?.id,
+    launchpadProfile,
+    selectedTraitIds,
     gameState?.activeEgoState,
     gameState?.level,
     gameState?.experience,
     gameState?.sessionStreak,
-    selectedTraitIds,
     lifeDirection?.clarity_score,
     isLaunchpadComplete,
   ]);

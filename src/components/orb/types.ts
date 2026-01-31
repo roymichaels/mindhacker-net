@@ -1,3 +1,5 @@
+import type { ArchetypeId } from '@/lib/archetypes';
+
 export type OrbState = 
   | 'idle'
   | 'listening'
@@ -29,11 +31,25 @@ export interface OrbProfile {
   particleEnabled: boolean;
   particleCount: number;
   particleColor: string;
+  // Motion profile (new)
+  motionSpeed?: number;
+  pulseRate?: number;
+  smoothness?: number;
+  // Texture (new)
+  textureType?: string;
+  textureIntensity?: number;
+  // Computed from data
   computedFrom: {
-    egoState: string;
+    // New archetype-based system
+    dominantArchetype?: ArchetypeId;
+    secondaryArchetype?: ArchetypeId | null;
+    archetypeWeights?: { id: ArchetypeId; weight: number }[];
+    dominantHobbies?: string[];
+    // Legacy fields (for backwards compatibility)
+    egoState?: string;
     level: number;
     streak: number;
-    topTraitCategories: string[];
+    topTraitCategories?: string[];
     clarityScore: number;
   };
 }

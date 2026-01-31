@@ -1,10 +1,16 @@
 /**
- * Orb Profile Generator
- * Pure functions to compute orb configuration from user data
+ * Orb Profile Generator - Dynamic Identity-Based Avatar System
+ * 
+ * Generates personalized orb profiles based on user's actual identity data:
+ * - Hobbies and interests
+ * - Behavioral patterns
+ * - Character traits
+ * - Life priorities
+ * - Level and XP progression
  */
 
-import { EGO_STATES, getEgoStateColors } from './egoStates';
-import { TRAIT_CATEGORIES, getTrait, TraitCategory } from './characterTraits';
+import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
+import { getArchetype, type ArchetypeId } from './archetypes';
 
 export interface OrbProfile {
   // Colors
@@ -12,103 +18,295 @@ export interface OrbProfile {
   secondaryColors: string[];
   accentColor: string;
   
-  // Morphing configuration
-  morphIntensity: number;  // 0-1
-  morphSpeed: number;      // 0.5-2
-  fractalOctaves: number;  // 2-6
+  // Animation
+  morphIntensity: number;
+  morphSpeed: number;
+  fractalOctaves: number;
   
-  // Core configuration
-  coreIntensity: number;   // 0.3-1
-  coreSize: number;        // 0.2-0.5
+  // Core
+  coreIntensity: number;
+  coreSize: number;
   
-  // Layer configuration
-  layerCount: number;      // 1-4
-  geometryDetail: number;  // 3-6 (icosahedron subdivisions)
+  // Geometry
+  layerCount: number;
+  geometryDetail: number;
   
-  // Particle configuration
+  // Particles
   particleEnabled: boolean;
   particleCount: number;
   particleColor: string;
   
-  // Computed from metadata
+  // Motion profile
+  motionSpeed: number;
+  pulseRate: number;
+  smoothness: number;
+  
+  // Texture
+  textureType: string;
+  textureIntensity: number;
+  
+  // Computed from data
   computedFrom: {
-    egoState: string;
+    dominantArchetype: ArchetypeId;
+    secondaryArchetype: ArchetypeId | null;
+    archetypeWeights: { id: ArchetypeId; weight: number }[];
     level: number;
     streak: number;
-    topTraitCategories: string[];
+    dominantHobbies: string[];
     clarityScore: number;
+    // Legacy compatibility
+    egoState?: string;
+    topTraitCategories?: string[];
   };
 }
 
-// Default profile for new/unauthenticated users
 export const DEFAULT_ORB_PROFILE: OrbProfile = {
-  primaryColor: 'hsl(210, 100%, 50%)',
-  secondaryColors: ['hsl(200, 100%, 60%)'],
-  accentColor: 'hsl(220, 90%, 65%)',
-  morphIntensity: 0.15,
-  morphSpeed: 1.0,
+  primaryColor: '200 80% 50%',
+  secondaryColors: ['220 70% 55%', '180 75% 60%'],
+  accentColor: '180 75% 60%',
+  morphIntensity: 0.5,
+  morphSpeed: 0.8,
   fractalOctaves: 3,
-  coreIntensity: 0.5,
-  coreSize: 0.3,
-  layerCount: 1,
+  coreIntensity: 0.7,
+  coreSize: 0.25,
+  layerCount: 2,
   geometryDetail: 4,
   particleEnabled: false,
   particleCount: 0,
-  particleColor: 'hsl(210, 100%, 70%)',
+  particleColor: '200 80% 50%',
+  motionSpeed: 1.0,
+  pulseRate: 1.0,
+  smoothness: 0.6,
+  textureType: 'flowing',
+  textureIntensity: 0.5,
   computedFrom: {
-    egoState: 'guardian',
+    dominantArchetype: 'explorer',
+    secondaryArchetype: null,
+    archetypeWeights: [{ id: 'explorer', weight: 1 }],
     level: 1,
     streak: 0,
-    topTraitCategories: [],
+    dominantHobbies: [],
     clarityScore: 0,
+    egoState: 'guardian',
+    topTraitCategories: [],
   },
 };
 
-/**
- * Map ego state to primary color palette
- */
-export function getEgoStatePrimaryColor(egoState: string): string {
-  const colors = getEgoStateColors(egoState);
-  return colors.primary;
+export interface GenerateOrbProfileInput {
+  // Profile data from launchpad
+  hobbies?: string[];
+  decisionStyle?: string;
+  conflictStyle?: string;
+  problemSolvingStyle?: string;
+  
+  // Identity elements
+  selectedTraitIds?: string[];
+  
+  // Life priorities
+  priorities?: string[];
+  
+  // Game state
+  level?: number;
+  experience?: number;
+  streak?: number;
+  
+  // Aurora data
+  clarityScore?: number;
+  consciousnessScore?: number;
+  transformationReadiness?: number;
+  
+  // Legacy support - will be phased out
+  egoState?: string;
 }
 
 /**
- * Calculate dominant trait categories from selected trait IDs
+ * Generate a personalized orb profile from user data
  */
-export function calculateDominantTraitCategories(
-  selectedTraitIds: string[]
-): { category: TraitCategory; count: number; color: string }[] {
-  const categoryCount: Record<TraitCategory, number> = {
-    inner_strength: 0,
-    thinking: 0,
-    heart: 0,
-    leadership: 0,
-    social: 0,
-    spiritual: 0,
+export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
+  // Build user data for DNA computation
+  const userData: UserDataForDNA = {
+    hobbies: input.hobbies || [],
+    decisionStyle: input.decisionStyle,
+    conflictStyle: input.conflictStyle,
+    problemSolvingStyle: input.problemSolvingStyle,
+    traits: input.selectedTraitIds || [],
+    priorities: input.priorities || [],
+    level: input.level || 1,
+    experience: input.experience || 0,
+    streak: input.streak || 0,
+    clarityScore: input.clarityScore,
   };
+  
+  // Compute avatar DNA
+  const dna = computeAvatarDNA(userData);
+  
+  // Convert DNA to orb profile
+  return dnaToOrbProfile(dna, userData, input.egoState);
+}
 
-  selectedTraitIds.forEach((id) => {
-    const trait = getTrait(id);
-    if (trait) {
-      categoryCount[trait.category]++;
-    }
-  });
+/**
+ * Convert avatar DNA to orb profile
+ */
+function dnaToOrbProfile(
+  dna: AvatarDNA, 
+  userData: UserDataForDNA,
+  legacyEgoState?: string
+): OrbProfile {
+  const { archetypeBlend, motionProfile, complexityLevel } = dna;
+  const { blendedColors, blendedMorphology, blendedMotion, blendedTexture } = archetypeBlend;
+  
+  // Calculate geometry detail based on complexity
+  const geometryDetail = 2 + complexityLevel;
+  
+  // Calculate fractal octaves from complexity
+  const fractalOctaves = Math.min(6, 2 + complexityLevel);
+  
+  // Calculate core size and intensity from level
+  const level = userData.level || 1;
+  const coreSize = 0.2 + Math.min(level, 15) * 0.015;
+  const coreIntensity = Math.min(1, 0.6 + (level / 20) * 0.4);
+  
+  // Calculate morph intensity from morphology blend
+  const morphIntensity = 0.3 + blendedMorphology.organicFlow * 0.5 + 
+    (1 - blendedMorphology.edgeSharpness) * 0.2;
+  
+  // Calculate morph speed from motion blend
+  const morphSpeed = 0.5 + blendedMotion.baseSpeed * 0.3 + 
+    motionProfile.smoothness * 0.2;
+  
+  // Particle settings
+  const particleEnabled = dna.particleCount > 0;
+  
+  // Streak bonus for intensity
+  const streakBonus = Math.min(userData.streak || 0, 30) / 30 * 0.15;
+  
+  return {
+    primaryColor: blendedColors.primary,
+    secondaryColors: [blendedColors.secondary, blendedColors.accent],
+    accentColor: blendedColors.accent,
+    
+    morphIntensity: Math.min(1, morphIntensity + streakBonus),
+    morphSpeed,
+    fractalOctaves,
+    
+    coreIntensity,
+    coreSize,
+    
+    layerCount: dna.layerCount,
+    geometryDetail,
+    
+    particleEnabled,
+    particleCount: dna.particleCount,
+    particleColor: blendedColors.accent,
+    
+    motionSpeed: motionProfile.speed,
+    pulseRate: motionProfile.pulseRate,
+    smoothness: motionProfile.smoothness,
+    
+    textureType: blendedTexture.type,
+    textureIntensity: dna.textureIntensity,
+    
+    computedFrom: {
+      dominantArchetype: archetypeBlend.dominantArchetype,
+      secondaryArchetype: archetypeBlend.secondaryArchetype,
+      archetypeWeights: archetypeBlend.archetypes,
+      level: userData.level || 1,
+      streak: userData.streak || 0,
+      dominantHobbies: dna.dominantHobbies,
+      clarityScore: userData.clarityScore || 0,
+      // Legacy fields
+      egoState: legacyEgoState,
+      topTraitCategories: userData.traits.slice(0, 3),
+    },
+  };
+}
 
-  return (Object.entries(categoryCount) as [TraitCategory, number][])
-    .filter(([_, count]) => count > 0)
-    .sort((a, b) => b[1] - a[1])
-    .map(([category, count]) => ({
-      category,
-      count,
-      color: TRAIT_CATEGORIES[category].color,
-    }));
+/**
+ * Generate a quick preview profile for non-authenticated users
+ */
+export function generateDefaultProfile(): OrbProfile {
+  return DEFAULT_ORB_PROFILE;
+}
+
+/**
+ * Get archetype icon for display
+ */
+export function getArchetypeIcon(archetypeId: ArchetypeId): string {
+  return getArchetype(archetypeId).icon;
+}
+
+/**
+ * Get archetype name for display
+ */
+export function getArchetypeName(archetypeId: ArchetypeId, isHebrew: boolean): string {
+  const archetype = getArchetype(archetypeId);
+  return isHebrew ? archetype.nameHe : archetype.name;
+}
+
+/**
+ * Legacy compatibility: Map old ego state to closest archetype
+ * This allows gradual migration from ego states to archetypes
+ */
+export function egoStateToArchetype(egoState: string): ArchetypeId {
+  const mapping: Record<string, ArchetypeId> = {
+    guardian: 'healer',
+    healer: 'healer',
+    mystic: 'mystic',
+    visionary: 'creator',
+    warrior: 'warrior',
+    rebel: 'warrior',
+    sage: 'sage',
+    creator: 'creator',
+    explorer: 'explorer',
+    lover: 'healer',
+    magician: 'mystic',
+    ruler: 'warrior',
+    innocent: 'explorer',
+    everyman: 'healer',
+    hero: 'warrior',
+    outlaw: 'warrior',
+    jester: 'creator',
+    caregiver: 'healer',
+  };
+  
+  return mapping[egoState.toLowerCase()] || 'explorer';
+}
+
+/**
+ * Interpolate between two orb profiles for smooth transitions
+ */
+export function interpolateOrbProfiles(
+  from: OrbProfile,
+  to: OrbProfile,
+  t: number
+): OrbProfile {
+  const lerp = (a: number, b: number) => a + (b - a) * t;
+  
+  return {
+    ...to,
+    morphIntensity: lerp(from.morphIntensity, to.morphIntensity),
+    morphSpeed: lerp(from.morphSpeed, to.morphSpeed),
+    fractalOctaves: Math.round(lerp(from.fractalOctaves, to.fractalOctaves)),
+    coreIntensity: lerp(from.coreIntensity, to.coreIntensity),
+    coreSize: lerp(from.coreSize, to.coreSize),
+    layerCount: Math.round(lerp(from.layerCount, to.layerCount)),
+    geometryDetail: Math.round(lerp(from.geometryDetail, to.geometryDetail)),
+    particleCount: Math.round(lerp(from.particleCount, to.particleCount)),
+    motionSpeed: lerp(from.motionSpeed ?? 1, to.motionSpeed ?? 1),
+    pulseRate: lerp(from.pulseRate ?? 1, to.pulseRate ?? 1),
+    smoothness: lerp(from.smoothness ?? 0.6, to.smoothness ?? 0.6),
+    textureIntensity: lerp(from.textureIntensity ?? 0.5, to.textureIntensity ?? 0.5),
+    primaryColor: t < 0.5 ? from.primaryColor : to.primaryColor,
+    secondaryColors: t < 0.5 ? from.secondaryColors : to.secondaryColors,
+    accentColor: t < 0.5 ? from.accentColor : to.accentColor,
+    particleColor: t < 0.5 ? from.particleColor : to.particleColor,
+  };
 }
 
 /**
  * Convert HEX color to HSL string
  */
 export function hexToHsl(hex: string): string {
-  // Remove # if present
   hex = hex.replace('#', '');
   
   const r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -138,189 +336,5 @@ export function hexToHsl(hex: string): string {
     }
   }
 
-  return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
-}
-
-/**
- * Calculate layer count based on level
- */
-export function calculateLayerCount(level: number): number {
-  if (level >= 10) return 4;
-  if (level >= 7) return 3;
-  if (level >= 4) return 2;
-  return 1;
-}
-
-/**
- * Calculate geometry detail (icosahedron subdivisions) based on level
- */
-export function calculateGeometryDetail(level: number): number {
-  if (level >= 10) return 6;
-  if (level >= 7) return 5;
-  if (level >= 4) return 4;
-  return 3;
-}
-
-/**
- * Calculate morph intensity based on consciousness/clarity score
- */
-export function calculateMorphIntensity(clarityScore: number): number {
-  // Higher clarity = smoother, more focused movement
-  const baseIntensity = 0.12;
-  const maxIntensity = 0.25;
-  const normalized = Math.min(clarityScore / 100, 1);
-  
-  // Inverse relationship - higher clarity = lower chaos
-  return baseIntensity + (1 - normalized) * (maxIntensity - baseIntensity);
-}
-
-/**
- * Calculate morph speed based on transformation readiness
- */
-export function calculateMorphSpeed(transformationReadiness: number): number {
-  const baseSpeed = 0.8;
-  const maxSpeed = 1.8;
-  const normalized = Math.min(transformationReadiness / 100, 1);
-  
-  return baseSpeed + normalized * (maxSpeed - baseSpeed);
-}
-
-/**
- * Calculate particle count based on streak
- */
-export function calculateParticleCount(streak: number): number {
-  if (streak === 0) return 0;
-  return Math.min(streak * 3, 50); // Cap at 50 particles
-}
-
-/**
- * Calculate core intensity based on consciousness score
- */
-export function calculateCoreIntensity(consciousnessScore: number): number {
-  const baseIntensity = 0.3;
-  const maxIntensity = 1.0;
-  const normalized = Math.min(consciousnessScore / 100, 1);
-  
-  return baseIntensity + normalized * (maxIntensity - baseIntensity);
-}
-
-/**
- * Calculate fractal octaves based on level
- */
-export function calculateFractalOctaves(level: number): number {
-  if (level >= 10) return 6;
-  if (level >= 7) return 5;
-  if (level >= 4) return 4;
-  return 3;
-}
-
-export interface GenerateOrbProfileInput {
-  egoState: string;
-  level: number;
-  experience: number;
-  streak: number;
-  selectedTraitIds: string[];
-  clarityScore: number;
-  consciousnessScore: number;
-  transformationReadiness: number;
-}
-
-/**
- * Generate complete orb profile from user data
- */
-export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
-  const {
-    egoState = 'guardian',
-    level = 1,
-    streak = 0,
-    selectedTraitIds = [],
-    clarityScore = 0,
-    consciousnessScore = 0,
-    transformationReadiness = 50,
-  } = input;
-
-  // Get ego state colors
-  const egoColors = getEgoStateColors(egoState);
-  const primaryColor = egoColors.primary;
-  const accentColor = egoColors.accent;
-
-  // Calculate dominant trait categories
-  const dominantCategories = calculateDominantTraitCategories(selectedTraitIds);
-  
-  // Get secondary colors from top 2-3 trait categories
-  const secondaryColors = dominantCategories
-    .slice(0, 3)
-    .map((cat) => hexToHsl(cat.color));
-  
-  // If no traits selected, use ego state secondary color
-  if (secondaryColors.length === 0) {
-    secondaryColors.push(egoColors.secondary);
-  }
-
-  // Particle color from dominant trait or ego state
-  const particleColor = dominantCategories.length > 0
-    ? hexToHsl(dominantCategories[0].color)
-    : egoColors.glow;
-
-  // Calculate all parameters
-  const morphIntensity = calculateMorphIntensity(clarityScore);
-  const morphSpeed = calculateMorphSpeed(transformationReadiness);
-  const fractalOctaves = calculateFractalOctaves(level);
-  const coreIntensity = calculateCoreIntensity(consciousnessScore);
-  const coreSize = 0.2 + Math.min(level * 0.02, 0.3);
-  const layerCount = calculateLayerCount(level);
-  const geometryDetail = calculateGeometryDetail(level);
-  const particleEnabled = streak > 0;
-  const particleCount = calculateParticleCount(streak);
-
-  return {
-    primaryColor,
-    secondaryColors,
-    accentColor,
-    morphIntensity,
-    morphSpeed,
-    fractalOctaves,
-    coreIntensity,
-    coreSize,
-    layerCount,
-    geometryDetail,
-    particleEnabled,
-    particleCount,
-    particleColor,
-    computedFrom: {
-      egoState,
-      level,
-      streak,
-      topTraitCategories: dominantCategories.slice(0, 3).map((c) => c.category),
-      clarityScore,
-    },
-  };
-}
-
-/**
- * Interpolate between two orb profiles for smooth transitions
- */
-export function interpolateOrbProfiles(
-  from: OrbProfile,
-  to: OrbProfile,
-  t: number
-): OrbProfile {
-  const lerp = (a: number, b: number) => a + (b - a) * t;
-  
-  return {
-    primaryColor: t < 0.5 ? from.primaryColor : to.primaryColor,
-    secondaryColors: t < 0.5 ? from.secondaryColors : to.secondaryColors,
-    accentColor: t < 0.5 ? from.accentColor : to.accentColor,
-    morphIntensity: lerp(from.morphIntensity, to.morphIntensity),
-    morphSpeed: lerp(from.morphSpeed, to.morphSpeed),
-    fractalOctaves: Math.round(lerp(from.fractalOctaves, to.fractalOctaves)),
-    coreIntensity: lerp(from.coreIntensity, to.coreIntensity),
-    coreSize: lerp(from.coreSize, to.coreSize),
-    layerCount: Math.round(lerp(from.layerCount, to.layerCount)),
-    geometryDetail: Math.round(lerp(from.geometryDetail, to.geometryDetail)),
-    particleEnabled: to.particleEnabled,
-    particleCount: Math.round(lerp(from.particleCount, to.particleCount)),
-    particleColor: t < 0.5 ? from.particleColor : to.particleColor,
-    computedFrom: to.computedFrom,
-  };
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
