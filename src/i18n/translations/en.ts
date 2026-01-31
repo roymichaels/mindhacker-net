@@ -2423,9 +2423,13 @@ export const en: TranslationKeys = {
     coachingFeature4: "Pattern and behavior analysis",
     coachingFeature5: "Available 24 hours, every day",
     
-    // Life Plan / Launchpad
+    // Life Plan / Transformation Journey
     lifePlanTitle: "90-Day Plan for a New Life",
-    lifePlanSubtitle: "10 steps in Launchpad → Complete personal plan",
+    lifePlanSubtitle: "9 steps in Transformation Journey → Complete personal plan",
+    transformationJourney: "Transformation Journey",
+    editTransformationJourney: "Edit Transformation Journey",
+    startTransformationJourney: "Start Transformation Journey",
+    continueTransformationJourney: "Continue Transformation Journey",
     step1Name: "Welcome",
     step2Name: "Personal Profile",
     step3Name: "Identity Building",

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadData } from '@/hooks/useLaunchpadData';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Save, RefreshCw, Loader2, Check, X } from 'lucide-react';
+import { Save, RefreshCw, Loader2, Check, X, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { translateProfileValue, translateFieldLabel } from '@/utils/profileTranslations';
@@ -25,10 +27,12 @@ const TABS = [
 ];
 
 export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
-  const { language, isRTL } = useTranslation();
+  const navigate = useNavigate();
+  const { language, isRTL, t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: launchpadData, isLoading, updateData, isUpdating } = useLaunchpadData();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
   
   const [activeTab, setActiveTab] = useState('profile');
   const [hasChanges, setHasChanges] = useState(false);
@@ -115,6 +119,23 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
             </div>
           </div>
         </SheetHeader>
+
+        {/* Transformation Journey Button */}
+        <div className="p-4 border-b">
+          <Button
+            className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-primary-foreground"
+            onClick={() => {
+              onOpenChange(false);
+              navigate('/launchpad');
+            }}
+          >
+            <Sparkles className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+            {isLaunchpadComplete 
+              ? t('home.editTransformationJourney')
+              : t('home.startTransformationJourney')
+            }
+          </Button>
+        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
