@@ -118,9 +118,8 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 animate-pulse" />
                 
                 <div className="relative z-10 p-6 flex flex-col items-center text-center">
-                  {/* Large Orb */}
+                  {/* Large Orb - No background circle */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 blur-3xl bg-primary/30 rounded-full scale-150" />
                     <MultiThreadOrb 
                       size={280}
                       showGlow={true}
