@@ -51,12 +51,14 @@ export interface HeaderProps {
 const SidebarToggle = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const sidebar = useSidebarSafe();
   
-  // Handle click - prefer sidebar context, fallback to callback
+  // Handle click - prefer callback if provided (mobile), otherwise use sidebar context
   const handleClick = () => {
-    if (sidebar) {
-      sidebar.toggleSidebar();
-    } else if (onMenuClick) {
+    // If we have a callback, use it (mobile sheet scenario)
+    if (onMenuClick) {
       onMenuClick();
+    } else if (sidebar) {
+      // Desktop sidebar toggle
+      sidebar.toggleSidebar();
     }
   };
   
@@ -69,6 +71,7 @@ const SidebarToggle = ({ onMenuClick }: { onMenuClick?: () => void }) => {
       size="icon" 
       onClick={handleClick}
       aria-label="Toggle sidebar"
+      className="h-9 w-9"
     >
       <Menu className="h-5 w-5" />
     </Button>
@@ -142,25 +145,24 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
-          {/* Left side: Logo, Sidebar Trigger and Admin panel title */}
-          <div className="flex items-center gap-1 sm:gap-3 justify-start">
-            {/* Sidebar Toggle - for authenticated users (non-admin)
-                In RTL we render it BEFORE the logo so it appears to the right of it visually.
-            */}
+          {/* Left side - RTL: Menu on far-right, then Logo
+              LTR: Logo, then Menu */}
+          <div className="flex items-center gap-2 sm:gap-3 justify-start">
+            {/* RTL: Sidebar Toggle first (appears on far right) */}
             {user && !isAdminMode && isRTL && (
               <SidebarToggle onMenuClick={onMenuClick} />
             )}
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0">
                 <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" loading="eager" decoding="async" />
               </div>
-              <span className={`hidden sm:inline font-black text-lg ${brandColors?.text || 'text-foreground'}`}>
+              <span className={`hidden sm:inline font-bold text-base sm:text-lg ${brandColors?.text || 'text-foreground'}`}>
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
 
-            {/* LTR: render after logo (to the left of it visually) */}
+            {/* LTR: Sidebar Toggle after logo */}
             {user && !isAdminMode && !isRTL && (
               <SidebarToggle onMenuClick={onMenuClick} />
             )}
