@@ -561,12 +561,12 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
       <motion.div 
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-muted/30 rounded-xl p-4 text-start space-y-2"
+        className="rounded-xl p-4 text-start space-y-2 backdrop-blur-md bg-background/70 border shadow-lg"
       >
-        <h3 className="font-semibold text-sm">
+        <h3 className="font-semibold text-sm text-foreground">
           {language === 'he' ? 'בסוף תקבל:' : "You'll receive:"}
         </h3>
-        <ul className="space-y-1 text-xs text-muted-foreground">
+        <ul className="space-y-1 text-xs text-foreground/80">
           <li className="flex items-center gap-2">
             <span>✨</span>
             {language === 'he' ? 'ניתוח AI של דפוסי החשיבה שלך' : 'AI analysis of your thought patterns'}
@@ -594,8 +594,8 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-between p-4 h-auto rounded-xl border",
-                  answers[question.id]?.trim().length >= 30 && "border-primary/50 bg-primary/5"
+                  "w-full justify-between p-4 h-auto rounded-xl border backdrop-blur-md bg-background/70 shadow-lg",
+                  answers[question.id]?.trim().length >= 30 && "border-primary/50 bg-primary/10"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -619,16 +619,16 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards }: Introsp
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-4 space-y-3"
+                className="p-4 space-y-3 mx-1 mb-1 rounded-b-xl backdrop-blur-md bg-background/70 border border-t-0 shadow-lg"
               >
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground font-medium">
                   {language === 'he' ? question.question : question.questionEn}
                 </p>
                 <Textarea
                   value={answers[question.id] || ''}
                   onChange={(e) => setAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
                   placeholder={language === 'he' ? question.placeholder : question.placeholderEn}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[120px] resize-none bg-background/80 backdrop-blur-sm"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </motion.div>
