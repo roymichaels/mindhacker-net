@@ -34,6 +34,11 @@ interface SummaryData {
     dominant_traits: string[];
     suggested_ego_state: string;
     values_hierarchy: string[];
+    identity_title: {
+      title: string;
+      title_en: string;
+      icon: string;
+    };
   };
   behavioral_insights: {
     habits_to_transform: string[];
@@ -243,6 +248,21 @@ Deno.serve(async (req) => {
           metadata: { source: 'launchpad_summary' },
         });
       }
+    }
+
+    // Insert identity title as a special identity element
+    if (summary.identity_profile?.identity_title) {
+      const identityTitle = summary.identity_profile.identity_title;
+      await supabase.from('aurora_identity_elements').insert({
+        user_id: userId,
+        element_type: 'identity_title',
+        content: identityTitle.title,
+        metadata: { 
+          source: 'launchpad_summary',
+          title_en: identityTitle.title_en,
+          icon: identityTitle.icon || '🎯',
+        },
+      });
     }
 
     // Insert behavioral insights as principles
@@ -474,7 +494,12 @@ Respond ONLY with valid JSON matching this exact structure:
     "identity_profile": {
       "dominant_traits": ["תכונה 1", "תכונה 2", "תכונה 3"],
       "suggested_ego_state": "warrior|guardian|creator|seeker|sage",
-      "values_hierarchy": ["ערך 1", "ערך 2", "ערך 3"]
+      "values_hierarchy": ["ערך 1", "ערך 2", "ערך 3"],
+      "identity_title": {
+        "title": "כותרת זהות קצרה 1-3 מילים בעברית - משהו משחקי ומעורר השראה שמסכם מי המשתמש בחר להיות (לדוגמה: נינג'ה של הביצוע, ארכיטקט החלומות, לוחם האור, מעצב המציאות)",
+        "title_en": "Short 1-3 word identity title in English (e.g., Execution Ninja, Dream Architect, Light Warrior, Reality Shaper)",
+        "icon": "אימוג'י אחד שמייצג את הזהות"
+      }
     },
     "behavioral_insights": {
       "habits_to_transform": ["הרגל לשנות 1", "הרגל לשנות 2"],
@@ -656,6 +681,11 @@ function getDefaultSummaryAndPlan(data: LaunchpadData): {
         dominant_traits: traits.length > 0 ? traits : ['Determined', 'Thoughtful', 'Growing'],
         suggested_ego_state: 'guardian',
         values_hierarchy: values.length > 0 ? values : ['Growth', 'Authenticity', 'Success'],
+        identity_title: {
+          title: 'מעצב מודע',
+          title_en: 'Conscious Shaper',
+          icon: '🎯',
+        },
       },
       behavioral_insights: {
         habits_to_transform: ['Procrastination', 'Self-doubt'],

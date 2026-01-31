@@ -1,13 +1,20 @@
-import { Heart } from 'lucide-react';
+import { Heart, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
+interface IdentityTitleData {
+  title: string;
+  titleEn: string;
+  icon: string;
+}
+
 interface IdentityProfileCardProps {
   values: string[];
   principles: string[];
   selfConcepts: string[];
+  identityTitle?: IdentityTitleData | null;
   className?: string;
 }
 
@@ -15,11 +22,12 @@ export function IdentityProfileCard({
   values, 
   principles, 
   selfConcepts,
+  identityTitle,
   className 
 }: IdentityProfileCardProps) {
   const { t, isRTL, language } = useTranslation();
 
-  const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0;
+  const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0 || identityTitle;
   
   if (!hasContent) {
     return (
@@ -47,6 +55,8 @@ export function IdentityProfileCard({
     );
   }
 
+  const displayTitle = language === 'he' ? identityTitle?.title : identityTitle?.titleEn;
+
   return (
     <Card className={cn("", className)} dir={isRTL ? 'rtl' : 'ltr'}>
       <CardHeader className="pb-2">
@@ -56,6 +66,26 @@ export function IdentityProfileCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Identity Title - Prominent Display */}
+        {identityTitle && (
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 border border-primary/20 p-4 text-center">
+            {/* Decorative glow */}
+            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 left-0 w-12 h-12 bg-accent/10 rounded-full blur-xl" />
+            
+            <div className="relative z-10">
+              <span className="text-3xl mb-2 block">{identityTitle.icon}</span>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {displayTitle}
+              </h3>
+              <div className="flex items-center justify-center gap-1 mt-2 text-xs text-muted-foreground">
+                <Sparkles className="h-3 w-3" />
+                <span>{language === 'he' ? 'מי בחרת להיות' : 'Who you chose to become'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {values.length > 0 && (
           <div>
             <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
