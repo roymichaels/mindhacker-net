@@ -141,9 +141,20 @@ const DashboardSidebar = ({
       {/* Navigation Section */}
       <div className="mb-4">
         {!isCollapsed && (
-          <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
-            {language === 'he' ? 'ניווט' : 'Navigate'}
-          </p>
+          <div className="flex items-center justify-between px-3 mb-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              {language === 'he' ? 'ניווט' : 'Navigate'}
+            </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => sidebar?.toggleSidebar()}
+              title={language === 'he' ? 'כווץ תפריט' : 'Collapse Menu'}
+            >
+              <Menu className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
         )}
         <div className="space-y-1">
           {navItems.map((item) => {
