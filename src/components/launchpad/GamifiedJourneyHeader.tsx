@@ -159,31 +159,23 @@ export function GamifiedJourneyHeader({
                 )}
               </div>
 
-              {/* Live Orb Avatar - Enhanced liquid mercury style */}
+              {/* Live Orb Avatar - Enhanced glowing liquid style (no rings) */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="relative"
               >
-                {/* Glow backdrop for orb visibility */}
-                <div className="absolute inset-[-80%] rounded-full bg-gradient-radial from-primary/60 via-primary/30 to-transparent blur-2xl pointer-events-none" />
+                {/* Intense glow backdrop - multiple layers for depth */}
+                <div className="absolute inset-[-120%] rounded-full bg-gradient-radial from-primary/70 via-primary/40 to-transparent blur-3xl pointer-events-none" />
+                <div className="absolute inset-[-80%] rounded-full bg-gradient-radial from-accent/50 via-transparent to-transparent blur-2xl pointer-events-none animate-pulse" />
                 
-                {/* Orb container - allows orb to overflow visually */}
+                {/* Clean orb container - no rings, just the orb */}
                 <div className={cn(
-                  "relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center",
-                  hasPersonalization && "animate-pulse-subtle"
+                  "relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center"
                 )}>
-                  {/* Ring decoration */}
-                  <div className={cn(
-                    "absolute inset-0 rounded-full",
-                    "ring-2 ring-primary/60 shadow-xl",
-                    "bg-gradient-to-br from-background/50 to-transparent backdrop-blur-sm",
-                    hasPersonalization && "ring-primary shadow-primary/50 shadow-2xl"
-                  )} />
-                  
-                  {/* Orb - sized larger to overflow and show full 3D sphere */}
-                  <div className="relative z-10" style={{ transform: 'scale(1.4)' }}>
-                    <PersonalizedOrb size={72} showGlow={true} />
+                  {/* Orb - larger scale for impact */}
+                  <div className="relative z-10" style={{ transform: 'scale(1.5)' }}>
+                    <PersonalizedOrb size={80} showGlow={true} />
                   </div>
                 </div>
                 
@@ -194,7 +186,7 @@ export function GamifiedJourneyHeader({
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg"
+                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg z-20"
                     >
                       <Star className="w-3 h-3 text-primary-foreground" />
                     </motion.div>
