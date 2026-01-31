@@ -216,11 +216,33 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       antialias: true,
       alpha: true,
     });
+    // Better material response / highlights
+    // (some Three.js renderer fields aren't present in our TS types, so we cast)
+    (renderer as unknown as { physicallyCorrectLights?: boolean }).physicallyCorrectLights = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    (renderer as unknown as { outputColorSpace?: THREE.ColorSpace }).outputColorSpace = THREE.SRGBColorSpace;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // Lights (required for physical materials)
+    const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+    scene.add(ambient);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(2.5, 2.0, 3.5);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(colors.accent), 0.9);
+    rimLight.position.set(-3.0, -1.5, -2.5);
+    scene.add(rimLight);
+
+    const pointLight = new THREE.PointLight(parseHslToThreeColor(colors.glow || colors.primary), 1.0, 12);
+    pointLight.position.set(0, 0, 3.0);
+    scene.add(pointLight);
 
     // Create outer glow sphere first (behind everything)
     const outerGlowGeometry = new THREE.SphereGeometry(1.15, 32, 32);
@@ -244,22 +266,36 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // *** NEW: Solid inner fill sphere - gives the orb substance ***
+    // *** Inner fill sphere - gives the orb substance ***
     const innerFillGeometry = new THREE.SphereGeometry(0.55, 32, 32);
-    const innerFillMaterial = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.secondary),
+    const innerFillColor = parseHslToThreeColor(colors.secondary);
+    const innerFillMaterial = new THREE.MeshPhysicalMaterial({
+      color: innerFillColor,
+      emissive: innerFillColor.clone().multiplyScalar(0.15),
+      metalness: 0.25,
+      roughness: 0.28,
+      transmission: 0.65,
+      thickness: 0.8,
+      ior: 1.25,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.55,
     });
     const innerFill = new THREE.Mesh(innerFillGeometry, innerFillMaterial);
     scene.add(innerFill);
 
-    // *** NEW: Gradient shell - creates color transition effect ***
+    // *** Gradient shell - creates color transition effect ***
     const gradientShellGeometry = new THREE.SphereGeometry(0.65, 24, 24);
-    const gradientShellMaterial = new THREE.MeshBasicMaterial({
-      color: parseHslToThreeColor(colors.primary),
+    const gradientShellColor = parseHslToThreeColor(colors.primary);
+    const gradientShellMaterial = new THREE.MeshPhysicalMaterial({
+      color: gradientShellColor,
+      emissive: gradientShellColor.clone().multiplyScalar(0.08),
+      metalness: 0.4,
+      roughness: 0.22,
+      transmission: 0.4,
+      thickness: 0.5,
+      ior: 1.3,
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.35,
       side: THREE.BackSide,
     });
     const gradientShell = new THREE.Mesh(gradientShellGeometry, gradientShellMaterial);
@@ -274,9 +310,18 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const geometry = new THREE.IcosahedronGeometry(config.radius, config.detail);
       const positions = geometry.attributes.position.array as Float32Array;
       
-      const material = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(config.color),
-        wireframe: true,
+      const layerColor = parseHslToThreeColor(config.color);
+      // Solid "liquid mercury" shell (no wireframe)
+      const material = new THREE.MeshPhysicalMaterial({
+        color: layerColor,
+        emissive: layerColor.clone().multiplyScalar(0.12),
+        metalness: 0.9,
+        roughness: 0.12,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
+        transmission: 0.25,
+        thickness: 0.7,
+        ior: 1.35,
         transparent: true,
         opacity: config.opacity,
       });
@@ -357,6 +402,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       innerFillMaterial.dispose();
       gradientShell.geometry.dispose();
       gradientShellMaterial.dispose();
+
+      ambient.dispose();
+      keyLight.dispose();
+      rimLight.dispose();
+      pointLight.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -370,8 +420,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     
     layers.forEach((mesh, index) => {
       if (index < layerConfigs.length) {
-        const material = mesh.material as THREE.MeshBasicMaterial;
-        material.color = parseHslToThreeColor(layerConfigs[index].color);
+        const material = mesh.material as THREE.MeshPhysicalMaterial;
+        const c = parseHslToThreeColor(layerConfigs[index].color);
+        material.color = c;
+        material.emissive = c.clone().multiplyScalar(0.12);
         material.opacity = layerConfigs[index].opacity;
       }
     });
