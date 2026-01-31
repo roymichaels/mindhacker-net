@@ -7,7 +7,13 @@ interface IdentityProfileProps {
     dominant_traits: string[];
     suggested_ego_state: string;
     values_hierarchy: string[];
-    identity_title?: string;
+    identity_title?:
+      | string
+      | {
+          icon?: string;
+          title?: string;
+          title_en?: string;
+        };
     identity_emoji?: string;
   };
   behavioral?: {
@@ -40,8 +46,22 @@ export function IdentityProfile({ profile, behavioral }: IdentityProfileProps) {
   const egoIcon = EGO_STATE_ICONS[egoState] || '🛡️';
   const egoLabel = EGO_STATE_LABELS[egoState] || EGO_STATE_LABELS.guardian;
 
-  const identityTitle = profile.identity_title;
-  const identityEmoji = profile.identity_emoji || '🎭';
+  const getIdentityTitleText = () => {
+    const t = profile.identity_title;
+    if (!t) return null;
+    if (typeof t === 'string') return t;
+    return language === 'he' ? t.title ?? null : t.title_en ?? t.title ?? null;
+  };
+
+  const getIdentityEmoji = () => {
+    if (profile.identity_emoji) return profile.identity_emoji;
+    const t = profile.identity_title;
+    if (t && typeof t === 'object' && typeof t.icon === 'string' && t.icon.trim()) return t.icon;
+    return '🎭';
+  };
+
+  const identityTitle = getIdentityTitleText();
+  const identityEmoji = getIdentityEmoji();
 
   return (
     <motion.div
