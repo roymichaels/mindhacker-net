@@ -49,6 +49,7 @@ const HABITS_TO_QUIT: AISuggestion[] = [
   // Substances & Addictions
   { id: 'alcohol', icon: '🍺', label: 'אלכוהול מוגזם', labelEn: 'Excessive alcohol' },
   { id: 'drugs', icon: '💊', label: 'סמים / שימוש בחומרים', labelEn: 'Drugs / substance use' },
+  { id: 'cannabis', icon: '🌿', label: 'הפסקת שימוש בקנאביס', labelEn: 'Stop cannabis use' },
   { id: 'smoking', icon: '🚬', label: 'עישון / ניקוטין', labelEn: 'Smoking / nicotine' },
   { id: 'caffeine', icon: '☕', label: 'קפאין מוגזם', labelEn: 'Excessive caffeine' },
   { id: 'sugar', icon: '🍫', label: 'סוכר והתמכרות למתוקים', labelEn: 'Sugar & sweets addiction' },
