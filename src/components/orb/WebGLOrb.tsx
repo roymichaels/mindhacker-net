@@ -1,8 +1,15 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { OrbRef, OrbProps, OrbState, OrbProfile } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
 import { ParticleSystem } from './OrbParticles';
+import { 
+  COLOR_PALETTES, 
+  hslToRgb, 
+  GRADIENT_VERTEX_SHADER, 
+  GRADIENT_FRAGMENT_SHADER,
+  type ColorPalette 
+} from '@/lib/orbVisualSystem';
 
 // Check WebGL support
 export function supportsWebGL(): boolean {
@@ -68,9 +75,7 @@ function fbm(x: number, y: number, z: number, octaves: number = 4): number {
 }
 
 // Parse HSL color string to THREE.Color
-// Supports formats: "hsl(200, 80%, 50%)", "200 80% 50%", "#ff0000", "red"
 function parseHslToThreeColor(colorStr: string): THREE.Color {
-  // Check for "h s% l%" format (without hsl wrapper)
   const hslSpaceMatch = colorStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
   if (hslSpaceMatch) {
     const h = parseInt(hslSpaceMatch[1]) / 360;
@@ -81,7 +86,6 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
     return color;
   }
   
-  // Check for "hsl(h, s%, l%)" format
   const hslFuncMatch = colorStr.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/);
   if (hslFuncMatch) {
     const h = parseInt(hslFuncMatch[1]) / 360;
@@ -92,7 +96,6 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
     return color;
   }
   
-  // Fallback to THREE.Color parser (handles hex, named colors)
   return new THREE.Color(colorStr);
 }
 
@@ -101,9 +104,10 @@ interface LayerConfig {
   radius: number;
   detail: number;
   opacity: number;
-  color: string;
+  colorIndex: number; // 0=primary, 1=secondary, 2=accent
   rotationSpeed: number;
   morphOffset: number;
+  useShader: boolean;
 }
 
 export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
@@ -128,10 +132,17 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const layersRef = useRef<THREE.Mesh[]>([]);
   const basePositionsRef = useRef<Map<THREE.Mesh, Float32Array>>(new Map());
   const particleSystemRef = useRef<ParticleSystem | null>(null);
-  const coreRef = useRef<THREE.Mesh | null>(null);
+  const coreLayersRef = useRef<THREE.Mesh[]>([]);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
   const morphPhaseRef = useRef(0);
+  const shaderUniformsRef = useRef<{ 
+    colorA: { value: THREE.Vector3 }; 
+    colorB: { value: THREE.Vector3 }; 
+    colorC: { value: THREE.Vector3 }; 
+    time: { value: number }; 
+    intensity: { value: number }; 
+  } | null>(null);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
   const [internalAudioLevel, setInternalAudioLevel] = useState(0);
@@ -141,31 +152,53 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const audioLevel = externalAudioLevel ?? internalAudioLevel;
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
-  // Get colors from profile, theme colors, or ego state (in priority order)
-  const egoStateColors = getEgoStateColors(egoState);
-  const colors = profile ? {
-    primary: profile.primaryColor,
-    secondary: profile.secondaryColors[0] || profile.primaryColor,
-    accent: profile.accentColor,
-    glow: profile.accentColor,
-  } : themeColors ? {
-    primary: themeColors.primary,
-    secondary: themeColors.secondary,
-    accent: themeColors.accent,
-    glow: themeColors.glow,
-  } : egoStateColors;
+  // Determine the active color palette
+  const activePalette = useMemo((): ColorPalette => {
+    // Priority: profile colors > theme colors > default palette
+    if (profile?.primaryColor) {
+      // Try to find matching palette or create custom one
+      const paletteValues = Object.values(COLOR_PALETTES);
+      const matchingPalette = paletteValues.find(p => p.primary === profile.primaryColor);
+      if (matchingPalette) return matchingPalette;
+      
+      // Create custom palette from profile
+      return {
+        id: 'custom',
+        name: 'Custom',
+        primary: profile.primaryColor,
+        secondary: profile.secondaryColors?.[0] || profile.primaryColor,
+        accent: profile.accentColor || profile.primaryColor,
+        glow: profile.accentColor || profile.primaryColor,
+        gradient: [profile.primaryColor, profile.secondaryColors?.[0] || profile.primaryColor, profile.accentColor || profile.primaryColor],
+      };
+    }
+    
+    if (themeColors) {
+      return {
+        id: 'theme',
+        name: 'Theme',
+        primary: themeColors.primary.replace('hsl(', '').replace(')', '').replace(/,/g, ' ').replace(/%/g, '%'),
+        secondary: themeColors.secondary.replace('hsl(', '').replace(')', '').replace(/,/g, ' ').replace(/%/g, '%'),
+        accent: themeColors.accent.replace('hsl(', '').replace(')', '').replace(/,/g, ' ').replace(/%/g, '%'),
+        glow: themeColors.glow.replace('hsl(', '').replace(')', '').replace(/,/g, ' ').replace(/%/g, '%'),
+        gradient: [themeColors.primary, themeColors.secondary, themeColors.accent],
+      };
+    }
+    
+    // Default: explorer palette
+    return COLOR_PALETTES.explorer;
+  }, [profile, themeColors]);
 
-  // Get profile-based parameters or defaults - enhanced defaults for beautiful orb
-  const layerCount = profile?.layerCount ?? 3; // More layers by default
-  const geometryDetail = profile?.geometryDetail ?? 5; // Higher detail
+  // Get profile-based parameters or defaults
+  const layerCount = profile?.layerCount ?? 3;
+  const geometryDetail = profile?.geometryDetail ?? 5;
   const morphIntensity = profile?.morphIntensity ?? 0.18;
   const morphSpeed = profile?.morphSpeed ?? 1.0;
   const fractalOctaves = profile?.fractalOctaves ?? 4;
-  const coreIntensity = profile?.coreIntensity ?? 0.6;
+  const coreIntensity = profile?.coreIntensity ?? 0.7;
   const coreSize = profile?.coreSize ?? 0.35;
-  const particleEnabled = profile?.particleEnabled ?? true; // Enable particles by default
+  const particleEnabled = profile?.particleEnabled ?? true;
   const particleCount = profile?.particleCount ?? 30;
-  const particleColor = profile?.particleColor ?? colors.glow;
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
@@ -176,24 +209,33 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     setTunnelMode: setInternalTunnelMode,
   }), []);
 
-  // Generate layer configurations based on profile - enhanced for 3D depth
+  // Generate layer configurations - SEPARATED colors, no blending!
   const getLayerConfigs = (): LayerConfig[] => {
     const configs: LayerConfig[] = [];
-    const secondaryColors = profile?.secondaryColors || [colors.secondary, colors.accent];
     
     for (let i = 0; i < layerCount; i++) {
-      const t = i / Math.max(layerCount - 1, 1);
       configs.push({
-        radius: 0.72 - i * 0.12, // Slightly larger base, tighter spacing
+        radius: 0.75 - i * 0.1,
         detail: Math.max(geometryDetail - i, 3),
-        opacity: 0.75 - i * 0.12, // Higher base opacity
-        color: i === 0 ? colors.primary : (secondaryColors[i - 1] || colors.secondary),
-        rotationSpeed: 0.003 * (1 + i * 0.4) * (i % 2 === 0 ? 1 : -1), // Faster rotation
+        opacity: 0.85 - i * 0.15,
+        colorIndex: i % 3, // Cycle through primary(0), secondary(1), accent(2)
+        rotationSpeed: 0.003 * (1 + i * 0.5) * (i % 2 === 0 ? 1 : -1),
         morphOffset: i * 0.6,
+        useShader: i === 0, // Only first layer uses gradient shader
       });
     }
     
     return configs;
+  };
+
+  // Get color from palette by index
+  const getPaletteColor = (index: number): string => {
+    switch (index) {
+      case 0: return activePalette.primary;
+      case 1: return activePalette.secondary;
+      case 2: return activePalette.accent;
+      default: return activePalette.primary;
+    }
   };
 
   // Initialize Three.js scene
@@ -206,109 +248,148 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera - adjusted for better full-sphere visibility
+    // Camera
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
     camera.position.z = 3.5;
     cameraRef.current = camera;
 
-    // Renderer
+    // Renderer with tone mapping for better glow
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
     });
-    // Better material response / highlights
-    // (some Three.js renderer fields aren't present in our TS types, so we cast)
-    (renderer as unknown as { physicallyCorrectLights?: boolean }).physicallyCorrectLights = true;
+    (renderer as any).physicallyCorrectLights = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-    (renderer as unknown as { outputColorSpace?: THREE.ColorSpace }).outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMappingExposure = 1.3; // Boosted exposure
+    (renderer as any).outputColorSpace = THREE.SRGBColorSpace;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Lights (required for physical materials) - SUPER vibrant glow
-    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+    // ===== LIGHTING SETUP - MAXIMUM RADIANCE =====
+    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    keyLight.position.set(2.5, 2.0, 3.5);
+    // Key light - strong directional
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    keyLight.position.set(2.5, 2.0, 4);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(colors.accent), 1.8);
+    // Rim light - accent color for edge glow
+    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(activePalette.accent), 2.2);
     rimLight.position.set(-3.0, -1.5, -2.5);
     scene.add(rimLight);
 
-    const pointLight = new THREE.PointLight(parseHslToThreeColor(colors.glow || colors.primary), 2.5, 18);
-    pointLight.position.set(0, 0, 3.0);
-    scene.add(pointLight);
+    // Center glow point light
+    const glowLight = new THREE.PointLight(parseHslToThreeColor(activePalette.glow), 3.5, 20);
+    glowLight.position.set(0, 0, 3.0);
+    scene.add(glowLight);
 
-    // Secondary color point light for iridescence effect - brighter
-    const secondaryPointLight = new THREE.PointLight(parseHslToThreeColor(colors.secondary), 1.8, 12);
-    secondaryPointLight.position.set(-2.0, 1.5, 2.0);
-    scene.add(secondaryPointLight);
+    // Secondary color point light
+    const secondaryLight = new THREE.PointLight(parseHslToThreeColor(activePalette.secondary), 2.5, 15);
+    secondaryLight.position.set(-2.0, 1.5, 2.0);
+    scene.add(secondaryLight);
 
-    // Accent rim from below for depth - stronger
-    const bottomRim = new THREE.DirectionalLight(parseHslToThreeColor(colors.primary), 1.2);
+    // Bottom rim for depth
+    const bottomRim = new THREE.DirectionalLight(parseHslToThreeColor(activePalette.primary), 1.5);
     bottomRim.position.set(0, -3.0, 1.0);
     scene.add(bottomRim);
 
-    // Front accent light for color pop
-    const frontAccent = new THREE.PointLight(parseHslToThreeColor(colors.accent), 1.5, 10);
-    frontAccent.position.set(0, 0.5, 4.5);
+    // Front accent
+    const frontAccent = new THREE.PointLight(parseHslToThreeColor(activePalette.accent), 2.0, 12);
+    frontAccent.position.set(0, 0.5, 5);
     scene.add(frontAccent);
 
-    // No outer ring glows - glow comes naturally from the orb's emissive materials and core
+    // ===== CORE GRADIENT LAYERS - 5 LAYER GLOW =====
+    const coreLayers: THREE.Mesh[] = [];
+    
+    if (showGlow) {
+      // Layer 1: Hot white center
+      const core1Geo = new THREE.SphereGeometry(coreSize * 1.0, 32, 32);
+      const core1Mat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.98,
+      });
+      const core1 = new THREE.Mesh(core1Geo, core1Mat);
+      scene.add(core1);
+      coreLayers.push(core1);
 
-    // *** Inner fill sphere - ULTRA BRIGHT glowing gradient core ***
-    const innerFillGeometry = new THREE.SphereGeometry(0.55, 48, 48);
-    const innerFillColor = parseHslToThreeColor(colors.secondary);
-    const innerFillMaterial = new THREE.MeshPhysicalMaterial({
-      color: innerFillColor,
-      emissive: innerFillColor.clone().multiplyScalar(0.7),
-      emissiveIntensity: 1.8,
-      metalness: 0.25,
-      roughness: 0.12,
-      transmission: 0.4,
-      thickness: 1.2,
-      ior: 1.5,
-      iridescence: 0.9,
-      iridescenceIOR: 1.4,
-      sheen: 0.7,
-      sheenRoughness: 0.2,
-      sheenColor: parseHslToThreeColor(colors.accent),
+      // Layer 2: Accent glow
+      const core2Geo = new THREE.SphereGeometry(coreSize * 1.4, 32, 32);
+      const core2Mat = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(activePalette.accent),
+        transparent: true,
+        opacity: 0.9,
+      });
+      const core2 = new THREE.Mesh(core2Geo, core2Mat);
+      scene.add(core2);
+      coreLayers.push(core2);
+
+      // Layer 3: Secondary color
+      const core3Geo = new THREE.SphereGeometry(coreSize * 1.8, 32, 32);
+      const core3Mat = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(activePalette.secondary),
+        transparent: true,
+        opacity: 0.75,
+      });
+      const core3 = new THREE.Mesh(core3Geo, core3Mat);
+      scene.add(core3);
+      coreLayers.push(core3);
+
+      // Layer 4: Primary color
+      const core4Geo = new THREE.SphereGeometry(coreSize * 2.3, 32, 32);
+      const core4Mat = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(activePalette.primary),
+        transparent: true,
+        opacity: 0.6,
+      });
+      const core4 = new THREE.Mesh(core4Geo, core4Mat);
+      scene.add(core4);
+      coreLayers.push(core4);
+
+      // Layer 5: Outer glow aura
+      const core5Geo = new THREE.SphereGeometry(coreSize * 2.8, 32, 32);
+      const core5Mat = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(activePalette.glow),
+        transparent: true,
+        opacity: 0.45,
+      });
+      const core5 = new THREE.Mesh(core5Geo, core5Mat);
+      scene.add(core5);
+      coreLayers.push(core5);
+    }
+    coreLayersRef.current = coreLayers;
+
+    // ===== GRADIENT INNER SHELL =====
+    const innerShellGeometry = new THREE.SphereGeometry(0.58, 48, 48);
+    const [r1, g1, b1] = hslToRgb(activePalette.primary);
+    const [r2, g2, b2] = hslToRgb(activePalette.secondary);
+    const [r3, g3, b3] = hslToRgb(activePalette.accent);
+    
+    const shaderUniforms = {
+      colorA: { value: new THREE.Vector3(r1, g1, b1) },
+      colorB: { value: new THREE.Vector3(r2, g2, b2) },
+      colorC: { value: new THREE.Vector3(r3, g3, b3) },
+      time: { value: 0 },
+      intensity: { value: coreIntensity + 0.3 },
+    };
+    shaderUniformsRef.current = shaderUniforms;
+
+    const gradientMaterial = new THREE.ShaderMaterial({
+      vertexShader: GRADIENT_VERTEX_SHADER,
+      fragmentShader: GRADIENT_FRAGMENT_SHADER,
+      uniforms: shaderUniforms,
       transparent: true,
-      opacity: 0.85,
+      side: THREE.DoubleSide,
     });
-    const innerFill = new THREE.Mesh(innerFillGeometry, innerFillMaterial);
-    scene.add(innerFill);
 
-    // *** Gradient shell - bright iridescent color transition ***
-    const gradientShellGeometry = new THREE.SphereGeometry(0.65, 32, 32);
-    const gradientShellColor = parseHslToThreeColor(colors.primary);
-    const gradientShellMaterial = new THREE.MeshPhysicalMaterial({
-      color: gradientShellColor,
-      emissive: gradientShellColor.clone().multiplyScalar(0.5),
-      emissiveIntensity: 1.5,
-      metalness: 0.4,
-      roughness: 0.1,
-      transmission: 0.3,
-      thickness: 0.8,
-      ior: 1.45,
-      iridescence: 1.0,
-      iridescenceIOR: 1.5,
-      sheen: 0.6,
-      sheenRoughness: 0.15,
-      sheenColor: parseHslToThreeColor(colors.secondary),
-      transparent: true,
-      opacity: 0.55,
-      side: THREE.BackSide,
-    });
-    const gradientShell = new THREE.Mesh(gradientShellGeometry, gradientShellMaterial);
-    scene.add(gradientShell);
+    const innerShell = new THREE.Mesh(innerShellGeometry, gradientMaterial);
+    scene.add(innerShell);
 
-    // Create layers
+    // ===== OUTER LAYERS - SEPARATED COLORS =====
     const layerConfigs = getLayerConfigs();
     const newLayers: THREE.Mesh[] = [];
     const newBasePositions = new Map<THREE.Mesh, Float32Array>();
@@ -317,28 +398,27 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const geometry = new THREE.IcosahedronGeometry(config.radius, config.detail);
       const positions = geometry.attributes.position.array as Float32Array;
       
-      const layerColor = parseHslToThreeColor(config.color);
-      // ULTRA BRIGHT liquid gradient shell with maximum glow
+      const layerColor = parseHslToThreeColor(getPaletteColor(config.colorIndex));
+      
+      // Ultra-bright physical material with maximum glow
       const material = new THREE.MeshPhysicalMaterial({
         color: layerColor,
-        emissive: layerColor.clone().multiplyScalar(0.55),
-        emissiveIntensity: 1.6,
-        metalness: 0.75,
-        roughness: 0.05,
+        emissive: layerColor.clone().multiplyScalar(0.6),
+        emissiveIntensity: 2.0,
+        metalness: 0.8,
+        roughness: 0.03,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        transmission: 0.15,
-        thickness: 1.0,
-        ior: 1.5,
+        clearcoatRoughness: 0.02,
+        transmission: 0.1,
+        thickness: 1.2,
+        ior: 1.6,
         iridescence: 1.0,
-        iridescenceIOR: 1.6,
-        sheen: 0.8,
-        sheenRoughness: 0.15,
-        sheenColor: index % 2 === 0 
-          ? parseHslToThreeColor(colors.accent) 
-          : parseHslToThreeColor(colors.secondary),
+        iridescenceIOR: 1.8,
+        sheen: 1.0,
+        sheenRoughness: 0.1,
+        sheenColor: parseHslToThreeColor(activePalette.glow),
         transparent: true,
-        opacity: config.opacity + 0.25,
+        opacity: config.opacity,
       });
 
       const mesh = new THREE.Mesh(geometry, material);
@@ -350,63 +430,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // Inner core glow sphere - MAXIMUM BRIGHTNESS with gradient layers
-    if (showGlow) {
-      // Primary core glow - MASSIVE and ultra bright
-      const glowGeometry = new THREE.SphereGeometry(coreSize * 2.5, 32, 32);
-      const glowMaterial = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(colors.glow || colors.accent),
-        transparent: true,
-        opacity: coreIntensity * 1.2,
-      });
-      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-      scene.add(glowMesh);
-      coreRef.current = glowMesh;
-
-      // Hot white center - maximum intensity
-      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 1.2, 24, 24);
-      const innerCoreMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(0xffffff),
-        transparent: true,
-        opacity: 0.95,
-      });
-      const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial);
-      scene.add(innerCore);
-
-      // Bright accent core ring
-      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.7, 24, 24);
-      const accentCoreMaterial = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(colors.accent),
-        transparent: true,
-        opacity: 0.85,
-      });
-      const accentCore = new THREE.Mesh(accentCoreGeometry, accentCoreMaterial);
-      scene.add(accentCore);
-
-      // Rich secondary color glow
-      const secondaryGlowGeometry = new THREE.SphereGeometry(coreSize * 2.0, 24, 24);
-      const secondaryGlowMaterial = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(colors.secondary),
-        transparent: true,
-        opacity: 0.7,
-      });
-      const secondaryGlow = new THREE.Mesh(secondaryGlowGeometry, secondaryGlowMaterial);
-      scene.add(secondaryGlow);
-
-      // Primary color outer aura - bright gradient
-      const primaryAuraGeometry = new THREE.SphereGeometry(coreSize * 2.8, 24, 24);
-      const primaryAuraMaterial = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(colors.primary),
-        transparent: true,
-        opacity: 0.55,
-      });
-      const primaryAura = new THREE.Mesh(primaryAuraGeometry, primaryAuraMaterial);
-      scene.add(primaryAura);
-    }
-
-    // Enhanced particle system
+    // ===== PARTICLES =====
     if (particleEnabled && particleCount > 0) {
-      const ps = new ParticleSystem(particleCount, particleColor, 0.85, 1.5);
+      const ps = new ParticleSystem(particleCount, activePalette.glow, 0.9, 1.6);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
@@ -421,30 +447,26 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         mesh.geometry.dispose();
         (mesh.material as THREE.Material).dispose();
       });
-      if (coreRef.current) {
-        coreRef.current.geometry.dispose();
-        (coreRef.current.material as THREE.Material).dispose();
-      }
+      coreLayers.forEach(mesh => {
+        mesh.geometry.dispose();
+        (mesh.material as THREE.Material).dispose();
+      });
+      innerShell.geometry.dispose();
+      gradientMaterial.dispose();
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
-      // Dispose fill meshes
-      innerFill.geometry.dispose();
-      innerFillMaterial.dispose();
-      gradientShell.geometry.dispose();
-      gradientShellMaterial.dispose();
-
       ambient.dispose();
       keyLight.dispose();
       rimLight.dispose();
-      pointLight.dispose();
+      glowLight.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [size, layerCount, geometryDetail, coreSize, particleEnabled, particleCount]);
+  }, [size, layerCount, geometryDetail, coreSize, particleEnabled, particleCount, activePalette.id]);
 
-  // Update colors when profile or egoState changes
+  // Update colors when palette changes
   useEffect(() => {
     const layers = layersRef.current;
     const layerConfigs = getLayerConfigs();
@@ -452,25 +474,38 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layers.forEach((mesh, index) => {
       if (index < layerConfigs.length) {
         const material = mesh.material as THREE.MeshPhysicalMaterial;
-        const c = parseHslToThreeColor(layerConfigs[index].color);
+        const c = parseHslToThreeColor(getPaletteColor(layerConfigs[index].colorIndex));
         material.color = c;
-        material.emissive = c.clone().multiplyScalar(0.12);
-        material.opacity = layerConfigs[index].opacity;
+        material.emissive = c.clone().multiplyScalar(0.6);
+        material.sheenColor = parseHslToThreeColor(activePalette.glow);
       }
     });
 
-    if (coreRef.current) {
-      const coreMaterial = coreRef.current.material as THREE.MeshBasicMaterial;
-      coreMaterial.color = parseHslToThreeColor(colors.glow || colors.accent);
-      coreMaterial.opacity = coreIntensity;
+    // Update core layers
+    const coreLayers = coreLayersRef.current;
+    if (coreLayers.length >= 5) {
+      (coreLayers[1].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.accent);
+      (coreLayers[2].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.secondary);
+      (coreLayers[3].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.primary);
+      (coreLayers[4].material as THREE.MeshBasicMaterial).color = parseHslToThreeColor(activePalette.glow);
+    }
+
+    // Update shader uniforms
+    if (shaderUniformsRef.current) {
+      const [r1, g1, b1] = hslToRgb(activePalette.primary);
+      const [r2, g2, b2] = hslToRgb(activePalette.secondary);
+      const [r3, g3, b3] = hslToRgb(activePalette.accent);
+      shaderUniformsRef.current.colorA.value.set(r1, g1, b1);
+      shaderUniformsRef.current.colorB.value.set(r2, g2, b2);
+      shaderUniformsRef.current.colorC.value.set(r3, g3, b3);
     }
 
     if (particleSystemRef.current) {
-      particleSystemRef.current.setColor(particleColor);
+      particleSystemRef.current.setColor(activePalette.glow);
     }
-  }, [colors.primary, colors.secondary, colors.glow, colors.accent, coreIntensity, particleColor]);
+  }, [activePalette]);
 
-  // Animation loop with organic alien pulsation
+  // Animation loop
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
@@ -478,6 +513,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const scene = sceneRef.current;
     const camera = cameraRef.current;
     const layers = layersRef.current;
+    const coreLayers = coreLayersRef.current;
     const layerConfigs = getLayerConfigs();
 
     const animate = () => {
@@ -487,6 +523,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
       const time = timeRef.current;
       const morphPhase = morphPhaseRef.current;
+
+      // Update shader time
+      if (shaderUniformsRef.current) {
+        shaderUniformsRef.current.time.value = time;
+      }
 
       // State-based animation modifiers
       const stateModifier = {
@@ -500,25 +541,24 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // Animate each layer
+      // Animate outer layers
       layers.forEach((mesh, index) => {
         const config = layerConfigs[index];
         if (!config) return;
 
-        // Organic rotation with wobble
+        // Organic rotation
         const wobble = Math.sin(time * 0.7 + index) * 0.001;
         mesh.rotation.x += config.rotationSpeed * rotMod + wobble;
         mesh.rotation.y += config.rotationSpeed * 1.3 * rotMod + Math.cos(time * 0.5) * 0.001;
         mesh.rotation.z += Math.sin(time * 0.3 + index * 0.5) * 0.0005;
 
-        // Organic pulsating scale
+        // Pulsating scale
         const basePulse = Math.sin(time * pulseMod + index * 0.5) * 0.08;
         const secondaryPulse = Math.sin(time * pulseMod * 2.3 + index) * 0.03;
-        const tertiaryPulse = Math.sin(time * pulseMod * 0.7) * 0.05;
-        const audioBoost = audioLevel * 0.3;
+        const audioBoost = audioLevel * 0.35;
         const breathEffect = state === 'breathing' ? Math.sin(time * 0.5) * 0.1 : 0;
         
-        const targetScale = 1 + basePulse + secondaryPulse + tertiaryPulse + audioBoost + breathEffect;
+        const targetScale = 1 + basePulse + secondaryPulse + audioBoost + breathEffect;
         mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
 
         // Vertex morphing with fractal noise
@@ -534,7 +574,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
             
             const dist = Math.sqrt(x * x + y * y + z * z);
             
-            // Multi-layer fractal deformation with layer offset
             const fractalNoise = fbm(
               x * 2 + morphPhase + config.morphOffset,
               y * 2 + morphPhase * 0.7 + config.morphOffset,
@@ -542,17 +581,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
               fractalOctaves
             );
             
-            // Traveling wave across surface
             const wavePhase = Math.sin(x * 3 + y * 2 + z * 4 + time * 2) * 0.03;
-            
-            // Radial pulse from center
             const radialPulse = Math.sin(dist * 8 - time * 3) * 0.02;
             
-            // Combine all deformations
             const adjustedMorphIntensity = morphIntensity * morphMod;
             const totalDeform = (fractalNoise * adjustedMorphIntensity + wavePhase + radialPulse) * (1 + audioLevel * 0.5);
             
-            // Normalize direction for displacement
             const nx = x / dist;
             const ny = y / dist;
             const nz = z / dist;
@@ -567,34 +601,36 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           positions.needsUpdate = true;
         }
 
-        // Dynamic opacity based on state
-        const material = mesh.material as THREE.MeshBasicMaterial;
-        const opacityPulse = (layerConfigs[index]?.opacity || 0.6) + Math.sin(time * 1.5 + index) * 0.1 + audioLevel * 0.15;
-        material.opacity = Math.min(opacityPulse, 0.9);
+        // Dynamic opacity
+        const material = mesh.material as THREE.MeshPhysicalMaterial;
+        const opacityPulse = (layerConfigs[index]?.opacity || 0.7) + Math.sin(time * 1.5 + index) * 0.1 + audioLevel * 0.15;
+        material.opacity = Math.min(opacityPulse, 0.95);
       });
 
-      // Animate core
-      if (coreRef.current) {
-        const corePulse = 1 + Math.sin(time * 2) * 0.1 + audioLevel * 0.2;
-        coreRef.current.scale.set(corePulse, corePulse, corePulse);
+      // Animate core layers with cascading pulse
+      coreLayers.forEach((core, index) => {
+        const delay = index * 0.15;
+        const pulse = 1 + Math.sin(time * 2 - delay) * 0.12 + audioLevel * 0.2;
+        core.scale.set(pulse, pulse, pulse);
         
-        const coreMaterial = coreRef.current.material as THREE.MeshBasicMaterial;
-        coreMaterial.opacity = coreIntensity + Math.sin(time * 1.5) * 0.1;
-      }
+        const mat = core.material as THREE.MeshBasicMaterial;
+        const baseOpacity = [0.98, 0.9, 0.75, 0.6, 0.45][index] || 0.5;
+        mat.opacity = baseOpacity + Math.sin(time * 1.5 - delay) * 0.1;
+      });
 
       // Update particles
       if (particleSystemRef.current) {
         particleSystemRef.current.update(time, audioLevel);
       }
 
-      // Tunnel mode - camera moves forward with rotation
+      // Tunnel mode
       if (isTunnel) {
         camera.position.z = 2.5 + Math.sin(time * 0.5) * 0.4;
         layers.forEach(mesh => {
           mesh.rotation.z += 0.015;
         });
       } else {
-        camera.position.z = 3;
+        camera.position.z = 3.5;
       }
 
       renderer.render(scene, camera);
