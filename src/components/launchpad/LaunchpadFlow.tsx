@@ -8,12 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
+import { LifestyleRoutineStep } from './steps/LifestyleRoutineStep';
 import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
 import { LifePlanStep } from './steps/LifePlanStep';
 import { FocusAreasStep } from './steps/FocusAreasStep';
 import { FirstWeekStep } from './steps/FirstWeekStep';
+import { FinalNotesStep } from './steps/FinalNotesStep';
 import { DashboardActivation } from './steps/DashboardActivation';
 import { PhaseIndicator } from './PhaseIndicator';
 import { PhaseTransition } from './PhaseTransition';
@@ -83,7 +85,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     }
     
     // Check if this step completes a phase
-    if (isLastStepInPhase(currentStep) && currentStep < 9) {
+    if (isLastStepInPhase(currentStep) && currentStep < 11) {
       const phase = getPhaseForStep(currentStep);
       if (phase) {
         setCompletedPhaseId(phase.id);
@@ -93,7 +95,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     
     completeStep({ step: currentStep, data });
     
-    if (currentStep === 9 && onComplete) {
+    if (currentStep === 11 && onComplete) {
       onComplete();
     }
   };
@@ -130,7 +132,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   const canGoPrev = displayedStep > 1;
   // If complete, allow navigating through all steps; otherwise only to current
   const canGoNext = isLaunchpadComplete 
-    ? displayedStep < 9 
+    ? displayedStep < 11 
     : (viewingStep !== null && displayedStep < currentStep);
 
   // Auto-save handler for each step
@@ -146,9 +148,9 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     };
 
     // New step order based on phases:
-    // Phase 1 (Who you are): 1-Welcome, 2-Profile
-    // Phase 2 (What's not working): 3-GrowthDeepDive, 4-FirstChat, 5-Introspection, 6-LifePlan
-    // Phase 3 (Who you want to be): 7-FocusAreas, 8-FirstWeek, 9-Dashboard
+    // Phase 1 (Who you are): 1-Welcome, 2-Profile, 3-LifestyleRoutine
+    // Phase 2 (What's not working): 4-GrowthDeepDive, 5-FirstChat, 6-Introspection, 7-LifePlan
+    // Phase 3 (Who you want to be): 8-FocusAreas, 9-FirstWeek, 10-FinalNotes, 11-Dashboard
     
     switch (displayedStep) {
       case 1:
@@ -171,59 +173,77 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
         );
       case 3:
         return (
-          <GrowthDeepDiveStep 
-            key={`step-3-${viewingStep ?? 'current'}`} 
+          <LifestyleRoutineStep 
+            key={`step-3-${viewingStep ?? 'current'}`}
             {...stepProps} 
-            previousAnswers={profileData || launchpadData?.personalProfile as Record<string, unknown> || undefined}
-            savedData={getSavedData(3) as { answers?: Record<string, string[]>; currentAreaIndex?: number } | undefined}
+            savedData={getSavedData(3) ?? undefined}
             onAutoSave={(data) => handleAutoSave(3, data)}
           />
         );
       case 4:
         return (
-          <FirstChatStep 
+          <GrowthDeepDiveStep 
             key={`step-4-${viewingStep ?? 'current'}`} 
-            {...stepProps}
-            savedData={getSavedData(4) as { messages?: Array<{ role: 'user' | 'assistant'; content: string }>; questionIndex?: number; answers?: string[]; isComplete?: boolean } | undefined}
+            {...stepProps} 
+            previousAnswers={profileData || launchpadData?.personalProfile as Record<string, unknown> || undefined}
+            savedData={getSavedData(4) as { answers?: Record<string, string[]>; currentAreaIndex?: number } | undefined}
             onAutoSave={(data) => handleAutoSave(4, data)}
           />
         );
       case 5:
         return (
-          <IntrospectionStep 
+          <FirstChatStep 
             key={`step-5-${viewingStep ?? 'current'}`} 
             {...stepProps}
-            savedFormSubmissionId={launchpadData?.step_3_form_submission_id ?? undefined}
+            savedData={getSavedData(5) as { messages?: Array<{ role: 'user' | 'assistant'; content: string }>; questionIndex?: number; answers?: string[]; isComplete?: boolean } | undefined}
+            onAutoSave={(data) => handleAutoSave(5, data)}
           />
         );
       case 6:
         return (
-          <LifePlanStep 
+          <IntrospectionStep 
             key={`step-6-${viewingStep ?? 'current'}`} 
             {...stepProps}
-            savedFormSubmissionId={launchpadData?.step_4_form_submission_id ?? undefined}
+            savedFormSubmissionId={launchpadData?.step_3_form_submission_id ?? undefined}
           />
         );
       case 7:
         return (
-          <FocusAreasStep 
-            key={`step-7-${viewingStep ?? 'current'}`}
-            {...stepProps} 
-            savedData={getSavedData(7) as { focus_areas?: string[] } | undefined}
-            onAutoSave={(data) => handleAutoSave(7, data)}
+          <LifePlanStep 
+            key={`step-7-${viewingStep ?? 'current'}`} 
+            {...stepProps}
+            savedFormSubmissionId={launchpadData?.step_4_form_submission_id ?? undefined}
           />
         );
       case 8:
         return (
-          <FirstWeekStep 
+          <FocusAreasStep 
             key={`step-8-${viewingStep ?? 'current'}`}
             {...stepProps} 
-            savedData={getSavedData(8) as { selectedQuit?: string[]; selectedBuild?: string[]; selectedCareerStatus?: string; selectedCareerGoal?: string } | undefined}
-            onAutoSave={(data) => handleAutoSave(8, data as unknown as Record<string, unknown>)}
+            savedData={getSavedData(8) as { focus_areas?: string[] } | undefined}
+            onAutoSave={(data) => handleAutoSave(8, data)}
           />
         );
       case 9:
-        return <DashboardActivation key={`step-9-${viewingStep ?? 'current'}`} {...stepProps} />;
+        return (
+          <FirstWeekStep 
+            key={`step-9-${viewingStep ?? 'current'}`}
+            {...stepProps} 
+            savedData={getSavedData(9) as { selectedQuit?: string[]; selectedBuild?: string[]; selectedCareerStatus?: string; selectedCareerGoal?: string } | undefined}
+            onAutoSave={(data) => handleAutoSave(9, data as unknown as Record<string, unknown>)}
+          />
+        );
+      case 10:
+        return (
+          <FinalNotesStep 
+            key={`step-10-${viewingStep ?? 'current'}`}
+            {...stepProps}
+            savedData={getSavedData(10) as { notes?: string } | undefined}
+            onAutoSave={(data) => handleAutoSave(10, data)}
+          />
+        );
+      case 11:
+        return <DashboardActivation key={`step-11-${viewingStep ?? 'current'}`} {...stepProps} />;
       default:
         return null;
     }

@@ -2433,6 +2433,8 @@ export type Database = {
           step_1_completed_at: string | null
           step_1_intention: string | null
           step_1_welcome: boolean | null
+          step_10_completed_at: string | null
+          step_10_final_notes: string | null
           step_2_completed_at: string | null
           step_2_first_chat: boolean | null
           step_2_profile: boolean
@@ -2442,6 +2444,8 @@ export type Database = {
           step_3_completed_at: string | null
           step_3_form_submission_id: string | null
           step_3_introspection: boolean | null
+          step_3_lifestyle_completed_at: string | null
+          step_3_lifestyle_data: Json | null
           step_4_completed_at: string | null
           step_4_form_submission_id: string | null
           step_4_life_plan: boolean | null
@@ -2466,6 +2470,8 @@ export type Database = {
           step_1_completed_at?: string | null
           step_1_intention?: string | null
           step_1_welcome?: boolean | null
+          step_10_completed_at?: string | null
+          step_10_final_notes?: string | null
           step_2_completed_at?: string | null
           step_2_first_chat?: boolean | null
           step_2_profile?: boolean
@@ -2475,6 +2481,8 @@ export type Database = {
           step_3_completed_at?: string | null
           step_3_form_submission_id?: string | null
           step_3_introspection?: boolean | null
+          step_3_lifestyle_completed_at?: string | null
+          step_3_lifestyle_data?: Json | null
           step_4_completed_at?: string | null
           step_4_form_submission_id?: string | null
           step_4_life_plan?: boolean | null
@@ -2499,6 +2507,8 @@ export type Database = {
           step_1_completed_at?: string | null
           step_1_intention?: string | null
           step_1_welcome?: boolean | null
+          step_10_completed_at?: string | null
+          step_10_final_notes?: string | null
           step_2_completed_at?: string | null
           step_2_first_chat?: boolean | null
           step_2_profile?: boolean
@@ -2508,6 +2518,8 @@ export type Database = {
           step_3_completed_at?: string | null
           step_3_form_submission_id?: string | null
           step_3_introspection?: boolean | null
+          step_3_lifestyle_completed_at?: string | null
+          step_3_lifestyle_data?: Json | null
           step_4_completed_at?: string | null
           step_4_form_submission_id?: string | null
           step_4_life_plan?: boolean | null

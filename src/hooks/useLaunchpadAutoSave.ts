@@ -77,7 +77,10 @@ export function useLaunchpadAutoSave() {
         case 2: // Personal Profile
           updates.step_2_profile_data = data;
           break;
-        case 3: // Growth Deep Dive (stored in profile_data.deep_dive)
+        case 3: // Lifestyle Routine (NEW)
+          updates.step_3_lifestyle_data = data;
+          break;
+        case 4: // Growth Deep Dive (stored in profile_data.deep_dive)
           // Need to merge with existing profile data
           const existingProfile = launchpadData?.personalProfile || {};
           updates.step_2_profile_data = {
@@ -85,17 +88,20 @@ export function useLaunchpadAutoSave() {
             deep_dive: data,
           };
           break;
-        case 4: // First Chat with Aurora
+        case 5: // First Chat with Aurora
           updates.step_2_summary = JSON.stringify(data);
           break;
-        case 7: // Focus Areas
+        case 8: // Focus Areas
           updates.step_5_focus_areas_selected = data.focus_areas || [];
           break;
-        case 8: // First Week
+        case 9: // First Week
           updates.step_6_actions = data;
           break;
+        case 10: // Final Notes (NEW)
+          updates.step_10_final_notes = data.notes || data.final_notes || null;
+          break;
         default:
-          // Steps 5, 6, 9 have their own completion logic (forms/chat/dashboard)
+          // Steps 6, 7, 11 have their own completion logic (forms/chat/dashboard)
           return;
       }
 
@@ -178,22 +184,27 @@ export function useLaunchpadAutoSave() {
             dbData = launchpadData.personalProfile as Record<string, unknown>;
           }
           break;
-        case 3: // Growth Deep Dive
+        case 3: // Lifestyle Routine (NEW)
+          if ((launchpadData as any).step_3_lifestyle_data) {
+            dbData = (launchpadData as any).step_3_lifestyle_data;
+          }
+          break;
+        case 4: // Growth Deep Dive
           if (launchpadData.deepDive) {
             dbData = { answers: launchpadData.deepDive };
           }
           break;
-        case 4: // First Chat with Aurora
+        case 5: // First Chat with Aurora
           if (launchpadData.firstChat) {
             dbData = launchpadData.firstChat as Record<string, unknown>;
           }
           break;
-        case 7: // Focus Areas
+        case 8: // Focus Areas
           if (launchpadData.focusAreas && launchpadData.focusAreas.length > 0) {
             dbData = { focus_areas: launchpadData.focusAreas };
           }
           break;
-        case 8: // First Week
+        case 9: // First Week
           if (launchpadData.firstWeek && (
             launchpadData.firstWeek.habits_to_quit.length > 0 ||
             launchpadData.firstWeek.habits_to_build.length > 0 ||
@@ -206,6 +217,11 @@ export function useLaunchpadAutoSave() {
               selectedCareerStatus: launchpadData.firstWeek.career_status,
               selectedCareerGoal: launchpadData.firstWeek.career_goal,
             };
+          }
+          break;
+        case 10: // Final Notes (NEW)
+          if ((launchpadData as any).step_10_final_notes) {
+            dbData = { notes: (launchpadData as any).step_10_final_notes };
           }
           break;
       }

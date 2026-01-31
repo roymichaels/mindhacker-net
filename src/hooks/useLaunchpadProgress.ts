@@ -86,7 +86,7 @@ export const PHASES: Phase[] = [
     descriptionEn: 'Let\'s learn about your current state',
     icon: '🔍',
     color: 'blue',
-    steps: [1, 2],
+    steps: [1, 2, 3], // Added step 3 (Lifestyle Routine)
   },
   {
     id: 2,
@@ -97,7 +97,7 @@ export const PHASES: Phase[] = [
     descriptionEn: 'Identify blockers and patterns holding you back',
     icon: '⚠️',
     color: 'amber',
-    steps: [3, 4, 5, 6],
+    steps: [4, 5, 6, 7], // Shifted: was 3-6, now 4-7
   },
   {
     id: 3,
@@ -108,27 +108,29 @@ export const PHASES: Phase[] = [
     descriptionEn: 'Build your vision and new identity',
     icon: '🚀',
     color: 'emerald',
-    steps: [7, 8, 9],
+    steps: [8, 9, 10, 11], // Shifted: was 7-9, now 8-11 (includes step 10 Final Notes)
   },
 ];
 
-// XP and tokens for each step (now 9 steps)
+// XP and tokens for each step (now 11 steps)
 export const STEP_REWARDS = {
   1: { xp: 25, tokens: 0, unlock: 'personal_profile' },
-  2: { xp: 40, tokens: 5, unlock: 'growth_deep_dive' },
-  3: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
-  4: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
-  5: { xp: 50, tokens: 5, unlock: 'introspection_complete' },
-  6: { xp: 100, tokens: 10, unlock: 'life_plan_complete' },
-  7: { xp: 50, tokens: 0, unlock: 'focus_areas_selection' },
-  8: { xp: 75, tokens: 0, unlock: 'first_week_planning' },
-  9: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
+  2: { xp: 40, tokens: 5, unlock: 'lifestyle_routine' },
+  3: { xp: 35, tokens: 0, unlock: 'growth_deep_dive' }, // NEW: Lifestyle Routine
+  4: { xp: 35, tokens: 0, unlock: 'aurora_chat_basic' },
+  5: { xp: 50, tokens: 0, unlock: 'introspection_questionnaire' },
+  6: { xp: 50, tokens: 5, unlock: 'introspection_complete' },
+  7: { xp: 100, tokens: 10, unlock: 'life_plan_complete' },
+  8: { xp: 50, tokens: 0, unlock: 'focus_areas_selection' },
+  9: { xp: 75, tokens: 0, unlock: 'first_week_planning' },
+  10: { xp: 25, tokens: 0, unlock: 'final_notes' }, // NEW: Final Notes
+  11: { xp: 100, tokens: 25, unlock: 'life_os_complete' },
 };
 
-// Step metadata (now 9 steps with phase info)
-// PHASE 1: Who Are You Now? (Steps 1-2)
-// PHASE 2: What's Not Working? (Steps 3-6)
-// PHASE 3: Who Do You Want to Be? (Steps 7-9)
+// Step metadata (now 11 steps with phase info)
+// PHASE 1: Who Are You Now? (Steps 1-3)
+// PHASE 2: What's Not Working? (Steps 4-7)
+// PHASE 3: Who Do You Want to Be? (Steps 8-11)
 export const STEPS = [
   // === PHASE 1: מי אתה עכשיו? ===
   {
@@ -155,9 +157,21 @@ export const STEPS = [
     descriptionEn: 'Tell us about your current habits and lifestyle',
     icon: '👤',
   },
-  // === PHASE 2: מה לא עובד? ===
   {
     id: 3,
+    key: 'lifestyle_routine',
+    phase: 1 as const,
+    title: 'שגרת חיים',
+    titleEn: 'Lifestyle & Routine',
+    subtitle: 'לוח הזמנים שלך',
+    subtitleEn: 'Your schedule',
+    description: 'שעות שינה, עבודה, ארוחות ואנרגיה',
+    descriptionEn: 'Sleep, work, meals and energy patterns',
+    icon: '⏰',
+  },
+  // === PHASE 2: מה לא עובד? ===
+  {
+    id: 4,
     key: 'growth_deep_dive',
     phase: 2 as const,
     title: 'העמקה אישית',
@@ -169,7 +183,7 @@ export const STEPS = [
     icon: '🔍',
   },
   {
-    id: 4,
+    id: 5,
     key: 'first_chat',
     phase: 2 as const,
     title: 'שיחה ראשונה',
@@ -181,7 +195,7 @@ export const STEPS = [
     icon: '💬',
   },
   {
-    id: 5,
+    id: 6,
     key: 'introspection',
     phase: 2 as const,
     title: 'התבוננות פנימית',
@@ -193,7 +207,7 @@ export const STEPS = [
     icon: '🧘',
   },
   {
-    id: 6,
+    id: 7,
     key: 'life_plan',
     phase: 2 as const,
     title: 'חזון וכיוון',
@@ -206,7 +220,7 @@ export const STEPS = [
   },
   // === PHASE 3: מי אתה רוצה להיות? ===
   {
-    id: 7,
+    id: 8,
     key: 'focus_areas',
     phase: 3 as const,
     title: 'תחומי פוקוס',
@@ -218,7 +232,7 @@ export const STEPS = [
     icon: '🎪',
   },
   {
-    id: 8,
+    id: 9,
     key: 'first_week',
     phase: 3 as const,
     title: 'שבוע ראשון',
@@ -230,7 +244,19 @@ export const STEPS = [
     icon: '📅',
   },
   {
-    id: 9,
+    id: 10,
+    key: 'final_notes',
+    phase: 3 as const,
+    title: 'הערות נוספות',
+    titleEn: 'Final Notes',
+    subtitle: 'משהו נוסף?',
+    subtitleEn: 'Anything else?',
+    description: 'מקום להוסיף כל מידע שחשוב ש-Aurora תדע',
+    descriptionEn: 'Add any additional information Aurora should know',
+    icon: '📝',
+  },
+  {
+    id: 11,
     key: 'dashboard_activation',
     phase: 3 as const,
     title: 'הפעלת הדשבורד',
@@ -439,9 +465,9 @@ export function useLaunchpadProgress() {
     },
   });
 
-  // Calculate completion percentage (now 9 steps)
+  // Calculate completion percentage (now 11 steps)
   const completionPercentage = progress ? 
-    Math.round(((actualCurrentStep - 1) / 9) * 100) : 0;
+    Math.round(((actualCurrentStep - 1) / 11) * 100) : 0;
 
   // Get completed steps count
   const completedSteps = progress ? actualCurrentStep - 1 : 0;
@@ -480,7 +506,7 @@ export function useLaunchpadProgress() {
     isResetting: resetJourneyMutation.isPending,
     completionPercentage,
     completedSteps,
-    totalSteps: 9,
+    totalSteps: 11,
     isStepAccessible,
     isStepCompleted,
     isLaunchpadComplete: isActuallyComplete,
