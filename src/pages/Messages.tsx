@@ -194,16 +194,6 @@ const Messages = () => {
               );
             })}
 
-            {/* Empty State */}
-            {!isLoading && filteredConversations.length === 0 && !searchQuery && (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <p className="text-muted-foreground mb-4">{t('messages.noConversations')}</p>
-                <Button onClick={() => setShowNewMessage(true)}>
-                  <PenSquare className="h-4 w-4 mr-2" />
-                  {t('messages.startConversation')}
-                </Button>
-              </div>
-            )}
           </div>
 
           {/* New Message Dialog */}
