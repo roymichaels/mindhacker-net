@@ -8,6 +8,7 @@ const corsHeaders = {
 interface LaunchpadData {
   welcomeQuiz: any;
   personalProfile: any;
+  lifestyleRoutine: any;  // NEW: Step 3 - sleep/work/meals/energy data
   identityBuilding: any;
   growthDeepDive: any;
   firstChat: any;
@@ -18,6 +19,7 @@ interface LaunchpadData {
   selectedFocusAreas: any;   // From step_5_focus_areas_selected
   firstWeek: any;
   firstWeekActions: any;     // From step_6_actions
+  finalNotes: string | null; // NEW: Step 10 - free text notes
 }
 
 interface SummaryData {
@@ -100,6 +102,7 @@ Deno.serve(async (req) => {
       const launchpadData: LaunchpadData = {
         welcomeQuiz: body.guestData.welcomeQuiz || {},
         personalProfile: body.guestData.personalProfile || {},
+        lifestyleRoutine: body.guestData.lifestyleRoutine || {},  // NEW
         identityBuilding: { elements: [], traits: [], values: [], principles: [] },
         growthDeepDive: body.guestData.personalProfile?.deep_dive?.answers || {},
         firstChat: null,
@@ -110,6 +113,7 @@ Deno.serve(async (req) => {
         selectedFocusAreas: body.guestData.selectedFocusAreas || [],
         firstWeek: { checklists: [], stepData: body.guestData.firstWeekActions || {} },
         firstWeekActions: body.guestData.firstWeekActions || {},
+        finalNotes: body.guestData.finalNotes || null,  // NEW
       };
 
       // Generate AI summary and plan (no DB saves)
@@ -579,24 +583,33 @@ async function gatherLaunchpadData(supabase: any, userId: string): Promise<Launc
   const personalProfile = progress?.step_2_profile_data || {};
   const growthDeepDive = (personalProfile as any)?.deep_dive?.answers || {};
 
+  // NEW: Get lifestyle routine from step_3_lifestyle_data
+  const lifestyleRoutine = progress?.step_3_lifestyle_data || {};
+
   // Get selected focus areas from step_5
   const selectedFocusAreas = progress?.step_5_focus_areas_selected || [];
 
   // Get first week actions from step_6
   const firstWeekActions = progress?.step_6_actions || {};
 
+  // NEW: Get final notes from step_10
+  const finalNotes = progress?.step_10_final_notes || null;
+
   console.log('Data mapping summary:', {
     hasWelcomeQuiz: Object.keys(welcomeQuiz).length > 0,
     hasPersonalProfile: Object.keys(personalProfile).length > 0,
+    hasLifestyleRoutine: Object.keys(lifestyleRoutine).length > 0,  // NEW
     hasDeepDive: Object.keys(growthDeepDive).length > 0,
     hasFirstChatTranscript: !!firstChatTranscript,
     selectedFocusAreasCount: Array.isArray(selectedFocusAreas) ? selectedFocusAreas.length : 0,
     hasFirstWeekActions: Object.keys(firstWeekActions).length > 0,
+    hasFinalNotes: !!finalNotes,  // NEW
   });
 
   return {
     welcomeQuiz,
     personalProfile,
+    lifestyleRoutine,  // NEW
     identityBuilding: {
       elements: identityElements || [],
       traits: identityElements?.filter((e: any) => e.element_type === 'trait' || e.element_type === 'character_trait') || [],
@@ -636,6 +649,7 @@ async function gatherLaunchpadData(supabase: any, userId: string): Promise<Launc
       stepData: firstWeekActions,
     },
     firstWeekActions,
+    finalNotes,  // NEW
   };
 }
 
@@ -669,13 +683,28 @@ Your task is to analyze comprehensive data from a user who completed a Launchpad
 1. A deep consciousness analysis
 2. A personalized 90-day transformation plan with weekly milestones
 
-**CRITICAL: ALL TEXT CONTENT MUST BE IN HEBREW (עברית)**
+**CRITICAL RULES:**
+
+**1. ALL TEXT CONTENT MUST BE IN HEBREW (עברית)**
 - All analysis text, descriptions, tasks, and insights must be written in Hebrew
 - Names/titles should have both Hebrew and English versions where specified
 - Be direct and challenging, not coddling
 - Focus on results and action
 - Identify the gap between where the user is and where they need to go
 - Suggest challenges that push for growth
+
+**2. RESPECT THE USER'S SCHEDULE (VERY IMPORTANT!)**
+- Pay close attention to Step 3 (Lifestyle & Routine) data
+- If the user wakes up at 3-5 AM for work, do NOT recommend sleeping until 23:00!
+- Adjust ALL time-based recommendations to their actual schedule
+- For shift workers or early risers, calculate sleep times backwards from wake time (7-8 hours before)
+- Consider their peak productivity times when scheduling important tasks
+- If they have family commitments, factor those into the plan
+
+**3. INCORPORATE USER'S FINAL NOTES**
+- Step 10 contains the user's own notes and special requests
+- These may include health conditions, constraints, or specific wishes
+- Honor these notes when creating recommendations
 
 Respond ONLY with valid JSON matching this exact structure:
 {
@@ -795,13 +824,35 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
   sections.push('\n## Step 2: Personal Profile');
   sections.push(JSON.stringify(data.personalProfile, null, 2));
 
-  // Step 3: Deep Dive Answers
-  sections.push('\n## Step 3: Growth Deep Dive Answers');
+  // NEW: Step 3: Lifestyle & Routine (CRITICAL for schedule-aware recommendations)
+  sections.push('\n## Step 3: Lifestyle & Daily Routine');
+  sections.push('**IMPORTANT: Use this data to tailor ALL time-based recommendations!**');
+  if (data.lifestyleRoutine && Object.keys(data.lifestyleRoutine).length > 0) {
+    sections.push(JSON.stringify(data.lifestyleRoutine, null, 2));
+    // Highlight key schedule info
+    if (data.lifestyleRoutine.wake_time) {
+      sections.push(`Wake time: ${data.lifestyleRoutine.wake_time}`);
+    }
+    if (data.lifestyleRoutine.sleep_time) {
+      sections.push(`Sleep time: ${data.lifestyleRoutine.sleep_time}`);
+    }
+    if (data.lifestyleRoutine.shift_work && data.lifestyleRoutine.shift_work !== 'no') {
+      sections.push(`⚠️ SHIFT WORKER: ${data.lifestyleRoutine.shift_work}`);
+    }
+    if (data.lifestyleRoutine.peak_productivity) {
+      sections.push(`Peak productivity: ${data.lifestyleRoutine.peak_productivity}`);
+    }
+  } else {
+    sections.push('No lifestyle routine data provided');
+  }
+
+  // Step 4: Deep Dive Answers (was step 3)
+  sections.push('\n## Step 4: Growth Deep Dive Answers');
   sections.push(JSON.stringify(data.growthDeepDive, null, 2));
 
-  // Step 4: First Chat Transcript with Aurora
+  // Step 5: First Chat Transcript with Aurora (was step 4)
   if (data.firstChatTranscript) {
-    sections.push('\n## Step 4: First Chat with Aurora (Full Transcript)');
+    sections.push('\n## Step 5: First Chat with Aurora (Full Transcript)');
     if (data.firstChatTranscript.messages && Array.isArray(data.firstChatTranscript.messages)) {
       sections.push('Conversation:');
       data.firstChatTranscript.messages.forEach((msg: any) => {
@@ -821,17 +872,27 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
     sections.push(data.firstChat.map((m: any) => `${m.sender_type}: ${m.content}`).slice(0, 15).join('\n'));
   }
 
-  // Step 5: Selected Focus Areas
-  sections.push('\n## Step 5: Selected Focus Areas');
+  // Step 8: Selected Focus Areas (was step 5)
+  sections.push('\n## Step 8: Selected Focus Areas');
   if (Array.isArray(data.selectedFocusAreas) && data.selectedFocusAreas.length > 0) {
     sections.push(`Selected areas: ${data.selectedFocusAreas.join(', ')}`);
   } else {
     sections.push('No focus areas selected yet');
   }
 
-  // Step 6: First Week Actions (habits to quit/build, career goals)
-  sections.push('\n## Step 6: First Week Actions & Goals');
+  // Step 9: First Week Actions (was step 6)
+  sections.push('\n## Step 9: First Week Actions & Goals');
   sections.push(JSON.stringify(data.firstWeekActions, null, 2));
+
+  // NEW: Step 10: Final Notes from User
+  sections.push('\n## Step 10: User\'s Final Notes & Special Requests');
+  if (data.finalNotes && data.finalNotes.trim()) {
+    sections.push('**User wrote:**');
+    sections.push(data.finalNotes);
+    sections.push('**⚠️ IMPORTANT: Consider these notes when creating recommendations!**');
+  } else {
+    sections.push('No additional notes provided');
+  }
 
   // Identity Building (from aurora tables)
   sections.push('\n## Identity Building Elements');
