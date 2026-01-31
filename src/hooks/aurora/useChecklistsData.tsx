@@ -72,6 +72,9 @@ export const useChecklistsData = (user: User | null) => {
         .eq('week_number', currentWeek)
         .single();
 
+      // Early return if no milestone found
+      if (!milestone) return;
+
       // Cast tasks to string array
       const tasks = Array.isArray(milestone.tasks) ? milestone.tasks as string[] : [];
       if (!tasks.length) return;
