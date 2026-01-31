@@ -5,11 +5,14 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, Rocket, Sparkles, Gift } from 'lucide-react';
+import { Loader2, Rocket, Sparkles, Gift, Download, ArrowRight } from 'lucide-react';
 import { SummaryScores } from '@/components/launchpad/summary/SummaryScores';
 import { ConsciousnessAnalysis } from '@/components/launchpad/summary/ConsciousnessAnalysis';
 import { IdentityProfile } from '@/components/launchpad/summary/IdentityProfile';
 import { PlanPreview } from '@/components/launchpad/summary/PlanPreview';
+import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirectionSection';
+import { AnswersReview } from '@/components/launchpad/summary/AnswersReview';
+import { useProfilePDF } from '@/hooks/useProfilePDF';
 
 interface SummaryData {
   consciousness_analysis: {
@@ -23,11 +26,18 @@ interface SummaryData {
     dominant_traits: string[];
     suggested_ego_state: string;
     values_hierarchy: string[];
+    identity_title?: string;
+    identity_emoji?: string;
   };
   behavioral_insights: {
     habits_to_transform: string[];
     habits_to_cultivate: string[];
     resistance_patterns: string[];
+  };
+  life_direction?: {
+    central_aspiration?: string;
+    vision_summary?: string;
+    clarity_score?: number;
   };
 }
 
@@ -41,15 +51,29 @@ interface PlanData {
   }>;
 }
 
+interface LaunchpadProgress {
+  step_1_intention: unknown;
+  step_2_profile_data: Record<string, unknown>;
+  step_5_focus_areas_selected: string[];
+  step_6_actions: {
+    habits_to_quit?: string[];
+    habits_to_build?: string[];
+    career_status?: string;
+    career_goal?: string;
+  };
+}
+
 export default function LaunchpadComplete() {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { downloadPDF, generating } = useProfilePDF();
   
   const [loading, setLoading] = useState(true);
   const [scores, setScores] = useState({ consciousness: 0, clarity: 0, readiness: 0 });
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [planData, setPlanData] = useState<PlanData | null>(null);
+  const [launchpadProgress, setLaunchpadProgress] = useState<LaunchpadProgress | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -97,6 +121,21 @@ export default function LaunchpadComplete() {
         if (plan) {
           setPlanData(plan.plan_data as unknown as PlanData);
         }
+
+        // Fetch launchpad progress (user answers)
+        const { data: progress, error: progressError } = await supabase
+          .from('launchpad_progress')
+          .select('step_1_intention, step_2_profile_data, step_5_focus_areas_selected, step_6_actions')
+          .eq('user_id', user.id)
+          .single();
+
+        if (progressError && progressError.code !== 'PGRST116') {
+          console.error('Error fetching progress:', progressError);
+        }
+
+        if (progress) {
+          setLaunchpadProgress(progress as LaunchpadProgress);
+        }
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -109,6 +148,32 @@ export default function LaunchpadComplete() {
 
   const handleContinue = () => {
     navigate('/dashboard');
+  };
+
+  // Parse welcome quiz data
+  const getWelcomeQuiz = (): Record<string, string | string[]> => {
+    if (!launchpadProgress?.step_1_intention) return {};
+    
+    const intention = launchpadProgress.step_1_intention;
+    if (typeof intention === 'string') {
+      try {
+        return JSON.parse(intention);
+      } catch {
+        return { intention };
+      }
+    }
+    return intention as Record<string, string | string[]>;
+  };
+
+  // Parse first week data
+  const getFirstWeek = () => {
+    const actions = launchpadProgress?.step_6_actions || {};
+    return {
+      habits_to_quit: (actions.habits_to_quit as string[]) || [],
+      habits_to_build: (actions.habits_to_build as string[]) || [],
+      career_status: (actions.career_status as string) || '',
+      career_goal: (actions.career_goal as string) || '',
+    };
   };
 
   if (loading) {
@@ -126,7 +191,7 @@ export default function LaunchpadComplete() {
 
   return (
     <div className="min-h-screen bg-background py-8 px-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Section */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -148,25 +213,35 @@ export default function LaunchpadComplete() {
           </motion.div>
 
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {language === 'he' ? '🎉 המסע שלך מתחיל!' : '🎉 Your Journey Begins!'}
+            {language === 'he' ? '🎉 מסע הטרנספורמציה שלך מתחיל!' : '🎉 Your Transformation Journey Begins!'}
           </h1>
 
           <p className="text-muted-foreground">
             {language === 'he'
-              ? 'אורורה ניתחה את כל המידע שלך ויצרה עבורך תוכנית אישית'
-              : 'Aurora analyzed all your data and created a personalized plan for you'}
+              ? 'אורורה ניתחה את כל המידע שלך ויצרה עבורך פרופיל אישי ותוכנית טרנספורמציה'
+              : 'Aurora analyzed all your data and created a personal profile and transformation plan for you'}
           </p>
 
           {/* Rewards */}
           <div className="flex items-center justify-center gap-4 text-sm">
-            <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: 'spring' }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary"
+            >
               <Sparkles className="w-5 h-5" />
               <span className="font-bold">+100 XP</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/10 text-amber-600">
+            </motion.div>
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.4, type: 'spring' }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/10 text-amber-600"
+            >
               <Gift className="w-5 h-5" />
               <span className="font-bold">+15 {language === 'he' ? 'טוקנים' : 'Tokens'}</span>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -184,29 +259,58 @@ export default function LaunchpadComplete() {
           />
         </motion.div>
 
-        {/* Consciousness Analysis */}
-        {summaryData?.consciousness_analysis && (
+        {/* Identity Profile */}
+        {summaryData?.identity_profile && (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
             className="p-6 rounded-2xl bg-card/50 border border-border/50"
           >
+            <IdentityProfile
+              profile={summaryData.identity_profile}
+              behavioral={summaryData.behavioral_insights}
+            />
+          </motion.div>
+        )}
+
+        {/* Consciousness Analysis */}
+        {summaryData?.consciousness_analysis && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="p-6 rounded-2xl bg-card/50 border border-border/50"
+          >
             <ConsciousnessAnalysis analysis={summaryData.consciousness_analysis} />
           </motion.div>
         )}
 
-        {/* Identity Profile */}
-        {summaryData?.identity_profile && (
+        {/* Life Direction */}
+        {summaryData?.life_direction && (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
             className="p-6 rounded-2xl bg-card/50 border border-border/50"
           >
-            <IdentityProfile
-              profile={summaryData.identity_profile}
-              behavioral={summaryData.behavioral_insights}
+            <LifeDirectionSection lifeDirection={summaryData.life_direction} />
+          </motion.div>
+        )}
+
+        {/* User Answers Review */}
+        {launchpadProgress && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="p-6 rounded-2xl bg-card/50 border border-border/50"
+          >
+            <AnswersReview
+              welcomeQuiz={getWelcomeQuiz()}
+              personalProfile={launchpadProgress.step_2_profile_data || {}}
+              focusAreas={launchpadProgress.step_5_focus_areas_selected || []}
+              firstWeek={getFirstWeek()}
             />
           </motion.div>
         )}
@@ -224,20 +328,43 @@ export default function LaunchpadComplete() {
           />
         </motion.div>
 
-        {/* CTA */}
+        {/* CTAs */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="pt-4"
+          transition={{ delay: 0.9 }}
+          className="pt-4 space-y-3"
         >
+          {/* Download PDF Button */}
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={downloadPDF}
+            disabled={generating}
+            className="w-full h-12 gap-2"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                {language === 'he' ? 'יוצר PDF...' : 'Generating PDF...'}
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5" />
+                {language === 'he' ? 'הורד פרופיל כ-PDF' : 'Download Profile as PDF'}
+              </>
+            )}
+          </Button>
+
+          {/* Continue Button */}
           <Button
             size="lg"
             onClick={handleContinue}
             className="w-full h-14 text-lg gap-2"
           >
             <Rocket className="w-5 h-5" />
-            {language === 'he' ? 'המשך לדשבורד - בוא נתחיל!' : 'Continue to Dashboard - Let\'s Go!'}
+            {language === 'he' ? 'המשך לדשבורד - בוא נתחיל!' : "Continue to Dashboard - Let's Go!"}
+            <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
           </Button>
         </motion.div>
       </div>
