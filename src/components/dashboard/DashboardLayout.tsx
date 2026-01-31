@@ -34,42 +34,31 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Global Header */}
-          <Header />
+          {/* Global Header with menu callback */}
+          <Header onMenuClick={() => setLeftSheetOpen(true)} />
           
-          {/* Mobile Header with Menu Buttons */}
-          <div className="sticky top-14 sm:top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 py-2 flex items-center justify-between">
-            <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0">
-                <SidebarProvider>
-                  <DashboardSidebar 
-                    onNavigate={() => setLeftSheetOpen(false)}
-                    currentConversationId={currentConversationId}
-                    onNewChat={onNewChat}
-                    onSelectConversation={onSelectConversation}
-                  />
-                </SidebarProvider>
+          {/* Left Sidebar (hidden on mobile, shown via Sheet) */}
+          <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
+            <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0">
+              <SidebarProvider>
+                <DashboardSidebar 
+                  onNavigate={() => setLeftSheetOpen(false)}
+                  currentConversationId={currentConversationId}
+                  onNewChat={onNewChat}
+                  onSelectConversation={onSelectConversation}
+                />
+              </SidebarProvider>
+            </SheetContent>
+          </Sheet>
+
+          {/* Right Panel Sheet */}
+          {!hideRightPanel && (
+            <Sheet open={rightSheetOpen} onOpenChange={setRightSheetOpen}>
+              <SheetContent side={isRTL ? "left" : "right"} className="w-80 p-0 overflow-y-auto">
+                <DashboardRightPanel />
               </SheetContent>
             </Sheet>
-
-            {!hideRightPanel && (
-              <Sheet open={rightSheetOpen} onOpenChange={setRightSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <PanelRightOpen className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side={isRTL ? "left" : "right"} className="w-80 p-0 overflow-y-auto">
-                  <DashboardRightPanel />
-                </SheetContent>
-              </Sheet>
-            )}
-          </div>
+          )}
 
           {/* Main Content - flex-1 to fill remaining height */}
           <main className="flex-1 flex flex-col p-4 pb-20 min-h-0">

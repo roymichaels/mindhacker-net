@@ -44,20 +44,30 @@ const defaultLogo = "/icons/icon-96x96.png?v=4";
 export interface HeaderProps {
   variant?: "public" | "admin";
   brandColors?: ProductColorClasses;
+  onMenuClick?: () => void; // Optional callback for mobile menu
 }
 
 // Sidebar toggle component that safely uses the sidebar context
-const SidebarToggle = () => {
+const SidebarToggle = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const sidebar = useSidebarSafe();
   
-  // If not inside a SidebarProvider, don't render the toggle
-  if (!sidebar) return null;
+  // Handle click - prefer sidebar context, fallback to callback
+  const handleClick = () => {
+    if (sidebar) {
+      sidebar.toggleSidebar();
+    } else if (onMenuClick) {
+      onMenuClick();
+    }
+  };
+  
+  // Show if we have either sidebar context OR a callback
+  if (!sidebar && !onMenuClick) return null;
   
   return (
     <Button 
       variant="ghost" 
       size="icon" 
-      onClick={() => sidebar.toggleSidebar()}
+      onClick={handleClick}
       aria-label="Toggle sidebar"
     >
       <Menu className="h-5 w-5" />
@@ -65,7 +75,7 @@ const SidebarToggle = () => {
   );
 };
 
-const Header = ({ variant = "public", brandColors }: HeaderProps) => {
+const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) => {
   const isAdminMode = variant === "admin";
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -145,7 +155,7 @@ const Header = ({ variant = "public", brandColors }: HeaderProps) => {
 
             {/* Sidebar Toggle - for authenticated users (non-admin) */}
             {user && !isAdminMode && (
-              <SidebarToggle />
+              <SidebarToggle onMenuClick={onMenuClick} />
             )}
 
             {/* Mobile Admin Sidebar Trigger */}
