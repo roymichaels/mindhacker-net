@@ -186,7 +186,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   }}
                 />
               </div>
-              <span className={`hidden sm:inline font-bold text-base sm:text-lg ${brandColors?.text || 'text-foreground'}`}>
+              <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
