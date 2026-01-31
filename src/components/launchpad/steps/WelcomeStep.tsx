@@ -355,22 +355,33 @@ function getSummaryText(answers: Record<string, string | string[]>, language: st
 export function WelcomeStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: WelcomeStepProps) {
   const { language, isRTL } = useTranslation();
   
-  // Initialize from savedData (DB) first
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>(() => {
+  // Initialize from savedData (DB) - component will remount on step change due to key
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>(
+    savedData && Object.keys(savedData).length > 0 ? savedData : {}
+  );
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
+    // If we have saved data, start at the summary or calculate the right question
     if (savedData && Object.keys(savedData).length > 0) {
-      return savedData;
+      const visibleQs = getVisibleQuestions(savedData);
+      // Check if all visible questions have answers
+      const allAnswered = visibleQs.every(q => {
+        const answer = savedData[q.id];
+        return answer && (Array.isArray(answer) ? answer.length > 0 : answer);
+      });
+      return allAnswered ? visibleQs.length : 0;
     }
-    return {};
+    return 0;
   });
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [showSummary, setShowSummary] = useState(false);
-  
-  // Update state when savedData changes (DB loaded after initial render)
-  useEffect(() => {
-    if (savedData && Object.keys(savedData).length > 0 && Object.keys(answers).length === 0) {
-      setAnswers(savedData);
+  const [showSummary, setShowSummary] = useState(() => {
+    if (savedData && Object.keys(savedData).length > 0) {
+      const visibleQs = getVisibleQuestions(savedData);
+      return visibleQs.every(q => {
+        const answer = savedData[q.id];
+        return answer && (Array.isArray(answer) ? answer.length > 0 : answer);
+      });
     }
-  }, [savedData]);
+    return false;
+  });
   
   // Calculate visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers);

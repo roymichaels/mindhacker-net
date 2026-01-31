@@ -17,7 +17,18 @@ import { DashboardActivation } from './steps/DashboardActivation';
 import { PhaseIndicator } from './PhaseIndicator';
 import { PhaseTransition } from './PhaseTransition';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, RotateCcw } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface LaunchpadFlowProps {
   className?: string;
@@ -35,6 +46,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     isCompleting,
     getStepRewards,
     totalSteps,
+    resetJourney,
+    isResetting,
   } = useLaunchpadProgress();
   
   const { autoSave, getSavedData, isLoading: isLoadingData, launchpadData } = useLaunchpadAutoSave();
@@ -43,11 +56,18 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   const [profileData, setProfileData] = useState<Record<string, unknown> | null>(null);
   const [showingPhaseTransition, setShowingPhaseTransition] = useState(false);
   const [completedPhaseId, setCompletedPhaseId] = useState<number | null>(null);
+  const [showResetDialog, setShowResetDialog] = useState(false);
   
   // The step we're actually showing (could be current or a past step we're reviewing)
   const displayedStep = viewingStep ?? currentStep;
   const currentStepMeta = STEPS.find(s => s.id === displayedStep);
   const currentPhase = getPhaseForStep(displayedStep);
+
+  const handleResetJourney = () => {
+    resetJourney();
+    setViewingStep(null);
+    setShowResetDialog(false);
+  };
 
   const handleStepComplete = (data?: Record<string, unknown>) => {
     // If viewing a past step, just go back to current
@@ -133,6 +153,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 1:
         return (
           <WelcomeStep 
+            key={`step-1-${viewingStep ?? 'current'}`}
             {...stepProps} 
             savedData={getSavedData(1) as Record<string, string | string[]> | undefined}
             onAutoSave={(data) => handleAutoSave(1, data)}
@@ -141,22 +162,24 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 2:
         return (
           <PersonalProfileStep 
+            key={`step-2-${viewingStep ?? 'current'}`}
             {...stepProps} 
             savedData={getSavedData(2) ?? undefined}
             onAutoSave={(data) => handleAutoSave(2, data)}
           />
         );
       case 3:
-        return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
+        return <GrowthDeepDiveStep key={`step-3-${viewingStep ?? 'current'}`} {...stepProps} previousAnswers={profileData || undefined} />;
       case 4:
-        return <FirstChatStep {...stepProps} />;
+        return <FirstChatStep key={`step-4-${viewingStep ?? 'current'}`} {...stepProps} />;
       case 5:
-        return <IntrospectionStep {...stepProps} />;
+        return <IntrospectionStep key={`step-5-${viewingStep ?? 'current'}`} {...stepProps} />;
       case 6:
-        return <LifePlanStep {...stepProps} />;
+        return <LifePlanStep key={`step-6-${viewingStep ?? 'current'}`} {...stepProps} />;
       case 7:
         return (
           <FocusAreasStep 
+            key={`step-7-${viewingStep ?? 'current'}`}
             {...stepProps} 
             savedData={getSavedData(7) as { focus_areas?: string[] } | undefined}
             onAutoSave={(data) => handleAutoSave(7, data)}
@@ -165,13 +188,14 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 8:
         return (
           <FirstWeekStep 
+            key={`step-8-${viewingStep ?? 'current'}`}
             {...stepProps} 
             savedData={getSavedData(8) as { selectedQuit?: string[]; selectedBuild?: string[]; selectedCareerStatus?: string; selectedCareerGoal?: string } | undefined}
             onAutoSave={(data) => handleAutoSave(8, data as unknown as Record<string, unknown>)}
           />
         );
       case 9:
-        return <DashboardActivation {...stepProps} />;
+        return <DashboardActivation key={`step-9-${viewingStep ?? 'current'}`} {...stepProps} />;
       default:
         return null;
     }
@@ -232,8 +256,52 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
               )}
             </div>
 
-            {/* Navigation arrows */}
+            {/* Navigation arrows and reset */}
             <div className="flex items-center gap-1">
+              {/* Reset button - only show for users who made progress */}
+              {currentStep > 1 && (
+                <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                      title={language === 'he' ? 'התחל מחדש' : 'Start Over'}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent dir={isRTL ? 'rtl' : 'ltr'}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {language === 'he' ? 'התחל מסע מחדש?' : 'Start Journey Over?'}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {language === 'he' 
+                          ? 'פעולה זו תמחק את כל התשובות שלך ותתחיל את המסע מההתחלה. פעולה זו לא ניתנת לביטול.'
+                          : 'This will delete all your answers and start the journey from the beginning. This action cannot be undone.'
+                        }
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className={cn(isRTL && "flex-row-reverse")}>
+                      <AlertDialogCancel>
+                        {language === 'he' ? 'ביטול' : 'Cancel'}
+                      </AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleResetJourney}
+                        disabled={isResetting}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isResetting 
+                          ? (language === 'he' ? 'מאפס...' : 'Resetting...')
+                          : (language === 'he' ? 'התחל מחדש' : 'Start Over')
+                        }
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              
               <Button
                 variant="ghost"
                 size="icon"

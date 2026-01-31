@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -27,20 +27,10 @@ const FOCUS_AREAS = [
 export function FocusAreasStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FocusAreasStepProps) {
   const { language, isRTL } = useTranslation();
   
-  // Initialize from savedData (DB) first, then fallback to empty
-  const [selected, setSelected] = useState<string[]>(() => {
-    if (savedData?.focus_areas && savedData.focus_areas.length > 0) {
-      return savedData.focus_areas;
-    }
-    return [];
-  });
-
-  // Update state when savedData changes (DB loaded after initial render)
-  useEffect(() => {
-    if (savedData?.focus_areas && savedData.focus_areas.length > 0 && selected.length === 0) {
-      setSelected(savedData.focus_areas);
-    }
-  }, [savedData]);
+  // Initialize from savedData (DB) - component will remount on step change due to key
+  const [selected, setSelected] = useState<string[]>(
+    savedData?.focus_areas && savedData.focus_areas.length > 0 ? savedData.focus_areas : []
+  );
 
   const toggleArea = (id: string) => {
     setSelected(prev => {
