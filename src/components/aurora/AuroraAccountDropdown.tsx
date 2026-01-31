@@ -100,18 +100,20 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* Avatar - PersonalizedOrb with DNA-based styling */}
+          {/* Avatar - PersonalizedOrb with enhanced glow */}
           <div className={cn(
-            "shrink-0 relative",
-            isCollapsed ? "h-9 w-9" : "h-10 w-10"
+            "shrink-0 relative flex items-center justify-center",
+            isCollapsed ? "h-10 w-10" : "h-11 w-11"
           )}>
-            {/* Glow ring */}
-            <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm scale-110" />
-            <PersonalizedOrb 
-              size={isCollapsed ? 36 : 40}
-              showGlow={true}
-              state="idle"
-            />
+            {/* Radial gradient glow backdrop */}
+            <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
+            <div className="relative z-10">
+              <PersonalizedOrb 
+                size={isCollapsed ? 38 : 44}
+                showGlow={true}
+                state="idle"
+              />
+            </div>
           </div>
           
           {!isCollapsed && (

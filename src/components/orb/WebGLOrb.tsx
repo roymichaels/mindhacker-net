@@ -261,48 +261,48 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // No outer ring glows - glow comes naturally from the orb's emissive materials and core
 
-    // *** Inner fill sphere - VIBRANT glowing core ***
-    const innerFillGeometry = new THREE.SphereGeometry(0.52, 48, 48);
+    // *** Inner fill sphere - ULTRA BRIGHT glowing gradient core ***
+    const innerFillGeometry = new THREE.SphereGeometry(0.55, 48, 48);
     const innerFillColor = parseHslToThreeColor(colors.secondary);
     const innerFillMaterial = new THREE.MeshPhysicalMaterial({
       color: innerFillColor,
-      emissive: innerFillColor.clone().multiplyScalar(0.45),
-      emissiveIntensity: 1.2,
-      metalness: 0.35,
-      roughness: 0.18,
-      transmission: 0.5,
-      thickness: 1.0,
-      ior: 1.4,
-      iridescence: 0.6,
-      iridescenceIOR: 1.3,
-      sheen: 0.5,
-      sheenRoughness: 0.3,
+      emissive: innerFillColor.clone().multiplyScalar(0.7),
+      emissiveIntensity: 1.8,
+      metalness: 0.25,
+      roughness: 0.12,
+      transmission: 0.4,
+      thickness: 1.2,
+      ior: 1.5,
+      iridescence: 0.9,
+      iridescenceIOR: 1.4,
+      sheen: 0.7,
+      sheenRoughness: 0.2,
       sheenColor: parseHslToThreeColor(colors.accent),
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.85,
     });
     const innerFill = new THREE.Mesh(innerFillGeometry, innerFillMaterial);
     scene.add(innerFill);
 
-    // *** Gradient shell - iridescent color transition ***
-    const gradientShellGeometry = new THREE.SphereGeometry(0.62, 32, 32);
+    // *** Gradient shell - bright iridescent color transition ***
+    const gradientShellGeometry = new THREE.SphereGeometry(0.65, 32, 32);
     const gradientShellColor = parseHslToThreeColor(colors.primary);
     const gradientShellMaterial = new THREE.MeshPhysicalMaterial({
       color: gradientShellColor,
-      emissive: gradientShellColor.clone().multiplyScalar(0.3),
-      emissiveIntensity: 1.0,
-      metalness: 0.5,
-      roughness: 0.15,
-      transmission: 0.35,
-      thickness: 0.6,
-      ior: 1.35,
-      iridescence: 0.8,
-      iridescenceIOR: 1.4,
-      sheen: 0.4,
-      sheenRoughness: 0.25,
+      emissive: gradientShellColor.clone().multiplyScalar(0.5),
+      emissiveIntensity: 1.5,
+      metalness: 0.4,
+      roughness: 0.1,
+      transmission: 0.3,
+      thickness: 0.8,
+      ior: 1.45,
+      iridescence: 1.0,
+      iridescenceIOR: 1.5,
+      sheen: 0.6,
+      sheenRoughness: 0.15,
       sheenColor: parseHslToThreeColor(colors.secondary),
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.55,
       side: THREE.BackSide,
     });
     const gradientShell = new THREE.Mesh(gradientShellGeometry, gradientShellMaterial);
@@ -318,27 +318,27 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const positions = geometry.attributes.position.array as Float32Array;
       
       const layerColor = parseHslToThreeColor(config.color);
-      // Solid "liquid mercury" shell with iridescence and texture
+      // ULTRA BRIGHT liquid gradient shell with maximum glow
       const material = new THREE.MeshPhysicalMaterial({
         color: layerColor,
-        emissive: layerColor.clone().multiplyScalar(0.35),
-        emissiveIntensity: 1.1,
-        metalness: 0.85,
-        roughness: 0.08,
+        emissive: layerColor.clone().multiplyScalar(0.55),
+        emissiveIntensity: 1.6,
+        metalness: 0.75,
+        roughness: 0.05,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.05,
-        transmission: 0.2,
-        thickness: 0.8,
-        ior: 1.45,
-        iridescence: 0.9,
-        iridescenceIOR: 1.5,
-        sheen: 0.6,
-        sheenRoughness: 0.2,
+        clearcoatRoughness: 0.03,
+        transmission: 0.15,
+        thickness: 1.0,
+        ior: 1.5,
+        iridescence: 1.0,
+        iridescenceIOR: 1.6,
+        sheen: 0.8,
+        sheenRoughness: 0.15,
         sheenColor: index % 2 === 0 
           ? parseHslToThreeColor(colors.accent) 
           : parseHslToThreeColor(colors.secondary),
         transparent: true,
-        opacity: config.opacity + 0.15,
+        opacity: config.opacity + 0.25,
       });
 
       const mesh = new THREE.Mesh(geometry, material);
@@ -350,55 +350,55 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // Inner core glow sphere - ULTRA VIBRANT and intensely glowing
+    // Inner core glow sphere - MAXIMUM BRIGHTNESS with gradient layers
     if (showGlow) {
-      // Primary core glow - MASSIVE and ultra intense
-      const glowGeometry = new THREE.SphereGeometry(coreSize * 2.2, 32, 32);
+      // Primary core glow - MASSIVE and ultra bright
+      const glowGeometry = new THREE.SphereGeometry(coreSize * 2.5, 32, 32);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.glow || colors.accent),
         transparent: true,
-        opacity: coreIntensity * 1.0,
+        opacity: coreIntensity * 1.2,
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       scene.add(glowMesh);
       coreRef.current = glowMesh;
 
-      // Bright hot white center - super intense
-      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 1.0, 24, 24);
+      // Hot white center - maximum intensity
+      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 1.2, 24, 24);
       const innerCoreMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(0xffffff),
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95,
       });
       const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial);
       scene.add(innerCore);
 
-      // Vibrant accent core ring - brighter
-      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.5, 24, 24);
+      // Bright accent core ring
+      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.7, 24, 24);
       const accentCoreMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.accent),
         transparent: true,
-        opacity: 0.7,
+        opacity: 0.85,
       });
       const accentCore = new THREE.Mesh(accentCoreGeometry, accentCoreMaterial);
       scene.add(accentCore);
 
-      // Secondary color glow - richer
-      const secondaryGlowGeometry = new THREE.SphereGeometry(coreSize * 1.8, 24, 24);
+      // Rich secondary color glow
+      const secondaryGlowGeometry = new THREE.SphereGeometry(coreSize * 2.0, 24, 24);
       const secondaryGlowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.secondary),
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.7,
       });
       const secondaryGlow = new THREE.Mesh(secondaryGlowGeometry, secondaryGlowMaterial);
       scene.add(secondaryGlow);
 
-      // Primary color outer aura - more visible
-      const primaryAuraGeometry = new THREE.SphereGeometry(coreSize * 2.4, 24, 24);
+      // Primary color outer aura - bright gradient
+      const primaryAuraGeometry = new THREE.SphereGeometry(coreSize * 2.8, 24, 24);
       const primaryAuraMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.primary),
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.55,
       });
       const primaryAura = new THREE.Mesh(primaryAuraGeometry, primaryAuraMaterial);
       scene.add(primaryAura);
