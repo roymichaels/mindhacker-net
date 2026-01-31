@@ -279,6 +279,11 @@ const AdminSidebar = () => {
               {isHebrew ? 'חזרה לאורורה' : 'Back to Aurora'}
             </DropdownMenuItem>
             
+            <DropdownMenuItem onClick={() => navigate('/aurora/settings')}>
+              <Settings className="h-4 w-4 me-2" />
+              {isHebrew ? 'הגדרות פרופיל' : 'Profile Settings'}
+            </DropdownMenuItem>
+            
             <DropdownMenuSeparator />
             
             {/* Language Toggle */}
@@ -294,7 +299,7 @@ const AdminSidebar = () => {
               ) : (
                 <Moon className="h-4 w-4 me-2" />
               )}
-              {isDark 
+              {isDark
                 ? (isHebrew ? 'מצב בהיר' : 'Light Mode')
                 : (isHebrew ? 'מצב כהה' : 'Dark Mode')
               }
