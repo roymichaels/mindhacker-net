@@ -255,8 +255,8 @@ async function sendPushNotification(
     const payloadString = JSON.stringify({
       title: payload.title,
       body: payload.body,
-      icon: payload.icon || '/icons/icon-192x192.png?v=4',
-      badge: '/icons/icon-96x96.png?v=4',
+      icon: payload.icon || '/pwa-192x192.png',
+      badge: '/favicon.png',
       data: { url: payload.url || '/dashboard' }
     });
     
@@ -489,7 +489,7 @@ serve(async (req) => {
           subscriptions.map(sub => 
             sendPushNotification(
               { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
-              { title, body, url, icon: icon || '/icons/icon-192x192.png' }
+              { title, body, url, icon: icon || '/pwa-192x192.png' }
             )
           )
         );

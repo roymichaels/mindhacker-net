@@ -89,8 +89,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'מיינד האקר';
   const options = {
     body: data.body || data.message || 'יש לך התראה חדשה',
-    icon: '/icons/icon-192x192.png?v=4',
-    badge: '/icons/icon-96x96.png?v=4',
+    icon: '/pwa-192x192.png',
+    badge: '/favicon.png',
     vibrate: [100, 50, 100],
     tag: data.tag || 'notification-' + Date.now(),
     renotify: true,
