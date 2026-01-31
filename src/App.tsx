@@ -374,6 +374,10 @@ const App = () => (
                           }
                         />
 
+                        {/* Admin routes redirect to /panel */}
+                        <Route path="/admin" element={<Navigate to="/panel" replace />} />
+                        <Route path="/admin/*" element={<Navigate to="/panel" replace />} />
+
                         {/* Admin Panel routes */}
                         <Route
                           path="/panel"
