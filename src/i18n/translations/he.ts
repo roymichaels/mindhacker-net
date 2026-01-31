@@ -68,6 +68,7 @@ export const he = {
     brandName: "מיינד האקר",
     navigationMenu: "תפריט ניווט",
     adminPanel: "פאנל ניהול",
+    practitionerPanel: "פאנל מאמן",
     myDashboard: "הדאשבורד שלי",
     notifications: "התראות",
     startChangeNow: "התחל שינוי עכשיו",

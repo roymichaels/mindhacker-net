@@ -182,6 +182,7 @@ const App = () => (
                         {/* Practitioner directory (public) */}
                         <Route path="/practitioners" element={<Practitioners />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
+                        <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
                         <Route
                           path="/affiliate-dashboard"
                           element={

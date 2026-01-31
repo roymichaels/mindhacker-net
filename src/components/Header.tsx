@@ -20,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag } from "lucide-react";
+import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag, Briefcase } from "lucide-react";
 import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
 import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
 import { useSidebarSafe } from "@/components/ui/sidebar";
@@ -33,6 +33,7 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
@@ -102,6 +103,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const { theme: brandTheme } = useThemeSettings();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  
+  // Get user roles for panel access
+  const { hasPanelAccess } = useUserRoles();
   
   // Get multi-thread orb profile for avatar
   const { profile: orbProfile } = useMultiThreadOrbProfile();
@@ -259,6 +263,12 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                         <ShoppingBag className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
                         {t('common.dashboard')}
                       </DropdownMenuItem>
+                      {hasPanelAccess() && (
+                        <DropdownMenuItem onClick={() => navigate("/panel")}>
+                          <Briefcase className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                          {t('header.practitionerPanel')}
+                        </DropdownMenuItem>
+                      )}
                       {isAdmin && (
                         <DropdownMenuItem onClick={() => navigate("/admin")}>
                           <Settings className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
