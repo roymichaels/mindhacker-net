@@ -150,7 +150,7 @@ export default function FreeTransformationJourney() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-md lg:max-w-3xl mx-auto flex-1 content-start"
+          className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 w-full max-w-md md:max-w-3xl mx-auto flex-1 content-start"
         >
           {BENEFITS.map((benefit, index) => (
             <motion.div
