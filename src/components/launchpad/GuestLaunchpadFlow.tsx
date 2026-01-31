@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
@@ -15,10 +14,8 @@ import { LifePlanStep } from './steps/LifePlanStep';
 import { FocusAreasStep } from './steps/FocusAreasStep';
 import { FirstWeekStep } from './steps/FirstWeekStep';
 import { GuestDashboardActivation } from './steps/GuestDashboardActivation';
-import { PhaseIndicator } from './PhaseIndicator';
 import { PhaseTransition } from './PhaseTransition';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { GamifiedJourneyHeader } from './GamifiedJourneyHeader';
 
 interface GuestLaunchpadFlowProps {
   className?: string;
@@ -243,64 +240,18 @@ export function GuestLaunchpadFlow({ className, onComplete, onClose }: GuestLaun
 
   return (
     <div className={cn("min-h-screen flex flex-col bg-background", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="flex items-center justify-between px-4 py-3">
-          {/* Navigation */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNavigatePrev}
-              disabled={!canGoPrev}
-              className={cn("h-9 w-9", !canGoPrev && "opacity-30")}
-            >
-              {isRTL ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </Button>
-            
-            <span className="text-sm font-medium">
-              {displayedStep}/{totalSteps}
-            </span>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNavigateNext}
-              disabled={!canGoNext}
-              className={cn("h-9 w-9", !canGoNext && "opacity-30")}
-            >
-              {isRTL ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-            </Button>
-          </div>
-
-          {/* Phase indicator */}
-          {currentPhase && (
-            <PhaseIndicator currentStep={displayedStep} />
-          )}
-
-          {/* Close button */}
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-9 w-9"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        <div className="h-1 bg-muted">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-primary to-accent"
-            initial={{ width: 0 }}
-            animate={{ width: `${(displayedStep / totalSteps) * 100}%` }}
-            transition={{ duration: 0.3 }}
-          />
-        </div>
-      </header>
+      {/* Gamified Header with Orb - same as authenticated flow */}
+      <GamifiedJourneyHeader
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+        displayedStep={displayedStep}
+        isViewing={viewingStep !== null}
+        canGoPrev={canGoPrev}
+        canGoNext={canGoNext}
+        onPrev={handleNavigatePrev}
+        onNext={handleNavigateNext}
+        onClose={onClose || (() => window.history.back())}
+      />
 
       {/* Step content */}
       <main className="flex-1 overflow-y-auto pb-24 md:pb-6">
