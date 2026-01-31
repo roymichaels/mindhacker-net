@@ -544,7 +544,34 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards, savedData, on
       {/* Removed Section 4: Challenge Mission - user found it not relevant */}
 
       {/* Submit */}
-      <div className="text-center space-y-4 pt-4">
+      <div className="text-center space-y-4 pt-6">
+        {/* Validation feedback */}
+        {!isValid && (
+          <div className="flex flex-wrap justify-center gap-2 text-xs">
+            {selectedQuit.length === 0 && (
+              <span className="px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                {language === 'he' ? '❌ בחר הרגל לעזוב' : '❌ Select habit to quit'}
+              </span>
+            )}
+            {selectedBuild.length === 0 && (
+              <span className="px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                {language === 'he' ? '❌ בחר הרגל לבנות' : '❌ Select habit to build'}
+              </span>
+            )}
+            {!selectedCareerStatus && (
+              <span className="px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                {language === 'he' ? '❌ בחר מצב קריירה' : '❌ Select career status'}
+              </span>
+            )}
+            {!selectedCareerGoal && (
+              <span className="px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                {language === 'he' ? '❌ בחר מטרה' : '❌ Select goal'}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Rewards preview */}
         <div className="flex items-center justify-center gap-4 text-sm">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
             <Sparkles className="w-4 h-4" />
@@ -556,22 +583,18 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards, savedData, on
           size="lg" 
           onClick={handleSubmit}
           disabled={!isValid || isCompleting}
-          className="min-w-[220px] h-14 text-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+          className={cn(
+            "min-w-[260px] h-16 text-xl font-bold transition-all duration-300",
+            isValid 
+              ? "bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-2xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105"
+              : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+          )}
         >
           {isCompleting 
             ? (language === 'he' ? 'שומר את התכנית...' : 'Saving plan...') 
             : (language === 'he' ? '🚀 בוא נתחיל!' : '🚀 Let\'s Go!')
           }
         </Button>
-        
-        {!isValid && (
-          <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            {language === 'he' 
-              ? 'בחר לפחות: הרגל אחד לעזוב, הרגל אחד לבנות, מצב קריירה ומטרה'
-              : 'Select at least: 1 habit to quit, 1 to build, career status & goal'
-            }
-          </p>
-        )}
       </div>
     </div>
   );

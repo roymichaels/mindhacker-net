@@ -128,24 +128,28 @@ export function FinalNotesStep({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col gap-3 pt-2">
+      <div className="flex flex-col gap-3 pt-4">
         <Button
           onClick={handleSubmit}
           disabled={isCompleting}
-          className="gap-2"
+          className={cn(
+            "gap-2 h-14 text-lg font-bold transition-all duration-300",
+            "bg-gradient-to-r from-primary via-accent to-primary",
+            "hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+          )}
           size="lg"
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-5 h-5" />
           {isCompleting 
             ? (language === 'he' ? 'שומר...' : 'Saving...') 
-            : (language === 'he' ? 'המשך לסיכום' : 'Continue to Summary')}
+            : (language === 'he' ? '🚀 המשך לסיכום' : '🚀 Continue to Summary')}
         </Button>
         
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={handleSkip}
           disabled={isCompleting}
-          className="gap-2 text-muted-foreground"
+          className="gap-2 text-muted-foreground border-muted-foreground/30 hover:bg-muted"
         >
           <SkipForward className="w-4 h-4" />
           {language === 'he' ? 'דלג' : 'Skip'}

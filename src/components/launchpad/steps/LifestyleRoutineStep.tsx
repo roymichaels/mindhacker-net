@@ -489,11 +489,12 @@ export function LifestyleRoutineStep({
       </div>
 
       {/* Navigation buttons */}
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between pt-6">
         <Button
           variant="ghost"
           onClick={handlePrev}
           disabled={currentSectionIndex === 0}
+          className="px-6"
         >
           {language === 'he' ? 'הקודם' : 'Previous'}
         </Button>
@@ -501,17 +502,24 @@ export function LifestyleRoutineStep({
         <Button
           onClick={handleNext}
           disabled={!isCurrentSectionComplete || isCompleting}
-          className="gap-2"
+          className={cn(
+            "gap-2 h-12 px-8 text-base font-bold transition-all duration-300",
+            isCurrentSectionComplete
+              ? currentSectionIndex === SECTIONS.length - 1
+                ? "bg-gradient-to-r from-primary via-accent to-primary hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+                : "bg-primary hover:bg-primary/90"
+              : "bg-muted text-muted-foreground opacity-60"
+          )}
         >
           {currentSectionIndex === SECTIONS.length - 1 ? (
             <>
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-5 h-5" />
               {isCompleting 
                 ? (language === 'he' ? 'שומר...' : 'Saving...') 
-                : (language === 'he' ? 'המשך' : 'Continue')}
+                : (language === 'he' ? '🚀 המשך' : '🚀 Continue')}
             </>
           ) : (
-            language === 'he' ? 'הבא' : 'Next'
+            language === 'he' ? 'הבא ←' : 'Next →'
           )}
         </Button>
       </div>

@@ -544,10 +544,15 @@ export function WelcomeStep({ onComplete, isCompleting, rewards, savedData, onAu
               <Button
                 onClick={handleMultiSelectContinue}
                 disabled={!canContinueMultiSelect()}
-                className="mt-4"
+                className={cn(
+                  "mt-6 min-w-[200px] h-14 text-lg font-bold transition-all duration-300",
+                  canContinueMultiSelect()
+                    ? "bg-gradient-to-r from-primary via-accent to-primary hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+                    : "bg-muted text-muted-foreground opacity-60"
+                )}
                 size="lg"
               >
-                {language === 'he' ? 'המשך' : 'Continue'}
+                {language === 'he' ? '✨ המשך' : '✨ Continue'}
               </Button>
             )}
           </motion.div>
@@ -606,11 +611,15 @@ export function WelcomeStep({ onComplete, isCompleting, rewards, savedData, onAu
               size="lg" 
               onClick={handleSubmit}
               disabled={isCompleting}
-              className="min-w-[200px]"
+              className={cn(
+                "min-w-[220px] h-14 text-lg font-bold transition-all duration-300",
+                "bg-gradient-to-r from-primary via-accent to-primary",
+                "hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
+              )}
             >
               {isCompleting 
                 ? (language === 'he' ? 'שומר...' : 'Saving...') 
-                : (language === 'he' ? 'המשך' : 'Continue')
+                : (language === 'he' ? '🚀 המשך' : '🚀 Continue')
               }
             </Button>
           </motion.div>
