@@ -11,10 +11,13 @@ interface LaunchpadData {
   identityBuilding: any;
   growthDeepDive: any;
   firstChat: any;
+  firstChatTranscript: any;  // From step_2_summary - full conversation
   introspection: any;
   lifePlan: any;
   focusAreas: any;
+  selectedFocusAreas: any;   // From step_5_focus_areas_selected
   firstWeek: any;
+  firstWeekActions: any;     // From step_6_actions
 }
 
 interface SummaryData {
@@ -396,17 +399,65 @@ async function gatherLaunchpadData(supabase: any, userId: string): Promise<Launc
     firstChatSummary = messages;
   }
 
+  // Parse step_1_intention - can be string or JSON
+  let welcomeQuiz: any = {};
+  if (progress?.step_1_intention) {
+    if (typeof progress.step_1_intention === 'string') {
+      try {
+        welcomeQuiz = JSON.parse(progress.step_1_intention);
+      } catch {
+        welcomeQuiz = { intention: progress.step_1_intention };
+      }
+    } else {
+      welcomeQuiz = progress.step_1_intention;
+    }
+  }
+
+  // Parse step_2_summary (first chat transcript)
+  let firstChatTranscript: any = null;
+  if (progress?.step_2_summary) {
+    if (typeof progress.step_2_summary === 'string') {
+      try {
+        firstChatTranscript = JSON.parse(progress.step_2_summary);
+      } catch {
+        firstChatTranscript = { summary: progress.step_2_summary };
+      }
+    } else {
+      firstChatTranscript = progress.step_2_summary;
+    }
+  }
+
+  // Get deep dive from step_2_profile_data
+  const personalProfile = progress?.step_2_profile_data || {};
+  const growthDeepDive = (personalProfile as any)?.deep_dive?.answers || {};
+
+  // Get selected focus areas from step_5
+  const selectedFocusAreas = progress?.step_5_focus_areas_selected || [];
+
+  // Get first week actions from step_6
+  const firstWeekActions = progress?.step_6_actions || {};
+
+  console.log('Data mapping summary:', {
+    hasWelcomeQuiz: Object.keys(welcomeQuiz).length > 0,
+    hasPersonalProfile: Object.keys(personalProfile).length > 0,
+    hasDeepDive: Object.keys(growthDeepDive).length > 0,
+    hasFirstChatTranscript: !!firstChatTranscript,
+    selectedFocusAreasCount: Array.isArray(selectedFocusAreas) ? selectedFocusAreas.length : 0,
+    hasFirstWeekActions: Object.keys(firstWeekActions).length > 0,
+  });
+
   return {
-    welcomeQuiz: progress?.step_data?.welcome || {},
-    personalProfile: progress?.step_data?.personal_profile || {},
+    welcomeQuiz,
+    personalProfile,
     identityBuilding: {
       elements: identityElements || [],
-      traits: identityElements?.filter((e: any) => e.element_type === 'trait') || [],
+      traits: identityElements?.filter((e: any) => e.element_type === 'trait' || e.element_type === 'character_trait') || [],
       values: identityElements?.filter((e: any) => e.element_type === 'value') || [],
       principles: identityElements?.filter((e: any) => e.element_type === 'principle') || [],
     },
-    growthDeepDive: progress?.step_data?.growth_deep_dive || {},
+    growthDeepDive,
     firstChat: firstChatSummary,
+    firstChatTranscript,
     introspection: {
       submissions: formSubmissions?.filter((f: any) => 
         f.custom_forms?.title?.toLowerCase().includes('introspection')
@@ -431,10 +482,12 @@ async function gatherLaunchpadData(supabase: any, userId: string): Promise<Launc
       dailyMinimums: dailyMinimums || [],
       commitments: commitments || [],
     },
+    selectedFocusAreas,
     firstWeek: {
       checklists: checklists || [],
-      stepData: progress?.step_data?.first_week || {},
+      stepData: firstWeekActions,
     },
+    firstWeekActions,
   };
 }
 
@@ -586,32 +639,69 @@ Include exactly 3 months with 4 weeks each (12 weeks total). Each week should ha
 function buildAnalysisPrompt(data: LaunchpadData): string {
   const sections: string[] = [];
 
-  sections.push('## Welcome Quiz Data');
+  // Step 1: Initial Intention
+  sections.push('## Step 1: Initial Intention (Welcome Quiz)');
   sections.push(JSON.stringify(data.welcomeQuiz, null, 2));
 
-  sections.push('\n## Personal Profile');
+  // Step 2: Personal Profile
+  sections.push('\n## Step 2: Personal Profile');
   sections.push(JSON.stringify(data.personalProfile, null, 2));
 
-  sections.push('\n## Identity Building');
-  sections.push(`Traits: ${data.identityBuilding.traits.map((t: any) => t.content).join(', ')}`);
-  sections.push(`Values: ${data.identityBuilding.values.map((v: any) => v.content).join(', ')}`);
-  sections.push(`Principles: ${data.identityBuilding.principles.map((p: any) => p.content).join(', ')}`);
-
-  sections.push('\n## Growth Deep Dive');
+  // Step 3: Deep Dive Answers
+  sections.push('\n## Step 3: Growth Deep Dive Answers');
   sections.push(JSON.stringify(data.growthDeepDive, null, 2));
 
-  if (data.firstChat) {
-    sections.push('\n## First Chat with Aurora (Summary)');
-    sections.push(data.firstChat.map((m: any) => `${m.sender_type}: ${m.content}`).slice(0, 10).join('\n'));
+  // Step 4: First Chat Transcript with Aurora
+  if (data.firstChatTranscript) {
+    sections.push('\n## Step 4: First Chat with Aurora (Full Transcript)');
+    if (data.firstChatTranscript.messages && Array.isArray(data.firstChatTranscript.messages)) {
+      sections.push('Conversation:');
+      data.firstChatTranscript.messages.forEach((msg: any) => {
+        sections.push(`${msg.role === 'user' ? 'User' : 'Aurora'}: ${msg.content}`);
+      });
+      if (data.firstChatTranscript.answers && Array.isArray(data.firstChatTranscript.answers)) {
+        sections.push(`\nUser's answers summary: ${data.firstChatTranscript.answers.join(' | ')}`);
+      }
+    } else {
+      sections.push(JSON.stringify(data.firstChatTranscript, null, 2));
+    }
   }
 
-  sections.push('\n## Introspection Form');
+  // Also include messages table data if available
+  if (data.firstChat && Array.isArray(data.firstChat) && data.firstChat.length > 0) {
+    sections.push('\n## Aurora Conversation Messages (from database)');
+    sections.push(data.firstChat.map((m: any) => `${m.sender_type}: ${m.content}`).slice(0, 15).join('\n'));
+  }
+
+  // Step 5: Selected Focus Areas
+  sections.push('\n## Step 5: Selected Focus Areas');
+  if (Array.isArray(data.selectedFocusAreas) && data.selectedFocusAreas.length > 0) {
+    sections.push(`Selected areas: ${data.selectedFocusAreas.join(', ')}`);
+  } else {
+    sections.push('No focus areas selected yet');
+  }
+
+  // Step 6: First Week Actions (habits to quit/build, career goals)
+  sections.push('\n## Step 6: First Week Actions & Goals');
+  sections.push(JSON.stringify(data.firstWeekActions, null, 2));
+
+  // Identity Building (from aurora tables)
+  sections.push('\n## Identity Building Elements');
+  sections.push(`Traits: ${data.identityBuilding.traits.map((t: any) => t.content).join(', ') || 'None defined'}`);
+  sections.push(`Values: ${data.identityBuilding.values.map((v: any) => v.content).join(', ') || 'None defined'}`);
+  sections.push(`Principles: ${data.identityBuilding.principles.map((p: any) => p.content).join(', ') || 'None defined'}`);
+
+  // Introspection Form (Step 5 form submission)
+  sections.push('\n## Introspection Form Responses');
   if (data.introspection.analyses?.[0]) {
     sections.push(JSON.stringify(data.introspection.analyses[0].analysis_result, null, 2));
   } else if (data.introspection.submissions?.[0]) {
     sections.push(JSON.stringify(data.introspection.submissions[0].responses, null, 2));
+  } else {
+    sections.push('No introspection form data');
   }
 
+  // Life Plan Form (Step 6 form submission)
   sections.push('\n## Life Plan');
   if (data.lifePlan.direction) {
     sections.push(`Life Direction: ${data.lifePlan.direction.content}`);
@@ -627,7 +717,8 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
     sections.push(JSON.stringify(data.lifePlan.analyses[0].analysis_result, null, 2));
   }
 
-  sections.push('\n## Focus Areas');
+  // Focus Plans
+  sections.push('\n## Focus Plans & Commitments');
   if (data.focusAreas.plans?.length > 0) {
     sections.push('Active Plans:');
     data.focusAreas.plans.forEach((p: any) => {
@@ -640,16 +731,26 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
       sections.push(`- ${m.title} (${m.category || 'general'})`);
     });
   }
+  if (data.focusAreas.commitments?.length > 0) {
+    sections.push('Commitments:');
+    data.focusAreas.commitments.forEach((c: any) => {
+      sections.push(`- ${c.title}: ${c.description || ''}`);
+    });
+  }
 
-  sections.push('\n## First Week Plan');
+  // Existing checklists
+  sections.push('\n## Existing Checklists');
   if (data.firstWeek.checklists?.length > 0) {
     sections.push('Checklists created:');
     data.firstWeek.checklists.forEach((c: any) => {
       sections.push(`- ${c.title}: ${c.aurora_checklist_items?.length || 0} items`);
     });
+  } else {
+    sections.push('No checklists yet');
   }
-  sections.push(JSON.stringify(data.firstWeek.stepData, null, 2));
 
+  console.log('Built analysis prompt with sections:', sections.length);
+  
   return sections.join('\n');
 }
 
