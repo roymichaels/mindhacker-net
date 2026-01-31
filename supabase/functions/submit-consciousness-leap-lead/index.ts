@@ -101,7 +101,7 @@ serve(async (req: Request): Promise<Response> => {
         </p>
         
         <p style="color: #555; font-size: 16px; margin-top: 30px;">
-          דין
+          צוות Mind Hacker
         </p>
       </div>
     `;

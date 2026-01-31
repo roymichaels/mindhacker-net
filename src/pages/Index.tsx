@@ -12,6 +12,7 @@ import {
   JobShowcaseSection,
   WhatIsThisSection,
   AuroraCoachSection,
+  PractitionerShowcaseSection,
   GamificationFeaturesSection,
   FearOfMissingOutSection,
   FinalCTASection,
@@ -89,6 +90,9 @@ const Index = () => {
         
         {/* Aurora AI Coach section */}
         <AuroraCoachSection />
+        
+        {/* Practitioner Marketplace - Human coaches */}
+        <PractitionerShowcaseSection />
         
         {/* Gamification features with XP, levels, streaks */}
         <GamificationFeaturesSection />

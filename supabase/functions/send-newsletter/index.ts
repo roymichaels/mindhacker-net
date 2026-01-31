@@ -122,7 +122,7 @@ serve(async (req: Request): Promise<Response> => {
                 </div>
                 <div class="content">${personalizedContent}</div>
                 <div class="footer">
-                  <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'מיינד האקר - דין אושר אזולאי' : 'Mind Hacker - Dean Osher Azulay'}</p>
+                  <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind Hacker - פלטפורמת התפתחות אישית' : 'Mind Hacker - Personal Development Platform'}</p>
                   <a href="${unsubscribeUrl}" class="unsubscribe">${isRTL ? 'להסרה מרשימת התפוצה' : 'Unsubscribe'}</a>
                 </div>
               </div>

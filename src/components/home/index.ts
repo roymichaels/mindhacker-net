@@ -9,6 +9,7 @@ export { default as AuroraCoachSection } from './AuroraCoachSection';
 export { default as LifeWrappingSection } from './LifeWrappingSection';
 export { default as LifePlanPreviewSection } from './LifePlanPreviewSection';
 export { default as DashboardPreviewSection } from './DashboardPreviewSection';
+export { default as PractitionerShowcaseSection } from './PractitionerShowcaseSection';
 
 // New viral sections
 export { default as TransformationProofSection } from './TransformationProofSection';

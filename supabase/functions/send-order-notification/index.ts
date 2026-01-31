@@ -132,7 +132,7 @@ serve(async (req: Request): Promise<Response> => {
           </div>
           
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">Mind Hacker - Dean Osher Azulay</p>
+            <p style="color: #6b7280; font-size: 14px;">Mind Hacker - Personal Development Platform</p>
           </div>
         </div>
       </body>

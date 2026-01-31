@@ -20,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag, Sparkles } from "lucide-react";
+import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag } from "lucide-react";
 import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
 import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
 import { useSidebarSafe } from "@/components/ui/sidebar";
@@ -33,7 +33,7 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
-import StartChangeModal from "./StartChangeModal";
+
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
@@ -94,7 +94,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(isAdminMode);
-  const [startModalOpen, setStartModalOpen] = useState(false);
+  
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
   const { t, isRTL } = useTranslation();
@@ -244,15 +244,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      {/* Start Change CTA */}
-                      <DropdownMenuItem 
-                        onClick={() => setStartModalOpen(true)}
-                        className="bg-primary/10 text-primary focus:bg-primary/20 focus:text-primary"
-                      >
-                        <Sparkles className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                        {t('header.startChangeNow')}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                         <ShoppingBag className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
                         {t('common.dashboard')}
@@ -380,7 +371,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
         </div>
       </header>
 
-      <StartChangeModal open={startModalOpen} onOpenChange={setStartModalOpen} />
       <AuthModal 
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen} 

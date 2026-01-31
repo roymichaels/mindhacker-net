@@ -62,7 +62,7 @@ serve(async (req: Request): Promise<Response> => {
       <center>
         <a href="${siteUrl}/consciousness-leap" class="cta-button">גלה את קפיצה לתודעה חדשה</a>
       </center>
-      <p style="margin-top: 30px;">במחויבות למסע שלך,<br/><strong style="color: #00f0ff;">דין אושר אזולאי</strong></p>
+      <p style="margin-top: 30px;">במחויבות למסע שלך,<br/><strong style="color: #00f0ff;">צוות Mind Hacker</strong></p>
     `;
 
     // English email content
@@ -76,7 +76,7 @@ serve(async (req: Request): Promise<Response> => {
       <center>
         <a href="${siteUrl}/consciousness-leap" class="cta-button">Discover Consciousness Leap</a>
       </center>
-      <p style="margin-top: 30px;">Committed to your journey,<br/><strong style="color: #00f0ff;">Dean Osher Azulay</strong></p>
+      <p style="margin-top: 30px;">Committed to your journey,<br/><strong style="color: #00f0ff;">Mind Hacker Team</strong></p>
     `;
 
     const emailContent = isRTL ? hebrewContent : englishContent;
@@ -100,7 +100,7 @@ serve(async (req: Request): Promise<Response> => {
           </div>
           <div class="content">${emailContent}</div>
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'מיינד האקר - דין אושר אזולאי' : 'Mind Hacker - Dean Osher Azulay'}</p>
+            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind Hacker - פלטפורמת התפתחות אישית' : 'Mind Hacker - Personal Development Platform'}</p>
           </div>
         </div>
       </body>
