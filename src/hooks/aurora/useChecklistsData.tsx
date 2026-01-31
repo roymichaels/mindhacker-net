@@ -24,6 +24,15 @@ interface Checklist {
   aurora_checklist_items?: ChecklistItem[];
 }
 
+interface Milestone {
+  id: string;
+  week_number: number;
+  title: string;
+  tasks: string[];
+  goal: string;
+  is_completed: boolean;
+}
+
 /**
  * Data-only hook for checklists - no UI dependencies like useAuth or useTranslation.
  * This prevents "Should have a queue" React errors when used inside useAuroraChat.
@@ -32,6 +41,107 @@ interface Checklist {
 export const useChecklistsData = (user: User | null) => {
   const [checklists, setChecklists] = useState<Checklist[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Sync current week's tasks from life plan milestones
+  const syncWeeklyTasks = useCallback(async (userId: string) => {
+    try {
+      // Get active life plan
+      const { data: lifePlan } = await supabase
+        .from('life_plans')
+        .select('id, start_date')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!lifePlan) return;
+
+      // Calculate current week number based on start_date
+      const startDate = new Date(lifePlan.start_date);
+      const today = new Date();
+      const diffTime = today.getTime() - startDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const currentWeek = Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
+
+      // Get current week's milestone
+      const { data: milestone } = await supabase
+        .from('life_plan_milestones')
+        .select('id, week_number, title, tasks, goal, is_completed')
+        .eq('plan_id', lifePlan.id)
+        .eq('week_number', currentWeek)
+        .single();
+
+      // Cast tasks to string array
+      const tasks = Array.isArray(milestone.tasks) ? milestone.tasks as string[] : [];
+      if (!tasks.length) return;
+
+      // Check if weekly checklist already exists and is up to date
+      const weeklyTitle = `📅 שבוע ${currentWeek} - ${milestone.title}`;
+      
+      const { data: existingChecklist } = await supabase
+        .from('aurora_checklists')
+        .select('id, title')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .like('title', `📅 שבוע ${currentWeek}%`)
+        .single();
+
+      // If checklist for current week already exists with same tasks, skip
+      if (existingChecklist) {
+        const { data: existingItems } = await supabase
+          .from('aurora_checklist_items')
+          .select('content')
+          .eq('checklist_id', existingChecklist.id);
+
+        const existingContents = existingItems?.map(i => i.content) || [];
+        const allTasksExist = tasks.every((task: string) => 
+          existingContents.some(c => c === task)
+        );
+
+        if (allTasksExist) return; // Already synced
+      }
+
+      // Archive old weekly checklists (from previous weeks)
+      await supabase
+        .from('aurora_checklists')
+        .update({ status: 'archived' })
+        .eq('user_id', userId)
+        .like('title', '📅 שבוע %')
+        .neq('title', weeklyTitle);
+
+      // Create or update current week's checklist
+      if (!existingChecklist) {
+        const { data: newChecklist } = await supabase
+          .from('aurora_checklists')
+          .insert({
+            user_id: userId,
+            title: weeklyTitle,
+            origin: 'aurora',
+            context: `שבוע ${currentWeek} מתוך תוכנית 90 הימים | יעד: ${milestone.goal}`,
+            status: 'active',
+          })
+          .select()
+          .single();
+
+        if (newChecklist) {
+          // Add tasks as items (use the already-cast tasks variable)
+          const items = tasks.map((task: string, index: number) => ({
+            checklist_id: newChecklist.id,
+            content: task,
+            order_index: index,
+            is_completed: false,
+          }));
+
+          await supabase.from('aurora_checklist_items').insert(items);
+        }
+      }
+
+      console.log(`Synced week ${currentWeek} tasks for user ${userId}`);
+    } catch (error) {
+      console.error('Error syncing weekly tasks:', error);
+    }
+  }, []);
 
   // Fetch checklists
   useEffect(() => {
@@ -42,6 +152,9 @@ export const useChecklistsData = (user: User | null) => {
     }
 
     const fetchChecklists = async () => {
+      // First sync current week's tasks
+      await syncWeeklyTasks(user.id);
+
       const { data, error } = await supabase
         .from('aurora_checklists')
         .select('*, aurora_checklist_items(*)')
@@ -92,7 +205,7 @@ export const useChecklistsData = (user: User | null) => {
       supabase.removeChannel(checklistChannel);
       supabase.removeChannel(itemsChannel);
     };
-  }, [user?.id]);
+  }, [user?.id, syncWeeklyTasks]);
 
   // Create checklist
   const createChecklist = useCallback(async (title: string, origin: 'manual' | 'aurora' = 'manual', context?: string) => {
