@@ -47,7 +47,7 @@ export function PDFScoresPage({ scores, language }: PDFScoresPageProps) {
       style={{ width: '595px', height: '842px', padding: '40px' }}
     >
       {/* Header */}
-      <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+      <h2 className="text-3xl font-bold text-center mb-12 text-violet-300">
         {isRTL ? 'ציוני התודעה שלך' : 'Your Consciousness Scores'}
       </h2>
 
@@ -64,10 +64,12 @@ export function PDFScoresPage({ scores, language }: PDFScoresPageProps) {
             <div className="flex items-center gap-6">
               {/* Score Circle */}
               <div className={cn(
-                "relative w-20 h-20 rounded-full flex items-center justify-center shrink-0",
+                "relative w-20 h-20 rounded-full shrink-0",
                 `bg-gradient-to-br ${item.gradient}`
-              )}>
-                <span className="text-2xl font-bold text-white">{item.value}</span>
+              )}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <span className="text-2xl font-bold text-white" style={{ lineHeight: 1 }}>{item.value}</span>
                 <div className="absolute inset-0 rounded-full bg-white/10 blur-sm" />
               </div>
 

@@ -29,7 +29,7 @@ export function PDFCoverPage({ userName, language }: PDFCoverPageProps) {
       </div>
 
       {/* Title */}
-      <h1 className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold text-center mb-6 text-violet-300">
         {isRTL ? 'פרופיל הטרנספורמציה שלי' : 'My Transformation Profile'}
       </h1>
 

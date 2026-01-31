@@ -14,16 +14,20 @@ interface LaunchpadSummary {
   transformation_readiness: number;
 }
 
+interface LifePlanMilestone {
+  week_number: number;
+  title?: string;
+  goal?: string;
+  tasks?: string[];
+  challenge?: string; // DB field name
+  weekly_challenge?: string; // Alternative name
+  hypnosis_recommendation?: string;
+}
+
 interface LifePlan {
-  title: string;
-  life_plan_milestones: Array<{
-    week_number: number;
-    title?: string;
-    goal?: string;
-    tasks?: string[];
-    weekly_challenge?: string;
-    hypnosis_recommendation?: string;
-  }>;
+  id: string;
+  plan_data?: Record<string, unknown>;
+  life_plan_milestones: LifePlanMilestone[];
 }
 
 // Helper function to wait for DOM to be ready
@@ -85,7 +89,7 @@ export function useProfilePDF() {
       // Fetch plan + milestones
       const { data: plan } = await supabase
         .from('life_plans')
-        .select('title, life_plan_milestones(*)')
+        .select('id, plan_data, life_plan_milestones(*)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -94,6 +98,20 @@ export function useProfilePDF() {
       const userName = profile?.full_name || user.email?.split('@')[0] || 'User';
       const summaryData = summary.summary_data as Record<string, unknown>;
       const typedPlan = plan as unknown as LifePlan | null;
+
+      // Map milestones and normalize the weekly_challenge field
+      const milestones = (typedPlan?.life_plan_milestones || []).map(m => ({
+        week_number: m.week_number,
+        title: m.title,
+        goal: m.goal,
+        tasks: m.tasks,
+        weekly_challenge: m.weekly_challenge || m.challenge, // Handle both field names
+        hypnosis_recommendation: m.hypnosis_recommendation,
+      }));
+
+      // Extract plan title from plan_data or use default
+      const planData = typedPlan?.plan_data as Record<string, unknown> | undefined;
+      const planTitle = (planData?.title as string) || (language === 'he' ? 'תוכנית הטרנספורמציה שלך' : 'Your Transformation Plan');
 
       return {
         userName,
@@ -109,8 +127,8 @@ export function useProfilePDF() {
           clarity: summary.clarity_score || 0,
           readiness: summary.transformation_readiness || 0,
         },
-        milestones: typedPlan?.life_plan_milestones || [],
-        planTitle: typedPlan?.title,
+        milestones,
+        planTitle,
         language,
       };
     } catch (error) {
