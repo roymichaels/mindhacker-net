@@ -340,20 +340,33 @@ function blendHSL(colors: { hsl: string; weight: number }[]): string {
 function blendColors(
   weights: { id: ArchetypeId; weight: number }[]
 ): ArchetypeColors {
-  const primaryColors = weights.map(({ id, weight }) => ({
-    hsl: ARCHETYPES[id].colors.primary,
-    weight,
-  }));
+  // Use only top 2 archetypes for cleaner color identity (no pink blending!)
+  const top2 = weights.slice(0, 2);
   
-  const secondaryColors = weights.map(({ id, weight }) => ({
-    hsl: ARCHETYPES[id].colors.secondary,
-    weight,
-  }));
+  // If only 1 archetype, use it 100%
+  if (top2.length === 1) {
+    const archetype = ARCHETYPES[top2[0].id];
+    return { ...archetype.colors };
+  }
   
-  const accentColors = weights.map(({ id, weight }) => ({
-    hsl: ARCHETYPES[id].colors.accent,
-    weight,
-  }));
+  // Dominant archetype gets 70%, secondary gets 30%
+  const dominantWeight = 0.7;
+  const secondaryWeight = 0.3;
+  
+  const primaryColors = [
+    { hsl: ARCHETYPES[top2[0].id].colors.primary, weight: dominantWeight },
+    { hsl: ARCHETYPES[top2[1].id].colors.primary, weight: secondaryWeight },
+  ];
+  
+  const secondaryColors = [
+    { hsl: ARCHETYPES[top2[0].id].colors.secondary, weight: dominantWeight },
+    { hsl: ARCHETYPES[top2[1].id].colors.secondary, weight: secondaryWeight },
+  ];
+  
+  const accentColors = [
+    { hsl: ARCHETYPES[top2[0].id].colors.accent, weight: dominantWeight },
+    { hsl: ARCHETYPES[top2[1].id].colors.accent, weight: secondaryWeight },
+  ];
   
   return {
     primary: blendHSL(primaryColors),

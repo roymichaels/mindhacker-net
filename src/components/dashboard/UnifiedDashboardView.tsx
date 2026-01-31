@@ -38,6 +38,7 @@ import {
   ConsciousnessCard,
   BehavioralInsightsCard,
   OrbHeroSection,
+  CharacterHUD,
 } from './unified';
 import LifePlanCard from './unified/LifePlanCard';
 
@@ -71,27 +72,13 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
         className={cn("space-y-4", className)}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Personalized Orb Hero - Top of Dashboard */}
-        <OrbHeroSection
+        {/* MapleStory-style Character HUD - Compact with Orb, XP, Stats */}
+        <CharacterHUD
           identityTitle={dashboard.identityTitle}
-          egoState={dashboard.egoState}
-          compact
-        />
-
-        {/* XP Progress */}
-        <XpProgressSection
           level={dashboard.level}
-          current={dashboard.xpProgress.current}
-          required={dashboard.xpProgress.required}
-          percentage={dashboard.xpProgress.percentage}
-        />
-
-        {/* Stats Bar */}
-        <StatsBar
+          xp={dashboard.xpProgress}
           streak={dashboard.streak}
           tokens={dashboard.tokens}
-          sessions={dashboard.totalSessions}
-          level={dashboard.level}
         />
 
         {/* Edit Profile Button */}
@@ -268,32 +255,19 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       className={cn("space-y-4", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* Personalized Orb Hero - Top of Dashboard */}
-      <OrbHeroSection
+      {/* MapleStory-style Character HUD */}
+      <CharacterHUD
         identityTitle={dashboard.identityTitle}
-        egoState={dashboard.egoState}
+        level={dashboard.level}
+        xp={dashboard.xpProgress}
+        streak={dashboard.streak}
+        tokens={dashboard.tokens}
       />
 
       {/* Launchpad Progress (if not complete) */}
       {!isLaunchpadComplete && (
         <LaunchpadProgress compact />
       )}
-
-      {/* XP Progress - Full Width */}
-      <XpProgressSection
-        level={dashboard.level}
-        current={dashboard.xpProgress.current}
-        required={dashboard.xpProgress.required}
-        percentage={dashboard.xpProgress.percentage}
-      />
-
-      {/* Stats Bar */}
-      <StatsBar
-        streak={dashboard.streak}
-        tokens={dashboard.tokens}
-        sessions={dashboard.totalSessions}
-        level={dashboard.level}
-      />
 
       {/* Ego State */}
       <EgoStateDisplay

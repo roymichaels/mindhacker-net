@@ -13,3 +13,4 @@ export { LaunchpadSummaryCard } from './LaunchpadSummaryCard';
 export { ConsciousnessCard } from './ConsciousnessCard';
 export { BehavioralInsightsCard } from './BehavioralInsightsCard';
 export { OrbHeroSection } from './OrbHeroSection';
+export { CharacterHUD } from './CharacterHUD';
