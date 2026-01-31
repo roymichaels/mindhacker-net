@@ -59,8 +59,8 @@ interface ProfilePDFRendererProps {
   data: ProfilePDFData;
 }
 
-// Split milestones into chunks that fit on a page (4 milestones per page)
-const MILESTONES_PER_PAGE = 4;
+// Split milestones into chunks that fit on a page (3 milestones per page for better spacing)
+const MILESTONES_PER_PAGE = 3;
 
 export const ProfilePDFRenderer = forwardRef<HTMLDivElement, ProfilePDFRendererProps>(
   ({ data }, ref) => {
