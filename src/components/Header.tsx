@@ -40,7 +40,7 @@ import { ProductColorClasses } from "@/lib/productColors";
 
 
 // Default logo from public folder - new orb logo
-const defaultLogo = "/logo.png?v=8";
+const defaultLogo = "/logo.png?v=9";
 
 export interface HeaderProps {
   variant?: "public" | "admin";

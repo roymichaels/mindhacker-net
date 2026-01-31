@@ -50,7 +50,7 @@ const MessageThread = () => {
     return <AuroraMessageThread conversationId="ai" />;
   }
 
-  const logoUrl = theme.logo_url || "/logo.png?v=6";
+  const logoUrl = theme.logo_url || "/logo.png?v=9";
 
   // Get conversation details
   const { data: conversation } = useQuery({

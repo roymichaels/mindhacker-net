@@ -9,7 +9,7 @@ import { Loader2, Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
-const defaultLogo = "/logo.png?v=6";
+const defaultLogo = "/logo.png?v=9";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
