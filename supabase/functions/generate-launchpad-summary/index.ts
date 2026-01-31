@@ -280,7 +280,105 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Mark launchpad as complete with PROPER scores
+    // Insert self-concepts from strengths and growth edges
+    console.log('Populating self_concepts...');
+    const selfConceptSources = [
+      ...(summary.consciousness_analysis?.strengths || []).slice(0, 2),
+      ...(summary.consciousness_analysis?.growth_edges || []).slice(0, 1),
+    ];
+    for (const concept of selfConceptSources) {
+      await supabase.from('aurora_identity_elements').insert({
+        user_id: userId,
+        element_type: 'self_concept',
+        content: concept,
+        metadata: { source: 'launchpad_summary' },
+      });
+    }
+
+    // 3. Create life vision from the analysis
+    console.log('Populating aurora_life_visions...');
+    
+    // Clear existing launchpad-generated visions
+    await supabase
+      .from('aurora_life_visions')
+      .delete()
+      .eq('user_id', userId)
+      .contains('focus_areas', ['launchpad_generated']);
+
+    // Create a 5-year vision from the summary
+    if (summary.life_direction?.vision_summary) {
+      await supabase.from('aurora_life_visions').insert({
+        user_id: userId,
+        timeframe: '5_year',
+        title: summary.transformation_potential?.primary_focus || summary.life_direction?.core_aspiration?.slice(0, 50) || 'חזון אישי',
+        description: summary.life_direction.vision_summary,
+        focus_areas: ['launchpad_generated', summary.transformation_potential?.primary_focus, summary.transformation_potential?.secondary_focus].filter(Boolean),
+      });
+    }
+
+    // 4. Create commitments from first week actions  
+    console.log('Populating aurora_commitments...');
+    
+    // Clear existing launchpad-generated commitments
+    await supabase
+      .from('aurora_commitments')
+      .delete()
+      .eq('user_id', userId)
+      .eq('status', 'active');
+
+    // Get the first week actions from launchpad progress
+    const { data: progressData } = await supabase
+      .from('launchpad_progress')
+      .select('step_6_actions')
+      .eq('user_id', userId)
+      .single();
+
+    const step6Actions = progressData?.step_6_actions as Record<string, unknown> | null;
+    
+    // Create commitments from habits to build
+    const habitsToBuilld = step6Actions?.habits_to_build as string[] || [];
+    for (const habit of habitsToBuilld.slice(0, 3)) {
+      await supabase.from('aurora_commitments').insert({
+        user_id: userId,
+        title: habit,
+        description: `הרגל חדש מתוך מסע הטרנספורמציה`,
+        status: 'active',
+      });
+    }
+
+    // Create commitment for career goal if exists
+    const careerGoal = step6Actions?.career_goal as string;
+    if (careerGoal) {
+      await supabase.from('aurora_commitments').insert({
+        user_id: userId,
+        title: careerGoal,
+        description: `יעד קריירה מתוך מסע הטרנספורמציה`,
+        status: 'active',
+      });
+    }
+
+    // 5. Create daily anchors from habits to cultivate
+    console.log('Populating aurora_daily_minimums...');
+    
+    // Clear existing launchpad-generated anchors
+    await supabase
+      .from('aurora_daily_minimums')
+      .delete()
+      .eq('user_id', userId)
+      .eq('is_active', true);
+
+    // Create daily anchors from habits to cultivate
+    const habitsToCultivate = summary.behavioral_insights?.habits_to_cultivate || [];
+    for (const habit of habitsToCultivate.slice(0, 3)) {
+      await supabase.from('aurora_daily_minimums').insert({
+        user_id: userId,
+        title: habit,
+        category: 'habit',
+        is_active: true,
+      });
+    }
+
+    // 6. Mark launchpad as complete with PROPER scores
     console.log('Updating aurora_onboarding_progress...');
     await supabase
       .from('aurora_onboarding_progress')
@@ -293,7 +391,7 @@ Deno.serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
-    console.log('Life Model tables populated successfully');
+    console.log('Life Model tables fully populated!');
 
     return new Response(JSON.stringify({
       success: true,
