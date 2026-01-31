@@ -39,7 +39,7 @@ import { ProductColorClasses } from "@/lib/productColors";
 import { PersonalizedOrb } from "@/components/orb";
 
 // Default logo from public folder - new orb logo
-const defaultLogo = "/icons/icon-96x96.png?v=4";
+const defaultLogo = "/logo.png?v=5";
 
 export interface HeaderProps {
   variant?: "public" | "admin";

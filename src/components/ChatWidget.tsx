@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
 // Default logo from public folder (new orb logo)
-const defaultLogo = "/icons/icon-96x96.png?v=4";
+const defaultLogo = "/logo.png?v=5";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
