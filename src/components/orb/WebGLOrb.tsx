@@ -228,60 +228,76 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Lights (required for physical materials) - enhanced for vibrant glow
-    const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+    // Lights (required for physical materials) - SUPER vibrant glow
+    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     keyLight.position.set(2.5, 2.0, 3.5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(colors.accent), 1.4);
+    const rimLight = new THREE.DirectionalLight(parseHslToThreeColor(colors.accent), 1.8);
     rimLight.position.set(-3.0, -1.5, -2.5);
     scene.add(rimLight);
 
-    const pointLight = new THREE.PointLight(parseHslToThreeColor(colors.glow || colors.primary), 1.8, 15);
+    const pointLight = new THREE.PointLight(parseHslToThreeColor(colors.glow || colors.primary), 2.5, 18);
     pointLight.position.set(0, 0, 3.0);
     scene.add(pointLight);
 
-    // Secondary color point light for iridescence effect
-    const secondaryPointLight = new THREE.PointLight(parseHslToThreeColor(colors.secondary), 1.2, 10);
+    // Secondary color point light for iridescence effect - brighter
+    const secondaryPointLight = new THREE.PointLight(parseHslToThreeColor(colors.secondary), 1.8, 12);
     secondaryPointLight.position.set(-2.0, 1.5, 2.0);
     scene.add(secondaryPointLight);
 
-    // Accent rim from below for depth
-    const bottomRim = new THREE.DirectionalLight(parseHslToThreeColor(colors.primary), 0.8);
+    // Accent rim from below for depth - stronger
+    const bottomRim = new THREE.DirectionalLight(parseHslToThreeColor(colors.primary), 1.2);
     bottomRim.position.set(0, -3.0, 1.0);
     scene.add(bottomRim);
 
-    // Create outer glow sphere first (behind everything) - MORE VIBRANT
-    const outerGlowGeometry = new THREE.SphereGeometry(1.25, 32, 32);
+    // Front accent light for color pop
+    const frontAccent = new THREE.PointLight(parseHslToThreeColor(colors.accent), 1.5, 10);
+    frontAccent.position.set(0, 0.5, 4.5);
+    scene.add(frontAccent);
+
+    // Create outer glow sphere first (behind everything) - ULTRA VIBRANT
+    const outerGlowGeometry = new THREE.SphereGeometry(1.35, 32, 32);
     const outerGlowMaterial = new THREE.MeshBasicMaterial({
       color: parseHslToThreeColor(colors.primary),
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.32,
       side: THREE.BackSide,
     });
     const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
     scene.add(outerGlow);
 
-    // Secondary outer glow for color richness
-    const outerGlow2Geometry = new THREE.SphereGeometry(1.18, 32, 32);
+    // Secondary outer glow for color richness - stronger
+    const outerGlow2Geometry = new THREE.SphereGeometry(1.25, 32, 32);
     const outerGlow2Material = new THREE.MeshBasicMaterial({
       color: parseHslToThreeColor(colors.accent),
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.28,
       side: THREE.BackSide,
     });
     const outerGlow2 = new THREE.Mesh(outerGlow2Geometry, outerGlow2Material);
     scene.add(outerGlow2);
 
-    // Create ambient atmosphere layer - brighter
-    const atmosphereGeometry = new THREE.SphereGeometry(1.05, 32, 32);
+    // Tertiary outer glow - secondary color halo
+    const outerGlow3Geometry = new THREE.SphereGeometry(1.15, 32, 32);
+    const outerGlow3Material = new THREE.MeshBasicMaterial({
+      color: parseHslToThreeColor(colors.secondary),
+      transparent: true,
+      opacity: 0.22,
+      side: THREE.BackSide,
+    });
+    const outerGlow3 = new THREE.Mesh(outerGlow3Geometry, outerGlow3Material);
+    scene.add(outerGlow3);
+
+    // Create ambient atmosphere layer - brighter and thicker
+    const atmosphereGeometry = new THREE.SphereGeometry(1.08, 32, 32);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: parseHslToThreeColor(colors.accent),
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.35,
       side: THREE.BackSide,
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
@@ -376,55 +392,55 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // Inner core glow sphere - SUPER VIBRANT and colorful
+    // Inner core glow sphere - ULTRA VIBRANT and intensely glowing
     if (showGlow) {
-      // Primary core glow - larger and more intense
-      const glowGeometry = new THREE.SphereGeometry(coreSize * 1.8, 32, 32);
+      // Primary core glow - MASSIVE and ultra intense
+      const glowGeometry = new THREE.SphereGeometry(coreSize * 2.2, 32, 32);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.glow || colors.accent),
         transparent: true,
-        opacity: coreIntensity * 0.85,
+        opacity: coreIntensity * 1.0,
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       scene.add(glowMesh);
       coreRef.current = glowMesh;
 
-      // Secondary bright inner core for depth - hot white center
-      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 0.9, 24, 24);
+      // Bright hot white center - super intense
+      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 1.0, 24, 24);
       const innerCoreMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(0xffffff),
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.9,
       });
       const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial);
       scene.add(innerCore);
 
-      // Tertiary accent core - vibrant color ring
-      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.3, 24, 24);
+      // Vibrant accent core ring - brighter
+      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.5, 24, 24);
       const accentCoreMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.accent),
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.7,
       });
       const accentCore = new THREE.Mesh(accentCoreGeometry, accentCoreMaterial);
       scene.add(accentCore);
 
-      // Fourth layer - secondary color glow for richness
-      const secondaryGlowGeometry = new THREE.SphereGeometry(coreSize * 1.55, 24, 24);
+      // Secondary color glow - richer
+      const secondaryGlowGeometry = new THREE.SphereGeometry(coreSize * 1.8, 24, 24);
       const secondaryGlowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.secondary),
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.55,
       });
       const secondaryGlow = new THREE.Mesh(secondaryGlowGeometry, secondaryGlowMaterial);
       scene.add(secondaryGlow);
 
-      // Fifth layer - primary color outer aura
-      const primaryAuraGeometry = new THREE.SphereGeometry(coreSize * 2.0, 24, 24);
+      // Primary color outer aura - more visible
+      const primaryAuraGeometry = new THREE.SphereGeometry(coreSize * 2.4, 24, 24);
       const primaryAuraMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.primary),
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.45,
       });
       const primaryAura = new THREE.Mesh(primaryAuraGeometry, primaryAuraMaterial);
       scene.add(primaryAura);
