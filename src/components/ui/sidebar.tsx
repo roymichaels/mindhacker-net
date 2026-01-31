@@ -40,6 +40,11 @@ function useSidebar() {
   return context;
 }
 
+// Safe version that doesn't throw - returns null if not in provider
+function useSidebarSafe() {
+  return React.useContext(SidebarContext);
+}
+
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -634,4 +639,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  useSidebarSafe,
 };

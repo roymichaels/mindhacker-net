@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings, ShoppingBag, Sparkles, Globe, Home, PanelLeft, Sun, Moon, User, Menu } from "lucide-react";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
@@ -46,10 +46,11 @@ export interface HeaderProps {
   brandColors?: ProductColorClasses;
 }
 
-// Sidebar toggle component that uses the sidebar context
+// Sidebar toggle component that safely uses the sidebar context
 const SidebarToggle = () => {
-  const sidebar = useSidebar();
+  const sidebar = useSidebarSafe();
   
+  // If not inside a SidebarProvider, don't render the toggle
   if (!sidebar) return null;
   
   return (
