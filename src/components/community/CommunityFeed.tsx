@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PostCard from './PostCard';
 import PostEditor from './PostEditor';
 import CategoryFilter from './CategoryFilter';
+import CommunityNavTabs from './CommunityNavTabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
@@ -143,6 +144,9 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
 
       {/* Posts with Filter */}
       <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+        {/* Navigation Tabs inside posts container */}
+        <CommunityNavTabs />
+        
         <CategoryFilter 
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}

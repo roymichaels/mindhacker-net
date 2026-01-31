@@ -4,7 +4,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import CommunityFeed from '@/components/community/CommunityFeed';
-import CommunityNavTabs from '@/components/community/CommunityNavTabs';
 import { useSEO } from '@/hooks/useSEO';
 
 const Community = () => {
@@ -36,16 +35,13 @@ const Community = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Community Navigation Tabs */}
-        <CommunityNavTabs />
-        
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
           <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
         </div>
         
-        {/* Feed Content */}
+        {/* Feed Content (includes NavTabs) */}
         <CommunityFeed />
       </div>
     </DashboardLayout>

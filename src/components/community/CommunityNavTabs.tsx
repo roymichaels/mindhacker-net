@@ -23,7 +23,7 @@ const CommunityNavTabs = () => {
 
   return (
     <div className={cn(
-      "w-full bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden",
+      "w-full border-b border-border/50",
       isRTL && "rtl"
     )}>
       <div className="flex">
