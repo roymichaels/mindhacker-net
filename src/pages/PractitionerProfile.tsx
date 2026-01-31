@@ -76,7 +76,7 @@ const PractitionerProfile = () => {
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
       
-      <main className="pt-16">
+      <main>
         <PractitionerHero practitioner={practitioner} />
         <PractitionerAbout practitioner={practitioner} />
         <PractitionerSpecialties practitioner={practitioner} />
