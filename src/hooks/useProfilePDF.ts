@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
-import { generateProfilePDF } from '@/lib/profilePdfGenerator';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import type { ProfilePDFData } from '@/components/pdf/ProfilePDFRenderer';
 
 interface LaunchpadSummary {
   summary_data: Record<string, unknown>;
@@ -26,16 +28,17 @@ interface LifePlan {
 
 export function useProfilePDF() {
   const { user } = useAuth();
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
   const [generating, setGenerating] = useState(false);
+  const [pdfData, setPdfData] = useState<ProfilePDFData | null>(null);
+  const [showRenderer, setShowRenderer] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  async function downloadPDF() {
+  const fetchData = useCallback(async (): Promise<ProfilePDFData | null> => {
     if (!user?.id) {
       toast.error(language === 'he' ? 'נא להתחבר תחילה' : 'Please log in first');
-      return;
+      return null;
     }
-
-    setGenerating(true);
 
     try {
       // Fetch profile for user name
@@ -58,8 +61,7 @@ export function useProfilePDF() {
             ? 'לא נמצאו נתוני פרופיל. יש להשלים את Launchpad תחילה.' 
             : 'No profile data found. Please complete the Launchpad first.'
         );
-        setGenerating(false);
-        return;
+        return null;
       }
 
       // Fetch plan + milestones
@@ -72,13 +74,10 @@ export function useProfilePDF() {
         .single();
 
       const userName = profile?.full_name || user.email?.split('@')[0] || 'User';
-      
-      // Type assertion for summary_data
       const summaryData = summary.summary_data as Record<string, unknown>;
       const typedPlan = plan as unknown as LifePlan | null;
 
-      // Generate PDF
-      await generateProfilePDF({
+      return {
         userName,
         summary: {
           life_direction: summaryData?.life_direction as ProfilePDFData['summary']['life_direction'],
@@ -95,7 +94,99 @@ export function useProfilePDF() {
         milestones: typedPlan?.life_plan_milestones || [],
         planTitle: typedPlan?.title,
         language,
+      };
+    } catch (error) {
+      console.error('Error fetching PDF data:', error);
+      toast.error(
+        language === 'he' 
+          ? 'שגיאה בטעינת הנתונים' 
+          : 'Error loading data'
+      );
+      return null;
+    }
+  }, [user, language]);
+
+  const capturePDF = useCallback(async () => {
+    const container = containerRef.current;
+    if (!container) {
+      throw new Error('PDF container not ready');
+    }
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+
+    // Get all page elements
+    const pageElements = container.querySelectorAll('[data-page]');
+    
+    for (let i = 0; i < pageElements.length; i++) {
+      const pageEl = pageElements[i] as HTMLElement;
+      
+      if (i > 0) {
+        pdf.addPage();
+      }
+
+      // Capture with html2canvas
+      const canvas = await html2canvas(pageEl, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#0f0f14',
+        logging: false,
       });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / (imgWidth / 2), pdfHeight / (imgHeight / 2));
+      
+      const scaledWidth = (imgWidth / 2) * ratio;
+      const scaledHeight = (imgHeight / 2) * ratio;
+      const x = (pdfWidth - scaledWidth) / 2;
+
+      pdf.addImage(imgData, 'JPEG', x, 0, scaledWidth, scaledHeight);
+    }
+
+    return pdf;
+  }, []);
+
+  const downloadPDF = useCallback(async () => {
+    if (!user?.id) {
+      toast.error(language === 'he' ? 'נא להתחבר תחילה' : 'Please log in first');
+      return;
+    }
+
+    setGenerating(true);
+
+    try {
+      // Step 1: Fetch data
+      const data = await fetchData();
+      if (!data) {
+        setGenerating(false);
+        return;
+      }
+
+      // Step 2: Set data and show renderer
+      setPdfData(data);
+      setShowRenderer(true);
+
+      // Step 3: Wait for render then capture
+      // Small delay to ensure DOM is rendered
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const pdf = await capturePDF();
+      
+      // Step 4: Save PDF with Hebrew-friendly filename
+      const fileName = language === 'he' 
+        ? `פרופיל_טרנספורמציה_${data.userName}.pdf`
+        : `transformation_profile_${data.userName}.pdf`;
+      
+      pdf.save(fileName);
 
       toast.success(
         language === 'he' 
@@ -111,41 +202,16 @@ export function useProfilePDF() {
       );
     } finally {
       setGenerating(false);
+      setShowRenderer(false);
+      setPdfData(null);
     }
-  }
+  }, [user, language, fetchData, capturePDF]);
 
-  return { downloadPDF, generating };
-}
-
-// Type for the PDF generator
-interface ProfilePDFData {
-  summary: {
-    life_direction?: {
-      central_aspiration?: string;
-      vision_summary?: string;
-      clarity_score?: number;
-    };
-    consciousness_analysis?: {
-      current_state?: string;
-      dominant_patterns?: string[];
-      strengths?: string[];
-      growth_edges?: string[];
-      blind_spots?: string[];
-    };
-    identity_profile?: {
-      suggested_ego_state?: string[];
-      dominant_traits?: string[];
-      values_hierarchy?: string[];
-    };
-    behavioral_insights?: {
-      habits_to_break?: string[];
-      habits_to_develop?: string[];
-      resistance_patterns?: string[];
-    };
-    career_path?: {
-      current_status?: string;
-      aspirations?: string[];
-      next_steps?: string[];
-    };
+  return { 
+    downloadPDF, 
+    generating, 
+    containerRef, 
+    pdfData, 
+    showRenderer 
   };
 }
