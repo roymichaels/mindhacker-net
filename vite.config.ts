@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
       filename: "custom-sw.js",
       registerType: "autoUpdate",
       injectRegister: false, // Disable auto-inject to defer SW registration
-      includeAssets: ["icons/*", "robots.txt", "sitemap.xml"],
+      includeAssets: ["robots.txt", "sitemap.xml", "*.png"],
       manifest: {
         name: "מיינד האקר - אימון תודעתי עמוק",
         short_name: "מיינד האקר",
