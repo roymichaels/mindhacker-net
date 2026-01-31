@@ -3,7 +3,7 @@ import { User } from "lucide-react";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 
 // Default logo from public folder (new orb logo)
-const defaultLogo = "/logo.png?v=5";
+const defaultLogo = "/logo.png?v=6";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
