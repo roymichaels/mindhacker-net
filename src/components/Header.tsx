@@ -36,7 +36,8 @@ import StartChangeModal from "./StartChangeModal";
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
-import { PersonalizedOrb } from "@/components/orb";
+import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
+import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
 
 
 // Default logo from public folder - new orb logo
@@ -102,6 +103,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const { theme: brandTheme } = useThemeSettings();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  
+  // Get multi-thread orb profile for avatar
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   // Get brand name from theme settings based on language
   const brandName = isRTL ? brandTheme.brand_name : brandTheme.brand_name_en;
@@ -219,11 +223,11 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
-                      {/* Personalized Orb Avatar */}
-                      <PersonalizedOrb 
+                      {/* MultiThread Orb Avatar - same as dashboard */}
+                      <MultiThreadOrb 
                         size={56}
-                        state="idle"
                         showGlow={false}
+                        profile={orbProfile}
                       />
                     </Button>
                   </DropdownMenuTrigger>
