@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 interface IdentityElement {
   id: string;
   user_id: string;
-  element_type: 'value' | 'principle' | 'self_concept' | 'vision_statement' | 'character_trait';
+  element_type: 'value' | 'principle' | 'self_concept' | 'vision_statement' | 'character_trait' | 'identity_title' | 'ai_archetype' | 'role_model';
   content: string;
   metadata: Record<string, unknown>;
   created_at: string;
@@ -88,6 +88,12 @@ export const useDashboard = () => {
   const selfConcepts = identityElements.filter((e) => e.element_type === 'self_concept');
   const visionStatements = identityElements.filter((e) => e.element_type === 'vision_statement');
   const characterTraits = identityElements.filter((e) => e.element_type === 'character_trait');
+  const identityTitleElement = identityElements.find((e) => e.element_type === 'identity_title');
+  const identityTitle = identityTitleElement ? {
+    title: identityTitleElement.content,
+    titleEn: (identityTitleElement.metadata as Record<string, unknown>)?.title_en as string || identityTitleElement.content,
+    icon: (identityTitleElement.metadata as Record<string, unknown>)?.icon as string || '🎯',
+  } : null;
 
   const fiveYearVision = lifeVisions.find((v) => v.timeframe === '5_year') || null;
   const tenYearVision = lifeVisions.find((v) => v.timeframe === '10_year') || null;
@@ -131,6 +137,7 @@ export const useDashboard = () => {
     selfConcepts,
     visionStatements,
     characterTraits,
+    identityTitle,
     fiveYearVision,
     tenYearVision,
     activeCommitments,

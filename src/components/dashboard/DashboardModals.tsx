@@ -91,9 +91,14 @@ interface IdentityModalProps extends DashboardModalProps {
   values: string[];
   principles: string[];
   selfConcepts: string[];
+  identityTitle?: {
+    title: string;
+    titleEn: string;
+    icon: string;
+  } | null;
 }
 
-export function IdentityModal({ open, onOpenChange, language, values, principles, selfConcepts }: IdentityModalProps) {
+export function IdentityModal({ open, onOpenChange, language, values, principles, selfConcepts, identityTitle }: IdentityModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
@@ -102,7 +107,12 @@ export function IdentityModal({ open, onOpenChange, language, values, principles
             {language === 'he' ? 'פרופיל זהות' : 'Identity Profile'}
           </DialogTitle>
         </DialogHeader>
-        <IdentityProfileCard values={values} principles={principles} selfConcepts={selfConcepts} />
+        <IdentityProfileCard 
+          values={values} 
+          principles={principles} 
+          selfConcepts={selfConcepts} 
+          identityTitle={identityTitle}
+        />
       </DialogContent>
     </Dialog>
   );

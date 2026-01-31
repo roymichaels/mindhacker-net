@@ -151,6 +151,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
           values={dashboard.values}
           principles={dashboard.principles}
           selfConcepts={dashboard.selfConcepts}
+          identityTitle={dashboard.identityTitle}
         />
         <TraitsModal 
           open={activeModal === 'traits'} 
@@ -329,6 +330,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
             values={dashboard.values}
             principles={dashboard.principles}
             selfConcepts={dashboard.selfConcepts}
+            identityTitle={dashboard.identityTitle}
           />
 
           {/* Character Traits */}
