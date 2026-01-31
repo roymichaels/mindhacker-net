@@ -11,6 +11,8 @@ interface GrowthDeepDiveStepProps {
   isCompleting?: boolean;
   rewards?: { xp: number; tokens: number; unlock: string };
   previousAnswers?: Record<string, unknown>;
+  savedData?: { answers?: Record<string, string[]>; currentAreaIndex?: number };
+  onAutoSave?: (data: { answers: Record<string, string[]>; currentAreaIndex: number }) => void;
 }
 
 // Follow-up questions for each growth area
@@ -195,14 +197,16 @@ export function GrowthDeepDiveStep({
   onComplete, 
   isCompleting, 
   rewards,
-  previousAnswers 
+  previousAnswers,
+  savedData,
+  onAutoSave,
 }: GrowthDeepDiveStepProps) {
   const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
   
   const [selectedGrowthAreas, setSelectedGrowthAreas] = useState<string[]>([]);
-  const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [currentAreaIndex, setCurrentAreaIndex] = useState(savedData?.currentAreaIndex || 0);
+  const [answers, setAnswers] = useState<Record<string, string[]>>(savedData?.answers || {});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiInsight, setAiInsight] = useState<string | null>(null);
 
@@ -214,6 +218,13 @@ export function GrowthDeepDiveStep({
       setSelectedGrowthAreas(areas.filter(a => a !== 'other').slice(0, 5)); // Max 5 areas for deep dive
     }
   }, [previousAnswers]);
+
+  // Auto-save when answers or currentAreaIndex change
+  useEffect(() => {
+    if (Object.keys(answers).length > 0 && onAutoSave) {
+      onAutoSave({ answers, currentAreaIndex });
+    }
+  }, [answers, currentAreaIndex, onAutoSave]);
 
   const currentArea = selectedGrowthAreas[currentAreaIndex];
   const followUp = FOLLOW_UP_QUESTIONS[currentArea] || FOLLOW_UP_QUESTIONS.default;

@@ -169,9 +169,24 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
           />
         );
       case 3:
-        return <GrowthDeepDiveStep key={`step-3-${viewingStep ?? 'current'}`} {...stepProps} previousAnswers={profileData || undefined} />;
+        return (
+          <GrowthDeepDiveStep 
+            key={`step-3-${viewingStep ?? 'current'}`} 
+            {...stepProps} 
+            previousAnswers={profileData || launchpadData?.personalProfile as Record<string, unknown> || undefined}
+            savedData={getSavedData(3) as { answers?: Record<string, string[]>; currentAreaIndex?: number } | undefined}
+            onAutoSave={(data) => handleAutoSave(3, data)}
+          />
+        );
       case 4:
-        return <FirstChatStep key={`step-4-${viewingStep ?? 'current'}`} {...stepProps} />;
+        return (
+          <FirstChatStep 
+            key={`step-4-${viewingStep ?? 'current'}`} 
+            {...stepProps}
+            savedData={getSavedData(4) as { messages?: Array<{ role: 'user' | 'assistant'; content: string }>; questionIndex?: number; answers?: string[]; isComplete?: boolean } | undefined}
+            onAutoSave={(data) => handleAutoSave(4, data)}
+          />
+        );
       case 5:
         return <IntrospectionStep key={`step-5-${viewingStep ?? 'current'}`} {...stepProps} />;
       case 6:
