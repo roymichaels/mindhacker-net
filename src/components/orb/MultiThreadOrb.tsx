@@ -316,6 +316,11 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
           const z = basePositions[idx + 2];
           
           const dist = Math.sqrt(x * x + y * y + z * z);
+          // Guard against division by zero / invalid geometry values (prevents NaN boundingSphere)
+          if (!Number.isFinite(dist) || dist === 0) {
+            positions.setXYZ(i, x, y, z);
+            continue;
+          }
           
           // Noise-based deformation
           const noiseVal = noise3D(
