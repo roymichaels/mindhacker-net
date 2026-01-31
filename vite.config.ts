@@ -15,13 +15,10 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: false,
-      strategies: "generateSW",
-      includeAssets: ["robots.txt", "sitemap.xml", "*.png"],
       manifest: {
         name: "מיינד האקר - אימון תודעתי עמוק",
         short_name: "מיינד האקר",
-        description: "אימון תודעתי עמוק עם דין אזולאי - שחרר דפוסים מגבילים וצור שינוי אמיתי",
+        description: "אימון תודעתי עמוק עם דין אזולאי",
         theme_color: "#00f0ff",
         background_color: "#0a0a0f",
         display: "standalone",
@@ -29,53 +26,18 @@ export default defineConfig(({ mode }) => ({
         dir: "rtl",
         lang: "he",
         start_url: "/",
-        scope: "/",
-        categories: ["health", "lifestyle", "education"],
         icons: [
           {
             src: "/pwa-192x192.png",
             sizes: "192x192",
-            type: "image/png",
-            purpose: "any"
+            type: "image/png"
           },
           {
             src: "/pwa-512x512.png",
             sizes: "512x512",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable"
+            type: "image/png"
           }
         ]
-      },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        navigateFallback: "/index.html",
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-stylesheets",
-              expiration: { maxEntries: 10, maxAgeSeconds: 31536000 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-webfonts",
-              expiration: { maxEntries: 30, maxAgeSeconds: 31536000 }
-            }
-          }
-        ]
-      },
-      devOptions: {
-        enabled: false
       }
     })
   ].filter(Boolean),
