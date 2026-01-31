@@ -223,26 +223,47 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     rendererRef.current = renderer;
 
     // Create outer glow sphere first (behind everything)
-    const outerGlowGeometry = new THREE.SphereGeometry(1.1, 32, 32);
+    const outerGlowGeometry = new THREE.SphereGeometry(1.15, 32, 32);
     const outerGlowMaterial = new THREE.MeshBasicMaterial({
       color: parseHslToThreeColor(colors.primary),
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.1,
       side: THREE.BackSide,
     });
     const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
     scene.add(outerGlow);
 
     // Create ambient atmosphere layer
-    const atmosphereGeometry = new THREE.SphereGeometry(0.95, 32, 32);
+    const atmosphereGeometry = new THREE.SphereGeometry(1.0, 32, 32);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: parseHslToThreeColor(colors.accent),
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.15,
       side: THREE.BackSide,
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
+
+    // *** NEW: Solid inner fill sphere - gives the orb substance ***
+    const innerFillGeometry = new THREE.SphereGeometry(0.55, 32, 32);
+    const innerFillMaterial = new THREE.MeshBasicMaterial({
+      color: parseHslToThreeColor(colors.secondary),
+      transparent: true,
+      opacity: 0.35,
+    });
+    const innerFill = new THREE.Mesh(innerFillGeometry, innerFillMaterial);
+    scene.add(innerFill);
+
+    // *** NEW: Gradient shell - creates color transition effect ***
+    const gradientShellGeometry = new THREE.SphereGeometry(0.65, 24, 24);
+    const gradientShellMaterial = new THREE.MeshBasicMaterial({
+      color: parseHslToThreeColor(colors.primary),
+      transparent: true,
+      opacity: 0.25,
+      side: THREE.BackSide,
+    });
+    const gradientShell = new THREE.Mesh(gradientShellGeometry, gradientShellMaterial);
+    scene.add(gradientShell);
 
     // Create layers
     const layerConfigs = getLayerConfigs();
@@ -271,25 +292,36 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Inner core glow sphere - brighter and more defined
     if (showGlow) {
-      const glowGeometry = new THREE.SphereGeometry(coreSize * 1.2, 24, 24);
+      // Primary core glow
+      const glowGeometry = new THREE.SphereGeometry(coreSize * 1.4, 24, 24);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(colors.glow || colors.accent),
         transparent: true,
-        opacity: coreIntensity * 0.7,
+        opacity: coreIntensity * 0.6,
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       scene.add(glowMesh);
       coreRef.current = glowMesh;
 
-      // Add a secondary inner core for depth
-      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 0.6, 16, 16);
+      // Secondary bright inner core for depth
+      const innerCoreGeometry = new THREE.SphereGeometry(coreSize * 0.8, 16, 16);
       const innerCoreMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(0xffffff),
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.5,
       });
       const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial);
       scene.add(innerCore);
+
+      // Tertiary accent core - adds color depth
+      const accentCoreGeometry = new THREE.SphereGeometry(coreSize * 1.1, 16, 16);
+      const accentCoreMaterial = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(colors.accent),
+        transparent: true,
+        opacity: 0.3,
+      });
+      const accentCore = new THREE.Mesh(accentCoreGeometry, accentCoreMaterial);
+      scene.add(accentCore);
     }
 
     // Enhanced particle system
@@ -316,11 +348,15 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
-      // Dispose glow meshes
+      // Dispose all glow/fill meshes
       outerGlow.geometry.dispose();
       outerGlowMaterial.dispose();
       atmosphere.geometry.dispose();
       atmosphereMaterial.dispose();
+      innerFill.geometry.dispose();
+      innerFillMaterial.dispose();
+      gradientShell.geometry.dispose();
+      gradientShellMaterial.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
