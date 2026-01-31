@@ -223,7 +223,7 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
                 className="gap-2"
               >
                 <Rocket className="h-5 w-5" />
-                {language === 'he' ? 'התחל Launchpad' : 'Start Launchpad'}
+                {language === 'he' ? 'התחל מסע טרנספורמציה' : 'Start Transformation Journey'}
               </Button>
             </div>
           </div>

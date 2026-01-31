@@ -233,7 +233,7 @@ const LifePlan = () => {
             : 'No active transformation plan found. Complete the Launchpad to create your personalized plan.'}
         </p>
         <Button onClick={() => navigate('/launchpad')}>
-          {language === 'he' ? 'התחל Launchpad' : 'Start Launchpad'}
+          {language === 'he' ? 'התחל מסע טרנספורמציה' : 'Start Transformation Journey'}
         </Button>
       </div>
     );
