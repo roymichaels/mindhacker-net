@@ -81,9 +81,9 @@ export default function FreeTransformationJourney() {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Hero Section - Single compact view */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      <section className="relative flex flex-col items-center justify-start px-4 py-6 pb-12">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
         
