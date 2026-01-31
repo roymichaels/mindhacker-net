@@ -638,12 +638,14 @@ export function LifePlanStep({ onComplete, isCompleting, rewards, savedFormSubmi
                 variant="ghost"
                 className={cn(
                   "w-full justify-between p-4 h-auto rounded-xl border",
-                  answers[section.id]?.trim().length >= 20 && "border-primary/50 bg-primary/5"
+                  "backdrop-blur-md bg-background/70 shadow-lg",
+                  "hover:bg-background/80 transition-all duration-200",
+                  answers[section.id]?.trim().length >= 20 && "border-primary/50 bg-primary/10"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">{index + 1}</span>
-                  <span className="font-medium">
+                  <span className="text-lg font-semibold text-foreground">{index + 1}</span>
+                  <span className="font-medium text-foreground">
                     {language === 'he' ? section.title : section.titleEn}
                   </span>
                   {answers[section.id]?.trim().length >= 20 && (
@@ -651,9 +653,9 @@ export function LifePlanStep({ onComplete, isCompleting, rewards, savedFormSubmi
                   )}
                 </div>
                 {openSections.includes(section.id) ? (
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-4 h-4 text-foreground" />
                 ) : (
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4 text-foreground" />
                 )}
               </Button>
             </CollapsibleTrigger>
@@ -662,16 +664,16 @@ export function LifePlanStep({ onComplete, isCompleting, rewards, savedFormSubmi
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-4 space-y-3"
+                className="p-4 space-y-3 backdrop-blur-md bg-background/70 rounded-b-xl border-x border-b shadow-inner"
               >
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium text-foreground">
                   {language === 'he' ? section.question : section.questionEn}
                 </p>
                 <Textarea
                   value={answers[section.id] || ''}
                   onChange={(e) => setAnswers(prev => ({ ...prev, [section.id]: e.target.value }))}
                   placeholder={language === 'he' ? section.placeholder : section.placeholderEn}
-                  className="min-h-[100px] resize-none"
+                  className="min-h-[100px] resize-none bg-background/80 backdrop-blur-sm border-border/50 text-foreground"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </motion.div>
