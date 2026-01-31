@@ -367,6 +367,47 @@ export type Database = {
         }
         Relationships: []
       }
+      aurora_conversation_memory: {
+        Row: {
+          action_items: string[] | null
+          conversation_id: string | null
+          created_at: string | null
+          emotional_state: string | null
+          id: string
+          key_topics: string[] | null
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: string[] | null
+          conversation_id?: string | null
+          created_at?: string | null
+          emotional_state?: string | null
+          id?: string
+          key_topics?: string[] | null
+          summary: string
+          user_id: string
+        }
+        Update: {
+          action_items?: string[] | null
+          conversation_id?: string | null
+          created_at?: string | null
+          emotional_state?: string | null
+          id?: string
+          key_topics?: string[] | null
+          summary?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aurora_conversation_memory_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aurora_daily_minimums: {
         Row: {
           category: string | null
@@ -564,6 +605,42 @@ export type Database = {
           identity_understanding?: string
           onboarding_complete?: boolean
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aurora_reminders: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          delivered_at: string | null
+          id: string
+          is_delivered: boolean | null
+          message: string
+          reminder_date: string
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          id?: string
+          is_delivered?: boolean | null
+          message: string
+          reminder_date: string
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          id?: string
+          is_delivered?: boolean | null
+          message?: string
+          reminder_date?: string
+          source?: string | null
           user_id?: string
         }
         Relationships: []

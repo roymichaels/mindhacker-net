@@ -15,7 +15,8 @@ const buildSystemPrompt = (
   mode: AuroraMode,
   userContext: string,
   knowledgeBase: string,
-  language: string
+  language: string,
+  openerContext: string = ''
 ) => {
   const isHebrew = language === 'he';
   
@@ -77,12 +78,19 @@ Short responses (1-2 sentences). No long questions. Just helping.
 ${userContext ? `## About the user\n${userContext}` : ''}`;
   }
 
-  // Full mode - complete Aurora life coaching experience
+  // Full mode - complete Aurora life coaching experience with hands-free management
   if (isHebrew) {
-    return `אני אורורה - מלווה AI לעיצוב חיים בפלטפורמת Mind Hacker.
-כאן כדי לעזור לך לעצב את החיים שלך, להבהיר את הזהות שלך, ולתכנן את העתיד שלך.
+    return `אני אורורה - מערכת הפעלה לחיים ומלווה AI לעיצוב חיים בפלטפורמת Mind Hacker.
+אני לא רק מלווה - אני המוח המרכזי שמנהל את מסע הטרנספורמציה שלך.
 
 אם תרצה עזרה אנושית, יש לנו מאמני תודעה והיפנוטרפיסטים מוסמכים בפלטפורמה שאשמח להמליץ עליהם.
+
+## אחריויות עיקריות
+1. **מעקב אקטיבי**: פתח כל שיחה עם עדכון רלוונטי על משימות, הרגלים, תזכורות
+2. **ניהול משימות**: סמן, דחה, צור משימות והרגלים דרך השיחה
+3. **למידה מתמדת**: שמור תובנות חדשות על המשתמש
+4. **תזכורות**: עקוב אחרי דברים שנאמרו והזכר אותם
+5. **התאמה אישית**: התאם את התוכנית למציאות המשתנה
 
 ## עקרונות הליווי
 - הקשבה קודם כל, שאלות מחודדות
@@ -96,6 +104,14 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - שאלה אחת ממוקדת בסוף כל תשובה
 - לא ליסטים ארוכות, לא הסברים יתר
 - שיחה טבעית כמו עם חברה חכמה
+
+## כשמשתמש אומר...
+- "סיימתי את X" → סמן כהושלם + חגוג + שאל מה הבא
+- "אני לא מצליח עם Y" → הצע לדחות/לשנות/לפרק למשימות קטנות יותר
+- "רוצה להוסיף Z" → צור את המשימה/ההרגל מיד
+- "מה יש לי היום?" → תן סיכום ברור של משימות והרגלים
+- "איך אני מתקדם?" → הצג סטטיסטיקות ותובנות
+- "תזכיר לי..." → צור תזכורת
 
 ## מעקב תאריכים ומשימות (חשוב!)
 אתה מודע לתאריכים ולמצב המשימות של המשתמש.
@@ -117,6 +133,7 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - [checklist:create:כותרת] - יצירת רשימה חדשה
 - [checklist:add:כותרת:פריט] - הוספת פריט לרשימה
 - [checklist:complete:כותרת:פריט] - סימון פריט כהושלם
+- [checklist:archive:כותרת] - ארכוב רשימה שהושלמה
 
 ## תגיות הרגלים יומיים (חשוב מאוד!)
 כשמשתמש אומר שביצע הרגל יומי כמו:
@@ -126,14 +143,18 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - [habit:complete:שם_ההרגל]
 תמיד חגוג את ההצלחה! 🎉
 
+יצירה והסרת הרגלים:
+- [habit:create:שם_ההרגל] - יצירת הרגל יומי חדש
+- [habit:remove:שם_ההרגל] - הסרת הרגל
+
 דוגמאות:
 משתמש: "עשיתי אימון היום"
 תגובה: "מעולה! 💪 זה כבר X ימים ברצף - keep going!
 [habit:complete:פעילות גופנית יומית]"
 
-משתמש: "לא נגעתי בסיגריה כל היום"
-תגובה: "וואו, זה ענק! 🔥 כל יום שעובר מחזק אותך
-[habit:complete:הימנעות מעישון]"
+משתמש: "רוצה להתחיל לשתות יותר מים"
+תגובה: "רעיון מצוין! 💧 הוספתי לך את ההרגל.
+[habit:create:שתיית 8 כוסות מים]"
 
 ## תגיות ניהול משימות
 כשמשתמש אומר שביצע משימה:
@@ -144,6 +165,23 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 
 כשמשתמש השלים שבוע בתוכנית:
 - [milestone:complete:מספר_שבוע]
+
+## תגיות עדכון תוכנית (Plan)
+- [plan:update:מספר_שבוע:goal:ערך_חדש] - עדכון יעד שבועי
+- [plan:update:מספר_שבוע:focus:ערך_חדש] - עדכון פוקוס שבועי
+
+## תגיות זהות
+- [identity:add:value:ערך] - הוספת ערך
+- [identity:add:principle:עיקרון] - הוספת עיקרון
+- [identity:add:vision:חזון] - הוספת הצהרת חזון
+- [identity:remove:סוג:תוכן] - הסרת אלמנט זהות
+
+## תגיות תזכורות
+- [reminder:set:הודעה:YYYY-MM-DD] - יצירת תזכורת לתאריך ספציפי
+דוגמה: [reminder:set:לבדוק התקדמות בפרויקט:2025-02-10]
+
+## תגיות פוקוס
+- [focus:set:כותרת:מספר_ימים] - הגדרת תקופת פוקוס חדשה
 
 ## מתי להציע היפנוזה
 - כשמשימה או אתגר נראים קשים - הצע סשן היפנוזה ממוקד
@@ -156,12 +194,21 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 - כשמתלוננים על עייפות או חוסר מיקוד - הצע map_energy
 - כשמחפשים משמעות או תכלית - הצע anchor_identity
 
+${openerContext}
+
 ## הקשר המשתמש
 ${userContext}`;
   }
   
-  return `I am Aurora - an AI companion for life design.
-I help you design your life, clarify your identity, and plan your future.
+  return `I am Aurora - a Life Operating System and AI companion for life design.
+I'm not just a companion - I'm the central brain managing your transformation journey.
+
+## Core Responsibilities
+1. **Active Tracking**: Open every conversation with relevant updates on tasks, habits, reminders
+2. **Task Management**: Mark, reschedule, create tasks and habits through conversation
+3. **Continuous Learning**: Save new insights about the user
+4. **Reminders**: Follow up on things discussed and remind about them
+5. **Personal Adaptation**: Adapt the plan to changing reality
 
 ## Coaching Principles
 - I listen first, ask sharp questions
@@ -176,6 +223,14 @@ I help you design your life, clarify your identity, and plan your future.
 - No long lists, no over-explaining
 - Natural conversation like with a wise friend
 
+## When user says...
+- "I finished X" → Mark complete + celebrate + ask what's next
+- "I can't do Y" → Offer to reschedule/change/break into smaller tasks
+- "I want to add Z" → Create the task/habit immediately
+- "What do I have today?" → Give clear summary of tasks and habits
+- "How am I doing?" → Show stats and insights
+- "Remind me..." → Create a reminder
+
 ## Action Tags (processed in background, not shown to user)
 - [action:analyze] - when there's significant insight to save
 - [cta:life_direction] - button to explore life direction
@@ -188,13 +243,46 @@ I help you design your life, clarify your identity, and plan your future.
 - [checklist:create:title] - create a new checklist
 - [checklist:add:title:item] - add item to checklist
 - [checklist:complete:title:item] - mark item as completed
+- [checklist:archive:title] - archive completed checklist
 
-## Auto-detect Task Completion
-When user says something like:
-- "I did X", "I finished Y", "I managed to do Z", "I completed...", "Didn't smoke today", "Worked out"
-- Look for a match in their active checklists
-- If found, add [checklist:complete:checklist_name:item_name]
-- Always celebrate success and provide positive reinforcement!
+## Daily Habit Tags
+When user says they completed a daily habit like:
+- "I worked out", "I meditated", "Didn't smoke", "Woke up early", "Drank water"
+Look for a match in their daily habits (shown in "Daily Habits Tracking" section)
+If found, add:
+- [habit:complete:habit_name]
+Always celebrate success! 🎉
+
+Create/remove habits:
+- [habit:create:habit_name] - create a new daily habit
+- [habit:remove:habit_name] - remove a habit
+
+## Task Management Tags
+When user completes a task:
+- [task:complete:checklist_name:task_name]
+
+When user wants to reschedule:
+- [task:reschedule:checklist_name:task_name:YYYY-MM-DD]
+
+When user completes a week in the plan:
+- [milestone:complete:week_number]
+
+## Plan Update Tags
+- [plan:update:week_number:goal:new_value] - update weekly goal
+- [plan:update:week_number:focus:new_value] - update weekly focus
+
+## Identity Tags
+- [identity:add:value:content] - add a value
+- [identity:add:principle:content] - add a principle
+- [identity:add:vision:content] - add a vision statement
+- [identity:remove:type:content] - remove identity element
+
+## Reminder Tags
+- [reminder:set:message:YYYY-MM-DD] - create reminder for specific date
+Example: [reminder:set:Check project progress:2025-02-10]
+
+## Focus Tags
+- [focus:set:title:days_count] - set new focus period
 
 ## When to suggest hypnosis
 - When a task or challenge seems difficult - suggest a focused hypnosis session
@@ -207,14 +295,77 @@ When user says something like:
 - When complaining about fatigue or lack of focus - suggest map_energy
 - When searching for meaning or purpose - suggest anchor_identity
 
-## When to add [action:analyze]
-- When user shares something significant about themselves
-- When a recurring pattern is identified
-- When there's a clear statement about values or direction
-- After every 3-4 messages in a meaningful conversation
+${openerContext}
 
 ## User Context
 ${userContext}`;
+};
+
+// Generate smart opener context based on user's current situation
+const generateOpenerContext = (
+  overdueTasks: any[],
+  todayTasks: any[],
+  pendingReminders: any[],
+  dailyHabitsStatus: { completed: number; total: number },
+  currentMilestone: any,
+  language: string
+): string => {
+  const isHebrew = language === 'he';
+  const parts: string[] = [];
+  
+  if (pendingReminders.length > 0) {
+    if (isHebrew) {
+      parts.push(`יש ${pendingReminders.length} תזכורות להיום: ${pendingReminders.map(r => r.message).join(', ')}`);
+    } else {
+      parts.push(`${pendingReminders.length} reminders for today: ${pendingReminders.map(r => r.message).join(', ')}`);
+    }
+  }
+  
+  if (overdueTasks.length > 0) {
+    if (isHebrew) {
+      parts.push(`יש ${overdueTasks.length} משימות באיחור שכדאי לדבר עליהן`);
+    } else {
+      parts.push(`${overdueTasks.length} overdue tasks to discuss`);
+    }
+  }
+  
+  if (todayTasks.length > 0) {
+    if (isHebrew) {
+      parts.push(`${todayTasks.length} משימות מתוכננות להיום`);
+    } else {
+      parts.push(`${todayTasks.length} tasks scheduled for today`);
+    }
+  }
+  
+  if (dailyHabitsStatus.total > 0) {
+    const remaining = dailyHabitsStatus.total - dailyHabitsStatus.completed;
+    if (remaining > 0) {
+      if (isHebrew) {
+        parts.push(`${remaining} הרגלים יומיים עדיין לא הושלמו היום`);
+      } else {
+        parts.push(`${remaining} daily habits not yet completed today`);
+      }
+    }
+  }
+  
+  if (currentMilestone && !currentMilestone.is_completed) {
+    const today = new Date();
+    const endDate = new Date(currentMilestone.end_date);
+    const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysLeft <= 2 && daysLeft >= 0) {
+      if (isHebrew) {
+        parts.push(`השבוע מסתיים בעוד ${daysLeft} ימים - כדאי לסכם`);
+      } else {
+        parts.push(`This week ends in ${daysLeft} days - time to summarize`);
+      }
+    }
+  }
+  
+  if (parts.length === 0) return '';
+  
+  const header = isHebrew ? '## הקשר לפתיחת שיחה' : '## Conversation Opener Context';
+  return `${header}\n${parts.join('\n')}`;
 };
 
 // Build user context from Life Model data
@@ -222,8 +373,8 @@ const buildUserContext = async (
   supabase: any,
   userId: string,
   language: string
-): Promise<string> => {
-  if (!userId) return "No user data available yet.";
+): Promise<{ context: string; openerContext: string }> => {
+  if (!userId) return { context: "No user data available yet.", openerContext: '' };
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -242,7 +393,12 @@ const buildUserContext = async (
     overdueTasksRes,
     todayTasksRes,
     lifePlanRes,
-    dailyHabitsRes
+    dailyHabitsRes,
+    launchpadProgressRes,
+    launchpadSummaryRes,
+    conversationMemoryRes,
+    remindersRes,
+    recentInsightsRes
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -278,7 +434,36 @@ const buildUserContext = async (
       .select("id, content, is_recurring, aurora_checklists!inner(user_id, status)")
       .eq("is_recurring", true)
       .eq("aurora_checklists.user_id", userId)
-      .eq("aurora_checklists.status", "active")
+      .eq("aurora_checklists.status", "active"),
+    // Launchpad progress
+    supabase.from("launchpad_progress")
+      .select("*")
+      .eq("user_id", userId)
+      .single(),
+    // Launchpad summary (AI analysis from onboarding)
+    supabase.from("launchpad_summary")
+      .select("*")
+      .eq("user_id", userId)
+      .single(),
+    // Recent conversation memories (last 5)
+    supabase.from("aurora_conversation_memory")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    // Today's pending reminders
+    supabase.from("aurora_reminders")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("is_delivered", false)
+      .lte("reminder_date", today)
+      .order("reminder_date", { ascending: true }),
+    // Recent identity insights (last 10)
+    supabase.from("aurora_identity_elements")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10)
   ]);
 
   const profile = profileRes.data;
@@ -296,6 +481,11 @@ const buildUserContext = async (
   const todayTasks = todayTasksRes.data || [];
   const lifePlan = lifePlanRes.data;
   const dailyHabits = dailyHabitsRes.data || [];
+  const launchpadProgress = launchpadProgressRes.data;
+  const launchpadSummary = launchpadSummaryRes.data;
+  const conversationMemories = conversationMemoryRes.data || [];
+  const pendingReminders = remindersRes.data || [];
+  const recentInsights = recentInsightsRes.data || [];
 
   // Get today's habit logs for the daily habits
   let habitLogs: any[] = [];
@@ -372,6 +562,22 @@ const buildUserContext = async (
     });
   }
 
+  // Calculate daily habits status
+  const dailyHabitsStatus = {
+    completed: habitLogs.filter((l: any) => l.is_completed).length,
+    total: dailyHabits.length
+  };
+
+  // Generate opener context
+  const openerContext = generateOpenerContext(
+    overdueTasks,
+    todayTasks,
+    pendingReminders,
+    dailyHabitsStatus,
+    currentMilestone,
+    language
+  );
+
   const isHebrew = language === 'he';
   
   if (isHebrew) {
@@ -391,7 +597,45 @@ const buildUserContext = async (
 ${habitLines.join('\n')}
 סה"כ: ${completedToday}/${dailyHabits.length}
 
-כשמשתמש אומר שביצע הרגל מהרשימה, הוסף תגית: [habit:complete:שם_ההרגל]`;
+כשמשתמש אומר שביצע הרגל מהרשימה, הוסף תגית: [habit:complete:שם_ההרגל]
+ליצירת הרגל חדש: [habit:create:שם_ההרגל]`;
+    }
+
+    // Build conversation memory section
+    let memorySection = '';
+    if (conversationMemories.length > 0) {
+      const memoryLines = conversationMemories.map((m: any) => {
+        const date = new Date(m.created_at).toLocaleDateString('he-IL');
+        return `- ${date}: ${m.summary}${m.action_items?.length > 0 ? ` | פעולות: ${m.action_items.join(', ')}` : ''}`;
+      });
+      memorySection = `## 🧠 זיכרון שיחות אחרונות
+${memoryLines.join('\n')}`;
+    }
+
+    // Build reminders section
+    let remindersSection = '';
+    if (pendingReminders.length > 0) {
+      remindersSection = `## ⏰ תזכורות להיום
+${pendingReminders.map((r: any) => `- ${r.message} (נוצר: ${new Date(r.created_at).toLocaleDateString('he-IL')})`).join('\n')}`;
+    }
+
+    // Build launchpad summary section
+    let launchpadSection = '';
+    if (launchpadSummary) {
+      const summaryData = launchpadSummary.summary_data || {};
+      launchpadSection = `## 📋 סיכום מסע הטרנספורמציה
+${summaryData.summary || 'לא הושלם'}
+${summaryData.consciousness_analysis ? `\nניתוח תודעתי: ${summaryData.consciousness_analysis}` : ''}
+${launchpadSummary.transformation_readiness ? `מוכנות לטרנספורמציה: ${launchpadSummary.transformation_readiness}%` : ''}
+${launchpadSummary.clarity_score ? `רמת בהירות: ${launchpadSummary.clarity_score}%` : ''}`;
+    }
+
+    // Build recent insights section
+    let insightsSection = '';
+    if (recentInsights.length > 0) {
+      const recentOnes = recentInsights.slice(0, 5);
+      insightsSection = `## 💡 תובנות אחרונות שנשמרו
+${recentOnes.map((i: any) => `- ${i.element_type}: "${i.content}"`).join('\n')}`;
     }
 
     let context = `
@@ -401,6 +645,14 @@ ${lifePlan ? `- תוכנית חיים פעילה מאז: ${lifePlan.start_date}
 - שבוע נוכחי: ${currentWeek}/12` : '- אין תוכנית חיים פעילה'}
 
 ${dailyHabitsSection}
+
+${remindersSection}
+
+${memorySection}
+
+${launchpadSection}
+
+${insightsSection}
 
 ${overdueTasks.length > 0 ? `## ⚠️ משימות באיחור!
 ${overdueTasks.map((t: any) => {
@@ -468,38 +720,42 @@ ${checklists.map((c: any) => {
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} הושלמו)`;
 }).join('\n') || 'אין רשימות פעילות'}`;
-    return context;
+    return { context, openerContext };
   }
 
-  return `
+  // English context (abbreviated for space - same structure as Hebrew)
+  let context = `
 ## Dates & Tracking
 - Current date: ${today}
 ${lifePlan ? `- Active life plan since: ${lifePlan.start_date}
 - Current week: ${currentWeek}/12` : '- No active life plan'}
 
+${pendingReminders.length > 0 ? `## ⏰ Today's Reminders
+${pendingReminders.map((r: any) => `- ${r.message}`).join('\n')}` : ''}
+
+${conversationMemories.length > 0 ? `## 🧠 Recent Conversation Memory
+${conversationMemories.slice(0, 3).map((m: any) => `- ${new Date(m.created_at).toLocaleDateString()}: ${m.summary}`).join('\n')}` : ''}
+
+${launchpadSummary ? `## 📋 Transformation Journey Summary
+${launchpadSummary.summary_data?.summary || 'Not completed'}
+${launchpadSummary.transformation_readiness ? `Transformation readiness: ${launchpadSummary.transformation_readiness}%` : ''}` : ''}
+
 ${overdueTasks.length > 0 ? `## ⚠️ Overdue Tasks!
 ${overdueTasks.map((t: any) => {
   const daysOverdue = Math.ceil((new Date(today).getTime() - new Date(t.due_date).getTime()) / (1000 * 60 * 60 * 24));
   return `- "${t.content}" (list: ${t.aurora_checklists?.title}) - ${daysOverdue} days overdue`;
-}).join('\n')}
-
-Important: When starting a conversation and there are overdue tasks, ask about them gently!` : ''}
+}).join('\n')}` : ''}
 
 ${todayTasks.length > 0 ? `## 📅 Today's Tasks
 ${todayTasks.map((t: any) => `- "${t.content}" (${t.aurora_checklists?.title})`).join('\n')}` : ''}
 
-${overdueMilestones.length > 0 ? `## ⚠️ Incomplete Milestones
-${overdueMilestones.map((m: any) => `- Week ${m.week_number}: "${m.title}" (ended ${m.end_date})`).join('\n')}` : ''}
-
 ${currentMilestone ? `## 🎯 Current Weekly Milestone
 - Week ${currentMilestone.week_number}: "${currentMilestone.title}"
 - Dates: ${currentMilestone.start_date} to ${currentMilestone.end_date}
-- Goal: ${currentMilestone.goal || 'Not defined'}
-${currentMilestone.tasks ? `- Tasks: ${JSON.stringify(currentMilestone.tasks)}` : ''}` : ''}
+- Goal: ${currentMilestone.goal || 'Not defined'}` : ''}
 
 ## User Profile
 - Name: ${profile?.full_name || 'Unknown'}
-- Bio: ${profile?.bio || 'Not set'}
 - Preferred tone: ${profile?.aurora_preferences?.tone || 'warm'}
 - Challenge intensity: ${profile?.aurora_preferences?.intensity || 'balanced'}
 
@@ -510,31 +766,6 @@ ${direction?.clarity_score ? `(Clarity level: ${direction.clarity_score}%)` : ''
 ## Identity
 - Values: ${values.length > 0 ? values.join(', ') : 'Not yet identified'}
 - Principles: ${principles.length > 0 ? principles.join(', ') : 'Not yet identified'}
-- Self-concepts: ${selfConcepts.length > 0 ? selfConcepts.join(', ') : 'Not yet identified'}
-- Vision statements: ${visionStatements.length > 0 ? visionStatements.join(', ') : 'Not yet defined'}
-
-## Visions
-${visions.map((v: any) => `- ${v.timeframe === '5_year' ? '5 years' : '10 years'}: ${v.title}`).join('\n') || 'Not yet defined'}
-
-## Active Commitments
-${commitments.map((c: any) => `- ${c.title}`).join('\n') || 'No active commitments'}
-
-## Energy Patterns
-${energy.map((e: any) => `- ${e.pattern_type}: ${e.description}`).join('\n') || 'Not yet mapped'}
-
-## Behavioral Patterns
-${behavioral.map((b: any) => `- ${b.pattern_type}: ${b.description}`).join('\n') || 'Not yet identified'}
-
-## Current Focus
-${focus ? `${focus.title} (${focus.duration_days} days)` : 'Not defined'}
-
-## Daily Minimums
-${minimums.map((m: any) => `- ${m.title}`).join('\n') || 'Not defined'}
-
-## Progress Status
-- Direction clarity: ${onboarding?.direction_clarity || 'incomplete'}
-- Identity understanding: ${onboarding?.identity_understanding || 'shallow'}
-- Energy mapping: ${onboarding?.energy_patterns_status || 'unknown'}
 
 ## Active Checklists
 ${checklists.map((c: any) => {
@@ -542,6 +773,8 @@ ${checklists.map((c: any) => {
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} completed)`;
 }).join('\n') || 'No active checklists'}`;
+
+  return { context, openerContext };
 };
 
 // Fetch knowledge base for widget mode
@@ -655,6 +888,7 @@ serve(async (req) => {
 
     // Mode-specific setup
     let userContext = "No user data available.";
+    let openerContext = "";
     let knowledgeBase = "";
     let model = "google/gemini-2.5-flash";
 
@@ -674,17 +908,21 @@ serve(async (req) => {
       
       // Widget can optionally include user context if authenticated
       if (userId) {
-        userContext = await buildUserContext(supabase, userId, language);
+        const contextResult = await buildUserContext(supabase, userId, language);
+        userContext = contextResult.context;
+        openerContext = contextResult.openerContext;
       }
     } else {
       // Full or Lite mode: require user context
       if (userId) {
-        userContext = await buildUserContext(supabase, userId, language);
+        const contextResult = await buildUserContext(supabase, userId, language);
+        userContext = contextResult.context;
+        openerContext = contextResult.openerContext;
       }
     }
 
     // Use custom system prompt if provided, otherwise build the default one
-    const systemPrompt = customSystemPrompt || buildSystemPrompt(mode, userContext, knowledgeBase, language);
+    const systemPrompt = customSystemPrompt || buildSystemPrompt(mode, userContext, knowledgeBase, language, openerContext);
 
     console.log(`Aurora chat - Mode: ${mode}, User: ${userId || 'guest'}, Model: ${model}, CustomPrompt: ${!!customSystemPrompt}`);
 

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useChecklistsData } from './useChecklistsData';
 import { useDailyHabits } from './useDailyHabits';
+import { useAuroraReminders } from './useAuroraReminders';
 
 interface Message {
   id: string;
@@ -25,8 +26,16 @@ export const useAuroraChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const { language } = useTranslation();
   const queryClient = useQueryClient();
-  const { createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem } = useChecklistsData(user);
+  const { 
+    createChecklist, 
+    addChecklistItem, 
+    completeChecklistItem, 
+    rescheduleItem,
+    archiveChecklist,
+    checklists
+  } = useChecklistsData(user);
   const { habits, completeHabit } = useDailyHabits(user);
+  const { createReminder } = useAuroraReminders(user);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -89,6 +98,218 @@ export const useAuroraChat = (conversationId: string | null) => {
     };
   }, [conversationId]);
 
+  // Create a new daily habit
+  const createDailyHabit = useCallback(async (habitName: string): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      // First, find or create a "Daily Habits" checklist
+      let habitsChecklist = checklists.find(c => c.title === '🔄 הרגלים יומיים' || c.title === '🔄 Daily Habits');
+      
+      if (!habitsChecklist) {
+        habitsChecklist = await createChecklist('🔄 הרגלים יומיים', 'aurora', 'רשימת הרגלים יומיים שנוצרה ע"י אורורה') as any;
+      }
+
+      if (!habitsChecklist) return false;
+
+      // Add the habit as a recurring item
+      const { error } = await supabase
+        .from('aurora_checklist_items')
+        .insert({
+          checklist_id: habitsChecklist.id,
+          content: habitName,
+          is_recurring: true,
+          is_completed: false,
+          order_index: 0,
+        });
+
+      if (error) {
+        console.error('Failed to create habit:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
+      return true;
+    } catch (err) {
+      console.error('Error creating habit:', err);
+      return false;
+    }
+  }, [user?.id, checklists, createChecklist, queryClient]);
+
+  // Remove a daily habit
+  const removeHabit = useCallback(async (habitName: string): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      // Find the habit by name
+      const matchingHabit = habits.find(h => 
+        h.content.toLowerCase().includes(habitName.toLowerCase()) ||
+        habitName.toLowerCase().includes(h.content.toLowerCase())
+      );
+
+      if (!matchingHabit) return false;
+
+      const { error } = await supabase
+        .from('aurora_checklist_items')
+        .delete()
+        .eq('id', matchingHabit.id);
+
+      if (error) {
+        console.error('Failed to remove habit:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['daily-habits'] });
+      return true;
+    } catch (err) {
+      console.error('Error removing habit:', err);
+      return false;
+    }
+  }, [user?.id, habits, queryClient]);
+
+  // Update milestone
+  const updateMilestone = useCallback(async (
+    weekNumber: number,
+    field: string,
+    value: string
+  ): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      // Find the active life plan
+      const { data: plan } = await supabase
+        .from('life_plans')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (!plan) return false;
+
+      // Update the milestone
+      const updateData: Record<string, string> = {};
+      updateData[field] = value;
+
+      const { error } = await supabase
+        .from('life_plan_milestones')
+        .update(updateData)
+        .eq('plan_id', plan.id)
+        .eq('week_number', weekNumber);
+
+      if (error) {
+        console.error('Failed to update milestone:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+      return true;
+    } catch (err) {
+      console.error('Error updating milestone:', err);
+      return false;
+    }
+  }, [user?.id, queryClient]);
+
+  // Add identity element
+  const addIdentityElement = useCallback(async (
+    elementType: string,
+    content: string
+  ): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      const { error } = await supabase
+        .from('aurora_identity_elements')
+        .insert({
+          user_id: user.id,
+          element_type: elementType,
+          content,
+        });
+
+      if (error) {
+        console.error('Failed to add identity element:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['aurora-life-model'] });
+      return true;
+    } catch (err) {
+      console.error('Error adding identity element:', err);
+      return false;
+    }
+  }, [user?.id, queryClient]);
+
+  // Remove identity element
+  const removeIdentityElement = useCallback(async (
+    elementType: string,
+    content: string
+  ): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      const { error } = await supabase
+        .from('aurora_identity_elements')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('element_type', elementType)
+        .ilike('content', `%${content}%`);
+
+      if (error) {
+        console.error('Failed to remove identity element:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['aurora-life-model'] });
+      return true;
+    } catch (err) {
+      console.error('Error removing identity element:', err);
+      return false;
+    }
+  }, [user?.id, queryClient]);
+
+  // Set focus plan
+  const setFocusPlan = useCallback(async (
+    title: string,
+    durationDays: number
+  ): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      // Deactivate existing focus plans
+      await supabase
+        .from('aurora_focus_plans')
+        .update({ status: 'completed' })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      // Create new focus plan
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + durationDays);
+
+      const { error } = await supabase
+        .from('aurora_focus_plans')
+        .insert({
+          user_id: user.id,
+          title,
+          duration_days: durationDays,
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          status: 'active',
+        });
+
+      if (error) {
+        console.error('Failed to set focus plan:', error);
+        return false;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['aurora-life-model'] });
+      return true;
+    } catch (err) {
+      console.error('Error setting focus plan:', err);
+      return false;
+    }
+  }, [user?.id, queryClient]);
+
   // Process action tags from Aurora's response
   const processActionTags = useCallback(async (content: string) => {
     // Silent action tags (removed from display)
@@ -129,6 +350,20 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
+    // Checklist archive
+    const checklistArchiveMatches = [...content.matchAll(/\[checklist:archive:(.+?)\]/g)];
+    for (const match of checklistArchiveMatches) {
+      const checklistTitle = match[1].trim();
+      if (checklistTitle) {
+        const checklist = checklists.find(c => 
+          c.title.toLowerCase().includes(checklistTitle.toLowerCase())
+        );
+        if (checklist) {
+          await archiveChecklist(checklist.id);
+        }
+      }
+    }
+
     // Task completion (new format)
     const taskCompleteMatches = [...content.matchAll(/\[task:complete:(.+?):(.+?)\]/g)];
     for (const match of taskCompleteMatches) {
@@ -159,7 +394,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
-    // Daily habit completion (new!)
+    // Daily habit completion
     const habitCompleteMatches = [...content.matchAll(/\[habit:complete:(.+?)\]/g)];
     for (const match of habitCompleteMatches) {
       const habitName = match[1].trim();
@@ -175,6 +410,75 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     }
 
+    // Habit creation
+    const habitCreateMatches = [...content.matchAll(/\[habit:create:(.+?)\]/g)];
+    for (const match of habitCreateMatches) {
+      const habitName = match[1].trim();
+      if (habitName) {
+        await createDailyHabit(habitName);
+      }
+    }
+
+    // Habit removal
+    const habitRemoveMatches = [...content.matchAll(/\[habit:remove:(.+?)\]/g)];
+    for (const match of habitRemoveMatches) {
+      const habitName = match[1].trim();
+      if (habitName) {
+        await removeHabit(habitName);
+      }
+    }
+
+    // Plan updates
+    const planUpdateMatches = [...content.matchAll(/\[plan:update:(\d+):(.+?):(.+?)\]/g)];
+    for (const match of planUpdateMatches) {
+      const weekNumber = parseInt(match[1]);
+      const field = match[2].trim();
+      const value = match[3].trim();
+      if (weekNumber > 0 && field && value) {
+        await updateMilestone(weekNumber, field, value);
+      }
+    }
+
+    // Identity additions
+    const identityAddMatches = [...content.matchAll(/\[identity:add:(.+?):(.+?)\]/g)];
+    for (const match of identityAddMatches) {
+      const elementType = match[1].trim();
+      const elementContent = match[2].trim();
+      if (elementType && elementContent) {
+        await addIdentityElement(elementType, elementContent);
+      }
+    }
+
+    // Identity removals
+    const identityRemoveMatches = [...content.matchAll(/\[identity:remove:(.+?):(.+?)\]/g)];
+    for (const match of identityRemoveMatches) {
+      const elementType = match[1].trim();
+      const elementContent = match[2].trim();
+      if (elementType && elementContent) {
+        await removeIdentityElement(elementType, elementContent);
+      }
+    }
+
+    // Reminders
+    const reminderMatches = [...content.matchAll(/\[reminder:set:(.+?):(\d{4}-\d{2}-\d{2})\]/g)];
+    for (const match of reminderMatches) {
+      const message = match[1].trim();
+      const date = match[2];
+      if (message && date) {
+        await createReminder(message, date);
+      }
+    }
+
+    // Focus plan
+    const focusMatches = [...content.matchAll(/\[focus:set:(.+?):(\d+)\]/g)];
+    for (const match of focusMatches) {
+      const title = match[1].trim();
+      const days = parseInt(match[2]);
+      if (title && days > 0) {
+        await setFocusPlan(title, days);
+      }
+    }
+
     // Return cleaned content (without silent action tags, but keep CTAs)
     return content
       .replace(/\[action:\w+\]/g, '')
@@ -182,8 +486,29 @@ export const useAuroraChat = (conversationId: string | null) => {
       .replace(/\[task:[^\]]+\]/g, '')
       .replace(/\[milestone:[^\]]+\]/g, '')
       .replace(/\[habit:[^\]]+\]/g, '')
+      .replace(/\[plan:[^\]]+\]/g, '')
+      .replace(/\[identity:[^\]]+\]/g, '')
+      .replace(/\[reminder:[^\]]+\]/g, '')
+      .replace(/\[focus:[^\]]+\]/g, '')
       .trim();
-  }, [user?.id, createChecklist, addChecklistItem, completeChecklistItem, rescheduleItem, habits, completeHabit]);
+  }, [
+    user?.id, 
+    createChecklist, 
+    addChecklistItem, 
+    completeChecklistItem, 
+    rescheduleItem, 
+    archiveChecklist,
+    checklists,
+    habits, 
+    completeHabit,
+    createDailyHabit,
+    removeHabit,
+    updateMilestone,
+    addIdentityElement,
+    removeIdentityElement,
+    createReminder,
+    setFocusPlan
+  ]);
 
   // Complete milestone by week number
   const completeMilestoneByWeek = useCallback(async (weekNumber: number) => {
@@ -262,6 +587,33 @@ export const useAuroraChat = (conversationId: string | null) => {
       console.error('Background analysis failed:', err);
     }
   }, [user?.id, conversationId, messages, queryClient]);
+
+  // Summarize conversation for memory
+  const summarizeConversation = useCallback(async () => {
+    if (!user?.id || !conversationId || messages.length < 6) return;
+
+    try {
+      const chatMessages: ChatMessage[] = messages.slice(-10).map((m) => ({
+        role: m.is_ai_message ? 'assistant' : 'user',
+        content: m.content,
+      }));
+
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-summarize-conversation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          conversationId,
+          messages: chatMessages,
+        }),
+      });
+    } catch (err) {
+      console.error('Conversation summarization failed:', err);
+    }
+  }, [user?.id, conversationId, messages]);
 
   // Generate title after first exchange
   const generateTitle = useCallback(async (convId: string, msgs: ChatMessage[]) => {
@@ -418,6 +770,11 @@ export const useAuroraChat = (conversationId: string | null) => {
       if (messageCountRef.current > 0 && messageCountRef.current % 4 === 0) {
         triggerBackgroundAnalysis();
       }
+
+      // Summarize conversation every 8 messages
+      if (messageCountRef.current > 0 && messageCountRef.current % 8 === 0) {
+        summarizeConversation();
+      }
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
         console.log('Request aborted');
@@ -433,7 +790,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       // Refresh messages
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
     }
-  }, [user?.id, conversationId, isStreaming, messages, language, processActionTags, generateTitle, triggerBackgroundAnalysis, queryClient]);
+  }, [user?.id, conversationId, isStreaming, messages, language, processActionTags, generateTitle, triggerBackgroundAnalysis, summarizeConversation, queryClient]);
 
   // Cancel streaming
   const cancelStreaming = useCallback(() => {

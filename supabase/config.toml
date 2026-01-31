@@ -84,3 +84,9 @@ verify_jwt = true
 
 [functions.generate-identity-archetype]
 verify_jwt = false
+
+[functions.aurora-summarize-conversation]
+verify_jwt = false
+
+[functions.analyze-life-plan]
+verify_jwt = false
