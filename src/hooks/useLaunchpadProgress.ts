@@ -373,6 +373,72 @@ export function useLaunchpadProgress() {
     },
   });
 
+  // Reset journey mutation - starts fresh from step 1
+  const resetJourneyMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('launchpad_progress')
+        .update({
+          current_step: 1,
+          step_1_welcome: false,
+          step_1_intention: null,
+          step_1_completed_at: null,
+          step_2_profile: false,
+          step_2_profile_data: null,
+          step_2_profile_completed_at: null,
+          step_2_first_chat: false,
+          step_2_summary: null,
+          step_2_completed_at: null,
+          step_3_introspection: false,
+          step_3_form_submission_id: null,
+          step_3_completed_at: null,
+          step_4_life_plan: false,
+          step_4_form_submission_id: null,
+          step_4_completed_at: null,
+          step_5_focus_areas: false,
+          step_5_focus_areas_selected: [],
+          step_5_completed_at: null,
+          step_6_first_week: false,
+          step_6_actions: null,
+          step_6_anchor_habit: null,
+          step_6_completed_at: null,
+          step_7_dashboard_activated: false,
+          step_7_completed_at: null,
+          launchpad_complete: false,
+          completed_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Clear all localStorage data for launchpad
+      try {
+        localStorage.removeItem('launchpad_step_1');
+        localStorage.removeItem('launchpad_step_2');
+        localStorage.removeItem('launchpad_step_7');
+        localStorage.removeItem('launchpad_step_8');
+        localStorage.removeItem('launchpad_personal_profile');
+        localStorage.removeItem('launchpad_first_week');
+      } catch (e) {
+        console.error('Error clearing localStorage:', e);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['launchpad-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['launchpad-data'] });
+      toast.success('המסע אופס בהצלחה', {
+        description: 'תוכל להתחיל מחדש',
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to reset journey:', error);
+      toast.error('שגיאה באיפוס המסע');
+    },
+  });
+
   // Calculate completion percentage (now 9 steps)
   const completionPercentage = progress ? 
     Math.round(((actualCurrentStep - 1) / 9) * 100) : 0;
@@ -410,6 +476,8 @@ export function useLaunchpadProgress() {
     error,
     completeStep: completeStepMutation.mutate,
     isCompleting: completeStepMutation.isPending,
+    resetJourney: resetJourneyMutation.mutate,
+    isResetting: resetJourneyMutation.isPending,
     completionPercentage,
     completedSteps,
     totalSteps: 9,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -917,7 +917,7 @@ const getDefaultProfileData = (): ProfileData => ({
 export function PersonalProfileStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: PersonalProfileStepProps) {
   const { language, isRTL } = useTranslation();
   
-  // Initialize from savedData (DB) first, then localStorage
+  // Initialize from savedData (DB) - component will remount on step change due to key
   const getInitialData = (): ProfileData => {
     const defaults = getDefaultProfileData();
     
@@ -959,22 +959,6 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards, savedDa
   };
   
   const [profileData, setProfileData] = useState<ProfileData>(getInitialData);
-
-  // Update state when savedData changes (DB loaded after initial render)
-  useEffect(() => {
-    if (savedData && Object.keys(savedData).length > 0) {
-      const defaults = getDefaultProfileData();
-      const hasCurrentData = Object.keys(profileData).some(key => {
-        const val = profileData[key as keyof ProfileData];
-        const defaultVal = defaults[key as keyof ProfileData];
-        return val !== defaultVal && val !== '' && (Array.isArray(val) ? val.length > 0 : true);
-      });
-      
-      if (!hasCurrentData) {
-        setProfileData(prev => ({ ...prev, ...savedData } as ProfileData));
-      }
-    }
-  }, [savedData]);
 
   // Auto-save helper
   const triggerAutoSave = (newData: ProfileData) => {

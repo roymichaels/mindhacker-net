@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -185,8 +185,8 @@ interface SavedProgress {
 export function FirstWeekStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
   
-  // Initialize from savedData (DB) first, then fallback to localStorage
-  const getInitialState = () => {
+  // Initialize from savedData (DB) - component will remount on step change due to key
+  const getInitialState = (): SavedProgress => {
     // Check savedData from DB first
     if (savedData && (
       (savedData.selectedQuit && savedData.selectedQuit.length > 0) ||
@@ -230,30 +230,6 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards, savedData, on
 
   // Current section (for mobile flow)
   const [currentSection, setCurrentSection] = useState<1 | 2 | 3 | 4>(1);
-
-  // Update state when savedData changes (DB loaded after initial render)
-  useEffect(() => {
-    if (savedData && (
-      (savedData.selectedQuit && savedData.selectedQuit.length > 0) ||
-      (savedData.selectedBuild && savedData.selectedBuild.length > 0) ||
-      savedData.selectedCareerStatus ||
-      savedData.selectedCareerGoal
-    )) {
-      // Only update if current state is empty
-      if (selectedQuit.length === 0 && savedData.selectedQuit && savedData.selectedQuit.length > 0) {
-        setSelectedQuit(savedData.selectedQuit);
-      }
-      if (selectedBuild.length === 0 && savedData.selectedBuild && savedData.selectedBuild.length > 0) {
-        setSelectedBuild(savedData.selectedBuild);
-      }
-      if (!selectedCareerStatus && savedData.selectedCareerStatus) {
-        setSelectedCareerStatus(savedData.selectedCareerStatus);
-      }
-      if (!selectedCareerGoal && savedData.selectedCareerGoal) {
-        setSelectedCareerGoal(savedData.selectedCareerGoal);
-      }
-    }
-  }, [savedData]);
 
   // Auto-save helper function
   const triggerAutoSave = (updates: Partial<SavedProgress>) => {
