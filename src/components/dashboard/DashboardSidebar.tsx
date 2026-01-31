@@ -230,9 +230,7 @@ const DashboardSidebar = ({
         <div className="p-2 border-t border-border">
           <AuroraAccountDropdown
             isCollapsed={false}
-            onOpenDashboard={() => handleNavigation('/dashboard')}
             onOpenSettings={() => handleNavigation('/launchpad/settings')}
-            onOpenChecklists={() => handleNavigation('/aurora')}
           />
         </div>
       </div>
@@ -256,9 +254,7 @@ const DashboardSidebar = ({
       <SidebarFooter className="p-2 border-t border-border">
         <AuroraAccountDropdown
           isCollapsed={isCollapsed}
-          onOpenDashboard={() => handleNavigation('/dashboard')}
           onOpenSettings={() => handleNavigation('/launchpad/settings')}
-          onOpenChecklists={() => handleNavigation('/aurora')}
         />
       </SidebarFooter>
     </Sidebar>
