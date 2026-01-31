@@ -11,10 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, Gift } from "lucide-react";
+import { Search, Loader2, Gift, Eye } from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useNavigate } from "react-router-dom";
 
 interface UserData {
   id: string;
@@ -43,6 +44,7 @@ const Users = () => {
     full_name: string | null;
   } | null>(null);
   const { t, isRTL, language } = useTranslation();
+  const navigate = useNavigate();
 
   const locale = language === 'he' ? 'he-IL' : 'en-US';
 
@@ -204,15 +206,26 @@ const Users = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleGrantClick(user)}
-                        className="gap-1"
-                      >
-                        <Gift className="h-4 w-4" />
-                        {t('adminUsers.grantPurchase')}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/panel/users/${user.id}`)}
+                          className="gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          {t('common.view')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleGrantClick(user)}
+                          className="gap-1"
+                        >
+                          <Gift className="h-4 w-4" />
+                          {t('adminUsers.grantPurchase')}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
