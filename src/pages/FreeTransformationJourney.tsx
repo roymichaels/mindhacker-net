@@ -192,7 +192,7 @@ export default function FreeTransformationJourney() {
           <Button
             size="lg"
             onClick={handleStart}
-            className="w-full h-14 text-lg gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 font-bold"
+            className="w-full h-14 text-lg gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-xl shadow-emerald-500/25 font-bold border-0"
           >
             <Sparkles className="w-5 h-5" />
             {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
