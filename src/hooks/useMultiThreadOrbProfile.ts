@@ -34,7 +34,7 @@ export function useMultiThreadOrbProfile() {
   const { user } = useAuth();
   const { progress } = useLaunchpadProgress();
 
-  // Fetch launchpad summary
+  // Fetch launchpad summary - use maybeSingle() to avoid 406 when no rows exist
   const { data: launchpadSummary, isLoading } = useQuery({
     queryKey: ['launchpad-summary-threads', user?.id],
     queryFn: async () => {
@@ -44,9 +44,9 @@ export function useMultiThreadOrbProfile() {
         .from('launchpad_summaries')
         .select('summary_data, consciousness_score, transformation_readiness')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching launchpad summary:', error);
         return null;
       }
