@@ -15,12 +15,12 @@ interface DashboardActivationProps {
 }
 
 const UNLOCKS = [
-  { icon: '🧭', label: 'Life OS Dashboard', labelHe: 'דשבורד חיים מלא' },
+  { icon: '🧭', label: 'Life OS Dashboard', labelHe: 'דשבורד חיים' },
   { icon: '📊', label: 'Weekly Planning', labelHe: 'תכנון שבועי' },
   { icon: '🎯', label: 'Focus Plans', labelHe: 'תוכניות פוקוס' },
   { icon: '⚓', label: 'Daily Anchors', labelHe: 'עוגנים יומיים' },
-  { icon: '🧘', label: 'Hypnosis Sessions', labelHe: 'סשני היפנוזה' },
-  { icon: '🤖', label: 'Full Aurora Coaching', labelHe: 'אימון מלא עם אורורה' },
+  { icon: '🧘', label: 'Hypnosis', labelHe: 'היפנוזה' },
+  { icon: '🤖', label: 'Aurora Coaching', labelHe: 'אימון אורורה' },
 ];
 
 export function DashboardActivation({ onComplete, isCompleting, rewards }: DashboardActivationProps) {
@@ -34,7 +34,6 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
     setIsGenerating(true);
     
     try {
-      // Get current session for auth
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
@@ -47,7 +46,6 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
         return;
       }
 
-      // Call edge function to generate summary and plan
       const { data, error } = await supabase.functions.invoke('generate-launchpad-summary', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -57,7 +55,7 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
       if (error) {
         console.error('Error generating summary:', error);
         toast({
-          title: language === 'he' ? 'שגיאה ביצירת הסיכום' : 'Error generating summary',
+          title: language === 'he' ? 'שגיאה' : 'Error',
           description: error.message,
           variant: 'destructive',
         });
@@ -66,96 +64,93 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
         setGenerationComplete(true);
         toast({
           title: language === 'he' ? '🎉 הסיכום נוצר!' : '🎉 Summary generated!',
-          description: language === 'he' 
-            ? 'התוכנית שלך ל-90 ימים מוכנה' 
-            : 'Your 90-day plan is ready',
+          description: language === 'he' ? 'התוכנית שלך מוכנה' : 'Your plan is ready',
         });
       }
     } catch (err) {
       console.error('Error:', err);
     } finally {
       setIsGenerating(false);
-      // Navigate to summary page instead of dashboard
       navigate('/launchpad/complete');
     }
   };
 
   return (
-    <div className="space-y-8 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hero */}
+    <div className="space-y-4 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Compact Hero */}
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="space-y-4"
+        className="space-y-2"
       >
         <motion.div 
-          className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary via-accent to-primary flex items-center justify-center"
+          className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary via-accent to-primary flex items-center justify-center"
           animate={{ 
             boxShadow: [
-              '0 0 20px rgba(var(--primary), 0.3)',
-              '0 0 40px rgba(var(--primary), 0.5)',
-              '0 0 20px rgba(var(--primary), 0.3)',
+              '0 0 15px rgba(var(--primary), 0.3)',
+              '0 0 25px rgba(var(--primary), 0.5)',
+              '0 0 15px rgba(var(--primary), 0.3)',
             ]
           }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <Rocket className="w-12 h-12 text-primary-foreground" />
+          <Rocket className="w-8 h-8 text-primary-foreground" />
         </motion.div>
         
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {language === 'he' ? '🎉 סיימת את ה-Launchpad!' : '🎉 Launchpad Complete!'}
         </h1>
         
-        <p className="text-muted-foreground max-w-md mx-auto">
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           {language === 'he' 
             ? 'אורורה יודעת עכשיו מספיק כדי לבנות לך מודל חיים אישי. כל הכלים פתוחים!'
-            : 'Aurora now knows enough to build you a personal life model. All tools are unlocked!'
+            : 'Aurora now knows enough to build you a personal life model. All tools unlocked!'
           }
         </p>
       </motion.div>
 
-      {/* Rewards */}
+      {/* Compact Rewards */}
       <motion.div 
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex items-center justify-center gap-4 text-sm"
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-center gap-3"
       >
-        <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary">
-          <Sparkles className="w-5 h-5" />
+        <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
+          <Sparkles className="w-4 h-4" />
           <span className="font-bold">+{rewards.xp} XP</span>
         </div>
-        <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/10 text-amber-600">
-          <Gift className="w-5 h-5" />
+        <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 text-sm">
+          <Gift className="w-4 h-4" />
           <span className="font-bold">+{rewards.tokens} {language === 'he' ? 'טוקנים' : 'Tokens'}</span>
         </div>
       </motion.div>
 
-      {/* Unlocks Grid */}
+      {/* Compact Unlocks Grid - 3 columns */}
       <motion.div 
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="space-y-4"
+        transition={{ delay: 0.3 }}
+        className="space-y-2"
       >
-        <h3 className="font-semibold text-lg">
+        <h3 className="font-medium text-sm text-muted-foreground">
           {language === 'he' ? 'מה נפתח לך:' : 'What\'s unlocked:'}
         </h3>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {UNLOCKS.map((unlock, index) => (
             <motion.div
               key={unlock.label}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 + (index * 0.1) }}
-              className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20"
+              transition={{ delay: 0.4 + (index * 0.05) }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg bg-primary/5 border border-primary/20"
             >
-              <span className="text-2xl">{unlock.icon}</span>
-              <span className="text-sm font-medium text-start">
+              <span className="text-lg">{unlock.icon}</span>
+              <span className="text-xs font-medium text-center leading-tight">
                 {language === 'he' ? unlock.labelHe : unlock.label}
               </span>
-              <Check className="w-4 h-4 text-primary ms-auto" />
+              <Check className="w-3 h-3 text-primary" />
             </motion.div>
           ))}
         </div>
@@ -163,26 +158,27 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
 
       {/* CTA */}
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 1.2 }}
+        transition={{ delay: 0.7 }}
+        className="pt-2"
       >
         <Button 
           size="lg" 
           onClick={handleActivate}
           disabled={isCompleting || isGenerating}
-          className="min-w-[250px] h-14 text-lg gap-2"
+          className="min-w-[220px] h-12 text-base gap-2"
         >
           {isGenerating ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              {language === 'he' ? 'יוצר סיכום ותוכנית...' : 'Creating summary & plan...'}
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {language === 'he' ? 'יוצר סיכום...' : 'Creating...'}
             </>
           ) : isCompleting ? (
             language === 'he' ? 'מפעיל...' : 'Activating...'
           ) : (
             <>
-              <Rocket className="w-5 h-5" />
+              <Rocket className="w-4 h-4" />
               {language === 'he' ? 'הפעל את הדשבורד' : 'Activate Dashboard'}
             </>
           )}
@@ -192,10 +188,10 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm text-green-500 mt-2 flex items-center justify-center gap-1"
+            className="text-xs text-green-500 mt-1.5 flex items-center justify-center gap-1"
           >
-            <Check className="w-4 h-4" />
-            {language === 'he' ? 'התוכנית נוצרה בהצלחה!' : 'Plan created successfully!'}
+            <Check className="w-3 h-3" />
+            {language === 'he' ? 'התוכנית נוצרה!' : 'Plan created!'}
           </motion.p>
         )}
       </motion.div>
