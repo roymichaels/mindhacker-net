@@ -184,51 +184,86 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Dramatic lighting for alien feel
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    // Dramatic lighting for liquid mercury alien feel
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    // Main key light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    keyLight.position.set(1, 2, 3);
+    // Hemisphere light for natural gradient
+    const hemiLight = new THREE.HemisphereLight(0xffffff, vis.primaryColor.getHex(), 0.8);
+    scene.add(hemiLight);
+
+    // Main key light - strong front light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    keyLight.position.set(1, 2, 4);
     scene.add(keyLight);
 
-    // Fill light - colored
-    const fillLight = new THREE.DirectionalLight(vis.secondaryColor.getHex(), 0.7);
-    fillLight.position.set(-2, 0, 1);
+    // Fill light - colored, from side
+    const fillLight = new THREE.DirectionalLight(vis.secondaryColor.getHex(), 1.2);
+    fillLight.position.set(-3, 0, 2);
     scene.add(fillLight);
 
     // Rim light - from behind for edge glow
-    const rimLight = new THREE.PointLight(vis.accentColor.getHex(), 1.2, 10);
-    rimLight.position.set(0, 0, -2.5);
+    const rimLight = new THREE.PointLight(vis.accentColor.getHex(), 2.5, 15);
+    rimLight.position.set(0, 0, -3);
     scene.add(rimLight);
 
-    // Top light
-    const topLight = new THREE.PointLight(0xffffff, 0.6, 8);
-    topLight.position.set(0, 3, 1);
+    // Top light - highlight
+    const topLight = new THREE.PointLight(0xffffff, 1.5, 10);
+    topLight.position.set(0, 4, 2);
     scene.add(topLight);
 
-    // === MAIN ORB - Single solid 3D orb ===
-    const mainGeometry = new THREE.IcosahedronGeometry(0.9, 5);
+    // Bottom colored light for extra dimension
+    const bottomLight = new THREE.PointLight(vis.primaryColor.getHex(), 1.0, 8);
+    bottomLight.position.set(0, -3, 1);
+    scene.add(bottomLight);
+
+    // === MAIN ORB - Solid liquid mercury 3D orb ===
+    const mainGeometry = new THREE.IcosahedronGeometry(0.95, 6); // Higher detail
     const positions = mainGeometry.attributes.position.array as Float32Array;
     basePositionsRef.current = positions.slice();
 
-    // Slimy/iridescent material
+    // Liquid mercury / alien slimy material - SOLID and highly reflective
     const mainMaterial = new THREE.MeshStandardMaterial({
       color: vis.primaryColor,
-      emissive: vis.primaryColor.clone().multiplyScalar(0.3),
-      emissiveIntensity: 0.9,
-      roughness: 0.12,
-      metalness: 0.75,
-      side: THREE.DoubleSide,
+      emissive: vis.primaryColor.clone().multiplyScalar(0.5),
+      emissiveIntensity: 1.2,
+      roughness: 0.05, // Very smooth like liquid
+      metalness: 0.98, // Almost fully metallic for mercury effect
+      side: THREE.FrontSide, // Solid front only
+      envMapIntensity: 2.0,
     });
 
     const mainOrb = new THREE.Mesh(mainGeometry, mainMaterial);
     scene.add(mainOrb);
     mainOrbRef.current = mainOrb;
 
-    // === GEOMETRIC WIREFRAME - Outer fracture layer ===
-    const geoGeometry = new THREE.IcosahedronGeometry(1.0, 2);
+    // === INNER GLOW CORE - adds depth and solidity ===
+    const coreGeometry = new THREE.IcosahedronGeometry(0.6, 4);
+    const coreMaterial = new THREE.MeshBasicMaterial({
+      color: vis.primaryColor.clone().multiplyScalar(1.5),
+      transparent: true,
+      opacity: 0.7,
+    });
+    const coreOrb = new THREE.Mesh(coreGeometry, coreMaterial);
+    mainOrb.add(coreOrb); // Parent to main orb
+
+    // === SPECULAR HIGHLIGHT LAYER - shinier surface ===
+    const highlightGeometry = new THREE.IcosahedronGeometry(0.96, 5);
+    const highlightMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.15,
+      roughness: 0.0,
+      metalness: 1.0,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.1,
+      side: THREE.FrontSide,
+    });
+    const highlightOrb = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    scene.add(highlightOrb);
+
+    // === GEOMETRIC WIREFRAME - Outer fracture layer (subtle) ===
+    const geoGeometry = new THREE.IcosahedronGeometry(1.05, 2);
     const geoPositions = geoGeometry.attributes.position.array as Float32Array;
     geoBasePositionsRef.current = geoPositions.slice();
 
@@ -236,7 +271,7 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       color: vis.secondaryColor,
       wireframe: true,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.25,
     });
     const geoMesh = new THREE.Mesh(geoGeometry, geoMaterial);
     scene.add(geoMesh);
@@ -367,10 +402,18 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
         mainOrb.geometry.computeVertexNormals();
       }
 
-      // Emissive pulse
+      // Emissive pulse - strong glow for mercury effect
       const material = mainOrb.material as THREE.MeshStandardMaterial;
-      const emissivePulse = 0.25 + Math.sin(time * 2.5) * 0.12 + audioLevel * 0.15;
+      const emissivePulse = 0.8 + Math.sin(time * 2.5) * 0.25 + audioLevel * 0.25;
       material.emissiveIntensity = emissivePulse;
+      
+      // Subtle color shift for iridescence effect
+      const hueShift = Math.sin(time * 0.5) * 0.05;
+      material.emissive.setHSL(
+        (material.color.getHSL({ h: 0, s: 0, l: 0 }).h + hueShift) % 1,
+        0.8,
+        0.4
+      );
 
       // === GEOMETRIC WIREFRAME ANIMATION ===
       if (geometricLayerRef.current && geoBasePositions) {
