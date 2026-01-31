@@ -10,6 +10,8 @@ interface PersonalProfileStepProps {
   onComplete: (data?: Record<string, unknown>) => void;
   isCompleting?: boolean;
   rewards?: { xp: number; tokens: number; unlock: string };
+  savedData?: Record<string, unknown>;
+  onAutoSave?: (data: Record<string, unknown>) => void;
 }
 
 interface ProfileData {
@@ -912,15 +914,33 @@ const getDefaultProfileData = (): ProfileData => ({
   obstacles: [],
 });
 
-export function PersonalProfileStep({ onComplete, isCompleting, rewards }: PersonalProfileStepProps) {
+export function PersonalProfileStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: PersonalProfileStepProps) {
   const { language, isRTL } = useTranslation();
   
-  const [profileData, setProfileData] = useState<ProfileData>(() => {
+  // Initialize from savedData (DB) first, then localStorage
+  const getInitialData = (): ProfileData => {
+    const defaults = getDefaultProfileData();
+    
+    // Check savedData from DB first
+    if (savedData && Object.keys(savedData).length > 0) {
+      const parsed = savedData as Partial<ProfileData>;
+      
+      // Migrate old string values to arrays for behavioral fields
+      const behavioralFields = ['conflict_handling', 'problem_approach', 'decision_style', 'opportunity_response', 'failure_response', 'time_management', 'relationship_style'] as const;
+      behavioralFields.forEach(field => {
+        if (parsed[field] && typeof parsed[field] === 'string') {
+          (parsed as Record<string, unknown>)[field] = parsed[field] ? [parsed[field]] : [];
+        }
+      });
+      
+      return { ...defaults, ...parsed } as ProfileData;
+    }
+    
+    // Fallback to localStorage
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const defaults = getDefaultProfileData();
         
         // Migrate old string values to arrays for behavioral fields
         const behavioralFields = ['conflict_handling', 'problem_approach', 'decision_style', 'opportunity_response', 'failure_response', 'time_management', 'relationship_style'] as const;
@@ -935,16 +955,42 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
         // fallback to defaults
       }
     }
-    return getDefaultProfileData();
-  });
+    return defaults;
+  };
+  
+  const [profileData, setProfileData] = useState<ProfileData>(getInitialData);
 
-  // Auto-save to localStorage
+  // Update state when savedData changes (DB loaded after initial render)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
-  }, [profileData]);
+    if (savedData && Object.keys(savedData).length > 0) {
+      const defaults = getDefaultProfileData();
+      const hasCurrentData = Object.keys(profileData).some(key => {
+        const val = profileData[key as keyof ProfileData];
+        const defaultVal = defaults[key as keyof ProfileData];
+        return val !== defaultVal && val !== '' && (Array.isArray(val) ? val.length > 0 : true);
+      });
+      
+      if (!hasCurrentData) {
+        setProfileData(prev => ({ ...prev, ...savedData } as ProfileData));
+      }
+    }
+  }, [savedData]);
+
+  // Auto-save helper
+  const triggerAutoSave = (newData: ProfileData) => {
+    // Save to localStorage immediately
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+    
+    // Call onAutoSave for database save
+    if (onAutoSave) {
+      onAutoSave(newData as unknown as Record<string, unknown>);
+    }
+  };
 
   const handleSingleSelect = (category: keyof ProfileData, value: string) => {
-    setProfileData(prev => ({ ...prev, [category]: value }));
+    const newData = { ...profileData, [category]: value };
+    setProfileData(newData);
+    triggerAutoSave(newData);
   };
 
   const handleMultiSelect = (category: MultiSelectCategory, value: string) => {
@@ -955,7 +1001,9 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
       
       // If selecting "none", clear all others
       if (value === 'none') {
-        return { ...prev, [category]: ['none'] };
+        const newData = { ...prev, [category]: ['none'] };
+        triggerAutoSave(newData);
+        return newData;
       }
       
       // If selecting something else, remove "none"
@@ -967,12 +1015,16 @@ export function PersonalProfileStep({ onComplete, isCompleting, rewards }: Perso
         newValues = [...newValues, value];
       }
       
-      return { ...prev, [category]: newValues.length ? newValues : [] };
+      const newData = { ...prev, [category]: newValues.length ? newValues : [] };
+      triggerAutoSave(newData);
+      return newData;
     });
   };
 
   const handleSlider = (key: 'height_cm' | 'weight_kg', value: number[]) => {
-    setProfileData(prev => ({ ...prev, [key]: value[0] }));
+    const newData = { ...profileData, [key]: value[0] };
+    setProfileData(newData);
+    triggerAutoSave(newData);
   };
 
   // Calculate completeness (at least 10 categories filled)

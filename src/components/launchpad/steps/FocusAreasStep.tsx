@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ interface FocusAreasStepProps {
   onComplete: (data: { focus_areas: string[] }) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
+  savedData?: { focus_areas?: string[] };
+  onAutoSave?: (data: { focus_areas: string[] }) => void;
 }
 
 const FOCUS_AREAS = [
@@ -22,19 +24,41 @@ const FOCUS_AREAS = [
   { id: 'spirituality', icon: '✨', label: 'רוחניות ומשמעות', labelEn: 'Spirituality & Meaning' },
 ];
 
-export function FocusAreasStep({ onComplete, isCompleting, rewards }: FocusAreasStepProps) {
+export function FocusAreasStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FocusAreasStepProps) {
   const { language, isRTL } = useTranslation();
-  const [selected, setSelected] = useState<string[]>([]);
+  
+  // Initialize from savedData (DB) first, then fallback to empty
+  const [selected, setSelected] = useState<string[]>(() => {
+    if (savedData?.focus_areas && savedData.focus_areas.length > 0) {
+      return savedData.focus_areas;
+    }
+    return [];
+  });
+
+  // Update state when savedData changes (DB loaded after initial render)
+  useEffect(() => {
+    if (savedData?.focus_areas && savedData.focus_areas.length > 0 && selected.length === 0) {
+      setSelected(savedData.focus_areas);
+    }
+  }, [savedData]);
 
   const toggleArea = (id: string) => {
     setSelected(prev => {
+      let newSelected: string[];
       if (prev.includes(id)) {
-        return prev.filter(a => a !== id);
+        newSelected = prev.filter(a => a !== id);
+      } else if (prev.length >= 3) {
+        newSelected = [...prev.slice(1), id]; // Replace oldest selection
+      } else {
+        newSelected = [...prev, id];
       }
-      if (prev.length >= 3) {
-        return [...prev.slice(1), id]; // Replace oldest selection
+      
+      // Auto-save immediately
+      if (onAutoSave) {
+        onAutoSave({ focus_areas: newSelected });
       }
-      return [...prev, id];
+      
+      return newSelected;
     });
   };
 

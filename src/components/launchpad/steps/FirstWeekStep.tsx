@@ -13,10 +13,19 @@ interface TransformationPlan {
   [key: string]: unknown;
 }
 
+interface SavedFirstWeekData {
+  selectedQuit?: string[];
+  selectedBuild?: string[];
+  selectedCareerStatus?: string;
+  selectedCareerGoal?: string;
+}
+
 interface FirstWeekStepProps {
   onComplete: (data?: Record<string, unknown>) => void;
   isCompleting: boolean;
   rewards: { xp: number; tokens: number; unlock: string };
+  savedData?: SavedFirstWeekData;
+  onAutoSave?: (data: SavedFirstWeekData) => void;
 }
 
 interface TransformationPlanSimple {
@@ -173,62 +182,127 @@ interface SavedProgress {
   selectedCareerGoal: string;
 }
 
-export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekStepProps) {
+export function FirstWeekStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FirstWeekStepProps) {
   const { language, isRTL } = useTranslation();
-  // Load saved progress from localStorage
-  const getSavedProgress = (): SavedProgress | null => {
+  
+  // Initialize from savedData (DB) first, then fallback to localStorage
+  const getInitialState = () => {
+    // Check savedData from DB first
+    if (savedData && (
+      (savedData.selectedQuit && savedData.selectedQuit.length > 0) ||
+      (savedData.selectedBuild && savedData.selectedBuild.length > 0) ||
+      savedData.selectedCareerStatus ||
+      savedData.selectedCareerGoal
+    )) {
+      return {
+        selectedQuit: savedData.selectedQuit || [],
+        selectedBuild: savedData.selectedBuild || [],
+        selectedCareerStatus: savedData.selectedCareerStatus || '',
+        selectedCareerGoal: savedData.selectedCareerGoal || '',
+      };
+    }
+    
+    // Fallback to localStorage
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        return JSON.parse(saved) as SavedProgress;
       }
     } catch (e) {
       console.error('Error loading saved progress:', e);
     }
-    return null;
+    
+    return {
+      selectedQuit: [],
+      selectedBuild: [],
+      selectedCareerStatus: '',
+      selectedCareerGoal: '',
+    };
   };
 
-  const savedProgress = getSavedProgress();
+  const initialState = getInitialState();
   
-  // State for selections - initialize from localStorage
-  const [selectedQuit, setSelectedQuit] = useState<string[]>(savedProgress?.selectedQuit || []);
-  const [selectedBuild, setSelectedBuild] = useState<string[]>(savedProgress?.selectedBuild || []);
-  const [selectedCareerStatus, setSelectedCareerStatus] = useState<string>(savedProgress?.selectedCareerStatus || '');
-  const [selectedCareerGoal, setSelectedCareerGoal] = useState<string>(savedProgress?.selectedCareerGoal || '');
+  // State for selections
+  const [selectedQuit, setSelectedQuit] = useState<string[]>(initialState.selectedQuit);
+  const [selectedBuild, setSelectedBuild] = useState<string[]>(initialState.selectedBuild);
+  const [selectedCareerStatus, setSelectedCareerStatus] = useState<string>(initialState.selectedCareerStatus);
+  const [selectedCareerGoal, setSelectedCareerGoal] = useState<string>(initialState.selectedCareerGoal);
 
   // Current section (for mobile flow)
   const [currentSection, setCurrentSection] = useState<1 | 2 | 3 | 4>(1);
 
-  // Save progress to localStorage whenever selections change
+  // Update state when savedData changes (DB loaded after initial render)
   useEffect(() => {
-    const progress: SavedProgress = {
+    if (savedData && (
+      (savedData.selectedQuit && savedData.selectedQuit.length > 0) ||
+      (savedData.selectedBuild && savedData.selectedBuild.length > 0) ||
+      savedData.selectedCareerStatus ||
+      savedData.selectedCareerGoal
+    )) {
+      // Only update if current state is empty
+      if (selectedQuit.length === 0 && savedData.selectedQuit && savedData.selectedQuit.length > 0) {
+        setSelectedQuit(savedData.selectedQuit);
+      }
+      if (selectedBuild.length === 0 && savedData.selectedBuild && savedData.selectedBuild.length > 0) {
+        setSelectedBuild(savedData.selectedBuild);
+      }
+      if (!selectedCareerStatus && savedData.selectedCareerStatus) {
+        setSelectedCareerStatus(savedData.selectedCareerStatus);
+      }
+      if (!selectedCareerGoal && savedData.selectedCareerGoal) {
+        setSelectedCareerGoal(savedData.selectedCareerGoal);
+      }
+    }
+  }, [savedData]);
+
+  // Auto-save helper function
+  const triggerAutoSave = (updates: Partial<SavedProgress>) => {
+    const currentData: SavedProgress = {
       selectedQuit,
       selectedBuild,
       selectedCareerStatus,
       selectedCareerGoal,
+      ...updates,
     };
+    
+    // Save to localStorage immediately
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
     } catch (e) {
       console.error('Error saving progress:', e);
     }
-  }, [selectedQuit, selectedBuild, selectedCareerStatus, selectedCareerGoal]);
-
-  // Removed loadSuggestions and AI career steps/challenges - user found them not relevant
+    
+    // Call onAutoSave for database save
+    if (onAutoSave) {
+      onAutoSave(currentData);
+    }
+  };
 
   const toggleQuit = (label: string) => {
-    setSelectedQuit(prev => 
-      prev.includes(label) ? prev.filter(h => h !== label) : [...prev, label]
-    );
+    const newSelected = selectedQuit.includes(label) 
+      ? selectedQuit.filter(h => h !== label) 
+      : [...selectedQuit, label];
+    setSelectedQuit(newSelected);
+    triggerAutoSave({ selectedQuit: newSelected });
   };
 
   const toggleBuild = (label: string) => {
-    setSelectedBuild(prev => 
-      prev.includes(label) ? prev.filter(h => h !== label) : [...prev, label]
-    );
+    const newSelected = selectedBuild.includes(label) 
+      ? selectedBuild.filter(h => h !== label) 
+      : [...selectedBuild, label];
+    setSelectedBuild(newSelected);
+    triggerAutoSave({ selectedBuild: newSelected });
   };
 
-  // Removed toggleCareerStep - user found career steps not relevant
+  const handleCareerStatusSelect = (status: string) => {
+    setSelectedCareerStatus(status);
+    triggerAutoSave({ selectedCareerStatus: status });
+  };
+
+  const handleCareerGoalSelect = (goal: string) => {
+    setSelectedCareerGoal(goal);
+    triggerAutoSave({ selectedCareerGoal: goal });
+  };
 
   const isValid = 
     selectedQuit.length >= 1 && 
@@ -445,7 +519,7 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
               return (
                 <button
                   key={status.id}
-                  onClick={() => setSelectedCareerStatus(label)}
+                  onClick={() => handleCareerStatusSelect(label)}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all",
                     isSelected 
@@ -473,7 +547,7 @@ export function FirstWeekStep({ onComplete, isCompleting, rewards }: FirstWeekSt
               return (
                 <button
                   key={goal.id}
-                  onClick={() => setSelectedCareerGoal(label)}
+                  onClick={() => handleCareerGoalSelect(label)}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all",
                     isSelected 

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep, isLastStepInPhase } from '@/hooks/useLaunchpadProgress';
+import { useLaunchpadAutoSave } from '@/hooks/useLaunchpadAutoSave';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { WelcomeStep } from './steps/WelcomeStep';
@@ -35,6 +36,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     getStepRewards,
     totalSteps,
   } = useLaunchpadProgress();
+  
+  const { autoSave, getSavedData, isLoading: isLoadingData, launchpadData } = useLaunchpadAutoSave();
   
   const [viewingStep, setViewingStep] = useState<number | null>(null);
   const [profileData, setProfileData] = useState<Record<string, unknown> | null>(null);
@@ -109,6 +112,11 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     ? displayedStep < 9 
     : (viewingStep !== null && displayedStep < currentStep);
 
+  // Auto-save handler for each step
+  const handleAutoSave = useCallback((step: number, data: Record<string, unknown>) => {
+    autoSave(step, data);
+  }, [autoSave]);
+
   const renderCurrentStep = () => {
     const stepProps = {
       onComplete: handleStepComplete,
@@ -123,9 +131,21 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     
     switch (displayedStep) {
       case 1:
-        return <WelcomeStep {...stepProps} />;
+        return (
+          <WelcomeStep 
+            {...stepProps} 
+            savedData={getSavedData(1) as Record<string, string | string[]> | undefined}
+            onAutoSave={(data) => handleAutoSave(1, data)}
+          />
+        );
       case 2:
-        return <PersonalProfileStep {...stepProps} />;
+        return (
+          <PersonalProfileStep 
+            {...stepProps} 
+            savedData={getSavedData(2) ?? undefined}
+            onAutoSave={(data) => handleAutoSave(2, data)}
+          />
+        );
       case 3:
         return <GrowthDeepDiveStep {...stepProps} previousAnswers={profileData || undefined} />;
       case 4:
@@ -135,9 +155,21 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       case 6:
         return <LifePlanStep {...stepProps} />;
       case 7:
-        return <FocusAreasStep {...stepProps} />;
+        return (
+          <FocusAreasStep 
+            {...stepProps} 
+            savedData={getSavedData(7) as { focus_areas?: string[] } | undefined}
+            onAutoSave={(data) => handleAutoSave(7, data)}
+          />
+        );
       case 8:
-        return <FirstWeekStep {...stepProps} />;
+        return (
+          <FirstWeekStep 
+            {...stepProps} 
+            savedData={getSavedData(8) as { selectedQuit?: string[]; selectedBuild?: string[]; selectedCareerStatus?: string; selectedCareerGoal?: string } | undefined}
+            onAutoSave={(data) => handleAutoSave(8, data as unknown as Record<string, unknown>)}
+          />
+        );
       case 9:
         return <DashboardActivation {...stepProps} />;
       default:
