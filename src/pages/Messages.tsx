@@ -8,7 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import ConversationItem from '@/components/messages/ConversationItem';
 import NewMessageDialog from '@/components/messages/NewMessageDialog';
-import Header from '@/components/Header';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { cn } from '@/lib/utils';
 
@@ -127,12 +126,8 @@ const Messages = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Global Header */}
-      <Header />
-
-      <DashboardLayout>
-        <div className="flex flex-col h-full">
+    <DashboardLayout>
+      <div className="flex flex-col h-full" dir={isRTL ? 'rtl' : 'ltr'}>
           {/* Page Header */}
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold">{t('messages.title')}</h1>
@@ -210,16 +205,15 @@ const Messages = () => {
               </div>
             )}
           </div>
-        </div>
 
-        {/* New Message Dialog */}
-        <NewMessageDialog 
-          open={showNewMessage} 
-          onOpenChange={setShowNewMessage} 
-        />
+          {/* New Message Dialog */}
+          <NewMessageDialog 
+            open={showNewMessage} 
+            onOpenChange={setShowNewMessage} 
+          />
+        </div>
       </DashboardLayout>
-    </div>
-  );
+    );
 };
 
 export default Messages;
