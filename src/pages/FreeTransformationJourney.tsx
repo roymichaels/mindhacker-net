@@ -145,12 +145,12 @@ export default function FreeTransformationJourney() {
           </p>
         </motion.div>
 
-        {/* Benefits Grid - Flex grow to fill space */}
+        {/* Benefits Grid - 2-col on mobile, 3-col on large screens */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-md mx-auto flex-1 content-start"
+          className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-md lg:max-w-3xl mx-auto flex-1 content-start"
         >
           {BENEFITS.map((benefit, index) => (
             <motion.div
@@ -158,16 +158,16 @@ export default function FreeTransformationJourney() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.5 + index * 0.05 }}
-              className="flex items-start gap-2 p-3 rounded-xl bg-card/80 border border-border/50 backdrop-blur-sm"
+              className="group flex items-center gap-3 p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-primary/20 hover:border-primary/40 hover:bg-card/80 transition-all duration-300 shadow-lg shadow-primary/5"
             >
-              <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <benefit.icon className="w-4 h-4 text-primary" />
+              <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <benefit.icon className="w-5 h-5 text-primary" />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-foreground truncate">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-semibold text-foreground">
                   {isRTL ? benefit.titleHe : benefit.titleEn}
                 </p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {isRTL ? benefit.descHe : benefit.descEn}
                 </p>
               </div>
