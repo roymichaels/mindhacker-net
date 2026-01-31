@@ -89,8 +89,8 @@ const AuroraLayout = () => {
       onSelectConversation={handleSelectConversation}
       hideRightPanel
     >
-      {/* Chat Area - takes full height */}
-      <div className="flex-1 min-h-0 rounded-xl border bg-card/30 backdrop-blur-sm overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Chat Area - takes full width and height */}
+      <div className="flex-1 min-h-0 w-full h-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
         <AuroraChatArea conversationId={activeConversationId} />
       </div>
     </DashboardLayout>
