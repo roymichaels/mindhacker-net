@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
-import { MultiThreadOrb } from '@/components/orb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import { Orb } from '@/components/orb';
+import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { 
   Brain, 
   Target, 
@@ -73,7 +73,7 @@ const BENEFITS = [
 export default function FreeTransformationJourney() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
+  const { profile: orbProfile } = useOrbProfile();
 
   useSEO({
     title: isRTL ? 'מסע טרנספורמציה חינמי | MindHacker' : 'Free Transformation Journey | MindHacker',
@@ -175,12 +175,13 @@ export default function FreeTransformationJourney() {
               />
             </motion.div>
             
-            {/* The Orb */}
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44">
-              <MultiThreadOrb 
+            {/* The Orb - Enhanced WebGL with particles */}
+            <div className="relative w-44 h-44 sm:w-52 sm:h-52">
+              <Orb 
                 profile={orbProfile} 
-                size={176} 
+                size={208} 
                 className="w-full h-full"
+                showGlow={true}
               />
             </div>
             
