@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -97,6 +98,13 @@ export default function FreeJourneyComplete() {
   const [downloading, setDownloading] = useState(false);
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const [celebrationDone, setCelebrationDone] = useState(false);
+
+  useSEO({
+    title: isRTL ? 'התוצאות שלך | MindOS' : 'Your Results | MindOS',
+    description: isRTL 
+      ? 'ניתוח התודעה שלך, פרופיל הזהות האישי ותוכנית 90 היום שלך מוכנים!'
+      : 'Your consciousness analysis, personal identity profile and 90-day plan are ready!',
+  });
 
   // Generate orb profile
   const orbProfile = useMemo(() => {
