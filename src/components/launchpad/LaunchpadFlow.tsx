@@ -17,10 +17,8 @@ import { FocusAreasStep } from './steps/FocusAreasStep';
 import { FirstWeekStep } from './steps/FirstWeekStep';
 import { FinalNotesStep } from './steps/FinalNotesStep';
 import { DashboardActivation } from './steps/DashboardActivation';
-import { PhaseIndicator } from './PhaseIndicator';
+import { GamifiedJourneyHeader } from './GamifiedJourneyHeader';
 import { PhaseTransition } from './PhaseTransition';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, RotateCcw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +28,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 interface LaunchpadFlowProps {
@@ -286,110 +283,52 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
 
   return (
     <div className={cn("min-h-screen flex flex-col", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header with phase indicator and navigation */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
-        <div className="max-w-2xl mx-auto p-4 space-y-4">
-          {/* Top row: Close button, step counter, navigation */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="h-9 w-9"
+      {/* Gamified Header with Live Orb */}
+      <GamifiedJourneyHeader
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+        displayedStep={displayedStep}
+        isViewing={viewingStep !== null}
+        canGoPrev={canGoPrev}
+        canGoNext={canGoNext}
+        onPrev={handleNavigatePrev}
+        onNext={handleNavigateNext}
+        onClose={handleClose}
+        onReset={() => setShowResetDialog(true)}
+        showReset={currentStep > 1}
+      />
+
+      {/* Reset Dialog */}
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent dir={isRTL ? 'rtl' : 'ltr'}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'he' ? 'התחל מסע מחדש?' : 'Start Journey Over?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'he' 
+                ? 'פעולה זו תמחק את כל התשובות שלך ותתחיל את המסע מההתחלה. פעולה זו לא ניתנת לביטול.'
+                : 'This will delete all your answers and start the journey from the beginning. This action cannot be undone.'
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={cn(isRTL && "flex-row-reverse")}>
+            <AlertDialogCancel>
+              {language === 'he' ? 'ביטול' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleResetJourney}
+              disabled={isResetting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              <X className="w-5 h-5" />
-            </Button>
-
-            {/* Step and phase info */}
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium">
-                  {displayedStep}/{totalSteps}
-                </span>
-                {viewingStep !== null && (
-                  <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-600 rounded-full">
-                    {language === 'he' ? 'צפייה' : 'Viewing'}
-                  </span>
-                )}
-              </div>
-              {currentStepMeta && (
-                <p className="text-xs text-muted-foreground">
-                  {language === 'he' ? currentStepMeta.subtitle : currentStepMeta.subtitleEn}
-                </p>
-              )}
-            </div>
-
-            {/* Navigation arrows and reset */}
-            <div className="flex items-center gap-1">
-              {/* Reset button - only show for users who made progress */}
-              {currentStep > 1 && (
-                <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                      title={language === 'he' ? 'התחל מחדש' : 'Start Over'}
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent dir={isRTL ? 'rtl' : 'ltr'}>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {language === 'he' ? 'התחל מסע מחדש?' : 'Start Journey Over?'}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {language === 'he' 
-                          ? 'פעולה זו תמחק את כל התשובות שלך ותתחיל את המסע מההתחלה. פעולה זו לא ניתנת לביטול.'
-                          : 'This will delete all your answers and start the journey from the beginning. This action cannot be undone.'
-                        }
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className={cn(isRTL && "flex-row-reverse")}>
-                      <AlertDialogCancel>
-                        {language === 'he' ? 'ביטול' : 'Cancel'}
-                      </AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleResetJourney}
-                        disabled={isResetting}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        {isResetting 
-                          ? (language === 'he' ? 'מאפס...' : 'Resetting...')
-                          : (language === 'he' ? 'התחל מחדש' : 'Start Over')
-                        }
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleNavigatePrev}
-                disabled={!canGoPrev}
-                className="h-9 w-9"
-              >
-                {isRTL ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleNavigateNext}
-                disabled={!canGoNext}
-                className="h-9 w-9"
-              >
-                {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-              </Button>
-            </div>
-          </div>
-
-          {/* Phase indicator */}
-          <PhaseIndicator currentStep={displayedStep} />
-        </div>
-      </div>
+              {isResetting 
+                ? (language === 'he' ? 'מאפס...' : 'Resetting...')
+                : (language === 'he' ? 'התחל מחדש' : 'Start Over')
+              }
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">
