@@ -126,8 +126,8 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
             className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-primary-foreground"
             onClick={() => {
               onOpenChange(false);
-              // If complete, go to summary page; otherwise start launchpad
-              navigate(isLaunchpadComplete ? '/launchpad/complete' : '/launchpad');
+              // Always go to launchpad flow - completed users can view/edit all steps
+              navigate('/launchpad');
             }}
           >
             <Sparkles className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />

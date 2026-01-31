@@ -88,7 +88,7 @@ export default function LaunchpadComplete() {
           .from('launchpad_summaries')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('generated_at', { ascending: false })
           .limit(1)
           .single();
 
@@ -110,7 +110,7 @@ export default function LaunchpadComplete() {
           .from('life_plans')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false })
           .limit(1)
           .single();
 
