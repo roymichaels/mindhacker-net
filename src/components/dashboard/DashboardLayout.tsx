@@ -57,9 +57,11 @@ const DashboardLayout = ({
             </Sheet>
           )}
 
-          {/* Main Content - flex-1 to fill remaining height */}
-          <main className="flex-1 flex flex-col p-4 pb-20 min-h-0">
-            {children}
+          {/* Main Content - edge-to-edge on mobile for stretched feel */}
+          <main className="flex-1 flex flex-col px-0 pb-20 min-h-0">
+            <div className="flex-1 px-3 pt-3">
+              {children}
+            </div>
           </main>
         </div>
       </SidebarProvider>

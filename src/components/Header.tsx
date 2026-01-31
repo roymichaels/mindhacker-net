@@ -159,12 +159,13 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
-          {/* Left side - RTL: Menu on far-right, then Logo
-              LTR: Logo, then Menu */}
+          {/* Left side - Logo only on mobile (hamburger removed - bottom nav handles navigation) */}
           <div className="flex items-center gap-2 sm:gap-3 justify-start">
-            {/* RTL: Sidebar Toggle first (appears on far right) */}
+            {/* Desktop: Sidebar Toggle (LTR/RTL aware) - Hidden on mobile */}
             {user && !isAdminMode && isRTL && (
-              <SidebarToggle onMenuClick={onMenuClick} />
+              <div className="hidden md:block">
+                <SidebarToggle onMenuClick={onMenuClick} />
+              </div>
             )}
 
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -176,12 +177,14 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
               </span>
             </Link>
 
-            {/* LTR: Sidebar Toggle after logo */}
+            {/* Desktop: Sidebar Toggle (LTR) - Hidden on mobile */}
             {user && !isAdminMode && !isRTL && (
-              <SidebarToggle onMenuClick={onMenuClick} />
+              <div className="hidden md:block">
+                <SidebarToggle onMenuClick={onMenuClick} />
+              </div>
             )}
 
-            {/* Mobile Admin Sidebar Trigger */}
+            {/* Mobile Admin Sidebar Trigger - Admin pages only */}
             {isAdminMode && (
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild className="lg:hidden">

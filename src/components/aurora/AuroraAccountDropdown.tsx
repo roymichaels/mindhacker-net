@@ -1,5 +1,4 @@
-import { ChevronUp, LayoutDashboard, Settings, ListChecks, LogOut, Globe } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ChevronUp, LayoutDashboard, Settings, ListChecks, LogOut, Globe, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,6 +13,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 
 interface AuroraAccountDropdownProps {
   isCollapsed: boolean;
@@ -31,6 +33,9 @@ const AuroraAccountDropdown = ({
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const { setLanguage } = useLanguage();
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   // Fetch profile data
   const { data: profile } = useQuery({
@@ -50,10 +55,12 @@ const AuroraAccountDropdown = ({
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User';
   const initials = displayName.slice(0, 2).toUpperCase();
 
-  
-
   const handleLanguageToggle = () => {
     setLanguage(language === 'he' ? 'en' : 'he');
+  };
+
+  const handleThemeToggle = () => {
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   const handleSignOut = async () => {
@@ -70,16 +77,20 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          <Avatar className="h-8 w-8 shrink-0">
-            <AvatarFallback className="bg-primary/10 text-primary text-xs">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          {/* MultiThread Orb Avatar - consistent with header */}
+          <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden">
+            <MultiThreadOrb 
+              size={40}
+              showGlow={false}
+              profile={orbProfile}
+            />
+          </div>
           
           {!isCollapsed && (
             <>
               <div className="flex-1 text-start min-w-0">
                 <p className="text-sm font-medium truncate">{displayName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
               <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
             </>
@@ -109,9 +120,23 @@ const AuroraAccountDropdown = ({
         
         <DropdownMenuSeparator />
         
+        {/* Language Toggle */}
         <DropdownMenuItem onClick={handleLanguageToggle}>
           <Globe className="h-4 w-4 me-2" />
           {language === 'he' ? 'English' : 'עברית'}
+        </DropdownMenuItem>
+        
+        {/* Theme Toggle */}
+        <DropdownMenuItem onClick={handleThemeToggle}>
+          {isDark ? (
+            <Sun className="h-4 w-4 me-2" />
+          ) : (
+            <Moon className="h-4 w-4 me-2" />
+          )}
+          {isDark 
+            ? (language === 'he' ? 'מצב בהיר' : 'Light Mode')
+            : (language === 'he' ? 'מצב כהה' : 'Dark Mode')
+          }
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
