@@ -137,8 +137,8 @@ export default function GamificationFeaturesSection() {
           </motion.div>
         </motion.div>
 
-        {/* Features Grid - Enhanced cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
+        {/* Features Grid - Vertical stack on mobile, grid on tablet+ */}
+        <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-4 gap-5 mb-12">
           {gamificationFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (

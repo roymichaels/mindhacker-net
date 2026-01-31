@@ -77,8 +77,8 @@ export default function WhatIsThisSection() {
           </p>
         </motion.div>
 
-        {/* Three Pillars */}
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-12">
+        {/* Three Pillars - Vertical stack on mobile, 3-col on desktop */}
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-6 md:gap-8 mb-12">
           {pillars.map((pillar, index) => {
             const Icon = pillar.icon;
             return (
