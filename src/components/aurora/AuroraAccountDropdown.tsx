@@ -1,5 +1,4 @@
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,8 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import { PersonalizedOrb } from '@/components/orb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -36,7 +34,6 @@ const AuroraAccountDropdown = ({
   const { setLanguage } = useLanguage();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
-  const { profile: orbProfile, isPersonalized } = useMultiThreadOrbProfile();
   const { hasRole } = useUserRoles();
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,12 +100,17 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* Avatar - 3D Orb without clipping */}
-          <div className={cn("shrink-0", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
-            <MultiThreadOrb 
+          {/* Avatar - PersonalizedOrb with DNA-based styling */}
+          <div className={cn(
+            "shrink-0 relative",
+            isCollapsed ? "h-9 w-9" : "h-10 w-10"
+          )}>
+            {/* Glow ring */}
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm scale-110" />
+            <PersonalizedOrb 
               size={isCollapsed ? 36 : 40}
-              showGlow={false}
-              profile={orbProfile}
+              showGlow={true}
+              state="idle"
             />
           </div>
           
