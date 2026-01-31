@@ -159,8 +159,9 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     scene.add(mainWireframe);
     mainWireframeRef.current = mainWireframe;
 
-    // Store base positions for morphing
-    basePositionsRef.current = sphereGeo.attributes.position.array.slice() as Float32Array;
+    // Store base positions for morphing FROM THE WIREFRAME GEOMETRY (not sphereGeo)
+    // The WireframeGeometry has different vertex layout
+    basePositionsRef.current = mainWireframe.geometry.attributes.position.array.slice() as Float32Array;
 
     // ===== INNER GEOMETRIC STRUCTURES =====
     const innerStructures: THREE.LineSegments[] = [];
