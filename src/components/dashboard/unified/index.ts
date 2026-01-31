@@ -1,7 +1,3 @@
-export { StatsBar } from './StatsBar';
-export { XpProgressSection } from './XpProgressSection';
-export { EgoStateDisplay } from './EgoStateDisplay';
-export { LifeDirectionHighlight } from './LifeDirectionHighlight';
 export { CurrentFocusCard } from './CurrentFocusCard';
 export { DailyAnchorsDisplay } from './DailyAnchorsDisplay';
 export { IdentityProfileCard } from './IdentityProfileCard';
@@ -9,8 +5,6 @@ export { CommitmentsCard } from './CommitmentsCard';
 export { TraitsCard } from './TraitsCard';
 export { ChecklistsCard } from './ChecklistsCard';
 export { DailyHabitsCard } from './DailyHabitsCard';
-export { LaunchpadSummaryCard } from './LaunchpadSummaryCard';
 export { ConsciousnessCard } from './ConsciousnessCard';
 export { BehavioralInsightsCard } from './BehavioralInsightsCard';
-export { OrbHeroSection } from './OrbHeroSection';
 export { CharacterHUD } from './CharacterHUD';
