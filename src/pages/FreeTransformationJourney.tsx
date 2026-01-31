@@ -13,7 +13,8 @@ import {
   Gift,
   Star,
   TrendingUp,
-  Compass
+  Compass,
+  X
 } from 'lucide-react';
 
 const BENEFITS = [
@@ -77,12 +78,28 @@ export default function FreeTransformationJourney() {
     navigate('/free-journey/start');
   };
 
+  const handleExit = () => {
+    navigate('/');
+  };
+
   return (
-    <div className="h-screen overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="h-screen overflow-hidden relative isolate" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Solid background to prevent canvas bleed-through */}
+      <div className="absolute inset-0 bg-background z-0" />
+      
+      {/* Exit button */}
+      <button
+        onClick={handleExit}
+        className="absolute top-4 right-4 z-50 p-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+        aria-label={isRTL ? 'יציאה' : 'Exit'}
+      >
+        <X className="w-5 h-5" />
+      </button>
+
       {/* Full-height flex container */}
-      <section className="relative flex flex-col h-full px-4 py-4">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
+      <section className="relative z-10 flex flex-col h-full px-4 py-4">
+        {/* Background gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
         
         {/* Top section: Orb + Badge */}
         <motion.div
@@ -141,7 +158,7 @@ export default function FreeTransformationJourney() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.5 + index * 0.05 }}
-              className="flex items-start gap-2 p-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm"
+              className="flex items-start gap-2 p-3 rounded-xl bg-card/80 border border-border/50 backdrop-blur-sm"
             >
               <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <benefit.icon className="w-4 h-4 text-primary" />
@@ -158,22 +175,24 @@ export default function FreeTransformationJourney() {
           ))}
         </motion.div>
 
-        {/* CTA Button - Fixed at bottom, inside the flex flow */}
+        {/* CTA Button - Solid background container */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
           className="mt-auto pt-4 pb-[env(safe-area-inset-bottom)] w-full max-w-sm mx-auto"
         >
-          <Button
-            size="lg"
-            onClick={handleStart}
-            className="w-full h-14 text-lg gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 font-bold rounded-2xl"
-          >
-            <Sparkles className="w-5 h-5" />
-            {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
-            <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-          </Button>
+          <div className="p-3 rounded-2xl bg-card border border-border shadow-xl">
+            <Button
+              size="lg"
+              onClick={handleStart}
+              className="w-full h-14 text-lg gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 hover:from-purple-600 hover:via-pink-600 hover:to-amber-500 text-white shadow-xl font-bold rounded-xl"
+            >
+              <Sparkles className="w-5 h-5" />
+              {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
+              <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+            </Button>
+          </div>
         </motion.div>
       </section>
     </div>
