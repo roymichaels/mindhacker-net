@@ -279,7 +279,7 @@ const AdminSidebar = () => {
               {isHebrew ? 'חזרה לאורורה' : 'Back to Aurora'}
             </DropdownMenuItem>
             
-            <DropdownMenuItem onClick={() => navigate('/aurora/settings')}>
+            <DropdownMenuItem onClick={() => navigate('/launchpad/settings')}>
               <Settings className="h-4 w-4 me-2" />
               {isHebrew ? 'הגדרות פרופיל' : 'Profile Settings'}
             </DropdownMenuItem>
