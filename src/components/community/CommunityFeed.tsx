@@ -141,18 +141,15 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
         </div>
       )}
 
-      {/* Category Filter */}
+      {/* Posts with Filter */}
       <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
         <CategoryFilter 
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
         />
-      </div>
-
-      {/* Posts */}
-      <div className="space-y-4">
+        
         {isLoading ? (
-          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 space-y-4">
+          <div className="p-6 space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex gap-3">
                 <Skeleton className="h-9 w-9 rounded-full shrink-0" />
@@ -164,17 +161,18 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
             ))}
           </div>
         ) : posts && posts.length > 0 ? (
-          posts.map((post) => (
-            <div key={post.id} className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+          <div className="divide-y divide-border/50">
+            {posts.map((post) => (
               <PostCard 
+                key={post.id}
                 post={post}
                 onEdit={() => setEditingPost(post)}
                 onDelete={() => setDeletePostId(post.id)}
               />
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-center py-12">
+          <div className="text-center py-12">
             <p className="text-muted-foreground">{t('community.noPosts')}</p>
             <p className="text-sm mt-2 text-muted-foreground/70">{t('community.beFirstToPost')}</p>
           </div>
