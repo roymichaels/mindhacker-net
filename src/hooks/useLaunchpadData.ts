@@ -57,10 +57,15 @@ export function useLaunchpadData() {
         .from('launchpad_progress')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error || !progress) {
+      if (error) {
         console.error('Error loading launchpad data:', error);
+        return null;
+      }
+
+      // No progress record exists yet
+      if (!progress) {
         return null;
       }
 
@@ -163,7 +168,7 @@ export function useLaunchpadData() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (lifePlan) {
           lifePlanId = lifePlan.id;
