@@ -275,6 +275,7 @@ export type Database = {
           due_date: string | null
           id: string
           is_completed: boolean
+          is_recurring: boolean
           order_index: number
         }
         Insert: {
@@ -285,6 +286,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           is_completed?: boolean
+          is_recurring?: boolean
           order_index?: number
         }
         Update: {
@@ -295,6 +297,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           is_completed?: boolean
+          is_recurring?: boolean
           order_index?: number
         }
         Relationships: [
@@ -1688,6 +1691,50 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_habit_logs: {
+        Row: {
+          completed_at: string | null
+          completed_by: string
+          created_at: string
+          habit_item_id: string
+          id: string
+          is_completed: boolean
+          notes: string | null
+          track_date: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string
+          created_at?: string
+          habit_item_id: string
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          track_date?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string
+          created_at?: string
+          habit_item_id?: string
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          track_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_habit_logs_habit_item_id_fkey"
+            columns: ["habit_item_id"]
+            isOneToOne: false
+            referencedRelation: "aurora_checklist_items"
             referencedColumns: ["id"]
           },
         ]

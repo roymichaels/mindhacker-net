@@ -33,6 +33,7 @@ import {
   CommitmentsCard,
   TraitsCard,
   ChecklistsCard,
+  DailyHabitsCard,
   LaunchpadSummaryCard,
   ConsciousnessCard,
   BehavioralInsightsCard,
@@ -300,10 +301,13 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       {/* Two Column Grid */}
       {!compact && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Daily Habits - NEW! - Shows first */}
+          <DailyHabitsCard />
+
           {/* Life Plan Card */}
           <LifePlanCard />
 
-          {/* Checklists / My Tasks */}
+          {/* Checklists / My Tasks (non-recurring) */}
           <ChecklistsCard />
 
           {/* Consciousness Analysis - NEW */}
