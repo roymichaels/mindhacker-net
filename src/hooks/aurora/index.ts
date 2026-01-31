@@ -6,3 +6,4 @@ export { useLifeModel } from './useLifeModel';
 export { useDashboard } from './useDashboard';
 export { useOnboardingProgress } from './useOnboardingProgress';
 export { useAuroraVoice } from './useAuroraVoice';
+export { useAuroraReminders } from './useAuroraReminders';
