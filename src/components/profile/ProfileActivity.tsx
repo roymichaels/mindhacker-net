@@ -30,15 +30,16 @@ const ProfileActivity = ({ sessions }: ProfileActivityProps) => {
     return `${hours}:${remainingMinutes.toString().padStart(2, "0")} ${t("common.hours")}`;
   };
 
+  // Simple ego state label mapping
   const getEgoStateLabel = (egoState: string) => {
     const labels: Record<string, string> = {
-      child: t("aurora.childState"),
-      adult: t("aurora.adultState"),
-      parent: t("aurora.parentState"),
-      free_child: t("aurora.freeChild"),
-      adapted_child: t("aurora.adaptedChild"),
-      nurturing_parent: t("aurora.nurturingParent"),
-      critical_parent: t("aurora.criticalParent"),
+      child: language === 'he' ? "ילד" : "Child",
+      adult: language === 'he' ? "מבוגר" : "Adult",
+      parent: language === 'he' ? "הורה" : "Parent",
+      free_child: language === 'he' ? "ילד חופשי" : "Free Child",
+      adapted_child: language === 'he' ? "ילד מותאם" : "Adapted Child",
+      nurturing_parent: language === 'he' ? "הורה מטפח" : "Nurturing Parent",
+      critical_parent: language === 'he' ? "הורה ביקורתי" : "Critical Parent",
     };
     return labels[egoState] || egoState;
   };
