@@ -10,6 +10,12 @@ export { default as LifeWrappingSection } from './LifeWrappingSection';
 export { default as LifePlanPreviewSection } from './LifePlanPreviewSection';
 export { default as DashboardPreviewSection } from './DashboardPreviewSection';
 
+// New viral sections
+export { default as TransformationProofSection } from './TransformationProofSection';
+export { default as JobShowcaseSection } from './JobShowcaseSection';
+export { default as FearOfMissingOutSection } from './FearOfMissingOutSection';
+export { default as FinalCTASection } from './FinalCTASection';
+
 // Legacy exports
 export { default as ConsciousnessCoachingSection } from './ConsciousnessCoachingSection';
 export { default as NewHeroSection } from './NewHeroSection';
