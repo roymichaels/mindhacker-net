@@ -8,8 +8,6 @@ import {
   MORPHOLOGY_PROFILES,
   getMorphology,
   hslToRgb, 
-  GRADIENT_VERTEX_SHADER, 
-  GRADIENT_FRAGMENT_SHADER,
   type ColorPalette,
   type MorphologyProfile 
 } from '@/lib/orbVisualSystem';
@@ -102,16 +100,96 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   return new THREE.Color(colorStr);
 }
 
-// Layer configuration for multi-layer orb
-interface LayerConfig {
-  radius: number;
-  detail: number;
-  opacity: number;
-  colorIndex: number; // 0=primary, 1=secondary, 2=accent
-  rotationSpeed: number;
-  morphOffset: number;
-  useShader: boolean;
+// ===== DNA-BASED GEOMETRY SELECTION =====
+type GeometryType = 'icosahedron' | 'dodecahedron' | 'octahedron' | 'tetrahedron' | 'sphere' | 'torusKnot';
+
+function getGeometryForPalette(paletteId: string): { outer: GeometryType; inner1: GeometryType; inner2: GeometryType } {
+  switch (paletteId) {
+    case 'tech':
+      return { outer: 'icosahedron', inner1: 'octahedron', inner2: 'tetrahedron' };
+    case 'creative':
+      return { outer: 'dodecahedron', inner1: 'icosahedron', inner2: 'torusKnot' };
+    case 'action':
+      return { outer: 'octahedron', inner1: 'tetrahedron', inner2: 'icosahedron' };
+    case 'mystic':
+      return { outer: 'dodecahedron', inner1: 'torusKnot', inner2: 'octahedron' };
+    case 'healing':
+      return { outer: 'sphere', inner1: 'icosahedron', inner2: 'dodecahedron' };
+    case 'explorer':
+    default:
+      return { outer: 'tetrahedron', inner1: 'dodecahedron', inner2: 'octahedron' };
+  }
 }
+
+function createGeometry(type: GeometryType, radius: number, detail: number): THREE.BufferGeometry {
+  switch (type) {
+    case 'icosahedron':
+      return new THREE.IcosahedronGeometry(radius, detail);
+    case 'dodecahedron':
+      return new THREE.DodecahedronGeometry(radius, detail);
+    case 'octahedron':
+      return new THREE.OctahedronGeometry(radius, Math.min(detail, 2));
+    case 'tetrahedron':
+      return new THREE.TetrahedronGeometry(radius, Math.min(detail, 2));
+    case 'sphere':
+      return new THREE.SphereGeometry(radius, 16 + detail * 4, 12 + detail * 3);
+    case 'torusKnot':
+      return new THREE.TorusKnotGeometry(radius * 0.6, radius * 0.2, 64, 8, 2, 3);
+    default:
+      return new THREE.IcosahedronGeometry(radius, detail);
+  }
+}
+
+// ===== GRADIENT SHADER FOR WIREFRAME =====
+const GRADIENT_VERTEX_SHADER = `
+  varying vec3 vPosition;
+  varying vec3 vNormal;
+  
+  void main() {
+    vPosition = position;
+    vNormal = normalize(normalMatrix * normal);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const GRADIENT_FRAGMENT_SHADER = `
+  uniform vec3 colorA;
+  uniform vec3 colorB;
+  uniform vec3 colorC;
+  uniform float time;
+  uniform float intensity;
+  
+  varying vec3 vPosition;
+  varying vec3 vNormal;
+  
+  void main() {
+    // Position-based gradient with animation
+    float heightGradient = (vPosition.y + 1.0) * 0.5;
+    float angleGradient = (atan(vPosition.x, vPosition.z) + 3.14159) / 6.28318;
+    
+    // Animate the gradient
+    float animatedAngle = mod(angleGradient + time * 0.1, 1.0);
+    
+    // Three-color gradient blend
+    vec3 color;
+    if (animatedAngle < 0.33) {
+      color = mix(colorA, colorB, animatedAngle * 3.0);
+    } else if (animatedAngle < 0.66) {
+      color = mix(colorB, colorC, (animatedAngle - 0.33) * 3.0);
+    } else {
+      color = mix(colorC, colorA, (animatedAngle - 0.66) * 3.0);
+    }
+    
+    // Add height influence
+    color = mix(color, colorA, heightGradient * 0.3);
+    
+    // Fresnel-like edge glow
+    float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+    color += fresnel * colorC * 0.5 * intensity;
+    
+    gl_FragColor = vec4(color, 0.9);
+  }
+`;
 
 export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   { 
@@ -132,20 +210,14 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const layersRef = useRef<THREE.Mesh[]>([]);
-  const basePositionsRef = useRef<Map<THREE.Mesh, Float32Array>>(new Map());
+  const mainWireframeRef = useRef<THREE.LineSegments | null>(null);
+  const innerStructuresRef = useRef<THREE.LineSegments[]>([]);
+  const basePositionsRef = useRef<Float32Array | null>(null);
   const particleSystemRef = useRef<ParticleSystem | null>(null);
-  const coreLayersRef = useRef<THREE.Mesh[]>([]);
+  const shaderMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
   const morphPhaseRef = useRef(0);
-  const shaderUniformsRef = useRef<{ 
-    colorA: { value: THREE.Vector3 }; 
-    colorB: { value: THREE.Vector3 }; 
-    colorC: { value: THREE.Vector3 }; 
-    time: { value: number }; 
-    intensity: { value: number }; 
-  } | null>(null);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
   const [internalAudioLevel, setInternalAudioLevel] = useState(0);
@@ -157,14 +229,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
   // Determine the active color palette
   const activePalette = useMemo((): ColorPalette => {
-    // Priority: profile colors > theme colors > default palette
     if (profile?.primaryColor) {
-      // Try to find matching palette or create custom one
       const paletteValues = Object.values(COLOR_PALETTES);
       const matchingPalette = paletteValues.find(p => p.primary === profile.primaryColor);
       if (matchingPalette) return matchingPalette;
       
-      // Create custom palette from profile
       return {
         id: 'custom',
         name: 'Custom',
@@ -188,7 +257,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       };
     }
     
-    // Default: explorer palette
     return COLOR_PALETTES.explorer;
   }, [profile, themeColors]);
 
@@ -197,16 +265,17 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return getMorphology(activePalette.id);
   }, [activePalette.id]);
 
-  // Get profile-based parameters or defaults - ENHANCED with more particles
-  const layerCount = profile?.layerCount ?? 3;
-  const geometryDetail = profile?.geometryDetail ?? 5;
-  const morphIntensity = profile?.morphIntensity ?? 0.18;
-  const morphSpeed = profile?.morphSpeed ?? 1.0;
-  const fractalOctaves = profile?.fractalOctaves ?? 4;
-  const coreIntensity = profile?.coreIntensity ?? 0.7;
-  const coreSize = profile?.coreSize ?? 0.35;
-  const particleEnabled = true; // Always enable particles
-  const particleCount = Math.max(50, profile?.particleCount ?? 50); // Minimum 50 particles
+  // Get DNA-based geometry types
+  const geometryTypes = useMemo(() => {
+    return getGeometryForPalette(activePalette.id);
+  }, [activePalette.id]);
+
+  // Get profile-based parameters - ENHANCED for dramatic morphing
+  const geometryDetail = Math.max(3, profile?.geometryDetail ?? 4);
+  const morphIntensity = Math.max(0.25, (profile?.morphIntensity ?? 0.2) * 1.5); // 50% stronger
+  const morphSpeed = profile?.morphSpeed ?? 1.2;
+  const fractalOctaves = Math.max(4, profile?.fractalOctaves ?? 5);
+  const particleCount = Math.max(60, profile?.particleCount ?? 80);
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
@@ -217,36 +286,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     setTunnelMode: setInternalTunnelMode,
   }), []);
 
-  // Generate layer configurations - SEPARATED colors, no blending!
-  const getLayerConfigs = (): LayerConfig[] => {
-    const configs: LayerConfig[] = [];
-    
-    for (let i = 0; i < layerCount; i++) {
-      configs.push({
-        radius: 0.75 - i * 0.1,
-        detail: Math.max(geometryDetail - i, 3),
-        opacity: 0.85 - i * 0.15,
-        colorIndex: i % 3, // Cycle through primary(0), secondary(1), accent(2)
-        rotationSpeed: 0.003 * (1 + i * 0.5) * (i % 2 === 0 ? 1 : -1),
-        morphOffset: i * 0.6,
-        useShader: i === 0, // Only first layer uses gradient shader
-      });
-    }
-    
-    return configs;
-  };
-
-  // Get color from palette by index
-  const getPaletteColor = (index: number): string => {
-    switch (index) {
-      case 0: return activePalette.primary;
-      case 1: return activePalette.secondary;
-      case 2: return activePalette.accent;
-      default: return activePalette.primary;
-    }
-  };
-
-  // Initialize Three.js scene
+  // Initialize Three.js scene with DNA-based geometry
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -261,74 +301,135 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     camera.position.z = 3.5;
     cameraRef.current = camera;
 
-    // Renderer with tone mapping for better glow
+    // Renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
     });
-    (renderer as any).physicallyCorrectLights = true;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3; // Boosted exposure
-    (renderer as any).outputColorSpace = THREE.SRGBColorSpace;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // ===== MINIMAL LIGHTING FOR WIREFRAME =====
-    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+    // Minimal lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambient);
 
-    // Get wireframe color from palette
-    const wireColor = parseHslToThreeColor(activePalette.primary);
-    
-    // ===== WIREFRAME LINE MATERIAL =====
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: wireColor,
-      transparent: true,
-      opacity: 0.9,
-      linewidth: 1,
-    });
+    // Get colors from palette for gradient
+    const primaryColor = parseHslToThreeColor(activePalette.primary);
+    const secondaryColor = parseHslToThreeColor(activePalette.secondary);
+    const accentColor = parseHslToThreeColor(activePalette.accent);
 
-    // ===== MAIN WIREFRAME SPHERE - High detail for smooth appearance =====
-    const sphereDetail = geometryDetail + 2; // More detail for smoother wireframe
-    const sphereGeo = new THREE.IcosahedronGeometry(0.85, sphereDetail);
-    const sphereEdges = new THREE.WireframeGeometry(sphereGeo);
-    const mainWireframe = new THREE.LineSegments(sphereEdges, lineMaterial.clone());
+    // ===== SHADER UNIFORMS FOR GRADIENT =====
+    const shaderUniforms = {
+      colorA: { value: new THREE.Vector3(primaryColor.r, primaryColor.g, primaryColor.b) },
+      colorB: { value: new THREE.Vector3(secondaryColor.r, secondaryColor.g, secondaryColor.b) },
+      colorC: { value: new THREE.Vector3(accentColor.r, accentColor.g, accentColor.b) },
+      time: { value: 0 },
+      intensity: { value: 1.0 },
+    };
+
+    // ===== MAIN OUTER WIREFRAME - DNA-based geometry =====
+    const outerGeo = createGeometry(geometryTypes.outer, 0.85, geometryDetail);
+    const outerEdges = new THREE.WireframeGeometry(outerGeo);
+    
+    // Create gradient line material using vertex colors
+    const positions = outerEdges.attributes.position;
+    const colors = new Float32Array(positions.count * 3);
+    
+    for (let i = 0; i < positions.count; i++) {
+      const y = positions.getY(i);
+      const normalizedY = (y + 1) / 2; // 0-1
+      
+      // Blend between three colors based on position
+      let r, g, b;
+      if (normalizedY < 0.5) {
+        const t = normalizedY * 2;
+        r = primaryColor.r + (secondaryColor.r - primaryColor.r) * t;
+        g = primaryColor.g + (secondaryColor.g - primaryColor.g) * t;
+        b = primaryColor.b + (secondaryColor.b - primaryColor.b) * t;
+      } else {
+        const t = (normalizedY - 0.5) * 2;
+        r = secondaryColor.r + (accentColor.r - secondaryColor.r) * t;
+        g = secondaryColor.g + (accentColor.g - secondaryColor.g) * t;
+        b = secondaryColor.b + (accentColor.b - secondaryColor.b) * t;
+      }
+      
+      colors[i * 3] = r;
+      colors[i * 3 + 1] = g;
+      colors[i * 3 + 2] = b;
+    }
+    
+    outerEdges.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    const lineMaterial = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.95,
+    });
+    
+    const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
     scene.add(mainWireframe);
+    mainWireframeRef.current = mainWireframe;
 
     // Store base positions for morphing
-    const basePositions = sphereGeo.attributes.position.array.slice() as Float32Array;
+    basePositionsRef.current = outerEdges.attributes.position.array.slice() as Float32Array;
 
-    // ===== INNER GEOMETRIC STRUCTURE =====
-    // Icosahedron core
-    const icosaGeo = new THREE.IcosahedronGeometry(0.4, 1);
-    const icosaEdges = new THREE.WireframeGeometry(icosaGeo);
-    const icosaWireframe = new THREE.LineSegments(icosaEdges, lineMaterial.clone());
-    scene.add(icosaWireframe);
+    // ===== INNER GEOMETRIC STRUCTURES - DNA-based =====
+    const innerStructures: THREE.LineSegments[] = [];
 
-    // Octahedron inside
-    const octaGeo = new THREE.OctahedronGeometry(0.25, 0);
-    const octaEdges = new THREE.WireframeGeometry(octaGeo);
-    const octaWireframe = new THREE.LineSegments(octaEdges, lineMaterial.clone());
-    scene.add(octaWireframe);
-
-    // Store references for animation
-    const wireframes = [mainWireframe, icosaWireframe, octaWireframe];
-    layersRef.current = wireframes as unknown as THREE.Mesh[];
-    basePositionsRef.current.set(mainWireframe as unknown as THREE.Mesh, basePositions);
+    // First inner structure
+    const inner1Geo = createGeometry(geometryTypes.inner1, 0.45, Math.max(1, geometryDetail - 1));
+    const inner1Edges = new THREE.WireframeGeometry(inner1Geo);
     
-    // Store inner structures separately for different animation
-    coreLayersRef.current = [icosaWireframe, octaWireframe] as unknown as THREE.Mesh[];
-
-    // ===== PARTICLES - Same color as wireframe =====
-    if (particleEnabled) {
-      const actualParticleCount = Math.max(30, particleCount);
-      const ps = new ParticleSystem(actualParticleCount, activePalette.primary, 0.5, 2.0);
-      scene.add(ps.mesh);
-      particleSystemRef.current = ps;
+    // Add gradient colors to inner structure
+    const inner1Positions = inner1Edges.attributes.position;
+    const inner1Colors = new Float32Array(inner1Positions.count * 3);
+    for (let i = 0; i < inner1Positions.count; i++) {
+      const y = inner1Positions.getY(i);
+      const t = (y + 0.5) / 1;
+      inner1Colors[i * 3] = secondaryColor.r + (accentColor.r - secondaryColor.r) * t;
+      inner1Colors[i * 3 + 1] = secondaryColor.g + (accentColor.g - secondaryColor.g) * t;
+      inner1Colors[i * 3 + 2] = secondaryColor.b + (accentColor.b - secondaryColor.b) * t;
     }
+    inner1Edges.setAttribute('color', new THREE.BufferAttribute(inner1Colors, 3));
+    
+    const inner1Wireframe = new THREE.LineSegments(inner1Edges, lineMaterial.clone());
+    scene.add(inner1Wireframe);
+    innerStructures.push(inner1Wireframe);
+
+    // Second inner structure
+    const inner2Geo = createGeometry(geometryTypes.inner2, 0.25, Math.max(0, geometryDetail - 2));
+    const inner2Edges = new THREE.WireframeGeometry(inner2Geo);
+    
+    // Add gradient colors
+    const inner2Positions = inner2Edges.attributes.position;
+    const inner2Colors = new Float32Array(inner2Positions.count * 3);
+    for (let i = 0; i < inner2Positions.count; i++) {
+      const y = inner2Positions.getY(i);
+      const t = (y + 0.3) / 0.6;
+      inner2Colors[i * 3] = accentColor.r + (primaryColor.r - accentColor.r) * t;
+      inner2Colors[i * 3 + 1] = accentColor.g + (primaryColor.g - accentColor.g) * t;
+      inner2Colors[i * 3 + 2] = accentColor.b + (primaryColor.b - accentColor.b) * t;
+    }
+    inner2Edges.setAttribute('color', new THREE.BufferAttribute(inner2Colors, 3));
+    
+    const inner2Wireframe = new THREE.LineSegments(inner2Edges, lineMaterial.clone());
+    scene.add(inner2Wireframe);
+    innerStructures.push(inner2Wireframe);
+
+    innerStructuresRef.current = innerStructures;
+
+    // Cleanup geometries
+    outerGeo.dispose();
+    inner1Geo.dispose();
+    inner2Geo.dispose();
+
+    // ===== PARTICLES - Gradient colored =====
+    const ps = new ParticleSystem(particleCount, activePalette.primary, 0.5, 2.0);
+    scene.add(ps.mesh);
+    particleSystemRef.current = ps;
 
     onReady?.();
 
@@ -336,13 +437,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
-      wireframes.forEach(wf => {
-        wf.geometry.dispose();
-        (wf.material as THREE.Material).dispose();
+      mainWireframe.geometry.dispose();
+      (mainWireframe.material as THREE.Material).dispose();
+      innerStructures.forEach(s => {
+        s.geometry.dispose();
+        (s.material as THREE.Material).dispose();
       });
-      sphereGeo.dispose();
-      icosaGeo.dispose();
-      octaGeo.dispose();
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
@@ -351,129 +451,205 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         container.removeChild(renderer.domElement);
       }
     };
-  }, [size, layerCount, geometryDetail, coreSize, particleEnabled, particleCount, activePalette.id]);
+  }, [size, geometryDetail, particleCount, activePalette.id, geometryTypes]);
 
   // Update colors when palette changes
   useEffect(() => {
-    const wireColor = parseHslToThreeColor(activePalette.primary);
-    
-    // Update all wireframe colors
-    layersRef.current.forEach((layer) => {
-      if ((layer as any).material instanceof THREE.LineBasicMaterial) {
-        ((layer as any).material as THREE.LineBasicMaterial).color = wireColor;
+    const primaryColor = parseHslToThreeColor(activePalette.primary);
+    const secondaryColor = parseHslToThreeColor(activePalette.secondary);
+    const accentColor = parseHslToThreeColor(activePalette.accent);
+
+    // Update main wireframe vertex colors
+    if (mainWireframeRef.current) {
+      const geometry = mainWireframeRef.current.geometry;
+      const positions = geometry.attributes.position;
+      const colors = geometry.attributes.color;
+      
+      if (colors) {
+        for (let i = 0; i < positions.count; i++) {
+          const y = positions.getY(i);
+          const normalizedY = (y + 1) / 2;
+          
+          let r, g, b;
+          if (normalizedY < 0.5) {
+            const t = normalizedY * 2;
+            r = primaryColor.r + (secondaryColor.r - primaryColor.r) * t;
+            g = primaryColor.g + (secondaryColor.g - primaryColor.g) * t;
+            b = primaryColor.b + (secondaryColor.b - primaryColor.b) * t;
+          } else {
+            const t = (normalizedY - 0.5) * 2;
+            r = secondaryColor.r + (accentColor.r - secondaryColor.r) * t;
+            g = secondaryColor.g + (accentColor.g - secondaryColor.g) * t;
+            b = secondaryColor.b + (accentColor.b - secondaryColor.b) * t;
+          }
+          
+          colors.setXYZ(i, r, g, b);
+        }
+        colors.needsUpdate = true;
+      }
+    }
+
+    // Update inner structures
+    innerStructuresRef.current.forEach((structure, idx) => {
+      const geometry = structure.geometry;
+      const colors = geometry.attributes.color;
+      
+      if (colors) {
+        const c1 = idx === 0 ? secondaryColor : accentColor;
+        const c2 = idx === 0 ? accentColor : primaryColor;
+        
+        for (let i = 0; i < colors.count; i++) {
+          const t = i / colors.count;
+          colors.setXYZ(
+            i,
+            c1.r + (c2.r - c1.r) * t,
+            c1.g + (c2.g - c1.g) * t,
+            c1.b + (c2.b - c1.b) * t
+          );
+        }
+        colors.needsUpdate = true;
       }
     });
 
-    coreLayersRef.current.forEach((layer) => {
-      if ((layer as any).material instanceof THREE.LineBasicMaterial) {
-        ((layer as any).material as THREE.LineBasicMaterial).color = wireColor;
-      }
-    });
-
+    // Update particles
     if (particleSystemRef.current) {
       particleSystemRef.current.setColor(activePalette.primary);
     }
   }, [activePalette]);
 
-  // Animation loop with wireframe morphing
+  // Animation loop with ENHANCED morphing
   useEffect(() => {
-    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !mainWireframeRef.current) return;
 
     const renderer = rendererRef.current;
     const scene = sceneRef.current;
     const camera = cameraRef.current;
-    const layers = layersRef.current;
-    const coreLayers = coreLayersRef.current;
+    const mainWireframe = mainWireframeRef.current;
+    const innerStructures = innerStructuresRef.current;
+    const basePositions = basePositionsRef.current;
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
-      timeRef.current += 0.008 * morphSpeed;
-      morphPhaseRef.current += 0.003 * morphSpeed;
+      timeRef.current += 0.012 * morphSpeed;
+      morphPhaseRef.current += 0.005 * morphSpeed;
 
       const time = timeRef.current;
       const morphPhase = morphPhaseRef.current;
 
-      // State-based animation modifiers
+      // State-based animation modifiers - ENHANCED
       const stateModifier = {
-        idle: { rotMod: 1, morphMod: 1, pulseMod: 1 },
-        listening: { rotMod: 2, morphMod: 1.5, pulseMod: 1.5 },
-        speaking: { rotMod: 3, morphMod: 2.0, pulseMod: 2 },
-        thinking: { rotMod: 4, morphMod: 1.8, pulseMod: 1.8 },
-        session: { rotMod: 1.5, morphMod: 1.2, pulseMod: 1.2 },
-        breathing: { rotMod: 0.5, morphMod: 1.5, pulseMod: 0.6 },
+        idle: { rotMod: 1, morphMod: 1.2, pulseMod: 1 },
+        listening: { rotMod: 2, morphMod: 1.8, pulseMod: 1.5 },
+        speaking: { rotMod: 3.5, morphMod: 2.5, pulseMod: 2.2 },
+        thinking: { rotMod: 4, morphMod: 2.2, pulseMod: 2.0 },
+        session: { rotMod: 1.8, morphMod: 1.5, pulseMod: 1.4 },
+        breathing: { rotMod: 0.6, morphMod: 2.0, pulseMod: 0.7 },
       }[state];
 
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // ===== MAIN WIREFRAME SPHERE MORPHING =====
-      const mainWireframe = layers[0];
-      if (mainWireframe) {
-        const geometry = (mainWireframe as any).geometry;
-        const basePositions = basePositionsRef.current.get(mainWireframe);
+      // ===== MAIN WIREFRAME MORPHING - DRAMATICALLY ENHANCED =====
+      if (basePositions) {
+        const positions = mainWireframe.geometry.attributes.position;
+        const colors = mainWireframe.geometry.attributes.color;
         
-        if (basePositions && geometry.attributes.position) {
-          const positions = geometry.attributes.position.array as Float32Array;
+        for (let i = 0; i < positions.count; i++) {
+          const baseX = basePositions[i * 3];
+          const baseY = basePositions[i * 3 + 1];
+          const baseZ = basePositions[i * 3 + 2];
           
-          for (let i = 0; i < positions.length; i += 3) {
-            const baseX = basePositions[i];
-            const baseY = basePositions[i + 1];
-            const baseZ = basePositions[i + 2];
+          const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
+          if (dist === 0) continue;
+          
+          const nx = baseX / dist;
+          const ny = baseY / dist;
+          const nz = baseZ / dist;
+          
+          // ENHANCED organic noise-based deformation
+          const noiseVal = fbm(
+            nx * 2.5 + morphPhase * 0.6,
+            ny * 2.5 + morphPhase * 0.4,
+            nz * 2.5 + morphPhase * 0.8,
+            fractalOctaves
+          );
+          
+          // Multiple wave layers for complex movement
+          const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.12;
+          const wave2 = Math.sin(nz * 3 + time * 1.8) * Math.cos(ny * 2.5 + time * 1.2) * 0.08;
+          const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.06;
+          
+          // Radial pulse with multiple frequencies
+          const pulse1 = Math.sin(time * pulseMod + dist * 4) * 0.05;
+          const pulse2 = Math.sin(time * pulseMod * 0.7 + dist * 2) * 0.03;
+          
+          // Audio reactivity
+          const audioBoost = audioLevel * 0.35;
+          
+          // Combined DRAMATIC deformation
+          const deform = (
+            noiseVal * morphIntensity * morphMod * 1.5 + 
+            wave1 + wave2 + wave3 + 
+            pulse1 + pulse2 + 
+            audioBoost
+          );
+          
+          positions.setXYZ(
+            i,
+            baseX + nx * deform,
+            baseY + ny * deform,
+            baseZ + nz * deform
+          );
+          
+          // Animate vertex colors based on deformation
+          if (colors) {
+            const deformIntensity = Math.abs(deform) * 3;
+            const currentR = colors.getX(i);
+            const currentG = colors.getY(i);
+            const currentB = colors.getZ(i);
             
-            const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
-            if (dist === 0) continue;
-            
-            const nx = baseX / dist;
-            const ny = baseY / dist;
-            const nz = baseZ / dist;
-            
-            // Organic noise-based deformation
-            const noiseVal = fbm(
-              nx * 2 + morphPhase * 0.5,
-              ny * 2 + morphPhase * 0.3,
-              nz * 2 + morphPhase * 0.7,
-              fractalOctaves
+            // Brighten based on deformation
+            colors.setXYZ(
+              i,
+              Math.min(1, currentR + deformIntensity * 0.1),
+              Math.min(1, currentG + deformIntensity * 0.1),
+              Math.min(1, currentB + deformIntensity * 0.1)
             );
-            
-            // Wave distortion
-            const waveDistort = Math.sin(ny * 4 + time * 2) * Math.cos(nx * 3 + time * 1.5) * 0.08;
-            
-            // Radial pulse
-            const pulse = Math.sin(time * pulseMod + dist * 3) * 0.03;
-            
-            // Audio reactivity
-            const audioBoost = audioLevel * 0.2;
-            
-            // Combined deformation
-            const deform = (noiseVal * morphIntensity * morphMod + waveDistort + pulse + audioBoost) * 0.8;
-            
-            positions[i] = baseX + nx * deform;
-            positions[i + 1] = baseY + ny * deform;
-            positions[i + 2] = baseZ + nz * deform;
           }
-          
-          geometry.attributes.position.needsUpdate = true;
         }
         
-        // Rotate main wireframe
-        mainWireframe.rotation.y += 0.002 * rotMod;
-        mainWireframe.rotation.x += 0.001 * rotMod;
+        positions.needsUpdate = true;
+        if (colors) colors.needsUpdate = true;
       }
 
-      // ===== INNER STRUCTURES ANIMATION =====
-      // Icosahedron
-      if (coreLayers[0]) {
-        coreLayers[0].rotation.y += 0.004 * rotMod;
-        coreLayers[0].rotation.x -= 0.002 * rotMod;
-        const scale = 1 + Math.sin(time * 1.5) * 0.05 + audioLevel * 0.1;
-        coreLayers[0].scale.setScalar(scale);
+      // Rotate main wireframe with morphology-based pattern
+      const rotAxis = activeMorphology.rotationAxis;
+      mainWireframe.rotation.y += 0.003 * rotMod;
+      if (rotAxis === 'x' || rotAxis === 'diagonal') {
+        mainWireframe.rotation.x += 0.002 * rotMod;
+      }
+      if (rotAxis === 'z' || rotAxis === 'diagonal') {
+        mainWireframe.rotation.z += 0.001 * rotMod;
+      }
+      if (rotAxis === 'wobble') {
+        mainWireframe.rotation.x = Math.sin(time * 0.5) * 0.15;
+        mainWireframe.rotation.z = Math.cos(time * 0.4) * 0.12;
+      }
+
+      // ===== INNER STRUCTURES ANIMATION - ENHANCED =====
+      if (innerStructures[0]) {
+        innerStructures[0].rotation.y += 0.006 * rotMod;
+        innerStructures[0].rotation.x -= 0.004 * rotMod;
+        innerStructures[0].rotation.z += Math.sin(time * 0.8) * 0.002;
+        const scale = 1 + Math.sin(time * 1.8) * 0.12 + audioLevel * 0.15;
+        innerStructures[0].scale.setScalar(scale);
       }
       
-      // Octahedron
-      if (coreLayers[1]) {
-        coreLayers[1].rotation.y -= 0.005 * rotMod;
-        coreLayers[1].rotation.z += 0.003 * rotMod;
-        const scale = 1 + Math.sin(time * 2 + 1) * 0.08 + audioLevel * 0.1;
-        coreLayers[1].scale.setScalar(scale);
+      if (innerStructures[1]) {
+        innerStructures[1].rotation.y -= 0.008 * rotMod;
+        innerStructures[1].rotation.z += 0.005 * rotMod;
+        innerStructures[1].rotation.x += Math.cos(time * 0.6) * 0.003;
+        const scale = 1 + Math.sin(time * 2.2 + 1.5) * 0.15 + audioLevel * 0.12;
+        innerStructures[1].scale.setScalar(scale);
       }
 
       // Update particles
@@ -481,12 +657,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         particleSystemRef.current.update(time, audioLevel);
       }
 
-      // Tunnel mode
+      // Camera movement
       if (isTunnel) {
-        camera.position.z = 2.5 + Math.sin(time * 0.5) * 0.4;
-        layers.forEach(mesh => {
-          mesh.rotation.z += 0.015;
-        });
+        camera.position.z = 3.0 + Math.sin(time * 0.5) * 0.4;
+        mainWireframe.rotation.z += 0.015;
       } else {
         camera.position.z = 3.5;
       }
@@ -499,11 +673,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves]);
+  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, activeMorphology, activePalette]);
 
   // Resize handling
   useEffect(() => {
-    if (!rendererRef.current || !cameraRef.current) return;
+    if (!rendererRef.current) return;
     rendererRef.current.setSize(size, size);
   }, [size]);
 
@@ -511,12 +685,16 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     <div
       ref={containerRef}
       className={className}
-      style={{ 
-        width: size, 
-        height: size, 
+      style={{
+        width: size,
+        height: size,
+        minWidth: size,
+        minHeight: size,
         background: 'transparent',
-        overflow: 'visible'
+        overflow: 'visible',
       }}
     />
   );
 });
+
+export default WebGLOrb;
