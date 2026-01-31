@@ -148,38 +148,11 @@ export default function FreeTransformationJourney() {
             transition={{ duration: 0.8, type: 'spring' }}
             className="relative flex justify-center mb-4"
           >
-            {/* Outer glow rings */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.div 
-                className="w-48 h-48 rounded-full"
-                style={{
-                  background: 'radial-gradient(circle, hsl(var(--primary) / 0.2) 0%, transparent 70%)',
-                }}
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              />
-            </div>
-            <motion.div 
-              className="absolute inset-0 flex items-center justify-center"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              <div 
-                className="w-40 h-40 rounded-full border border-primary/20"
-                style={{
-                  background: 'conic-gradient(from 0deg, transparent, hsl(var(--primary) / 0.1), transparent)',
-                }}
-              />
-            </motion.div>
-            
-            {/* The Orb - Enhanced WebGL with particles */}
-            <div className="relative w-44 h-44 sm:w-52 sm:h-52">
+            {/* The Orb - Clean 3D with integrated particles */}
+            <div className="relative w-52 h-52 sm:w-64 sm:h-64">
               <Orb 
                 profile={orbProfile} 
-                size={208} 
+                size={256} 
                 className="w-full h-full"
                 showGlow={true}
               />
