@@ -20,7 +20,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu } from "lucide-react";
+import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag, Sparkles } from "lucide-react";
+import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
+import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
 import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -100,6 +102,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   const { theme: brandTheme } = useThemeSettings();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  
+  // Get multi-thread orb profile for avatar
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   // Get brand name from theme settings based on language
   const brandName = isRTL ? brandTheme.brand_name : brandTheme.brand_name_en;
@@ -217,6 +222,90 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             ) : user ? (
               <>
                 {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
+                {/* Mobile-only Avatar Dropdown */}
+                <div className="md:hidden">
+                  <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
+                        <MultiThreadOrb 
+                          size={40}
+                          showGlow={false}
+                          profile={orbProfile}
+                        />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">{t('common.account')}</p>
+                          <p className="text-xs leading-none text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {/* Start Change CTA */}
+                      <DropdownMenuItem 
+                        onClick={() => setStartModalOpen(true)}
+                        className="bg-primary/10 text-primary focus:bg-primary/20 focus:text-primary"
+                      >
+                        <Sparkles className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        {t('header.startChangeNow')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                        <ShoppingBag className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        {t('common.dashboard')}
+                      </DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem onClick={() => navigate("/admin")}>
+                          <Settings className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                          {t('header.adminPanel')}
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      {/* Language Switcher Sub-menu */}
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                          {t('common.language')}
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent className="bg-card dark:bg-card border border-border shadow-xl z-50">
+                            <DropdownMenuItem 
+                              onClick={() => setLanguage('he')}
+                              className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
+                            >
+                              <span className={isRTL ? "ml-2" : "mr-2"}>🇮🇱</span>
+                              עברית
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setLanguage('en')}
+                              className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
+                            >
+                              <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
+                              English
+                            </DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                      {/* Theme Toggle in dropdown */}
+                      <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+                        {isDark ? (
+                          <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        ) : (
+                          <Moon className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        )}
+                        {isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                        <LogOut className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+                        {t('common.logout')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </>
             ) : (
               /* Guest Avatar Dropdown with Language/Theme */
