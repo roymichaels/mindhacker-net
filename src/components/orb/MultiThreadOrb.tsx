@@ -10,6 +10,7 @@
 
 import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { OrbRef, OrbState } from './types';
 import type { MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
 import { DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
@@ -179,10 +180,18 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    renderer.toneMappingExposure = 1.9;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // === ENVIRONMENT (critical for metallic/mercury look) ===
+    // Without an environment map, metal surfaces look flat and "moon-like".
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+    scene.environment = envRT.texture;
+    // Keep background transparent (we only set environment, not scene.background)
 
     // === LIGHTING - Rich and dramatic ===
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -235,6 +244,9 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       sheen: 1.0,
       sheenColor: vis.secondaryColor,
       sheenRoughness: 0.2,
+      envMapIntensity: 2.2,
+      specularIntensity: 1.0,
+      specularColor: vis.secondaryColor,
       side: THREE.FrontSide,
     });
 
@@ -247,7 +259,9 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     const coreMaterial = new THREE.MeshBasicMaterial({
       color: vis.primaryColor.clone().multiplyScalar(2.0),
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.22,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
     const coreOrb = new THREE.Mesh(coreGeometry, coreMaterial);
     mainOrb.add(coreOrb); // Child of main orb
@@ -258,6 +272,8 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     // Cleanup
     return () => {
       cancelAnimationFrame(frameRef.current);
+      envRT.dispose();
+      pmrem.dispose();
       renderer.dispose();
       mainGeometry.dispose();
       mainMaterial.dispose();
