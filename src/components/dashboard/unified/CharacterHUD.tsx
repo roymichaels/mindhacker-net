@@ -76,33 +76,18 @@ export function CharacterHUD({
       
       {/* Info Section */}
       <div className="flex-1 min-w-0 z-10 space-y-1.5">
-        {/* Top Row: Identity + Level */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            {identityTitle && (
-              <>
-                <span className="text-base flex-shrink-0">{identityTitle.icon}</span>
-                <span 
-                  className="text-sm font-semibold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
-                >
-                  {identityTitle.title}
-                </span>
-              </>
-            )}
-          </div>
-          
-          {/* Level Badge */}
-          <div 
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
-            style={{
-              backgroundColor: primaryColor.replace(')', '/0.2)'),
-              color: primaryColor,
-              border: `1px solid ${primaryColor.replace(')', '/0.3)')}`,
-            }}
-          >
-            <Star className="h-3 w-3" />
-            <span>Lv.{level}</span>
-          </div>
+        {/* Top Row: Identity Title only */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          {identityTitle && (
+            <>
+              <span className="text-base flex-shrink-0">{identityTitle.icon}</span>
+              <span 
+                className="text-sm font-semibold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+              >
+                {identityTitle.title}
+              </span>
+            </>
+          )}
         </div>
         
         {/* XP Progress Bar */}
@@ -125,15 +110,27 @@ export function CharacterHUD({
           </span>
         </div>
         
-        {/* Bottom Row: Streak + Tokens */}
+        {/* Bottom Row: Level + Streak + Tokens */}
         <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1 text-orange-500">
-            <Flame className="h-3.5 w-3.5" />
-            <span className="font-medium">{streak}</span>
+          {/* Level Badge */}
+          <div 
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full font-bold flex-shrink-0"
+            style={{
+              backgroundColor: primaryColor.replace(')', '/0.2)'),
+              color: primaryColor,
+              border: `1px solid ${primaryColor.replace(')', '/0.3)')}`,
+            }}
+          >
+            <Star className="h-3 w-3" />
+            <span>Lv.{level}</span>
           </div>
           <div className="flex items-center gap-1 text-yellow-500">
             <Gem className="h-3.5 w-3.5" />
             <span className="font-medium">{tokens}</span>
+          </div>
+          <div className="flex items-center gap-1 text-orange-500">
+            <Flame className="h-3.5 w-3.5" />
+            <span className="font-medium">{streak}</span>
           </div>
         </div>
       </div>
