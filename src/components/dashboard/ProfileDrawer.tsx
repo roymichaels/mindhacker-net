@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadData } from '@/hooks/useLaunchpadData';
@@ -41,7 +41,7 @@ interface ProfileDrawerProps {
 
 export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const navigate = useNavigate();
-  const { language, isRTL, t } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: launchpadData, isLoading } = useLaunchpadData();
@@ -51,33 +51,6 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const { profile: orbProfile } = useMultiThreadOrbProfile();
   
   const [isRegenerating, setIsRegenerating] = useState(false);
-
-  // Extract summary data
-  const summaryData = launchpadSummary?.summary_data as {
-    identity_profile?: {
-      dominant_traits?: string[];
-      identity_title?: string;
-      identity_title_he?: string;
-      identity_emoji?: string;
-    };
-    consciousness_analysis?: {
-      dominant_patterns?: string[];
-      growth_edges?: string[];
-      strengths?: string[];
-    };
-    behavioral_insights?: {
-      habits_to_cultivate?: string[];
-      resistance_patterns?: string[];
-    };
-    career_path?: {
-      current_status?: string;
-      aspirations?: string[];
-    };
-    life_direction?: {
-      central_theme?: string;
-      vision_5_years?: string;
-    };
-  } | null;
 
   const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 0;
   const transformationReadiness = (launchpadSummary?.transformation_readiness as number) || 0;
@@ -433,7 +406,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
 // ===== SUB-COMPONENTS =====
 
 interface ScoreCardProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: number;
   suffix: string;
@@ -466,9 +439,9 @@ function ScoreCard({ icon, label, value, suffix, gradient }: ScoreCardProps) {
 }
 
 interface GlassCardProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function GlassCard({ icon, title, children }: GlassCardProps) {

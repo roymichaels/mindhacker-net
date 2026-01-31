@@ -9,7 +9,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { Orb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { BreathingGuide } from '@/components/hypnosis';
 import { 
   generateHypnosisScript, 
@@ -27,8 +28,25 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import type { VoiceProvider } from '@/services/voice';
 
 type SessionState = 'setup' | 'breathing' | 'generating' | 'playing' | 'paused' | 'complete';
+
+function normalizeHebrewGender(text: string): string {
+  // Lightweight normalization to avoid mixed gender instructions in Hebrew.
+  // Keeps meaning while using neutral slash form.
+  const replacements: Array<[RegExp, string]> = [
+    [/\bאתה\b/g, 'את/ה'],
+    [/\bאת\b/g, 'את/ה'],
+    [/\bתוכל\b/g, 'תוכל/י'],
+    [/\bתוכלי\b/g, 'תוכל/י'],
+    [/\bתעשה\b/g, 'תעשה/י'],
+    [/\bתעשי\b/g, 'תעשה/י'],
+    [/\bתרגיש\b/g, 'תרגיש/י'],
+    [/\bתרגישי\b/g, 'תרגיש/י'],
+  ];
+  return replacements.reduce((acc, [re, rep]) => acc.replace(re, rep), text);
+}
 
 const SEGMENT_LABELS: Record<string, { he: string; en: string }> = {
   welcome: { he: 'ברוכים הבאים', en: 'Welcome' },
@@ -54,6 +72,7 @@ const HypnosisSession = () => {
   const { gameState, recordSession } = useGameState();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern, heartbeat } = useHaptics();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   const presetId = searchParams.get('preset');
   const presetDuration = searchParams.get('duration');
@@ -74,13 +93,29 @@ const HypnosisSession = () => {
   const [cachedAudioPaths, setCachedAudioPaths] = useState<string[] | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
 
-  const [voiceProvider, setVoiceProvider] = useState<'elevenlabs' | 'openai' | 'browser'>('elevenlabs');
+  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs');
+
+  const [orbSize, setOrbSize] = useState(360);
+  const prefetchedAudioRef = useRef<Map<number, { url: string; provider: VoiceProvider }>>(new Map());
 
   const startTimeRef = useRef<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playingRef = useRef<boolean>(false);
 
   const currentSegment = script?.segments[currentSegmentIndex];
+
+  useEffect(() => {
+    const compute = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 390;
+      const h = typeof window !== 'undefined' ? window.innerHeight : 844;
+      // Make orb dominant but keep room for bottom controls.
+      const size = Math.floor(Math.min(w * 0.86, (h - 220) * 0.78, 520));
+      setOrbSize(Math.max(280, size));
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, []);
 
   // Set preset goal
   useEffect(() => {
@@ -211,6 +246,7 @@ const HypnosisSession = () => {
       hapticPattern('success');
       
       // Pass script directly to avoid race condition
+      prefetchedAudioRef.current.clear();
       playSegment(0, generatedScript);
     } catch (error) {
       console.error('Failed to generate script:', error);
@@ -234,11 +270,45 @@ const HypnosisSession = () => {
     startTimeRef.current = Date.now();
     playingRef.current = true;
     setState('playing');
+    prefetchedAudioRef.current.clear();
     
     if (scriptRef.current) {
       playSegment(0, scriptRef.current, cachedAudioPaths || undefined);
     }
   };
+
+  const prefetchSegmentAudio = useCallback(async (
+    index: number,
+    activeScript: HypnosisScript,
+    activeCachedPaths?: string[]
+  ) => {
+    if (index >= activeScript.segments.length) return;
+    if (prefetchedAudioRef.current.has(index)) return;
+    if (isMuted) return;
+
+    const nextSegment = activeScript.segments[index];
+    if (!nextSegment?.text) return;
+
+    // Prefer cached signed URL if exists
+    const cachedPath = activeCachedPaths?.[index];
+    if (cachedPath) {
+      const signed = await getCachedAudioUrl(cachedPath);
+      if (signed) {
+        prefetchedAudioRef.current.set(index, { url: signed, provider: voiceProvider });
+        return;
+      }
+    }
+
+    const normalized = normalizeHebrewGender(nextSegment.text);
+    const result = await synthesizeSpeech(normalized, {
+      provider: voiceProvider,
+      voice: 'sarah',
+      speed: 0.9,
+    });
+    if (result?.audioUrl) {
+      prefetchedAudioRef.current.set(index, { url: result.audioUrl, provider: result.provider });
+    }
+  }, [isMuted, voiceProvider]);
 
   // Play a segment using cached audio or ElevenLabs/OpenAI TTS with browser fallback
   // Accept optional scriptOverride and cachedPaths for initial call to avoid state race condition
@@ -285,12 +355,39 @@ const HypnosisSession = () => {
       return;
     }
 
+    // Fast path: already prefetched
+    const prefetched = prefetchedAudioRef.current.get(index);
+    if (prefetched?.url) {
+      try {
+        setVoiceProvider(prefetched.provider);
+        await playAudioUrl(prefetched.url, {
+          onEnd: () => {
+            if (playingRef.current) {
+              playSegment(index + 1, activeScript, activeCachedPaths);
+            }
+          },
+          onError: (error) => {
+            console.error('Prefetched audio playback error:', error);
+            if (playingRef.current) {
+              setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
+            }
+          },
+        });
+        return;
+      } finally {
+        // Keep only a small window to avoid memory bloat
+        if (index - 2 >= 0) prefetchedAudioRef.current.delete(index - 2);
+      }
+    }
+
     // Check for cached audio first
     if (activeCachedPaths && activeCachedPaths[index]) {
       try {
         const cachedUrl = await getCachedAudioUrl(activeCachedPaths[index]);
         if (cachedUrl) {
           console.log(`▶️ Playing cached audio for segment ${index}`);
+          // Prefetch next while current plays
+          void prefetchSegmentAudio(index + 1, activeScript, activeCachedPaths);
           await playAudioUrl(cachedUrl, {
             onEnd: () => {
               if (playingRef.current) {
@@ -315,7 +412,11 @@ const HypnosisSession = () => {
     // No cached audio, synthesize using TTS
     try {
       // Try ElevenLabs → OpenAI → Browser fallback
-      const result = await synthesizeSpeech(segment.text, {
+      const normalized = normalizeHebrewGender(segment.text);
+      // Prefetch next as early as possible (without blocking current)
+      void prefetchSegmentAudio(index + 1, activeScript, activeCachedPaths);
+
+      const result = await synthesizeSpeech(normalized, {
         provider: voiceProvider,
         voice: 'sarah', // Premium calm female voice
         speed: 0.9,
@@ -514,12 +615,13 @@ const HypnosisSession = () => {
     <div 
       className={cn(
         "min-h-screen flex flex-col",
-        "bg-gradient-to-br from-primary to-primary/80"
+        "bg-gradient-to-br from-primary to-primary/80",
+        "overflow-hidden"
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-4 safe-area-top">
+      <header className="relative z-20 flex items-center justify-between p-4 safe-area-top">
         <Button
           variant="ghost"
           size="icon"
@@ -528,18 +630,6 @@ const HypnosisSession = () => {
         >
           <X className="h-6 w-6" />
         </Button>
-
-        {(state === 'playing' || state === 'paused') && (
-          <div className="flex items-center gap-2 text-white/80">
-            <span className="text-sm tabular-nums">{formatTime(elapsedTime)}</span>
-            {script && (
-              <>
-                <span>/</span>
-                <span className="text-sm">{script.metadata.durationMinutes}:00</span>
-              </>
-            )}
-          </div>
-        )}
 
         <Button
           variant="ghost"
@@ -552,7 +642,11 @@ const HypnosisSession = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 pb-32 safe-area-bottom">
+      <main className={cn(
+        "flex-1 flex flex-col items-center justify-center px-4",
+        (state === 'playing' || state === 'paused') ? "pb-28" : "pb-10",
+        "safe-area-bottom"
+      )}>
         <AnimatePresence mode="wait">
           {/* Setup State */}
           {state === 'setup' && (
@@ -669,13 +763,19 @@ const HypnosisSession = () => {
               className="text-center text-white"
             >
               <div className="relative">
-                <Orb size={180} state="thinking" className="mx-auto" />
+                <div className="mx-auto" style={{ width: orbSize * 0.55, height: orbSize * 0.55 }}>
+                  <MultiThreadOrb
+                    size={Math.floor(orbSize * 0.55)}
+                    showGlow={true}
+                    profile={orbProfile}
+                  />
+                </div>
                 <motion.div 
                   className="absolute inset-0 flex items-center justify-center"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
-                  <div className="w-[200px] h-[200px] rounded-full border-2 border-white/20 border-t-white/60" />
+                  <div className="rounded-full border-2 border-white/20 border-t-white/60" style={{ width: orbSize * 0.62, height: orbSize * 0.62 }} />
                 </motion.div>
               </div>
               
@@ -732,15 +832,21 @@ const HypnosisSession = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-md text-center text-white"
+              className="w-full flex flex-col items-center justify-center text-center text-white"
             >
-              {/* Orb */}
-              <div className="mb-6 sm:mb-8">
-                <Orb 
-                  size={200} 
-                  state={state === 'playing' ? 'speaking' : 'idle'}
-                  className="mx-auto"
-                />
+              {/* Orb - Big, dominant */}
+              <div className="relative flex items-center justify-center w-full" style={{ height: `min(60vh, ${orbSize + 40}px)` }}>
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-black/10" />
+                </div>
+                <div className="relative" style={{ width: orbSize, height: orbSize }}>
+                  <MultiThreadOrb
+                    size={orbSize}
+                    state={state === 'playing' ? 'speaking' : 'idle'}
+                    showGlow={true}
+                    profile={orbProfile}
+                  />
+                </div>
               </div>
 
               {/* Current Segment */}
@@ -749,56 +855,13 @@ const HypnosisSession = () => {
                   key={currentSegment.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 sm:mb-6"
+                  className="mt-3"
                 >
                   <span className="text-xs sm:text-sm text-white/60 uppercase tracking-wider">
                     {SEGMENT_LABELS[currentSegment.id]?.[language as 'he' | 'en'] || currentSegment.id}
                   </span>
                 </motion.div>
               )}
-
-              {/* Progress */}
-              <div className="mb-6 sm:mb-8 px-4">
-                <Progress value={progress} className="h-1 bg-white/20" />
-              </div>
-
-              {/* Controls */}
-              <div className="flex items-center justify-center gap-4">
-                {/* Restart button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full text-white/70 hover:text-white hover:bg-white/10 touch-manipulation"
-                  onClick={restartSession}
-                  title={language === 'he' ? 'חזור להתחלה' : 'Restart'}
-                >
-                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
-                </Button>
-
-                {/* Play/Pause button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-16 h-16 sm:w-18 sm:h-18 rounded-full text-white hover:bg-white/10 touch-manipulation"
-                  onClick={togglePlayPause}
-                >
-                  {state === 'playing' ? (
-                    <Pause className="w-8 h-8" />
-                  ) : (
-                    <Play className="w-8 h-8" />
-                  )}
-                </Button>
-
-                {/* Skip button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full text-white/70 hover:text-white hover:bg-white/10 touch-manipulation"
-                  onClick={skipSegment}
-                >
-                  <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
-                </Button>
-              </div>
 
               {/* Cache indicator */}
               {isFromCache && (
@@ -865,6 +928,69 @@ const HypnosisSession = () => {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Bottom Controls Bar (Playing/Paused only) */}
+      {(state === 'playing' || state === 'paused') && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 safe-area-bottom">
+          <div className="mx-auto w-full max-w-2xl px-4 pb-3">
+            <div className="rounded-2xl backdrop-blur-xl bg-black/15 border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.25)] overflow-hidden">
+              <div className="px-4 pt-3">
+                <Progress value={progress} className="h-1.5 bg-white/15" />
+                <div className="mt-2 flex items-center justify-between text-white/70">
+                  <span className="text-xs tabular-nums">{formatTime(elapsedTime)}</span>
+                  {script ? (
+                    <span className="text-xs tabular-nums">{script.metadata.durationMinutes}:00</span>
+                  ) : (
+                    <span className="text-xs tabular-nums">--:--</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-4 py-3 flex items-center justify-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 rounded-full text-white/80 hover:text-white hover:bg-white/10 touch-manipulation"
+                  onClick={restartSession}
+                  title={language === 'he' ? 'חזור להתחלה' : 'Restart'}
+                >
+                  <SkipBack className="w-6 h-6" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-16 h-16 rounded-full text-white hover:bg-white/10 touch-manipulation"
+                  onClick={togglePlayPause}
+                >
+                  {state === 'playing' ? (
+                    <Pause className="w-8 h-8" />
+                  ) : (
+                    <Play className="w-8 h-8" />
+                  )}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 rounded-full text-white/80 hover:text-white hover:bg-white/10 touch-manipulation"
+                  onClick={skipSegment}
+                >
+                  <SkipForward className="w-6 h-6" />
+                </Button>
+              </div>
+
+              {isFromCache && (
+                <div className="px-4 pb-3 text-center">
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] text-white/45">
+                    ⚡ {language === 'he' ? 'נטען מהקאש' : 'Loaded from cache'}
+                  </motion.p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
