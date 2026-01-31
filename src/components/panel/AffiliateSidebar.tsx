@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import RoleSwitcher from './RoleSwitcher';
+import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import {
   LayoutDashboard,
   Link2,
@@ -54,9 +55,9 @@ const AffiliateSidebar = () => {
   const isHebrew = language === 'he';
 
   return (
-    <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16">
+    <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16 flex flex-col">
       <RoleSwitcher />
-      <ScrollArea className="h-[calc(100vh-64px-80px)]">
+      <ScrollArea className="flex-1">
         <nav className="p-4 space-y-6">
           {navGroups.map((group) => (
             <div key={group.id}>
@@ -89,6 +90,11 @@ const AffiliateSidebar = () => {
           ))}
         </nav>
       </ScrollArea>
+
+      {/* Account Dropdown at Bottom - using shared component */}
+      <div className="border-t border-border p-3 mt-auto">
+        <AuroraAccountDropdown showBackToAurora />
+      </div>
     </aside>
   );
 };
