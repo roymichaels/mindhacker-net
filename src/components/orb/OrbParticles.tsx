@@ -54,7 +54,7 @@ export function generateParticlePositions(
 }
 
 /**
- * Update particle positions with organic movement
+ * Update particle positions with ALIEN organic swirling movement
  */
 export function updateParticlePositions(
   positions: Float32Array,
@@ -70,35 +70,50 @@ export function updateParticlePositions(
     const baseY = basePositions[idx + 1];
     const baseZ = basePositions[idx + 2];
     
-    // Orbital movement
-    const angle = time * 0.3 + i * 0.1;
-    const orbitRadius = 0.05 + Math.sin(time * 0.5 + i) * 0.02;
+    // Distance from center
+    const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
     
-    // Vertical wave
-    const waveY = Math.sin(time * 0.7 + i * 0.2) * 0.08;
+    // Multi-axis orbital swirling - alien effect
+    const swirl1 = time * 0.4 + i * 0.15 + dist * 2;
+    const swirl2 = time * 0.25 + i * 0.08;
+    const swirl3 = time * 0.6 + i * 0.2;
     
-    // Audio reactivity - particles expand outward
-    const audioExpansion = 1 + audioLevel * 0.3;
+    // Orbital movement - more complex
+    const orbitRadius = 0.12 + Math.sin(swirl2) * 0.06 + Math.cos(swirl3) * 0.04;
     
-    positions[idx] = (baseX + Math.cos(angle) * orbitRadius) * audioExpansion;
-    positions[idx + 1] = (baseY + waveY) * audioExpansion;
-    positions[idx + 2] = (baseZ + Math.sin(angle) * orbitRadius) * audioExpansion;
+    // Vertical/horizontal waves - more dynamic
+    const waveY = Math.sin(swirl1) * 0.15 + Math.cos(time * 0.3 + i) * 0.08;
+    const waveX = Math.cos(swirl2) * 0.1;
+    const waveZ = Math.sin(swirl3) * 0.1;
+    
+    // Pulsing expansion - breathing effect
+    const pulseExpansion = 1 + Math.sin(time * 0.8 + dist * 3) * 0.15;
+    
+    // Audio reactivity - particles expand outward more dramatically
+    const audioExpansion = 1 + audioLevel * 0.5;
+    
+    const totalExpansion = pulseExpansion * audioExpansion;
+    
+    positions[idx] = (baseX + Math.cos(swirl1) * orbitRadius + waveX) * totalExpansion;
+    positions[idx + 1] = (baseY + waveY) * totalExpansion;
+    positions[idx + 2] = (baseZ + Math.sin(swirl1) * orbitRadius + waveZ) * totalExpansion;
   }
 }
 
 /**
- * Create particle material with custom color
+ * Create particle material with custom color - ENHANCED for alien glow effect
  */
 export function createParticleMaterial(color: string): THREE.PointsMaterial {
   const hsl = parseHslColor(color);
   const threeColor = new THREE.Color();
-  threeColor.setHSL(hsl.h, hsl.s, hsl.l);
+  // Boost saturation and lightness for more vibrant particles
+  threeColor.setHSL(hsl.h, Math.min(1, hsl.s * 1.2), Math.min(0.85, hsl.l * 1.3));
   
   return new THREE.PointsMaterial({
     color: threeColor,
-    size: 0.03,
+    size: 0.06, // Bigger particles
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.95,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
   });
@@ -117,20 +132,30 @@ export class ParticleSystem {
   constructor(
     count: number,
     color: string,
-    innerRadius: number = 0.9,
-    outerRadius: number = 1.3
+    innerRadius: number = 0.8,
+    outerRadius: number = 1.8
   ) {
-    this.count = count;
+    this.count = Math.max(80, count); // Minimum 80 particles for alien effect
     this.geometry = new THREE.BufferGeometry();
     this.material = createParticleMaterial(color);
     
-    // Generate initial positions
-    this.basePositions = generateParticlePositions(count, innerRadius, outerRadius);
+    // Generate initial positions - wider spread for alien effect
+    this.basePositions = generateParticlePositions(this.count, innerRadius, outerRadius);
     const positions = new Float32Array(this.basePositions);
+    
+    // Add size variation for each particle
+    const sizes = new Float32Array(this.count);
+    for (let i = 0; i < this.count; i++) {
+      sizes[i] = 0.4 + Math.random() * 0.8; // Size variation
+    }
     
     this.geometry.setAttribute(
       'position',
       new THREE.BufferAttribute(positions, 3)
+    );
+    this.geometry.setAttribute(
+      'size',
+      new THREE.BufferAttribute(sizes, 1)
     );
     
     this.points = new THREE.Points(this.geometry, this.material);

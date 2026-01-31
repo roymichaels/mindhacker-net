@@ -310,64 +310,75 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     frontAccent.position.set(0, 0.5, 5);
     scene.add(frontAccent);
 
-    // ===== CORE GRADIENT LAYERS - 5 LAYER GLOW =====
+    // ===== CORE GRADIENT LAYERS - 6 LAYER ALIEN GLOW =====
     const coreLayers: THREE.Mesh[] = [];
     
     if (showGlow) {
-      // Layer 1: Hot white center
-      const core1Geo = new THREE.SphereGeometry(coreSize * 1.0, 32, 32);
+      // Layer 1: Hot white-cyan center (alien core)
+      const core1Geo = new THREE.SphereGeometry(coreSize * 0.8, 32, 32);
       const core1Mat = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: 0xeeffff,  // Slight cyan tint
         transparent: true,
-        opacity: 0.98,
+        opacity: 1.0,
       });
       const core1 = new THREE.Mesh(core1Geo, core1Mat);
       scene.add(core1);
       coreLayers.push(core1);
 
-      // Layer 2: Accent glow
-      const core2Geo = new THREE.SphereGeometry(coreSize * 1.4, 32, 32);
+      // Layer 2: Bright accent inner glow
+      const core2Geo = new THREE.SphereGeometry(coreSize * 1.2, 32, 32);
       const core2Mat = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(activePalette.accent),
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95,
       });
       const core2 = new THREE.Mesh(core2Geo, core2Mat);
       scene.add(core2);
       coreLayers.push(core2);
 
-      // Layer 3: Secondary color
-      const core3Geo = new THREE.SphereGeometry(coreSize * 1.8, 32, 32);
+      // Layer 3: Secondary color pulse
+      const core3Geo = new THREE.SphereGeometry(coreSize * 1.6, 32, 32);
       const core3Mat = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(activePalette.secondary),
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.85,
       });
       const core3 = new THREE.Mesh(core3Geo, core3Mat);
       scene.add(core3);
       coreLayers.push(core3);
 
-      // Layer 4: Primary color
-      const core4Geo = new THREE.SphereGeometry(coreSize * 2.3, 32, 32);
+      // Layer 4: Primary color halo
+      const core4Geo = new THREE.SphereGeometry(coreSize * 2.0, 32, 32);
       const core4Mat = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(activePalette.primary),
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.7,
       });
       const core4 = new THREE.Mesh(core4Geo, core4Mat);
       scene.add(core4);
       coreLayers.push(core4);
 
       // Layer 5: Outer glow aura
-      const core5Geo = new THREE.SphereGeometry(coreSize * 2.8, 32, 32);
+      const core5Geo = new THREE.SphereGeometry(coreSize * 2.5, 32, 32);
       const core5Mat = new THREE.MeshBasicMaterial({
         color: parseHslToThreeColor(activePalette.glow),
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.55,
       });
       const core5 = new THREE.Mesh(core5Geo, core5Mat);
       scene.add(core5);
       coreLayers.push(core5);
+      
+      // Layer 6: Very faint outer nebula
+      const core6Geo = new THREE.SphereGeometry(coreSize * 3.2, 32, 32);
+      const core6Mat = new THREE.MeshBasicMaterial({
+        color: parseHslToThreeColor(activePalette.accent),
+        transparent: true,
+        opacity: 0.25,
+      });
+      const core6 = new THREE.Mesh(core6Geo, core6Mat);
+      scene.add(core6);
+      coreLayers.push(core6);
     }
     coreLayersRef.current = coreLayers;
 
@@ -408,25 +419,27 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       
       const layerColor = parseHslToThreeColor(getPaletteColor(config.colorIndex));
       
-      // Ultra-bright physical material with maximum glow
+      // Ultra-vibrant ALIEN MERCURY material with maximum iridescence
       const material = new THREE.MeshPhysicalMaterial({
         color: layerColor,
-        emissive: layerColor.clone().multiplyScalar(0.6),
-        emissiveIntensity: 2.0,
-        metalness: 0.8,
-        roughness: 0.03,
+        emissive: layerColor.clone().multiplyScalar(0.8),
+        emissiveIntensity: 2.5,
+        metalness: 1.0,          // Maximum metallic for mercury effect
+        roughness: 0.01,         // Almost perfect mirror
         clearcoat: 1.0,
-        clearcoatRoughness: 0.02,
-        transmission: 0.1,
-        thickness: 1.2,
-        ior: 1.6,
-        iridescence: 1.0,
-        iridescenceIOR: 1.8,
+        clearcoatRoughness: 0.0, // Perfect clear coat
+        transmission: 0.0,       // No transmission - solid mercury
+        thickness: 0,
+        ior: 2.5,                // High refraction
+        iridescence: 1.0,        // Maximum iridescence
+        iridescenceIOR: 2.2,     // Strong rainbow effect
+        iridescenceThicknessRange: [100, 800], // Wide rainbow spectrum
         sheen: 1.0,
-        sheenRoughness: 0.1,
-        sheenColor: parseHslToThreeColor(activePalette.glow),
+        sheenRoughness: 0.0,
+        sheenColor: parseHslToThreeColor(activePalette.accent),
         transparent: true,
         opacity: config.opacity,
+        envMapIntensity: 2.0,    // Strong reflections
       });
 
       const mesh = new THREE.Mesh(geometry, material);
@@ -438,9 +451,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     layersRef.current = newLayers;
     basePositionsRef.current = newBasePositions;
 
-    // ===== PARTICLES =====
-    if (particleEnabled && particleCount > 0) {
-      const ps = new ParticleSystem(particleCount, activePalette.glow, 0.9, 1.6);
+    // ===== PARTICLES - Enhanced Alien Swarm =====
+    if (particleEnabled) {
+      // More particles with wider spread for alien effect
+      const actualParticleCount = Math.max(100, particleCount);
+      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.7, 2.0);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
