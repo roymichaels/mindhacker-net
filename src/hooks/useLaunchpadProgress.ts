@@ -381,6 +381,21 @@ export function useLaunchpadProgress() {
       return result as unknown as StepCompletionResult;
     },
     onSuccess: (result) => {
+      // Optimistic UI: advance current_step immediately so the journey doesn't feel stuck
+      // even if query invalidation/refetch is delayed.
+      if (user?.id) {
+        queryClient.setQueryData(['launchpad-progress', user.id], (prev: LaunchpadProgress | null | undefined) => {
+          if (!prev) return prev ?? null;
+          const nextStep = Math.min((result.step || prev.current_step || 1) + 1, 11);
+          return {
+            ...prev,
+            current_step: Math.max(prev.current_step || 1, nextStep),
+            // if the backend marks completion, reflect it
+            launchpad_complete: result.step >= 11 ? true : prev.launchpad_complete,
+          } as LaunchpadProgress;
+        });
+      }
+
       queryClient.invalidateQueries({ queryKey: ['launchpad-progress'] });
       queryClient.invalidateQueries({ queryKey: ['game-state'] });
       queryClient.invalidateQueries({ queryKey: ['feature-unlocks'] });
