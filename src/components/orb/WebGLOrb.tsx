@@ -101,7 +101,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     className, 
     showGlow = true, 
     onReady,
-    profile 
+    profile,
+    themeColors
   },
   ref
 ) {
@@ -125,13 +126,19 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const audioLevel = externalAudioLevel ?? internalAudioLevel;
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
-  // Get colors from profile or ego state
+  // Get colors from profile, theme colors, or ego state (in priority order)
+  const egoStateColors = getEgoStateColors(egoState);
   const colors = profile ? {
     primary: profile.primaryColor,
     secondary: profile.secondaryColors[0] || profile.primaryColor,
     accent: profile.accentColor,
     glow: profile.accentColor,
-  } : getEgoStateColors(egoState);
+  } : themeColors ? {
+    primary: themeColors.primary,
+    secondary: themeColors.secondary,
+    accent: themeColors.accent,
+    glow: themeColors.glow,
+  } : egoStateColors;
 
   // Get profile-based parameters or defaults
   const layerCount = profile?.layerCount ?? 1;

@@ -1,11 +1,13 @@
 /**
  * PersonalizedOrb - Wrapper component that loads user's orb profile
- * and renders the appropriate orb with personalized settings
+ * and renders the appropriate orb with personalized settings.
+ * Uses theme colors from admin panel when user is not personalized.
  */
 
 import React, { forwardRef, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Orb } from './Orb';
 import type { OrbRef, OrbProps } from './types';
 import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
@@ -38,20 +40,37 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
   ) {
     const { user } = useAuth();
     const { profile, isLoading, isPersonalized } = useOrbProfile();
+    const { theme, loading: themeLoading } = useThemeSettings();
 
-    // Determine the profile to use
+    // Create theme-based colors from admin panel settings
+    const themeColors = useMemo(() => ({
+      primary: `hsl(${theme.primary_h}, ${theme.primary_s}, ${theme.primary_l})`,
+      secondary: `hsl(${theme.secondary_h}, ${theme.secondary_s}, ${theme.secondary_l})`,
+      accent: `hsl(${theme.accent_h}, ${theme.accent_s}, ${theme.accent_l})`,
+      glow: `hsl(${theme.primary_h}, ${theme.primary_s}, ${theme.primary_glow_l || '70'}%)`,
+    }), [theme.primary_h, theme.primary_s, theme.primary_l, theme.primary_glow_l, 
+         theme.secondary_h, theme.secondary_s, theme.secondary_l,
+         theme.accent_h, theme.accent_s, theme.accent_l]);
+
+    // Determine the profile to use - enhanced with theme colors
     const activeProfile = useMemo(() => {
       if (disablePersonalization || !user) {
-        return DEFAULT_ORB_PROFILE;
+        // Use theme colors from admin panel for default orb
+        return {
+          ...DEFAULT_ORB_PROFILE,
+          primaryColor: themeColors.primary,
+          secondaryColors: [themeColors.secondary],
+          accentColor: themeColors.accent,
+        };
       }
       return profile;
-    }, [disablePersonalization, user, profile]);
+    }, [disablePersonalization, user, profile, themeColors]);
 
     // Extract ego state from profile or use force override
     const egoState = forceEgoState || activeProfile.computedFrom.egoState || 'guardian';
 
     // Show skeleton while loading if requested
-    if (showLoadingSkeleton && isLoading) {
+    if (showLoadingSkeleton && (isLoading || themeLoading)) {
       return (
         <div
           className={className}
@@ -60,7 +79,7 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
           <div
             className="w-full h-full rounded-full animate-pulse"
             style={{
-              background: `radial-gradient(circle, hsl(210, 100%, 50%) 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${themeColors.primary} 0%, transparent 70%)`,
               opacity: 0.3,
             }}
           />
@@ -79,8 +98,9 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
         className={className}
         showGlow={showGlow}
         onReady={onReady}
-        // Pass profile data as custom props (will be used by enhanced WebGLOrb)
+        // Pass profile data with theme colors
         profile={activeProfile}
+        themeColors={themeColors}
         {...props}
       />
     );
