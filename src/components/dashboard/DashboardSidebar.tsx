@@ -33,6 +33,7 @@ interface DashboardSidebarProps {
   onNewChat?: () => void;
   onSelectConversation?: (id: string) => void;
   isMobileSheet?: boolean; // When true, render content directly without Sidebar wrapper
+  onOpenSettings?: () => void;
 }
 
 interface Conversation {
@@ -48,6 +49,7 @@ const DashboardSidebar = ({
   onNewChat,
   onSelectConversation,
   isMobileSheet = false,
+  onOpenSettings,
 }: DashboardSidebarProps) => {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
@@ -243,7 +245,7 @@ const DashboardSidebar = ({
         <div className="p-2 border-t border-border">
           <AuroraAccountDropdown
             isCollapsed={false}
-            onOpenSettings={() => handleNavigation('/launchpad/settings')}
+            onOpenSettings={onOpenSettings}
           />
         </div>
       </div>
@@ -282,7 +284,7 @@ const DashboardSidebar = ({
       <SidebarFooter className="p-2 border-t border-border">
         <AuroraAccountDropdown
           isCollapsed={isCollapsed}
-          onOpenSettings={() => handleNavigation('/launchpad/settings')}
+          onOpenSettings={onOpenSettings}
         />
       </SidebarFooter>
     </Sidebar>
