@@ -53,7 +53,7 @@ export function CommitmentsCard({ commitments, className }: CommitmentsCardProps
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {commitments.slice(0, 4).map((c) => (
+          {commitments.map((c) => (
             <li key={c.id} className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
               <div className="min-w-0">
@@ -65,11 +65,6 @@ export function CommitmentsCard({ commitments, className }: CommitmentsCardProps
             </li>
           ))}
         </ul>
-        {commitments.length > 4 && (
-          <p className="text-xs text-muted-foreground mt-2">
-            +{commitments.length - 4} {t('unified.commitments.more')}
-          </p>
-        )}
       </CardContent>
     </Card>
   );
