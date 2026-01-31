@@ -14,6 +14,8 @@ import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirecti
 import { AnswersReview } from '@/components/launchpad/summary/AnswersReview';
 import { useProfilePDF } from '@/hooks/useProfilePDF';
 import { ProfilePDFRenderer } from '@/components/pdf/ProfilePDFRenderer';
+import { MultiThreadOrb } from '@/components/orb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 
 interface SummaryData {
   consciousness_analysis: {
@@ -69,6 +71,7 @@ export default function LaunchpadComplete() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useProfilePDF();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
   
   const [loading, setLoading] = useState(true);
   const [scores, setScores] = useState({ consciousness: 0, clarity: 0, readiness: 0 });
@@ -199,18 +202,23 @@ export default function LaunchpadComplete() {
           animate={{ scale: 1, opacity: 1 }}
           className="text-center space-y-4"
         >
+          {/* Large 3D Identity Orb */}
           <motion.div
-            className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary via-accent to-primary flex items-center justify-center"
+            className="relative w-36 h-36 mx-auto"
             animate={{
-              boxShadow: [
-                '0 0 20px rgba(var(--primary), 0.3)',
-                '0 0 40px rgba(var(--primary), 0.5)',
-                '0 0 20px rgba(var(--primary), 0.3)',
+              filter: [
+                'drop-shadow(0 0 20px hsl(var(--primary) / 0.4))',
+                'drop-shadow(0 0 40px hsl(var(--primary) / 0.6))',
+                'drop-shadow(0 0 20px hsl(var(--primary) / 0.4))',
               ],
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 3, repeat: Infinity }}
           >
-            <Rocket className="w-10 h-10 text-primary-foreground" />
+            <MultiThreadOrb
+              profile={orbProfile}
+              size={144}
+              className="w-full h-full"
+            />
           </motion.div>
 
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
