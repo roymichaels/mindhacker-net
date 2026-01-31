@@ -169,8 +169,8 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     sceneRef.current = scene;
 
     // Camera - positioned to see the FULL sphere with proper near/far planes
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 100);
-    camera.position.set(0, 0, 2.8);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(0, 0, 3.5);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -230,16 +230,8 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     scene.add(bottomLight);
 
     // === UNIFIED MAIN ORB - Full solid sphere with complete geometry ===
-    // Using full sphere with all parameters explicit to avoid clipping
-    const mainGeometry = new THREE.SphereGeometry(
-      0.85,   // radius - slightly smaller to ensure it fits in view
-      96,     // widthSegments
-      96,     // heightSegments
-      0,      // phiStart
-      Math.PI * 2,  // phiLength (full 360 degrees)
-      0,      // thetaStart  
-      Math.PI // thetaLength (full top to bottom)
-    );
+    // Higher resolution sphere for smooth liquid mercury look
+    const mainGeometry = new THREE.SphereGeometry(0.9, 128, 128);
     const positions = mainGeometry.attributes.position.array as Float32Array;
     basePositionsRef.current = positions.slice();
 
@@ -261,23 +253,27 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       specularColor: vis.secondaryColor,
       iridescence: 0.3,
       iridescenceIOR: 1.5,
-      side: THREE.FrontSide,
+      side: THREE.DoubleSide, // Render both sides for full solid sphere
+      depthWrite: true,
     });
 
     const mainOrb = new THREE.Mesh(mainGeometry, mainMaterial);
+    mainOrb.frustumCulled = false; // Prevent clipping when orb deforms
     scene.add(mainOrb);
     mainOrbRef.current = mainOrb;
 
     // === INNER GLOWING CORE - Adds depth and life ===
-    const coreGeometry = new THREE.SphereGeometry(0.55, 64, 64);
+    const coreGeometry = new THREE.SphereGeometry(0.6, 64, 64);
     const coreMaterial = new THREE.MeshBasicMaterial({
       color: vis.primaryColor.clone().multiplyScalar(2.5),
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.25, // Increased opacity for more visible depth
       blending: THREE.AdditiveBlending,
       depthWrite: false,
+      side: THREE.DoubleSide, // Also double-sided for consistency
     });
     const coreOrb = new THREE.Mesh(coreGeometry, coreMaterial);
+    coreOrb.frustumCulled = false;
     mainOrb.add(coreOrb);
     innerCoreRef.current = coreOrb;
 
@@ -363,7 +359,7 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       // === STRONG ORGANIC VERTEX MORPHING - Liquid flow effect ===
       if (basePositions) {
         const positions = mainOrb.geometry.attributes.position;
-        const morphIntensity = vis.organicFlow * 0.15 * morphMod; // Stronger deformation
+        const morphIntensity = vis.organicFlow * 0.08 * morphMod; // Controlled deformation to prevent clipping
         const octaves = Math.max(2, Math.min(4, Math.floor(vis.complexity)));
 
         for (let i = 0; i < positions.count; i++) {
@@ -445,13 +441,13 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
         core.rotation.x += 0.004 * rotMod;
       }
 
-      // === CAMERA MOVEMENT ===
+      // === CAMERA MOVEMENT - Stable distance to prevent clipping ===
       if (isTunnel) {
-        camera.position.z = 2.6 + Math.sin(time * 0.5) * 0.3;
+        camera.position.z = 3.3 + Math.sin(time * 0.5) * 0.2;
         mainOrb.rotation.z += 0.008;
       } else {
-        // Subtle camera breathing - keep orb fully visible
-        camera.position.z = 2.8 + Math.sin(time * 0.18) * 0.05;
+        // Subtle camera breathing - keep stable distance
+        camera.position.z = 3.5 + Math.sin(time * 0.18) * 0.03;
       }
       camera.lookAt(0, 0, 0);
 
