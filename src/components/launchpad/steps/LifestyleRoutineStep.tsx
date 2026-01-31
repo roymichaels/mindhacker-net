@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import { Clock, Sun, Moon, Briefcase, Utensils, Battery, Check, Sparkles } from 'lucide-react';
 
 interface LifestyleRoutineStepProps {
@@ -34,6 +35,9 @@ const STORAGE_KEY = 'launchpad_lifestyle_routine';
 type CategoryKey = keyof typeof CATEGORIES;
 type MultiSelectCategory = 'family_commitments' | 'special_constraints';
 
+// Categories that use time picker instead of options
+const TIME_PICKER_CATEGORIES = ['wake_time', 'sleep_time'];
+
 const CATEGORIES = {
   // === SLEEP ===
   wake_time: {
@@ -42,16 +46,10 @@ const CATEGORIES = {
     titleEn: 'What time do you usually wake up?',
     icon: '🌅',
     multiSelect: false,
-    options: [
-      { value: '03:00-04:00', label: '03:00-04:00 (השכמה מוקדמת מאוד)', labelEn: '03:00-04:00 (Very early)' },
-      { value: '04:00-05:00', label: '04:00-05:00 (השכמה מוקדמת)', labelEn: '04:00-05:00 (Early)' },
-      { value: '05:00-06:00', label: '05:00-06:00', labelEn: '05:00-06:00' },
-      { value: '06:00-07:00', label: '06:00-07:00', labelEn: '06:00-07:00' },
-      { value: '07:00-08:00', label: '07:00-08:00', labelEn: '07:00-08:00' },
-      { value: '08:00-09:00', label: '08:00-09:00', labelEn: '08:00-09:00' },
-      { value: '09:00+', label: '09:00+', labelEn: '09:00+' },
-      { value: 'varies', label: 'משתנה (משמרות)', labelEn: 'Varies (shifts)' },
-    ],
+    isTimePicker: true,
+    minHour: 3,
+    maxHour: 12,
+    options: [], // Not used for time picker
   },
   sleep_time: {
     section: 'sleep',
@@ -59,16 +57,10 @@ const CATEGORIES = {
     titleEn: 'What time do you go to sleep?',
     icon: '🌙',
     multiSelect: false,
-    options: [
-      { value: 'before-19:00', label: 'לפני 19:00', labelEn: 'Before 7 PM' },
-      { value: '19:00-20:00', label: '19:00-20:00', labelEn: '7-8 PM' },
-      { value: '20:00-21:00', label: '20:00-21:00', labelEn: '8-9 PM' },
-      { value: '21:00-22:00', label: '21:00-22:00', labelEn: '9-10 PM' },
-      { value: '22:00-23:00', label: '22:00-23:00', labelEn: '10-11 PM' },
-      { value: '23:00-00:00', label: '23:00-00:00', labelEn: '11 PM-12 AM' },
-      { value: 'after-00:00', label: 'אחרי חצות', labelEn: 'After midnight' },
-      { value: 'varies', label: 'משתנה', labelEn: 'Varies' },
-    ],
+    isTimePicker: true,
+    minHour: 18,
+    maxHour: 3, // Wraps around midnight
+    options: [],
   },
   sleep_quality: {
     section: 'sleep',
@@ -419,6 +411,40 @@ export function LifestyleRoutineStep({
       <div className="space-y-6">
         {sectionCategories.map(([key, category]) => {
           const isMulti = category.multiSelect;
+          const isTimePicker = TIME_PICKER_CATEGORIES.includes(key);
+          const currentValue = selections[key];
+          
+          // Time picker for wake/sleep times
+          if (isTimePicker) {
+            const isVaries = currentValue === 'varies';
+            return (
+              <Card key={key} className="p-4 space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{category.icon}</span>
+                  <h3 className="font-medium">
+                    {language === 'he' ? category.title : category.titleEn}
+                  </h3>
+                </div>
+                
+                <MobileTimePicker
+                  value={typeof currentValue === 'string' ? currentValue : undefined}
+                  onChange={(time) => handleSelect(key, time)}
+                  label={language === 'he' ? category.title : category.titleEn}
+                  placeholder={language === 'he' ? 'בחר שעה' : 'Select time'}
+                  minHour={key === 'wake_time' ? 3 : 18}
+                  maxHour={key === 'wake_time' ? 12 : 23}
+                  showVaries
+                  variesLabel={language === 'he' ? 'משתנה (משמרות)' : 'Varies (shifts)'}
+                  isVaries={isVaries}
+                  onVariesChange={(v) => {
+                    if (v) handleSelect(key, 'varies');
+                  }}
+                />
+              </Card>
+            );
+          }
+          
+          // Regular option buttons
           return (
             <Card key={key} className="p-4 space-y-3">
               <div className="flex items-center gap-2">
