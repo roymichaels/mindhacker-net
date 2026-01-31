@@ -65,7 +65,12 @@ const AuroraAccountDropdown = ({
     enabled: !!user?.id,
   });
 
-  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User';
+  // If full_name is just the email, show the username part instead
+  const fullName = profile?.full_name;
+  const isNameEmail = fullName && fullName.includes('@');
+  const displayName = isNameEmail 
+    ? fullName.split('@')[0] 
+    : (fullName || user?.email?.split('@')[0] || 'User');
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const handleLanguageToggle = () => {
