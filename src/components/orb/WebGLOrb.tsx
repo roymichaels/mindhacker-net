@@ -276,155 +276,56 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // ===== LIGHTING SETUP FOR GLASS =====
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    // ===== MINIMAL LIGHTING FOR WIREFRAME =====
+    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambient);
 
-    // Key light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    keyLight.position.set(3, 2, 4);
-    scene.add(keyLight);
-
-    // Fill light for glass reflections
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    fillLight.position.set(-3, -1, 2);
-    scene.add(fillLight);
-
-    // Rim light for edge definition
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    rimLight.position.set(0, -2, -3);
-    scene.add(rimLight);
-
-    // Top accent light
-    const topLight = new THREE.PointLight(parseHslToThreeColor(activePalette.primary), 1.5, 10);
-    topLight.position.set(0, 3, 2);
-    scene.add(topLight);
-
-    const glassColor = parseHslToThreeColor(activePalette.primary);
+    // Get wireframe color from palette
+    const wireColor = parseHslToThreeColor(activePalette.primary);
     
-    // ===== OUTER GLASS SPHERE =====
-    const outerSphereGeo = new THREE.SphereGeometry(0.95, 64, 64);
-    const glassMaterial = new THREE.MeshPhysicalMaterial({
-      color: glassColor,
-      transparent: true,
-      opacity: 0.15,
-      metalness: 0.0,
-      roughness: 0.0,
-      transmission: 0.95,      // High transparency
-      thickness: 0.5,
-      ior: 1.5,                // Glass refraction
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.0,
-      envMapIntensity: 1.0,
-      side: THREE.DoubleSide,
-    });
-    const outerSphere = new THREE.Mesh(outerSphereGeo, glassMaterial);
-    scene.add(outerSphere);
-
-    // ===== INNER CRYSTAL WIREFRAME STRUCTURE =====
-    // Create multiple nested geometric wireframes
-    const wireframeMaterial = new THREE.MeshPhysicalMaterial({
-      color: glassColor,
+    // ===== WIREFRAME LINE MATERIAL =====
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: wireColor,
       transparent: true,
       opacity: 0.9,
-      metalness: 0.1,
-      roughness: 0.0,
-      transmission: 0.6,
-      thickness: 1.0,
-      ior: 2.0,                // Higher refraction for crystal
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.0,
-      envMapIntensity: 2.0,
+      linewidth: 1,
     });
 
-    const newLayers: THREE.Mesh[] = [];
-    const newBasePositions = new Map<THREE.Mesh, Float32Array>();
+    // ===== MAIN WIREFRAME SPHERE - High detail for smooth appearance =====
+    const sphereDetail = geometryDetail + 2; // More detail for smoother wireframe
+    const sphereGeo = new THREE.IcosahedronGeometry(0.85, sphereDetail);
+    const sphereEdges = new THREE.WireframeGeometry(sphereGeo);
+    const mainWireframe = new THREE.LineSegments(sphereEdges, lineMaterial.clone());
+    scene.add(mainWireframe);
 
-    // Inner icosahedron wireframe - larger
-    const icosaGeo1 = new THREE.IcosahedronGeometry(0.45, 0);
-    const icosaEdges1 = new THREE.EdgesGeometry(icosaGeo1);
-    const tubeRadius = 0.025;
-    
-    // Create tube geometry along edges for crystal bars
-    const createCrystalStructure = (edgesGeo: THREE.EdgesGeometry, radius: number, scale: number = 1) => {
-      const positions = edgesGeo.attributes.position.array;
-      const group = new THREE.Group();
-      
-      for (let i = 0; i < positions.length; i += 6) {
-        const start = new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]);
-        const end = new THREE.Vector3(positions[i + 3], positions[i + 4], positions[i + 5]);
-        
-        const direction = new THREE.Vector3().subVectors(end, start);
-        const length = direction.length();
-        const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-        
-        const tubeGeo = new THREE.CylinderGeometry(radius * scale, radius * scale, length, 8);
-        const tube = new THREE.Mesh(tubeGeo, wireframeMaterial);
-        
-        tube.position.copy(midpoint);
-        tube.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-        
-        group.add(tube);
-        
-        // Add small spheres at vertices
-        const sphereGeo = new THREE.SphereGeometry(radius * 1.5 * scale, 8, 8);
-        const sphereStart = new THREE.Mesh(sphereGeo, wireframeMaterial);
-        sphereStart.position.copy(start);
-        group.add(sphereStart);
-      }
-      
-      return group;
-    };
+    // Store base positions for morphing
+    const basePositions = sphereGeo.attributes.position.array.slice() as Float32Array;
 
-    // Primary icosahedron structure
-    const crystalGroup1 = createCrystalStructure(icosaEdges1, tubeRadius, 1.0);
-    scene.add(crystalGroup1);
+    // ===== INNER GEOMETRIC STRUCTURE =====
+    // Icosahedron core
+    const icosaGeo = new THREE.IcosahedronGeometry(0.4, 1);
+    const icosaEdges = new THREE.WireframeGeometry(icosaGeo);
+    const icosaWireframe = new THREE.LineSegments(icosaEdges, lineMaterial.clone());
+    scene.add(icosaWireframe);
 
-    // Secondary octahedron - rotated
-    const octaGeo = new THREE.OctahedronGeometry(0.35, 0);
-    const octaEdges = new THREE.EdgesGeometry(octaGeo);
-    const crystalGroup2 = createCrystalStructure(octaEdges, tubeRadius * 0.8, 0.9);
-    crystalGroup2.rotation.set(Math.PI / 4, Math.PI / 4, 0);
-    scene.add(crystalGroup2);
-
-    // Inner tetrahedron - smaller
-    const tetraGeo = new THREE.TetrahedronGeometry(0.25, 0);
-    const tetraEdges = new THREE.EdgesGeometry(tetraGeo);
-    const crystalGroup3 = createCrystalStructure(tetraEdges, tubeRadius * 0.6, 0.7);
-    crystalGroup3.rotation.set(0, Math.PI / 6, Math.PI / 6);
-    scene.add(crystalGroup3);
+    // Octahedron inside
+    const octaGeo = new THREE.OctahedronGeometry(0.25, 0);
+    const octaEdges = new THREE.WireframeGeometry(octaGeo);
+    const octaWireframe = new THREE.LineSegments(octaEdges, lineMaterial.clone());
+    scene.add(octaWireframe);
 
     // Store references for animation
-    layersRef.current = [outerSphere];
+    const wireframes = [mainWireframe, icosaWireframe, octaWireframe];
+    layersRef.current = wireframes as unknown as THREE.Mesh[];
+    basePositionsRef.current.set(mainWireframe as unknown as THREE.Mesh, basePositions);
     
-    // Small floating bubble on top
-    const bubbleGeo = new THREE.SphereGeometry(0.08, 16, 16);
-    const bubbleMat = new THREE.MeshPhysicalMaterial({
-      color: glassColor,
-      transparent: true,
-      opacity: 0.6,
-      metalness: 0.0,
-      roughness: 0.0,
-      transmission: 0.9,
-      thickness: 0.2,
-      ior: 1.5,
-      clearcoat: 1.0,
-    });
-    const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
-    bubble.position.set(0, 1.05, 0);
-    scene.add(bubble);
+    // Store inner structures separately for different animation
+    coreLayersRef.current = [icosaWireframe, octaWireframe] as unknown as THREE.Mesh[];
 
-    // Store crystal groups for animation
-    coreLayersRef.current = [crystalGroup1 as unknown as THREE.Mesh, crystalGroup2 as unknown as THREE.Mesh, crystalGroup3 as unknown as THREE.Mesh, bubble];
-
-    layersRef.current = newLayers;
-    basePositionsRef.current = newBasePositions;
-
-    // ===== PARTICLES - Energy Being Effect (pulsating in/out) =====
+    // ===== PARTICLES =====
     if (particleEnabled) {
-      // More particles, starting close to orb surface for merging effect
-      const actualParticleCount = Math.max(150, particleCount);
-      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.4, 2.5);
+      const actualParticleCount = Math.max(30, particleCount);
+      const ps = new ParticleSystem(actualParticleCount, activePalette.accent, 0.5, 2.0);
       scene.add(ps.mesh);
       particleSystemRef.current = ps;
     }
@@ -435,28 +336,17 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
-      // Dispose outer sphere
-      outerSphere.geometry.dispose();
-      (outerSphere.material as THREE.Material).dispose();
-      // Dispose crystal groups
-      [crystalGroup1, crystalGroup2, crystalGroup3].forEach(group => {
-        group.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.geometry.dispose();
-            (child.material as THREE.Material).dispose();
-          }
-        });
+      wireframes.forEach(wf => {
+        wf.geometry.dispose();
+        (wf.material as THREE.Material).dispose();
       });
-      bubble.geometry.dispose();
-      (bubble.material as THREE.Material).dispose();
+      sphereGeo.dispose();
+      icosaGeo.dispose();
+      octaGeo.dispose();
       if (particleSystemRef.current) {
         particleSystemRef.current.dispose();
       }
       ambient.dispose();
-      keyLight.dispose();
-      fillLight.dispose();
-      rimLight.dispose();
-      topLight.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -465,26 +355,18 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
   // Update colors when palette changes
   useEffect(() => {
-    const layers = layersRef.current;
+    const wireColor = parseHslToThreeColor(activePalette.primary);
     
-    // Update outer sphere color
-    layers.forEach((mesh) => {
-      if (mesh.material instanceof THREE.MeshPhysicalMaterial) {
-        mesh.material.color = parseHslToThreeColor(activePalette.primary);
+    // Update all wireframe colors
+    layersRef.current.forEach((layer) => {
+      if ((layer as any).material instanceof THREE.LineBasicMaterial) {
+        ((layer as any).material as THREE.LineBasicMaterial).color = wireColor;
       }
     });
 
-    // Update crystal groups - they are stored in coreLayersRef
-    const crystalGroups = coreLayersRef.current;
-    crystalGroups.forEach((group) => {
-      if (group instanceof THREE.Group) {
-        group.traverse((child) => {
-          if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshPhysicalMaterial) {
-            child.material.color = parseHslToThreeColor(activePalette.primary);
-          }
-        });
-      } else if (group instanceof THREE.Mesh && group.material instanceof THREE.MeshPhysicalMaterial) {
-        group.material.color = parseHslToThreeColor(activePalette.primary);
+    coreLayersRef.current.forEach((layer) => {
+      if ((layer as any).material instanceof THREE.LineBasicMaterial) {
+        ((layer as any).material as THREE.LineBasicMaterial).color = wireColor;
       }
     });
 
@@ -493,7 +375,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     }
   }, [activePalette]);
 
-  // Animation loop
+  // Animation loop with wireframe morphing
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
@@ -502,7 +384,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const camera = cameraRef.current;
     const layers = layersRef.current;
     const coreLayers = coreLayersRef.current;
-    const layerConfigs = getLayerConfigs();
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
@@ -512,58 +393,87 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const time = timeRef.current;
       const morphPhase = morphPhaseRef.current;
 
-      // Update shader time
-      if (shaderUniformsRef.current) {
-        shaderUniformsRef.current.time.value = time;
-      }
-
       // State-based animation modifiers
       const stateModifier = {
         idle: { rotMod: 1, morphMod: 1, pulseMod: 1 },
-        listening: { rotMod: 2, morphMod: 1.2, pulseMod: 1.5 },
-        speaking: { rotMod: 3, morphMod: 1.5, pulseMod: 2 },
-        thinking: { rotMod: 4, morphMod: 1.3, pulseMod: 1.8 },
-        session: { rotMod: 1.5, morphMod: 1.1, pulseMod: 1.2 },
-        breathing: { rotMod: 1, morphMod: 1.3, pulseMod: 0.6 },
+        listening: { rotMod: 2, morphMod: 1.5, pulseMod: 1.5 },
+        speaking: { rotMod: 3, morphMod: 2.0, pulseMod: 2 },
+        thinking: { rotMod: 4, morphMod: 1.8, pulseMod: 1.8 },
+        session: { rotMod: 1.5, morphMod: 1.2, pulseMod: 1.2 },
+        breathing: { rotMod: 0.5, morphMod: 1.5, pulseMod: 0.6 },
       }[state];
 
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // Animate outer glass sphere - gentle rotation
-      layers.forEach((mesh) => {
-        mesh.rotation.y += 0.001 * rotMod;
-        mesh.rotation.x += 0.0005 * rotMod;
-      });
+      // ===== MAIN WIREFRAME SPHERE MORPHING =====
+      const mainWireframe = layers[0];
+      if (mainWireframe) {
+        const geometry = (mainWireframe as any).geometry;
+        const basePositions = basePositionsRef.current.get(mainWireframe);
+        
+        if (basePositions && geometry.attributes.position) {
+          const positions = geometry.attributes.position.array as Float32Array;
+          
+          for (let i = 0; i < positions.length; i += 3) {
+            const baseX = basePositions[i];
+            const baseY = basePositions[i + 1];
+            const baseZ = basePositions[i + 2];
+            
+            const dist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
+            if (dist === 0) continue;
+            
+            const nx = baseX / dist;
+            const ny = baseY / dist;
+            const nz = baseZ / dist;
+            
+            // Organic noise-based deformation
+            const noiseVal = fbm(
+              nx * 2 + morphPhase * 0.5,
+              ny * 2 + morphPhase * 0.3,
+              nz * 2 + morphPhase * 0.7,
+              fractalOctaves
+            );
+            
+            // Wave distortion
+            const waveDistort = Math.sin(ny * 4 + time * 2) * Math.cos(nx * 3 + time * 1.5) * 0.08;
+            
+            // Radial pulse
+            const pulse = Math.sin(time * pulseMod + dist * 3) * 0.03;
+            
+            // Audio reactivity
+            const audioBoost = audioLevel * 0.2;
+            
+            // Combined deformation
+            const deform = (noiseVal * morphIntensity * morphMod + waveDistort + pulse + audioBoost) * 0.8;
+            
+            positions[i] = baseX + nx * deform;
+            positions[i + 1] = baseY + ny * deform;
+            positions[i + 2] = baseZ + nz * deform;
+          }
+          
+          geometry.attributes.position.needsUpdate = true;
+        }
+        
+        // Rotate main wireframe
+        mainWireframe.rotation.y += 0.002 * rotMod;
+        mainWireframe.rotation.x += 0.001 * rotMod;
+      }
 
-      // Animate crystal structures - each rotates differently
-      if (coreLayers.length >= 3) {
-        // Main icosahedron - slow rotation
-        const crystalGroup1 = coreLayers[0];
-        if (crystalGroup1) {
-          crystalGroup1.rotation.y += 0.003 * rotMod;
-          crystalGroup1.rotation.x += 0.001 * rotMod;
-        }
-        
-        // Octahedron - counter rotation
-        const crystalGroup2 = coreLayers[1];
-        if (crystalGroup2) {
-          crystalGroup2.rotation.y -= 0.004 * rotMod;
-          crystalGroup2.rotation.z += 0.002 * rotMod;
-        }
-        
-        // Tetrahedron - different axis
-        const crystalGroup3 = coreLayers[2];
-        if (crystalGroup3) {
-          crystalGroup3.rotation.x += 0.005 * rotMod;
-          crystalGroup3.rotation.z -= 0.003 * rotMod;
-        }
-        
-        // Floating bubble - bobbing motion
-        if (coreLayers[3]) {
-          const bubble = coreLayers[3];
-          bubble.position.y = 1.05 + Math.sin(time * 2) * 0.03;
-          bubble.position.x = Math.sin(time * 0.7) * 0.02;
-        }
+      // ===== INNER STRUCTURES ANIMATION =====
+      // Icosahedron
+      if (coreLayers[0]) {
+        coreLayers[0].rotation.y += 0.004 * rotMod;
+        coreLayers[0].rotation.x -= 0.002 * rotMod;
+        const scale = 1 + Math.sin(time * 1.5) * 0.05 + audioLevel * 0.1;
+        coreLayers[0].scale.setScalar(scale);
+      }
+      
+      // Octahedron
+      if (coreLayers[1]) {
+        coreLayers[1].rotation.y -= 0.005 * rotMod;
+        coreLayers[1].rotation.z += 0.003 * rotMod;
+        const scale = 1 + Math.sin(time * 2 + 1) * 0.08 + audioLevel * 0.1;
+        coreLayers[1].scale.setScalar(scale);
       }
 
       // Update particles
@@ -589,7 +499,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, activeMorphology]);
+  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves]);
 
   // Resize handling
   useEffect(() => {
