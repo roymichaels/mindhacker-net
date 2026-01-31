@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import {
   clearThemeSurfaceOverrides,
@@ -18,6 +18,7 @@ interface ThemeProviderProps {
 const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
   const { theme, loading } = useThemeSettings();
   const { resolvedTheme } = useTheme();
+  const [isThemeReady, setIsThemeReady] = useState(false);
 
   // Apply font family to body when theme loads
   useEffect(() => {
@@ -70,12 +71,21 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
     if (resolvedTheme === "light") {
       // Light mode: keep the clean surface palette from CSS, clear any DB surface overrides
       clearThemeSurfaceOverrides();
-      return;
+    } else {
+      // Dark mode: apply DB surface palette overrides (cyber aesthetic)
+      applyThemeSurfaceToDOM(theme);
     }
-
-    // Dark mode: apply DB surface palette overrides (cyber aesthetic)
-    applyThemeSurfaceToDOM(theme);
+    
+    // Mark theme as ready after applying
+    setIsThemeReady(true);
   }, [loading, resolvedTheme, theme]);
+
+  // Show nothing until theme is ready to prevent flash
+  if (!isThemeReady) {
+    return (
+      <div className="fixed inset-0 bg-background" style={{ opacity: 0 }} />
+    );
+  }
 
   return <>{children}</>;
 };
