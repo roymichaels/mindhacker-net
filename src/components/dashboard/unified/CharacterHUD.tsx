@@ -50,7 +50,7 @@ export function CharacterHUD({
   return (
     <motion.div
       className={cn(
-        "relative flex items-center gap-4 p-4 rounded-xl w-full",
+        "relative flex items-center gap-3 p-2 rounded-xl w-full",
         "backdrop-blur-xl bg-card/60 border border-primary/20",
         "shadow-[0_0_20px_rgba(var(--primary),0.15)]",
         onClick && "cursor-pointer hover:border-primary/40 hover:shadow-[0_0_30px_rgba(var(--primary),0.25)] transition-all duration-200",
@@ -74,7 +74,7 @@ export function CharacterHUD({
       {/* Orb - Larger Avatar */}
       <div className="relative z-10 flex-shrink-0">
         <MultiThreadOrb
-          size={100}
+          size={140}
           showGlow={true}
           profile={profile}
         />
