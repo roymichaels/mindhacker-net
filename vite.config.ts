@@ -14,11 +14,11 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: false,
       strategies: "injectManifest",
       srcDir: "public",
       filename: "custom-sw.js",
-      registerType: "autoUpdate",
-      injectRegister: false, // Disable auto-inject to defer SW registration
       includeAssets: ["robots.txt", "sitemap.xml", "*.png"],
       manifest: {
         name: "מיינד האקר - אימון תודעתי עמוק",
@@ -35,55 +35,19 @@ export default defineConfig(({ mode }) => ({
         categories: ["health", "lifestyle", "education"],
         icons: [
           {
-            src: "/logo.png?v=7",
-            sizes: "72x72",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
-            sizes: "96x96",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
-            sizes: "128x128",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
-            sizes: "144x144",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
-            sizes: "152x152",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
+            src: "/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=7",
-            sizes: "384x384",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/logo.png?v=7",
+            src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=7",
+            src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"
