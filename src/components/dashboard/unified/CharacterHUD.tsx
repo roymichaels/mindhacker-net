@@ -83,12 +83,12 @@ export function CharacterHUD({
       {/* Info Section - Full Width */}
       <div className="flex-1 min-w-0 z-10 space-y-2">
         {/* Top Row: Identity Title */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0">
           {identityTitle && (
             <>
-              <span className="text-lg flex-shrink-0">{identityTitle.icon}</span>
+              <span className="text-base flex-shrink-0">{identityTitle.icon}</span>
               <span 
-                className="text-base font-semibold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                className="text-xs font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight"
               >
                 {identityTitle.title}
               </span>
