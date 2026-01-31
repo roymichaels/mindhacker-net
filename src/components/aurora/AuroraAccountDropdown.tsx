@@ -98,21 +98,13 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* Avatar - Orb if personalized, grey initials if not */}
+          {/* Avatar - Always show orb (default or personalized) */}
           <div className={cn("shrink-0 rounded-full overflow-hidden", isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
-            {isPersonalized ? (
-              <MultiThreadOrb 
-                size={isCollapsed ? 36 : 40}
-                showGlow={false}
-                profile={orbProfile}
-              />
-            ) : (
-              <Avatar className={cn(isCollapsed ? "h-9 w-9" : "h-10 w-10")}>
-                <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            )}
+            <MultiThreadOrb 
+              size={isCollapsed ? 36 : 40}
+              showGlow={false}
+              profile={orbProfile}
+            />
           </div>
           
           {!isCollapsed && (
