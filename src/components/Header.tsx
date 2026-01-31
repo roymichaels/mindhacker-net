@@ -166,15 +166,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
-          {/* Left side - Logo only on mobile (hamburger removed - bottom nav handles navigation) */}
+          {/* Left side - Logo only (no hamburger - sidebar has its own toggle when collapsed) */}
           <div className="flex items-center gap-2 sm:gap-3 justify-start">
-            {/* Desktop: Sidebar Toggle (LTR/RTL aware) - Hidden on mobile */}
-            {user && !isAdminMode && isRTL && (
-              <div className="hidden md:block">
-                <SidebarToggle onMenuClick={onMenuClick} />
-              </div>
-            )}
-
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-primary/10">
                 <img 
@@ -194,13 +187,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
-
-            {/* Desktop: Sidebar Toggle (LTR) - Hidden on mobile */}
-            {user && !isAdminMode && !isRTL && (
-              <div className="hidden md:block">
-                <SidebarToggle onMenuClick={onMenuClick} />
-              </div>
-            )}
 
             {/* Mobile Admin Sidebar Trigger - Admin pages only */}
             {isAdminMode && (
