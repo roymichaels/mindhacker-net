@@ -37,6 +37,7 @@ import {
   LaunchpadSummaryCard,
   ConsciousnessCard,
   BehavioralInsightsCard,
+  OrbHeroSection,
 } from './unified';
 import LifePlanCard from './unified/LifePlanCard';
 
@@ -70,6 +71,13 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
         className={cn("space-y-4", className)}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
+        {/* Personalized Orb Hero - Top of Dashboard */}
+        <OrbHeroSection
+          identityTitle={dashboard.identityTitle}
+          egoState={dashboard.egoState}
+          compact
+        />
+
         {/* XP Progress */}
         <XpProgressSection
           level={dashboard.level}
@@ -260,6 +268,12 @@ export function UnifiedDashboardView({ className, compact = false }: UnifiedDash
       className={cn("space-y-4", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
+      {/* Personalized Orb Hero - Top of Dashboard */}
+      <OrbHeroSection
+        identityTitle={dashboard.identityTitle}
+        egoState={dashboard.egoState}
+      />
+
       {/* Launchpad Progress (if not complete) */}
       {!isLaunchpadComplete && (
         <LaunchpadProgress compact />

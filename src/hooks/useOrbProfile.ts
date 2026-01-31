@@ -140,6 +140,44 @@ export function useOrbProfile() {
     return extractLaunchpadProfile(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
 
+  // Fetch launchpad summary for AI-derived insights
+  const { data: launchpadSummary } = useQuery({
+    queryKey: ['launchpad-summary-orb', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('launchpad_summaries')
+        .select('summary_data, consciousness_score, transformation_readiness')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching launchpad summary:', error);
+        return null;
+      }
+      
+      return data;
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Extract AI-derived identity data from summary
+  const summaryData = useMemo(() => {
+    if (!launchpadSummary?.summary_data) return null;
+    const data = launchpadSummary.summary_data as Record<string, unknown>;
+    const identityProfile = data?.identity_profile as Record<string, unknown> | undefined;
+    
+    return {
+      suggestedEgoState: identityProfile?.suggested_ego_state as string | undefined,
+      dominantTraits: (identityProfile?.dominant_traits as string[]) || [],
+      identityTitle: identityProfile?.identity_title as string | undefined,
+      consciousnessScore: (launchpadSummary.consciousness_score as number) || 50,
+      transformationReadiness: (launchpadSummary.transformation_readiness as number) || 0,
+    };
+  }, [launchpadSummary]);
+
   // Fetch stored profile from database
   const { data: storedProfile, isLoading } = useQuery({
     queryKey: ['orb-profile', user?.id],
@@ -171,8 +209,15 @@ export function useOrbProfile() {
   }, [characterTraits]);
 
   // Compute profile from current user data using the new DNA system
+  // Now includes AI-derived data from launchpad_summaries
   const computedProfile = useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
+
+    // Merge traits from character traits and AI analysis
+    const allTraits = [
+      ...selectedTraitIds,
+      ...(summaryData?.dominantTraits || []),
+    ];
 
     return generateOrbProfile({
       // Launchpad profile data
@@ -182,26 +227,27 @@ export function useOrbProfile() {
       problemSolvingStyle: launchpadProfile.problemSolvingStyle,
       priorities: launchpadProfile.priorities,
       
-      // Identity elements
-      selectedTraitIds,
+      // Identity elements - includes AI-derived traits
+      selectedTraitIds: allTraits,
       
       // Game state
       level: gameState?.level || 1,
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
       
-      // Aurora data
+      // Aurora data - NOW includes AI summary data
       clarityScore: lifeDirection?.clarity_score || 0,
-      consciousnessScore: 50,
-      transformationReadiness: isLaunchpadComplete ? 70 : 30,
+      consciousnessScore: summaryData?.consciousnessScore || 50,
+      transformationReadiness: summaryData?.transformationReadiness || (isLaunchpadComplete ? 70 : 30),
       
-      // Legacy
-      egoState: gameState?.activeEgoState,
+      // Ego state priority: AI suggested > game state
+      egoState: summaryData?.suggestedEgoState || gameState?.activeEgoState,
     });
   }, [
     user?.id,
     launchpadProfile,
     selectedTraitIds,
+    summaryData,
     gameState?.activeEgoState,
     gameState?.level,
     gameState?.experience,
