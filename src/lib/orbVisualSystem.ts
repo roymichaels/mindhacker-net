@@ -127,70 +127,70 @@ export const MORPHOLOGY_PROFILES: Record<string, MorphologyProfile> = {
 };
 
 export const COLOR_PALETTES: Record<string, ColorPalette> = {
-  // טכנולוגיה - ציאן-כחול חשמלי
+  // טכנולוגיה - ציאן-מגנטה חייזרי (Alien Mercury)
   tech: {
     id: 'tech',
-    name: 'Electric Neon',
-    primary: '195 100% 50%',     // Bright Cyan
-    secondary: '220 100% 60%',   // Electric Blue
-    accent: '180 100% 70%',      // Bright Teal
-    glow: '200 100% 80%',        // Light Cyan
-    gradient: ['195 100% 50%', '220 100% 60%', '180 100% 70%'],
+    name: 'Alien Cyber',
+    primary: '185 100% 60%',     // Bright Alien Cyan
+    secondary: '280 100% 65%',   // Vivid Purple
+    accent: '320 100% 70%',      // Hot Magenta
+    glow: '200 100% 85%',        // Electric Cyan Glow
+    gradient: ['185 100% 60%', '280 100% 65%', '320 100% 70%', '45 100% 65%'],
   },
   
-  // יצירתיות - מגנטה-סגול
+  // יצירתיות - מגנטה-ציאן קוסמי (Cosmic Creator)
   creative: {
     id: 'creative',
-    name: 'Vibrant Magenta',
-    primary: '320 90% 55%',      // Hot Magenta
-    secondary: '280 85% 60%',    // Vivid Purple
-    accent: '340 100% 65%',      // Hot Pink
-    glow: '300 100% 75%',        // Bright Violet
-    gradient: ['320 90% 55%', '280 85% 60%', '340 100% 65%'],
+    name: 'Cosmic Creator',
+    primary: '310 100% 65%',     // Hot Magenta
+    secondary: '190 100% 60%',   // Alien Cyan
+    accent: '45 100% 70%',       // Electric Gold
+    glow: '280 100% 80%',        // Purple Glow
+    gradient: ['310 100% 65%', '190 100% 60%', '45 100% 70%', '160 100% 60%'],
   },
   
-  // ספורט/פעולה - כתום-זהב
+  // ספורט/פעולה - כתום-סגול אנרגטי (Energy Burst)
   action: {
     id: 'action',
-    name: 'Fiery Gold',
-    primary: '25 100% 55%',      // Vivid Orange
-    secondary: '45 100% 55%',    // Golden Yellow
-    accent: '15 100% 60%',       // Flame Orange
-    glow: '35 100% 70%',         // Bright Gold
-    gradient: ['25 100% 55%', '45 100% 55%', '15 100% 60%'],
+    name: 'Energy Burst',
+    primary: '25 100% 60%',      // Vivid Orange
+    secondary: '280 100% 60%',   // Electric Purple
+    accent: '55 100% 70%',       // Bright Yellow
+    glow: '15 100% 75%',         // Orange Glow
+    gradient: ['25 100% 60%', '280 100% 60%', '55 100% 70%', '320 100% 65%'],
   },
   
-  // רוחניות - סגול עמוק-אינדיגו
+  // רוחניות - סגול-ציאן אתרי (Ethereal Mystic)
   mystic: {
     id: 'mystic',
-    name: 'Deep Mystic',
-    primary: '270 85% 50%',      // Deep Purple
-    secondary: '250 80% 55%',    // Indigo
-    accent: '290 90% 65%',       // Violet
-    glow: '260 100% 75%',        // Light Purple
-    gradient: ['270 85% 50%', '250 80% 55%', '290 90% 65%'],
+    name: 'Ethereal Mystic',
+    primary: '270 100% 65%',     // Deep Vivid Purple
+    secondary: '190 100% 60%',   // Ethereal Cyan
+    accent: '320 100% 70%',      // Mystic Magenta
+    glow: '250 100% 80%',        // Indigo Glow
+    gradient: ['270 100% 65%', '190 100% 60%', '320 100% 70%', '160 100% 55%'],
   },
   
-  // חברתי/ריפוי - ירוק-טורקיז
+  // חברתי/ריפוי - ציאן-מגנטה מרפא (Healing Aura)
   healing: {
     id: 'healing',
-    name: 'Healing Teal',
-    primary: '165 80% 45%',      // Teal
-    secondary: '150 70% 50%',    // Sea Green
-    accent: '175 85% 55%',       // Turquoise
-    glow: '160 100% 70%',        // Light Teal
-    gradient: ['165 80% 45%', '150 70% 50%', '175 85% 55%'],
+    name: 'Healing Aura',
+    primary: '165 100% 55%',     // Vibrant Teal
+    secondary: '310 100% 60%',   // Soft Magenta
+    accent: '55 100% 65%',       // Warm Yellow
+    glow: '175 100% 75%',        // Turquoise Glow
+    gradient: ['165 100% 55%', '310 100% 60%', '55 100% 65%', '280 90% 60%'],
   },
   
-  // הרפתקנות - זהב-שמש
+  // הרפתקנות - זהב-ציאן הרפתקני (Explorer's Flame)
   explorer: {
     id: 'explorer',
-    name: 'Golden Explorer',
-    primary: '45 95% 55%',       // Bright Gold
-    secondary: '35 90% 50%',     // Rich Orange Gold
-    accent: '55 100% 60%',       // Sunny Yellow
-    glow: '50 100% 75%',         // Light Gold
-    gradient: ['45 95% 55%', '35 90% 50%', '55 100% 60%'],
+    name: 'Explorer\'s Flame',
+    primary: '45 100% 60%',      // Bright Gold
+    secondary: '185 100% 60%',   // Adventure Cyan
+    accent: '15 100% 65%',       // Flame Orange
+    glow: '55 100% 80%',         // Golden Glow
+    gradient: ['45 100% 60%', '185 100% 60%', '15 100% 65%', '320 100% 60%'],
   },
 };
 
@@ -378,9 +378,9 @@ export function levelToComplexity(level: number): {
   
   return {
     layerCount: 2 + Math.floor(normalizedLevel / 8),        // 2-5
-    geometryDetail: 3 + Math.floor(normalizedLevel / 7),    // 3-7
-    fractalOctaves: 2 + Math.floor(normalizedLevel / 6),    // 2-7
-    particleCount: normalizedLevel > 3 ? 15 + normalizedLevel * 2 : 0,
+    geometryDetail: 4 + Math.floor(normalizedLevel / 6),    // 4-9
+    fractalOctaves: 3 + Math.floor(normalizedLevel / 6),    // 3-8
+    particleCount: 80 + normalizedLevel * 4,                // Always 80-200 particles
   };
 }
 
@@ -519,14 +519,16 @@ export const GRADIENT_VERTEX_SHADER = `
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float vFresnel;
+varying vec3 vWorldPos;
 
 void main() {
   vNormal = normalize(normalMatrix * normal);
   vPosition = position;
+  vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
   
-  vec3 viewDir = normalize(cameraPosition - (modelMatrix * vec4(position, 1.0)).xyz);
+  vec3 viewDir = normalize(cameraPosition - vWorldPos);
   vec3 worldNormal = normalize(mat3(modelMatrix) * normal);
-  vFresnel = pow(1.0 - max(dot(viewDir, worldNormal), 0.0), 2.0);
+  vFresnel = pow(1.0 - max(dot(viewDir, worldNormal), 0.0), 1.8);
   
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
@@ -542,26 +544,50 @@ uniform float intensity;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float vFresnel;
+varying vec3 vWorldPos;
+
+// Rainbow hue shift for liquid mercury effect
+vec3 hueShift(vec3 color, float shift) {
+  vec3 p = vec3(0.55735) * dot(vec3(0.55735), color);
+  vec3 u = color - p;
+  vec3 v = cross(vec3(0.55735), u);
+  return u * cos(shift * 6.28318) + v * sin(shift * 6.28318) + p;
+}
 
 void main() {
-  // Dynamic gradient blend based on normal direction
-  float blend1 = vNormal.y * 0.5 + 0.5 + sin(time * 0.5) * 0.1;
-  float blend2 = sin(vPosition.x * 2.0 + time * 0.3) * 0.5 + 0.5;
+  // Multi-axis gradient blend for fluid motion
+  float blend1 = vNormal.y * 0.5 + 0.5 + sin(time * 0.7 + vPosition.x * 2.0) * 0.2;
+  float blend2 = sin(vPosition.x * 3.0 + vPosition.z * 2.0 + time * 0.5) * 0.5 + 0.5;
+  float blend3 = cos(vPosition.y * 2.5 + time * 0.4) * 0.5 + 0.5;
   
-  // Three-color gradient
-  vec3 color = mix(
-    mix(colorA, colorB, blend1),
-    colorC,
-    blend2 * 0.3 + sin(time * 0.7) * 0.15
-  );
+  // Rainbow iridescence based on view angle - ALIEN MERCURY EFFECT
+  float hueOffset = vFresnel * 0.4 + sin(time * 0.3 + vPosition.x + vPosition.y) * 0.15;
   
-  // Add fresnel rim glow
-  vec3 rimColor = colorC * 1.5;
-  color = mix(color, rimColor, vFresnel * 0.6);
+  // Liquid swirl pattern
+  float swirl = sin(vPosition.x * 4.0 + vPosition.y * 3.0 + vPosition.z * 5.0 + time * 0.6) * 0.5 + 0.5;
   
-  // Intensity boost
-  color *= intensity;
+  // Three-color gradient with swirl
+  vec3 color1 = mix(colorA, colorB, blend1);
+  vec3 color2 = mix(color1, colorC, blend2 * 0.4 + swirl * 0.3);
   
-  gl_FragColor = vec4(color, 1.0);
+  // Apply rainbow hue shift for iridescence
+  vec3 iridescentColor = hueShift(color2, hueOffset);
+  
+  // Bright fresnel rim with color cycling
+  vec3 rimColor = hueShift(colorC * 2.0, vFresnel * 0.3 + time * 0.1);
+  iridescentColor = mix(iridescentColor, rimColor, vFresnel * 0.8);
+  
+  // Hot spots for liquid mercury shine
+  float hotSpot = pow(max(0.0, sin(vPosition.x * 6.0 + time * 2.0) * sin(vPosition.y * 5.0 + time * 1.5)), 4.0);
+  iridescentColor += vec3(1.0, 0.95, 0.9) * hotSpot * 0.4;
+  
+  // Secondary color pops
+  float colorPop = pow(swirl * blend3, 2.0);
+  iridescentColor += hueShift(colorB, time * 0.2) * colorPop * 0.3;
+  
+  // Intensity boost with slight bloom simulation
+  iridescentColor *= intensity * 1.2;
+  
+  gl_FragColor = vec4(iridescentColor, 0.95);
 }
 `;
