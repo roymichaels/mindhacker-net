@@ -1,4 +1,4 @@
-import { ChevronUp, Settings, LogOut, Globe, Sun, Moon } from 'lucide-react';
+import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { useNavigate } from 'react-router-dom';
 
 interface AuroraAccountDropdownProps {
   isCollapsed: boolean;
@@ -32,6 +34,12 @@ const AuroraAccountDropdown = ({
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const { profile: orbProfile } = useMultiThreadOrbProfile();
+  const { hasRole } = useUserRoles();
+  const navigate = useNavigate();
+
+  const isAdmin = hasRole('admin');
+  const isPractitioner = hasRole('practitioner');
+  const isAffiliate = hasRole('affiliate');
 
   // Fetch profile data
   const { data: profile } = useQuery({
@@ -99,6 +107,30 @@ const AuroraAccountDropdown = ({
         side="top"
         className="w-56 bg-card border border-border shadow-xl z-[100]"
       >
+        {/* Panel Links - Role-based */}
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate('/panel')}>
+            <Shield className="h-4 w-4 me-2" />
+            {language === 'he' ? 'פאנל ניהול' : 'Admin Panel'}
+          </DropdownMenuItem>
+        )}
+        
+        {isPractitioner && (
+          <DropdownMenuItem onClick={() => navigate('/coach')}>
+            <UserCog className="h-4 w-4 me-2" />
+            {language === 'he' ? 'פאנל מאמן' : 'Coach Panel'}
+          </DropdownMenuItem>
+        )}
+        
+        {isAffiliate && (
+          <DropdownMenuItem onClick={() => navigate('/affiliate')}>
+            <Link2 className="h-4 w-4 me-2" />
+            {language === 'he' ? 'פאנל שותפים' : 'Affiliate Panel'}
+          </DropdownMenuItem>
+        )}
+        
+        {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
+        
         <DropdownMenuItem onClick={onOpenSettings}>
           <Settings className="h-4 w-4 me-2" />
           {t('aurora.account.settings')}
