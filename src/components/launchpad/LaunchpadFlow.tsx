@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep, isLastStepInPhase } from '@/hooks/useLaunchpadProgress';
@@ -217,6 +218,21 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   };
 
   // Allow completed users to view the journey (removed redirect)
+
+  // CRITICAL FIX: Show loader while data is loading to prevent components
+  // from mounting with null savedData and triggering autoSave that overwrites DB
+  if (isLoadingData) {
+    return (
+      <div className={cn("min-h-screen flex items-center justify-center", className)} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">
+            {language === 'he' ? 'טוען את המסע שלך...' : 'Loading your journey...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Show phase transition screen
   if (showingPhaseTransition && completedPhaseId) {
