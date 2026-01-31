@@ -1,95 +1,149 @@
 
-# תוכנית: אפשר צפייה וניווט במסע טרנספורמציה שהושלם
+# תוכנית: שמירה אוטומטית וטעינת נתונים מהדאטאבייס בכל שלבי מסע הטרנספורמציה
 
-## הבעיה הנוכחית
+## הבעיה שזוהתה
 
-כרגע, כשמשתמש שסיים את מסע הטרנספורמציה לוחץ על "ערוך מסע טרנספורמציה":
-1. הוא מועבר לדף `/launchpad/complete` - דף סיכום נפרד
-2. אם מנסים לגשת ל-`/launchpad` - קורה redirect לדשבורד
-3. **הנתונים לא נטענים** כי יש שגיאה בשם עמודה (`created_at` לא קיימת)
+כרגע במערכת יש 3 בעיות:
+
+1. **נתונים לא נטענים מהדאטאבייס** - כשחוזרים לצעד שהושלם, הקומפוננטות טוענות רק מ-localStorage (שנמחק בסיום הצעד)
+2. **אין שמירה אוטומטית** - נתונים נשמרים רק בלחיצה על "הבא", לא בזמן בחירה
+3. **LaunchpadFlow לא מעביר נתונים** - הצעדים לא מקבלים את הנתונים השמורים כ-prop
 
 ## הפתרון
 
-לאפשר למשתמש שסיים **לצפות במסע עצמו** עם כל הצעדים מסומנים כמושלמים, ואפשרות לנווט ביניהם כרגיל.
+### שלב 1: הוספת הוק מרכזי לניהול נתונים עם שמירה אוטומטית
 
-## השינויים הנדרשים
+יצירת הוק `useLaunchpadAutoSave` שיספק:
+- **טעינה מהדאטאבייס** לכל צעד
+- **שמירה אוטומטית** (debounced) בכל שינוי
+- **Fallback ל-localStorage** למקרה של בעיות רשת
 
-### 1. תיקון שגיאת ה-Build (`LaunchpadComplete.tsx`)
-- שינוי `created_at` ל-`generated_at` בשליפות מ-`launchpad_summaries`
-- שינוי `created_at` ל-`updated_at` בשליפות מ-`life_plans`
+### שלב 2: עדכון LaunchpadFlow
 
-### 2. הסרת ה-Redirect ב-`Launchpad.tsx`
-- הסרת ה-`useEffect` שמעביר לדשבורד כשהמסע הושלם
-- המשתמש יוכל לגשת ל-`/launchpad` גם אחרי סיום
+- שימוש ב-`useLaunchpadData` לטעינת כל הנתונים השמורים
+- העברת הנתונים הרלוונטיים לכל צעד כ-prop
+- הוספת prop `savedData` לכל צעד
 
-### 3. הסרת ה-Return Null ב-`LaunchpadFlow.tsx`
-- הסרת הבדיקה בשורות 145-147 שמחזירה `null` אם המסע הושלם
-- עדכון הלוגיקה כך שמשתמש שסיים יכול לנווט בין כל הצעדים (1-9)
-- כל הצעדים יהיו נגישים בסדר מלא עם חיווי שהם הושלמו
+### שלב 3: עדכון כל צעד בנפרד
 
-### 4. עדכון לוגיקת הניווט ב-`ProfileDrawer.tsx`
-- שינוי הכפתור כך שתמיד יוביל ל-`/launchpad` (לא ל-`/launchpad/complete`)
-- הטקסט ישתנה לפי הסטטוס: "ערוך" אם הושלם, "התחל" אם לא
-
-### 5. עדכון הניווט בסיום המסע
-- ב-`LaunchpadFlow.tsx` שורה 72 - לשנות את ה-`onComplete` כך שינווט ל-`/launchpad/complete` במקום לדשבורד
-- ב-`Launchpad.tsx` - לשנות את `handleComplete` להוביל ל-`/launchpad/complete`
-
-## התנהגות צפויה לאחר התיקון
-
-**משתמש חדש:**
-1. לוחץ "התחל מסע טרנספורמציה" → נכנס ל-LaunchpadFlow
-2. עובר את כל 9 הצעדים בסדר
-3. בסיום → מועבר ל-`/launchpad/complete` לראות את הסיכום המלא והציונים
-
-**משתמש שסיים:**
-1. לוחץ "ערוך מסע טרנספורמציה" → נכנס ל-LaunchpadFlow
-2. רואה את כל 9 הצעדים מסומנים כמושלמים
-3. יכול לנווט בחופשיות בין הצעדים עם חיצי הניווט
-4. יכול לצפות/לערוך תשובות קודמות
-5. יכול גם לגשת ל-`/launchpad/complete` ישירות לראות סיכום
-
-## פרטים טכניים
-
-### קבצים לעדכון:
-1. `src/pages/LaunchpadComplete.tsx` - תיקון שמות עמודות
-2. `src/pages/Launchpad.tsx` - הסרת redirect + שינוי onComplete
-3. `src/components/launchpad/LaunchpadFlow.tsx` - הסרת return null
-4. `src/components/dashboard/ProfileDrawer.tsx` - עדכון ניווט לתמיד `/launchpad`
-
-### שינויים בקוד:
-
+כל צעד יקבל:
 ```typescript
-// LaunchpadComplete.tsx - שורה 76
-.order('generated_at', { ascending: false }) // במקום created_at
-
-// LaunchpadComplete.tsx - שורה 87
-.order('updated_at', { ascending: false }) // במקום created_at
-
-// Launchpad.tsx - הסרת שורות 10-15 (ה-useEffect)
-// ושינוי handleComplete:
-const handleComplete = () => {
-  navigate('/launchpad/complete');
-};
-
-// LaunchpadFlow.tsx - הסרת שורות 145-147
-// שינוי canGoNext (שורה 107):
-const canGoNext = viewingStep !== null ? displayedStep < 9 : displayedStep < currentStep;
-
-// ProfileDrawer.tsx - שורה 130
-navigate('/launchpad'); // תמיד לlaunchpad
+interface StepProps {
+  onComplete: (data?: Record<string, unknown>) => void;
+  isCompleting: boolean;
+  rewards: { xp: number; tokens: number; unlock: string };
+  savedData?: SavedProgress; // נתונים שמורים מהדאטאבייס
+  onAutoSave?: (data: SavedProgress) => void; // פונקציית שמירה אוטומטית
+}
 ```
 
-### לוגיקת ניווט משופרת ב-LaunchpadFlow:
+### שלב 4: שמירה אוטומטית בכל שינוי
+
+בכל צעד:
+1. **אתחול** - קודם מהדאטאבייס (savedData), אם אין - מ-localStorage
+2. **בכל בחירה** - שמירה אוטומטית לדאטאבייס (debounced 500ms) + localStorage
+3. **בסיום הצעד** - סימון הצעד כהושלם בנוסף לנתונים שכבר נשמרו
+
+---
+
+## קבצים חדשים
+
+### 1. `src/hooks/useLaunchpadAutoSave.ts`
+
+הוק חדש שמנהל שמירה אוטומטית:
+- Debounced save (500ms) לדאטאבייס
+- Sync עם localStorage כ-backup
+- מחזיר פונקציית `saveData` לכל צעד
+
+---
+
+## קבצים לעדכון
+
+### 1. `src/components/launchpad/LaunchpadFlow.tsx`
+- הוספת `useLaunchpadData` לטעינת נתונים
+- העברת `savedData` ו-`onAutoSave` לכל צעד
+
+### 2. `src/components/launchpad/steps/FirstWeekStep.tsx`
+- קבלת `savedData` כ-prop
+- אתחול ראשוני מ-savedData (DB) במקום רק localStorage
+- קריאה ל-`onAutoSave` בכל שינוי בבחירות
+
+### 3. `src/components/launchpad/steps/FocusAreasStep.tsx`
+- אותו דבר - טעינה מ-savedData + שמירה אוטומטית
+
+### 4. `src/components/launchpad/steps/PersonalProfileStep.tsx`
+- אותו דבר - טעינה מ-savedData + שמירה אוטומטית
+
+### 5. `src/components/launchpad/steps/WelcomeStep.tsx`
+- אותו דבר - טעינה מ-savedData + שמירה אוטומטית
+
+### 6. `src/hooks/useLaunchpadData.ts`
+- הוספת פונקציית `updateStepData` לשמירה חלקית (לא רק בסיום צעד)
+
+---
+
+## לוגיקת הזרימה החדשה
 
 ```
-אם המסע הושלם:
-  - currentStep = 9 (או יותר)
-  - כל הצעדים (1-9) נגישים לניווט
-  - משתמש מתחיל בצעד 1 (כניסה טרייה) או בצעד שהיה בו
-  - יכול לנווט קדימה/אחורה ללא הגבלה
-  
-אם המסע לא הושלם:
-  - יכול לנווט אחורה לצעדים שהשלים
-  - לא יכול לנווט קדימה מעבר לצעד הנוכחי
+                     ┌─────────────────────────────────────────┐
+                     │          משתמש נכנס לצעד 8              │
+                     └───────────────┬─────────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │   LaunchpadFlow טוען נתונים      │
+                    │   מ-useLaunchpadData             │
+                    └────────────────┬────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │   מעביר savedData={firstWeek}   │
+                    │   ל-FirstWeekStep              │
+                    └────────────────┬────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │   FirstWeekStep מאתחל state:    │
+                    │   1. savedData (מ-DB)?         │
+                    │   2. localStorage?              │
+                    │   3. ברירת מחדל                 │
+                    └────────────────┬────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │   משתמש בוחר אופציה            │
+                    └────────────────┬────────────────┘
+                                     │
+         ┌───────────────────────────┴───────────────────────────┐
+         │                                                        │
+         ▼                                                        ▼
+┌──────────────────────┐                           ┌──────────────────────┐
+│  שמירה ל-localStorage│                           │   onAutoSave(data)   │
+│  (מיידית)            │                           │   (debounced 500ms)  │
+└──────────────────────┘                           └───────────┬──────────┘
+                                                               │
+                                                   ┌───────────▼──────────┐
+                                                   │   שמירה לדאטאבייס    │
+                                                   │   step_6_actions     │
+                                                   └──────────────────────┘
 ```
+
+---
+
+## תוצאה צפויה
+
+לאחר היישום:
+
+1. ✅ **נתונים נשמרים מיד** - כל בחירה נשמרת אוטומטית
+2. ✅ **נתונים נטענים נכון** - כשחוזרים לצעד, הבחירות הקודמות מופיעות
+3. ✅ **עמידות בפני נפילות** - localStorage משמש כ-backup מקומי
+4. ✅ **UX חלק** - אין צורך בכפתור "שמור", הכל קורה ברקע
+5. ✅ **עריכה אפשרית** - אפשר לשנות בחירות קודמות ולראות אותן נשמרות
+
+---
+
+## סדר היישום
+
+1. יצירת `useLaunchpadAutoSave.ts`
+2. עדכון `useLaunchpadData.ts` עם פונקציית עדכון חלקי
+3. עדכון `LaunchpadFlow.tsx` - טעינה והעברת נתונים
+4. עדכון `FirstWeekStep.tsx` - קבלת נתונים + שמירה אוטומטית
+5. עדכון `FocusAreasStep.tsx` - אותו דבר
+6. עדכון `PersonalProfileStep.tsx` - אותו דבר
+7. עדכון `WelcomeStep.tsx` - אותו דבר
