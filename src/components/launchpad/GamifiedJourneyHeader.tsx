@@ -159,23 +159,23 @@ export function GamifiedJourneyHeader({
                 )}
               </div>
 
-              {/* Live Orb Avatar - Enhanced glowing liquid style (no rings) */}
+              {/* Live Orb Avatar - Compact for mobile, glowing */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="relative"
               >
-                {/* Intense glow backdrop - multiple layers for depth */}
-                <div className="absolute inset-[-120%] rounded-full bg-gradient-radial from-primary/70 via-primary/40 to-transparent blur-3xl pointer-events-none" />
-                <div className="absolute inset-[-80%] rounded-full bg-gradient-radial from-accent/50 via-transparent to-transparent blur-2xl pointer-events-none animate-pulse" />
+                {/* Subtle glow backdrop - contained for mobile */}
+                <div className="absolute inset-[-50%] rounded-full bg-gradient-radial from-primary/50 via-primary/20 to-transparent blur-xl pointer-events-none" />
                 
-                {/* Clean orb container - no rings, just the orb */}
+                {/* Orb container - proper sizing for mobile */}
                 <div className={cn(
-                  "relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center"
+                  "relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center overflow-visible"
                 )}>
-                  {/* Orb - larger scale for impact */}
-                  <div className="relative z-10" style={{ transform: 'scale(1.5)' }}>
-                    <PersonalizedOrb size={80} showGlow={true} />
+                  {/* Orb - responsive size */}
+                  <div className="relative z-10">
+                    <PersonalizedOrb size={48} showGlow={true} className="md:hidden" />
+                    <PersonalizedOrb size={64} showGlow={true} className="hidden md:block" />
                   </div>
                 </div>
                 
@@ -186,9 +186,9 @@ export function GamifiedJourneyHeader({
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg z-20"
+                      className="absolute -bottom-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg z-20"
                     >
-                      <Star className="w-3 h-3 text-primary-foreground" />
+                      <Star className="w-2.5 h-2.5 md:w-3 md:h-3 text-primary-foreground" />
                     </motion.div>
                   )}
                 </AnimatePresence>
