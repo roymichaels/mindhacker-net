@@ -14,6 +14,21 @@ export interface HypnosisScript {
   };
 }
 
+export interface CachedScript {
+  id: string;
+  user_id: string;
+  cache_key: string;
+  ego_state: string;
+  goal: string;
+  duration_minutes: number;
+  language: string;
+  script_data: HypnosisScript;
+  audio_paths: string[] | null;
+  created_at: string;
+  last_used_at: string;
+  use_count: number;
+}
+
 export interface ScriptSegment {
   id: string;
   text: string;
@@ -139,4 +154,139 @@ export async function analyzeProgress(options: {
     suggestions: data?.suggestions || [],
     celebration: data?.celebration || '',
   };
+}
+
+/**
+ * Generate a cache key for script caching
+ */
+export function generateCacheKey(options: {
+  egoState: string;
+  goal: string;
+  durationMinutes: number;
+  language: 'he' | 'en';
+}): string {
+  // Create a simple hash of the goal for the cache key
+  const goalHash = options.goal
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .substring(0, 30);
+  
+  return `${options.egoState}_${goalHash}_${options.durationMinutes}_${options.language}`;
+}
+
+/**
+ * Check if there's a cached script for the given parameters
+ */
+export async function checkScriptCache(
+  userId: string,
+  cacheKey: string
+): Promise<CachedScript | null> {
+  // Use type assertion since the types.ts file hasn't been regenerated yet
+  const { data, error } = await supabase
+    .from('hypnosis_script_cache' as any)
+    .select('*')
+    .eq('user_id', userId)
+    .eq('cache_key', cacheKey)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  // Update last_used_at and use_count
+  await supabase
+    .from('hypnosis_script_cache' as any)
+    .update({ 
+      last_used_at: new Date().toISOString(),
+      use_count: ((data as any).use_count || 0) + 1,
+    })
+    .eq('id', (data as any).id);
+
+  return data as unknown as CachedScript;
+}
+
+/**
+ * Save a script to the cache
+ */
+export async function saveScriptToCache(
+  userId: string,
+  cacheKey: string,
+  script: HypnosisScript,
+  options: {
+    egoState: string;
+    goal: string;
+    durationMinutes: number;
+    language: 'he' | 'en';
+  }
+): Promise<void> {
+  // Use type assertion since the types.ts file hasn't been regenerated yet
+  const { error } = await supabase
+    .from('hypnosis_script_cache' as any)
+    .upsert({
+      user_id: userId,
+      cache_key: cacheKey,
+      ego_state: options.egoState,
+      goal: options.goal,
+      duration_minutes: options.durationMinutes,
+      language: options.language,
+      script_data: script,
+      last_used_at: new Date().toISOString(),
+    } as any, {
+      onConflict: 'user_id,cache_key',
+    });
+
+  if (error) {
+    console.error('Failed to save script to cache:', error);
+  }
+}
+
+/**
+ * Get signed URL for cached audio segment
+ */
+export async function getCachedAudioUrl(
+  audioPath: string,
+  expiresIn: number = 3600
+): Promise<string | null> {
+  if (!audioPath) return null;
+
+  const { data, error } = await supabase.storage
+    .from('hypnosis-cache')
+    .createSignedUrl(audioPath, expiresIn);
+
+  if (error) {
+    console.error('Failed to get signed URL for cached audio:', error);
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
+/**
+ * Trigger background audio caching for a script
+ */
+export async function cacheScriptAudio(
+  userId: string,
+  cacheKey: string,
+  segments: { id: string; text: string; mood: string; durationPercent: number }[],
+  language: 'he' | 'en' = 'he'
+): Promise<void> {
+  try {
+    // Fire and forget - don't wait for completion
+    supabase.functions.invoke('cache-hypnosis-audio', {
+      body: {
+        userId,
+        cacheKey,
+        segments,
+        language,
+      },
+    }).then(({ error }) => {
+      if (error) {
+        console.error('Background audio caching failed:', error);
+      } else {
+        console.log('Audio caching completed in background');
+      }
+    });
+  } catch (error) {
+    console.error('Failed to trigger audio caching:', error);
+  }
 }

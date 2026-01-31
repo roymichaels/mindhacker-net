@@ -2019,6 +2019,59 @@ export type Database = {
         }
         Relationships: []
       }
+      hypnosis_script_cache: {
+        Row: {
+          audio_paths: Json | null
+          cache_key: string
+          created_at: string | null
+          duration_minutes: number
+          ego_state: string
+          goal: string
+          id: string
+          language: string
+          last_used_at: string | null
+          script_data: Json
+          use_count: number | null
+          user_id: string
+        }
+        Insert: {
+          audio_paths?: Json | null
+          cache_key: string
+          created_at?: string | null
+          duration_minutes: number
+          ego_state: string
+          goal: string
+          id?: string
+          language?: string
+          last_used_at?: string | null
+          script_data: Json
+          use_count?: number | null
+          user_id: string
+        }
+        Update: {
+          audio_paths?: Json | null
+          cache_key?: string
+          created_at?: string | null
+          duration_minutes?: number
+          ego_state?: string
+          goal?: string
+          id?: string
+          language?: string
+          last_used_at?: string | null
+          script_data?: Json
+          use_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hypnosis_script_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hypnosis_sessions: {
         Row: {
           action: string | null

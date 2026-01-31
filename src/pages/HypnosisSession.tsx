@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipForward, Volume2, VolumeX, X, ChevronDown, Wind, Loader2, Sparkles } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, X, ChevronDown, Wind, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -11,7 +11,15 @@ import { useGameState } from '@/contexts/GameStateContext';
 import { Orb } from '@/components/orb';
 import { BreathingGuide } from '@/components/hypnosis';
 import { getEgoState } from '@/lib/egoStates';
-import { generateHypnosisScript, type HypnosisScript } from '@/services/hypnosis';
+import { 
+  generateHypnosisScript, 
+  type HypnosisScript,
+  generateCacheKey,
+  checkScriptCache,
+  saveScriptToCache,
+  getCachedAudioUrl,
+  cacheScriptAudio,
+} from '@/services/hypnosis';
 import { synthesizeSpeech, speakWithBrowser, stopBrowserSpeech, isBrowserTTSAvailable, playAudioUrl } from '@/services/voice';
 import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
@@ -63,6 +71,8 @@ const HypnosisSession = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showBreathing, setShowBreathing] = useState(false);
   const [breathingCountdown, setBreathingCountdown] = useState(0);
+  const [cachedAudioPaths, setCachedAudioPaths] = useState<string[] | null>(null);
+  const [isFromCache, setIsFromCache] = useState(false);
 
   const [voiceProvider, setVoiceProvider] = useState<'elevenlabs' | 'openai' | 'browser'>('elevenlabs');
 
@@ -114,12 +124,54 @@ const HypnosisSession = () => {
     handleStartSession();
   };
 
-  // Generate script
+  // Generate script (or load from cache)
   const handleStartSession = async () => {
     setState('generating');
     hapticPattern('selection');
 
     try {
+      // Generate cache key
+      const cacheKey = generateCacheKey({
+        egoState: egoStateId,
+        goal,
+        durationMinutes: duration,
+        language: language as 'he' | 'en',
+      });
+
+      // Check cache first
+      if (user?.id) {
+        const cached = await checkScriptCache(user.id, cacheKey);
+        
+        if (cached?.script_data) {
+          console.log('✅ Script loaded from cache');
+          const cachedScript = cached.script_data as unknown as HypnosisScript;
+          
+          // Validate cached script
+          if (cachedScript?.segments?.length) {
+            scriptRef.current = cachedScript;
+            setScript(cachedScript);
+            setIsFromCache(true);
+            
+            // Check if audio is also cached
+            if (cached.audio_paths?.length) {
+              setCachedAudioPaths(cached.audio_paths);
+              console.log('✅ Audio paths loaded from cache');
+            }
+            
+            setState('playing');
+            startTimeRef.current = Date.now();
+            playingRef.current = true;
+            hapticPattern('success');
+            
+            // Play with cached audio if available
+            playSegment(0, cachedScript, cached.audio_paths || undefined);
+            return;
+          }
+        }
+      }
+
+      // No cache - generate new script
+      console.log('🆕 Generating new script...');
       const generatedScript = await generateHypnosisScript({
         egoState: egoStateId,
         goal,
@@ -135,9 +187,24 @@ const HypnosisSession = () => {
         throw new Error('Invalid script: no segments generated');
       }
 
+      // Save to cache
+      if (user?.id) {
+        await saveScriptToCache(user.id, cacheKey, generatedScript, {
+          egoState: egoStateId,
+          goal,
+          durationMinutes: duration,
+          language: language as 'he' | 'en',
+        });
+        console.log('💾 Script saved to cache');
+        
+        // Trigger background audio caching (fire and forget)
+        cacheScriptAudio(user.id, cacheKey, generatedScript.segments, language as 'he' | 'en');
+      }
+
       // Update both ref (sync) and state (async) 
       scriptRef.current = generatedScript;
       setScript(generatedScript);
+      setIsFromCache(false);
       setState('playing');
       startTimeRef.current = Date.now();
       playingRef.current = true;
@@ -157,10 +224,27 @@ const HypnosisSession = () => {
     }
   };
 
-  // Play a segment using ElevenLabs/OpenAI TTS with browser fallback
-  // Accept optional scriptOverride for initial call to avoid state race condition
-  const playSegment = useCallback(async (index: number, scriptOverride?: HypnosisScript) => {
+  // Restart session from beginning
+  const restartSession = () => {
+    impact('medium');
+    stopBrowserSpeech();
+    setCurrentSegmentIndex(0);
+    setProgress(0);
+    setElapsedTime(0);
+    startTimeRef.current = Date.now();
+    playingRef.current = true;
+    setState('playing');
+    
+    if (scriptRef.current) {
+      playSegment(0, scriptRef.current, cachedAudioPaths || undefined);
+    }
+  };
+
+  // Play a segment using cached audio or ElevenLabs/OpenAI TTS with browser fallback
+  // Accept optional scriptOverride and cachedPaths for initial call to avoid state race condition
+  const playSegment = useCallback(async (index: number, scriptOverride?: HypnosisScript, cachedPaths?: string[]) => {
     const activeScript = scriptOverride || scriptRef.current;
+    const activeCachedPaths = cachedPaths || cachedAudioPaths;
     
     // Guard against missing script or completed segments
     if (!activeScript || !activeScript.segments || activeScript.segments.length === 0) {
@@ -177,7 +261,7 @@ const HypnosisSession = () => {
     if (!segment?.text) {
       console.warn(`Segment ${index} has no text, skipping`);
       if (playingRef.current && index + 1 < activeScript.segments.length) {
-        playSegment(index + 1, activeScript);
+        playSegment(index + 1, activeScript, activeCachedPaths);
       } else {
         handleSessionComplete();
       }
@@ -195,12 +279,40 @@ const HypnosisSession = () => {
       
       setTimeout(() => {
         if (playingRef.current) {
-          playSegment(index + 1, activeScript);
+          playSegment(index + 1, activeScript, activeCachedPaths);
         }
       }, readingTime);
       return;
     }
 
+    // Check for cached audio first
+    if (activeCachedPaths && activeCachedPaths[index]) {
+      try {
+        const cachedUrl = await getCachedAudioUrl(activeCachedPaths[index]);
+        if (cachedUrl) {
+          console.log(`▶️ Playing cached audio for segment ${index}`);
+          await playAudioUrl(cachedUrl, {
+            onEnd: () => {
+              if (playingRef.current) {
+                playSegment(index + 1, activeScript, activeCachedPaths);
+              }
+            },
+            onError: (error) => {
+              console.error('Cached audio playback error, continuing to next segment:', error);
+              // Continue to next segment on error
+              if (playingRef.current) {
+                setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
+              }
+            },
+          });
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to get cached audio, falling back to synthesis:', error);
+      }
+    }
+
+    // No cached audio, synthesize using TTS
     try {
       // Try ElevenLabs → OpenAI → Browser fallback
       const result = await synthesizeSpeech(segment.text, {
@@ -215,14 +327,14 @@ const HypnosisSession = () => {
         await playAudioUrl(result.audioUrl, {
           onEnd: () => {
             if (playingRef.current) {
-              playSegment(index + 1, activeScript);
+              playSegment(index + 1, activeScript, activeCachedPaths);
             }
           },
           onError: (error) => {
             console.error('Audio playback error:', error);
             // Continue to next segment on error
             if (playingRef.current) {
-              setTimeout(() => playSegment(index + 1, activeScript), 500);
+              setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
             }
           },
         });
@@ -234,7 +346,7 @@ const HypnosisSession = () => {
         
         setTimeout(() => {
           if (playingRef.current) {
-            playSegment(index + 1, activeScript);
+            playSegment(index + 1, activeScript, activeCachedPaths);
           }
         }, readingTime);
       }
@@ -243,11 +355,11 @@ const HypnosisSession = () => {
       // Continue to next segment
       setTimeout(() => {
         if (playingRef.current) {
-          playSegment(index + 1, activeScript);
+          playSegment(index + 1, activeScript, activeCachedPaths);
         }
       }, 1000);
     }
-  }, [isMuted, voiceProvider, impact]);
+  }, [isMuted, voiceProvider, impact, cachedAudioPaths]);
 
   // Handle pause/resume
   const togglePlayPause = () => {
@@ -624,6 +736,18 @@ const HypnosisSession = () => {
 
               {/* Controls */}
               <div className="flex items-center justify-center gap-4">
+                {/* Restart button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full text-white/70 hover:text-white hover:bg-white/10 touch-manipulation"
+                  onClick={restartSession}
+                  title={language === 'he' ? 'חזור להתחלה' : 'Restart'}
+                >
+                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Button>
+
+                {/* Play/Pause button */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -637,6 +761,7 @@ const HypnosisSession = () => {
                   )}
                 </Button>
 
+                {/* Skip button */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -646,6 +771,17 @@ const HypnosisSession = () => {
                   <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
               </div>
+
+              {/* Cache indicator */}
+              {isFromCache && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-4 text-xs text-white/40"
+                >
+                  ⚡ {language === 'he' ? 'נטען מהקאש' : 'Loaded from cache'}
+                </motion.p>
+              )}
             </motion.div>
           )}
 
