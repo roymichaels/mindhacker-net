@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipForward, Volume2, VolumeX, X, ChevronDown, Wind } from 'lucide-react';
+import { Play, Pause, SkipForward, Volume2, VolumeX, X, ChevronDown, Wind, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -519,7 +519,7 @@ const HypnosisSession = () => {
             </motion.div>
           )}
 
-          {/* Generating State */}
+          {/* Generating State - Enhanced with progress indicators */}
           {state === 'generating' && (
             <motion.div
               key="generating"
@@ -528,13 +528,60 @@ const HypnosisSession = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="text-center text-white"
             >
-              <Orb size={180} state="thinking" className="mx-auto" />
-              <p className="mt-6 sm:mt-8 text-base sm:text-lg">
-                {language === 'he' 
-                  ? 'יוצר את הסשן המותאם אישית שלך...'
-                  : 'Creating your personalized session...'
-                }
-              </p>
+              <div className="relative">
+                <Orb size={180} state="thinking" className="mx-auto" />
+                <motion.div 
+                  className="absolute inset-0 flex items-center justify-center"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                >
+                  <div className="w-[200px] h-[200px] rounded-full border-2 border-white/20 border-t-white/60" />
+                </motion.div>
+              </div>
+              
+              <div className="mt-6 sm:mt-8 space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <h2 className="text-xl sm:text-2xl font-semibold">
+                    {language === 'he' ? 'מכין את הסשן שלך...' : 'Preparing your session...'}
+                  </h2>
+                </div>
+                
+                <p className="text-white/60 text-sm sm:text-base">
+                  {language === 'he' 
+                    ? 'יוצר סקריפט מותאם אישית ומכין את הקול'
+                    : 'Creating a personalized script and preparing the voice'
+                  }
+                </p>
+                
+                <motion.div 
+                  className="flex items-center justify-center gap-1 mt-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-white/60"
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ 
+                        duration: 1.2, 
+                        repeat: Infinity, 
+                        delay: i * 0.2,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
+                </motion.div>
+                
+                <p className="text-white/40 text-xs mt-4">
+                  {language === 'he' 
+                    ? 'זה יכול לקחת עד 30 שניות'
+                    : 'This may take up to 30 seconds'
+                  }
+                </p>
+              </div>
             </motion.div>
           )}
 
