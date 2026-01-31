@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Sparkles, ArrowRight, ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -299,14 +298,17 @@ export function GrowthDeepDiveStep({
   }
 
   return (
-    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div 
+      className="space-y-6 p-6 rounded-2xl bg-background/80 backdrop-blur-xl border border-border/50 shadow-xl" 
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-sm font-medium shadow-sm">
           <Sparkles className="w-4 h-4" />
           {isHebrew ? 'העמקה אישית' : 'Personal Deep Dive'}
         </div>
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
           {isHebrew ? 'בואו נעמיק קצת' : "Let's Go Deeper"}
         </h2>
         <p className="text-muted-foreground">
@@ -334,18 +336,18 @@ export function GrowthDeepDiveStep({
       </div>
 
       {/* Current area card */}
-      <Card className="p-6 space-y-6">
+      <div className="p-5 rounded-xl bg-card/60 backdrop-blur-md border border-border/40 shadow-lg space-y-5">
         {/* Area badge */}
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎯</span>
-          <span className="font-medium text-lg">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl drop-shadow-sm">🎯</span>
+          <span className="font-semibold text-lg">
             {isHebrew ? areaLabel.label : areaLabel.labelEn}
           </span>
         </div>
 
         {/* Question */}
         <div>
-          <h3 className="text-lg font-medium mb-4">
+          <h3 className="text-lg font-medium mb-4 text-foreground/90">
             {isHebrew ? followUp.question : followUp.questionEn}
           </h3>
           
@@ -358,19 +360,19 @@ export function GrowthDeepDiveStep({
                   key={option.value}
                   onClick={() => handleSelectOption(option.value)}
                   className={cn(
-                    "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-start",
+                    "flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-start backdrop-blur-sm",
                     isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50 hover:bg-muted/50"
+                      ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                      : "border-border/60 bg-background/40 hover:border-primary/50 hover:bg-background/60"
                   )}
                 >
                   <div className={cn(
                     "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
-                    isSelected ? "border-primary bg-primary" : "border-muted-foreground"
+                    isSelected ? "border-primary bg-primary" : "border-muted-foreground/50"
                   )}>
                     {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
-                  <span className={cn(isSelected && "font-medium")}>
+                  <span className={cn(isSelected && "font-medium text-foreground")}>
                     {isHebrew ? option.label : option.labelEn}
                   </span>
                 </button>
@@ -378,7 +380,7 @@ export function GrowthDeepDiveStep({
             })}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Navigation */}
       <div className="flex gap-3 pt-4">
