@@ -162,34 +162,35 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     rimLight.position.set(0, 3, 0);
     scene.add(rimLight);
 
-    // Main solid orb - Icosahedron with higher detail for organic morphing
-    const geometry = new THREE.IcosahedronGeometry(0.85, 4);
+    // Main solid orb - SphereGeometry for smooth alien look, high detail
+    const geometry = new THREE.SphereGeometry(0.85, 64, 64);
     const positions = geometry.attributes.position.array as Float32Array;
     basePositionsRef.current = positions.slice();
 
-    // Create gradient-like material using MeshPhongMaterial for solid look
+    // Create solid material with MeshStandardMaterial for realistic lighting
     const primaryColor = getPrimaryColor();
-    const material = new THREE.MeshPhongMaterial({
+    const material = new THREE.MeshStandardMaterial({
       color: primaryColor,
-      emissive: primaryColor.clone().multiplyScalar(0.15),
-      specular: new THREE.Color(0xffffff),
-      shininess: 100,
-      flatShading: false, // Smooth surface
-      side: THREE.FrontSide,
+      emissive: primaryColor.clone().multiplyScalar(0.2),
+      emissiveIntensity: 0.5,
+      roughness: 0.3,
+      metalness: 0.6,
+      side: THREE.DoubleSide, // Visible from all angles
     });
 
     const mainOrb = new THREE.Mesh(geometry, material);
     scene.add(mainOrb);
     mainOrbRef.current = mainOrb;
 
-    // Inner glow sphere (slightly smaller, emissive)
+    // Inner glow sphere (slightly smaller, emissive) - also double sided
     if (showGlow) {
-      const glowGeometry = new THREE.SphereGeometry(0.75, 32, 32);
+      const glowGeometry = new THREE.SphereGeometry(0.7, 32, 32);
       const coreColor = parseHslToThreeColor(activeProfile.coreGlow.color);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: coreColor,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.4,
+        side: THREE.DoubleSide,
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       scene.add(glowMesh);
@@ -219,10 +220,10 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
   // Update colors when profile changes
   useEffect(() => {
     if (mainOrbRef.current) {
-      const material = mainOrbRef.current.material as THREE.MeshPhongMaterial;
+      const material = mainOrbRef.current.material as THREE.MeshStandardMaterial;
       const primaryColor = getPrimaryColor();
       material.color = primaryColor;
-      material.emissive = primaryColor.clone().multiplyScalar(0.15);
+      material.emissive = primaryColor.clone().multiplyScalar(0.2);
     }
 
     if (glowMeshRef.current) {
@@ -320,8 +321,8 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
       }
 
       // Update material emissive based on state
-      const material = mainOrb.material as THREE.MeshPhongMaterial;
-      const emissivePulse = 0.1 + Math.sin(time * 2) * 0.05 + audioLevel * 0.1;
+      const material = mainOrb.material as THREE.MeshStandardMaterial;
+      const emissivePulse = 0.15 + Math.sin(time * 2) * 0.08 + audioLevel * 0.15;
       const primaryColor = getPrimaryColor();
       material.emissive = primaryColor.clone().multiplyScalar(emissivePulse);
 
