@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ShoppingBag, Briefcase } from "lucide-react";
-import { MultiThreadOrb } from "@/components/orb/MultiThreadOrb";
+import { PersonalizedOrb } from "@/components/orb";
 import { useMultiThreadOrbProfile } from "@/hooks/useMultiThreadOrbProfile";
 import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -242,10 +242,10 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden">
-                        <MultiThreadOrb 
+                        <PersonalizedOrb 
                           size={40}
                           showGlow={false}
-                          profile={orbProfile}
+                          disablePersonalization={!isPersonalized}
                         />
                       </Button>
                     </DropdownMenuTrigger>
