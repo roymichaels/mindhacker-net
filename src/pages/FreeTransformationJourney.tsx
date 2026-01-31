@@ -9,11 +9,8 @@ import {
   Target, 
   FileText, 
   Sparkles, 
-  Clock, 
-  CreditCard, 
   ArrowRight,
   Gift,
-  Zap,
   Star,
   TrendingUp,
   Compass
@@ -81,62 +78,62 @@ export default function FreeTransformationJourney() {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hero Section - Single compact view */}
-      <section className="relative flex flex-col items-center justify-start px-4 py-6 pb-12">
+    <div className="h-screen overflow-hidden bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Full-height flex container */}
+      <section className="relative flex flex-col h-full px-4 py-4">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
         
-        {/* Animated Orb */}
+        {/* Top section: Orb + Badge */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="relative mb-6"
+          className="relative flex justify-center mb-3"
         >
-          <div className="w-28 h-28 sm:w-32 sm:h-32">
-            <PersonalizedOrb size={128} showGlow disablePersonalization />
+          <div className="w-24 h-24 sm:w-28 sm:h-28">
+            <PersonalizedOrb size={112} showGlow disablePersonalization />
           </div>
           
-          {/* Free badge */}
+          {/* Free badge - Purple/Yellow gradient */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: 'spring' }}
-            className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3"
+            className="absolute -top-1 left-1/2 -translate-x-1/2 sm:-top-2"
           >
-            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold shadow-lg">
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 text-white text-xs font-bold shadow-lg">
               <Gift className="w-3.5 h-3.5" />
               {isRTL ? 'מתנה חינם' : 'FREE GIFT'}
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Headline */}
+        {/* Headline - Bigger & Bolder */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-center max-w-lg mx-auto mb-6"
+          className="text-center max-w-lg mx-auto mb-4"
         >
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 leading-tight">
+            <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 bg-clip-text text-transparent">
               {isRTL ? 'גלה את הפוטנציאל האמיתי שלך' : 'Discover Your True Potential'}
             </span>
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
+          <p className="text-muted-foreground/70 text-sm sm:text-base font-light">
             {isRTL 
               ? 'קבל ניתוח תודעה מותאם אישית ותוכנית טרנספורמציה ל-90 יום' 
               : 'Get personalized consciousness analysis and a 90-day transformation plan'}
           </p>
         </motion.div>
 
-        {/* Benefits Grid - 2 columns compact */}
+        {/* Benefits Grid - Flex grow to fill space */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-md mb-6"
+          className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-md mx-auto flex-1 content-start"
         >
           {BENEFITS.map((benefit, index) => (
             <motion.div
@@ -161,63 +158,23 @@ export default function FreeTransformationJourney() {
           ))}
         </motion.div>
 
-        {/* Trust signals */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs text-muted-foreground mb-6"
-        >
-          <span className="flex items-center gap-1">
-            <CreditCard className="w-3.5 h-3.5" />
-            {isRTL ? 'בלי כרטיס אשראי' : 'No credit card'}
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            {isRTL ? '5 דקות' : '5 minutes'}
-          </span>
-          <span className="flex items-center gap-1">
-            <Zap className="w-3.5 h-3.5" />
-            {isRTL ? 'תוצאות מיידיות' : 'Instant results'}
-          </span>
-        </motion.div>
-
-        {/* Sticky CTA (prevents overlap on mobile) */}
+        {/* CTA Button - Fixed at bottom, inside the flex flow */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="fixed inset-x-0 bottom-0 z-50 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+16px)]"
+          className="mt-auto pt-4 pb-[env(safe-area-inset-bottom)] w-full max-w-sm mx-auto"
         >
-          <div className="mx-auto w-full max-w-sm rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-lg">
-            <div className="p-2">
-              <Button
-                size="lg"
-                onClick={handleStart}
-                className="w-full h-14 text-lg gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 font-bold"
-              >
-                <Sparkles className="w-5 h-5" />
-                {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
-                <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-              </Button>
-            </div>
-          </div>
+          <Button
+            size="lg"
+            onClick={handleStart}
+            className="w-full h-14 text-lg gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 font-bold rounded-2xl"
+          >
+            <Sparkles className="w-5 h-5" />
+            {isRTL ? 'התחל את המסע שלי' : 'Start My Journey'}
+            <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+          </Button>
         </motion.div>
-
-        {/* Social proof */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="mt-4 text-xs text-muted-foreground text-center"
-        >
-          {isRTL 
-            ? '⭐ כבר יותר מ-2,000 אנשים התחילו את המסע שלהם' 
-            : '⭐ Over 2,000 people have already started their journey'}
-        </motion.p>
-
-        {/* Spacer so the fixed CTA doesn't cover content */}
-        <div className="h-28" aria-hidden="true" />
       </section>
     </div>
   );
