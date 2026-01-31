@@ -7,6 +7,8 @@ interface IdentityProfileProps {
     dominant_traits: string[];
     suggested_ego_state: string;
     values_hierarchy: string[];
+    identity_title?: string;
+    identity_emoji?: string;
   };
   behavioral?: {
     habits_to_transform: string[];
@@ -38,6 +40,9 @@ export function IdentityProfile({ profile, behavioral }: IdentityProfileProps) {
   const egoIcon = EGO_STATE_ICONS[egoState] || '🛡️';
   const egoLabel = EGO_STATE_LABELS[egoState] || EGO_STATE_LABELS.guardian;
 
+  const identityTitle = profile.identity_title;
+  const identityEmoji = profile.identity_emoji || '🎭';
+
   return (
     <motion.div
       initial={{ y: 20, opacity: 0 }}
@@ -52,6 +57,27 @@ export function IdentityProfile({ profile, behavioral }: IdentityProfileProps) {
       </h3>
 
       <div className="grid gap-4">
+        {/* Identity Title - Hero Card */}
+        {identityTitle && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="p-6 rounded-xl bg-gradient-to-br from-primary via-accent to-primary border border-primary/30 text-center relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse" />
+            <div className="relative z-10">
+              <div className="text-5xl mb-3">{identityEmoji}</div>
+              <div className="text-xs uppercase tracking-wider text-primary-foreground/70 mb-1">
+                {language === 'he' ? 'כותרת הזהות שלך' : 'Your Identity Title'}
+              </div>
+              <div className="text-2xl font-bold text-primary-foreground bg-clip-text">
+                {identityTitle}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Ego State */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
