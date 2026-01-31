@@ -242,6 +242,16 @@ Deno.serve(async (req) => {
 
     console.log(`Created ${milestones.length} milestones`);
 
+    // ========== CLEANUP OLD DATA BEFORE CREATING NEW ==========
+    console.log('Cleaning up old launchpad-generated data...');
+    
+    // Clear old checklists created from launchpad
+    await supabase
+      .from('aurora_checklists')
+      .delete()
+      .eq('user_id', userId)
+      .eq('origin', 'launchpad');
+
     // Create checklists for week 1
     await createWeekOneChecklists(supabase, userId, plan.months[0]?.weeks[0]);
     
@@ -389,9 +399,9 @@ Deno.serve(async (req) => {
 
     const step6Actions = progressData?.step_6_actions as Record<string, unknown> | null;
     
-    // Create commitments from habits to build
-    const habitsToBuilld = step6Actions?.habits_to_build as string[] || [];
-    for (const habit of habitsToBuilld.slice(0, 3)) {
+    // Create commitments from habits to build (selectedBuild key from FirstWeekStep)
+    const habitsToBuilld = (step6Actions?.selectedBuild || step6Actions?.habits_to_build) as string[] || [];
+    for (const habit of habitsToBuilld.slice(0, 5)) {
       await supabase.from('aurora_commitments').insert({
         user_id: userId,
         title: habit,
@@ -400,13 +410,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create commitment for career goal if exists
-    const careerGoal = step6Actions?.career_goal as string;
+    // Create commitment for career goal if exists (selectedCareerGoal key)
+    const careerGoal = (step6Actions?.selectedCareerGoal || step6Actions?.career_goal) as string;
     if (careerGoal) {
       await supabase.from('aurora_commitments').insert({
         user_id: userId,
         title: careerGoal,
         description: `יעד קריירה מתוך מסע הטרנספורמציה`,
+        status: 'active',
+      });
+    }
+
+    // Create commitments from habits to quit (selectedQuit key)
+    const habitsToQuit = (step6Actions?.selectedQuit || step6Actions?.habits_to_quit) as string[] || [];
+    for (const habit of habitsToQuit.slice(0, 3)) {
+      await supabase.from('aurora_commitments').insert({
+        user_id: userId,
+        title: `להפסיק: ${habit}`,
+        description: `הרגל להפסיק מתוך מסע הטרנספורמציה`,
         status: 'active',
       });
     }
@@ -1068,13 +1089,14 @@ async function createWeekOneChecklists(supabase: any, userId: string, weekData: 
   if (!weekData?.tasks?.length) return;
 
   try {
-    // Create week 1 checklist
+    // Create week 1 checklist with proper title from weekData
+    const weekTitle = weekData?.title || 'Week 1';
     const { data: checklist } = await supabase
       .from('aurora_checklists')
       .insert({
         user_id: userId,
-        title: '📅 שבוע 1 - Week 1',
-        origin: 'aurora',  // Fixed: 'launchpad_summary' was invalid, using 'aurora' instead
+        title: `📅 שבוע 1 - ${weekTitle}`,
+        origin: 'launchpad',  // Use 'launchpad' so cleanup works correctly
         context: 'Auto-generated from 90-day transformation plan',
         status: 'active',
       })
@@ -1104,15 +1126,15 @@ async function createChecklistsFromActions(supabase: any, userId: string, action
     // Parse actions if it's a string
     const parsedActions = typeof actions === 'string' ? JSON.parse(actions) : actions;
     
-    // Create checklist for habits to quit
-    const habitsToQuit = parsedActions?.habits_to_quit || parsedActions?.habitsToQuit || [];
+    // Create checklist for habits to quit (selectedQuit is the actual key from FirstWeekStep)
+    const habitsToQuit = parsedActions?.selectedQuit || parsedActions?.habits_to_quit || parsedActions?.habitsToQuit || [];
     if (Array.isArray(habitsToQuit) && habitsToQuit.length > 0) {
       const { data: quitChecklist } = await supabase
         .from('aurora_checklists')
         .insert({
           user_id: userId,
           title: '🚫 הרגלים להפסיק',
-          origin: 'aurora',
+          origin: 'launchpad',
           context: 'Generated from transformation journey - habits to quit',
           status: 'active',
         })
@@ -1130,15 +1152,15 @@ async function createChecklistsFromActions(supabase: any, userId: string, action
       }
     }
 
-    // Create checklist for habits to build
-    const habitsToBuild = parsedActions?.habits_to_build || parsedActions?.habitsToBuild || [];
+    // Create checklist for habits to build (selectedBuild is the actual key from FirstWeekStep)
+    const habitsToBuild = parsedActions?.selectedBuild || parsedActions?.habits_to_build || parsedActions?.habitsToBuild || [];
     if (Array.isArray(habitsToBuild) && habitsToBuild.length > 0) {
       const { data: buildChecklist } = await supabase
         .from('aurora_checklists')
         .insert({
           user_id: userId,
           title: '🏗️ הרגלים לבנות',
-          origin: 'aurora',
+          origin: 'launchpad',
           context: 'Generated from transformation journey - habits to build',
           status: 'active',
         })
@@ -1146,7 +1168,7 @@ async function createChecklistsFromActions(supabase: any, userId: string, action
         .single();
 
       if (buildChecklist) {
-        const items = habitsToBuild.slice(0, 5).map((habit: string, index: number) => ({
+        const items = habitsToBuild.slice(0, 10).map((habit: string, index: number) => ({
           checklist_id: buildChecklist.id,
           content: typeof habit === 'string' ? habit : String(habit),
           order_index: index,
@@ -1156,8 +1178,8 @@ async function createChecklistsFromActions(supabase: any, userId: string, action
       }
     }
 
-    // Create checklist for career goals
-    const careerGoal = parsedActions?.career_goal || parsedActions?.careerGoal;
+    // Create checklist for career goals (selectedCareerGoal is the actual key from FirstWeekStep)
+    const careerGoal = parsedActions?.selectedCareerGoal || parsedActions?.career_goal || parsedActions?.careerGoal;
     const nextSteps = parsedActions?.next_steps || parsedActions?.nextSteps || [];
     if (careerGoal || (Array.isArray(nextSteps) && nextSteps.length > 0)) {
       const { data: careerChecklist } = await supabase
@@ -1165,7 +1187,7 @@ async function createChecklistsFromActions(supabase: any, userId: string, action
         .insert({
           user_id: userId,
           title: '💼 יעדי קריירה',
-          origin: 'aurora',
+          origin: 'launchpad',
           context: 'Generated from transformation journey - career goals',
           status: 'active',
         })
