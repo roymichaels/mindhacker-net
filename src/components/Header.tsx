@@ -76,6 +76,10 @@ const SidebarToggle = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   // Show if we have either sidebar context OR a callback
   if (!sidebar && !onMenuClick) return null;
   
+  // Hide when sidebar is collapsed - the sidebar has its own toggle button
+  const isCollapsed = sidebar?.state === 'collapsed';
+  if (isCollapsed) return null;
+  
   return (
     <Button 
       variant="ghost" 
