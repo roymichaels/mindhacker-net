@@ -357,6 +357,7 @@ ${currentMilestone.tasks ? `- משימות: ${JSON.stringify(currentMilestone.ta
 ## פרופיל משתמש
 - שם: ${profile?.full_name || 'לא ידוע'}
 - ביו: ${profile?.bio || 'לא הוגדר'}
+- מגדר לפנייה: ${profile?.aurora_preferences?.gender === 'male' ? 'זכר (פנה אליו בלשון זכר)' : profile?.aurora_preferences?.gender === 'female' ? 'נקבה (פני אליה בלשון נקבה)' : 'ניטרלי (השתמש בלשון ניטרלית: אתה/את, תרצה/תרצי וכו\')'}
 - סגנון מועדף: ${profile?.aurora_preferences?.tone || 'warm'}
 - עוצמת אתגר: ${profile?.aurora_preferences?.intensity || 'balanced'}
 

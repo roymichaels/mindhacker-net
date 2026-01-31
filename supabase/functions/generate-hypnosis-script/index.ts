@@ -104,6 +104,7 @@ serve(async (req) => {
 
     // Load Aurora Life Model data for personalization
     const [
+      profileRes,
       directionRes,
       identityRes,
       energyRes,
@@ -111,6 +112,7 @@ serve(async (req) => {
       launchpadRes,
       milestoneRes,
     ] = await Promise.all([
+      supabase.from('profiles').select('aurora_preferences').eq('id', user.id).single(),
       supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
       supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', user.id),
       supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
@@ -120,6 +122,9 @@ serve(async (req) => {
       // NEW: Fetch current life plan milestone
       supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1),
     ]);
+
+    // Get user's gender preference
+    const userGender = (profileRes.data?.aurora_preferences as { gender?: string } | null)?.gender || 'neutral';
 
     const lifeDirection = directionRes.data?.[0]?.content || null;
     const values = (identityRes.data || []).filter((i: { element_type: string }) => i.element_type === 'value').map((i: { content: string }) => i.content);
@@ -221,12 +226,25 @@ serve(async (req) => {
     const totalWords = durationMinutes * wordsPerMinute;
     const egoStateContext = EGO_STATE_PROMPTS[egoState] || EGO_STATE_PROMPTS.guardian;
 
+    // Build gender-specific Hebrew grammar instruction
+    let hebrewGrammarInstruction = '';
+    if (userGender === 'male') {
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Address the listener using MASCULINE singular forms (לשון זכר יחיד). 
+Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
+Do NOT use feminine forms.`;
+    } else if (userGender === 'female') {
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Address the listener using FEMININE singular forms (לשון נקבה יחיד). 
+Use forms like: "את מרגישה", "את נושמת", "תני לעצמך", "הרגישי את", "את יכולה".
+Do NOT use masculine forms.`;
+    } else {
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Use NEUTRAL or inclusive Hebrew addressing. 
+Prefer forms that work for all genders like: "מרגישים", "נושמים", or use second person with both options: "אתה/את מרגיש/ה".
+When direct address is needed, alternate or use gender-neutral phrasing.`;
+    }
+
     const languageInstruction = language === 'he' 
       ? `Write the entire script in Hebrew. Use warm, flowing Hebrew that feels natural and poetic.
-CRITICAL HEBREW GRAMMAR: Address the listener using MASCULINE singular forms (לשון זכר יחיד). 
-Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
-Do NOT use feminine forms like "את מרגישה" or "תני לעצמך".
-This creates a neutral, universal tone appropriate for guided meditation.`
+${hebrewGrammarInstruction}`
       : 'Write the entire script in English. Use warm, flowing language that feels natural and poetic.';
 
     const experienceContext = previousSessions === 0
