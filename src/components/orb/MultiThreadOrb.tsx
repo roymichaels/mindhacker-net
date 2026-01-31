@@ -1,14 +1,14 @@
 /**
- * MultiThreadOrb - DNA-based multi-threaded orb visualization
+ * MultiThreadOrb - Solid alien-style orb visualization
  * 
- * Renders multiple wireframe layers, each representing a unique
- * aspect of the user's identity (traits, hobbies, patterns, etc.)
+ * Renders a single solid orb with dynamic color and morphing effects
+ * based on user's identity DNA profile
  */
 
-import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, useMemo } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import type { OrbRef, OrbState } from './types';
-import type { MultiThreadOrbProfile, OrbDNAThread, BaseGeometry } from '@/lib/orbDNAThreads';
+import type { MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
 import { DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
 
 interface MultiThreadOrbProps {
@@ -36,27 +36,6 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   return new THREE.Color(0x00ff88);
 }
 
-// Create geometry based on type with validation
-function createGeometry(type: BaseGeometry, radius: number, detail: number): THREE.BufferGeometry {
-  // Ensure valid radius and detail values to prevent NaN in geometry
-  const safeRadius = Number.isFinite(radius) && radius > 0 ? radius : 0.5;
-  const safeDetail = Number.isFinite(detail) && detail >= 0 ? Math.min(Math.max(Math.round(detail), 0), 5) : 2;
-  
-  switch (type) {
-    case 'sphere':
-      return new THREE.SphereGeometry(safeRadius, 32, 32);
-    case 'octahedron':
-      return new THREE.OctahedronGeometry(safeRadius, safeDetail);
-    case 'dodecahedron':
-      return new THREE.DodecahedronGeometry(safeRadius, safeDetail);
-    case 'torus':
-      return new THREE.TorusGeometry(safeRadius * 0.8, safeRadius * 0.3, 16, 32);
-    case 'icosahedron':
-    default:
-      return new THREE.IcosahedronGeometry(safeRadius, safeDetail);
-  }
-}
-
 // Perlin-like noise for organic movement
 function noise3D(x: number, y: number, z: number): number {
   const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142];
@@ -81,13 +60,6 @@ function noise3D(x: number, y: number, z: number): number {
     lerp(v, lerp(u, perm[AA + 1], perm[BA + 1]), lerp(u, perm[AB + 1], perm[BB + 1]))) / 255;
 }
 
-interface ThreadMesh {
-  mesh: THREE.Mesh;
-  thread: OrbDNAThread;
-  basePositions: Float32Array;
-  rotationAxis: THREE.Vector3;
-}
-
 export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function MultiThreadOrb(
   {
     size = 300,
@@ -105,8 +77,9 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const threadMeshesRef = useRef<ThreadMesh[]>([]);
-  const coreRef = useRef<THREE.Mesh | null>(null);
+  const mainOrbRef = useRef<THREE.Mesh | null>(null);
+  const glowMeshRef = useRef<THREE.Mesh | null>(null);
+  const basePositionsRef = useRef<Float32Array | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
 
@@ -129,13 +102,31 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     setTunnelMode: setInternalTunnelMode,
   }), []);
 
+  // Get primary color from threads (blend them together for a unified look)
+  const getPrimaryColor = (): THREE.Color => {
+    const threads = activeProfile.threads;
+    if (threads.length === 0) {
+      return new THREE.Color(0x00ff88);
+    }
+    
+    // Use first thread as primary, mix with second if available
+    const primary = parseHslToThreeColor(threads[0].color);
+    
+    if (threads.length > 1) {
+      const secondary = parseHslToThreeColor(threads[1].color);
+      primary.lerp(secondary, 0.3);
+    }
+    
+    return primary;
+  };
+
   // Initialize Three.js scene
   useEffect(() => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
 
-    // Scene
+    // Scene with subtle fog for depth
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
@@ -155,63 +146,54 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Create thread meshes
-    const newThreadMeshes: ThreadMesh[] = [];
-    const { threads, shape } = activeProfile;
+    // Lighting for solid look
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
 
-    threads.forEach((thread, index) => {
-      // Calculate radius based on layer (inner layers smaller) with validation
-      const layer = Number.isFinite(thread.layer) ? thread.layer : 0;
-      const baseRadius = Math.max(0.3, 0.85 - layer * 0.12);
-      const complexity = Number.isFinite(shape.complexity) ? shape.complexity : 3;
-      const detail = Math.max(1, Math.min(5, complexity - layer));
-      
-      const geometry = createGeometry(shape.baseGeometry, baseRadius, detail);
-      const positions = geometry.attributes.position.array as Float32Array;
-      
-      const material = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(thread.color),
-        wireframe: true,
-        transparent: true,
-        opacity: 0.25 + thread.intensity * 0.45,
-      });
+    const frontLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    frontLight.position.set(2, 2, 3);
+    scene.add(frontLight);
 
-      const mesh = new THREE.Mesh(geometry, material);
-      
-      // Set initial rotation based on thread index for variety
-      mesh.rotation.x = index * 0.3;
-      mesh.rotation.y = index * 0.5;
-      mesh.rotation.z = index * 0.2;
-      
-      scene.add(mesh);
-      
-      // Validate rotation axis values to prevent NaN
-      const axisX = Number.isFinite(thread.rotationAxis?.x) ? thread.rotationAxis.x : 0.5;
-      const axisY = Number.isFinite(thread.rotationAxis?.y) ? thread.rotationAxis.y : 0.8;
-      const axisZ = Number.isFinite(thread.rotationAxis?.z) ? thread.rotationAxis.z : 0.3;
-      const axis = new THREE.Vector3(axisX, axisY, axisZ).normalize();
-      
-      newThreadMeshes.push({
-        mesh,
-        thread,
-        basePositions: positions.slice(),
-        rotationAxis: axis,
-      });
+    const backLight = new THREE.DirectionalLight(0x8844ff, 0.5);
+    backLight.position.set(-2, -1, -2);
+    scene.add(backLight);
+
+    const rimLight = new THREE.PointLight(0x00ffaa, 0.6, 10);
+    rimLight.position.set(0, 3, 0);
+    scene.add(rimLight);
+
+    // Main solid orb - Icosahedron with higher detail for organic morphing
+    const geometry = new THREE.IcosahedronGeometry(0.85, 4);
+    const positions = geometry.attributes.position.array as Float32Array;
+    basePositionsRef.current = positions.slice();
+
+    // Create gradient-like material using MeshPhongMaterial for solid look
+    const primaryColor = getPrimaryColor();
+    const material = new THREE.MeshPhongMaterial({
+      color: primaryColor,
+      emissive: primaryColor.clone().multiplyScalar(0.15),
+      specular: new THREE.Color(0xffffff),
+      shininess: 100,
+      flatShading: false, // Smooth surface
+      side: THREE.FrontSide,
     });
 
-    threadMeshesRef.current = newThreadMeshes;
+    const mainOrb = new THREE.Mesh(geometry, material);
+    scene.add(mainOrb);
+    mainOrbRef.current = mainOrb;
 
-    // Core glow
+    // Inner glow sphere (slightly smaller, emissive)
     if (showGlow) {
-      const coreGeometry = new THREE.SphereGeometry(0.25, 16, 16);
-      const coreMaterial = new THREE.MeshBasicMaterial({
-        color: parseHslToThreeColor(activeProfile.coreGlow.color),
+      const glowGeometry = new THREE.SphereGeometry(0.75, 32, 32);
+      const coreColor = parseHslToThreeColor(activeProfile.coreGlow.color);
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: coreColor,
         transparent: true,
-        opacity: activeProfile.coreGlow.intensity,
+        opacity: 0.3,
       });
-      const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-      scene.add(coreMesh);
-      coreRef.current = coreMesh;
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      scene.add(glowMesh);
+      glowMeshRef.current = glowMesh;
     }
 
     onReady?.();
@@ -220,42 +202,44 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     return () => {
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
-      newThreadMeshes.forEach(({ mesh }) => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
-      });
-      if (coreRef.current) {
-        coreRef.current.geometry.dispose();
-        (coreRef.current.material as THREE.Material).dispose();
+      if (mainOrbRef.current) {
+        mainOrbRef.current.geometry.dispose();
+        (mainOrbRef.current.material as THREE.Material).dispose();
+      }
+      if (glowMeshRef.current) {
+        glowMeshRef.current.geometry.dispose();
+        (glowMeshRef.current.material as THREE.Material).dispose();
       }
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [size, activeProfile.threads.length, activeProfile.shape.baseGeometry]);
+  }, [size, activeProfile.shape.baseGeometry]);
 
   // Update colors when profile changes
   useEffect(() => {
-    threadMeshesRef.current.forEach(({ mesh, thread }) => {
-      const material = mesh.material as THREE.MeshBasicMaterial;
-      material.color = parseHslToThreeColor(thread.color);
-      material.opacity = 0.25 + thread.intensity * 0.45;
-    });
+    if (mainOrbRef.current) {
+      const material = mainOrbRef.current.material as THREE.MeshPhongMaterial;
+      const primaryColor = getPrimaryColor();
+      material.color = primaryColor;
+      material.emissive = primaryColor.clone().multiplyScalar(0.15);
+    }
 
-    if (coreRef.current) {
-      const coreMaterial = coreRef.current.material as THREE.MeshBasicMaterial;
-      coreMaterial.color = parseHslToThreeColor(activeProfile.coreGlow.color);
-      coreMaterial.opacity = activeProfile.coreGlow.intensity;
+    if (glowMeshRef.current) {
+      const glowMaterial = glowMeshRef.current.material as THREE.MeshBasicMaterial;
+      glowMaterial.color = parseHslToThreeColor(activeProfile.coreGlow.color);
     }
   }, [activeProfile.threads, activeProfile.coreGlow]);
 
   // Animation loop
   useEffect(() => {
-    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !mainOrbRef.current) return;
 
     const renderer = rendererRef.current;
     const scene = sceneRef.current;
     const camera = cameraRef.current;
+    const mainOrb = mainOrbRef.current;
+    const basePositions = basePositionsRef.current;
     const { motionProfile, shape } = activeProfile;
 
     const animate = () => {
@@ -276,44 +260,21 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
 
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
-      // Animate each thread
-      threadMeshesRef.current.forEach(({ mesh, thread, basePositions, rotationAxis }) => {
-        // Animation-specific behavior
-        const animSpeed = thread.animation === 'pulse' ? 1.5 :
-                          thread.animation === 'wave' ? 1.0 :
-                          thread.animation === 'spiral' ? 1.8 :
-                          thread.animation === 'orbit' ? 1.2 :
-                          0.6; // breathe
+      // Smooth rotation
+      mainOrb.rotation.y += 0.003 * rotMod;
+      mainOrb.rotation.x += 0.001 * rotMod;
+      mainOrb.rotation.z += Math.sin(time * 0.5) * 0.0005;
 
-        // Rotation around unique axis
-        const rotSpeed = thread.rotationSpeed * rotMod * animSpeed;
-        mesh.rotateOnAxis(rotationAxis, rotSpeed);
+      // Scale pulsation
+      const scalePulse = 1 + Math.sin(time * 1.5 * pulseMod) * 0.05;
+      const audioBoost = audioLevel * motionProfile.reactivity * 0.15;
+      const targetScale = scalePulse + audioBoost;
+      mainOrb.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
 
-        // Additional subtle wobble
-        mesh.rotation.x += Math.sin(time * 0.5 + thread.layer) * 0.001;
-        mesh.rotation.z += Math.cos(time * 0.3 + thread.layer * 0.5) * 0.0005;
-
-        // Scale pulsation based on animation type
-        let scalePulse = 1;
-        if (thread.animation === 'pulse') {
-          scalePulse = 1 + Math.sin(time * 2 * pulseMod) * 0.08;
-        } else if (thread.animation === 'breathe') {
-          scalePulse = 1 + Math.sin(time * 0.8 * pulseMod) * 0.12;
-        } else if (thread.animation === 'wave') {
-          scalePulse = 1 + Math.sin(time * 1.5 * pulseMod) * 0.05;
-        } else if (thread.animation === 'spiral') {
-          scalePulse = 1 + Math.sin(time * 2.5 * pulseMod) * 0.06;
-        } else {
-          scalePulse = 1 + Math.sin(time * pulseMod) * 0.04;
-        }
-
-        const audioBoost = audioLevel * motionProfile.reactivity * 0.25;
-        const targetScale = scalePulse + audioBoost;
-        mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-
-        // Vertex morphing for organic look
-        const positions = mesh.geometry.attributes.position;
-        const morphIntensity = (1 - shape.edgeSharpness) * 0.15 * morphMod;
+      // Organic vertex morphing for alien feel
+      if (basePositions) {
+        const positions = mainOrb.geometry.attributes.position;
+        const morphIntensity = (1 - shape.edgeSharpness) * 0.12 * morphMod;
 
         for (let i = 0; i < positions.count; i++) {
           const idx = i * 3;
@@ -322,20 +283,26 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
           const z = basePositions[idx + 2];
           
           const dist = Math.sqrt(x * x + y * y + z * z);
-          // Guard against division by zero / invalid geometry values (prevents NaN boundingSphere)
           if (!Number.isFinite(dist) || dist === 0) {
             positions.setXYZ(i, x, y, z);
             continue;
           }
           
-          // Noise-based deformation
+          // Multi-frequency noise for organic surface
           const noiseVal = noise3D(
-            x * 2 + time * 0.5 + thread.layer,
-            y * 2 + time * 0.3,
-            z * 2 + time * 0.7
+            x * 3 + time * 0.4,
+            y * 3 + time * 0.3,
+            z * 3 + time * 0.5
           );
           
-          const deform = (noiseVal - 0.5) * morphIntensity * (1 + audioLevel * 0.3);
+          const noiseVal2 = noise3D(
+            x * 1.5 + time * 0.2,
+            y * 1.5 + time * 0.15,
+            z * 1.5 + time * 0.25
+          );
+          
+          const combinedNoise = noiseVal * 0.7 + noiseVal2 * 0.3;
+          const deform = (combinedNoise - 0.5) * morphIntensity * (1 + audioLevel * 0.4);
           
           const nx = x / dist;
           const ny = y / dist;
@@ -349,29 +316,28 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
           );
         }
         positions.needsUpdate = true;
+        mainOrb.geometry.computeVertexNormals();
+      }
 
-        // Dynamic opacity
-        const material = mesh.material as THREE.MeshBasicMaterial;
-        const baseOpacity = 0.25 + thread.intensity * 0.45;
-        const opacityPulse = baseOpacity + Math.sin(time * 1.2 + thread.layer * 0.5) * 0.08;
-        material.opacity = Math.min(opacityPulse + audioLevel * 0.1, 0.9);
-      });
+      // Update material emissive based on state
+      const material = mainOrb.material as THREE.MeshPhongMaterial;
+      const emissivePulse = 0.1 + Math.sin(time * 2) * 0.05 + audioLevel * 0.1;
+      const primaryColor = getPrimaryColor();
+      material.emissive = primaryColor.clone().multiplyScalar(emissivePulse);
 
-      // Core animation
-      if (coreRef.current) {
-        const corePulse = 1 + Math.sin(time * activeProfile.coreGlow.pulseRate * 2) * 0.15 + audioLevel * 0.2;
-        coreRef.current.scale.set(corePulse, corePulse, corePulse);
+      // Glow animation
+      if (glowMeshRef.current) {
+        const glowPulse = 1 + Math.sin(time * activeProfile.coreGlow.pulseRate * 2) * 0.1 + audioLevel * 0.15;
+        glowMeshRef.current.scale.set(glowPulse, glowPulse, glowPulse);
         
-        const coreMaterial = coreRef.current.material as THREE.MeshBasicMaterial;
-        coreMaterial.opacity = activeProfile.coreGlow.intensity + Math.sin(time * 1.5) * 0.1;
+        const glowMaterial = glowMeshRef.current.material as THREE.MeshBasicMaterial;
+        glowMaterial.opacity = 0.2 + Math.sin(time * 1.5) * 0.08 + audioLevel * 0.05;
       }
 
       // Tunnel mode
       if (isTunnel) {
         camera.position.z = 2.5 + Math.sin(time * 0.5) * 0.4;
-        threadMeshesRef.current.forEach(({ mesh }) => {
-          mesh.rotation.z += 0.01;
-        });
+        mainOrb.rotation.z += 0.005;
       } else {
         camera.position.z = 3;
       }
