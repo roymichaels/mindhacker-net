@@ -35,55 +35,55 @@ export default defineConfig(({ mode }) => ({
         categories: ["health", "lifestyle", "education"],
         icons: [
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "72x72",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "96x96",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "128x128",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "144x144",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "152x152",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "192x192",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "384x384",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "512x512",
             type: "image/png",
             purpose: "any"
           },
           {
-            src: "/logo.png?v=5",
+            src: "/logo.png?v=6",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"
