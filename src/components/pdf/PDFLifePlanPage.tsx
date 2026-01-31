@@ -33,7 +33,7 @@ export function PDFLifePlanPage({ milestones, planTitle, language, pageNumber }:
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center">
               <Calendar className="w-6 h-6 text-emerald-400" />
             </div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold text-emerald-300">
               {isRTL ? 'תוכנית 90 יום' : '90-Day Plan'}
             </h2>
           </div>

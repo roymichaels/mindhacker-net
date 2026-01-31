@@ -38,7 +38,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
         <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
           <Heart className="w-6 h-6 text-rose-400" />
         </div>
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-rose-400 to-pink-300 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold text-rose-300">
           {isRTL ? 'פרופיל זהות' : 'Identity Profile'}
         </h2>
       </div>
@@ -102,7 +102,10 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
                 key={i}
                 className="flex items-center gap-3 p-3 rounded-lg bg-white/5"
               >
-                <span className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400 text-xs font-bold">
+                <span 
+                  className="w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                >
                   {i + 1}
                 </span>
                 <span className="text-white/80 text-sm">{value}</span>

@@ -68,7 +68,7 @@ export function PDFConsciousnessPage({ analysis, language }: PDFConsciousnessPag
         <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center">
           <Brain className="w-6 h-6 text-violet-400" />
         </div>
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold text-violet-300">
           {isRTL ? 'ניתוח תודעה' : 'Consciousness Analysis'}
         </h2>
       </div>

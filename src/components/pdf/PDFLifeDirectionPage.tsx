@@ -26,7 +26,7 @@ export function PDFLifeDirectionPage({ direction, language }: PDFLifeDirectionPa
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
           <Compass className="w-6 h-6 text-blue-400" />
         </div>
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold text-blue-300">
           {isRTL ? 'כיוון החיים שלך' : 'Your Life Direction'}
         </h2>
       </div>

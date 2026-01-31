@@ -71,7 +71,7 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
         <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
           <Activity className="w-6 h-6 text-orange-400" />
         </div>
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-orange-300">
           {isRTL ? 'תובנות התנהגותיות' : 'Behavioral Insights'}
         </h2>
       </div>
