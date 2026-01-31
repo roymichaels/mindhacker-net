@@ -63,15 +63,21 @@ export function useMultiThreadOrbProfile() {
     return (profileData?.hobbies as string[]) || [];
   }, [progress?.step_2_profile_data]);
 
-  // Generate multi-thread profile
+  // Generate multi-thread profile - always return DEFAULT during loading or when no user
   const multiThreadProfile = useMemo((): MultiThreadOrbProfile => {
-    if (!user?.id) return DEFAULT_MULTI_THREAD_PROFILE;
+    // Always return default if no user or still loading
+    if (!user?.id || isLoading) return DEFAULT_MULTI_THREAD_PROFILE;
 
     const summaryData = launchpadSummary?.summary_data as LaunchpadSummaryData | null;
     const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 50;
 
+    // If no personalized data, return default
+    if (!summaryData && hobbies.length === 0) {
+      return DEFAULT_MULTI_THREAD_PROFILE;
+    }
+
     return generateOrbThreads(summaryData, hobbies, consciousnessScore);
-  }, [user?.id, launchpadSummary, hobbies]);
+  }, [user?.id, launchpadSummary, hobbies, isLoading]);
 
   // Check if user has personalized data
   const isPersonalized = useMemo(() => {

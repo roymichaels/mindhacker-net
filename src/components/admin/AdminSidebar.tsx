@@ -44,7 +44,14 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, isRTL } = useTranslation();
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  // Initialize all groups as open by default
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    'command-center': true,
+    'campaigns': true,
+    'content': true,
+    'site': true,
+    'system': true,
+  });
 
   // Fetch unread notifications count
   const { data: unreadCount = 0 } = useQuery({
