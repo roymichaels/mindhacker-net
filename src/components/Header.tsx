@@ -48,14 +48,23 @@ export interface HeaderProps {
 }
 
 // Sidebar toggle component that safely uses the sidebar context
+// NOTE: On mobile we open a Sheet from the parent layout. If we open it via state
+// from an external button, the same click can be treated as an “outside click” and
+// immediately close the Sheet. We prevent that by stopping propagation and opening
+// on the next frame.
 const SidebarToggle = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const sidebar = useSidebarSafe();
   
   // Handle click - prefer callback if provided (mobile), otherwise use sidebar context
-  const handleClick = () => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    // Prevent Radix "click outside" from immediately closing the Sheet on mobile
+    e.preventDefault();
+    e.stopPropagation();
+
     // If we have a callback, use it (mobile sheet scenario)
     if (onMenuClick) {
-      onMenuClick();
+      // Open on next frame so the Sheet doesn't process the same click as outside
+      requestAnimationFrame(() => onMenuClick());
     } else if (sidebar) {
       // Desktop sidebar toggle
       sidebar.toggleSidebar();
