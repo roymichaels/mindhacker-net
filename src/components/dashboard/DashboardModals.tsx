@@ -155,7 +155,7 @@ export function TraitsModal({ open, onOpenChange, language }: DashboardModalProp
           .from('launchpad_summaries')
           .select('summary_data')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('generated_at', { ascending: false })
           .limit(1)
           .single();
 

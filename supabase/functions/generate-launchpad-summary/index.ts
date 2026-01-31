@@ -201,6 +201,17 @@ Deno.serve(async (req) => {
 
     // Create checklists for week 1
     await createWeekOneChecklists(supabase, userId, plan.months[0]?.weeks[0]);
+    
+    // Create additional checklists from step 6 actions
+    const { data: step6Progress } = await supabase
+      .from('launchpad_progress')
+      .select('step_6_actions')
+      .eq('user_id', userId)
+      .single();
+    
+    if (step6Progress?.step_6_actions) {
+      await createChecklistsFromActions(supabase, userId, step6Progress.step_6_actions);
+    }
 
     // Award XP for completing launchpad
     await supabase.rpc('increment_user_xp', { user_id: userId, xp_amount: 100 });
@@ -963,7 +974,7 @@ async function createWeekOneChecklists(supabase: any, userId: string, weekData: 
       .insert({
         user_id: userId,
         title: '📅 שבוע 1 - Week 1',
-        origin: 'launchpad_summary',
+        origin: 'aurora',  // Fixed: 'launchpad_summary' was invalid, using 'aurora' instead
         context: 'Auto-generated from 90-day transformation plan',
         status: 'active',
       })
@@ -982,5 +993,113 @@ async function createWeekOneChecklists(supabase: any, userId: string, weekData: 
     }
   } catch (error) {
     console.error('Error creating week 1 checklists:', error);
+  }
+}
+
+// Create additional checklists from step 6 actions (habits, career goals)
+async function createChecklistsFromActions(supabase: any, userId: string, actions: any) {
+  if (!actions) return;
+
+  try {
+    // Parse actions if it's a string
+    const parsedActions = typeof actions === 'string' ? JSON.parse(actions) : actions;
+    
+    // Create checklist for habits to quit
+    const habitsToQuit = parsedActions?.habits_to_quit || parsedActions?.habitsToQuit || [];
+    if (Array.isArray(habitsToQuit) && habitsToQuit.length > 0) {
+      const { data: quitChecklist } = await supabase
+        .from('aurora_checklists')
+        .insert({
+          user_id: userId,
+          title: '🚫 הרגלים להפסיק',
+          origin: 'aurora',
+          context: 'Generated from transformation journey - habits to quit',
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (quitChecklist) {
+        const items = habitsToQuit.slice(0, 5).map((habit: string, index: number) => ({
+          checklist_id: quitChecklist.id,
+          content: typeof habit === 'string' ? habit : String(habit),
+          order_index: index,
+          is_completed: false,
+        }));
+        await supabase.from('aurora_checklist_items').insert(items);
+      }
+    }
+
+    // Create checklist for habits to build
+    const habitsToBuild = parsedActions?.habits_to_build || parsedActions?.habitsToBuild || [];
+    if (Array.isArray(habitsToBuild) && habitsToBuild.length > 0) {
+      const { data: buildChecklist } = await supabase
+        .from('aurora_checklists')
+        .insert({
+          user_id: userId,
+          title: '🏗️ הרגלים לבנות',
+          origin: 'aurora',
+          context: 'Generated from transformation journey - habits to build',
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (buildChecklist) {
+        const items = habitsToBuild.slice(0, 5).map((habit: string, index: number) => ({
+          checklist_id: buildChecklist.id,
+          content: typeof habit === 'string' ? habit : String(habit),
+          order_index: index,
+          is_completed: false,
+        }));
+        await supabase.from('aurora_checklist_items').insert(items);
+      }
+    }
+
+    // Create checklist for career goals
+    const careerGoal = parsedActions?.career_goal || parsedActions?.careerGoal;
+    const nextSteps = parsedActions?.next_steps || parsedActions?.nextSteps || [];
+    if (careerGoal || (Array.isArray(nextSteps) && nextSteps.length > 0)) {
+      const { data: careerChecklist } = await supabase
+        .from('aurora_checklists')
+        .insert({
+          user_id: userId,
+          title: '💼 יעדי קריירה',
+          origin: 'aurora',
+          context: 'Generated from transformation journey - career goals',
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (careerChecklist) {
+        const items = [];
+        if (careerGoal) {
+          items.push({
+            checklist_id: careerChecklist.id,
+            content: typeof careerGoal === 'string' ? careerGoal : String(careerGoal),
+            order_index: 0,
+            is_completed: false,
+          });
+        }
+        if (Array.isArray(nextSteps)) {
+          nextSteps.slice(0, 4).forEach((step: string, index: number) => {
+            items.push({
+              checklist_id: careerChecklist.id,
+              content: typeof step === 'string' ? step : String(step),
+              order_index: items.length,
+              is_completed: false,
+            });
+          });
+        }
+        if (items.length > 0) {
+          await supabase.from('aurora_checklist_items').insert(items);
+        }
+      }
+    }
+    
+    console.log('Created additional checklists from step 6 actions');
+  } catch (error) {
+    console.error('Error creating checklists from actions:', error);
   }
 }
