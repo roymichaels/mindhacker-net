@@ -143,7 +143,7 @@ const CommunityFeed = ({ categoryId }: CommunityFeedProps) => {
       )}
 
       {/* Posts with Filter */}
-      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden">
+      <div>
         {/* Navigation Tabs inside posts container */}
         <CommunityNavTabs />
         
