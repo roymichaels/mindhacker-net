@@ -2,9 +2,9 @@ import { Heart, Sparkles, Star, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface IdentityProfile {
-  suggested_ego_state?: string[];
-  dominant_traits?: string[];
-  values_hierarchy?: string[];
+  suggested_ego_state?: string | string[];
+  dominant_traits?: string | string[];
+  values_hierarchy?: string | string[];
 }
 
 interface PDFIdentityPageProps {
@@ -12,8 +12,20 @@ interface PDFIdentityPageProps {
   language: string;
 }
 
+// Helper to ensure we always have an array
+const toArray = (value: unknown): string[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string');
+  if (typeof value === 'string') return [value];
+  return [];
+};
+
 export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
   const isRTL = language === 'he';
+
+  const egoStates = toArray(profile.suggested_ego_state);
+  const traits = toArray(profile.dominant_traits);
+  const values = toArray(profile.values_hierarchy);
 
   return (
     <div 
@@ -32,7 +44,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
       </div>
 
       {/* Ego State */}
-      {profile.suggested_ego_state && profile.suggested_ego_state.length > 0 && (
+      {egoStates.length > 0 && (
         <div className="mb-6 p-5 rounded-xl bg-gradient-to-br from-rose-500/10 to-pink-500/5 border border-rose-500/20">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-rose-400" />
@@ -41,7 +53,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
             </h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.suggested_ego_state.map((state, i) => (
+            {egoStates.map((state, i) => (
               <span 
                 key={i}
                 className="px-3 py-1.5 rounded-full bg-rose-500/20 text-rose-300 text-sm border border-rose-500/30 font-medium"
@@ -54,7 +66,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
       )}
 
       {/* Dominant Traits */}
-      {profile.dominant_traits && profile.dominant_traits.length > 0 && (
+      {traits.length > 0 && (
         <div className="mb-6 p-5 rounded-xl bg-white/5 border border-white/10">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-amber-400" />
@@ -63,7 +75,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
             </h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.dominant_traits.map((trait, i) => (
+            {traits.map((trait, i) => (
               <span 
                 key={i}
                 className="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-200/80 text-sm border border-amber-500/20"
@@ -76,7 +88,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
       )}
 
       {/* Values Hierarchy */}
-      {profile.values_hierarchy && profile.values_hierarchy.length > 0 && (
+      {values.length > 0 && (
         <div className="p-5 rounded-xl bg-white/5 border border-white/10">
           <div className="flex items-center gap-2 mb-4">
             <BookOpen className="w-4 h-4 text-violet-400" />
@@ -85,7 +97,7 @@ export function PDFIdentityPage({ profile, language }: PDFIdentityPageProps) {
             </h3>
           </div>
           <div className="space-y-2">
-            {profile.values_hierarchy.map((value, i) => (
+            {values.map((value, i) => (
               <div 
                 key={i}
                 className="flex items-center gap-3 p-3 rounded-lg bg-white/5"

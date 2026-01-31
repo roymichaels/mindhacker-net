@@ -2,15 +2,15 @@ import { Activity, ArrowDown, ArrowUp, AlertTriangle, Briefcase } from 'lucide-r
 import { cn } from '@/lib/utils';
 
 interface BehavioralInsights {
-  habits_to_break?: string[];
-  habits_to_develop?: string[];
-  resistance_patterns?: string[];
+  habits_to_break?: string | string[];
+  habits_to_develop?: string | string[];
+  resistance_patterns?: string | string[];
 }
 
 interface CareerPath {
   current_status?: string;
-  aspirations?: string[];
-  next_steps?: string[];
+  aspirations?: string | string[];
+  next_steps?: string | string[];
 }
 
 interface PDFBehavioralPageProps {
@@ -19,6 +19,14 @@ interface PDFBehavioralPageProps {
   language: string;
 }
 
+// Helper to ensure we always have an array
+const toArray = (value: unknown): string[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string');
+  if (typeof value === 'string') return [value];
+  return [];
+};
+
 export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralPageProps) {
   const isRTL = language === 'he';
 
@@ -26,7 +34,7 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
     {
       icon: ArrowDown,
       title: isRTL ? 'הרגלים לשנות' : 'Habits to Transform',
-      items: insights?.habits_to_break || [],
+      items: toArray(insights?.habits_to_break),
       color: 'text-red-400',
       bgColor: 'bg-red-500/10',
       borderColor: 'border-red-500/30',
@@ -34,7 +42,7 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
     {
       icon: ArrowUp,
       title: isRTL ? 'הרגלים לפתח' : 'Habits to Cultivate',
-      items: insights?.habits_to_develop || [],
+      items: toArray(insights?.habits_to_develop),
       color: 'text-emerald-400',
       bgColor: 'bg-emerald-500/10',
       borderColor: 'border-emerald-500/30',
@@ -42,12 +50,15 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
     {
       icon: AlertTriangle,
       title: isRTL ? 'דפוסי התנגדות' : 'Resistance Patterns',
-      items: insights?.resistance_patterns || [],
+      items: toArray(insights?.resistance_patterns),
       color: 'text-amber-400',
       bgColor: 'bg-amber-500/10',
       borderColor: 'border-amber-500/30',
     },
   ];
+
+  const aspirations = toArray(career?.aspirations);
+  const nextSteps = toArray(career?.next_steps);
 
   return (
     <div 
@@ -113,13 +124,13 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
             </div>
           )}
 
-          {career.aspirations && career.aspirations.length > 0 && (
+          {aspirations.length > 0 && (
             <div className="mb-4">
               <h4 className="text-xs font-medium text-white/50 mb-2">
                 {isRTL ? 'שאיפות' : 'Aspirations'}
               </h4>
               <div className="space-y-1">
-                {career.aspirations.map((asp, i) => (
+                {aspirations.map((asp, i) => (
                   <div key={i} className="flex items-start gap-2 text-sm text-white/70">
                     <span className="text-blue-400">•</span>
                     <span>{asp}</span>
@@ -129,13 +140,13 @@ export function PDFBehavioralPage({ insights, career, language }: PDFBehavioralP
             </div>
           )}
 
-          {career.next_steps && career.next_steps.length > 0 && (
+          {nextSteps.length > 0 && (
             <div>
               <h4 className="text-xs font-medium text-white/50 mb-2">
                 {isRTL ? 'צעדים הבאים' : 'Next Steps'}
               </h4>
               <div className="space-y-1">
-                {career.next_steps.map((step, i) => (
+                {nextSteps.map((step, i) => (
                   <div key={i} className="flex items-start gap-2 text-sm text-white/70">
                     <span className="text-emerald-400">{i + 1}.</span>
                     <span>{step}</span>

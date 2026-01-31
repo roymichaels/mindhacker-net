@@ -3,10 +3,10 @@ import { cn } from '@/lib/utils';
 
 interface ConsciousnessAnalysis {
   current_state?: string;
-  dominant_patterns?: string[];
-  strengths?: string[];
-  growth_edges?: string[];
-  blind_spots?: string[];
+  dominant_patterns?: string | string[];
+  strengths?: string | string[];
+  growth_edges?: string | string[];
+  blind_spots?: string | string[];
 }
 
 interface PDFConsciousnessPageProps {
@@ -14,14 +14,27 @@ interface PDFConsciousnessPageProps {
   language: string;
 }
 
+// Helper to ensure we always have an array
+const toArray = (value: unknown): string[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string');
+  if (typeof value === 'string') return [value];
+  return [];
+};
+
 export function PDFConsciousnessPage({ analysis, language }: PDFConsciousnessPageProps) {
   const isRTL = language === 'he';
+
+  const patterns = toArray(analysis.dominant_patterns);
+  const strengths = toArray(analysis.strengths);
+  const blindSpots = toArray(analysis.blind_spots);
+  const growthEdges = toArray(analysis.growth_edges);
 
   const sections = [
     {
       icon: Sparkles,
       title: isRTL ? 'חוזקות' : 'Strengths',
-      items: analysis.strengths || [],
+      items: strengths,
       color: 'text-emerald-400',
       borderColor: 'border-emerald-500/30',
       bgColor: 'bg-emerald-500/10',
@@ -29,7 +42,7 @@ export function PDFConsciousnessPage({ analysis, language }: PDFConsciousnessPag
     {
       icon: AlertCircle,
       title: isRTL ? 'נקודות עיוורות' : 'Blind Spots',
-      items: analysis.blind_spots || [],
+      items: blindSpots,
       color: 'text-amber-400',
       borderColor: 'border-amber-500/30',
       bgColor: 'bg-amber-500/10',
@@ -37,7 +50,7 @@ export function PDFConsciousnessPage({ analysis, language }: PDFConsciousnessPag
     {
       icon: TrendingUp,
       title: isRTL ? 'קצוות צמיחה' : 'Growth Edges',
-      items: analysis.growth_edges || [],
+      items: growthEdges,
       color: 'text-blue-400',
       borderColor: 'border-blue-500/30',
       bgColor: 'bg-blue-500/10',
@@ -71,13 +84,13 @@ export function PDFConsciousnessPage({ analysis, language }: PDFConsciousnessPag
       )}
 
       {/* Dominant Patterns */}
-      {analysis.dominant_patterns && analysis.dominant_patterns.length > 0 && (
+      {patterns.length > 0 && (
         <div className="mb-6">
           <h3 className="text-sm font-medium text-white/50 mb-3">
             {isRTL ? 'דפוסים דומיננטיים' : 'Dominant Patterns'}
           </h3>
           <div className="flex flex-wrap gap-2">
-            {analysis.dominant_patterns.map((pattern, i) => (
+            {patterns.map((pattern, i) => (
               <span 
                 key={i}
                 className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 text-sm border border-violet-500/30"
