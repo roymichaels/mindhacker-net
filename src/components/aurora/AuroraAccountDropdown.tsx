@@ -1,6 +1,5 @@
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +14,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import { useLiveOrbProfile } from '@/hooks/useLiveOrbProfile';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -38,6 +39,15 @@ const AuroraAccountDropdown = ({
   const { hasRole } = useUserRoles();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Get multi-thread orb profile for avatar (finalized summary)
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
+  
+  // Get LIVE orb profile that updates during journey
+  const { profile: liveOrbProfile, isInJourney, hasPersonalization: hasLiveData } = useLiveOrbProfile();
+  
+  // Use live profile during journey, otherwise use finalized profile
+  const activeOrbProfile = isInJourney && hasLiveData ? liveOrbProfile : orbProfile;
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -101,7 +111,7 @@ const AuroraAccountDropdown = ({
             isCollapsed && "justify-center px-2"
           )}
         >
-          {/* Avatar - PersonalizedOrb with enhanced glow */}
+          {/* Avatar - MultiThreadOrb matching Header */}
           <div className={cn(
             "shrink-0 relative flex items-center justify-center",
             isCollapsed ? "h-10 w-10" : "h-11 w-11"
@@ -109,10 +119,10 @@ const AuroraAccountDropdown = ({
             {/* Radial gradient glow backdrop */}
             <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
             <div className="relative z-10">
-              <PersonalizedOrb 
+              <MultiThreadOrb 
                 size={isCollapsed ? 38 : 44}
                 showGlow={true}
-                state="idle"
+                profile={activeOrbProfile}
               />
             </div>
           </div>
