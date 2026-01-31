@@ -232,7 +232,9 @@ export function PDFOrbPage({ profile, identityTitle, userName, language }: PDFOr
                   className="w-3 h-3 rounded-full shrink-0"
                   style={{ background: `hsl(${h}, ${s}%, ${l}%)` }}
                 />
-                <span className="text-xs text-white/70 truncate">{translatedLabel}</span>
+                <span className="text-xs text-white/70 text-right leading-tight" style={{ wordBreak: 'keep-all', whiteSpace: 'normal' }}>
+                  {translatedLabel}
+                </span>
               </div>
             );
           })}
