@@ -83,7 +83,7 @@ export default function FreeTransformationJourney() {
   };
 
   return (
-    <div className="h-screen overflow-hidden relative isolate" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen overflow-y-auto relative isolate" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Solid background to prevent canvas bleed-through */}
       <div className="absolute inset-0 bg-background z-0" />
       
