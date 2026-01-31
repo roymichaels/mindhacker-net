@@ -42,7 +42,9 @@ export const useDashboard = () => {
       const { data, error } = await supabase
         .from('aurora_identity_elements')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        // Ensure newest identity title/job is preferred when multiple exist
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as IdentityElement[];
