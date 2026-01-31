@@ -8,8 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Trophy, Target, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import { PersonalizedOrb } from '@/components/orb';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -55,7 +54,6 @@ export default function GameHeroSection() {
   const { isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
   
   // Dynamic typing effect for pain points
@@ -159,12 +157,12 @@ export default function GameHeroSection() {
                 transition={{ duration: 3, repeat: Infinity }}
               />
             </div>
-            <MultiThreadOrb 
-              profile={orbProfile}
+            <PersonalizedOrb 
               size={160}
               state={orbState}
               showGlow={true}
               className="mx-auto relative z-10"
+              disablePersonalization={!user}
             />
           </motion.div>
 
