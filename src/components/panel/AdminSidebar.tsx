@@ -1,28 +1,14 @@
 import { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTheme } from 'next-themes';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import {
   LayoutDashboard,
   BarChart3,
@@ -41,11 +27,6 @@ import {
   Shield,
   Megaphone,
   ChevronDown,
-  ChevronUp,
-  Globe,
-  Sun,
-  Moon,
-  LogOut,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -124,14 +105,8 @@ const navGroups: NavGroup[] = [
 
 const AdminSidebar = () => {
   const { language } = useTranslation();
-  const { setLanguage } = useLanguage();
-  const { user } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   const location = useLocation();
-  const navigate = useNavigate();
   const isHebrew = language === 'he';
-  const isDark = resolvedTheme === 'dark';
 
   // Track which groups are open - default open the group containing current route
   const [openGroups, setOpenGroups] = useState<string[]>(() => {
@@ -142,42 +117,12 @@ const AdminSidebar = () => {
     return activeGroup ? [activeGroup.id] : ['dashboard'];
   });
 
-  // Fetch profile data
-  const { data: profile } = useQuery({
-    queryKey: ['profile', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-      return data;
-    },
-    enabled: !!user?.id,
-  });
-
-  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User';
-
   const toggleGroup = (groupId: string) => {
     setOpenGroups(prev => 
       prev.includes(groupId) 
         ? prev.filter(id => id !== groupId)
         : [...prev, groupId]
     );
-  };
-
-  const handleLanguageToggle = () => {
-    setLanguage(language === 'he' ? 'en' : 'he');
-  };
-
-  const handleThemeToggle = () => {
-    setTheme(isDark ? 'light' : 'dark');
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
   };
 
   return (
@@ -246,73 +191,9 @@ const AdminSidebar = () => {
         </nav>
       </ScrollArea>
 
-      {/* Account Dropdown at Bottom */}
+      {/* Account Dropdown at Bottom - using shared component */}
       <div className="border-t border-border p-3 mt-auto">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 h-auto py-2 px-2"
-            >
-              <div className="h-9 w-9 shrink-0 rounded-full overflow-hidden">
-                <MultiThreadOrb 
-                  size={36}
-                  showGlow={false}
-                  profile={orbProfile}
-                />
-              </div>
-              <div className="flex-1 text-start min-w-0">
-                <p className="text-sm font-medium truncate">{displayName}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              </div>
-              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Button>
-          </DropdownMenuTrigger>
-          
-          <DropdownMenuContent
-            align="end"
-            side="top"
-            className="w-56 bg-card border border-border shadow-xl z-[100]"
-          >
-            <DropdownMenuItem onClick={() => navigate('/aurora')}>
-              <LayoutDashboard className="h-4 w-4 me-2" />
-              {isHebrew ? 'חזרה לאורורה' : 'Back to Aurora'}
-            </DropdownMenuItem>
-            
-            <DropdownMenuItem onClick={() => navigate('/launchpad/settings')}>
-              <Settings className="h-4 w-4 me-2" />
-              {isHebrew ? 'הגדרות פרופיל' : 'Profile Settings'}
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
-            
-            {/* Language Toggle */}
-            <DropdownMenuItem onClick={handleLanguageToggle}>
-              <Globe className="h-4 w-4 me-2" />
-              {language === 'he' ? 'English' : 'עברית'}
-            </DropdownMenuItem>
-            
-            {/* Theme Toggle */}
-            <DropdownMenuItem onClick={handleThemeToggle}>
-              {isDark ? (
-                <Sun className="h-4 w-4 me-2" />
-              ) : (
-                <Moon className="h-4 w-4 me-2" />
-              )}
-              {isDark
-                ? (isHebrew ? 'מצב בהיר' : 'Light Mode')
-                : (isHebrew ? 'מצב כהה' : 'Dark Mode')
-              }
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
-            
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-              <LogOut className="h-4 w-4 me-2" />
-              {isHebrew ? 'התנתקות' : 'Sign Out'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AuroraAccountDropdown showBackToAurora />
       </div>
     </aside>
   );
