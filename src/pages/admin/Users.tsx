@@ -11,11 +11,29 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, Gift, Eye } from "lucide-react";
+import { 
+  Search, Loader2, Gift, Eye, UserCog, Shield, Link2, 
+  Check, X, MoreHorizontal, Users as UsersIcon 
+} from "lucide-react";
 import { handleError, generateErrorId } from "@/lib/errorHandling";
 import AdminGrantPurchaseDialog from "@/components/admin/AdminGrantPurchaseDialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+import type { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database['public']['Enums']['app_role'];
 
 interface UserData {
   id: string;
@@ -23,15 +41,22 @@ interface UserData {
   created_at: string;
   profiles?: {
     full_name: string | null;
+    avatar_url?: string | null;
   };
   purchases?: {
     id: string;
     sessions_remaining: number;
   }[];
   user_roles?: {
-    role: string;
+    role: AppRole;
   }[];
 }
+
+const AVAILABLE_ROLES: { role: AppRole; label: string; labelHe: string; icon: React.ElementType; color: string }[] = [
+  { role: 'admin', label: 'Admin', labelHe: 'מנהל', icon: Shield, color: 'text-red-500' },
+  { role: 'practitioner', label: 'Coach', labelHe: 'מאמן', icon: UserCog, color: 'text-blue-500' },
+  { role: 'affiliate', label: 'Affiliate', labelHe: 'שותף', icon: Link2, color: 'text-green-500' },
+];
 
 const Users = () => {
   const [users, setUsers] = useState<UserData[]>([]);
@@ -43,6 +68,7 @@ const Users = () => {
     email: string;
     full_name: string | null;
   } | null>(null);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
 
@@ -100,7 +126,7 @@ const Users = () => {
               full_name: profile.full_name,
             },
             purchases: userPurchases,
-            user_roles: userRoles,
+            user_roles: userRoles as { role: AppRole }[],
           };
         })
       );
@@ -110,6 +136,54 @@ const Users = () => {
       handleError(error, t('messages.loadError'), "Users");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleUserRole = async (userId: string, role: AppRole, currentlyHasRole: boolean) => {
+    setUpdatingRole(`${userId}-${role}`);
+    try {
+      if (currentlyHasRole) {
+        // Remove role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', role);
+        
+        if (error) throw error;
+        
+        toast({
+          title: language === 'he' ? 'התפקיד הוסר' : 'Role Removed',
+          description: language === 'he' ? `התפקיד ${AVAILABLE_ROLES.find(r => r.role === role)?.labelHe} הוסר` : `${role} role removed`,
+        });
+      } else {
+        // Add role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role });
+        
+        if (error) throw error;
+        
+        toast({
+          title: language === 'he' ? 'התפקיד נוסף' : 'Role Added',
+          description: language === 'he' ? `התפקיד ${AVAILABLE_ROLES.find(r => r.role === role)?.labelHe} נוסף` : `${role} role added`,
+        });
+      }
+      
+      // Update local state
+      setUsers(prev => prev.map(user => {
+        if (user.id !== userId) return user;
+        
+        const newRoles = currentlyHasRole
+          ? (user.user_roles?.filter(r => r.role !== role) || [])
+          : [...(user.user_roles || []), { role }];
+        
+        return { ...user, user_roles: newRoles };
+      }));
+    } catch (error) {
+      handleError(error, language === 'he' ? 'שגיאה בעדכון תפקיד' : 'Failed to update role', 'toggleUserRole');
+    } finally {
+      setUpdatingRole(null);
     }
   };
 
@@ -129,6 +203,13 @@ const Users = () => {
     setGrantDialogOpen(true);
   };
 
+  const getInitials = (name: string | null | undefined, email: string) => {
+    if (name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return email.slice(0, 2).toUpperCase();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -138,94 +219,173 @@ const Users = () => {
   }
 
   return (
-    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div>
-        <h1 className="text-3xl font-black cyber-glow mb-2">{t('adminUsers.pageTitle')}</h1>
-        <p className="text-muted-foreground">
-          {t('adminUsers.pageSubtitle')}
-        </p>
-      </div>
-
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-3 h-4 w-4 text-muted-foreground`} />
+    <div className="space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Compact Header */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <UsersIcon className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">{t('adminUsers.pageTitle')}</h1>
+            <p className="text-sm text-muted-foreground">
+              {filteredUsers.length} {language === 'he' ? 'משתמשים' : 'users'}
+            </p>
+          </div>
+        </div>
+        
+        {/* Search */}
+        <div className="relative w-full sm:w-64">
+          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-2.5 h-4 w-4 text-muted-foreground`} />
           <Input
             placeholder={t('adminUsers.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={isRTL ? 'pr-10' : 'pl-10'}
+            className={cn("h-9", isRTL ? 'pr-9' : 'pl-9')}
           />
         </div>
       </div>
 
-      <div className="glass-panel rounded-lg overflow-hidden">
+      {/* Compact Table */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.name')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.email')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.joinDate')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.purchases')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.activeSessions')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.role')}</TableHead>
-              <TableHead className={isRTL ? 'text-right' : 'text-left'}>{t('adminUsers.actions')}</TableHead>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className={cn("py-2", isRTL ? 'text-right' : 'text-left')}>
+                {t('adminUsers.name')}
+              </TableHead>
+              <TableHead className={cn("py-2 hidden sm:table-cell", isRTL ? 'text-right' : 'text-left')}>
+                {t('adminUsers.joinDate')}
+              </TableHead>
+              <TableHead className={cn("py-2", isRTL ? 'text-right' : 'text-left')}>
+                {t('adminUsers.role')}
+              </TableHead>
+              <TableHead className={cn("py-2 w-[100px]", isRTL ? 'text-right' : 'text-left')}>
+                {t('adminUsers.actions')}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   {t('adminUsers.noUsersFound')}
                 </TableCell>
               </TableRow>
             ) : (
               filteredUsers.map((user) => {
-                const totalPurchases = user.purchases?.length || 0;
-                const activeSessions = user.purchases?.reduce(
-                  (sum, p) => sum + (p.sessions_remaining || 0),
-                  0
-                ) || 0;
-                const isAdmin = user.user_roles?.some(r => r.role === "admin");
+                const userRoles = user.user_roles?.map(r => r.role) || [];
 
                 return (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.profiles?.full_name || t('adminUsers.notDefined')}
+                  <TableRow key={user.id} className="group">
+                    {/* User Info - Compact */}
+                    <TableCell className="py-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                            {getInitials(user.profiles?.full_name, user.email)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {user.profiles?.full_name || t('adminUsers.notDefined')}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+                    
+                    {/* Join Date */}
+                    <TableCell className="py-2 hidden sm:table-cell text-sm text-muted-foreground">
                       {new Date(user.created_at).toLocaleDateString(locale)}
                     </TableCell>
-                    <TableCell>{totalPurchases}</TableCell>
-                    <TableCell>{activeSessions}</TableCell>
-                    <TableCell>
-                      {isAdmin ? (
-                        <Badge>Admin</Badge>
-                      ) : (
-                        <Badge variant="secondary">User</Badge>
-                      )}
+                    
+                    {/* Roles - Compact Badges with Dropdown */}
+                    <TableCell className="py-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-auto p-1 gap-1 hover:bg-muted"
+                          >
+                            <div className="flex gap-1 flex-wrap">
+                              {userRoles.length === 0 ? (
+                                <Badge variant="outline" className="text-xs px-1.5 py-0">
+                                  User
+                                </Badge>
+                              ) : (
+                                userRoles.map((role) => {
+                                  const roleConfig = AVAILABLE_ROLES.find(r => r.role === role);
+                                  const Icon = roleConfig?.icon || Shield;
+                                  return (
+                                    <Badge 
+                                      key={role} 
+                                      variant="secondary" 
+                                      className="text-xs px-1.5 py-0 gap-0.5"
+                                    >
+                                      <Icon className={cn("h-3 w-3", roleConfig?.color)} />
+                                      <span className="hidden sm:inline">
+                                        {language === 'he' ? roleConfig?.labelHe : roleConfig?.label}
+                                      </span>
+                                    </Badge>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-48 bg-card border border-border z-[100]">
+                          <DropdownMenuLabel className="text-xs">
+                            {language === 'he' ? 'ניהול תפקידים' : 'Manage Roles'}
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {AVAILABLE_ROLES.map(({ role, label, labelHe, icon: Icon, color }) => {
+                            const hasRole = userRoles.includes(role);
+                            const isUpdating = updatingRole === `${user.id}-${role}`;
+                            
+                            return (
+                              <DropdownMenuCheckboxItem
+                                key={role}
+                                checked={hasRole}
+                                disabled={isUpdating}
+                                onCheckedChange={() => toggleUserRole(user.id, role, hasRole)}
+                                className="gap-2"
+                              >
+                                {isUpdating ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Icon className={cn("h-4 w-4", color)} />
+                                )}
+                                {language === 'he' ? labelHe : label}
+                              </DropdownMenuCheckboxItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/panel/users/${user.id}`)}
-                          className="gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          {t('common.view')}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGrantClick(user)}
-                          className="gap-1"
-                        >
-                          <Gift className="h-4 w-4" />
-                          {t('adminUsers.grantPurchase')}
-                        </Button>
-                      </div>
+                    
+                    {/* Actions - Compact Dropdown */}
+                    <TableCell className="py-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align={isRTL ? "start" : "end"} className="bg-card border border-border z-[100]">
+                          <DropdownMenuItem onClick={() => navigate(`/panel/users/${user.id}`)}>
+                            <Eye className="h-4 w-4 me-2" />
+                            {t('common.view')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleGrantClick(user)}>
+                            <Gift className="h-4 w-4 me-2" />
+                            {t('adminUsers.grantPurchase')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
