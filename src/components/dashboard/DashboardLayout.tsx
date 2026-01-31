@@ -3,9 +3,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardRightPanel from './DashboardRightPanel';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Menu, PanelRightOpen } from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import Header from '@/components/Header';
 
@@ -37,17 +35,16 @@ const DashboardLayout = ({
           {/* Global Header with menu callback */}
           <Header onMenuClick={() => setLeftSheetOpen(true)} />
           
-          {/* Left Sidebar (hidden on mobile, shown via Sheet) */}
+          {/* Left Sidebar Sheet - render content directly without nested Sidebar */}
           <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
             <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0">
-              <SidebarProvider>
-                <DashboardSidebar 
-                  onNavigate={() => setLeftSheetOpen(false)}
-                  currentConversationId={currentConversationId}
-                  onNewChat={onNewChat}
-                  onSelectConversation={onSelectConversation}
-                />
-              </SidebarProvider>
+              <DashboardSidebar 
+                isMobileSheet={true}
+                onNavigate={() => setLeftSheetOpen(false)}
+                currentConversationId={currentConversationId}
+                onNewChat={onNewChat}
+                onSelectConversation={onSelectConversation}
+              />
             </SheetContent>
           </Sheet>
 
@@ -70,7 +67,7 @@ const DashboardLayout = ({
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Global Header */}
         <Header />
