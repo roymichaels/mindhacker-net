@@ -1,4 +1,4 @@
-import { ChevronUp, LayoutDashboard, Settings, ListChecks, LogOut, Globe, Sun, Moon } from 'lucide-react';
+import { ChevronUp, Settings, LogOut, Globe, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,16 +19,12 @@ import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 
 interface AuroraAccountDropdownProps {
   isCollapsed: boolean;
-  onOpenDashboard: () => void;
   onOpenSettings: () => void;
-  onOpenChecklists: () => void;
 }
 
 const AuroraAccountDropdown = ({
   isCollapsed,
-  onOpenDashboard,
   onOpenSettings,
-  onOpenChecklists,
 }: AuroraAccountDropdownProps) => {
   const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
@@ -101,18 +97,8 @@ const AuroraAccountDropdown = ({
       <DropdownMenuContent
         align={isRTL ? "end" : "start"}
         side="top"
-        className="w-56 bg-background border"
+        className="w-56 bg-card border border-border shadow-xl z-[100]"
       >
-        <DropdownMenuItem onClick={onOpenDashboard}>
-          <LayoutDashboard className="h-4 w-4 me-2" />
-          {t('aurora.account.dashboard')}
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={onOpenChecklists}>
-          <ListChecks className="h-4 w-4 me-2" />
-          {t('aurora.checklists.title')}
-        </DropdownMenuItem>
-        
         <DropdownMenuItem onClick={onOpenSettings}>
           <Settings className="h-4 w-4 me-2" />
           {t('aurora.account.settings')}
