@@ -44,6 +44,7 @@ const ONBOARDING_QUESTIONS_EN = [
 export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, onAutoSave }: FirstChatStepProps) {
   const { language, isRTL } = useTranslation();
   const hasInitialized = useRef(false);
+  const hasAppliedSavedData = useRef(false);
   
   // Initialize state from savedData (check if savedData has messages)
   const hasSavedChat = savedData?.messages && savedData.messages.length > 0;
@@ -56,6 +57,21 @@ export function FirstChatStep({ onComplete, isCompleting, rewards, savedData, on
   
   const questions = language === 'he' ? ONBOARDING_QUESTIONS_HE : ONBOARDING_QUESTIONS_EN;
   const isComplete = questionIndex >= 5;
+
+  // If savedData arrives after initial mount (async load), hydrate state once.
+  useEffect(() => {
+    if (hasAppliedSavedData.current) return;
+    if (!savedData?.messages || savedData.messages.length === 0) return;
+
+    // Only hydrate if we haven't started a new chat already.
+    // (If the user has already typed, we don't want to overwrite their local state.)
+    if (answers.length > 0) return;
+
+    hasAppliedSavedData.current = true;
+    setMessages(savedData.messages);
+    setQuestionIndex(savedData.questionIndex ?? 0);
+    setAnswers(savedData.answers ?? []);
+  }, [savedData, answers.length]);
 
   // Auto-save whenever state changes
   useEffect(() => {
