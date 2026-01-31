@@ -62,7 +62,7 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-border pt-4 pb-6 px-4">
+    <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border pt-3 pb-4 px-4 safe-area-inset-bottom">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
         <div className="relative flex items-end gap-3">
           {/* Input Container */}
