@@ -1,9 +1,10 @@
-import { Sparkles, CheckCircle2, Brain, Target, Heart, Lightbulb, CalendarCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckCircle2, Brain, Target, Heart, Lightbulb, CalendarCheck } from 'lucide-react';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useSmartSuggestions } from '@/hooks/aurora/useSmartSuggestions';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 
 interface AuroraWelcomeProps {
   onSuggestionClick: (suggestion: string) => void;
@@ -18,15 +19,28 @@ const iconMap = {
   milestone: CalendarCheck,
 };
 
+// Color schemes for the 2x2 grid cards
+const cardColors = [
+  { bg: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30', icon: 'text-purple-400', hover: 'hover:border-purple-400/50 hover:from-purple-500/30' },
+  { bg: 'from-cyan-500/20 to-cyan-600/10', border: 'border-cyan-500/30', icon: 'text-cyan-400', hover: 'hover:border-cyan-400/50 hover:from-cyan-500/30' },
+  { bg: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/30', icon: 'text-amber-400', hover: 'hover:border-amber-400/50 hover:from-amber-500/30' },
+  { bg: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30', icon: 'text-emerald-400', hover: 'hover:border-emerald-400/50 hover:from-emerald-500/30' },
+];
+
 const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6">
-      {/* Aurora Icon */}
-      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-        <Sparkles className="h-6 w-6 text-primary" />
+    <div className="flex flex-col items-center justify-center py-8 px-4 space-y-5">
+      {/* Aurora Orb Avatar */}
+      <div className="relative">
+        <MultiThreadOrb 
+          size={80} 
+          state="idle"
+          profile={orbProfile}
+        />
       </div>
 
       {/* Welcome Text */}
@@ -35,35 +49,47 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
         <p className="text-muted-foreground text-sm">{tg('aurora.welcomeSubtitle')}</p>
       </div>
 
-      {/* Smart Suggestion Cards */}
+      {/* Smart Suggestion Cards - 2x2 Grid */}
       <div className={cn(
-        "flex flex-col gap-2.5 w-full max-w-md",
+        "grid grid-cols-2 gap-3 w-full max-w-md",
         isRTL && "text-right"
       )}>
         {isLoading ? (
           // Loading skeletons
           Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full rounded-xl" />
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
           ))
         ) : (
-          suggestions.map((suggestion) => {
+          suggestions.slice(0, 4).map((suggestion, index) => {
             const Icon = iconMap[suggestion.icon];
+            const colors = cardColors[index % cardColors.length];
             return (
-              <Button
+              <button
                 key={suggestion.id}
-                variant="outline"
                 className={cn(
-                  "h-auto py-3 px-4 text-sm font-normal rounded-xl",
-                  "hover:bg-primary/5 hover:border-primary/30 hover:text-primary",
-                  "transition-all duration-200",
-                  "flex items-center gap-3",
-                  isRTL ? "flex-row-reverse justify-end" : "justify-start"
+                  "group relative overflow-hidden rounded-xl p-3",
+                  "bg-gradient-to-br border backdrop-blur-sm",
+                  "transition-all duration-300 ease-out",
+                  "flex flex-col items-start gap-2",
+                  colors.bg,
+                  colors.border,
+                  colors.hover
                 )}
                 onClick={() => onSuggestionClick(suggestion.prompt)}
               >
-                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="text-start">{suggestion.text}</span>
-              </Button>
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center",
+                  "bg-background/50 backdrop-blur-sm"
+                )}>
+                  <Icon className={cn("h-4 w-4 shrink-0", colors.icon)} />
+                </div>
+                <span className={cn(
+                  "text-xs font-medium text-foreground/90 leading-tight",
+                  "line-clamp-2 text-start"
+                )}>
+                  {suggestion.text}
+                </span>
+              </button>
             );
           })
         )}
