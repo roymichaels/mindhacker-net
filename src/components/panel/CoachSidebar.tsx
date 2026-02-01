@@ -18,6 +18,9 @@ import {
   Palette,
   Briefcase,
   ExternalLink,
+  BookOpen,
+  Star,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -44,6 +47,7 @@ const navGroups: NavGroup[] = [
     icon: LayoutDashboard,
     items: [
       { to: '/coach', icon: LayoutDashboard, label: 'Dashboard', labelHe: 'דאשבורד' },
+      { to: '/coach/analytics', icon: BarChart3, label: 'Analytics', labelHe: 'אנליטיקס' },
     ],
   },
   {
@@ -56,6 +60,8 @@ const navGroups: NavGroup[] = [
       { to: '/coach/services', icon: Package, label: 'My Services', labelHe: 'השירותים שלי' },
       { to: '/coach/calendar', icon: Calendar, label: 'My Calendar', labelHe: 'היומן שלי' },
       { to: '/coach/products', icon: ShoppingBag, label: 'My Products', labelHe: 'המוצרים שלי' },
+      { to: '/coach/content', icon: BookOpen, label: 'My Content', labelHe: 'התכנים שלי' },
+      { to: '/coach/reviews', icon: Star, label: 'My Reviews', labelHe: 'הביקורות שלי' },
       { to: '/coach/earnings', icon: DollarSign, label: 'My Earnings', labelHe: 'ההכנסות שלי' },
     ],
   },

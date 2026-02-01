@@ -1,4 +1,3 @@
-export { default as UnifiedPanel } from './UnifiedPanel';
 export { default as AdminPanel } from './AdminPanel';
 export { default as CoachPanel } from './CoachPanel';
 export { default as AffiliatePanel } from './AffiliatePanel';
