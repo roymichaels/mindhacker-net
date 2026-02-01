@@ -145,7 +145,7 @@ const DashboardLayout = ({
           
           {/* Left Sidebar Sheet - render content directly without nested Sidebar */}
           <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
-            <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0">
+            <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0 bg-background border-border" hideClose>
               <DashboardSidebar 
                 isMobileSheet={true}
                 onNavigate={() => setLeftSheetOpen(false)}
