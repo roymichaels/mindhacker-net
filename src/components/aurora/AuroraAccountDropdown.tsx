@@ -131,83 +131,88 @@ const AuroraAccountDropdown = ({
       <DropdownMenuContent
         align={isRTL ? "end" : "start"}
         side="top"
-        className="w-56 bg-card border border-border shadow-xl z-[100]"
+        className="w-56 backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 shadow-xl z-[100] overflow-hidden"
       >
-        {/* Back to Aurora - shown when in panel areas */}
-        {(showBackToAurora || isInPanel) && (
-          <>
-            <DropdownMenuItem onClick={() => navigate('/aurora')}>
-              <LayoutDashboard className="h-4 w-4 me-2" />
-              {language === 'he' ? 'חזרה לאורורה' : 'Back to Aurora'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
-
-        {/* Panel Links - Role-based (only show when NOT in panel) */}
-        {!isInPanel && (
-          <>
-            {isAdmin && (
-              <DropdownMenuItem onClick={() => navigate('/panel')}>
-                <Shield className="h-4 w-4 me-2" />
-                {language === 'he' ? 'פאנל ניהול' : 'Admin Panel'}
-              </DropdownMenuItem>
-            )}
-            
-            {isPractitioner && (
-              <DropdownMenuItem onClick={() => navigate('/coach')}>
-                <UserCog className="h-4 w-4 me-2" />
-                {language === 'he' ? 'פאנל מאמן' : 'Coach Panel'}
-              </DropdownMenuItem>
-            )}
-            
-            {isAffiliate && (
-              <DropdownMenuItem onClick={() => navigate('/affiliate')}>
-                <Link2 className="h-4 w-4 me-2" />
-                {language === 'he' ? 'פאנל שותפים' : 'Affiliate Panel'}
-              </DropdownMenuItem>
-            )}
-            
-            {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
-          </>
-        )}
+        {/* Glow overlay - same as Identity Card */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
         
-        {/* Settings - only show if callback provided */}
-        {onOpenSettings && (
-          <>
-            <DropdownMenuItem onClick={handleSettingsClick}>
-              <Settings className="h-4 w-4 me-2" />
-              {t('aurora.account.settings')}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        
-        {/* Language Toggle */}
-        <DropdownMenuItem onClick={handleLanguageToggle}>
-          <Globe className="h-4 w-4 me-2" />
-          {language === 'he' ? 'English' : 'עברית'}
-        </DropdownMenuItem>
-        
-        {/* Theme Toggle */}
-        <DropdownMenuItem onClick={handleThemeToggle}>
-          {isDark ? (
-            <Sun className="h-4 w-4 me-2" />
-          ) : (
-            <Moon className="h-4 w-4 me-2" />
+        <div className="relative z-10">
+          {/* Back to Aurora - shown when in panel areas */}
+          {(showBackToAurora || isInPanel) && (
+            <>
+              <DropdownMenuItem onClick={() => navigate('/aurora')}>
+                <LayoutDashboard className="h-4 w-4 me-2" />
+                {language === 'he' ? 'חזרה לאורורה' : 'Back to Aurora'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
           )}
-          {isDark 
-            ? (language === 'he' ? 'מצב בהיר' : 'Light Mode')
-            : (language === 'he' ? 'מצב כהה' : 'Dark Mode')
-          }
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-          <LogOut className="h-4 w-4 me-2" />
-          {t('aurora.account.signOut')}
-        </DropdownMenuItem>
+
+          {/* Panel Links - Role-based (only show when NOT in panel) */}
+          {!isInPanel && (
+            <>
+              {isAdmin && (
+                <DropdownMenuItem onClick={() => navigate('/panel')}>
+                  <Shield className="h-4 w-4 me-2" />
+                  {language === 'he' ? 'פאנל ניהול' : 'Admin Panel'}
+                </DropdownMenuItem>
+              )}
+              
+              {isPractitioner && (
+                <DropdownMenuItem onClick={() => navigate('/coach')}>
+                  <UserCog className="h-4 w-4 me-2" />
+                  {language === 'he' ? 'פאנל מאמן' : 'Coach Panel'}
+                </DropdownMenuItem>
+              )}
+              
+              {isAffiliate && (
+                <DropdownMenuItem onClick={() => navigate('/affiliate')}>
+                  <Link2 className="h-4 w-4 me-2" />
+                  {language === 'he' ? 'פאנל שותפים' : 'Affiliate Panel'}
+                </DropdownMenuItem>
+              )}
+              
+              {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
+            </>
+          )}
+          
+          {/* Settings - only show if callback provided */}
+          {onOpenSettings && (
+            <>
+              <DropdownMenuItem onClick={handleSettingsClick}>
+                <Settings className="h-4 w-4 me-2" />
+                {t('aurora.account.settings')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          
+          {/* Language Toggle */}
+          <DropdownMenuItem onClick={handleLanguageToggle}>
+            <Globe className="h-4 w-4 me-2" />
+            {language === 'he' ? 'English' : 'עברית'}
+          </DropdownMenuItem>
+          
+          {/* Theme Toggle */}
+          <DropdownMenuItem onClick={handleThemeToggle}>
+            {isDark ? (
+              <Sun className="h-4 w-4 me-2" />
+            ) : (
+              <Moon className="h-4 w-4 me-2" />
+            )}
+            {isDark 
+              ? (language === 'he' ? 'מצב בהיר' : 'Light Mode')
+              : (language === 'he' ? 'מצב כהה' : 'Dark Mode')
+            }
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+            <LogOut className="h-4 w-4 me-2" />
+            {t('aurora.account.signOut')}
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
