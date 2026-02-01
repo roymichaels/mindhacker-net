@@ -75,8 +75,8 @@ const GlobalChatInput = () => {
     <div className="shrink-0 w-full pt-3 pb-[15px] px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         <div className="relative flex items-end gap-3">
-          {/* Input Container */}
-          <div className="flex-1 relative bg-muted/50 rounded-2xl border border-border/50">
+          {/* Input Container - same style as sidebar search bar */}
+          <div className="flex-1 relative bg-background/50 backdrop-blur-xl rounded-2xl border border-border/50">
             <textarea
               ref={textareaRef}
               value={input}
@@ -117,19 +117,21 @@ const GlobalChatInput = () => {
             </Button>
           </div>
 
-          {/* Send Button */}
-          <Button
+          {/* Send Button - same style as sidebar plus button */}
+          <button
             type="submit"
-            size="icon"
             disabled={isStreaming || !input.trim()}
-            className="rounded-full h-11 w-11 shrink-0"
+            className={cn(
+              "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-full hover:bg-muted/50 transition-colors shrink-0",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
           >
             {isStreaming ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             ) : (
-              <Send className="w-5 h-5" />
+              <Send className="w-5 h-5 text-muted-foreground" />
             )}
-          </Button>
+          </button>
         </div>
 
         {recordingError && (
