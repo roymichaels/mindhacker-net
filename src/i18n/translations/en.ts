@@ -2613,4 +2613,27 @@ export const en: TranslationKeys = {
     minutes: "minutes",
     freeConsultation: "Free consultation, no commitment",
   },
+  settings: {
+    emailReadOnly: "Email address cannot be changed",
+    tabs: {
+      profile: "Profile",
+      aurora: "Aurora",
+      appearance: "Appearance",
+      notifications: "Notifications",
+      account: "Account",
+    },
+    appearance: {
+      theme: "Theme",
+      darkMode: "Dark mode",
+      lightMode: "Light mode",
+      language: "Language",
+    },
+    account: {
+      legal: "Legal",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      signedOut: "Signed out successfully",
+      signOutError: "Error signing out",
+    },
+  },
 };

@@ -2667,6 +2667,29 @@ export const he = {
     minutes: "דקות",
     freeConsultation: "שיחת היכרות ללא התחייבות",
   },
+  settings: {
+    emailReadOnly: "לא ניתן לשנות את כתובת המייל",
+    tabs: {
+      profile: "פרופיל",
+      aurora: "אורורה",
+      appearance: "מראה",
+      notifications: "התראות",
+      account: "חשבון",
+    },
+    appearance: {
+      theme: "ערכת נושא",
+      darkMode: "מצב כהה",
+      lightMode: "מצב בהיר",
+      language: "שפה",
+    },
+    account: {
+      legal: "משפטי",
+      privacy: "מדיניות פרטיות",
+      terms: "תנאי שימוש",
+      signedOut: "התנתקת בהצלחה",
+      signOutError: "שגיאה בהתנתקות",
+    },
+  },
 };
 
 export type TranslationKeys = typeof he;

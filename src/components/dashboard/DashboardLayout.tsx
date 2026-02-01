@@ -6,8 +6,7 @@ import DashboardRightPanel from './DashboardRightPanel';
 import GlobalChatInput from './GlobalChatInput';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
-import Header from '@/components/Header';
-import { ProfileDrawer } from './ProfileDrawer';
+import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -30,8 +29,8 @@ interface DesktopLayoutContentProps {
   onNewChat?: () => void;
   onSelectConversation?: (id: string) => void;
   hideRightPanel: boolean;
-  profileOpen: boolean;
-  setProfileOpen: (open: boolean) => void;
+  settingsOpen: boolean;
+  setSettingsOpen: (open: boolean) => void;
   handleOpenSettings: () => void;
 }
 
@@ -42,8 +41,8 @@ const DesktopLayoutContent = ({
   onNewChat,
   onSelectConversation,
   hideRightPanel,
-  profileOpen,
-  setProfileOpen,
+  settingsOpen,
+  setSettingsOpen,
   handleOpenSettings,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
@@ -87,8 +86,8 @@ const DesktopLayoutContent = ({
         <GlobalChatInput />
       </div>
 
-      {/* Profile/Settings Drawer */}
-      <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
+      {/* Settings Modal */}
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 };
@@ -104,11 +103,11 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [rightSheetOpen, setRightSheetOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleOpenSettings = () => {
     setLeftSheetOpen(false); // Close sidebar sheet on mobile
-    setProfileOpen(true);
+    setSettingsOpen(true);
   };
 
   const { theme: brandTheme } = useThemeSettings();
@@ -162,8 +161,8 @@ const DashboardLayout = ({
             </Sheet>
           )}
 
-          {/* Profile/Settings Drawer */}
-          <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
+          {/* Settings Modal */}
+          <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 min-h-0 overflow-hidden">
@@ -189,8 +188,8 @@ const DashboardLayout = ({
         onNewChat={onNewChat}
         onSelectConversation={onSelectConversation}
         hideRightPanel={hideRightPanel}
-        profileOpen={profileOpen}
-        setProfileOpen={setProfileOpen}
+        settingsOpen={settingsOpen}
+        setSettingsOpen={setSettingsOpen}
         handleOpenSettings={handleOpenSettings}
       >
         {children}
