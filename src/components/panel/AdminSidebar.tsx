@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/collapsible';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import RoleSwitcher from './RoleSwitcher';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import {
   LayoutDashboard,
   BarChart3,
@@ -217,7 +218,15 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         ? "w-full h-full border-0" 
         : "w-64 border-e border-border h-screen sticky top-0"
     )}>
-      {/* Role Switcher at top for multi-role users */}
+      {/* Logo and Brand at top */}
+      <div className="p-4 border-b border-border flex-shrink-0">
+        <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
+          <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+        </Link>
+      </div>
+
+      {/* Role Switcher for multi-role users */}
       <RoleSwitcher />
 
       {/* Quick Actions */}
