@@ -69,6 +69,7 @@ const DashboardSidebar = ({
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -164,17 +165,18 @@ const DashboardSidebar = ({
             <Plus className="h-4 w-4 text-muted-foreground" />
           </button>
           
-          {/* Search Bar - separate container */}
-          <button
-            onClick={() => {
-              // TODO: Implement search functionality
-              onNavigate?.();
-            }}
-            className="flex-1 h-9 flex items-center justify-end px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors"
-            title={language === 'he' ? 'חיפוש' : 'Search'}
-          >
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </button>
+          {/* Search Input - separate container */}
+          <div className="flex-1 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={language === 'he' ? 'חיפוש...' : 'Search...'}
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          </div>
         </div>
       )}
 
@@ -275,7 +277,14 @@ const DashboardSidebar = ({
           </p>
           <ScrollArea className="max-h-[250px]">
             <div className="space-y-1">
-              {conversations.slice(0, 10).map((conv) => (
+              {conversations
+                .filter((conv) => 
+                  !searchQuery || 
+                  conv.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  conv.last_message_preview?.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .slice(0, 10)
+                .map((conv) => (
                 <button
                   key={conv.id}
                   onClick={() => {
