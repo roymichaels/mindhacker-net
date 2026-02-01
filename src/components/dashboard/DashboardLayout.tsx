@@ -3,6 +3,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardRightPanel from './DashboardRightPanel';
+import GlobalChatInput from './GlobalChatInput';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import Header from '@/components/Header';
@@ -69,11 +70,16 @@ const DashboardLayout = ({
           <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
-          <main className="flex-1 flex flex-col px-0 pb-20 min-h-0 overflow-hidden">
+          <main className="flex-1 flex flex-col px-0 min-h-0 overflow-hidden">
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col px-3 pt-3 bg-card/80 backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
               {children}
             </div>
           </main>
+
+          {/* Global Chat Input - fixed at bottom */}
+          <div className="fixed bottom-16 left-0 right-0 z-40">
+            <GlobalChatInput />
+          </div>
         </div>
       </SidebarProvider>
     );
@@ -95,7 +101,7 @@ const DashboardLayout = ({
           />
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 flex flex-col bg-card/60 backdrop-blur-sm">
+          <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 pb-32 flex flex-col bg-card/60 backdrop-blur-sm">
             {children}
           </main>
 
@@ -105,6 +111,11 @@ const DashboardLayout = ({
               <DashboardRightPanel />
             </aside>
           )}
+        </div>
+
+        {/* Global Chat Input - fixed at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 z-40">
+          <GlobalChatInput />
         </div>
 
         {/* Profile/Settings Drawer */}

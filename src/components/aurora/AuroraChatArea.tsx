@@ -2,9 +2,9 @@ import { useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AuroraChatMessage from './AuroraChatMessage';
-import AuroraChatInput from './AuroraChatInput';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
 import AuroraWelcome from './AuroraWelcome';
 
@@ -16,6 +16,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { registerSendMessage, setIsStreaming } = useAuroraChatContext();
 
   const {
     messages,
@@ -24,6 +25,16 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
     sendMessage,
     regenerateLastResponse,
   } = useAuroraChat(conversationId);
+
+  // Register sendMessage with the global context
+  useEffect(() => {
+    registerSendMessage(sendMessage);
+  }, [registerSendMessage, sendMessage]);
+
+  // Sync streaming state with context
+  useEffect(() => {
+    setIsStreaming(isStreaming);
+  }, [isStreaming, setIsStreaming]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -76,12 +87,6 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
           )}
         </div>
       </ScrollArea>
-
-      {/* Input Area - fixed at bottom, doesn't scroll */}
-      <AuroraChatInput
-        onSend={sendMessage}
-        disabled={isStreaming}
-      />
     </div>
   );
 };
