@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,6 +24,8 @@ import {
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import { format } from 'date-fns';
 import { he, enUS } from 'date-fns/locale';
+import { DashboardModal } from './DashboardModal';
+import { HypnosisModal } from './HypnosisModal';
 
 interface DashboardSidebarProps {
   onNavigate?: () => void;
@@ -56,6 +59,10 @@ const DashboardSidebar = ({
   const queryClient = useQueryClient();
   const isCollapsed = !isMobileSheet && sidebar?.state === 'collapsed';
   const isAuroraPage = location.pathname === '/aurora';
+
+  // Modal states
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [hypnosisOpen, setHypnosisOpen] = useState(false);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -101,11 +108,10 @@ const DashboardSidebar = ({
     }
   };
 
-  // Navigation items - Aurora is now the home/first item
-  // Navigation items - Messages and Community removed (admin/coach only features)
+  // Navigation items - now open modals instead of navigating
   const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
-    { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: true },
+    { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', onClick: () => setDashboardOpen(true) },
+    { id: 'hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: true, onClick: () => setHypnosisOpen(true) },
   ];
 
   // Shared content component
@@ -131,20 +137,19 @@ const DashboardSidebar = ({
         )}
         <div className="space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-              (item.path === '/dashboard' && location.pathname === '/aurora'); // Highlight dashboard on aurora
             const isHighlight = 'highlight' in item && item.highlight;
             return (
               <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
+                key={item.id}
+                onClick={() => {
+                  item.onClick();
+                  onNavigate?.();
+                }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
                   isHighlight
                     ? "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20"
-                    : isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "hover:bg-muted text-muted-foreground hover:text-foreground",
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -237,56 +242,67 @@ const DashboardSidebar = ({
   // Mobile Sheet mode - render content directly without Sidebar wrapper
   if (isMobileSheet) {
     return (
-      <div className="flex flex-col h-full bg-background">
-        <div className="p-2 flex flex-col flex-1">
-          <SidebarInnerContent />
+      <>
+        <div className="flex flex-col h-full bg-background">
+          <div className="p-2 flex flex-col flex-1">
+            <SidebarInnerContent />
+          </div>
+          <div className="p-2 border-t border-border">
+            <AuroraAccountDropdown
+              isCollapsed={false}
+              onOpenSettings={onOpenSettings}
+            />
+          </div>
         </div>
-        <div className="p-2 border-t border-border">
-          <AuroraAccountDropdown
-            isCollapsed={false}
-            onOpenSettings={onOpenSettings}
-          />
-        </div>
-      </div>
+        {/* Modals */}
+        <DashboardModal open={dashboardOpen} onOpenChange={setDashboardOpen} />
+        <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+      </>
     );
   }
 
   // Desktop mode - render with Sidebar wrapper
   return (
-    <Sidebar 
-      className={cn(
-        "border-border bg-background !z-50 pt-16",
-        isRTL && "order-last"
-      )}
-      collapsible="icon"
-      side={isRTL ? "right" : "left"}
-    >
-      {/* Hamburger toggle at top of collapsed sidebar - aligned with menu icons */}
-      {isCollapsed && (
-        <SidebarHeader className="p-0 flex items-center justify-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => sidebar?.toggleSidebar()}
-            title={language === 'he' ? 'הרחב תפריט' : 'Expand Menu'}
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        </SidebarHeader>
-      )}
+    <>
+      <Sidebar 
+        className={cn(
+          "border-border bg-background !z-50 pt-16",
+          isRTL && "order-last"
+        )}
+        collapsible="icon"
+        side={isRTL ? "right" : "left"}
+      >
+        {/* Hamburger toggle at top of collapsed sidebar - aligned with menu icons */}
+        {isCollapsed && (
+          <SidebarHeader className="p-0 flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => sidebar?.toggleSidebar()}
+              title={language === 'he' ? 'הרחב תפריט' : 'Expand Menu'}
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SidebarHeader>
+        )}
 
-      <SidebarContent className="p-2 flex flex-col h-full">
-        <SidebarInnerContent />
-      </SidebarContent>
+        <SidebarContent className="p-2 flex flex-col h-full">
+          <SidebarInnerContent />
+        </SidebarContent>
 
-      <SidebarFooter className="p-2 border-t border-border">
-        <AuroraAccountDropdown
-          isCollapsed={isCollapsed}
-          onOpenSettings={onOpenSettings}
-        />
-      </SidebarFooter>
-    </Sidebar>
+        <SidebarFooter className="p-2 border-t border-border">
+          <AuroraAccountDropdown
+            isCollapsed={isCollapsed}
+            onOpenSettings={onOpenSettings}
+          />
+        </SidebarFooter>
+      </Sidebar>
+      
+      {/* Modals */}
+      <DashboardModal open={dashboardOpen} onOpenChange={setDashboardOpen} />
+      <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+    </>
   );
 };
 
