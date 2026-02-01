@@ -294,7 +294,7 @@ const DashboardSidebar = ({
   if (isMobileSheet) {
     return (
       <>
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-full bg-background/100 backdrop-blur-none" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <div className="p-2 flex flex-col flex-1">
             <SidebarInnerContent />
           </div>
