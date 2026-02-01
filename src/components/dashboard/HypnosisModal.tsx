@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, X, Wind, Loader2, Sparkles, Lock, Rocket } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, X, Wind, Loader2, Sparkles, Lock, Rocket, Calendar, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -10,6 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { BreathingGuide } from '@/components/hypnosis';
@@ -76,9 +77,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern } = useHaptics();
   const { profile: orbProfile } = useMultiThreadOrbProfile();
+  const { currentMilestone, suggestedGoal, isLoading: isLoadingContext } = useDailyHypnosis();
 
   const [state, setState] = useState<SessionState>('setup');
   const [goal, setGoal] = useState('');
+  const [goalInitialized, setGoalInitialized] = useState(false);
   const [duration, setDuration] = useState(10);
   const [script, setScript] = useState<HypnosisScript | null>(null);
   const scriptRef = useRef<HypnosisScript | null>(null);
@@ -97,12 +100,21 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   const currentSegment = script?.segments[currentSegmentIndex];
 
+  // Auto-populate goal from profile context when modal opens
+  useEffect(() => {
+    if (open && !isLoadingContext && suggestedGoal && !goalInitialized) {
+      setGoal(suggestedGoal);
+      setGoalInitialized(true);
+    }
+  }, [open, isLoadingContext, suggestedGoal, goalInitialized]);
+
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
       stopBrowserSpeech();
       setState('setup');
       setGoal('');
+      setGoalInitialized(false);
       setScript(null);
       scriptRef.current = null;
       setCurrentSegmentIndex(0);
@@ -507,25 +519,73 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center p-6 space-y-8"
+                className="flex-1 flex flex-col items-center justify-start p-6 space-y-6 overflow-y-auto"
               >
                 <div className="text-center space-y-2">
-                  <Sparkles className="w-12 h-12 mx-auto text-primary mb-4" />
+                  <Sparkles className="w-10 h-10 mx-auto text-primary mb-2" />
                   <h1 className="text-2xl font-bold">
                     {language === 'he' ? 'סשן היפנוזה אישי' : 'Personal Hypnosis'}
                   </h1>
-                  <p className="text-muted-foreground">
-                    {language === 'he' ? 'הזן את המטרה שלך לסשן' : 'Enter your goal for this session'}
-                  </p>
                 </div>
 
+                {/* Current Week Context Card */}
+                {currentMilestone && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full max-w-md"
+                  >
+                    <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-4">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-primary">
+                              {language === 'he' ? `שבוע ${currentMilestone.week_number}` : `Week ${currentMilestone.week_number}`}
+                            </span>
+                          </div>
+                          <h3 className="font-semibold text-foreground truncate">
+                            {currentMilestone.title}
+                          </h3>
+                          {currentMilestone.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {currentMilestone.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="w-full mt-3 gap-2"
+                        onClick={() => setGoal(currentMilestone.title)}
+                      >
+                        <Target className="w-4 h-4" />
+                        {language === 'he' ? 'השתמש במטרת השבוע' : 'Use weekly goal'}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
                 <div className="w-full max-w-md space-y-4">
-                  <Input
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    placeholder={language === 'he' ? 'למשל: להרגיש רגיעה עמוקה' : 'e.g., Feel deep relaxation'}
-                    className="text-center"
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground text-center block">
+                      {currentMilestone 
+                        ? (language === 'he' ? 'או הזן מטרה אחרת:' : 'Or enter a different goal:')
+                        : (language === 'he' ? 'הזן את המטרה שלך לסשן:' : 'Enter your goal for this session:')}
+                    </label>
+                    <Input
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      placeholder={language === 'he' ? 'למשל: להרגיש רגיעה עמוקה' : 'e.g., Feel deep relaxation'}
+                      className="text-center"
+                    />
+                  </div>
 
                   <div className="flex gap-2 flex-wrap justify-center">
                     {Object.entries(PRESET_GOALS).map(([key, labels]) => (
