@@ -76,7 +76,7 @@ const GlobalChatInput = () => {
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         <div className="relative flex items-end gap-3">
           {/* Input Container - same style as sidebar search bar */}
-          <div className="flex-1 relative bg-background/50 backdrop-blur-xl rounded-2xl border border-border/50">
+          <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
             <textarea
               ref={textareaRef}
               value={input}
@@ -86,14 +86,14 @@ const GlobalChatInput = () => {
               disabled={isStreaming}
               rows={1}
               className={cn(
-                "w-full bg-transparent px-4 py-3 pe-12 text-sm",
+                "w-full h-9 bg-transparent px-3 py-2 pe-10 text-sm leading-tight",
                 "resize-none overflow-hidden",
                 "focus:outline-none",
                 "disabled:opacity-50",
                 "placeholder:text-muted-foreground"
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
-              style={{ maxHeight: '200px' }}
+              style={{ maxHeight: '36px' }}
             />
 
             {/* Mic Button Inside Input */}
@@ -104,7 +104,7 @@ const GlobalChatInput = () => {
               onClick={handleMicClick}
               disabled={isStreaming}
               className={cn(
-                "absolute end-2 bottom-1.5 h-8 w-8 rounded-full",
+                "absolute end-1 h-7 w-7 rounded-md",
                 isRecording && "text-destructive bg-destructive/10"
               )}
               title={isRecording ? t('aurora.chat.stopRecording') : t('aurora.chat.startRecording')}
@@ -122,14 +122,14 @@ const GlobalChatInput = () => {
             type="submit"
             disabled={isStreaming || !input.trim()}
             className={cn(
-              "h-11 w-11 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-full hover:bg-muted/50 transition-colors shrink-0",
+              "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
             {isStreaming ? (
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             ) : (
-              <Send className="w-5 h-5 text-muted-foreground" />
+              <Send className="w-4 h-4 text-muted-foreground" />
             )}
           </button>
         </div>
