@@ -10,7 +10,6 @@ import { useSEO } from '@/hooks/useSEO';
 import {
   PractitionerHero,
   PractitionerAbout,
-  PractitionerSpecialties,
   PractitionerServices,
   PractitionerTestimonials,
   PractitionerCTA,
@@ -79,7 +78,6 @@ const PractitionerProfile = () => {
       <main>
         <PractitionerHero practitioner={practitioner} />
         <PractitionerAbout practitioner={practitioner} />
-        <PractitionerSpecialties practitioner={practitioner} />
         <PractitionerCatalog practitionerId={practitioner.id} />
         <PractitionerTestimonials practitioner={practitioner} />
         <PractitionerFAQ />
