@@ -10,8 +10,8 @@ export default function FreeJourneyBannerSection() {
 
   return (
     <section className="py-12 sm:py-16 px-4 relative overflow-hidden">
-      {/* Background gradient - Enhanced */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 pointer-events-none" />
+      {/* Background gradient - Dark HUD style */}
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-950/80 via-gray-900/70 to-gray-950/80 pointer-events-none" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}

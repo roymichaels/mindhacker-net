@@ -38,11 +38,11 @@ export default function FinalCTASection() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-background via-primary/15 to-accent/10 relative overflow-hidden">
-      {/* Background effects */}
+    <section className="py-24 px-4 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 relative overflow-hidden">
+      {/* Background effects - subtle */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="container mx-auto max-w-5xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
