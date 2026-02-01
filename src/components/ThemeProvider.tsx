@@ -18,7 +18,7 @@ interface ThemeProviderProps {
 const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
   const { theme, loading } = useThemeSettings();
   const { resolvedTheme } = useTheme();
-  const [isThemeReady, setIsThemeReady] = useState(false);
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
   // Apply font family to body when theme loads
   useEffect(() => {
@@ -76,14 +76,23 @@ const ThemeSettingsApplier = ({ children }: { children: React.ReactNode }) => {
       applyThemeSurfaceToDOM(theme);
     }
     
-    // Mark theme as ready after applying
-    setIsThemeReady(true);
-  }, [loading, resolvedTheme, theme]);
+    // Mark initial load as complete (only once, don't reset on theme switches)
+    if (!isInitialLoadComplete) {
+      setIsInitialLoadComplete(true);
+    }
+  }, [loading, resolvedTheme, theme, isInitialLoadComplete]);
 
-  // Show nothing until theme is ready to prevent flash
-  if (!isThemeReady) {
+  // Show overlay only during initial load, not during theme switches
+  // Use sidebar color for the overlay to match menu background
+  if (!isInitialLoadComplete) {
     return (
-      <div className="fixed inset-0 bg-background" style={{ opacity: 0 }} />
+      <div 
+        className="fixed inset-0 z-[9999]" 
+        style={{ 
+          backgroundColor: 'hsl(var(--sidebar-background, var(--background)))',
+          opacity: 1 
+        }} 
+      />
     );
   }
 
