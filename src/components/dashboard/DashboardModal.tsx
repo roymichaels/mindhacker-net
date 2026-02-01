@@ -15,7 +15,7 @@ export function DashboardModal({ open, onOpenChange }: DashboardModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-3xl h-[85vh] flex flex-col p-0 gap-0"
+        className="max-w-3xl h-[85vh] flex flex-col p-0 gap-0 bg-background border-border"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <DialogHeader className="p-4 pb-2 border-b border-border shrink-0">
