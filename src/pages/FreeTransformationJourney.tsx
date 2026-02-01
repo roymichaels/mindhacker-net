@@ -5,6 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
@@ -79,6 +80,7 @@ export default function FreeTransformationJourney() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
+  const { isLaunchpadComplete: isGuestComplete } = useGuestLaunchpadProgress();
   const { profile: orbProfile } = useOrbProfile();
 
   useSEO({
@@ -103,6 +105,17 @@ export default function FreeTransformationJourney() {
       }
     }
   }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
+
+  // Check if guest has already completed journey - redirect to results
+  useEffect(() => {
+    if (user) return; // Don't run for authenticated users
+    
+    // Check if guest has completed AND has results stored
+    const hasResults = localStorage.getItem('guest_launchpad_result');
+    if (isGuestComplete && hasResults) {
+      navigate('/free-journey/complete', { replace: true });
+    }
+  }, [isGuestComplete, user, navigate]);
 
   const handleStart = () => {
     navigate('/free-journey/start');
