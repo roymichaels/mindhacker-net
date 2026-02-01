@@ -114,30 +114,6 @@ const DashboardSidebar = ({
   // Shared content component
   const SidebarInnerContent = () => (
     <>
-      {/* New Chat Button - ChatGPT style (only on Aurora page) */}
-      {isAuroraPage && !isCollapsed && onNewChat && (
-        <Button
-          variant="outline"
-          className="w-full justify-start gap-2 mb-4 h-10"
-          onClick={onNewChat}
-        >
-          <Plus className="h-4 w-4" />
-          <span>{language === 'he' ? 'שיחה חדשה' : 'New Chat'}</span>
-        </Button>
-      )}
-
-      {isAuroraPage && isCollapsed && onNewChat && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-full mb-4"
-          onClick={onNewChat}
-          title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      )}
-
       {/* Navigation Section */}
       <div className="mb-4">
         {!isCollapsed && (
@@ -158,7 +134,8 @@ const DashboardSidebar = ({
         )}
         <div className="space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || 
+              (item.path === '/dashboard' && location.pathname === '/aurora'); // Highlight dashboard on aurora
             return (
               <button
                 key={item.path}
@@ -183,9 +160,28 @@ const DashboardSidebar = ({
       {/* Spacer to push conversations to bottom */}
       <div className="flex-1" />
 
-      {/* Divider */}
-      {isAuroraPage && !isCollapsed && conversations.length > 0 && (
-        <div className="border-t border-border mb-3" />
+      {/* New Chat Button - above recent chats (only on Aurora page) */}
+      {isAuroraPage && !isCollapsed && onNewChat && (
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2 mb-3 h-10"
+          onClick={onNewChat}
+        >
+          <Plus className="h-4 w-4" />
+          <span>{language === 'he' ? 'שיחה חדשה' : 'New Chat'}</span>
+        </Button>
+      )}
+
+      {isAuroraPage && isCollapsed && onNewChat && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="w-full mb-3"
+          onClick={onNewChat}
+          title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       )}
 
       {/* Recent Conversations - ChatGPT style at BOTTOM (only on Aurora page) */}
