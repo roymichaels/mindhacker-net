@@ -32,21 +32,7 @@ import type { VoiceProvider } from '@/services/voice';
 
 type SessionState = 'setup' | 'breathing' | 'generating' | 'playing' | 'paused' | 'complete';
 
-function normalizeHebrewGender(text: string): string {
-  // Lightweight normalization to avoid mixed gender instructions in Hebrew.
-  // Keeps meaning while using neutral slash form.
-  const replacements: Array<[RegExp, string]> = [
-    [/\bאתה\b/g, 'את/ה'],
-    [/\bאת\b/g, 'את/ה'],
-    [/\bתוכל\b/g, 'תוכל/י'],
-    [/\bתוכלי\b/g, 'תוכל/י'],
-    [/\bתעשה\b/g, 'תעשה/י'],
-    [/\bתעשי\b/g, 'תעשה/י'],
-    [/\bתרגיש\b/g, 'תרגיש/י'],
-    [/\bתרגישי\b/g, 'תרגיש/י'],
-  ];
-  return replacements.reduce((acc, [re, rep]) => acc.replace(re, rep), text);
-}
+// Gender is now handled by the AI based on user profile - no normalization needed
 
 const SEGMENT_LABELS: Record<string, { he: string; en: string }> = {
   welcome: { he: 'ברוכים הבאים', en: 'Welcome' },
@@ -299,8 +285,7 @@ const HypnosisSession = () => {
       }
     }
 
-    const normalized = normalizeHebrewGender(nextSegment.text);
-    const result = await synthesizeSpeech(normalized, {
+    const result = await synthesizeSpeech(nextSegment.text, {
       provider: voiceProvider,
       voice: 'sarah',
       speed: 0.9,
@@ -412,11 +397,10 @@ const HypnosisSession = () => {
     // No cached audio, synthesize using TTS
     try {
       // Try ElevenLabs → OpenAI → Browser fallback
-      const normalized = normalizeHebrewGender(segment.text);
       // Prefetch next as early as possible (without blocking current)
       void prefetchSegmentAudio(index + 1, activeScript, activeCachedPaths);
 
-      const result = await synthesizeSpeech(normalized, {
+      const result = await synthesizeSpeech(segment.text, {
         provider: voiceProvider,
         voice: 'sarah', // Premium calm female voice
         speed: 0.9,
