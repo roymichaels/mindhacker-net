@@ -1,53 +1,76 @@
 
-# תוכנית: עדכון רקע ה-Avatar Dropdown לסגנון כרטיס הזהות
+# תוכנית: תיקון חיתוך טקסט במשימות
 
-## מה צריך לעשות
-להחליף את הרקע של ה-DropdownMenuContent ב-AuroraAccountDropdown כך שיהיה זהה לרקע של כרטיס הזהות (Identity HUD) - גרדיאנט אפור כהה עם אפקט blur וגבול זוהר.
-
----
-
-## שינויים נדרשים
-
-### קובץ: `src/components/aurora/AuroraAccountDropdown.tsx`
-
-**שורה 131-134** - עדכון ה-DropdownMenuContent:
-
-**לפני:**
-```tsx
-<DropdownMenuContent
-  align={isRTL ? "end" : "start"}
-  side="top"
-  className="w-56 bg-card border border-border shadow-xl z-[100]"
->
-```
-
-**אחרי:**
-```tsx
-<DropdownMenuContent
-  align={isRTL ? "end" : "start"}
-  side="top"
-  className="w-56 backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 shadow-xl z-[100] overflow-hidden"
->
-  {/* Glow overlay - same as Identity Card */}
-  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
-  <div className="relative z-10">
-    {/* All existing menu items */}
-  </div>
-```
+## הבעיה
+הטקסט במשימות נחתך בגלל שימוש ב-`truncate` שמסתיר טקסט ארוך. צריך להציג את כל הטקסט במלואו.
 
 ---
 
-## סיכום הסגנון
+## השינויים הנדרשים
 
-| מאפיין | ערך |
-|--------|-----|
-| רקע | גרדיאנט gray-900 → gray-800 → gray-900 (dark: gray-950 → gray-900 → gray-950) |
-| Blur | backdrop-blur-xl |
-| גבול | border-primary/30 |
-| זוהר | from-primary/20 via-transparent to-accent/20 |
-| צל | shadow-xl |
+### קובץ: `src/components/aurora/AuroraChatQuickActions.tsx`
+
+**שינוי 1 - כותרת רשימה (שורה 132):**
+
+לפני:
+```tsx
+<span className="text-sm font-medium truncate block">
+```
+
+אחרי:
+```tsx
+<span className="text-sm font-medium block break-words whitespace-normal">
+```
+
+**שינוי 2 - תוכן משימה (שורות 185-192):**
+
+לפני:
+```tsx
+<span
+  className={cn(
+    "text-xs flex-1 truncate",
+    item.is_completed && "line-through text-muted-foreground"
+  )}
+>
+  {item.content}
+</span>
+```
+
+אחרי:
+```tsx
+<span
+  className={cn(
+    "text-xs flex-1 break-words whitespace-normal leading-relaxed",
+    item.is_completed && "line-through text-muted-foreground"
+  )}
+>
+  {item.content}
+</span>
+```
+
+**שינוי 3 - הרחבת רוחב הפופאובר (שורה 66):**
+
+לפני:
+```tsx
+className="w-80 p-0"
+```
+
+אחרי:
+```tsx
+className="w-96 p-0"
+```
+
+---
+
+## סיכום
+
+| בעיה | פתרון |
+|------|-------|
+| טקסט כותרת נחתך | הסרת `truncate`, הוספת `break-words whitespace-normal` |
+| טקסט משימה נחתך | הסרת `truncate`, הוספת `break-words whitespace-normal leading-relaxed` |
+| פופאובר צר מדי | הגדלת רוחב מ-`w-80` ל-`w-96` |
 
 ---
 
 ## תוצאה צפויה
-הדרופדאון יראה כמו "מיני כרטיס זהות" עם אותו אפקט עמוק וזוהר של ה-HUD הראשי.
+כל הטקסטים יוצגו במלואם עם שבירת שורות אוטומטית במקום חיתוך.
