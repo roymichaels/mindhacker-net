@@ -21,6 +21,8 @@ import {
   BookOpen,
   Star,
   BarChart3,
+  Globe,
+  Store,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -66,6 +68,15 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    id: 'storefront',
+    label: 'My Storefront',
+    labelHe: 'החנות שלי',
+    icon: Store,
+    items: [
+      { to: '/coach/storefront', icon: Globe, label: 'Storefront Settings', labelHe: 'הגדרות חנות' },
+    ],
+  },
+  {
     id: 'settings',
     label: 'Settings',
     labelHe: 'הגדרות',
@@ -96,15 +107,15 @@ const CoachSidebar = () => {
       
       {/* View My Page Button */}
       {myProfile?.slug && (
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-4 space-y-2">
           <Button
             asChild
             variant="outline"
             size="sm"
             className="w-full justify-between"
           >
-            <Link to={`/practitioners/${myProfile.slug}`} target="_blank">
-              {isHebrew ? 'הדף שלי' : 'View My Page'}
+            <Link to={`/p/${myProfile.slug}`} target="_blank">
+              {isHebrew ? 'הדף שלי' : 'View Storefront'}
               <ExternalLink className="h-4 w-4" />
             </Link>
           </Button>
