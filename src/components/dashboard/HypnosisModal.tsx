@@ -493,10 +493,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="max-w-2xl h-[90vh] p-0 overflow-hidden bg-background/95 backdrop-blur-xl"
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
+        <DialogContent 
+          className="max-w-2xl h-[90vh] p-0 overflow-hidden bg-background"
+          dir={isRTL ? 'rtl' : 'ltr'}
+        >
         <VisuallyHidden>
           <DialogTitle>{language === 'he' ? 'היפנוזה' : 'Hypnosis Session'}</DialogTitle>
         </VisuallyHidden>
