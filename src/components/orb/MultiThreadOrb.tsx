@@ -22,7 +22,7 @@ interface MultiThreadOrbProps {
   className?: string;
   showGlow?: boolean;
   onReady?: () => void;
-  profile: MultiThreadOrbProfile;
+  profile?: MultiThreadOrbProfile;
 }
 
 // Parse HSL color string to THREE.Color with brightness adjustment

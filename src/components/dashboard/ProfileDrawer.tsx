@@ -29,7 +29,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +48,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
   
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -124,14 +126,14 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 animate-pulse" />
                 
                 <div className="relative z-10 p-6 flex flex-col items-center text-center">
-                  {/* Large Orb - Using PersonalizedOrb as base */}
+                  {/* Large Orb - Using MultiThreadOrb with profile */}
                   <div className="relative mb-6">
                     {/* Glow background */}
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-2xl scale-110" />
-                    <PersonalizedOrb 
+                    <MultiThreadOrb 
                       size={240}
-                      showGlow={true}
                       state="idle"
+                      profile={orbProfile}
                     />
                   </div>
 
