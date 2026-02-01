@@ -246,7 +246,7 @@ const DashboardSidebar = ({
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors",
-                  isPurple && "bg-purple-600/15 text-purple-300 hover:bg-purple-600/25 font-bold",
+                  isPurple && "bg-purple-500/20 text-purple-600 dark:text-purple-400 hover:bg-purple-500/30 font-bold",
                   isBlue && "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20",
                   isRed && "bg-red-500/10 text-red-400 hover:bg-red-500/20",
                   isCollapsed && "justify-center px-2"
@@ -256,7 +256,7 @@ const DashboardSidebar = ({
                 {item.customIcon ? (
                   <item.customIcon className={cn(
                     "h-4 w-4 shrink-0", 
-                    isPurple && "text-purple-300"
+                    isPurple && "text-purple-600 dark:text-purple-400"
                   )} size={16} />
                 ) : item.icon && (
                   <item.icon className={cn(
