@@ -35,14 +35,14 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col relative isolate">
+    <div className="h-full flex flex-col relative">
       {/* Messages Area */}
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="w-full h-full pb-44 sm:pb-32 px-4">
+      <ScrollArea className="flex-1 min-h-0 pb-36">
+        <div className="w-full h-full px-4">
           {messages.length === 0 && !isStreaming ? (
             <AuroraWelcome onSuggestionClick={handleSuggestionClick} />
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-6 pb-4">
               {messages.map((message) => (
                 <AuroraChatMessage
                   key={message.id}
@@ -77,7 +77,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
+      {/* Input Area - positioned absolutely within this container */}
       <AuroraChatInput
         onSend={sendMessage}
         disabled={isStreaming}
