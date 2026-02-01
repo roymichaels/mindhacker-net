@@ -149,33 +149,36 @@ const DashboardSidebar = ({
   // Shared content component for desktop sidebar
   const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
-      {/* Mobile: Simple header with Search and New Chat */}
+      {/* Mobile: Search bar with New Chat - card style */}
       {isMobile && isAuroraPage && (
-        <div className="flex items-center justify-between px-3 py-3 mb-4 border-b border-border">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10"
-            onClick={() => {
-              // TODO: Implement search functionality
-              onNavigate?.();
-            }}
-            title={language === 'he' ? 'חיפוש' : 'Search'}
-          >
-            <Search className="h-5 w-5 text-muted-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10"
-            onClick={() => {
-              onNewChat?.();
-              onNavigate?.();
-            }}
-            title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
-          >
-            <Plus className="h-5 w-5 text-muted-foreground" />
-          </Button>
+        <div className="px-3 py-3 mb-4">
+          <div className="flex items-center gap-2 bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl p-2">
+            {/* New Chat Button */}
+            <button
+              onClick={() => {
+                onNewChat?.();
+                onNavigate?.();
+              }}
+              className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+              title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
+            >
+              <Plus className="h-5 w-5 text-muted-foreground" />
+            </button>
+            
+            {/* Search Bar */}
+            <div className="flex-1 flex items-center justify-end">
+              <button
+                onClick={() => {
+                  // TODO: Implement search functionality
+                  onNavigate?.();
+                }}
+                className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-muted/50 transition-colors"
+                title={language === 'he' ? 'חיפוש' : 'Search'}
+              >
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
