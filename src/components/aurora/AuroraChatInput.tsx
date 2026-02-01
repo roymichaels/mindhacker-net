@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff, Loader2 } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
+import VoiceRecordingButton from './VoiceRecordingButton';
 import { cn } from '@/lib/utils';
 
 interface AuroraChatInputProps {
@@ -13,9 +14,11 @@ interface AuroraChatInputProps {
 const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const [input, setInput] = useState('');
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleTranscription = (text: string) => {
+    setIsTranscribing(false);
     setInput((prev) => prev + (prev ? ' ' : '') + text);
   };
 
@@ -53,12 +56,13 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     }
   };
 
-  const handleMicClick = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
+  const handleStartRecording = () => {
+    startRecording();
+  };
+
+  const handleStopRecording = () => {
+    setIsTranscribing(true);
+    stopRecording();
   };
 
   return (
@@ -73,7 +77,7 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={tg('aurora.chat.placeholder')}
-              disabled={disabled}
+              disabled={disabled || isRecording}
               rows={1}
               className={cn(
                 "w-full bg-transparent px-4 py-3 pe-12 text-sm",
@@ -86,32 +90,25 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
               style={{ maxHeight: '200px' }}
             />
 
-            {/* Mic Button Inside Input */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleMicClick}
-              disabled={disabled}
-              className={cn(
-                "absolute end-2 bottom-1.5 h-8 w-8 rounded-full",
-                isRecording && "text-destructive bg-destructive/10"
-              )}
-              title={isRecording ? t('aurora.chat.stopRecording') : t('aurora.chat.startRecording')}
-            >
-              {isRecording ? (
-                <MicOff className="w-4 h-4" />
-              ) : (
-                <Mic className="w-4 h-4 text-muted-foreground" />
-              )}
-            </Button>
+            {/* Voice Recording Button Inside Input */}
+            <div className="absolute end-2 bottom-1.5">
+              <VoiceRecordingButton
+                isRecording={isRecording}
+                isTranscribing={isTranscribing}
+                onStartRecording={handleStartRecording}
+                onStopRecording={handleStopRecording}
+                disabled={disabled}
+                compact
+                className="h-8 w-8"
+              />
+            </div>
           </div>
 
           {/* Send Button */}
           <Button
             type="submit"
             size="icon"
-            disabled={disabled || !input.trim()}
+            disabled={disabled || !input.trim() || isRecording}
             className="rounded-full h-11 w-11 shrink-0"
           >
             {disabled ? (

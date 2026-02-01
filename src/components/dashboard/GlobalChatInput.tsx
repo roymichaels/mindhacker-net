@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Send, Loader2 } from 'lucide-react';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -12,11 +12,13 @@ const GlobalChatInput = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [input, setInput] = useState('');
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { sendMessageRef, isStreaming } = useAuroraChatContext();
 
   const handleTranscription = (text: string) => {
+    setIsTranscribing(false);
     setInput((prev) => prev + (prev ? ' ' : '') + text);
   };
 
@@ -63,12 +65,13 @@ const GlobalChatInput = () => {
     }
   };
 
-  const handleMicClick = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
+  const handleStartRecording = () => {
+    startRecording();
+  };
+
+  const handleStopRecording = () => {
+    setIsTranscribing(true);
+    stopRecording();
   };
 
   return (
@@ -83,7 +86,7 @@ const GlobalChatInput = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={tg('aurora.chat.placeholder')}
-              disabled={isStreaming}
+              disabled={isStreaming || isRecording}
               rows={1}
               className={cn(
                 "w-full h-9 bg-transparent px-3 py-2 pe-10 text-sm leading-tight",
@@ -96,31 +99,24 @@ const GlobalChatInput = () => {
               style={{ maxHeight: '36px' }}
             />
 
-            {/* Mic Button Inside Input */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleMicClick}
-              disabled={isStreaming}
-              className={cn(
-                "absolute end-1 h-7 w-7 rounded-md",
-                isRecording && "text-destructive bg-destructive/10"
-              )}
-              title={isRecording ? t('aurora.chat.stopRecording') : t('aurora.chat.startRecording')}
-            >
-              {isRecording ? (
-                <MicOff className="w-4 h-4" />
-              ) : (
-                <Mic className="w-4 h-4 text-muted-foreground" />
-              )}
-            </Button>
+            {/* Voice Recording Button Inside Input */}
+            <div className="absolute end-1">
+              <VoiceRecordingButton
+                isRecording={isRecording}
+                isTranscribing={isTranscribing}
+                onStartRecording={handleStartRecording}
+                onStopRecording={handleStopRecording}
+                disabled={isStreaming}
+                compact
+                className="h-7 w-7"
+              />
+            </div>
           </div>
 
           {/* Send Button - same style as sidebar plus button */}
           <button
             type="submit"
-            disabled={isStreaming || !input.trim()}
+            disabled={isStreaming || !input.trim() || isRecording}
             className={cn(
               "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
