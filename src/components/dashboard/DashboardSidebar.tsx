@@ -186,12 +186,7 @@ const DashboardSidebar = ({
       {!isMobile && !isCollapsed && (
         <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img 
-              src={logoUrl} 
-              alt="Logo" 
-              className="w-10 h-10 object-contain" 
-              loading="eager"
-            />
+            <AuroraOrbIcon className="w-10 h-10 text-purple-400" size={40} />
             <span className="font-bold text-base text-foreground">
               {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
             </span>
@@ -208,13 +203,34 @@ const DashboardSidebar = ({
         </div>
       )}
 
+      {/* Desktop: Search bar above navigation */}
+      {!isMobile && !isCollapsed && isAuroraPage && (
+        <div className="px-3 mb-3 flex items-center gap-2">
+          <button
+            onClick={() => {
+              onNewChat?.();
+            }}
+            className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+            title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
+          >
+            <Plus className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className="flex-1 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={language === 'he' ? 'חיפוש...' : 'Search...'}
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          </div>
+        </div>
+      )}
+
       {/* Navigation Section */}
       <div className="mb-4">
-        {!isCollapsed && !isMobile && (
-          <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
-            {language === 'he' ? 'ניווט' : 'Navigate'}
-          </p>
-        )}
         <div className="space-y-1">
           {navItems.map((item) => {
             const highlightColor = item.highlight;
@@ -256,18 +272,7 @@ const DashboardSidebar = ({
         </div>
       </div>
 
-      {/* New Chat Button - desktop only (mobile has it in header) */}
-      {isAuroraPage && !isCollapsed && !isMobile && onNewChat && (
-        <Button
-          variant="outline"
-          className="w-full justify-start gap-2 mb-3 h-10"
-          onClick={onNewChat}
-        >
-          <Plus className="h-4 w-4" />
-          <span>{language === 'he' ? 'שיחה חדשה' : 'New Chat'}</span>
-        </Button>
-      )}
-
+      {/* New Chat Button - collapsed desktop only */}
       {isAuroraPage && isCollapsed && onNewChat && (
         <Button
           variant="outline"
@@ -381,12 +386,7 @@ const DashboardSidebar = ({
           <SidebarHeader className="p-2 flex flex-col items-center gap-2">
             {/* Logo */}
             <Link to="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
-              <img 
-                src={logoUrl} 
-                alt="Logo" 
-                className="w-8 h-8 object-contain" 
-                loading="eager"
-              />
+              <AuroraOrbIcon className="w-8 h-8 text-purple-400" size={32} />
             </Link>
             {/* Menu toggle */}
             <Button
