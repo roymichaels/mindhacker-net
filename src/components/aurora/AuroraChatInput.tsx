@@ -71,7 +71,7 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   if (!isMounted) return null;
 
   return createPortal(
-    <div className="fixed bottom-[4.5rem] sm:bottom-0 left-0 right-0 z-[200] bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4 safe-area-inset-bottom">
+    <div className="fixed bottom-[4.5rem] sm:bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4 safe-area-inset-bottom">
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative flex items-end gap-3">
           {/* Input Container */}
