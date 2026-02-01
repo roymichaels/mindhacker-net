@@ -26,7 +26,7 @@ export default function TransformationProofSection() {
   const { isRTL } = useTranslation();
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-gray-950/50 via-gray-900/30 to-transparent relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-b from-muted/50 via-muted/20 to-transparent dark:from-gray-950/50 dark:via-gray-900/30 dark:to-transparent relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-destructive/10 rounded-full blur-3xl" />

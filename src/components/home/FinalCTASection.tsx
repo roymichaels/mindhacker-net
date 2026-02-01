@@ -38,7 +38,7 @@ export default function FinalCTASection() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 relative overflow-hidden">
+    <section className="py-24 px-4 bg-gradient-to-b from-muted via-muted/70 to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 relative overflow-hidden">
       {/* Background effects - subtle */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
@@ -127,11 +127,11 @@ export default function FinalCTASection() {
                 size="lg"
                 onClick={() => navigate('/signup')}
                 className="group text-xl px-12 py-8 rounded-2xl 
-                  bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900
-                  hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                  bg-gradient-to-br from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
+                  hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800
                   text-foreground font-black
-                  shadow-[0_0_40px_rgba(0,0,0,0.6),0_15px_40px_rgba(0,0,0,0.3)]
-                  hover:shadow-[0_0_60px_hsl(var(--primary)/0.3),0_20px_50px_rgba(0,0,0,0.4)]
+                  shadow-[0_0_40px_rgba(0,0,0,0.3),0_15px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(0,0,0,0.6),0_15px_40px_rgba(0,0,0,0.3)]
+                  hover:shadow-[0_0_60px_hsl(var(--primary)/0.3),0_20px_50px_rgba(0,0,0,0.2)]
                   border-2 border-primary/30
                   transition-all duration-300 hover:scale-105"
               >

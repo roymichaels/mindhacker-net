@@ -84,8 +84,8 @@ export default function GameHeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8 px-4">
-      {/* HUD-style gradient background - Dark theme */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
+      {/* Theme-aware gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-accent/5" />
       
       {/* Grid pattern */}
@@ -220,16 +220,16 @@ export default function GameHeroSection() {
             transition={{ duration: 0.6, delay: 0.7 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
-            {/* Free Transformation Journey - Primary CTA - Dark HUD style */}
+            {/* Free Transformation Journey - Primary CTA - Theme-aware style */}
             <Button
               size="lg"
               onClick={() => navigate('/free-journey')}
               className="group relative text-lg px-10 py-7 rounded-2xl 
-                bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900
-                hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                bg-gradient-to-br from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
+                hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800
                 text-foreground font-black
-                shadow-[0_0_30px_rgba(0,0,0,0.5),0_10px_25px_rgba(0,0,0,0.3)]
-                hover:shadow-[0_0_50px_hsl(var(--primary)/0.3),0_15px_35px_rgba(0,0,0,0.4)]
+                shadow-[0_0_30px_rgba(0,0,0,0.2),0_10px_25px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(0,0,0,0.5),0_10px_25px_rgba(0,0,0,0.3)]
+                hover:shadow-[0_0_50px_hsl(var(--primary)/0.3),0_15px_35px_rgba(0,0,0,0.2)]
                 border-2 border-primary/30
                 transition-all duration-300 hover:scale-105"
             >

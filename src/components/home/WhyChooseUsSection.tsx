@@ -105,7 +105,7 @@ const WhyChooseUsSection = () => {
 
   return (
     <section 
-      className="relative py-20 sm:py-24 px-4 bg-gradient-to-b from-gray-900/50 via-gray-950/30 to-transparent overflow-hidden"
+      className="relative py-20 sm:py-24 px-4 bg-gradient-to-b from-muted/50 via-muted/20 to-transparent dark:from-gray-900/50 dark:via-gray-950/30 dark:to-transparent overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Background decorations */}
