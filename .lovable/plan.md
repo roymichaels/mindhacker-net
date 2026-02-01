@@ -1,111 +1,209 @@
 
-## Plan: Apply New Color Scheme Across the App
+# Aurora Smart Suggestions - Direct Actions Enhancement
 
-### Overview
-Update the application's color palette to match the logo colors shown in the screenshot - pink/magenta primary, purple/violet accents, gold highlights, and a deep dark theme throughout.
+## Overview
+Transform Aurora's smart suggestion buttons from message-sending prompts into direct action triggers. When a user clicks on a suggestion button, instead of sending a message to Aurora, the app will directly open the relevant feature/modal.
 
-### Color Analysis from Screenshot
-Based on the uploaded image:
-- **Primary (Pink/Magenta)**: `#e879f9` or HSL `292 95% 73%` - Used for title text
-- **Secondary (Violet/Purple)**: `#a855f7` or HSL `270 95% 65%` - Icon color
-- **Accent (Gold/Amber)**: `#f59e0b` or HSL `38 95% 50%` - Gem/reward highlights
-- **Background**: Deep blue-purple gradient `#0c0a1d` to `#1a1333`
+## Current Behavior
+- User clicks suggestion → sends a message/prompt to Aurora chat
+- Aurora then has to respond and potentially guide the user
+
+## Proposed Behavior
+- User clicks suggestion → **directly opens** the relevant modal/page/action
+- Faster, more direct UX - "one tap to action"
 
 ---
 
-### Changes Required
+## Architecture Design
 
-#### 1. Update CSS Variables in `src/index.css`
+### New Action Type System
 
-**Dark Mode Colors (lines 96-138)**:
-- Change `--primary` from cyan `187 100% 50%` to magenta `292 95% 73%`
-- Change `--primary-glow` to match brighter pink
-- Change `--secondary` to purple `270 95% 65%`
-- Update `--accent` to gold `38 95% 50%`
-- Adjust `--ring` to match new primary
-- Update `--glass-border` to use new primary
-
-**Light Mode Colors (lines 35-89)**:
-- Update `--primary` to a slightly deeper pink for contrast
-- Update `--secondary` to purple
-- Keep `--accent` as gold
-
-#### 2. Update Default Theme Settings in `src/hooks/useThemeSettings.ts`
-
-**Lines 102-120** - Update default theme values:
+Currently, `SmartSuggestion` has:
 ```typescript
-primary_h: "292",
-primary_s: "95%",
-primary_l: "73%",
-primary_glow_l: "80",
-secondary_h: "270",
-secondary_s: "95%",
-secondary_l: "65%",
-accent_h: "38",
-accent_s: "95%",
-accent_l: "50%",
+interface SmartSuggestion {
+  id: string;
+  text: string;
+  prompt: string;  // sent as message
+  priority: number;
+  icon: 'task' | 'hypnosis' | 'plan' | 'habit' | 'reflection' | 'milestone';
+}
 ```
 
-#### 3. Update Aurora Link Button in `src/components/dashboard/DashboardSidebar.tsx`
+Will become:
+```typescript
+interface SmartSuggestion {
+  id: string;
+  text: string;
+  priority: number;
+  icon: 'task' | 'hypnosis' | 'plan' | 'habit' | 'reflection' | 'milestone';
+  action: SuggestionAction;
+}
 
-**Line 249** - Change the gradient:
-```tsx
-// From:
-"bg-gradient-to-r from-primary/20 via-accent/25 to-primary/20"
-
-// To:
-"bg-gradient-to-r from-pink-500/20 via-purple-500/25 to-pink-500/20 text-pink-400"
+type SuggestionAction = 
+  | { type: 'open_hypnosis' }
+  | { type: 'open_dashboard' }
+  | { type: 'open_dashboard_view'; view: 'habits' | 'tasks' | 'plan' }
+  | { type: 'send_message'; prompt: string }  // fallback for conversational ones
+  | { type: 'navigate'; path: string };
 ```
-
-Or use the new primary CSS variable which will inherit the pink color.
-
-#### 4. Update AuroraOrbIcon Colors in `src/components/icons/AuroraOrbIcon.tsx`
-
-Add gradient stops matching the logo:
-- Pink mesh lines
-- Cyan/teal inner details
-- White highlights
-
-#### 5. Update Homepage Gradient in `src/pages/Index.tsx`
-
-**Lines 77-79** - Use the new color scheme:
-```tsx
-<div className="fixed inset-0 bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-pink-500/15 -z-10" />
-```
-
-#### 6. Update Additional UI Components
-
-**`src/components/platform/AuroraPromoSection.tsx` (line 88)**:
-Update the button gradient to use new colors.
-
-**`src/lib/productColors.ts`**:
-Add new pink/purple color options for product cards.
 
 ---
 
-### Technical Details
+## Implementation Steps
 
-#### CSS Variable Structure (HSL Format)
-```css
-/* New Dark Mode Palette */
---primary: 292 95% 73%;          /* Pink/Magenta */
---primary-glow: 292 95% 80%;     /* Brighter pink for glows */
---secondary: 270 95% 65%;         /* Purple/Violet */
---accent: 38 95% 50%;             /* Gold/Amber */
---background: 260 60% 5%;         /* Deep purple-black */
---ring: 292 95% 73%;              /* Pink ring focus */
+### Step 1: Create Aurora Actions Context
+A new context to manage Aurora's action modals globally (similar to how DashboardSidebar manages them locally).
+
+**New file: `src/contexts/AuroraActionsContext.tsx`**
+
+```text
+┌─────────────────────────────────────────────┐
+│  AuroraActionsProvider                      │
+│  ├── hypnosisModalOpen: boolean             │
+│  ├── dashboardModalOpen: boolean            │
+│  ├── openHypnosis(): void                   │
+│  ├── openDashboard(view?): void             │
+│  └── Renders: HypnosisModal, DashboardModal │
+└─────────────────────────────────────────────┘
 ```
 
-#### Files to Modify
-1. `src/index.css` - Core CSS variables
-2. `src/hooks/useThemeSettings.ts` - Default theme values
-3. `src/components/dashboard/DashboardSidebar.tsx` - Aurora link styling
-4. `src/pages/Index.tsx` - Homepage background
-5. `src/components/platform/AuroraPromoSection.tsx` - Promo section
-6. `src/components/icons/AuroraOrbIcon.tsx` - Logo colors (optional - add gradient)
-7. `src/lib/productColors.ts` - Add pink/purple options
+This allows any component (including AuroraWelcome) to trigger modals without prop drilling.
+
+### Step 2: Update SmartSuggestion Interface
+Modify `useSmartSuggestions.tsx` to use the new action-based system.
+
+**File: `src/hooks/aurora/useSmartSuggestions.tsx`**
+
+Changes:
+- Add `SuggestionAction` type
+- Replace `prompt` field with `action` field
+- Map existing suggestions to appropriate actions:
+  - `daily-hypnosis` / `start-hypnosis` → `{ type: 'open_hypnosis' }`
+  - `daily-habits` → `{ type: 'open_dashboard', view: 'habits' }`
+  - `overdue-task` / `today-task` → `{ type: 'open_dashboard', view: 'tasks' }`
+  - `milestone-progress` → `{ type: 'open_dashboard', view: 'plan' }`
+  - `reflection` → `{ type: 'send_message', prompt: '...' }` (keep conversational)
+
+### Step 3: Update AuroraWelcome Component
+Modify to execute actions instead of sending messages.
+
+**File: `src/components/aurora/AuroraWelcome.tsx`**
+
+Changes:
+- Import and use `useAuroraActions` context
+- Update `onClick` handler to dispatch appropriate action:
+
+```typescript
+const handleSuggestionAction = (action: SuggestionAction) => {
+  switch (action.type) {
+    case 'open_hypnosis':
+      openHypnosis();
+      break;
+    case 'open_dashboard':
+      openDashboard(action.view);
+      break;
+    case 'send_message':
+      onSuggestionClick(action.prompt);
+      break;
+    case 'navigate':
+      navigate(action.path);
+      break;
+  }
+};
+```
+
+### Step 4: Integrate Context into Layout
+Wrap the Aurora layout with the new actions provider.
+
+**File: `src/components/aurora/AuroraLayout.tsx`**
+
+Changes:
+- Import `AuroraActionsProvider`
+- Wrap content with provider
+- Provider renders the modals at this level
+
+### Step 5: Update AuroraChatArea
+Keep backward compatibility for the `onSuggestionClick` prop but handle both action types.
+
+**File: `src/components/aurora/AuroraChatArea.tsx`**
+
+Changes:
+- Pass down action handler or context access to AuroraWelcome
+- Maintain message-sending for conversational suggestions
 
 ---
 
-### Summary (Hebrew)
-התוכנית כוללת עדכון פלטת הצבעים של האפליקציה בהתאם לצבעי הלוגו שהוצגו - ורוד/מגנטה כצבע ראשי, סגול כצבע משני, וזהב כאקסנט. השינויים יחולו על משתני ה-CSS הגלובליים, ערכי ברירת המחדל של הנושא, כפתור Aurora Link, ורקע דף הבית.
+## File Changes Summary
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/contexts/AuroraActionsContext.tsx` | **New** | Context for global Aurora actions (modals) |
+| `src/hooks/aurora/useSmartSuggestions.tsx` | **Modify** | Add action types, replace prompts with actions |
+| `src/components/aurora/AuroraWelcome.tsx` | **Modify** | Execute actions instead of sending messages |
+| `src/components/aurora/AuroraChatArea.tsx` | **Modify** | Handle both action and message suggestions |
+| `src/components/aurora/AuroraLayout.tsx` | **Modify** | Integrate AuroraActionsProvider |
+| `src/hooks/aurora/index.ts` | **Modify** | Export new types |
+
+---
+
+## Action Mapping Table
+
+| Suggestion ID | Current Behavior | New Behavior |
+|---------------|------------------|--------------|
+| `start-hypnosis` | Sends message | Opens HypnosisModal |
+| `daily-hypnosis` | Sends message | Opens HypnosisModal |
+| `daily-habits` | Sends message | Opens DashboardModal → Habits view |
+| `overdue-task` | Sends message | Opens DashboardModal → Tasks view |
+| `today-task` | Sends message | Opens DashboardModal → Tasks view |
+| `milestone-progress` | Sends message | Opens DashboardModal → Plan view |
+| `whats-today` | Sends message | Sends message (keep conversational) |
+| `progress-check` | Sends message | Sends message (keep conversational) |
+| `feeling-stuck` | Sends message | Sends message (keep conversational) |
+| `reflection` | Sends message | Sends message (keep conversational) |
+
+---
+
+## Technical Details
+
+### AuroraActionsContext Implementation
+
+```typescript
+interface AuroraActionsContextType {
+  // Modal states
+  hypnosisModalOpen: boolean;
+  dashboardModalOpen: boolean;
+  dashboardInitialView: 'dashboard' | 'habits' | 'tasks' | 'plan';
+  
+  // Actions
+  openHypnosis: () => void;
+  openDashboard: (view?: string) => void;
+  closeHypnosis: () => void;
+  closeDashboard: () => void;
+}
+```
+
+### DashboardModal Enhancement
+The current `DashboardModal` supports `initialView: 'dashboard' | 'profile'`. This may need to be extended to support direct navigation to specific sections like habits, tasks, or plan views if they exist as sub-views within the dashboard.
+
+---
+
+## Benefits
+
+1. **Faster UX**: One tap directly opens the feature
+2. **Reduced AI load**: No need for Aurora to parse intent and respond
+3. **Clear intent**: Actions are explicit, not interpreted
+4. **Maintainable**: Centralized action handling
+5. **Extensible**: Easy to add new action types (future: open 90-day plan editor, open habit tracker, etc.)
+
+---
+
+## Future Extensibility
+
+This action system can be expanded to support:
+- `{ type: 'open_90_day_plan' }`
+- `{ type: 'open_habit_tracker' }`
+- `{ type: 'start_breathing_exercise' }`
+- `{ type: 'open_checklist', checklistId: string }`
+- `{ type: 'call_edge_function', functionName: string, params: object }`
+
+The architecture is designed to be a foundation for Aurora's "powers" - direct control over the app through intelligent suggestions.
