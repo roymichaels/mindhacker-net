@@ -246,7 +246,7 @@ const DashboardSidebar = ({
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300",
-                  isPurple && "bg-gradient-to-r from-primary/20 via-accent/25 to-primary/20 text-primary hover:from-primary/30 hover:via-accent/35 hover:to-primary/30 font-bold shadow-sm hover:shadow-md hover:shadow-primary/20",
+                  isPurple && "bg-gradient-to-r from-fuchsia-500/20 via-purple-500/25 to-fuchsia-500/20 text-fuchsia-400 hover:from-fuchsia-500/30 hover:via-purple-500/35 hover:to-fuchsia-500/30 font-bold shadow-sm hover:shadow-md hover:shadow-fuchsia-500/20",
                   isBlue && "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20",
                   isRed && "bg-red-500/10 text-red-400 hover:bg-red-500/20",
                   isCollapsed && "justify-center px-2"

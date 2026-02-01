@@ -2,7 +2,7 @@
 // Maps color identifiers to Tailwind CSS classes
 // Supports "theme" option that uses CSS variables from theme_settings
 
-export type ProductColorKey = 'theme' | 'primary' | 'emerald' | 'purple' | 'amber' | 'rose' | 'blue';
+export type ProductColorKey = 'theme' | 'primary' | 'emerald' | 'purple' | 'fuchsia' | 'amber' | 'rose' | 'blue';
 
 export interface ProductColorClasses {
   border: string;
@@ -67,6 +67,18 @@ export const productColorClasses: Record<ProductColorKey, ProductColorClasses> =
     shadow: 'shadow-purple-500/25',
     gradient: 'from-purple-500/10'
   },
+  fuchsia: {
+    border: 'border-fuchsia-500',
+    borderHover: 'hover:border-fuchsia-500/60',
+    bg: 'bg-fuchsia-500',
+    bgLight: 'bg-fuchsia-500/10',
+    bgMedium: 'bg-fuchsia-500/20',
+    text: 'text-fuchsia-500',
+    button: 'bg-fuchsia-500 hover:bg-fuchsia-600',
+    buttonText: 'text-white',
+    shadow: 'shadow-fuchsia-500/25',
+    gradient: 'from-fuchsia-500/10'
+  },
   amber: {
     border: 'border-amber-500',
     borderHover: 'hover:border-amber-500/60',
@@ -120,10 +132,10 @@ export const getOfferColors = getProductColors;
 // Color options for admin UI with labels (includes theme option first)
 export const colorOptions: { value: ProductColorKey | null; labelHe: string; labelEn: string; preview: string }[] = [
   { value: null, labelHe: 'ברירת מחדל (צבע ראשי)', labelEn: 'Default (Theme Primary)', preview: 'bg-primary' },
-  { value: 'emerald', labelHe: 'אמרלד (ירוק)', labelEn: 'Emerald (Green)', preview: 'bg-emerald-500' },
-  { value: 'purple', labelHe: 'סגול (אינדיגו)', labelEn: 'Purple (Indigo)', preview: 'bg-purple-500' },
+  { value: 'fuchsia', labelHe: 'פוקסיה (ורוד)', labelEn: 'Fuchsia (Pink)', preview: 'bg-fuchsia-500' },
+  { value: 'purple', labelHe: 'סגול', labelEn: 'Purple', preview: 'bg-purple-500' },
   { value: 'amber', labelHe: 'ענבר (זהב)', labelEn: 'Amber (Gold)', preview: 'bg-amber-500' },
-  { value: 'rose', labelHe: 'ורוד', labelEn: 'Rose (Pink)', preview: 'bg-rose-500' },
+  { value: 'emerald', labelHe: 'אמרלד (ירוק)', labelEn: 'Emerald (Green)', preview: 'bg-emerald-500' },
+  { value: 'rose', labelHe: 'ורד', labelEn: 'Rose', preview: 'bg-rose-500' },
   { value: 'blue', labelHe: 'כחול', labelEn: 'Blue', preview: 'bg-blue-500' },
-  { value: 'primary', labelHe: 'ראשי (ציאן)', labelEn: 'Primary (Cyan)', preview: 'bg-primary' },
 ];
