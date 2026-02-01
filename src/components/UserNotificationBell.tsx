@@ -55,7 +55,7 @@ export const UserNotificationBell = () => {
         align="end"
         side="bottom"
         sideOffset={8}
-        className="p-0 w-auto bg-background z-50"
+        className="w-96 p-0"
         dir="rtl"
         avoidCollisions={true}
         collisionPadding={{ right: 16, left: 16 }}
