@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 
 interface IdentityTitleData {
   title: string;
@@ -28,7 +27,6 @@ export function IdentityProfileCard({
   className 
 }: IdentityProfileCardProps) {
   const { t, isRTL, language } = useTranslation();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0 || identityTitle;
   
@@ -80,11 +78,7 @@ export function IdentityProfileCard({
               {/* Digital Orb Avatar */}
               <div className="relative mb-4 mx-auto w-fit">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-110" />
-                <MultiThreadOrb 
-                  size={120}
-                  state="idle"
-                  profile={orbProfile}
-                />
+                <PersonalizedOrb size={120} state="idle" />
               </div>
               
               <span className="text-2xl mb-1 block">{identityTitle.icon}</span>
