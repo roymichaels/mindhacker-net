@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useChecklistsData } from './useChecklistsData';
 import { useDailyHabits } from './useDailyHabits';
 import { useAuroraReminders } from './useAuroraReminders';
+import { toast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -32,7 +33,9 @@ export const useAuroraChat = (conversationId: string | null) => {
     completeChecklistItem, 
     rescheduleItem,
     archiveChecklist,
-    checklists
+    checklists,
+    deleteItem,
+    updateChecklistTitle
   } = useChecklistsData(user);
   const { habits, completeHabit } = useDailyHabits(user);
   const { createReminder } = useAuroraReminders(user);
@@ -312,6 +315,8 @@ export const useAuroraChat = (conversationId: string | null) => {
 
   // Process action tags from Aurora's response
   const processActionTags = useCallback(async (content: string) => {
+    const isHebrew = language === 'he';
+    
     // Silent action tags (removed from display)
     const actionMatches = [...content.matchAll(/\[action:(\w+)\]/g)];
     for (const match of actionMatches) {
@@ -326,17 +331,45 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of checklistCreateMatches) {
       const title = match[1].trim();
       if (title) {
-        await createChecklist(title, 'aurora');
+        const result = await createChecklist(title, 'aurora');
+        if (result) {
+          toast({
+            title: isHebrew ? "✓ רשימה נוצרה" : "✓ Checklist created",
+            description: title,
+          });
+        }
       }
     }
 
-    // Checklist item addition
+    // Checklist item addition (also handles task:create)
     const checklistAddMatches = [...content.matchAll(/\[checklist:add:(.+?):(.+?)\]/g)];
     for (const match of checklistAddMatches) {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        await addChecklistItem(checklistTitle, itemContent);
+        const result = await addChecklistItem(checklistTitle, itemContent);
+        if (result) {
+          toast({
+            title: isHebrew ? "✓ משימה נוספה" : "✓ Task added",
+            description: itemContent,
+          });
+        }
+      }
+    }
+
+    // Task creation (alias for checklist:add)
+    const taskCreateMatches = [...content.matchAll(/\[task:create:(.+?):(.+?)\]/g)];
+    for (const match of taskCreateMatches) {
+      const checklistTitle = match[1].trim();
+      const itemContent = match[2].trim();
+      if (checklistTitle && itemContent) {
+        const result = await addChecklistItem(checklistTitle, itemContent);
+        if (result) {
+          toast({
+            title: isHebrew ? "✓ משימה נוספה" : "✓ Task added",
+            description: itemContent,
+          });
+        }
       }
     }
 
@@ -346,7 +379,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        await completeChecklistItem(checklistTitle, itemContent);
+        const result = await completeChecklistItem(checklistTitle, itemContent);
+        if (result) {
+          toast({
+            title: isHebrew ? "🎉 משימה הושלמה!" : "🎉 Task completed!",
+            description: itemContent,
+          });
+        }
       }
     }
 
@@ -359,7 +398,34 @@ export const useAuroraChat = (conversationId: string | null) => {
           c.title.toLowerCase().includes(checklistTitle.toLowerCase())
         );
         if (checklist) {
-          await archiveChecklist(checklist.id);
+          const result = await archiveChecklist(checklist.id);
+          if (result) {
+            toast({
+              title: isHebrew ? "📦 רשימה הועברה לארכיון" : "📦 Checklist archived",
+              description: checklist.title,
+            });
+          }
+        }
+      }
+    }
+
+    // Checklist rename
+    const checklistRenameMatches = [...content.matchAll(/\[checklist:rename:(.+?):(.+?)\]/g)];
+    for (const match of checklistRenameMatches) {
+      const oldTitle = match[1].trim();
+      const newTitle = match[2].trim();
+      if (oldTitle && newTitle) {
+        const checklist = checklists.find(c => 
+          c.title.toLowerCase().includes(oldTitle.toLowerCase())
+        );
+        if (checklist) {
+          const result = await updateChecklistTitle(checklist.id, newTitle);
+          if (result) {
+            toast({
+              title: isHebrew ? "✏️ שם הרשימה שונה" : "✏️ Checklist renamed",
+              description: `${oldTitle} → ${newTitle}`,
+            });
+          }
         }
       }
     }
@@ -370,7 +436,39 @@ export const useAuroraChat = (conversationId: string | null) => {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        await completeChecklistItem(checklistTitle, itemContent);
+        const result = await completeChecklistItem(checklistTitle, itemContent);
+        if (result) {
+          toast({
+            title: isHebrew ? "🎉 משימה הושלמה!" : "🎉 Task completed!",
+            description: itemContent,
+          });
+        }
+      }
+    }
+
+    // Task deletion
+    const taskDeleteMatches = [...content.matchAll(/\[task:delete:(.+?):(.+?)\]/g)];
+    for (const match of taskDeleteMatches) {
+      const checklistTitle = match[1].trim();
+      const itemContent = match[2].trim();
+      if (checklistTitle && itemContent) {
+        const checklist = checklists.find(c => 
+          c.title.toLowerCase().includes(checklistTitle.toLowerCase())
+        );
+        if (checklist) {
+          const item = checklist.aurora_checklist_items?.find(i =>
+            i.content.toLowerCase().includes(itemContent.toLowerCase())
+          );
+          if (item) {
+            const result = await deleteItem(item.id);
+            if (result) {
+              toast({
+                title: isHebrew ? "🗑️ משימה נמחקה" : "🗑️ Task deleted",
+                description: itemContent,
+              });
+            }
+          }
+        }
       }
     }
 
@@ -381,7 +479,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const itemContent = match[2].trim();
       const newDate = match[3];
       if (checklistTitle && itemContent && newDate) {
-        await rescheduleItem(checklistTitle, itemContent, newDate);
+        const result = await rescheduleItem(checklistTitle, itemContent, newDate);
+        if (result) {
+          toast({
+            title: isHebrew ? "📅 משימה נדחתה" : "📅 Task rescheduled",
+            description: `${itemContent} → ${newDate}`,
+          });
+        }
       }
     }
 
@@ -390,7 +494,13 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of milestoneCompleteMatches) {
       const weekNumber = parseInt(match[1]);
       if (user?.id && weekNumber > 0) {
-        await completeMilestoneByWeek(weekNumber);
+        const result = await completeMilestoneByWeek(weekNumber);
+        if (result) {
+          toast({
+            title: isHebrew ? "🏆 שבוע הושלם!" : "🏆 Week completed!",
+            description: isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`,
+          });
+        }
       }
     }
 
@@ -405,7 +515,13 @@ export const useAuroraChat = (conversationId: string | null) => {
           habitName.toLowerCase().includes(h.content.toLowerCase())
         );
         if (matchingHabit) {
-          await completeHabit(matchingHabit.id, 'aurora');
+          const result = await completeHabit(matchingHabit.id, 'aurora');
+          if (result) {
+            toast({
+              title: isHebrew ? "💪 הרגל הושלם!" : "💪 Habit completed!",
+              description: matchingHabit.content,
+            });
+          }
         }
       }
     }
@@ -415,7 +531,13 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of habitCreateMatches) {
       const habitName = match[1].trim();
       if (habitName) {
-        await createDailyHabit(habitName);
+        const result = await createDailyHabit(habitName);
+        if (result) {
+          toast({
+            title: isHebrew ? "🔄 הרגל חדש נוצר" : "🔄 New habit created",
+            description: habitName,
+          });
+        }
       }
     }
 
@@ -424,7 +546,13 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of habitRemoveMatches) {
       const habitName = match[1].trim();
       if (habitName) {
-        await removeHabit(habitName);
+        const result = await removeHabit(habitName);
+        if (result) {
+          toast({
+            title: isHebrew ? "🗑️ הרגל הוסר" : "🗑️ Habit removed",
+            description: habitName,
+          });
+        }
       }
     }
 
@@ -435,7 +563,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const field = match[2].trim();
       const value = match[3].trim();
       if (weekNumber > 0 && field && value) {
-        await updateMilestone(weekNumber, field, value);
+        const result = await updateMilestone(weekNumber, field, value);
+        if (result) {
+          toast({
+            title: isHebrew ? "📝 תוכנית עודכנה" : "📝 Plan updated",
+            description: isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`,
+          });
+        }
       }
     }
 
@@ -445,7 +579,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const elementType = match[1].trim();
       const elementContent = match[2].trim();
       if (elementType && elementContent) {
-        await addIdentityElement(elementType, elementContent);
+        const result = await addIdentityElement(elementType, elementContent);
+        if (result) {
+          toast({
+            title: isHebrew ? "✨ זהות עודכנה" : "✨ Identity updated",
+            description: elementContent,
+          });
+        }
       }
     }
 
@@ -465,7 +605,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const message = match[1].trim();
       const date = match[2];
       if (message && date) {
-        await createReminder(message, date);
+        const result = await createReminder(message, date);
+        if (result) {
+          toast({
+            title: isHebrew ? "⏰ תזכורת נוצרה" : "⏰ Reminder set",
+            description: `${message} - ${date}`,
+          });
+        }
       }
     }
 
@@ -475,7 +621,13 @@ export const useAuroraChat = (conversationId: string | null) => {
       const title = match[1].trim();
       const days = parseInt(match[2]);
       if (title && days > 0) {
-        await setFocusPlan(title, days);
+        const result = await setFocusPlan(title, days);
+        if (result) {
+          toast({
+            title: isHebrew ? "🎯 פוקוס הוגדר" : "🎯 Focus set",
+            description: `${title} (${days} ${isHebrew ? 'ימים' : 'days'})`,
+          });
+        }
       }
     }
 
@@ -493,12 +645,15 @@ export const useAuroraChat = (conversationId: string | null) => {
       .trim();
   }, [
     user?.id, 
+    language,
     createChecklist, 
     addChecklistItem, 
     completeChecklistItem, 
     rescheduleItem, 
     archiveChecklist,
     checklists,
+    deleteItem,
+    updateChecklistTitle,
     habits, 
     completeHabit,
     createDailyHabit,
