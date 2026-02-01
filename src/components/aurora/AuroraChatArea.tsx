@@ -49,8 +49,8 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
 
   return (
     <div className="h-full flex flex-col relative">
-      {/* Quick Actions Header - fixed at top corner */}
-      <div className={`sticky top-0 z-20 flex items-center justify-start gap-1 py-2 px-2 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none ${isRTL ? 'flex-row-reverse' : ''}`}>
+      {/* Floating Quick Actions - fixed position over chat */}
+      <div className={`absolute top-2 z-20 flex items-center gap-1 pointer-events-none ${isRTL ? 'right-2 flex-row-reverse' : 'left-2'}`}>
         <div className="pointer-events-auto flex items-center gap-1">
           <AuroraChatQuickActions />
           <UserNotificationBell />
