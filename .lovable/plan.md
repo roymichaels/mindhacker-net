@@ -1,181 +1,85 @@
 
-# Fix Aurora Hypnosis Modal - Gender, Pause, and Voice Issues
+# תוכנית: שיפור יכולות הפעולה של אורורה דרך שיחה
 
-## Summary of Issues
+## סיכום מנהלים
+המערכת כבר תומכת בפעולות רבות דרך שיחה! אורורה **יכולה** לסמן משימות, ליצור רשימות, ולבצע פעולות רבות. הבעיה היא ש:
+1. ה-AI לא תמיד מזהה את הכוונה שלך נכון
+2. חסרות כמה פעולות חשובות
+3. אין פידבק ברור כשפעולה בוצעה
 
-Based on detailed code analysis, I've identified three distinct bugs:
+## מה כבר עובד (רק צריך לשפר)
+- ✅ סימון משימות כבוצעות: `[task:complete:שם_רשימה:שם_משימה]`
+- ✅ יצירת רשימות: `[checklist:create:כותרת]`
+- ✅ הוספת משימות: `[checklist:add:כותרת:פריט]`
+- ✅ סימון הרגלים: `[habit:complete:שם_ההרגל]`
+- ✅ יצירת הרגלים: `[habit:create:שם_ההרגל]`
+- ✅ דחיית משימות: `[task:reschedule:רשימה:משימה:YYYY-MM-DD]`
+- ✅ יצירת תזכורות: `[reminder:set:הודעה:YYYY-MM-DD]`
 
-### Issue 1: "את\אתה" Gender Addressing
-**Root Cause**: The user's profile in the database doesn't have a `gender` field saved in `aurora_preferences`. The database shows only `intensity` and `tone` are stored. When the code reads the gender:
-```typescript
-const userGender = (profileRes.data?.aurora_preferences as { gender?: string } | null)?.gender || 'neutral';
-```
-It falls back to `'neutral'`, which causes the AI to use combined forms like "אתה/את מרגיש/ה".
+## מה חסר / דורש שיפור
 
-**Solution**: 
-1. Add default gender detection or prompt users to set their gender
-2. Clear the script cache so new scripts are generated with correct gender
+### 1. הוספת פידבק חזותי לפעולות (חשוב מאוד!)
+**בעיה**: כשאורורה מבצעת פעולה, המשתמש לא רואה אישור ברור  
+**פתרון**: הוספת Toast notifications עם אנימציה כשפעולה מתבצעת בהצלחה
 
-### Issue 2: Session Completing Too Fast on Pause
-**Root Cause**: In `HypnosisModal.tsx`, when pause is clicked:
-1. `stopCurrentAudio()` stops the audio
-2. This triggers the audio's `onerror` callback
-3. The error handler has: `setTimeout(() => playSegment(index + 1...)` 
-4. Since `playingRef.current` is now `false`, the segment check fails, but the cascade can still cause issues
-5. Additionally, segments that were prefetched might have pending promises that resolve and try to continue
+### 2. שיפור הפרומפט ל-AI
+**בעיה**: ה-AI לא תמיד מזהה כשמשתמש רוצה לבצע פעולה  
+**פתרון**: הוספת דוגמאות ברורות יותר והנחיות מפורשות יותר
 
-**Solution**: Add a more robust stop mechanism and clear pending timeouts
+### 3. הוספת פעולות חסרות
+- `[task:create:שם_רשימה:תוכן_משימה]` - יצירת משימה ישירה (כרגע צריך checklist:add)
+- `[task:delete:שם_רשימה:שם_משימה]` - מחיקת משימה
+- `[checklist:rename:שם_ישן:שם_חדש]` - שינוי שם רשימה
 
-### Issue 3: Voice Continues After Session Complete
-**Root Cause**: In `handleSessionComplete()` (line 267-291), the function sets `playingRef.current = false` but **does NOT call `stopCurrentAudio()` or `stopBrowserSpeech()`**. The audio that was already playing continues to play.
-
-**Solution**: Add explicit audio stop calls in `handleSessionComplete()`
-
----
-
-## Implementation Plan
-
-### File 1: `src/components/dashboard/HypnosisModal.tsx`
-
-#### Fix 3A: Stop audio when session completes
-```typescript
-// Line 267-291: handleSessionComplete
-const handleSessionComplete = useCallback(async () => {
-  setState('complete');
-  playingRef.current = false;
-  
-  // ADD: Stop any currently playing audio
-  stopCurrentAudio();
-  stopBrowserSpeech();
-  
-  impact('heavy');
-  hapticPattern('success');
-  // ... rest of function
-}, [/* deps */]);
-```
-
-#### Fix 2A: Add abort controller for segment playback
-Add a ref to track if we should abort pending operations:
-```typescript
-const abortControllerRef = useRef<AbortController | null>(null);
-```
-
-#### Fix 2B: Update togglePlayPause to cancel pending operations
-```typescript
-const togglePlayPause = () => {
-  impact('medium');
-  if (state === 'playing') {
-    setState('paused');
-    playingRef.current = false;
-    
-    // Cancel any pending segment callbacks
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    stopCurrentAudio();
-    stopBrowserSpeech();
-  } else if (state === 'paused' && scriptRef.current) {
-    setState('playing');
-    playingRef.current = true;
-    abortControllerRef.current = new AbortController();
-    playSegment(currentSegmentIndex, scriptRef.current);
-  }
-};
-```
-
-#### Fix 2C: Guard segment transitions more robustly
-In `playSegment`, add early return checks:
-```typescript
-const playSegment = useCallback(async (index: number, ...) => {
-  // ADD: Double-check we should still be playing
-  if (!playingRef.current) {
-    return; // Session was paused/stopped
-  }
-  // ... rest of function
-```
-
-And in the callbacks:
-```typescript
-onEnd: () => {
-  // Check BEFORE scheduling next segment
-  if (playingRef.current) {
-    playSegment(index + 1, activeScript, activeCachedPaths);
-  }
-},
-onError: () => {
-  // Only continue if still playing
-  if (playingRef.current) {
-    setTimeout(() => {
-      if (playingRef.current) { // Double check
-        playSegment(index + 1, activeScript, activeCachedPaths);
-      }
-    }, 500);
-  }
-},
-```
-
-### File 2: `supabase/functions/generate-hypnosis-script/index.ts`
-
-#### Fix 1A: Improve neutral gender handling
-The current neutral instruction is:
-```typescript
-hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Use NEUTRAL or inclusive Hebrew addressing. 
-Prefer forms that work for all genders like: "מרגישים", "נושמים", or use second person with both options: "אתה/את מרגיש/ה".`;
-```
-
-**Change to more natural default (masculine as Hebrew default):**
-```typescript
-} else {
-  // Default to masculine in Hebrew (grammatical convention) when no preference set
-  hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: The user hasn't set a gender preference. 
-Use MASCULINE singular forms as the default Hebrew convention (לשון זכר יחיד).
-Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
-Do NOT mix forms like "אתה/את" - pick one consistent form.`;
-}
-```
+### 4. סנכרון רשימות למצב האמיתי
+**בעיה**: הרשימות ב-context של ה-AI לא תמיד מעודכנות  
+**פתרון**: שליחת רשימה מעודכנת של כל המשימות והרגלים עם כל הודעה
 
 ---
 
-## Files to Modify
+## שינויים טכניים
 
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `src/components/dashboard/HypnosisModal.tsx` | **Modify** | Add `stopCurrentAudio()` to `handleSessionComplete`, improve pause/play guards |
-| `supabase/functions/generate-hypnosis-script/index.ts` | **Modify** | Change neutral gender default to masculine (Hebrew convention) |
+### קובץ 1: `src/hooks/aurora/useAuroraChat.tsx`
+**שינויים**:
+- הוספת Toast notifications לכל פעולה מוצלחת
+- הוספת תמיכה בתגיות חדשות: `[task:create]`, `[task:delete]`, `[checklist:rename]`
+- שיפור ה-matching של משימות (fuzzy search טוב יותר)
 
----
+### קובץ 2: `supabase/functions/aurora-chat/index.ts`
+**שינויים**:
+- שיפור הפרומפט עם דוגמאות מפורשות יותר
+- הוספת רשימה מלאה של משימות פתוחות עם IDs
+- הוספת הנחיות ברורות מתי להשתמש בכל תגית
+- דגש על שימוש בתגיות בכל אינטראקציה רלוונטית
 
-## Technical Details
-
-### Why the Pause Issue Happens
-The current flow when clicking pause:
-1. `togglePlayPause()` sets `playingRef.current = false`
-2. `stopCurrentAudio()` is called, which pauses the audio element
-3. Audio's `pause()` doesn't trigger `onended`, but if audio fails to stop cleanly, `onerror` might fire
-4. Error callbacks have delayed `playSegment` calls that can still execute
-5. If segment finishes loading async and the callback runs, it might skip to completion
-
-### Why Voice Continues
-When `handleSessionComplete()` is called:
-1. `playingRef.current = false` is set
-2. BUT the currently playing `HTMLAudioElement` is NOT stopped
-3. The audio continues playing until it naturally ends
-4. Since the modal shows "Session Complete!", user expects silence
-
-### Cache Consideration
-Existing cached scripts will still have the "את/אתה" issue until:
-1. Cache expires naturally
-2. Users re-run with different parameters (creating new cache key)
-3. Or we clear the cache for affected users
+### קובץ 3: `src/hooks/aurora/useChecklistsData.tsx`
+**שינויים**:
+- הוספת פונקציות חדשות: `deleteItem`, `renameChecklist`
+- שיפור matching של פריטים
 
 ---
 
-## Testing Checklist
+## דוגמאות לשימוש (איך זה יעבוד)
 
-After implementing:
-1. Set gender preference in Aurora settings → Start hypnosis → Verify correct gender forms used
-2. Start session → Click pause mid-segment → Verify audio stops immediately
-3. Wait a few seconds while paused → Resume → Verify session continues correctly
-4. Complete a session → Verify audio stops when "Session Complete!" appears
-5. Close modal during playback → Verify all audio stops
+| מה תגיד | מה אורורה תעשה |
+|---------|----------------|
+| "סיימתי את המשימה של לקרוא ספר" | ✅ סימון המשימה + Toast "המשימה הושלמה!" |
+| "תוסיפי לי משימה לקנות חלב" | ➕ יצירת משימה ברשימה הראשית + Toast |
+| "תיצרי רשימה לפרויקט החדש" | 📝 יצירת רשימה חדשה + Toast |
+| "עשיתי אימון היום" | 💪 סימון הרגל + אנימציית streak |
+| "תזכירי לי בעוד שבוע לחייג לאמא" | ⏰ יצירת תזכורת + אישור |
+| "מה יש לי היום?" | 📋 רשימה מסודרת של משימות והרגלים |
+
+---
+
+## סדר עבודה
+
+1. **עדכון הפרומפט** - שיפור ההנחיות ל-AI עם דוגמאות ברורות
+2. **הוספת פידבק** - Toast notifications לכל פעולה
+3. **הוספת פעולות חדשות** - task:create, task:delete
+4. **בדיקה** - וידוא שהפעולות עובדות בכל התרחישים
+
+## הערות
+- הפעולות מתבצעות ברקע ולא מוצגות למשתמש (התגיות מוסתרות)
+- ה-AI צריך להשתמש בתגיות בצורה עקבית
+- חשוב שהמערכת תציג פידבק ברור למשתמש
