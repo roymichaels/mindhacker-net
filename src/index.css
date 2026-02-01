@@ -5,10 +5,10 @@
 /* Game-like button glow animation */
 @keyframes pulse-glow {
   0%, 100% { 
-    box-shadow: 0 0 25px rgba(232,121,249,0.5), 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 25px rgba(240,128,150,0.5), 0 8px 20px rgba(0,0,0,0.2);
   }
   50% { 
-    box-shadow: 0 0 40px rgba(232,121,249,0.7), 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 40px rgba(240,128,150,0.7), 0 8px 20px rgba(0,0,0,0.2);
   }
 }
 
@@ -47,10 +47,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    /* Primary - Pink/Magenta matching logo */
-    --primary: 292 85% 55%;
+    /* Primary - Rose/Pink */
+    --primary: 340 82% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 292 95% 65%;
+    --primary-glow: 340 90% 72%;
 
     /* Secondary - Purple/Violet */
     --secondary: 270 85% 55%;
@@ -71,7 +71,7 @@
     /* Borders and inputs */
     --border: 220 13% 85%;
     --input: 220 13% 90%;
-    --ring: 292 85% 55%;
+    --ring: 340 82% 65%;
 
     /* Glass panel - solid white in light mode */
     --glass-bg: 0 0% 100%;
@@ -80,12 +80,12 @@
     /* Sidebar tokens */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 292 85% 55%;
+    --sidebar-primary: 340 82% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 292 85% 55%;
+    --sidebar-ring: 340 82% 65%;
   }
 
   /* 
@@ -104,10 +104,10 @@
     --popover: 260 45% 10%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Pink/Magenta */
-    --primary: 292 95% 73%;
+    /* Primary - Rose/Pink */
+    --primary: 340 85% 70%;
     --primary-foreground: 260 60% 5%;
-    --primary-glow: 292 95% 80%;
+    --primary-glow: 340 90% 77%;
 
     /* Secondary - Purple/Violet */
     --secondary: 270 95% 65%;
@@ -123,21 +123,21 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 292 60% 30%;
+    --border: 340 50% 30%;
     --input: 260 40% 18%;
-    --ring: 292 95% 73%;
+    --ring: 340 85% 70%;
 
     --glass-bg: 260 50% 10%;
-    --glass-border: 292 95% 73%;
+    --glass-border: 340 85% 70%;
 
     --sidebar-background: 260 50% 5%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 292 95% 73%;
+    --sidebar-primary: 340 85% 70%;
     --sidebar-primary-foreground: 260 60% 5%;
     --sidebar-accent: 260 40% 15%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 292 60% 30%;
-    --sidebar-ring: 292 95% 73%;
+    --sidebar-border: 340 50% 30%;
+    --sidebar-ring: 340 85% 70%;
   }
 }
 
