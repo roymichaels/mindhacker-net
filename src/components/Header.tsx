@@ -251,11 +251,40 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
-          {/* Left side - Avatar for guests (both RTL and LTR) */}
+          {/* Left side - Logo + Brand */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
-              // Logged in: Show menu controls
+              // Logged in: Show logo + admin controls
               <>
+                <LogoBrand />
+                {isAdminMode && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/")}
+                    aria-label={t('common.home')}
+                    className="hidden sm:flex"
+                  >
+                    <Home className="h-5 w-5" />
+                  </Button>
+                )}
+              </>
+            ) : (
+              // Logged out: Logo + Brand on left
+              <LogoBrand />
+            )}
+          </div>
+
+          {/* Right side - Avatar/Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {user ? (
+              // Logged in: Show menu controls + notifications
+              <>
+                {loading ? (
+                  <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
+                ) : (
+                  isAdmin && <NotificationBell />
+                )}
                 {onMenuClick && (
                   <Button 
                     variant="ghost" 
@@ -285,37 +314,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 )}
               </>
             ) : (
-              // Logged out: Avatar dropdown always on left
+              // Logged out: Avatar dropdown on right
               <GuestAvatarDropdown />
-            )}
-          </div>
-
-          {/* Right side - Logo + Brand for guests */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? (
-              // Logged in: Show logo + admin controls
-              <>
-                <LogoBrand />
-                {isAdminMode && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate("/")}
-                    aria-label={t('common.home')}
-                    className="hidden sm:flex"
-                  >
-                    <Home className="h-5 w-5" />
-                  </Button>
-                )}
-                {loading ? (
-                  <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
-                ) : (
-                  isAdmin && <NotificationBell />
-                )}
-              </>
-            ) : (
-              // Logged out: Logo + Brand on right
-              <LogoBrand />
             )}
           </div>
         </div>
