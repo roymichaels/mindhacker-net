@@ -68,12 +68,12 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
           <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-primary/20 to-transparent rounded-br-full" />
           <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-accent/20 to-transparent rounded-tl-full" />
           
-          {/* Badge */}
+          {/* Badge - positioned opposite to close button */}
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-10"
+            className={`absolute top-3 z-10 ${isRTL ? 'right-3' : 'left-3'}`}
           >
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs font-bold shadow-lg">
               <Gift className="w-3.5 h-3.5" />
