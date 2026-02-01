@@ -1,10 +1,14 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
+import { Loader2 } from 'lucide-react';
 import { 
   Brain, 
   Target, 
@@ -73,6 +77,8 @@ const BENEFITS = [
 export default function FreeTransformationJourney() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
   const { profile: orbProfile } = useOrbProfile();
 
   useSEO({
@@ -83,6 +89,21 @@ export default function FreeTransformationJourney() {
     url: `${window.location.origin}/free-journey`,
   });
 
+  // Redirect authenticated users to their appropriate journey
+  useEffect(() => {
+    if (authLoading || launchpadLoading) return;
+    
+    if (user) {
+      if (isLaunchpadComplete) {
+        // User already completed - go to dashboard
+        navigate('/dashboard', { replace: true });
+      } else {
+        // User logged in but not complete - go to authenticated launchpad
+        navigate('/launchpad', { replace: true });
+      }
+    }
+  }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
+
   const handleStart = () => {
     navigate('/free-journey/start');
   };
@@ -90,6 +111,20 @@ export default function FreeTransformationJourney() {
   const handleExit = () => {
     navigate('/');
   };
+
+  // Show loading while checking auth
+  if (authLoading || launchpadLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Don't render if user is authenticated (will redirect)
+  if (user) {
+    return null;
+  }
 
   return (
     <div 
