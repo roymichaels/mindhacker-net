@@ -4609,6 +4609,7 @@ export type Database = {
         | "new_lead"
         | "new_affiliate"
         | "affiliate_referral"
+        | "journey_completion"
       subscription_status:
         | "active"
         | "cancelled"
@@ -4770,6 +4771,7 @@ export const Constants = {
         "new_lead",
         "new_affiliate",
         "affiliate_referral",
+        "journey_completion",
       ],
       subscription_status: [
         "active",
