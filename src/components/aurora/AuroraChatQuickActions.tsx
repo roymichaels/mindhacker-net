@@ -63,7 +63,7 @@ export function AuroraChatQuickActions() {
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 p-0" 
+        className="w-96 p-0" 
         align={isRTL ? "start" : "end"}
         sideOffset={8}
       >
@@ -129,7 +129,7 @@ export function AuroraChatQuickActions() {
                       >
                         <span className="text-base">{getIcon(checklist.title)}</span>
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm font-medium truncate block">
+                          <span className="text-sm font-medium block break-words whitespace-normal">
                             {checklist.title.replace(/^[🚫🏗️💼⚡📋]\s*/, '')}
                           </span>
                           <div className="flex items-center gap-2 mt-0.5">
@@ -184,7 +184,7 @@ export function AuroraChatQuickActions() {
                                     </div>
                                     <span
                                       className={cn(
-                                        "text-xs flex-1 truncate",
+                                        "text-xs flex-1 break-words whitespace-normal leading-relaxed",
                                         item.is_completed && "line-through text-muted-foreground"
                                       )}
                                     >
