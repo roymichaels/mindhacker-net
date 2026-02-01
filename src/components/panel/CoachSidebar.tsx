@@ -1,9 +1,11 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import RoleSwitcher from './RoleSwitcher';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
+import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Users,
@@ -14,6 +16,7 @@ import {
   ShoppingBag,
   Palette,
   Briefcase,
+  ExternalLink,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -70,10 +73,29 @@ const navGroups: NavGroup[] = [
 const CoachSidebar = () => {
   const { language } = useTranslation();
   const isHebrew = language === 'he';
+  const { data: myProfile } = useMyPractitionerProfile();
 
   return (
     <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16 flex flex-col">
       <RoleSwitcher />
+      
+      {/* View My Page Button */}
+      {myProfile?.slug && (
+        <div className="px-4 pt-4">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="w-full justify-between"
+          >
+            <Link to={`/practitioners/${myProfile.slug}`} target="_blank">
+              {isHebrew ? 'הדף שלי' : 'View My Page'}
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      )}
+      
       <ScrollArea className="flex-1">
         <nav className="p-4 space-y-6">
           {navGroups.map((group) => (
