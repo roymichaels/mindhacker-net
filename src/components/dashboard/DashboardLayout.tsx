@@ -116,9 +116,9 @@ const DashboardLayout = ({
   if (isMobile) {
     return (
       <SidebarProvider>
-        <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
           {/* Mobile Header with logo and menu */}
-          <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+          <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-sidebar">
             <div className="flex h-14 items-center justify-between px-4">
               <Button 
                 variant="ghost" 
