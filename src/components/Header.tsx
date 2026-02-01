@@ -226,44 +226,24 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     </DropdownMenu>
   );
 
-  // Logo Component
+  // Logo Component - Logo always on the edge (right for RTL, left for LTR)
+  // Name always next to logo (left of logo for RTL, right of logo for LTR)
   const LogoBrand = () => (
     <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-      {isRTL ? (
-        <>
-          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-            {isAdminMode ? t('admin.panelTitle') : brandName}
-          </span>
-          <img 
-            src={logoUrl} 
-            alt={brandName} 
-            className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-            loading="eager" 
-            decoding="async"
-            onError={(e) => {
-              const target = e.currentTarget;
-              target.style.display = 'none';
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <img 
-            src={logoUrl} 
-            alt={brandName} 
-            className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-            loading="eager" 
-            decoding="async"
-            onError={(e) => {
-              const target = e.currentTarget;
-              target.style.display = 'none';
-            }}
-          />
-          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-            {isAdminMode ? t('admin.panelTitle') : brandName}
-          </span>
-        </>
-      )}
+      <img 
+        src={logoUrl} 
+        alt={brandName} 
+        className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+        loading="eager" 
+        decoding="async"
+        onError={(e) => {
+          const target = e.currentTarget;
+          target.style.display = 'none';
+        }}
+      />
+      <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+        {isAdminMode ? t('admin.panelTitle') : brandName}
+      </span>
     </Link>
   );
 
