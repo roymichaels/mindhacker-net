@@ -186,7 +186,7 @@ const DashboardSidebar = ({
       {!isMobile && !isCollapsed && (
         <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <AuroraOrbIcon className="w-10 h-10 text-purple-400" size={40} />
+            <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
             <span className="font-bold text-base text-foreground">
               {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
             </span>
@@ -256,7 +256,7 @@ const DashboardSidebar = ({
                 {item.customIcon ? (
                   <item.customIcon className={cn(
                     "h-4 w-4 shrink-0", 
-                    isPurple && "text-black dark:text-white"
+                    isPurple && "text-purple-600 dark:text-purple-400"
                   )} size={16} />
                 ) : item.icon && (
                   <item.icon className={cn(
@@ -386,7 +386,7 @@ const DashboardSidebar = ({
           <SidebarHeader className="p-2 flex flex-col items-center gap-2">
             {/* Logo */}
             <Link to="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
-              <AuroraOrbIcon className="w-8 h-8 text-purple-400" size={32} />
+              <AuroraOrbIcon className="w-8 h-8 text-black dark:text-white" size={32} />
             </Link>
             {/* Menu toggle */}
             <Button
