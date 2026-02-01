@@ -215,7 +215,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       "flex flex-col bg-card/50",
       isMobile 
         ? "w-full h-full border-0" 
-        : "w-64 border-e border-border min-h-[calc(100vh-64px)] sticky top-16"
+        : "w-64 border-e border-border h-screen sticky top-0"
     )}>
       {/* Role Switcher at top for multi-role users */}
       <RoleSwitcher />
