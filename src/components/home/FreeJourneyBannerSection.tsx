@@ -10,8 +10,8 @@ export default function FreeJourneyBannerSection() {
 
   return (
     <section className="py-12 sm:py-16 px-4 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+      {/* Background gradient - Enhanced */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 pointer-events-none" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -19,10 +19,10 @@ export default function FreeJourneyBannerSection() {
         viewport={{ once: true }}
         className="max-w-4xl mx-auto"
       >
-        <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-card/80 via-card/60 to-card/80 border border-primary/20 backdrop-blur-xl overflow-hidden">
+        <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/40 backdrop-blur-xl overflow-hidden">
           {/* Decorative glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/15 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
           
           <div className="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
             {/* Orb */}

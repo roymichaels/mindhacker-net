@@ -39,10 +39,10 @@ export default function FearOfMissingOutSection() {
   }, []);
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 relative overflow-hidden">
+    <section className="py-16 px-4 bg-gradient-to-r from-primary/15 via-primary/20 to-accent/15 relative overflow-hidden">
       {/* Animated background pulse */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
+        className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/15 to-accent/10"
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 2, repeat: Infinity }}
       />

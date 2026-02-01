@@ -105,13 +105,13 @@ const WhyChooseUsSection = () => {
 
   return (
     <section 
-      className="relative py-20 sm:py-24 px-4 bg-gradient-to-b from-background via-muted/30 to-background overflow-hidden"
+      className="relative py-20 sm:py-24 px-4 bg-gradient-to-b from-primary/10 via-accent/5 to-background overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-accent/15 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto">
