@@ -12,6 +12,7 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -133,12 +134,7 @@ const DashboardLayout = ({
                 <span className="font-bold text-sm text-foreground">
                   {isRTL ? brandTheme.brand_name : brandTheme.brand_name_en}
                 </span>
-                <img 
-                  src={logoUrl} 
-                  alt="Logo" 
-                  className="w-10 h-10 object-contain" 
-                  loading="eager"
-                />
+                <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
               </Link>
             </div>
           </header>
