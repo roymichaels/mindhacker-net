@@ -184,14 +184,20 @@
   }
   
   .dark .page-bg,
-  .dark .bg-background {
+  .dark .bg-background:not([data-radix-dialog-content]):not([role="dialog"]) {
     background-color: transparent !important;
   }
   
   /* Light mode with effect enabled - make page backgrounds transparent */
   html.light[data-bg-effect-enabled="true"] .page-bg,
-  html.light[data-bg-effect-enabled="true"] .bg-background {
+  html.light[data-bg-effect-enabled="true"] .bg-background:not([data-radix-dialog-content]):not([role="dialog"]) {
     background-color: transparent !important;
+  }
+
+  /* Ensure dialogs/modals always have opaque backgrounds */
+  [data-radix-dialog-content],
+  [role="dialog"] {
+    background-color: hsl(var(--background)) !important;
   }
 
   /* 
