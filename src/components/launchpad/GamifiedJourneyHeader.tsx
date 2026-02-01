@@ -64,7 +64,7 @@ export function GamifiedJourneyHeader({
     <div className={cn("sticky top-0 z-10", className)} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Main header container with glass effect */}
       <div className="bg-background/60 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full px-4">
           {/* Top section: Navigation, Info, Orb */}
           <div className="flex items-center justify-between p-3 gap-3">
             {/* Left side: Close + Navigation */}
