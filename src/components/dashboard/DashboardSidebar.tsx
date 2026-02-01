@@ -302,7 +302,7 @@ const DashboardSidebar = ({
     <>
       <Sidebar 
         className={cn(
-          "border-border bg-background !z-50 pt-16",
+          "border-border bg-background !z-50 h-screen top-0",
           isRTL && "order-last"
         )}
         collapsible="icon"
