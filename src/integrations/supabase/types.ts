@@ -4533,10 +4533,9 @@ export type Database = {
           p_source: string
           p_user_id: string
         }
-        Returns: undefined
+        Returns: Json
       }
       check_expiring_access: { Args: never; Returns: undefined }
-      check_streak_bonus: { Args: { p_user_id: string }; Returns: number }
       complete_launchpad_step: {
         Args: { p_data?: Json; p_step: number; p_user_id: string }
         Returns: Json
