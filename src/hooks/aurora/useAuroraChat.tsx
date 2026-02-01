@@ -7,6 +7,7 @@ import { useChecklistsData } from './useChecklistsData';
 import { useDailyHabits } from './useDailyHabits';
 import { useAuroraReminders } from './useAuroraReminders';
 import { toast } from '@/hooks/use-toast';
+import { CheckCircle2, Trash2, Plus, Calendar, RefreshCw, Target, Sparkles, Clock, Edit } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -23,6 +24,54 @@ interface ChatMessage {
   content: string;
 }
 
+// Action Receipt interface for structured feedback
+export interface ActionReceipt {
+  type: 'task' | 'habit' | 'checklist' | 'reminder' | 'focus' | 'identity' | 'milestone' | 'plan';
+  action: 'create' | 'complete' | 'delete' | 'rename' | 'reschedule' | 'archive' | 'update' | 'remove';
+  success: boolean;
+  target: string;
+  details?: string;
+  timestamp: string;
+}
+
+// Toast configuration based on action type
+const getToastConfig = (receipt: ActionReceipt, isHebrew: boolean) => {
+  const configs: Record<string, { icon: React.ReactNode; titleHe: string; titleEn: string }> = {
+    'task:create': { icon: <Plus className="h-4 w-4" />, titleHe: "➕ משימה נוספה", titleEn: "➕ Task added" },
+    'task:complete': { icon: <CheckCircle2 className="h-4 w-4" />, titleHe: "✅ משימה הושלמה!", titleEn: "✅ Task completed!" },
+    'task:delete': { icon: <Trash2 className="h-4 w-4" />, titleHe: "🗑️ משימה נמחקה", titleEn: "🗑️ Task deleted" },
+    'task:reschedule': { icon: <Calendar className="h-4 w-4" />, titleHe: "📅 משימה נדחתה", titleEn: "📅 Task rescheduled" },
+    'checklist:create': { icon: <Plus className="h-4 w-4" />, titleHe: "📋 רשימה נוצרה", titleEn: "📋 Checklist created" },
+    'checklist:archive': { icon: <RefreshCw className="h-4 w-4" />, titleHe: "📦 רשימה הועברה לארכיון", titleEn: "📦 Checklist archived" },
+    'checklist:rename': { icon: <Edit className="h-4 w-4" />, titleHe: "✏️ שם הרשימה שונה", titleEn: "✏️ Checklist renamed" },
+    'habit:create': { icon: <Plus className="h-4 w-4" />, titleHe: "🔄 הרגל חדש נוצר", titleEn: "🔄 New habit created" },
+    'habit:complete': { icon: <CheckCircle2 className="h-4 w-4" />, titleHe: "💪 הרגל הושלם!", titleEn: "💪 Habit completed!" },
+    'habit:remove': { icon: <Trash2 className="h-4 w-4" />, titleHe: "🗑️ הרגל הוסר", titleEn: "🗑️ Habit removed" },
+    'reminder:create': { icon: <Clock className="h-4 w-4" />, titleHe: "⏰ תזכורת נוצרה", titleEn: "⏰ Reminder set" },
+    'focus:create': { icon: <Target className="h-4 w-4" />, titleHe: "🎯 פוקוס הוגדר", titleEn: "🎯 Focus set" },
+    'milestone:complete': { icon: <CheckCircle2 className="h-4 w-4" />, titleHe: "🏆 שבוע הושלם!", titleEn: "🏆 Week completed!" },
+    'identity:update': { icon: <Sparkles className="h-4 w-4" />, titleHe: "✨ זהות עודכנה", titleEn: "✨ Identity updated" },
+    'plan:update': { icon: <Edit className="h-4 w-4" />, titleHe: "📝 תוכנית עודכנה", titleEn: "📝 Plan updated" },
+  };
+
+  const key = `${receipt.type}:${receipt.action}`;
+  const config = configs[key] || { icon: <CheckCircle2 className="h-4 w-4" />, titleHe: "✓ פעולה בוצעה", titleEn: "✓ Action completed" };
+  
+  return {
+    title: isHebrew ? config.titleHe : config.titleEn,
+    icon: config.icon
+  };
+};
+
+// Show styled toast with animation
+const showActionToast = (receipt: ActionReceipt, isHebrew: boolean) => {
+  const config = getToastConfig(receipt, isHebrew);
+  toast({
+    title: config.title,
+    description: receipt.target + (receipt.details ? ` - ${receipt.details}` : ''),
+  });
+};
+
 export const useAuroraChat = (conversationId: string | null) => {
   const { user } = useAuth();
   const { language } = useTranslation();
@@ -35,7 +84,9 @@ export const useAuroraChat = (conversationId: string | null) => {
     archiveChecklist,
     checklists,
     deleteItem,
-    updateChecklistTitle
+    updateChecklistTitle,
+    findMatchingItems,
+    findMatchingChecklists
   } = useChecklistsData(user);
   const { habits, completeHabit } = useDailyHabits(user);
   const { createReminder } = useAuroraReminders(user);
@@ -44,9 +95,35 @@ export const useAuroraChat = (conversationId: string | null) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [actionReceipts, setActionReceipts] = useState<ActionReceipt[]>([]);
   
   const messageCountRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Helper to create and track action receipts
+  const createReceipt = (
+    type: ActionReceipt['type'],
+    action: ActionReceipt['action'],
+    success: boolean,
+    target: string,
+    details?: string
+  ): ActionReceipt => {
+    const receipt: ActionReceipt = {
+      type,
+      action,
+      success,
+      target,
+      details,
+      timestamp: new Date().toISOString()
+    };
+    
+    if (success) {
+      setActionReceipts(prev => [...prev, receipt]);
+      showActionToast(receipt, language === 'he');
+    }
+    
+    return receipt;
+  };
 
   // Fetch messages when conversation changes
   useEffect(() => {
@@ -314,8 +391,9 @@ export const useAuroraChat = (conversationId: string | null) => {
   }, [user?.id, queryClient]);
 
   // Process action tags from Aurora's response
-  const processActionTags = useCallback(async (content: string) => {
+  const processActionTags = useCallback(async (content: string): Promise<{ cleanedContent: string; receipts: ActionReceipt[] }> => {
     const isHebrew = language === 'he';
+    const receipts: ActionReceipt[] = [];
     
     // Silent action tags (removed from display)
     const actionMatches = [...content.matchAll(/\[action:(\w+)\]/g)];
@@ -331,13 +409,15 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of checklistCreateMatches) {
       const title = match[1].trim();
       if (title) {
-        const result = await createChecklist(title, 'aurora');
-        if (result) {
-          toast({
-            title: isHebrew ? "✓ רשימה נוצרה" : "✓ Checklist created",
-            description: title,
-          });
+        // Check for ambiguity
+        const matchResult = findMatchingChecklists(title);
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous checklist match for "${title}", skipping auto-creation`);
+          continue;
         }
+        
+        const result = await createChecklist(title, 'aurora');
+        receipts.push(createReceipt('checklist', 'create', !!result, title));
       }
     }
 
@@ -348,12 +428,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
         const result = await addChecklistItem(checklistTitle, itemContent);
-        if (result) {
-          toast({
-            title: isHebrew ? "✓ משימה נוספה" : "✓ Task added",
-            description: itemContent,
-          });
-        }
+        receipts.push(createReceipt('task', 'create', !!result, itemContent, checklistTitle));
       }
     }
 
@@ -364,12 +439,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
         const result = await addChecklistItem(checklistTitle, itemContent);
-        if (result) {
-          toast({
-            title: isHebrew ? "✓ משימה נוספה" : "✓ Task added",
-            description: itemContent,
-          });
-        }
+        receipts.push(createReceipt('task', 'create', !!result, itemContent, checklistTitle));
       }
     }
 
@@ -379,13 +449,15 @@ export const useAuroraChat = (conversationId: string | null) => {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        const result = await completeChecklistItem(checklistTitle, itemContent);
-        if (result) {
-          toast({
-            title: isHebrew ? "🎉 משימה הושלמה!" : "🎉 Task completed!",
-            description: itemContent,
-          });
+        // Check for ambiguity before completing
+        const matchResult = findMatchingItems(itemContent, { checklistTitle });
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
+          continue;
         }
+        
+        const result = await completeChecklistItem(checklistTitle, itemContent);
+        receipts.push(createReceipt('task', 'complete', result, itemContent, checklistTitle));
       }
     }
 
@@ -394,17 +466,17 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of checklistArchiveMatches) {
       const checklistTitle = match[1].trim();
       if (checklistTitle) {
-        const checklist = checklists.find(c => 
-          c.title.toLowerCase().includes(checklistTitle.toLowerCase())
-        );
+        // Check for ambiguity
+        const matchResult = findMatchingChecklists(checklistTitle);
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous checklist match for archive: "${checklistTitle}"`);
+          continue;
+        }
+        
+        const checklist = matchResult.checklists[0];
         if (checklist) {
           const result = await archiveChecklist(checklist.id);
-          if (result) {
-            toast({
-              title: isHebrew ? "📦 רשימה הועברה לארכיון" : "📦 Checklist archived",
-              description: checklist.title,
-            });
-          }
+          receipts.push(createReceipt('checklist', 'archive', result, checklist.title));
         }
       }
     }
@@ -415,17 +487,17 @@ export const useAuroraChat = (conversationId: string | null) => {
       const oldTitle = match[1].trim();
       const newTitle = match[2].trim();
       if (oldTitle && newTitle) {
-        const checklist = checklists.find(c => 
-          c.title.toLowerCase().includes(oldTitle.toLowerCase())
-        );
+        // Check for ambiguity
+        const matchResult = findMatchingChecklists(oldTitle);
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous checklist match for rename: "${oldTitle}"`);
+          continue;
+        }
+        
+        const checklist = matchResult.checklists[0];
         if (checklist) {
           const result = await updateChecklistTitle(checklist.id, newTitle);
-          if (result) {
-            toast({
-              title: isHebrew ? "✏️ שם הרשימה שונה" : "✏️ Checklist renamed",
-              description: `${oldTitle} → ${newTitle}`,
-            });
-          }
+          receipts.push(createReceipt('checklist', 'rename', result, newTitle, `${oldTitle} → ${newTitle}`));
         }
       }
     }
@@ -436,13 +508,15 @@ export const useAuroraChat = (conversationId: string | null) => {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        const result = await completeChecklistItem(checklistTitle, itemContent);
-        if (result) {
-          toast({
-            title: isHebrew ? "🎉 משימה הושלמה!" : "🎉 Task completed!",
-            description: itemContent,
-          });
+        // Check for ambiguity before completing
+        const matchResult = findMatchingItems(itemContent, { checklistTitle });
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
+          continue;
         }
+        
+        const result = await completeChecklistItem(checklistTitle, itemContent);
+        receipts.push(createReceipt('task', 'complete', result, itemContent, checklistTitle));
       }
     }
 
@@ -452,22 +526,17 @@ export const useAuroraChat = (conversationId: string | null) => {
       const checklistTitle = match[1].trim();
       const itemContent = match[2].trim();
       if (checklistTitle && itemContent) {
-        const checklist = checklists.find(c => 
-          c.title.toLowerCase().includes(checklistTitle.toLowerCase())
-        );
-        if (checklist) {
-          const item = checklist.aurora_checklist_items?.find(i =>
-            i.content.toLowerCase().includes(itemContent.toLowerCase())
-          );
-          if (item) {
-            const result = await deleteItem(item.id);
-            if (result) {
-              toast({
-                title: isHebrew ? "🗑️ משימה נמחקה" : "🗑️ Task deleted",
-                description: itemContent,
-              });
-            }
-          }
+        // Check for ambiguity
+        const matchResult = findMatchingItems(itemContent, { checklistTitle });
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous task match for delete: "${itemContent}"`);
+          continue;
+        }
+        
+        const item = matchResult.items[0];
+        if (item) {
+          const result = await deleteItem(item.id);
+          receipts.push(createReceipt('task', 'delete', result, itemContent, checklistTitle));
         }
       }
     }
@@ -479,13 +548,15 @@ export const useAuroraChat = (conversationId: string | null) => {
       const itemContent = match[2].trim();
       const newDate = match[3];
       if (checklistTitle && itemContent && newDate) {
-        const result = await rescheduleItem(checklistTitle, itemContent, newDate);
-        if (result) {
-          toast({
-            title: isHebrew ? "📅 משימה נדחתה" : "📅 Task rescheduled",
-            description: `${itemContent} → ${newDate}`,
-          });
+        // Check for ambiguity
+        const matchResult = findMatchingItems(itemContent, { checklistTitle });
+        if (matchResult.isAmbiguous) {
+          console.log(`Ambiguous task match for reschedule: "${itemContent}"`);
+          continue;
         }
+        
+        const result = await rescheduleItem(checklistTitle, itemContent, newDate);
+        receipts.push(createReceipt('task', 'reschedule', result, itemContent, `→ ${newDate}`));
       }
     }
 
@@ -495,12 +566,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const weekNumber = parseInt(match[1]);
       if (user?.id && weekNumber > 0) {
         const result = await completeMilestoneByWeek(weekNumber);
-        if (result) {
-          toast({
-            title: isHebrew ? "🏆 שבוע הושלם!" : "🏆 Week completed!",
-            description: isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`,
-          });
-        }
+        receipts.push(createReceipt('milestone', 'complete', result, isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`));
       }
     }
 
@@ -509,19 +575,21 @@ export const useAuroraChat = (conversationId: string | null) => {
     for (const match of habitCompleteMatches) {
       const habitName = match[1].trim();
       if (habitName && habits.length > 0) {
-        // Find matching habit by partial content match
-        const matchingHabit = habits.find(h => 
+        // Find matching habits with ambiguity check
+        const matchingHabits = habits.filter(h => 
           h.content.toLowerCase().includes(habitName.toLowerCase()) ||
           habitName.toLowerCase().includes(h.content.toLowerCase())
         );
+        
+        if (matchingHabits.length > 1) {
+          console.log(`Ambiguous habit match for "${habitName}", found ${matchingHabits.length} habits`);
+          continue;
+        }
+        
+        const matchingHabit = matchingHabits[0];
         if (matchingHabit) {
           const result = await completeHabit(matchingHabit.id, 'aurora');
-          if (result) {
-            toast({
-              title: isHebrew ? "💪 הרגל הושלם!" : "💪 Habit completed!",
-              description: matchingHabit.content,
-            });
-          }
+          receipts.push(createReceipt('habit', 'complete', result, matchingHabit.content));
         }
       }
     }
@@ -532,12 +600,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const habitName = match[1].trim();
       if (habitName) {
         const result = await createDailyHabit(habitName);
-        if (result) {
-          toast({
-            title: isHebrew ? "🔄 הרגל חדש נוצר" : "🔄 New habit created",
-            description: habitName,
-          });
-        }
+        receipts.push(createReceipt('habit', 'create', result, habitName));
       }
     }
 
@@ -547,12 +610,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const habitName = match[1].trim();
       if (habitName) {
         const result = await removeHabit(habitName);
-        if (result) {
-          toast({
-            title: isHebrew ? "🗑️ הרגל הוסר" : "🗑️ Habit removed",
-            description: habitName,
-          });
-        }
+        receipts.push(createReceipt('habit', 'remove', result, habitName));
       }
     }
 
@@ -564,12 +622,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const value = match[3].trim();
       if (weekNumber > 0 && field && value) {
         const result = await updateMilestone(weekNumber, field, value);
-        if (result) {
-          toast({
-            title: isHebrew ? "📝 תוכנית עודכנה" : "📝 Plan updated",
-            description: isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`,
-          });
-        }
+        receipts.push(createReceipt('plan', 'update', result, isHebrew ? `שבוע ${weekNumber}` : `Week ${weekNumber}`, `${field}: ${value}`));
       }
     }
 
@@ -580,12 +633,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const elementContent = match[2].trim();
       if (elementType && elementContent) {
         const result = await addIdentityElement(elementType, elementContent);
-        if (result) {
-          toast({
-            title: isHebrew ? "✨ זהות עודכנה" : "✨ Identity updated",
-            description: elementContent,
-          });
-        }
+        receipts.push(createReceipt('identity', 'update', result, elementContent, elementType));
       }
     }
 
@@ -596,6 +644,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const elementContent = match[2].trim();
       if (elementType && elementContent) {
         await removeIdentityElement(elementType, elementContent);
+        receipts.push(createReceipt('identity', 'remove', true, elementContent, elementType));
       }
     }
 
@@ -606,12 +655,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       const date = match[2];
       if (message && date) {
         const result = await createReminder(message, date);
-        if (result) {
-          toast({
-            title: isHebrew ? "⏰ תזכורת נוצרה" : "⏰ Reminder set",
-            description: `${message} - ${date}`,
-          });
-        }
+        receipts.push(createReceipt('reminder', 'create', result, message, date));
       }
     }
 
@@ -622,17 +666,12 @@ export const useAuroraChat = (conversationId: string | null) => {
       const days = parseInt(match[2]);
       if (title && days > 0) {
         const result = await setFocusPlan(title, days);
-        if (result) {
-          toast({
-            title: isHebrew ? "🎯 פוקוס הוגדר" : "🎯 Focus set",
-            description: `${title} (${days} ${isHebrew ? 'ימים' : 'days'})`,
-          });
-        }
+        receipts.push(createReceipt('focus', 'create', result, title, `${days} ${isHebrew ? 'ימים' : 'days'}`));
       }
     }
 
     // Return cleaned content (without silent action tags, but keep CTAs)
-    return content
+    const cleanedContent = content
       .replace(/\[action:\w+\]/g, '')
       .replace(/\[checklist:[^\]]+\]/g, '')
       .replace(/\[task:[^\]]+\]/g, '')
@@ -643,6 +682,8 @@ export const useAuroraChat = (conversationId: string | null) => {
       .replace(/\[reminder:[^\]]+\]/g, '')
       .replace(/\[focus:[^\]]+\]/g, '')
       .trim();
+      
+    return { cleanedContent, receipts };
   }, [
     user?.id, 
     language,
@@ -662,7 +703,10 @@ export const useAuroraChat = (conversationId: string | null) => {
     addIdentityElement,
     removeIdentityElement,
     createReminder,
-    setFocusPlan
+    setFocusPlan,
+    findMatchingItems,
+    findMatchingChecklists,
+    createReceipt
   ]);
 
   // Complete milestone by week number
@@ -901,7 +945,8 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
 
       // Process action tags and clean content
-      const cleanedContent = await processActionTags(fullContent);
+      const result = await processActionTags(fullContent);
+      const cleanedContent = result.cleanedContent;
 
       // Save Aurora's response
       if (cleanedContent) {
