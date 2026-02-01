@@ -148,23 +148,38 @@ const DashboardSidebar = ({
   // Shared content component
   const SidebarInnerContent = () => (
     <>
+      {/* Logo and Brand Name Header */}
+      {!isCollapsed && (
+        <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-border">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img 
+              src={logoUrl} 
+              alt="Logo" 
+              className="w-10 h-10 object-contain" 
+              loading="eager"
+            />
+            <span className="font-bold text-base text-foreground">
+              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
+            </span>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => sidebar?.toggleSidebar()}
+            title={language === 'he' ? 'כווץ תפריט' : 'Collapse Menu'}
+          >
+            <Menu className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
+      )}
+
       {/* Navigation Section */}
       <div className="mb-4">
         {!isCollapsed && (
-          <div className="flex items-center justify-between px-3 mb-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              {language === 'he' ? 'ניווט' : 'Navigate'}
-            </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => sidebar?.toggleSidebar()}
-              title={language === 'he' ? 'כווץ תפריט' : 'Collapse Menu'}
-            >
-              <Menu className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
+            {language === 'he' ? 'ניווט' : 'Navigate'}
+          </p>
         )}
         <div className="space-y-1">
           {navItems.map((item) => {

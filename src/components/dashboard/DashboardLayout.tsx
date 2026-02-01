@@ -8,7 +8,10 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import Header from '@/components/Header';
 import { ProfileDrawer } from './ProfileDrawer';
-
+import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -49,10 +52,7 @@ const DesktopLayoutContent = ({
   const sidebarWidth = isExpanded ? '16rem' : '3rem';
 
   return (
-    <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Global Header */}
-      <Header />
-      
+    <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex-1 flex min-h-0">
         {/* Left Sidebar - Aurora style */}
         <DashboardSidebar 
@@ -69,7 +69,7 @@ const DesktopLayoutContent = ({
 
         {/* Right Panel */}
         {!hideRightPanel && (
-          <aside className="w-80 shrink-0 sticky top-0 h-[calc(100vh-4rem)] overflow-y-auto border-s hidden xl:block">
+          <aside className="w-80 shrink-0 sticky top-0 h-screen overflow-y-auto border-s hidden xl:block">
             <DashboardRightPanel />
           </aside>
         )}
@@ -110,12 +110,38 @@ const DashboardLayout = ({
     setProfileOpen(true);
   };
 
+  const { theme: brandTheme } = useThemeSettings();
+  const logoUrl = brandTheme.logo_url || "/logo.png?v=9";
+
   if (isMobile) {
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Global Header with menu callback */}
-          <Header onMenuClick={() => setLeftSheetOpen(true)} />
+          {/* Mobile Header with logo and menu */}
+          <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+            <div className="flex h-14 items-center justify-between px-4">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setLeftSheetOpen(true)}
+                aria-label="Menu"
+                className="h-9 w-9"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <span className="font-bold text-sm text-foreground">
+                  {isRTL ? brandTheme.brand_name : brandTheme.brand_name_en}
+                </span>
+                <img 
+                  src={logoUrl} 
+                  alt="Logo" 
+                  className="w-10 h-10 object-contain" 
+                  loading="eager"
+                />
+              </Link>
+            </div>
+          </header>
           
           {/* Left Sidebar Sheet - render content directly without nested Sidebar */}
           <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
