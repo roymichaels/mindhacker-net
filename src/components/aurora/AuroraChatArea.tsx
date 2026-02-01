@@ -8,6 +8,7 @@ import AuroraChatMessage from './AuroraChatMessage';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
 import AuroraWelcome from './AuroraWelcome';
 import AuroraChatQuickActions from './AuroraChatQuickActions';
+import { UserNotificationBell } from '@/components/UserNotificationBell';
 
 interface AuroraChatAreaProps {
   conversationId: string | null;
@@ -49,8 +50,9 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   return (
     <div className="h-full flex flex-col">
       {/* Quick Actions Header - positioned at top corner */}
-      <div className={`absolute top-2 z-10 ${isRTL ? 'left-2' : 'right-2'}`}>
+      <div className={`absolute top-2 z-10 flex items-center gap-1 ${isRTL ? 'left-2' : 'right-2'}`}>
         <AuroraChatQuickActions />
+        <UserNotificationBell />
       </div>
 
       {/* Messages Area - takes remaining space and scrolls */}

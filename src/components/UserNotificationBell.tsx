@@ -38,13 +38,13 @@ export const UserNotificationBell = () => {
         <Button
           variant="ghost"
           size="icon"
-          className={`relative ${isAnimating ? 'animate-bounce' : ''}`}
+          className={`relative h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 ${isAnimating ? 'animate-bounce' : ''}`}
         >
           <Bell className={`h-5 w-5 ${unreadCount > 0 ? 'text-primary' : ''}`} />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full animate-pulse"
+              className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[9px] rounded-full animate-pulse"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>

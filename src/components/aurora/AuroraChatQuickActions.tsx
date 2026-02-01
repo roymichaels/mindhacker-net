@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreHorizontal, ListTodo, Check, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { ListTodo, Check, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChecklistsData } from '@/hooks/aurora/useChecklistsData';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -58,7 +58,7 @@ export function AuroraChatQuickActions() {
           size="icon"
           className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50"
         >
-          <MoreHorizontal className="h-5 w-5" />
+          <ListTodo className="h-5 w-5" />
           <span className="sr-only">Quick actions</span>
         </Button>
       </PopoverTrigger>
