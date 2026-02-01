@@ -30,7 +30,7 @@ import { HypnosisModal } from './HypnosisModal';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
-const defaultLogo = "/logo.png?v=9";
+const defaultLogo = "/aurora-icon.svg";
 
 interface DashboardSidebarProps {
   onNavigate?: () => void;

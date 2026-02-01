@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
         name: "MindOS - מערכת ההפעלה לחיים שלך",
         short_name: "MindOS",
         description: "משחק החיים האמיתי. AI + היפנוזה + גיימיפיקציה = Level Up Your Life",
-        theme_color: "#00f0ff",
+        theme_color: "#a855f7",
         background_color: "#0a0a0f",
         display: "standalone",
         orientation: "portrait",
@@ -28,14 +28,16 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         icons: [
           {
-            src: "/pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png"
+            src: "/aurora-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any"
           },
           {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png"
+            src: "/aurora-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable"
           }
         ]
       }
