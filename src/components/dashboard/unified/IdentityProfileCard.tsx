@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 
 interface IdentityTitleData {
   title: string;
@@ -26,6 +28,7 @@ export function IdentityProfileCard({
   className 
 }: IdentityProfileCardProps) {
   const { t, isRTL, language } = useTranslation();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0 || identityTitle;
   
@@ -66,7 +69,7 @@ export function IdentityProfileCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Identity Title - Prominent Display */}
+        {/* Identity Title with Orb - Prominent Display */}
         {identityTitle && (
           <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 border border-primary/20 p-4 text-center">
             {/* Decorative glow */}
@@ -74,7 +77,17 @@ export function IdentityProfileCard({
             <div className="absolute bottom-0 left-0 w-12 h-12 bg-accent/10 rounded-full blur-xl" />
             
             <div className="relative z-10">
-              <span className="text-3xl mb-2 block">{identityTitle.icon}</span>
+              {/* Digital Orb Avatar */}
+              <div className="relative mb-4 mx-auto w-fit">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-110" />
+                <MultiThreadOrb 
+                  size={120}
+                  state="idle"
+                  profile={orbProfile}
+                />
+              </div>
+              
+              <span className="text-2xl mb-1 block">{identityTitle.icon}</span>
               <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {displayTitle}
               </h3>
