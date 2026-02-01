@@ -11,8 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { BreathingGuide } from '@/components/hypnosis';
 import { 
   generateHypnosisScript, 
@@ -59,7 +58,6 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { gameState, recordSession } = useGameState();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern } = useHaptics();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   const { currentMilestone, suggestedGoal, isLoading: isLoadingContext } = useDailyHypnosis();
 
   const [state, setState] = useState<SessionState>('setup');
@@ -563,7 +561,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col items-center justify-center p-6 space-y-8"
               >
                 <div className="text-center space-y-2">
-                  <Sparkles className="w-12 h-12 mx-auto text-primary mb-4" />
+                  <div className="relative w-24 h-24 mx-auto mb-4">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-125" />
+                    <PersonalizedOrb size={96} state="idle" />
+                  </div>
                   <h1 className="text-2xl font-bold">
                     {language === 'he' ? 'סשן היפנוזה אישי' : 'Personal Hypnosis'}
                   </h1>
@@ -655,10 +656,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 exit={{ opacity: 0 }}
                 className="flex-1 flex flex-col items-center justify-center p-6 space-y-6"
               >
-                <MultiThreadOrb 
+                <PersonalizedOrb 
                   size={200} 
                   state="listening"
-                  profile={orbProfile}
                 />
                 <div className="text-center space-y-2">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
@@ -679,10 +679,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               >
                 {/* Orb Area - Fixed height */}
                 <div className="flex-shrink-0 flex items-center justify-center p-4 sm:p-6">
-                  <MultiThreadOrb 
+                  <PersonalizedOrb 
                     size={200} 
                     state={state === 'playing' ? 'listening' : 'idle'}
-                    profile={orbProfile}
                   />
                 </div>
 

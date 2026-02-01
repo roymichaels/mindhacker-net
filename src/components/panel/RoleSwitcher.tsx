@@ -3,8 +3,7 @@ import { useUserRoles, AppRole } from '@/hooks/useUserRoles';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,8 +34,6 @@ const RoleSwitcher = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHebrew = language === 'he';
-
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   // Get available panels for this user
   const availablePanels = panelConfigs.filter(config => hasRole(config.role));
@@ -77,7 +74,7 @@ const RoleSwitcher = () => {
             className="w-full justify-start gap-3 h-auto py-3 px-3"
           >
             <div className="h-10 w-10 rounded-full overflow-hidden shrink-0">
-              <MultiThreadOrb size={40} showGlow={false} profile={orbProfile} />
+              <PersonalizedOrb size={40} showGlow={false} />
             </div>
             <div className="flex-1 text-start">
               <div className="font-medium text-sm">{displayName}</div>
