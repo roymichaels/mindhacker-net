@@ -37,8 +37,8 @@ export function CharacterHUD({
     <motion.div
       className={cn(
         "relative flex items-center gap-4 p-3 rounded-2xl w-full",
-        "backdrop-blur-xl bg-card/60 border border-primary/20",
-        "shadow-[0_0_30px_rgba(var(--primary),0.2)]",
+        "backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+        "border border-primary/30 shadow-xl",
         onClick && "cursor-pointer hover:border-primary/40 hover:shadow-[0_0_40px_rgba(var(--primary),0.3)] transition-all duration-300",
         className
       )}
