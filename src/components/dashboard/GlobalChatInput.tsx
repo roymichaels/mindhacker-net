@@ -72,7 +72,7 @@ const GlobalChatInput = () => {
   };
 
   return (
-    <div className="shrink-0 w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-[env(safe-area-inset-bottom,8px)] px-4">
+    <div className="shrink-0 w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         <div className="relative flex items-end gap-3">
           {/* Input Container */}
