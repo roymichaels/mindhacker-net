@@ -4,7 +4,7 @@ import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 import { Loader2 } from 'lucide-react';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { LaunchpadFlow } from '@/components/launchpad';
+import { LaunchpadFlow, LaunchpadIntro } from '@/components/launchpad';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import AuroraChatArea from './AuroraChatArea';
 import { useState } from 'react';
@@ -22,6 +22,7 @@ const AuroraLayout = () => {
   } = useAuroraChatContext();
   
   const [showLaunchpad, setShowLaunchpad] = useState(true);
+  const [showLaunchpadIntro, setShowLaunchpadIntro] = useState(true);
 
   if (isLoading || launchpadLoading) {
     return (
@@ -33,7 +34,17 @@ const AuroraLayout = () => {
     );
   }
 
-  // Show Launchpad if not complete
+  // Show Launchpad intro first if not complete
+  if (!isLaunchpadComplete && showLaunchpad && showLaunchpadIntro) {
+    return (
+      <LaunchpadIntro 
+        onStart={() => setShowLaunchpadIntro(false)}
+        onSkip={() => setShowLaunchpad(false)}
+      />
+    );
+  }
+
+  // Show Launchpad flow if not complete
   if (!isLaunchpadComplete && showLaunchpad) {
     return (
       <LaunchpadFlow 
