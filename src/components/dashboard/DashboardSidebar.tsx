@@ -12,7 +12,8 @@ import {
   Compass,
   Plus,
   Trash2,
-  Menu
+  Menu,
+  Search
 } from 'lucide-react';
 import {
   Sidebar,
@@ -145,11 +146,41 @@ const DashboardSidebar = ({
     { id: 'hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
   ];
 
-  // Shared content component
-  const SidebarInnerContent = () => (
+  // Shared content component for desktop sidebar
+  const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
-      {/* Logo and Brand Name Header */}
-      {!isCollapsed && (
+      {/* Mobile: Simple header with Search and New Chat */}
+      {isMobile && isAuroraPage && (
+        <div className="flex items-center justify-between px-3 py-3 mb-4 border-b border-border">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10"
+            onClick={() => {
+              // TODO: Implement search functionality
+              onNavigate?.();
+            }}
+            title={language === 'he' ? 'חיפוש' : 'Search'}
+          >
+            <Search className="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10"
+            onClick={() => {
+              onNewChat?.();
+              onNavigate?.();
+            }}
+            title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
+          >
+            <Plus className="h-5 w-5 text-muted-foreground" />
+          </Button>
+        </div>
+      )}
+
+      {/* Desktop: Logo and Brand Name Header */}
+      {!isMobile && !isCollapsed && (
         <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img 
@@ -176,7 +207,7 @@ const DashboardSidebar = ({
 
       {/* Navigation Section */}
       <div className="mb-4">
-        {!isCollapsed && (
+        {!isCollapsed && !isMobile && (
           <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
             {language === 'he' ? 'ניווט' : 'Navigate'}
           </p>
@@ -213,8 +244,8 @@ const DashboardSidebar = ({
         </div>
       </div>
 
-      {/* New Chat Button - right below navigation (only on Aurora page) */}
-      {isAuroraPage && !isCollapsed && onNewChat && (
+      {/* New Chat Button - desktop only (mobile has it in header) */}
+      {isAuroraPage && !isCollapsed && !isMobile && onNewChat && (
         <Button
           variant="outline"
           className="w-full justify-start gap-2 mb-3 h-10"
@@ -248,7 +279,10 @@ const DashboardSidebar = ({
               {conversations.slice(0, 10).map((conv) => (
                 <button
                   key={conv.id}
-                  onClick={() => onSelectConversation?.(conv.id)}
+                  onClick={() => {
+                    onSelectConversation?.(conv.id);
+                    if (isMobile) onNavigate?.();
+                  }}
                   className={cn(
                     "w-full text-start px-3 py-2 rounded-lg text-sm transition-colors group flex items-center justify-between gap-2",
                     "hover:bg-muted",
@@ -296,7 +330,7 @@ const DashboardSidebar = ({
       <>
         <div className="flex flex-col h-full bg-sidebar border-sidebar-border">
           <div className="p-2 flex flex-col flex-1">
-            <SidebarInnerContent />
+            <SidebarInnerContent isMobile={true} />
           </div>
           <div className="p-2 border-t border-border">
             <AuroraAccountDropdown
