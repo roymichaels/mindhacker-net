@@ -287,6 +287,22 @@ export function createTTSAudioPlayer(audioUrl: string): HTMLAudioElement {
   return audio;
 }
 
+// Global audio reference to ensure only one audio plays at a time
+let currentAudio: HTMLAudioElement | null = null;
+
+/**
+ * Stop any currently playing audio
+ */
+export function stopCurrentAudio(): void {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = '';
+    currentAudio = null;
+  }
+  // Also stop browser speech
+  stopBrowserSpeech();
+}
+
 /**
  * Play audio URL and return promise that resolves when complete
  */
@@ -299,6 +315,9 @@ export async function playAudioUrl(
   } = {}
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    // Stop any currently playing audio first
+    stopCurrentAudio();
+
     // Handle browser TTS URLs
     if (audioUrl.startsWith('browser-tts://')) {
       const text = decodeURIComponent(audioUrl.replace('browser-tts://', ''));
@@ -316,23 +335,27 @@ export async function playAudioUrl(
     }
 
     const audio = new Audio(audioUrl);
+    currentAudio = audio; // Track the current audio
     
     audio.ontimeupdate = () => {
       options.onTimeUpdate?.(audio.currentTime, audio.duration);
     };
     
     audio.onended = () => {
+      currentAudio = null;
       options.onEnd?.();
       resolve();
     };
     
     audio.onerror = () => {
+      currentAudio = null;
       const error = new Error('Audio playback failed');
       options.onError?.(error);
       reject(error);
     };
 
     audio.play().catch((error) => {
+      currentAudio = null;
       options.onError?.(error);
       reject(error);
     });

@@ -24,7 +24,7 @@ import {
   getCachedAudioUrl,
   cacheScriptAudio,
 } from '@/services/hypnosis';
-import { synthesizeSpeech, stopBrowserSpeech, playAudioUrl } from '@/services/voice';
+import { synthesizeSpeech, stopBrowserSpeech, playAudioUrl, stopCurrentAudio } from '@/services/voice';
 import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -106,6 +106,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
+      stopCurrentAudio(); // Stop any playing audio
       stopBrowserSpeech();
       setState('setup');
       setGoal('');
@@ -143,7 +144,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     impact('medium');
     setState('breathing');
     setShowBreathing(true);
-    setBreathingCountdown(20);
+    setBreathingCountdown(8); // Reduced from 20 to 8 seconds
 
     const interval = setInterval(() => {
       setBreathingCountdown((prev) => {
@@ -436,6 +437,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     if (state === 'playing') {
       setState('paused');
       playingRef.current = false;
+      stopCurrentAudio(); // Stop audio playback
       stopBrowserSpeech();
     } else if (state === 'paused' && scriptRef.current) {
       setState('playing');
