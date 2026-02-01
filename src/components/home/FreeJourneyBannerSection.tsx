@@ -10,8 +10,8 @@ export default function FreeJourneyBannerSection() {
 
   return (
     <section className="py-12 sm:py-16 px-4 relative overflow-hidden">
-      {/* Background gradient - Dark HUD style */}
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-950/80 via-gray-900/70 to-gray-950/80 pointer-events-none" />
+      {/* Background gradient - Theme-aware */}
+      <div className="absolute inset-0 bg-gradient-to-r from-muted/80 via-muted/50 to-muted/80 dark:from-gray-950/80 dark:via-gray-900/70 dark:to-gray-950/80 pointer-events-none" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -19,7 +19,7 @@ export default function FreeJourneyBannerSection() {
         viewport={{ once: true }}
         className="max-w-4xl mx-auto"
       >
-        <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-gray-900/90 via-gray-800/80 to-gray-900/90 border border-primary/30 backdrop-blur-xl overflow-hidden">
+        <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-card via-card/80 to-card dark:from-gray-900/90 dark:via-gray-800/80 dark:to-gray-900/90 border border-primary/30 backdrop-blur-xl overflow-hidden">
           {/* Decorative glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
@@ -76,7 +76,7 @@ export default function FreeJourneyBannerSection() {
               </div>
 
               {/* CTA */}
-              <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-primary/30 text-foreground shadow-lg shadow-black/30 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800">
+              <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 text-foreground shadow-lg shadow-black/20 dark:shadow-black/30 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800">
                 <Link to="/free-journey">
                   <Sparkles className="w-4 h-4" />
                   {isRTL ? 'התחל עכשיו - חינם!' : 'Start Now - Free!'}

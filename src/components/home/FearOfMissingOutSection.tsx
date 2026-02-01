@@ -39,7 +39,7 @@ export default function FearOfMissingOutSection() {
   }, []);
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-r from-gray-950/80 via-gray-900/70 to-gray-950/80 relative overflow-hidden">
+    <section className="py-16 px-4 bg-gradient-to-r from-muted/80 via-muted/50 to-muted/80 dark:from-gray-950/80 dark:via-gray-900/70 dark:to-gray-950/80 relative overflow-hidden">
       {/* Animated background pulse - subtle */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5"

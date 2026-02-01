@@ -45,7 +45,7 @@ export default function WhatIsThisSection() {
   const { t, isRTL } = useTranslation();
 
   return (
-    <section className="py-16 sm:py-24 px-4 bg-gradient-to-b from-gray-900/50 via-gray-950/30 to-transparent relative overflow-hidden">
+    <section className="py-16 sm:py-24 px-4 bg-gradient-to-b from-muted/50 via-muted/20 to-transparent dark:from-gray-900/50 dark:via-gray-950/30 dark:to-transparent relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
