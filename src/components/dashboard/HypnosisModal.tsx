@@ -80,6 +80,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const prefetchedAudioRef = useRef<Map<number, { url: string; provider: VoiceProvider }>>(new Map());
   const startTimeRef = useRef<number>(0);
   const playingRef = useRef<boolean>(false);
+  const voiceStartedRef = useRef<boolean>(false); // Track when voice actually starts
 
   const currentSegment = script?.segments[currentSegmentIndex];
 
@@ -106,13 +107,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setElapsedTime(0);
       setShowBreathing(false);
       playingRef.current = false;
+      voiceStartedRef.current = false;
       prefetchedAudioRef.current.clear();
     }
   }, [open]);
 
-  // Progress timer
+  // Progress timer - only runs when voice has actually started
   useEffect(() => {
     if (state !== 'playing') return;
+    // Don't update timer until voice has started
+    if (!voiceStartedRef.current) return;
     
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
@@ -179,8 +183,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             }
             
             setState('playing');
-            startTimeRef.current = Date.now();
             playingRef.current = true;
+            voiceStartedRef.current = false; // Will be set when voice actually starts
             hapticPattern('success');
             
             playSegment(0, cachedScript, cached.audio_paths || undefined);
@@ -216,8 +220,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       scriptRef.current = generatedScript;
       setScript(generatedScript);
       setState('playing');
-      startTimeRef.current = Date.now();
       playingRef.current = true;
+      voiceStartedRef.current = false; // Will be set when voice actually starts
       hapticPattern('success');
       
       prefetchedAudioRef.current.clear();
@@ -326,6 +330,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     setCurrentSegmentIndex(index);
     impact('light');
 
+    // Helper function to start timer on first audio
+    const markVoiceStarted = () => {
+      if (!voiceStartedRef.current) {
+        voiceStartedRef.current = true;
+        startTimeRef.current = Date.now();
+      }
+    };
+
     if (isMuted) {
       const wordsPerMinute = 130;
       const words = segment.text.split(/\s+/).length;
@@ -344,6 +356,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       try {
         setVoiceProvider(prefetched.provider);
         await playAudioUrl(prefetched.url, {
+          onStart: markVoiceStarted,
           onEnd: () => {
             if (playingRef.current) {
               playSegment(index + 1, activeScript, activeCachedPaths);
@@ -372,6 +385,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         if (cachedUrl) {
           void prefetchSegmentAudio(index + 1, activeScript, activeCachedPaths);
           await playAudioUrl(cachedUrl, {
+            onStart: markVoiceStarted,
             onEnd: () => {
               if (playingRef.current) {
                 playSegment(index + 1, activeScript, activeCachedPaths);
@@ -407,6 +421,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       if (result) {
         setVoiceProvider(result.provider);
         await playAudioUrl(result.audioUrl, {
+          onStart: markVoiceStarted,
           onEnd: () => {
             if (playingRef.current) {
               playSegment(index + 1, activeScript, activeCachedPaths);
@@ -603,10 +618,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col items-center justify-center p-6"
               >
                 <BreathingGuide isActive={true} language={language as 'he' | 'en'} />
-                <p className="mt-8 text-muted-foreground">
-                  {language === 'he' ? `ממשיכים בעוד ${breathingCountdown} שניות...` : `Continuing in ${breathingCountdown}s...`}
-                </p>
-                <Button variant="ghost" size="sm" onClick={skipBreathing} className="mt-4">
+                <Button variant="ghost" size="sm" onClick={skipBreathing} className="mt-8">
                   <Wind className="w-4 h-4 me-2" />
                   {language === 'he' ? 'דלג' : 'Skip'}
                 </Button>
