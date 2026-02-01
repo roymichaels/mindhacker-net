@@ -56,9 +56,9 @@ export function AuroraChatQuickActions() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          className="h-8 w-8 text-muted-foreground/70 hover:text-foreground hover:bg-transparent"
         >
-          <ListTodo className="h-5 w-5" />
+          <ListTodo className="h-4 w-4" />
           <span className="sr-only">Quick actions</span>
         </Button>
       </PopoverTrigger>

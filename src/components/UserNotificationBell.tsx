@@ -38,9 +38,9 @@ export const UserNotificationBell = () => {
         <Button
           variant="ghost"
           size="icon"
-          className={`relative h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 ${isAnimating ? 'animate-bounce' : ''}`}
+          className={`relative h-8 w-8 text-muted-foreground/70 hover:text-foreground hover:bg-transparent ${isAnimating ? 'animate-bounce' : ''}`}
         >
-          <Bell className={`h-5 w-5 ${unreadCount > 0 ? 'text-primary' : ''}`} />
+          <Bell className={`h-4 w-4 ${unreadCount > 0 ? 'text-primary' : ''}`} />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
