@@ -105,7 +105,7 @@ const DashboardSidebar = ({
   // Navigation items - Messages and Community removed (admin/coach only features)
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
-    { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
+    { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: true },
   ];
 
   // Shared content component
@@ -133,20 +133,23 @@ const DashboardSidebar = ({
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || 
               (item.path === '/dashboard' && location.pathname === '/aurora'); // Highlight dashboard on aurora
+            const isHighlight = 'highlight' in item && item.highlight;
             return (
               <button
                 key={item.path}
                 onClick={() => handleNavigation(item.path)}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                  isActive 
-                    ? "bg-primary/10 text-primary" 
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground",
+                  isHighlight
+                    ? "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20"
+                    : isActive 
+                      ? "bg-primary/10 text-primary" 
+                      : "hover:bg-muted text-muted-foreground hover:text-foreground",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <item.icon className={cn("h-4 w-4 shrink-0", isHighlight && "text-[#1d9bf0]")} />
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
