@@ -69,8 +69,8 @@ const DashboardLayout = ({
           <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
-          <main className="flex-1 flex flex-col px-0 pb-20 min-h-0">
-            <div className="flex-1 px-3 pt-3 bg-card/80 backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
+          <main className="flex-1 flex flex-col px-0 pb-20 min-h-0 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col px-3 pt-3 bg-card/80 backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
               {children}
             </div>
           </main>
@@ -95,7 +95,7 @@ const DashboardLayout = ({
           />
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0 p-4 lg:p-6 flex flex-col bg-card/60 backdrop-blur-sm">
+          <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 flex flex-col bg-card/60 backdrop-blur-sm">
             {children}
           </main>
 
