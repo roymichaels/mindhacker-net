@@ -96,8 +96,8 @@ export const UserNotificationPanel = ({
           </p>
         </div>
       ) : (
-        <ScrollArea className="max-h-[300px]">
-          <div className="divide-y">
+        <ScrollArea className="h-[300px]">
+          <div className="divide-y divide-border/50">
             <AnimatePresence>
               {notifications.map((notification, index) => {
                 const config = getTypeConfig(notification.type);
