@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 import { 
   BarChart3, 
   Users, 
@@ -15,6 +16,7 @@ import {
   ArrowRight,
   Loader2,
   TrendingUp,
+  Home,
 } from 'lucide-react';
 
 const PanelDashboard = () => {
@@ -51,11 +53,36 @@ const PanelDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t('panel.welcomeBack')}</h1>
-        <p className="text-muted-foreground">
-          {t('panel.dashboardSubtitle')}
-        </p>
+      {/* Header with welcome message and action icons */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold">{t('panel.welcomeBack')}</h1>
+          <p className="text-muted-foreground">
+            {t('panel.dashboardSubtitle')}
+          </p>
+        </div>
+        
+        {/* Home and Notifications icons */}
+        <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="icon" className="h-9 w-9">
+            <Link to="/">
+              <Home className="h-5 w-5" />
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="icon" className="h-9 w-9 relative">
+            <Link to="/panel/notifications">
+              <Bell className="h-5 w-5" />
+              {stats && stats.unreadNotifications > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -end-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+                >
+                  {stats.unreadNotifications}
+                </Badge>
+              )}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Overview */}

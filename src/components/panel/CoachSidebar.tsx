@@ -6,6 +6,7 @@ import RoleSwitcher from './RoleSwitcher';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { Button } from '@/components/ui/button';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import {
   LayoutDashboard,
   Users,
@@ -77,6 +78,14 @@ const CoachSidebar = () => {
 
   return (
     <aside className="w-64 border-e border-border bg-card/50 h-screen sticky top-0 flex flex-col">
+      {/* Logo and Brand at top */}
+      <div className="p-4 border-b border-border flex-shrink-0">
+        <Link to="/coach" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
+          <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+        </Link>
+      </div>
+
       <RoleSwitcher />
       
       {/* View My Page Button */}

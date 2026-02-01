@@ -1,9 +1,10 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import RoleSwitcher from './RoleSwitcher';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import {
   LayoutDashboard,
   Link2,
@@ -56,6 +57,14 @@ const AffiliateSidebar = () => {
 
   return (
     <aside className="w-64 border-e border-border bg-card/50 h-screen sticky top-0 flex flex-col">
+      {/* Logo and Brand at top */}
+      <div className="p-4 border-b border-border flex-shrink-0">
+        <Link to="/affiliate" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
+          <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+        </Link>
+      </div>
+
       <RoleSwitcher />
       <ScrollArea className="flex-1">
         <nav className="p-4 space-y-6">
