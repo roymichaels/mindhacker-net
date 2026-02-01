@@ -128,24 +128,24 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative dark" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-gradient-to-b from-gray-950 to-gray-900 border border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 p-8 space-y-6">
+        <div className="bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/40 rounded-2xl shadow-2xl shadow-primary/20 p-8 space-y-6 backdrop-blur-sm">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <div className="p-3 rounded-full bg-primary/20 border border-primary/30">
+              <div className="p-3 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/40">
                 <UserPlus className="h-8 w-8 md:h-10 md:w-10 text-primary" />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-primary">{t('auth.signupTitle')}</h1>
-            <p className="text-sm md:text-base text-gray-400">
+            <p className="text-sm md:text-base text-muted-foreground">
               {t('auth.signupSubtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-gray-300">{t('auth.fullName')}</Label>
+              <Label htmlFor="fullName" className="text-foreground">{t('auth.fullName')}</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -156,12 +156,12 @@ const SignUp = () => {
                 }
                 required
                 disabled={isLoading}
-                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
+                className={`bg-background/50 border-primary/30 text-foreground placeholder:text-muted-foreground focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">{t('auth.email')}</Label>
+              <Label htmlFor="email" className="text-foreground">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -172,12 +172,12 @@ const SignUp = () => {
                 }
                 required
                 disabled={isLoading}
-                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
+                className={`bg-background/50 border-primary/30 text-foreground placeholder:text-muted-foreground focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-300">{t('auth.password')}</Label>
+              <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -188,12 +188,12 @@ const SignUp = () => {
                 }
                 required
                 disabled={isLoading}
-                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
+                className={`bg-background/50 border-primary/30 text-foreground placeholder:text-muted-foreground focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-gray-300">{t('auth.confirmPassword')}</Label>
+              <Label htmlFor="confirmPassword" className="text-foreground">{t('auth.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -204,7 +204,7 @@ const SignUp = () => {
                 }
                 required
                 disabled={isLoading}
-                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
+                className={`bg-background/50 border-primary/30 text-foreground placeholder:text-muted-foreground focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
@@ -217,11 +217,11 @@ const SignUp = () => {
                     setFormData({ ...formData, agreeTerms: checked as boolean })
                   }
                   disabled={isLoading}
-                  className="border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  className="border-primary/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
                 <Label
                   htmlFor="terms"
-                  className="text-sm font-normal cursor-pointer text-gray-300"
+                  className="text-sm font-normal cursor-pointer text-foreground"
                 >
                   {t('auth.termsAgreePrefix')}{' '}
                   <Link 
@@ -241,7 +241,7 @@ const SignUp = () => {
                   </Link>
                 </Label>
               </div>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {t('legal.terms.userAcknowledgment')}
               </p>
             </div>
@@ -264,7 +264,7 @@ const SignUp = () => {
           </form>
 
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {t('auth.hasAccount')}{" "}
               <Link
                 to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
@@ -275,7 +275,7 @@ const SignUp = () => {
             </p>
             <Link
               to="/"
-              className="text-sm text-gray-400 hover:text-white block"
+              className="text-sm text-muted-foreground hover:text-foreground block"
             >
               {t('auth.backToHome')}
             </Link>
