@@ -138,10 +138,6 @@ const GlobalChatInput = () => {
           </p>
         )}
 
-        {/* Footer Note */}
-        <p className="text-xs text-muted-foreground text-center mt-3">
-          {t('aurora.footerNote')}
-        </p>
       </form>
     </div>
   );
