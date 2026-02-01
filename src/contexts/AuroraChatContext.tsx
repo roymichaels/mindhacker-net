@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +39,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const sendMessageRef = { current: null as ((message: string) => void) | null };
+  const sendMessageRef = useRef<((message: string) => void) | null>(null);
 
   // Get or create the default AI conversation
   const { data: defaultConversationId, isLoading } = useQuery({
