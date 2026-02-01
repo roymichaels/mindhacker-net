@@ -220,7 +220,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
               <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
             ) : user ? (
               <>
-                {isAdmin ? <NotificationBell /> : <UserNotificationBell />}
+                {isAdmin && <NotificationBell />}
                 {/* Mobile-only Avatar Dropdown */}
                 <div className="md:hidden">
                   <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
