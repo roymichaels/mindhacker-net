@@ -191,7 +191,7 @@ const DashboardSidebar = ({
                 key={item.id}
                 onClick={() => {
                   item.onClick();
-                  onNavigate?.();
+                  // Don't call onNavigate for modal items - it closes the sheet before modal opens
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors",
