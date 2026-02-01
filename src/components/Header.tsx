@@ -159,72 +159,120 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-        <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-3 sm:px-6">
-          {/* Left side - Menu toggle (opposite to logo in RTL) */}
-          <div className="flex items-center gap-2 sm:gap-3 justify-start">
-            {/* Mobile-only Menu Button - opens sidebar */}
-            {user && onMenuClick && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  requestAnimationFrame(() => onMenuClick());
-                }}
-                aria-label={t('header.navigationMenu')}
-                className="h-9 w-9 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            )}
-
-            {/* Mobile Admin Sidebar Trigger - Admin pages only */}
-            {isAdminMode && (
-              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                <SheetTrigger asChild className="lg:hidden">
-                  <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
-                    <PanelLeft className="h-5 w-5" />
+        <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
+          {/* Left side - Logo and brand (for LTR) or Avatar (for RTL) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isRTL ? (
+              // RTL: Show menu/avatar controls on left
+              <>
+                {/* Mobile-only Menu Button - opens sidebar */}
+                {user && onMenuClick && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      requestAnimationFrame(() => onMenuClick());
+                    }}
+                    aria-label={t('header.navigationMenu')}
+                    className="h-9 w-9 md:hidden"
+                  >
+                    <Menu className="h-5 w-5" />
                   </Button>
-                </SheetTrigger>
-                <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-72" dir={isRTL ? "rtl" : "ltr"}>
-                  <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
-                </SheetContent>
-              </Sheet>
+                )}
+
+                {/* Mobile Admin Sidebar Trigger - Admin pages only */}
+                {isAdminMode && (
+                  <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild className="lg:hidden">
+                      <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
+                        <PanelLeft className="h-5 w-5" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="p-0 w-72" dir="rtl">
+                      <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
+                    </SheetContent>
+                  </Sheet>
+                )}
+              </>
+            ) : (
+              // LTR: Show logo on left
+              <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <img 
+                  src={logoUrl} 
+                  alt={brandName} 
+                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+                  loading="eager" 
+                  decoding="async"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                  }}
+                />
+                <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+                  {isAdminMode ? t('admin.panelTitle') : brandName}
+                </span>
+              </Link>
             )}
           </div>
 
-          {/* Center - Empty space to maintain grid layout */}
-          <div className="flex justify-center">
-            {/* Intentionally empty */}
-          </div>
+          {/* Right side - Avatar (for LTR) or Logo (for RTL) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isRTL ? (
+              // RTL: Show logo on right
+              <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+                  {isAdminMode ? t('admin.panelTitle') : brandName}
+                </span>
+                <img 
+                  src={logoUrl} 
+                  alt={brandName} 
+                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+                  loading="eager" 
+                  decoding="async"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                  }}
+                />
+              </Link>
+            ) : (
+              // LTR: Show menu/avatar controls on right
+              <>
+                {/* Mobile-only Menu Button - opens sidebar */}
+                {user && onMenuClick && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      requestAnimationFrame(() => onMenuClick());
+                    }}
+                    aria-label={t('header.navigationMenu')}
+                    className="h-9 w-9 md:hidden"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                )}
 
-          {/* Right side - Logo and brand */}
-          <div className="flex items-center gap-2 sm:gap-3 justify-end">
-            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-                {isAdminMode ? t('admin.panelTitle') : brandName}
-              </span>
-              <img 
-                src={logoUrl} 
-                alt={brandName} 
-                className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-                loading="eager" 
-                decoding="async"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.style.display = 'none';
-                }}
-              />
-            </Link>
-          </div>
+                {/* Mobile Admin Sidebar Trigger - Admin pages only */}
+                {isAdminMode && (
+                  <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild className="lg:hidden">
+                      <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
+                        <PanelLeft className="h-5 w-5" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-72" dir="ltr">
+                      <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
+                    </SheetContent>
+                  </Sheet>
+                )}
+              </>
+            )}
 
-          {/* Center - Empty space to maintain grid layout */}
-          <div className="flex justify-center">
-            {/* Intentionally empty - CTA moved to avatar dropdown */}
-          </div>
-
-          <div className="flex items-center gap-1 sm:gap-2 justify-end">
             {/* Home button - Only for admin mode */}
             {isAdminMode && (
               <Button
