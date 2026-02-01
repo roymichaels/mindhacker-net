@@ -161,8 +161,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
-          <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-muted">
-            <AvatarFallback className="bg-muted text-muted-foreground">
+          <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shadow-lg shadow-primary/20">
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 via-accent/20 to-primary/30 text-primary">
               <User className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
