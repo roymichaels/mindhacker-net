@@ -161,25 +161,23 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
-        <div className="container grid grid-cols-3 h-20 sm:h-24 items-center px-3 sm:px-6">
+        <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-3 sm:px-6">
           {/* Left side - Logo only (no hamburger - sidebar has its own toggle when collapsed) */}
-          <div className="flex items-center gap-3 sm:gap-4 justify-start">
-            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex-shrink-0 bg-primary/10">
-                <img 
-                  src={logoUrl} 
-                  alt={brandName} 
-                  className="w-full h-full object-cover" 
-                  loading="eager" 
-                  decoding="async"
-                  onError={(e) => {
-                    // Fallback if logo fails to load
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                  }}
-                />
-              </div>
-              <span className={`font-bold text-base sm:text-lg md:text-xl truncate max-w-[140px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+          <div className="flex items-center gap-2 sm:gap-3 justify-start">
+            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <img 
+                src={logoUrl} 
+                alt={brandName} 
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+                loading="eager" 
+                decoding="async"
+                onError={(e) => {
+                  // Fallback if logo fails to load
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                }}
+              />
+              <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
                 {isAdminMode ? t('admin.panelTitle') : brandName}
               </span>
             </Link>
