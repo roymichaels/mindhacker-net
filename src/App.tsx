@@ -77,6 +77,13 @@ const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 const AdminPanel = lazy(() => import("./components/panel/AdminPanel"));
 const CoachPanel = lazy(() => import("./components/panel/CoachPanel"));
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
+// Storefront
+const StorefrontLayout = lazy(() => import("./pages/storefront/StorefrontLayout"));
+const StorefrontHome = lazy(() => import("./pages/storefront/StorefrontHome"));
+const StorefrontLogin = lazy(() => import("./pages/storefront/StorefrontLogin"));
+const StorefrontSignup = lazy(() => import("./pages/storefront/StorefrontSignup"));
+const StorefrontCourses = lazy(() => import("./pages/storefront/StorefrontCourses"));
+const StorefrontClientDashboard = lazy(() => import("./pages/storefront/StorefrontClientDashboard"));
 const PanelDashboard = lazy(() => import("./components/panel/PanelDashboard"));
 const CoachDashboard = lazy(() => import("./pages/panel/CoachDashboard"));
 const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
@@ -91,6 +98,7 @@ const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
 const CoachContent = lazy(() => import("./pages/panel/CoachContent"));
+const StorefrontSettingsPanel = lazy(() => import("./pages/panel/StorefrontSettings"));
 const CoachReviews = lazy(() => import("./pages/panel/CoachReviews"));
 const CoachAnalytics = lazy(() => import("./pages/panel/CoachAnalytics"));
 const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
@@ -317,6 +325,15 @@ const App = () => (
 
                         {/* Dynamic Landing Pages */}
                         <Route path="/lp/:slug" element={<DynamicLandingPage />} />
+                        
+                        {/* Practitioner Storefront Routes */}
+                        <Route path="/p/:practitionerSlug" element={<StorefrontLayout />}>
+                          <Route index element={<StorefrontHome />} />
+                          <Route path="login" element={<StorefrontLogin />} />
+                          <Route path="signup" element={<StorefrontSignup />} />
+                          <Route path="courses" element={<StorefrontCourses />} />
+                          <Route path="dashboard" element={<StorefrontClientDashboard />} />
+                        </Route>
 
                         {/* Protected user routes */}
                         <Route
@@ -447,6 +464,7 @@ const App = () => (
                           <Route path="content" element={<CoachContent />} />
                           <Route path="reviews" element={<CoachReviews />} />
                           <Route path="earnings" element={<MyEarnings />} />
+                          <Route path="storefront" element={<StorefrontSettingsPanel />} />
                           <Route path="profile" element={<Settings />} />
                           <Route path="theme" element={<CoachTheme />} />
                         </Route>

@@ -3242,6 +3242,72 @@ export type Database = {
         }
         Relationships: []
       }
+      practitioner_client_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          last_activity_at: string | null
+          notes: string | null
+          phone: string | null
+          practitioner_id: string
+          status: string | null
+          tags: string[] | null
+          total_purchases: number | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          last_activity_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          practitioner_id: string
+          status?: string | null
+          tags?: string[] | null
+          total_purchases?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          last_activity_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          practitioner_id?: string
+          status?: string | null
+          tags?: string[] | null
+          total_purchases?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_client_profiles_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practitioner_client_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practitioner_clients: {
         Row: {
           client_user_id: string
@@ -3378,6 +3444,110 @@ export type Database = {
             foreignKeyName: "practitioner_services_practitioner_id_fkey"
             columns: ["practitioner_id"]
             isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practitioner_settings: {
+        Row: {
+          about_section: Json | null
+          brand_color: string | null
+          brand_color_secondary: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          custom_domain: string | null
+          default_language: string | null
+          domain_verified: boolean | null
+          enable_community: boolean | null
+          enable_courses: boolean | null
+          enable_products: boolean | null
+          enable_services: boolean | null
+          favicon_url: string | null
+          hero_heading_en: string | null
+          hero_heading_he: string | null
+          hero_image_url: string | null
+          hero_subheading_en: string | null
+          hero_subheading_he: string | null
+          id: string
+          logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image_url: string | null
+          practitioner_id: string
+          social_links: Json | null
+          subdomain: string | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          about_section?: Json | null
+          brand_color?: string | null
+          brand_color_secondary?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          default_language?: string | null
+          domain_verified?: boolean | null
+          enable_community?: boolean | null
+          enable_courses?: boolean | null
+          enable_products?: boolean | null
+          enable_services?: boolean | null
+          favicon_url?: string | null
+          hero_heading_en?: string | null
+          hero_heading_he?: string | null
+          hero_image_url?: string | null
+          hero_subheading_en?: string | null
+          hero_subheading_he?: string | null
+          id?: string
+          logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          practitioner_id: string
+          social_links?: Json | null
+          subdomain?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          about_section?: Json | null
+          brand_color?: string | null
+          brand_color_secondary?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          default_language?: string | null
+          domain_verified?: boolean | null
+          enable_community?: boolean | null
+          enable_courses?: boolean | null
+          enable_products?: boolean | null
+          enable_services?: boolean | null
+          favicon_url?: string | null
+          hero_heading_en?: string | null
+          hero_heading_he?: string | null
+          hero_image_url?: string | null
+          hero_subheading_en?: string | null
+          hero_subheading_he?: string | null
+          id?: string
+          logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          practitioner_id?: string
+          social_links?: Json | null
+          subdomain?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_settings_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: true
             referencedRelation: "practitioners"
             referencedColumns: ["id"]
           },
@@ -4602,6 +4772,10 @@ export type Database = {
       }
       get_or_create_ai_conversation: {
         Args: { user_id: string }
+        Returns: string
+      }
+      get_practitioner_by_domain: {
+        Args: { domain_input: string }
         Returns: string
       }
       get_practitioner_id_for_user: {
