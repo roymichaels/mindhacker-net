@@ -97,14 +97,40 @@ const DashboardSidebar = ({
 
   const handleDeleteConversation = async (e: React.MouseEvent, conversationId: string) => {
     e.stopPropagation();
+    e.preventDefault();
     
-    await supabase.from('messages').delete().eq('conversation_id', conversationId);
-    await supabase.from('conversations').delete().eq('id', conversationId);
-    
-    queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
-    
-    if (conversationId === currentConversationId) {
-      onNewChat?.();
+    try {
+      // First delete all messages in the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+      
+      if (messagesError) {
+        console.error('Failed to delete messages:', messagesError);
+      }
+      
+      // Then delete the conversation itself
+      const { error: convError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+      
+      if (convError) {
+        console.error('Failed to delete conversation:', convError);
+        return;
+      }
+      
+      // Refresh the conversations list
+      queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['aurora-default-conversation'] });
+      
+      // If the deleted conversation was the current one, start a new chat
+      if (conversationId === currentConversationId) {
+        onNewChat?.();
+      }
+    } catch (error) {
+      console.error('Delete conversation error:', error);
     }
   };
 
