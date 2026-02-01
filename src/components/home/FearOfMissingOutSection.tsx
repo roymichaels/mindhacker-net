@@ -75,7 +75,7 @@ export default function FearOfMissingOutSection() {
               { value: timeLeft.seconds, label: isRTL ? 'שניות' : 'Sec' },
             ].map((item, index) => (
               <div key={index} className="flex flex-col items-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-primary/30 flex items-center justify-center shadow-lg shadow-black/30">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 flex items-center justify-center shadow-lg shadow-black/10 dark:shadow-black/30">
                   <span className="text-2xl sm:text-3xl font-black text-foreground tabular-nums">
                     {String(item.value).padStart(2, '0')}
                   </span>
@@ -117,11 +117,11 @@ export default function FearOfMissingOutSection() {
               size="lg"
               onClick={() => navigate('/signup')}
               className="text-lg px-10 py-7 rounded-2xl 
-                bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
-                hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
+                hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800
                 font-black text-foreground
                 border border-primary/30
-                shadow-[0_0_30px_rgba(0,0,0,0.5)]
+                shadow-[0_0_30px_rgba(0,0,0,0.2)] dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]
                 hover:shadow-[0_0_50px_hsl(var(--primary)/0.3)]"
             >
               <Clock className={cn("h-5 w-5 text-primary", isRTL ? "ml-2" : "mr-2")} />
