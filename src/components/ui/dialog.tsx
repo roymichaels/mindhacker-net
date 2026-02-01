@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowLeft, ArrowRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 
 import { cn } from "@/lib/utils";
@@ -83,8 +83,15 @@ interface DialogHeaderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
 }
 
 const DialogHeader = ({ className, title, icon, showBackArrow = true, onBack, children, ...props }: DialogHeaderProps) => {
+  // Detect RTL from document direction
+  const isRTL = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+  
   // If title is provided, use the new standardized layout
   if (title) {
+    // In RTL: Back arrow (pointing left) on left, X on right
+    // In LTR: X on left, Back arrow (pointing right) on right
+    const BackArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+    
     return (
       <div 
         className={cn(
@@ -93,14 +100,28 @@ const DialogHeader = ({ className, title, icon, showBackArrow = true, onBack, ch
         )} 
         {...props}
       >
-        {/* Left side - Close button */}
-        <DialogPrimitive.Close 
-          data-dialog-close
-          className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        >
-          <X className="h-5 w-5" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+        {/* Start side - Close button (LTR) or Back arrow (RTL) */}
+        {isRTL ? (
+          showBackArrow ? (
+            <button 
+              onClick={onBack}
+              className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <BackArrowIcon className="h-5 w-5" />
+              <span className="sr-only">Back</span>
+            </button>
+          ) : (
+            <div className="w-9" />
+          )
+        ) : (
+          <DialogPrimitive.Close 
+            data-dialog-close
+            className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
 
         {/* Center - Title with optional icon */}
         <div className="flex items-center gap-2 flex-1 justify-center">
@@ -110,17 +131,27 @@ const DialogHeader = ({ className, title, icon, showBackArrow = true, onBack, ch
           </DialogPrimitive.Title>
         </div>
 
-        {/* Right side - Back arrow or placeholder for balance */}
-        {showBackArrow ? (
-          <button 
-            onClick={onBack}
+        {/* End side - Back arrow (LTR) or Close button (RTL) */}
+        {isRTL ? (
+          <DialogPrimitive.Close 
+            data-dialog-close
             className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
-            <ArrowRight className="h-5 w-5" />
-            <span className="sr-only">Back</span>
-          </button>
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
         ) : (
-          <div className="w-9" /> 
+          showBackArrow ? (
+            <button 
+              onClick={onBack}
+              className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <BackArrowIcon className="h-5 w-5" />
+              <span className="sr-only">Back</span>
+            </button>
+          ) : (
+            <div className="w-9" />
+          )
         )}
       </div>
     );
@@ -130,15 +161,15 @@ const DialogHeader = ({ className, title, icon, showBackArrow = true, onBack, ch
   return (
     <div 
       className={cn(
-        "relative flex flex-col space-y-1.5 text-center sm:text-left",
+        "relative flex flex-col space-y-1.5 text-center sm:text-start",
         className
       )} 
       {...props}
     >
-      {/* Close button positioned at top-left */}
+      {/* Close button positioned at start (left in LTR, right in RTL) */}
       <DialogPrimitive.Close 
         data-dialog-close
-        className="absolute left-0 top-0 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="absolute start-0 top-0 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
