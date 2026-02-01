@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Send, Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
@@ -13,6 +14,7 @@ interface AuroraChatInputProps {
 const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const [input, setInput] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleTranscription = (text: string) => {
@@ -33,6 +35,11 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
     }
   }, [input]);
+
+  // Ensure portal only renders on client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +68,10 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     }
   };
 
-  return (
-    <div className="fixed bottom-[4.5rem] sm:bottom-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4 safe-area-inset-bottom">
+  if (!isMounted) return null;
+
+  return createPortal(
+    <div className="fixed bottom-[4.5rem] sm:bottom-0 left-0 right-0 z-[200] bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-t border-border pt-3 pb-4 px-4 safe-area-inset-bottom">
       <form onSubmit={handleSubmit} className="w-full">
         <div className="relative flex items-end gap-3">
           {/* Input Container */}
@@ -85,7 +94,7 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
               dir={isRTL ? 'rtl' : 'ltr'}
               style={{ maxHeight: '200px' }}
             />
-            
+
             {/* Mic Button Inside Input */}
             <Button
               type="button"
@@ -121,19 +130,20 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
             )}
           </Button>
         </div>
-        
+
         {recordingError && (
           <p className="text-xs text-destructive mt-2 text-center">
             {recordingError}
           </p>
         )}
-        
+
         {/* Footer Note */}
         <p className="text-xs text-muted-foreground text-center mt-3">
           {t('aurora.footerNote')}
         </p>
       </form>
-    </div>
+    </div>,
+    document.body
   );
 };
 
