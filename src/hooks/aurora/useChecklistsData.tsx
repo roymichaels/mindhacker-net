@@ -472,6 +472,102 @@ export const useChecklistsData = (user: User | null) => {
     return data as ChecklistItem;
   }, [user?.id, checklists, createChecklist]);
 
+  // Find matching items across all checklists with ambiguity detection
+  const findMatchingItems = useCallback((
+    query: string,
+    options?: { checklistTitle?: string; exactMatch?: boolean }
+  ): { items: Array<ChecklistItem & { checklistTitle: string }>; isAmbiguous: boolean } => {
+    const normalizedQuery = query.toLowerCase().trim();
+    const matches: Array<ChecklistItem & { checklistTitle: string }> = [];
+
+    for (const checklist of checklists) {
+      // If checklist title specified, only search in that checklist
+      if (options?.checklistTitle) {
+        const titleMatch = checklist.title.toLowerCase().includes(options.checklistTitle.toLowerCase());
+        if (!titleMatch) continue;
+      }
+
+      for (const item of checklist.aurora_checklist_items || []) {
+        const itemContent = item.content.toLowerCase();
+        
+        let isMatch = false;
+        if (options?.exactMatch) {
+          isMatch = itemContent === normalizedQuery;
+        } else {
+          // Fuzzy match: either contains or is contained
+          isMatch = itemContent.includes(normalizedQuery) || 
+                   normalizedQuery.includes(itemContent);
+        }
+
+        if (isMatch) {
+          matches.push({
+            ...item,
+            checklistTitle: checklist.title
+          });
+        }
+      }
+    }
+
+    return {
+      items: matches,
+      isAmbiguous: matches.length > 1
+    };
+  }, [checklists]);
+
+  // Find matching checklists by title with ambiguity detection
+  const findMatchingChecklists = useCallback((
+    query: string,
+    options?: { exactMatch?: boolean }
+  ): { checklists: Checklist[]; isAmbiguous: boolean } => {
+    const normalizedQuery = query.toLowerCase().trim();
+    
+    const matches = checklists.filter(c => {
+      const title = c.title.toLowerCase();
+      if (options?.exactMatch) {
+        return title === normalizedQuery;
+      }
+      return title.includes(normalizedQuery) || normalizedQuery.includes(title);
+    });
+
+    return {
+      checklists: matches,
+      isAmbiguous: matches.length > 1
+    };
+  }, [checklists]);
+
+  // Get all open tasks with their checklist info (for AI context)
+  const getAllOpenTasks = useCallback((): Array<{
+    id: string;
+    content: string;
+    checklistId: string;
+    checklistTitle: string;
+    dueDate?: string | null;
+  }> => {
+    const tasks: Array<{
+      id: string;
+      content: string;
+      checklistId: string;
+      checklistTitle: string;
+      dueDate?: string | null;
+    }> = [];
+
+    for (const checklist of checklists) {
+      for (const item of checklist.aurora_checklist_items || []) {
+        if (!item.is_completed) {
+          tasks.push({
+            id: item.id,
+            content: item.content,
+            checklistId: checklist.id,
+            checklistTitle: checklist.title,
+            dueDate: item.due_date
+          });
+        }
+      }
+    }
+
+    return tasks;
+  }, [checklists]);
+
   return {
     checklists,
     loading,
@@ -486,5 +582,8 @@ export const useChecklistsData = (user: User | null) => {
     updateItemContent,
     updateChecklistTitle,
     rescheduleItem,
+    findMatchingItems,
+    findMatchingChecklists,
+    getAllOpenTasks,
   };
 };

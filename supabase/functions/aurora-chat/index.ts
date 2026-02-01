@@ -121,8 +121,45 @@ ${userContext ? `## About the user\n${userContext}` : ''}`;
 2. הצע לעדכן את התאריך אם צריך
 3. עזור למשתמש להבין את החסם
 
+## ⚠️ כלל בטיחות - חובה לפני כל פעולה!
+**חשוב מאוד**: לפני ביצוע כל פעולה, בדוק האם יש יותר מפריט אחד שמתאים לבקשת המשתמש.
+
+### אם יש התאמה אחת בלבד:
+- בצע את הפעולה עם התגית המתאימה
+- חגוג את ההצלחה
+- הצע צעד קטן הבא
+
+### אם יש יותר מהתאמה אחת:
+- **לא לבצע שום תגית פעולה!**
+- שאל שאלת הבהרה: "מצאתי כמה אפשרויות שיכולות להתאים: X, Y, Z. למה התכוונת?"
+- חכה לתשובה לפני שתבצע פעולה
+
+### דוגמאות לכלל הבטיחות:
+**מקרה 1 - התאמה אחת:**
+משתמש: "סיימתי לקרוא את הספר"
+(בהקשר יש משימה אחת בלבד שמכילה "ספר")
+תגובה: "מעולה! 📖 סימנתי. מה הפרק האהוב עליך?
+[task:complete:📅 שבוע 1:לקרוא את הספר]"
+
+**מקרה 2 - יותר מהתאמה אחת:**
+משתמש: "סיימתי משימה"
+(בהקשר יש 3 משימות פתוחות)
+תגובה: "יופי! 🎉 מצאתי כמה משימות פתוחות:
+1. לקנות מתנה
+2. להתקשר לאמא
+3. לסיים את הפרויקט
+
+איזו מהן סיימת?"
+(ללא תגית פעולה!)
+
+**מקרה 3 - בקשה כללית:**
+משתמש: "תמחקי משימה"
+(יש משימות רבות)
+תגובה: "בטח! איזו משימה תרצה שאמחק?"
+(ללא תגית פעולה!)
+
 ## תגיות פעולה (מעובדות ברקע, לא מוצגות למשתמש)
-**חשוב מאוד**: השתמש בתגיות אלו בכל פעם שמשתמש מבצע/מבקש פעולה! 
+**חשוב מאוד**: השתמש בתגיות אלו רק כשיש התאמה אחת בלבד!
 
 ### תגיות CTA (כפתורי פעולה)
 - [action:analyze] - כאשר יש תובנה משמעותית לשמור
@@ -257,7 +294,21 @@ I'm not just a companion - I'm the central brain managing your transformation jo
 - "How am I doing?" → Show stats and insights
 - "Remind me..." → Create a reminder
 
+## ⚠️ Safety Rule - MUST check before any action!
+Before executing ANY action, check if more than one item matches the user's request.
+
+### If exactly ONE match exists:
+- Execute the action with the appropriate tag
+- Celebrate success
+- Suggest a small next step
+
+### If MORE than one match exists:
+- **DO NOT use any action tags!**
+- Ask a clarification question: "I found several options: X, Y, Z. Which one did you mean?"
+- Wait for response before taking action
+
 ## Action Tags (processed in background, not shown to user)
+Only use these tags when exactly ONE match exists!
 - [action:analyze] - when there's significant insight to save
 - [cta:life_direction] - button to explore life direction
 - [cta:explore_values] - button to explore values
@@ -740,7 +791,17 @@ ${minimums.map((m: any) => `- ${m.title}`).join('\n') || 'לא הוגדרו'}
 - הבנת זהות: ${onboarding?.identity_understanding || 'shallow'}
 - מיפוי אנרגיה: ${onboarding?.energy_patterns_status || 'unknown'}
 
-## רשימות פעילות
+## 📋 רשימת כל המשימות הפתוחות (לזיהוי מדויק)
+| רשימה | משימה | ID |
+|--------|--------|-----|
+${checklists.flatMap((c: any) => {
+  const items = c.aurora_checklist_items || [];
+  return items
+    .filter((i: any) => !i.is_completed)
+    .map((i: any) => `| ${c.title} | ${i.content} | ${i.id.slice(0, 8)} |`);
+}).join('\n') || '| אין משימות פתוחות | - | - |'}
+
+## רשימות פעילות (סיכום)
 ${checklists.map((c: any) => {
   const items = c.aurora_checklist_items || [];
   const completed = items.filter((i: any) => i.is_completed).length;
