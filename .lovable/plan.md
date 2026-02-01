@@ -1,76 +1,87 @@
 
-# תוכנית: תיקון חיתוך טקסט במשימות
+# תוכנית: תיקון בהירות האורב - למניעת מראה "לבן"
 
-## הבעיה
-הטקסט במשימות נחתך בגלל שימוש ב-`truncate` שמסתיר טקסט ארוך. צריך להציג את כל הטקסט במלואו.
+## הבעיה שזוהתה
+
+האורב מופיע כלבן במקום בצבעים המותאמים אישית. הסיבות:
+
+### סיבה 1: Lightness גבוה מדי
+ערכי ה-Lightness בהגדרות הנושא (Theme) הם **73%**, שזה גבוה מאוד ב-HSL:
+- 50% = צבע טהור
+- 73% = צבע בהיר מאוד  
+- 100% = לבן מוחלט
+
+### סיבה 2: פורמט HSL לא תואם
+הצבעים מועברים בפורמט `hsl(292, 95%, 73%)` אבל חלק מהקוד מצפה לפורמט `292 95% 73%`.
+
+### סיבה 3: Opacity גבוה של קווי הוויירפריים
+הקווים מוגדרים עם `opacity: 0.95` שמוסיף לתחושה הלבנה.
 
 ---
 
 ## השינויים הנדרשים
 
-### קובץ: `src/components/aurora/AuroraChatQuickActions.tsx`
+### שינוי 1: הפחתת Lightness בפונקציית הפענוח
+**קובץ:** `src/components/orb/WebGLOrb.tsx`
 
-**שינוי 1 - כותרת רשימה (שורה 132):**
+נוסיף התאמת בהירות בפונקציית `parseHslToThreeColor` - הפחתת 15% מערך ה-Lightness כשהוא גבוה מ-60%:
 
-לפני:
-```tsx
-<span className="text-sm font-medium truncate block">
+```typescript
+function parseHslToThreeColor(colorStr: string): THREE.Color {
+  // ... existing matching code ...
+  
+  // After parsing, reduce lightness if too bright
+  let adjustedL = l;
+  if (l > 0.6) {
+    adjustedL = 0.4 + (l - 0.6) * 0.5; // Map 60-100% to 40-60%
+  }
+  
+  color.setHSL(h, s, adjustedL);
+  return color;
+}
 ```
 
-אחרי:
-```tsx
-<span className="text-sm font-medium block break-words whitespace-normal">
+### שינוי 2: הפחתת Opacity של קווי הוויירפריים
+**קובץ:** `src/components/orb/WebGLOrb.tsx`
+
+שינוי ה-opacity מ-0.95 ל-0.75:
+
+```typescript
+const lineMaterial = new THREE.LineBasicMaterial({
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.75,  // היה 0.95
+});
 ```
 
-**שינוי 2 - תוכן משימה (שורות 185-192):**
+### שינוי 3: שיפור תמיכה בפורמט HSL מרובה
+**קובץ:** `src/components/orb/WebGLOrb.tsx`
 
-לפני:
-```tsx
-<span
-  className={cn(
-    "text-xs flex-1 truncate",
-    item.is_completed && "line-through text-muted-foreground"
-  )}
->
-  {item.content}
-</span>
-```
+הוספת תמיכה בפורמטים נוספים:
 
-אחרי:
-```tsx
-<span
-  className={cn(
-    "text-xs flex-1 break-words whitespace-normal leading-relaxed",
-    item.is_completed && "line-through text-muted-foreground"
-  )}
->
-  {item.content}
-</span>
-```
-
-**שינוי 3 - הרחבת רוחב הפופאובר (שורה 66):**
-
-לפני:
-```tsx
-className="w-80 p-0"
-```
-
-אחרי:
-```tsx
-className="w-96 p-0"
+```typescript
+function parseHslToThreeColor(colorStr: string): THREE.Color {
+  // Pattern 1: Space-separated (e.g., "292 95% 73%")
+  // Pattern 2: CSS hsl function (e.g., "hsl(292, 95%, 73%)")
+  // Pattern 3: CSS hsl with spaces (e.g., "hsl(292 95% 73%)")
+  // + התאמת בהירות
+}
 ```
 
 ---
 
-## סיכום
+## פרטים טכניים
 
-| בעיה | פתרון |
-|------|-------|
-| טקסט כותרת נחתך | הסרת `truncate`, הוספת `break-words whitespace-normal` |
-| טקסט משימה נחתך | הסרת `truncate`, הוספת `break-words whitespace-normal leading-relaxed` |
-| פופאובר צר מדי | הגדלת רוחב מ-`w-80` ל-`w-96` |
+### לוגיקת התאמת הבהירות:
+- אם L > 60%: נמפה את הטווח 60-100% לטווח 40-60%
+- הנוסחה: `adjustedL = 0.4 + (l - 0.6) * 0.5`
+- דוגמה: L=73% → adjustedL = 0.4 + 0.13 * 0.5 = 46.5%
+
+### קבצים לשינוי:
+1. `src/components/orb/WebGLOrb.tsx` - פונקציית parseHslToThreeColor + opacity
+2. `src/components/orb/MultiThreadOrb.tsx` - אותו שינוי לפונקציה המקבילה
 
 ---
 
 ## תוצאה צפויה
-כל הטקסטים יוצגו במלואם עם שבירת שורות אוטומטית במקום חיתוך.
+האורב יופיע בצבעים עמוקים ועשירים יותר במקום לבן בוהק, תוך שמירה על האופי הייחודי של הפרופיל.
