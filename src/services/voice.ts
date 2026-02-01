@@ -287,18 +287,36 @@ export function createTTSAudioPlayer(audioUrl: string): HTMLAudioElement {
   return audio;
 }
 
-// Global audio reference to ensure only one audio plays at a time
+// Track ALL active audio elements to ensure complete cleanup
+const activeAudioElements: Set<HTMLAudioElement> = new Set();
 let currentAudio: HTMLAudioElement | null = null;
 
 /**
- * Stop any currently playing audio
+ * Stop any currently playing audio - stops ALL tracked audio elements
  */
 export function stopCurrentAudio(): void {
+  // Stop all tracked audio elements
+  activeAudioElements.forEach(audio => {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.src = '';
+      audio.load(); // Force release
+    } catch (e) {
+      // Ignore errors on cleanup
+    }
+  });
+  activeAudioElements.clear();
+  
+  // Also clear the legacy reference
   if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.src = '';
+    try {
+      currentAudio.pause();
+      currentAudio.src = '';
+    } catch (e) {}
     currentAudio = null;
   }
+  
   // Also stop browser speech
   stopBrowserSpeech();
 }
@@ -337,7 +355,17 @@ export async function playAudioUrl(
     }
 
     const audio = new Audio(audioUrl);
-    currentAudio = audio; // Track the current audio
+    
+    // Track this audio element
+    activeAudioElements.add(audio);
+    currentAudio = audio;
+    
+    const cleanup = () => {
+      activeAudioElements.delete(audio);
+      if (currentAudio === audio) {
+        currentAudio = null;
+      }
+    };
     
     // Trigger onStart when audio actually starts playing
     audio.onplaying = () => {
@@ -349,20 +377,20 @@ export async function playAudioUrl(
     };
     
     audio.onended = () => {
-      currentAudio = null;
+      cleanup();
       options.onEnd?.();
       resolve();
     };
     
     audio.onerror = () => {
-      currentAudio = null;
+      cleanup();
       const error = new Error('Audio playback failed');
       options.onError?.(error);
       reject(error);
     };
 
     audio.play().catch((error) => {
-      currentAudio = null;
+      cleanup();
       options.onError?.(error);
       reject(error);
     });
