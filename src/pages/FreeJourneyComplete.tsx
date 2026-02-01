@@ -5,6 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -97,6 +98,7 @@ export default function FreeJourneyComplete() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
+  const { isLaunchpadComplete: isGuestComplete, getGuestData } = useGuestLaunchpadProgress();
   const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useGuestPDF();
   
   const [loading, setLoading] = useState(true);
@@ -143,15 +145,26 @@ export default function FreeJourneyComplete() {
       const stored = localStorage.getItem('guest_launchpad_result');
       if (stored) {
         setResult(JSON.parse(stored));
+        setLoading(false);
+        return;
+      }
+      
+      // If no stored result but guest journey is complete, redirect to get results
+      // This handles returning guests who cleared browser data
+      if (!isGuestComplete) {
+        // Guest hasn't completed the journey - redirect to start
+        navigate('/free-journey', { replace: true });
       } else {
-        navigate('/free-journey');
+        // Guest completed but result not found - they may need to regenerate
+        // Show a message or redirect to continue
+        navigate('/guest-launchpad', { replace: true });
       }
     } catch {
-      navigate('/free-journey');
+      navigate('/free-journey', { replace: true });
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, isGuestComplete]);
 
   // Celebration confetti
   useEffect(() => {
