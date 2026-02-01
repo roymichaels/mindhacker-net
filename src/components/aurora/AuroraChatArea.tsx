@@ -35,7 +35,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="h-full flex flex-col relative isolate">
       {/* Messages Area */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="w-full h-full pb-44 sm:pb-32 px-4">
