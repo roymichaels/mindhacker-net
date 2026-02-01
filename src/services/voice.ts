@@ -310,6 +310,7 @@ export async function playAudioUrl(
   audioUrl: string,
   options: {
     onTimeUpdate?: (currentTime: number, duration: number) => void;
+    onStart?: () => void;
     onEnd?: () => void;
     onError?: (error: Error) => void;
   } = {}
@@ -321,6 +322,7 @@ export async function playAudioUrl(
     // Handle browser TTS URLs
     if (audioUrl.startsWith('browser-tts://')) {
       const text = decodeURIComponent(audioUrl.replace('browser-tts://', ''));
+      options.onStart?.(); // Voice starts immediately with browser TTS
       speakWithBrowser(text, {
         onEnd: () => {
           options.onEnd?.();
@@ -336,6 +338,11 @@ export async function playAudioUrl(
 
     const audio = new Audio(audioUrl);
     currentAudio = audio; // Track the current audio
+    
+    // Trigger onStart when audio actually starts playing
+    audio.onplaying = () => {
+      options.onStart?.();
+    };
     
     audio.ontimeupdate = () => {
       options.onTimeUpdate?.(audio.currentTime, audio.duration);

@@ -452,22 +452,58 @@ serve(async (req) => {
     const wordsPerMinute = 130;
     const totalWords = durationMinutes * wordsPerMinute;
     
-    // Gender-specific Hebrew grammar
+    // Gender-specific Hebrew grammar - STRICT ENFORCEMENT
     let hebrewGrammarInstruction = '';
     if (userGender === 'male') {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Address the listener using MASCULINE singular forms (לשון זכר יחיד). 
-Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
-Do NOT use feminine forms.`;
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
+You MUST address the listener using ONLY MASCULINE singular forms (לשון זכר יחיד).
+
+CORRECT FORMS TO USE:
+- "אתה מרגיש" (NOT "את מרגישה" or "אתה/את")
+- "אתה נושם" (NOT "את נושמת")
+- "תן לעצמך" (NOT "תני לעצמך")
+- "הרגש את" (NOT "הרגישי")
+- "אתה יכול" (NOT "את יכולה")
+- "שלך" (masculine possession)
+
+STRICTLY FORBIDDEN:
+- DO NOT use feminine forms
+- DO NOT use combined forms like "אתה/את" or "מרגיש/ה"
+- DO NOT use the word "את" as "you" - only "אתה"
+- Every single verb and pronoun must be masculine`;
     } else if (userGender === 'female') {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Address the listener using FEMININE singular forms (לשון נקבה יחיד). 
-Use forms like: "את מרגישה", "את נושמת", "תני לעצמך", "הרגישי את", "את יכולה".
-Do NOT use masculine forms.`;
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
+You MUST address the listener using ONLY FEMININE singular forms (לשון נקבה יחיד).
+
+CORRECT FORMS TO USE:
+- "את מרגישה" (NOT "אתה מרגיש" or "אתה/את")
+- "את נושמת" (NOT "אתה נושם")
+- "תני לעצמך" (NOT "תן לעצמך")
+- "הרגישי את" (NOT "הרגש")
+- "את יכולה" (NOT "אתה יכול")
+- "שלך" (feminine possession)
+
+STRICTLY FORBIDDEN:
+- DO NOT use masculine forms
+- DO NOT use combined forms like "אתה/את" or "מרגיש/ה"
+- DO NOT use the word "אתה" as "you" - only "את"
+- Every single verb and pronoun must be feminine`;
     } else {
       // Default to masculine in Hebrew (grammatical convention) when no preference set
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: The user hasn't set a gender preference. 
-Use MASCULINE singular forms as the default Hebrew convention (לשון זכר יחיד).
-Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
-Do NOT mix forms like "אתה/את" - pick one consistent form.`;
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
+The user hasn't set a gender preference. Use MASCULINE singular forms as Hebrew default.
+
+CORRECT FORMS TO USE:
+- "אתה מרגיש" (NOT "את מרגישה")
+- "אתה נושם"
+- "תן לעצמך"
+- "הרגש את"
+- "אתה יכול"
+
+STRICTLY FORBIDDEN:
+- DO NOT mix forms like "אתה/את" or "מרגיש/ה" - this sounds terrible in hypnosis
+- DO NOT use the slash "/" character anywhere in the script
+- Pick ONE consistent form (masculine) and use it throughout`;
     }
 
     const languageInstruction = language === 'he' 
