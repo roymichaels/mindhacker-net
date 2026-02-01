@@ -74,9 +74,9 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* HUD-style gradient background - Theme-aware */}
-      <div className="fixed inset-0 bg-gradient-to-br from-primary/10 via-muted/20 to-accent/10 -z-10" />
-      <div className="fixed inset-0 bg-background/85 -z-10" />
+      {/* HUD-style gradient background - Theme-aware using new gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10 -z-10" />
+      <div className="fixed inset-0 bg-background/80 -z-10" />
       
       {/* Header */}
       <Header />

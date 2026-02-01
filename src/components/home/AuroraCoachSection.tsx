@@ -31,10 +31,10 @@ export default function AuroraCoachSection() {
   const { t, isRTL } = useTranslation();
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-background to-muted/30 overflow-hidden relative">
+    <section className="py-24 px-4 bg-gradient-to-b from-background via-primary/10 to-accent/5 overflow-hidden relative">
       {/* Background glow effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>

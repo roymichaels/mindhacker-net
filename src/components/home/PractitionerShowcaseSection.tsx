@@ -31,11 +31,11 @@ export default function PractitionerShowcaseSection() {
   if (!practitioners?.length) return null;
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-b from-background via-primary/10 to-accent/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-violet-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>

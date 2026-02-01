@@ -45,11 +45,11 @@ export default function WhatIsThisSection() {
   const { t, isRTL } = useTranslation();
 
   return (
-    <section className="py-16 sm:py-24 px-4 bg-gradient-to-b from-primary/5 to-background relative overflow-hidden">
+    <section className="py-16 sm:py-24 px-4 bg-gradient-to-b from-primary/15 via-accent/5 to-background relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10" dir={isRTL ? 'rtl' : 'ltr'}>
