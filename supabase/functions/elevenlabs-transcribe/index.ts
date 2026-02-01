@@ -11,6 +11,20 @@ serve(async (req) => {
   }
 
   try {
+    const contentType = req.headers.get('content-type') || '';
+    
+    // Handle if content-type doesn't include multipart/form-data
+    if (!contentType.includes('multipart/form-data') && !contentType.includes('form-data')) {
+      console.error('Missing or invalid content type:', contentType);
+      return new Response(JSON.stringify({ 
+        error: 'Missing content type',
+        fallback: true,
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const formData = await req.formData();
     const audioFile = formData.get('audio') as File;
 
