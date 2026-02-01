@@ -198,10 +198,7 @@ const DashboardSidebar = ({
         </div>
       </div>
 
-      {/* Spacer to push conversations to bottom */}
-      <div className="flex-1" />
-
-      {/* New Chat Button - above recent chats (only on Aurora page) */}
+      {/* New Chat Button - right below navigation (only on Aurora page) */}
       {isAuroraPage && !isCollapsed && onNewChat && (
         <Button
           variant="outline"
@@ -225,7 +222,7 @@ const DashboardSidebar = ({
         </Button>
       )}
 
-      {/* Recent Conversations - ChatGPT style at BOTTOM (only on Aurora page) */}
+      {/* Recent Conversations - right below New Chat button (only on Aurora page) */}
       {isAuroraPage && !isCollapsed && conversations.length > 0 && (
         <div className="mb-2">
           <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
@@ -272,6 +269,9 @@ const DashboardSidebar = ({
           </ScrollArea>
         </div>
       )}
+
+      {/* Spacer to push footer to bottom */}
+      <div className="flex-1" />
     </>
   );
 
