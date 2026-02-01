@@ -11,14 +11,15 @@ import {
   Star,
   Zap,
   Clock,
-  Gift
+  Gift,
+  X
 } from 'lucide-react';
 
 const BENEFITS = [
-  { icon: Brain, labelHe: 'ניתוח AI', labelEn: 'AI Analysis' },
+  { icon: Brain, labelHe: 'ניתוח תודעה AI', labelEn: 'AI Consciousness Analysis' },
   { icon: Target, labelHe: 'תוכנית 90 יום', labelEn: '90-Day Plan' },
-  { icon: Star, labelHe: 'פרופיל זהות', labelEn: 'Identity DNA' },
-  { icon: Zap, labelHe: 'ליווי אישי', labelEn: 'AI Coach' },
+  { icon: Star, labelHe: 'פרופיל זהות אישי', labelEn: 'Identity DNA Profile' },
+  { icon: Zap, labelHe: 'ליווי אישי מ-Aurora', labelEn: 'Personal AI Coach' },
 ];
 
 interface LaunchpadIntroProps {
@@ -52,6 +53,17 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
 
         {/* Main card */}
         <div className="relative flex-1 flex flex-col rounded-3xl bg-gradient-to-br from-card via-card to-card/95 border border-white/20 shadow-2xl overflow-hidden">
+          {/* Close button */}
+          {onSkip && (
+            <button
+              onClick={onSkip}
+              className={`absolute top-3 z-20 w-8 h-8 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors ${isRTL ? 'left-3' : 'right-3'}`}
+              aria-label={isRTL ? 'סגור' : 'Close'}
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
+          
           {/* Corner decorations */}
           <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-primary/20 to-transparent rounded-br-full" />
           <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-accent/20 to-transparent rounded-tl-full" />
@@ -137,12 +149,12 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
             {/* Time */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
               <Clock className="w-3 h-3" />
-              <span>{isRTL ? '~10 דקות' : '~10 min'}</span>
+              <span>{isRTL ? '~45 דקות' : '~45 min'}</span>
             </div>
           </div>
 
           {/* CTA Section */}
-          <div className="p-4 pt-0 space-y-2">
+          <div className="p-4 pt-0">
             <Button
               size="lg"
               onClick={onStart}
@@ -154,18 +166,9 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
               >
                 <Sparkles className="w-4 h-4" />
               </motion.span>
-              {isRTL ? 'להתחיל!' : 'Start!'}
+              {isRTL ? 'התחל את המסע' : 'Start the Journey'}
               <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             </Button>
-
-            {onSkip && (
-              <button
-                onClick={onSkip}
-                className="w-full text-center text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors py-1"
-              >
-                {isRTL ? 'אמשיך אחר כך' : 'Later'}
-              </button>
-            )}
           </div>
         </div>
       </motion.div>
