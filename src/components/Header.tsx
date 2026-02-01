@@ -251,7 +251,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
-          {/* Left side */}
+          {/* Left side - Avatar for guests (both RTL and LTR) */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               // Logged in: Show menu controls
@@ -285,12 +285,12 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 )}
               </>
             ) : (
-              // Logged out: RTL = Avatar on left, LTR = Logo on left
-              isRTL ? <GuestAvatarDropdown /> : <LogoBrand />
+              // Logged out: Avatar dropdown always on left
+              <GuestAvatarDropdown />
             )}
           </div>
 
-          {/* Right side */}
+          {/* Right side - Logo + Brand for guests */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               // Logged in: Show logo + admin controls
@@ -314,8 +314,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 )}
               </>
             ) : (
-              // Logged out: RTL = Logo on right, LTR = Avatar on right
-              isRTL ? <LogoBrand /> : <GuestAvatarDropdown />
+              // Logged out: Logo + Brand on right
+              <LogoBrand />
             )}
           </div>
         </div>
