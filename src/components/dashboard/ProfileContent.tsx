@@ -103,10 +103,10 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-card/80 to-accent/20 backdrop-blur-xl border border-primary/30 shadow-xl"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 backdrop-blur-xl border border-primary/30 shadow-xl"
       >
         {/* Glow background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
         
         <div className="relative z-10 p-6 flex flex-col items-center text-center">
           {/* Large Orb */}
