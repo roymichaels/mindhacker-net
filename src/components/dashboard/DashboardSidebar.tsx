@@ -28,6 +28,7 @@ import { he, enUS } from 'date-fns/locale';
 import { DashboardModal } from './DashboardModal';
 import { HypnosisModal } from './HypnosisModal';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
 const defaultLogo = "/logo.png?v=9";
 
@@ -143,8 +144,9 @@ const DashboardSidebar = ({
 
   // Navigation items - now open modals instead of navigating
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple' as const, onClick: () => setDashboardOpen(true) },
-    { id: 'hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
+    { id: 'aurora', icon: null, customIcon: AuroraOrbIcon, label: language === 'he' ? 'אורורה' : 'Aurora', highlight: 'cyan' as const, onClick: () => { navigate('/aurora'); onNavigate?.(); } },
+    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple' as const, onClick: () => setDashboardOpen(true) },
+    { id: 'hypnosis', icon: Compass, customIcon: null, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
   ];
 
   // Shared content component for desktop sidebar
@@ -218,6 +220,7 @@ const DashboardSidebar = ({
             const highlightColor = item.highlight;
             const isPurple = highlightColor === 'purple';
             const isBlue = highlightColor === 'blue';
+            const isCyan = highlightColor === 'cyan';
             return (
               <button
                 key={item.id}
@@ -229,15 +232,23 @@ const DashboardSidebar = ({
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors",
                   isPurple && "bg-purple-500/10 text-purple-400 hover:bg-purple-500/20",
                   isBlue && "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20",
+                  isCyan && "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
-                <item.icon className={cn(
-                  "h-4 w-4 shrink-0", 
-                  isPurple && "text-purple-400",
-                  isBlue && "text-[#1d9bf0]"
-                )} />
+                {item.customIcon ? (
+                  <item.customIcon className={cn(
+                    "h-4 w-4 shrink-0", 
+                    isCyan && "text-cyan-400"
+                  )} size={16} />
+                ) : item.icon && (
+                  <item.icon className={cn(
+                    "h-4 w-4 shrink-0", 
+                    isPurple && "text-purple-400",
+                    isBlue && "text-[#1d9bf0]"
+                  )} />
+                )}
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
