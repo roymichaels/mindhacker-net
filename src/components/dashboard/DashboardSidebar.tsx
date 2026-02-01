@@ -205,7 +205,7 @@ const DashboardSidebar = ({
 
       {/* Desktop: Search bar above navigation */}
       {!isMobile && !isCollapsed && isAuroraPage && (
-        <div className="px-3 mb-3 flex items-center gap-2">
+        <div className="px-3 mb-3 flex items-center gap-2 w-full min-w-0">
           <button
             onClick={() => {
               onNewChat?.();
@@ -215,13 +215,13 @@ const DashboardSidebar = ({
           >
             <Plus className="h-4 w-4 text-muted-foreground" />
           </button>
-          <div className="flex-1 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
+          <div className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={language === 'he' ? 'חיפוש...' : 'Search...'}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               dir={isRTL ? 'rtl' : 'ltr'}
             />
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
