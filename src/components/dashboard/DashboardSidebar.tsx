@@ -7,7 +7,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
-  LayoutDashboard,
   MessageSquare,
   Users,
   Sparkles,
@@ -104,11 +103,10 @@ const DashboardSidebar = ({
     }
   };
 
-  // Navigation items
+  // Navigation items - Aurora is now the home/first item
   const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
-    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
     { path: '/aurora', icon: Sparkles, label: language === 'he' ? 'אורורה' : 'Aurora' },
+    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
     { path: '/community', icon: Users, label: language === 'he' ? 'קהילה' : 'Community' },
     { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
   ];

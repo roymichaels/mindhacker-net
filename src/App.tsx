@@ -335,11 +335,12 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        {/* Dashboard redirects to Aurora (Aurora is the home page) */}
                         <Route
                           path="/dashboard"
                           element={
                             <ProtectedRoute>
-                              <UserDashboard />
+                              <Navigate to="/aurora" replace />
                             </ProtectedRoute>
                           }
                         />
