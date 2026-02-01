@@ -48,9 +48,9 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col relative">
-      {/* ChatGPT-style fixed header - minimal icons on right */}
-      <div className="absolute top-0 right-0 z-20 p-2 flex items-center gap-1">
+    <div className="h-full flex flex-col">
+      {/* ChatGPT-style fixed header - icons at top right of viewport */}
+      <div className="fixed top-2 right-4 z-30 flex items-center gap-1">
         <AuroraChatQuickActions />
         <UserNotificationBell />
       </div>
