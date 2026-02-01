@@ -136,8 +136,8 @@ const DashboardSidebar = ({
 
   // Navigation items - now open modals instead of navigating
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', onClick: () => setDashboardOpen(true) },
-    { id: 'hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: true, onClick: () => setHypnosisOpen(true) },
+    { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple' as const, onClick: () => setDashboardOpen(true) },
+    { id: 'hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
   ];
 
   // Shared content component
@@ -163,7 +163,9 @@ const DashboardSidebar = ({
         )}
         <div className="space-y-1">
           {navItems.map((item) => {
-            const isHighlight = 'highlight' in item && item.highlight;
+            const highlightColor = item.highlight;
+            const isPurple = highlightColor === 'purple';
+            const isBlue = highlightColor === 'blue';
             return (
               <button
                 key={item.id}
@@ -173,14 +175,17 @@ const DashboardSidebar = ({
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                  isHighlight
-                    ? "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground",
+                  isPurple && "bg-purple-500/10 text-purple-400 hover:bg-purple-500/20",
+                  isBlue && "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
-                <item.icon className={cn("h-4 w-4 shrink-0", isHighlight && "text-[#1d9bf0]")} />
+                <item.icon className={cn(
+                  "h-4 w-4 shrink-0", 
+                  isPurple && "text-purple-400",
+                  isBlue && "text-[#1d9bf0]"
+                )} />
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
