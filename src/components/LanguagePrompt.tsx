@@ -2,14 +2,12 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
-
-const defaultLogo = "/aurora-icon.svg";
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
 export const LanguagePrompt = () => {
   const { isFirstVisit, setLanguage, setFirstVisitComplete, language } = useLanguage();
   const { theme } = useThemeSettings();
 
-  const logoUrl = theme.logo_url || defaultLogo;
   const brandName = language === 'he' ? theme.brand_name : theme.brand_name_en;
 
   const handleSelect = (lang: 'he' | 'en') => {
@@ -35,9 +33,9 @@ export const LanguagePrompt = () => {
             : 'Choose your preferred language for viewing the site'}
         </DialogDescription>
         <div className="flex flex-col items-center gap-6 py-4">
-          {/* Logo - using theme settings */}
-          <div className="w-28 h-28 rounded-full bg-primary/10 flex items-center justify-center p-2">
-            <img src={logoUrl} alt={brandName} className="w-full h-full object-contain" />
+          {/* Logo - using AuroraOrbIcon */}
+          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center">
+            <AuroraOrbIcon size={64} className="text-primary" />
           </div>
 
           {/* Title */}
