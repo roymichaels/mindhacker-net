@@ -51,7 +51,8 @@ const DialogContent = React.forwardRef<
         {...swipeHandlers}
         className={cn(
           "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
-          "border border-border bg-background p-6 text-foreground",
+          "border border-border/50 p-6 text-foreground",
+          "bg-white dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
           "shadow-2xl ring-1 ring-border/20 rounded-lg",
           "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           "max-sm:max-w-[calc(100%-2rem)] max-sm:max-h-[calc(100%-2rem)]",
