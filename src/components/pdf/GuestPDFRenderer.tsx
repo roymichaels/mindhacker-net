@@ -4,6 +4,9 @@ import { PDFScoresPage } from './PDFScoresPage';
 import { PDFLifeDirectionPage } from './PDFLifeDirectionPage';
 import { PDFConsciousnessPage } from './PDFConsciousnessPage';
 import { PDFIdentityPage } from './PDFIdentityPage';
+import { PDFBehavioralPage } from './PDFBehavioralPage';
+import { PDFLifePlanPage } from './PDFLifePlanPage';
+import { PDFDashboardPage } from './PDFDashboardPage';
 import { PDFHawkinsPage } from './PDFHawkinsPage';
 import { PDFOrbPage } from './PDFOrbPage';
 import type { MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
@@ -12,6 +15,7 @@ export interface GuestPDFData {
   summary: {
     life_direction?: {
       core_aspiration?: string;
+      central_aspiration?: string;
       vision_summary?: string;
       clarity_score?: number;
     };
@@ -35,7 +39,14 @@ export interface GuestPDFData {
     behavioral_insights?: {
       habits_to_transform?: string[];
       habits_to_cultivate?: string[];
+      habits_to_break?: string[];
+      habits_to_develop?: string[];
       resistance_patterns?: string[];
+    };
+    career_path?: {
+      current_status?: string;
+      aspirations?: string[];
+      next_steps?: string[];
     };
   };
   scores: {
@@ -61,13 +72,41 @@ export interface GuestPDFData {
       }>;
     }>;
   };
+  // Milestones in the same format as ProfilePDFData for the plan pages
+  milestones?: Array<{
+    week_number: number;
+    title?: string;
+    goal?: string;
+    tasks?: string[];
+    weekly_challenge?: string;
+    hypnosis_recommendation?: string;
+  }>;
+  planTitle?: string;
   language: string;
   orbProfile?: MultiThreadOrbProfile;
+  identityTitle?: {
+    title: string;
+    icon: string;
+  } | null;
+  // Dashboard data for life model page
+  dashboard?: {
+    values: string[];
+    principles: string[];
+    selfConcepts: string[];
+    characterTraits: string[];
+    fiveYearVision?: { title: string; description: string | null } | null;
+    tenYearVision?: { title: string; description: string | null } | null;
+    activeCommitments: Array<{ title: string; description: string | null }>;
+    dailyAnchors: Array<{ title: string; category: string | null }>;
+  };
 }
 
 interface GuestPDFRendererProps {
   data: GuestPDFData;
 }
+
+// Split milestones into chunks (3 per page)
+const MILESTONES_PER_PAGE = 3;
 
 export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps>(
   ({ data }, ref) => {
@@ -79,7 +118,7 @@ export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps
         ? (data.summary.identity_profile.identity_title.title || data.summary.identity_profile.identity_title.title_en || '')
         : (data.summary.identity_profile.identity_title.title_en || data.summary.identity_profile.identity_title.title || ''),
       icon: data.summary.identity_profile.identity_title.icon || '✨',
-    } : null;
+    } : data.identityTitle || null;
 
     // Map consciousness analysis to PDF format
     const consciousnessAnalysis = data.summary.consciousness_analysis ? {
@@ -99,12 +138,30 @@ export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps
       values_hierarchy: data.summary.identity_profile.values_hierarchy,
     } : undefined;
 
-    // Map life direction
+    // Map life direction - handle both field name variants
     const lifeDirection = data.summary.life_direction ? {
-      central_aspiration: data.summary.life_direction.core_aspiration,
+      central_aspiration: data.summary.life_direction.core_aspiration || data.summary.life_direction.central_aspiration,
       vision_summary: data.summary.life_direction.vision_summary,
       clarity_score: data.summary.life_direction.clarity_score,
     } : undefined;
+
+    // Map behavioral insights - handle both field name variants
+    const behavioralInsights = data.summary.behavioral_insights ? {
+      habits_to_break: data.summary.behavioral_insights.habits_to_break || data.summary.behavioral_insights.habits_to_transform,
+      habits_to_develop: data.summary.behavioral_insights.habits_to_develop || data.summary.behavioral_insights.habits_to_cultivate,
+      resistance_patterns: data.summary.behavioral_insights.resistance_patterns,
+    } : undefined;
+
+    // Prepare milestones for PDF pages
+    const milestones = data.milestones || [];
+    const sortedMilestones = [...milestones].sort((a, b) => a.week_number - b.week_number);
+    const milestonePages: typeof milestones[] = [];
+    
+    for (let i = 0; i < sortedMilestones.length; i += MILESTONES_PER_PAGE) {
+      milestonePages.push(sortedMilestones.slice(i, i + MILESTONES_PER_PAGE));
+    }
+
+    const guestName = isRTL ? 'אורח' : 'Guest';
 
     return (
       <div 
@@ -124,7 +181,7 @@ export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps
         {/* Page 1: Cover */}
         <div data-page="cover">
           <PDFCoverPage 
-            userName={isRTL ? 'אורח' : 'Guest'} 
+            userName={guestName} 
             language={data.language} 
           />
         </div>
@@ -135,7 +192,7 @@ export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps
             <PDFOrbPage 
               profile={data.orbProfile} 
               identityTitle={identityTitle}
-              userName={isRTL ? 'אורח' : 'Guest'}
+              userName={guestName}
               language={data.language} 
             />
           </div>
@@ -190,6 +247,46 @@ export const GuestPDFRenderer = forwardRef<HTMLDivElement, GuestPDFRendererProps
             />
           </div>
         )}
+
+        {/* Page 8: Behavioral Insights & Career */}
+        {(behavioralInsights || data.summary.career_path) && (
+          <div data-page="behavioral">
+            <PDFBehavioralPage 
+              insights={behavioralInsights}
+              career={data.summary.career_path}
+              language={data.language} 
+            />
+          </div>
+        )}
+
+        {/* Dashboard / Life Model Page */}
+        {data.dashboard && (
+          <div data-page="dashboard">
+            <PDFDashboardPage 
+              values={data.dashboard.values}
+              principles={data.dashboard.principles}
+              selfConcepts={data.dashboard.selfConcepts}
+              characterTraits={data.dashboard.characterTraits}
+              fiveYearVision={data.dashboard.fiveYearVision}
+              tenYearVision={data.dashboard.tenYearVision}
+              activeCommitments={data.dashboard.activeCommitments}
+              dailyAnchors={data.dashboard.dailyAnchors}
+              language={data.language}
+            />
+          </div>
+        )}
+
+        {/* Life Plan Pages - 90 Day Plan */}
+        {milestonePages.map((pageMilestones, pageIndex) => (
+          <div key={`plan-${pageIndex}`} data-page={`plan-${pageIndex}`}>
+            <PDFLifePlanPage 
+              milestones={pageMilestones}
+              planTitle={pageIndex === 0 ? data.planTitle : undefined}
+              language={data.language}
+              pageNumber={pageIndex}
+            />
+          </div>
+        ))}
       </div>
     );
   }

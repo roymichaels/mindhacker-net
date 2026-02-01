@@ -28,12 +28,20 @@ interface GuestResult {
     behavioral_insights?: {
       habits_to_transform: string[];
       habits_to_cultivate: string[];
+      habits_to_break?: string[];
+      habits_to_develop?: string[];
       resistance_patterns: string[];
     };
     life_direction?: {
       core_aspiration?: string;
+      central_aspiration?: string;
       vision_summary?: string;
       clarity_score?: number;
+    };
+    career_path?: {
+      current_status?: string;
+      aspirations?: string[];
+      next_steps?: string[];
     };
   };
   plan?: {
@@ -43,6 +51,25 @@ interface GuestResult {
       title_he?: string;
       focus: string;
       milestone: string;
+      weeks?: Array<{
+        number: number;
+        title: string;
+        description?: string;
+        tasks?: string[];
+        goal?: string;
+        challenge?: string;
+        weekly_challenge?: string;
+        hypnosis_recommendation?: string;
+      }>;
+    }>;
+    milestones?: Array<{
+      week_number: number;
+      title?: string;
+      goal?: string;
+      tasks?: string[];
+      weekly_challenge?: string;
+      challenge?: string;
+      hypnosis_recommendation?: string;
     }>;
   };
   scores: {
@@ -78,8 +105,15 @@ export function useGuestPDF() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const preparePDFData = useCallback((result: GuestResult): GuestPDFData => {
-    // Try to get hobbies from localStorage
+    const isRTL = language === 'he';
+    
+    // Try to get profile data from localStorage
     let hobbies: string[] = [];
+    let values: string[] = [];
+    let principles: string[] = [];
+    let selfConcepts: string[] = [];
+    let characterTraits: string[] = [];
+    
     try {
       const profileData = localStorage.getItem('launchpad_personal_profile');
       if (profileData) {
@@ -90,6 +124,16 @@ export function useGuestPDF() {
       console.error('Error parsing profile data:', e);
     }
 
+    // Extract values from identity profile
+    if (result.summary.identity_profile?.values_hierarchy) {
+      values = result.summary.identity_profile.values_hierarchy;
+    }
+    
+    // Extract traits from identity profile
+    if (result.summary.identity_profile?.dominant_traits) {
+      characterTraits = result.summary.identity_profile.dominant_traits;
+    }
+
     // Generate orb profile
     const orbProfile = generateOrbThreads(
       result.summary as any,
@@ -97,12 +141,69 @@ export function useGuestPDF() {
       result.scores.consciousness
     );
 
+    // Get identity title
+    const identityTitle = result.summary.identity_profile?.identity_title ? {
+      title: isRTL 
+        ? (result.summary.identity_profile.identity_title.title || result.summary.identity_profile.identity_title.title_en || '')
+        : (result.summary.identity_profile.identity_title.title_en || result.summary.identity_profile.identity_title.title || ''),
+      icon: result.summary.identity_profile.identity_title.icon || '✨',
+    } : null;
+
+    // Extract milestones from plan - handle both formats
+    let milestones: GuestPDFData['milestones'] = [];
+    
+    if (result.plan?.milestones) {
+      // Direct milestones array
+      milestones = result.plan.milestones.map(m => ({
+        week_number: m.week_number,
+        title: m.title,
+        goal: m.goal,
+        tasks: m.tasks,
+        weekly_challenge: m.weekly_challenge || m.challenge,
+        hypnosis_recommendation: m.hypnosis_recommendation,
+      }));
+    } else if (result.plan?.months) {
+      // Extract from months -> weeks structure
+      result.plan.months.forEach(month => {
+        if (month.weeks) {
+          month.weeks.forEach(week => {
+            milestones!.push({
+              week_number: week.number,
+              title: week.title,
+              goal: week.goal,
+              tasks: week.tasks,
+              weekly_challenge: week.weekly_challenge || week.challenge,
+              hypnosis_recommendation: week.hypnosis_recommendation,
+            });
+          });
+        }
+      });
+    }
+
+    // Build dashboard data from what we have
+    const dashboard: GuestPDFData['dashboard'] = {
+      values,
+      principles,
+      selfConcepts,
+      characterTraits,
+      fiveYearVision: null,
+      tenYearVision: null,
+      activeCommitments: [],
+      dailyAnchors: [],
+    };
+
+    // Plan title
+    const planTitle = isRTL ? 'תוכנית הטרנספורמציה שלך' : 'Your Transformation Plan';
+
     return {
       summary: result.summary,
       scores: result.scores,
-      plan: result.plan,
+      milestones,
+      planTitle,
       language,
       orbProfile,
+      identityTitle,
+      dashboard,
     };
   }, [language]);
 
