@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { Orb } from '@/components/orb';
@@ -79,7 +78,6 @@ export default function FreeTransformationJourney() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
   const { isLaunchpadComplete: isGuestComplete } = useGuestLaunchpadProgress();
   const { profile: orbProfile } = useOrbProfile();
 
@@ -91,20 +89,16 @@ export default function FreeTransformationJourney() {
     url: `${window.location.origin}/free-journey`,
   });
 
-  // Redirect authenticated users to their appropriate journey
+  // Redirect authenticated users immediately - they should use the authenticated flow
   useEffect(() => {
-    if (authLoading || launchpadLoading) return;
+    if (authLoading) return;
     
     if (user) {
-      if (isLaunchpadComplete) {
-        // User already completed - go to dashboard
-        navigate('/dashboard', { replace: true });
-      } else {
-        // User logged in but not complete - go to authenticated launchpad
-        navigate('/launchpad', { replace: true });
-      }
+      // Authenticated users should not use the guest flow at all
+      // Redirect to launchpad (it will handle complete vs incomplete)
+      navigate('/launchpad', { replace: true });
     }
-  }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
+  }, [user, authLoading, navigate]);
 
   // Check if guest has already completed journey - redirect to results
   useEffect(() => {
@@ -125,8 +119,8 @@ export default function FreeTransformationJourney() {
     navigate('/');
   };
 
-  // Show loading while checking auth
-  if (authLoading || launchpadLoading) {
+  // Show loading only while checking auth (not launchpad - we redirect auth users anyway)
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -134,9 +128,13 @@ export default function FreeTransformationJourney() {
     );
   }
 
-  // Don't render if user is authenticated (will redirect)
+  // Don't render if user is authenticated (redirect is in progress)
   if (user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
