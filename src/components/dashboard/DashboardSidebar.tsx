@@ -256,7 +256,7 @@ const DashboardSidebar = ({
                 {item.customIcon ? (
                   <item.customIcon className={cn(
                     "h-4 w-4 shrink-0", 
-                    isPurple && "text-purple-700 dark:text-purple-400"
+                    isPurple && "text-black dark:text-white"
                   )} size={16} />
                 ) : item.icon && (
                   <item.icon className={cn(
