@@ -20,12 +20,12 @@ const iconMap = {
   milestone: CalendarCheck,
 };
 
-// Color schemes for the 2x2 grid cards - unified deep navy gradient
+// Color schemes for the 2x2 grid cards
 const cardColors = [
-  { bg: 'from-[#1E1B4A] to-[#1A2D40]', border: 'border-slate-600/30', icon: 'text-purple-400', hover: 'hover:border-purple-500/40 hover:from-[#252358]' },
-  { bg: 'from-[#1E1B4A] to-[#1A2D40]', border: 'border-slate-600/30', icon: 'text-cyan-400', hover: 'hover:border-cyan-500/40 hover:from-[#252358]' },
-  { bg: 'from-[#1E1B4A] to-[#1A2D40]', border: 'border-slate-600/30', icon: 'text-amber-400', hover: 'hover:border-amber-500/40 hover:from-[#252358]' },
-  { bg: 'from-[#1E1B4A] to-[#1A2D40]', border: 'border-slate-600/30', icon: 'text-emerald-400', hover: 'hover:border-emerald-500/40 hover:from-[#252358]' },
+  { bg: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30', icon: 'text-purple-400', hover: 'hover:border-purple-400/50 hover:from-purple-500/30' },
+  { bg: 'from-cyan-500/20 to-cyan-600/10', border: 'border-cyan-500/30', icon: 'text-cyan-400', hover: 'hover:border-cyan-400/50 hover:from-cyan-500/30' },
+  { bg: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/30', icon: 'text-amber-400', hover: 'hover:border-amber-400/50 hover:from-amber-500/30' },
+  { bg: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30', icon: 'text-emerald-400', hover: 'hover:border-emerald-400/50 hover:from-emerald-500/30' },
 ];
 
 const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
