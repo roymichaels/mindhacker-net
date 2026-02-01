@@ -246,6 +246,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const mainWireframeRef = useRef<THREE.LineSegments | null>(null);
   const innerStructuresRef = useRef<THREE.LineSegments[]>([]);
   const basePositionsRef = useRef<Float32Array | null>(null);
+  const baseColorsRef = useRef<Float32Array | null>(null);
   const particleSystemRef = useRef<ParticleSystem | null>(null);
   const shaderMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
   const frameRef = useRef<number>(0);
@@ -408,6 +409,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Store base positions for morphing
     basePositionsRef.current = outerEdges.attributes.position.array.slice() as Float32Array;
+    // Store base colors so we can animate without accumulating brightness over time
+    baseColorsRef.current = (outerEdges.getAttribute('color').array as Float32Array).slice() as Float32Array;
 
     // ===== INNER GEOMETRIC STRUCTURES - DNA-based =====
     const innerStructures: THREE.LineSegments[] = [];
@@ -519,6 +522,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           colors.setXYZ(i, r, g, b);
         }
         colors.needsUpdate = true;
+
+        // Keep an immutable base snapshot for per-frame animation (prevents drift to white)
+        baseColorsRef.current = (colors.array as Float32Array).slice() as Float32Array;
       }
     }
 
@@ -560,6 +566,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const mainWireframe = mainWireframeRef.current;
     const innerStructures = innerStructuresRef.current;
     const basePositions = basePositionsRef.current;
+    const baseColors = baseColorsRef.current;
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
@@ -633,19 +640,18 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
             baseZ + nz * deform
           );
           
-          // Animate vertex colors based on deformation
-          if (colors) {
+          // Animate vertex colors based on deformation.
+          // IMPORTANT: Use the original base colors each frame (no accumulation), otherwise it drifts to white.
+          if (colors && baseColors) {
             const deformIntensity = Math.abs(deform) * 3;
-            const currentR = colors.getX(i);
-            const currentG = colors.getY(i);
-            const currentB = colors.getZ(i);
-            
-            // Brighten based on deformation
+            const baseR = baseColors[i * 3];
+            const baseG = baseColors[i * 3 + 1];
+            const baseB = baseColors[i * 3 + 2];
             colors.setXYZ(
               i,
-              Math.min(1, currentR + deformIntensity * 0.1),
-              Math.min(1, currentG + deformIntensity * 0.1),
-              Math.min(1, currentB + deformIntensity * 0.1)
+              Math.min(1, baseR + deformIntensity * 0.1),
+              Math.min(1, baseG + deformIntensity * 0.1),
+              Math.min(1, baseB + deformIntensity * 0.1)
             );
           }
         }
