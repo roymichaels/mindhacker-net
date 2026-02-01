@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard,
-  MessageSquare,
-  Users,
   Compass,
   Plus,
   Trash2,
@@ -104,11 +102,9 @@ const DashboardSidebar = ({
   };
 
   // Navigation items - Aurora is now the home/first item
-  // Navigation items - Aurora removed (it's the main page now)
+  // Navigation items - Messages and Community removed (admin/coach only features)
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard' },
-    { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
-    { path: '/community', icon: Users, label: language === 'he' ? 'קהילה' : 'Community' },
     { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
   ];
 
