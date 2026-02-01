@@ -220,25 +220,24 @@ export default function GameHeroSection() {
             transition={{ duration: 0.6, delay: 0.7 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
-            {/* Free Transformation Journey - Primary CTA */}
+            {/* Free Transformation Journey - Primary CTA - Dark HUD style */}
             <Button
               size="lg"
               onClick={() => navigate('/free-journey')}
               className="group relative text-lg px-10 py-7 rounded-2xl 
-                bg-gradient-to-br from-primary via-primary to-primary/80
-                hover:from-primary/90 hover:via-primary/90 hover:to-primary/70
-                text-primary-foreground font-black
-                shadow-[0_0_30px_hsl(var(--primary)/0.5),0_10px_25px_rgba(0,0,0,0.3)]
-                hover:shadow-[0_0_50px_hsl(var(--primary)/0.7),0_15px_35px_rgba(0,0,0,0.4)]
-                border-2 border-primary/40
-                transition-all duration-300 hover:scale-105
-                animate-pulse-glow"
+                bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900
+                hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                text-foreground font-black
+                shadow-[0_0_30px_rgba(0,0,0,0.5),0_10px_25px_rgba(0,0,0,0.3)]
+                hover:shadow-[0_0_50px_hsl(var(--primary)/0.3),0_15px_35px_rgba(0,0,0,0.4)]
+                border-2 border-primary/30
+                transition-all duration-300 hover:scale-105"
             >
-              <Sparkles className={cn("h-6 w-6", isRTL ? "ml-3" : "mr-3")} />
+              <Sparkles className={cn("h-6 w-6 text-primary", isRTL ? "ml-3" : "mr-3")} />
               {isRTL ? '🎁 מסע טרנספורמציה חינם' : '🎁 Free Transformation'}
               <motion.div
-                className="absolute inset-0 rounded-2xl bg-white/20"
-                animate={{ opacity: [0, 0.3, 0] }}
+                className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
             </Button>
