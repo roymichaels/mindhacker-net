@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -93,6 +95,8 @@ function generateGuestOrbProfile(result: GuestResult): MultiThreadOrbProfile {
 export default function FreeJourneyComplete() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
   const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useGuestPDF();
   
   const [loading, setLoading] = useState(true);
@@ -106,6 +110,16 @@ export default function FreeJourneyComplete() {
       ? 'ניתוח התודעה שלך, פרופיל הזהות האישי ותוכנית 90 היום שלך מוכנים!'
       : 'Your consciousness analysis, personal identity profile and 90-day plan are ready!',
   });
+
+  // Redirect authenticated users who have completed launchpad
+  useEffect(() => {
+    if (authLoading || launchpadLoading) return;
+    
+    if (user && isLaunchpadComplete) {
+      // User already has completed launchpad - go to their completion page
+      navigate('/launchpad/complete', { replace: true });
+    }
+  }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
 
   // Generate orb profile
   const orbProfile = useMemo(() => {
