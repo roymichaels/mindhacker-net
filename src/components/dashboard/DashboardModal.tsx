@@ -36,7 +36,7 @@ export function DashboardModal({ open, onOpenChange, initialView = 'dashboard' }
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <DialogHeader className="p-4 pb-2 border-b border-border shrink-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-end gap-3">
             {currentView === 'profile' && (
               <Button
                 variant="ghost"
@@ -50,13 +50,13 @@ export function DashboardModal({ open, onOpenChange, initialView = 'dashboard' }
             <DialogTitle className="text-lg font-semibold flex items-center gap-2">
               {currentView === 'dashboard' ? (
                 <>
-                  <LayoutDashboard className="h-5 w-5 text-primary" />
                   {language === 'he' ? 'דאשבורד' : 'Dashboard'}
+                  <LayoutDashboard className="h-5 w-5 text-primary" />
                 </>
               ) : (
                 <>
-                  <User className="h-5 w-5 text-primary" />
                   {language === 'he' ? 'כרטיס הזהות שלי' : 'My Identity Card'}
+                  <User className="h-5 w-5 text-primary" />
                 </>
               )}
             </DialogTitle>
