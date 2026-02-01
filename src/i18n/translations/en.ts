@@ -2554,6 +2554,45 @@ export const en: TranslationKeys = {
     // Dashboard Preview
     dashboardTitle: "This Is What Your Dashboard Looks Like",
     dashboardCta: "Create Your Dashboard",
+    
+    // Why Choose Us Section
+    whyChooseUs: {
+      badge: "Everything You've Always Wanted",
+      title: "Why Choose Mind Hacker?",
+      subtitle: "Everything in one place — no jumping between apps, no paying for 10 different subscriptions",
+      hypnotherapist: {
+        title: "Your Personal Hypnotherapist",
+        desc: "Custom sessions anytime — hypnosis built for you in real-time",
+      },
+      coach: {
+        title: "Personal Consciousness Coach",
+        desc: "Aurora accompanies you 24/7 — remembers everything, understands you, always there",
+      },
+      productivity: {
+        title: "Productivity System That Gets You",
+        desc: "Tasks, habits, and schedule that adapt to you — not the other way around",
+      },
+      strategy: {
+        title: "Strategy & Direction",
+        desc: "90-day plan with goals and milestones — always know where you're going",
+      },
+      avatar: {
+        title: "Avatar That Shows Who You Are",
+        desc: "Digital identity that evolves with you — colors and shapes reflecting your progress",
+      },
+      dashboard: {
+        title: "Mind-Blowing Dashboard",
+        desc: "All data at a glance — XP, levels, achievements, stats, and insights",
+      },
+      dopamine: {
+        badge: "Dopamine in Every Click",
+        title: "Addictive Experience — By Design",
+        xp: "Every action earns XP",
+        levels: "Compete with yourself — level up",
+        achievements: "Achievements that unlock like rewards",
+        comeback: "Everything designed to make you want to return",
+      },
+    },
   },
 
   practitionerLanding: {
