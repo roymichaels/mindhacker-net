@@ -114,12 +114,17 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
   if (matched) {
     const color = new THREE.Color();
     
-    // CRITICAL: Reduce lightness if too bright (prevents white orb)
-    // Map L > 60% down to 40-60% range for richer colors
+    // CRITICAL: Reduce lightness for vibrant orb colors (prevents washed-out/white orb)
+    // Map L >= 55% down to 35-50% range for richer, deeper colors
     let adjustedL = l;
-    if (l > 0.6) {
-      adjustedL = 0.4 + (l - 0.6) * 0.5;
+    if (l >= 0.55) {
+      // Strong reduction: 55% → 35%, 70% → 42.5%, 100% → 57.5%
+      adjustedL = 0.35 + (l - 0.55) * 0.5;
+    } else if (l >= 0.4) {
+      // Light reduction for mid-range: keep 40-55% relatively intact but slightly darken
+      adjustedL = 0.35 + (l - 0.4) * 0.67;
     }
+    // L < 40% stays unchanged
     
     color.setHSL(h, s, adjustedL);
     return color;
