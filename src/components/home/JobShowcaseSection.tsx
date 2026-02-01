@@ -203,9 +203,9 @@ export default function JobShowcaseSection() {
           <Button
             size="lg"
             onClick={() => navigate('/signup')}
-            className="text-lg px-8 py-6 rounded-2xl bg-gradient-to-r from-violet-500 to-primary hover:from-violet-400 hover:to-primary/90 font-bold shadow-xl shadow-primary/20"
+            className="text-lg px-8 py-6 rounded-2xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800 font-bold border border-primary/30 text-foreground shadow-xl shadow-black/20"
           >
-            <Sparkles className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
+            <Sparkles className={cn("h-5 w-5 text-primary", isRTL ? "ml-2" : "mr-2")} />
             {isRTL ? 'גלה את ה-Job שלך' : 'Discover Your Job'}
             <ArrowRight className={cn(
               "h-5 w-5 transition-transform",

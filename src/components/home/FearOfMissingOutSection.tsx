@@ -75,8 +75,8 @@ export default function FearOfMissingOutSection() {
               { value: timeLeft.seconds, label: isRTL ? 'שניות' : 'Sec' },
             ].map((item, index) => (
               <div key={index} className="flex flex-col items-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30">
-                  <span className="text-2xl sm:text-3xl font-black text-primary-foreground tabular-nums">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-primary/30 flex items-center justify-center shadow-lg shadow-black/30">
+                  <span className="text-2xl sm:text-3xl font-black text-foreground tabular-nums">
                     {String(item.value).padStart(2, '0')}
                   </span>
                 </div>
@@ -117,14 +117,14 @@ export default function FearOfMissingOutSection() {
               size="lg"
               onClick={() => navigate('/signup')}
               className="text-lg px-10 py-7 rounded-2xl 
-                bg-gradient-to-r from-primary via-primary to-primary/80
-                hover:from-primary/90 hover:via-primary/90 hover:to-primary/70
-                font-black text-primary-foreground
-                shadow-[0_0_30px_hsl(var(--primary)/0.5)]
-                hover:shadow-[0_0_50px_hsl(var(--primary)/0.7)]
-                animate-pulse-glow"
+                bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
+                hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                font-black text-foreground
+                border border-primary/30
+                shadow-[0_0_30px_rgba(0,0,0,0.5)]
+                hover:shadow-[0_0_50px_hsl(var(--primary)/0.3)]"
             >
-              <Clock className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
+              <Clock className={cn("h-5 w-5 text-primary", isRTL ? "ml-2" : "mr-2")} />
               {isRTL ? 'התחל עכשיו' : 'Start Now'}
               <ArrowRight className={cn(
                 "h-5 w-5",
