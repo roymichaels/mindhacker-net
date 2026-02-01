@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { MessageSquare, Users, Sparkles, Compass } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Users, Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -17,11 +17,11 @@ const GlobalBottomNav = () => {
   // Don't show on admin pages
   if (location.pathname.startsWith('/admin')) return null;
 
-  // Navigation items - Aurora is the center/home
+  // Navigation items - Dashboard is the center/home (redirects to Aurora)
   const navItems = [
     { path: '/messages', icon: MessageSquare, label: language === 'he' ? 'הודעות' : 'Messages' },
     { path: '/community', icon: Users, label: language === 'he' ? 'קהילה' : 'Community' },
-    { path: '/aurora', icon: Sparkles, label: language === 'he' ? 'אורורה' : 'Aurora', isCenter: true },
+    { path: '/dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', isCenter: true },
     { path: '/hypnosis', icon: Compass, label: language === 'he' ? 'היפנוזה' : 'Hypnosis' },
   ];
 
