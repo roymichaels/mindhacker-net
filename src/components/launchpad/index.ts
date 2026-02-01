@@ -1,4 +1,5 @@
 export { LaunchpadFlow } from './LaunchpadFlow';
+export { LaunchpadIntro } from './LaunchpadIntro';
 export { LaunchpadProgress } from './LaunchpadProgress';
 export { PhaseIndicator } from './PhaseIndicator';
 export { PhaseTransition } from './PhaseTransition';
