@@ -1,145 +1,53 @@
 
-# תוכנית: שיפור מערכת תגיות הפעולה של אורורה
+# תוכנית: עדכון רקע ה-Avatar Dropdown לסגנון כרטיס הזהות
 
-## סיכום מנהלים
-נשפר את מערכת הפקודות של אורורה כדי שתעבוד בצורה חכמה יותר, עם פידבק ויזואלי טוב יותר, ועם כלל בטיחות שמונע טעויות כשיש יותר מתוצאה אחת אפשרית.
-
----
-
-## מה נעשה
-
-### 1. פידבק ויזואלי משופר
-- הוספת Toasts עם אייקונים ואנימציות לכל פעולה מוצלחת
-- הודעות ברורות בעברית (ללא תגיות טכניות)
-
-### 2. מערכת Action Receipt
-- כל פעולה תחזיר אובייקט מובנה שמתאר מה בוצע
-- ה-UI ישתמש ב-receipt הזה כדי לעדכן state ולהציג פידבק
-
-### 3. כלל בטיחות (Ambiguity Guard)
-**חשוב מאוד**: אם כוונת המשתמש מתאימה ליותר ממשימה/הרגל/רשימה אחת, אורורה לא תבצע פעולה אלא תשאל שאלת הבהרה.
-
-### 4. סנכרון הקשר מלא
-- בכל בקשת צ'אט נשלח ל-AI רשימה מלאה ומעודכנת של:
-  - משימות פתוחות (עם id, title, list)
-  - הרגלים יומיים
-  - רשימות פעילות
-
-### 5. התנהגות UX
-- תגיות פעולה לעולם לא מוצגות למשתמש
-- אחרי כל פעולה אורורה:
-  - מאשרת מה בוצע
-  - מציעה צעד קטן הבא (אופציונלי)
+## מה צריך לעשות
+להחליף את הרקע של ה-DropdownMenuContent ב-AuroraAccountDropdown כך שיהיה זהה לרקע של כרטיס הזהות (Identity HUD) - גרדיאנט אפור כהה עם אפקט blur וגבול זוהר.
 
 ---
 
-## פרטים טכניים
+## שינויים נדרשים
 
-### קובץ 1: `src/hooks/aurora/useAuroraChat.tsx`
+### קובץ: `src/components/aurora/AuroraAccountDropdown.tsx`
 
-**שינויים:**
+**שורה 131-134** - עדכון ה-DropdownMenuContent:
 
-1. **הוספת ActionReceipt interface:**
-```typescript
-interface ActionReceipt {
-  type: 'task' | 'habit' | 'checklist' | 'reminder' | 'focus';
-  action: 'create' | 'complete' | 'delete' | 'rename' | 'reschedule';
-  success: boolean;
-  target: string;
-  details?: string;
-}
+**לפני:**
+```tsx
+<DropdownMenuContent
+  align={isRTL ? "end" : "start"}
+  side="top"
+  className="w-56 bg-card border border-border shadow-xl z-[100]"
+>
 ```
 
-2. **שיפור Toasts עם אייקונים:**
-- החלפת `toast()` ב-toasts מעוצבים עם אייקונים ואנימציות
-- הוספת אייקון לכל סוג פעולה (✅, 🗑️, ➕, 📅 וכו')
-
-3. **הוספת Ambiguity Guard:**
-- לפני ביצוע פעולה, בדיקה אם יש יותר מהתאמה אחת
-- אם כן - החזרת הודעה עם שאלת הבהרה במקום ביצוע הפעולה
-- שימוש בלוגיקת fuzzy matching משופרת
-
-4. **החזרת receipts:**
-- כל פעולה תחזיר ActionReceipt
-- איסוף כל ה-receipts ושמירתם לשימוש ב-UI
-
-### קובץ 2: `supabase/functions/aurora-chat/index.ts`
-
-**שינויים:**
-
-1. **שיפור Context Sync - רשימת משימות מלאה:**
-- הוספת סעיף חדש עם רשימה מפורטת של כל המשימות הפתוחות:
-```text
-## 📋 רשימת משימות מלאה (לזיהוי מדויק)
-| רשימה | משימה | ID |
-| קניות | חלב | abc123 |
-| פרויקט | להתקשר ללקוח | def456 |
-```
-
-2. **הוספת הנחיית בטיחות לפרומפט:**
-```text
-## כלל בטיחות - חובה!
-אם יש יותר מפריט אחד שמתאים לבקשת המשתמש:
-- לא לבצע שום פעולה
-- לשאול שאלת הבהרה: "מצאתי כמה אפשרויות: X, Y, Z. למה התכוונת?"
-דוגמה: משתמש אומר "סיימתי משימה" ויש 3 משימות פתוחות → שאל איזו
-```
-
-3. **דוגמאות נוספות בפרומפט:**
-- דוגמאות ברורות לכל סוג פעולה
-- דגש על המלצת צעד הבא אחרי כל פעולה
-
-### קובץ 3: `src/hooks/aurora/useChecklistsData.tsx`
-
-**שינויים:**
-
-1. **הוספת פונקציית חיפוש עם ambiguity detection:**
-```typescript
-findMatchingItems(query: string): { 
-  items: ChecklistItem[]; 
-  isAmbiguous: boolean; 
-}
-```
-
-2. **שיפור matching:**
-- בדיקת התאמות מרובות לפני ביצוע
-- החזרת מידע על כמות ההתאמות
-
----
-
-## זרימת פעולה חדשה
-
-```text
-1. משתמש: "סיימתי את המשימה של לקנות"
-   
-2. AI מזהה כוונה → מוסיף תגית [task:complete:קניות:לקנות חלב]
-   
-3. useAuroraChat מזהה תגית:
-   - חיפוש התאמות
-   - אם יש התאמה אחת → ביצוע + toast + receipt
-   - אם יש כמה התאמות → לא מבצע (AI כבר שאל)
-   
-4. תוצאה:
-   - Toast: "✅ המשימה הושלמה! - לקנות חלב"
-   - Aurora: "מעולה! סימנתי שסיימת לקנות חלב 🎉 מה הבא ברשימה?"
+**אחרי:**
+```tsx
+<DropdownMenuContent
+  align={isRTL ? "end" : "start"}
+  side="top"
+  className="w-56 backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 shadow-xl z-[100] overflow-hidden"
+>
+  {/* Glow overlay - same as Identity Card */}
+  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
+  <div className="relative z-10">
+    {/* All existing menu items */}
+  </div>
 ```
 
 ---
 
-## קבצים שישתנו
+## סיכום הסגנון
 
-| קובץ | שינוי |
-|------|-------|
-| `src/hooks/aurora/useAuroraChat.tsx` | Action receipts, improved toasts, ambiguity guard |
-| `supabase/functions/aurora-chat/index.ts` | Enhanced prompt with safety rules, full task list |
-| `src/hooks/aurora/useChecklistsData.tsx` | Matching improvements with ambiguity detection |
+| מאפיין | ערך |
+|--------|-----|
+| רקע | גרדיאנט gray-900 → gray-800 → gray-900 (dark: gray-950 → gray-900 → gray-950) |
+| Blur | backdrop-blur-xl |
+| גבול | border-primary/30 |
+| זוהר | from-primary/20 via-transparent to-accent/20 |
+| צל | shadow-xl |
 
 ---
 
-## בדיקות מומלצות
-
-1. **בדיקת פעולות בסיסיות**: יצירת משימה, סימון כהושלם, מחיקה
-2. **בדיקת ambiguity**: כשיש כמה משימות דומות, וידוא שנשאלת שאלה
-3. **בדיקת פידבק**: וידוא ש-Toasts מופיעים עם אייקונים נכונים
-4. **בדיקת סנכרון**: וידוא שהמשימות המוצגות ל-AI מעודכנות
-
+## תוצאה צפויה
+הדרופדאון יראה כמו "מיני כרטיס זהות" עם אותו אפקט עמוק וזוהר של ה-HUD הראשי.
