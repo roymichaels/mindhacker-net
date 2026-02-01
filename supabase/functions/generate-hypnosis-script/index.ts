@@ -463,8 +463,11 @@ Do NOT use feminine forms.`;
 Use forms like: "את מרגישה", "את נושמת", "תני לעצמך", "הרגישי את", "את יכולה".
 Do NOT use masculine forms.`;
     } else {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: Use NEUTRAL or inclusive Hebrew addressing. 
-Prefer forms that work for all genders like: "מרגישים", "נושמים", or use second person with both options: "אתה/את מרגיש/ה".`;
+      // Default to masculine in Hebrew (grammatical convention) when no preference set
+      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR: The user hasn't set a gender preference. 
+Use MASCULINE singular forms as the default Hebrew convention (לשון זכר יחיד).
+Use forms like: "אתה מרגיש", "אתה נושם", "תן לעצמך", "הרגש את", "אתה יכול".
+Do NOT mix forms like "אתה/את" - pick one consistent form.`;
     }
 
     const languageInstruction = language === 'he' 

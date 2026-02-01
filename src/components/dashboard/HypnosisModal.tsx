@@ -267,6 +267,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const handleSessionComplete = useCallback(async () => {
     setState('complete');
     playingRef.current = false;
+    
+    // Stop any currently playing audio immediately
+    stopCurrentAudio();
+    stopBrowserSpeech();
+    
     impact('heavy');
     hapticPattern('success');
 
@@ -291,6 +296,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   }, [user?.id, duration, goal, impact, hapticPattern, recordSession]);
 
   const playSegment = useCallback(async (index: number, scriptOverride?: HypnosisScript, cachedPaths?: string[]) => {
+    // Early return if session was paused/stopped
+    if (!playingRef.current) {
+      return;
+    }
+    
     const activeScript = scriptOverride || scriptRef.current;
     const activeCachedPaths = cachedPaths || cachedAudioPaths;
     
@@ -307,7 +317,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     if (!segment?.text) {
       if (playingRef.current && index + 1 < activeScript.segments.length) {
         playSegment(index + 1, activeScript, activeCachedPaths);
-      } else {
+      } else if (playingRef.current) {
         handleSessionComplete();
       }
       return;
@@ -340,8 +350,13 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             }
           },
           onError: () => {
+            // Double-check playingRef before and after timeout
             if (playingRef.current) {
-              setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
+              setTimeout(() => {
+                if (playingRef.current) {
+                  playSegment(index + 1, activeScript, activeCachedPaths);
+                }
+              }, 500);
             }
           },
         });
@@ -363,8 +378,13 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               }
             },
             onError: () => {
+              // Double-check playingRef before and after timeout
               if (playingRef.current) {
-                setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
+                setTimeout(() => {
+                  if (playingRef.current) {
+                    playSegment(index + 1, activeScript, activeCachedPaths);
+                  }
+                }, 500);
               }
             },
           });
@@ -393,8 +413,13 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             }
           },
           onError: () => {
+            // Double-check playingRef before and after timeout
             if (playingRef.current) {
-              setTimeout(() => playSegment(index + 1, activeScript, activeCachedPaths), 500);
+              setTimeout(() => {
+                if (playingRef.current) {
+                  playSegment(index + 1, activeScript, activeCachedPaths);
+                }
+              }, 500);
             }
           },
         });
