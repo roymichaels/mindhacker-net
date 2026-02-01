@@ -51,7 +51,6 @@ const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPendi
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
-const AffiliateDashboard = lazy(() => import("./pages/AffiliateDashboard"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
 const CommunityPost = lazy(() => import("./pages/CommunityPost"));
@@ -91,6 +90,9 @@ const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
 const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
+const CoachContent = lazy(() => import("./pages/panel/CoachContent"));
+const CoachReviews = lazy(() => import("./pages/panel/CoachReviews"));
+const CoachAnalytics = lazy(() => import("./pages/panel/CoachAnalytics"));
 const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
 const UserDashboardView = lazy(() => import("./pages/panel/UserDashboardView"));
 const ClientProfile = lazy(() => import("./pages/panel/ClientProfile"));
@@ -202,13 +204,10 @@ const App = () => (
                         <Route path="/practitioners" element={<Practitioners />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
                         <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
+                        {/* Redirect old affiliate dashboard to new panel */}
                         <Route
                           path="/affiliate-dashboard"
-                          element={
-                            <ProtectedRoute>
-                              <AffiliateDashboard />
-                            </ProtectedRoute>
-                          }
+                          element={<Navigate to="/affiliate" replace />}
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
@@ -439,11 +438,14 @@ const App = () => (
                           }
                         >
                           <Route index element={<CoachDashboard />} />
+                          <Route path="analytics" element={<CoachAnalytics />} />
                           <Route path="clients" element={<MyClients />} />
                           <Route path="clients/:clientId" element={<ClientProfile />} />
                           <Route path="services" element={<MyServices />} />
                           <Route path="calendar" element={<MyCalendar />} />
                           <Route path="products" element={<MyProducts />} />
+                          <Route path="content" element={<CoachContent />} />
+                          <Route path="reviews" element={<CoachReviews />} />
                           <Route path="earnings" element={<MyEarnings />} />
                           <Route path="profile" element={<Settings />} />
                           <Route path="theme" element={<CoachTheme />} />

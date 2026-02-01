@@ -3242,6 +3242,44 @@ export type Database = {
         }
         Relationships: []
       }
+      practitioner_clients: {
+        Row: {
+          client_user_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          practitioner_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_user_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          practitioner_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_user_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          practitioner_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_clients_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practitioner_reviews: {
         Row: {
           created_at: string | null
@@ -4564,6 +4602,10 @@ export type Database = {
       }
       get_or_create_ai_conversation: {
         Args: { user_id: string }
+        Returns: string
+      }
+      get_practitioner_id_for_user: {
+        Args: { user_uuid: string }
         Returns: string
       }
       get_user_tier: { Args: { p_user_id: string }; Returns: string }
