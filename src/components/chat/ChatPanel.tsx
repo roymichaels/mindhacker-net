@@ -191,8 +191,8 @@ const ChatPanel = ({ isOpen, onClose, fullscreen = false }: ChatPanelProps) => {
 
       {/* Messages */}
       <div className={cn(
-        "flex-1 overflow-y-auto p-4 space-y-4 bg-background",
-        fullscreen ? "pb-20" : "min-h-[200px] max-h-[50vh]"
+        "flex-1 overflow-y-auto p-4 space-y-4 bg-background pb-24 sm:pb-20",
+        fullscreen ? "" : "min-h-[200px] max-h-[50vh]"
       )}>
         {messages.map((message, index) => (
           <ChatMessage 
