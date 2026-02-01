@@ -4,9 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { 
   ACHIEVEMENTS, 
-  getAchievement, 
-  calculateLevelFromXp, 
-  calculateXpProgress,
   type Achievement 
 } from '@/lib/achievements';
 
@@ -148,37 +145,42 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     await loadGameState();
   }, [loadGameState]);
 
-  // Add experience points
-  const addExperience = useCallback(async (amount: number) => {
+  // Add experience points using unified XP system
+  const addExperience = useCallback(async (amount: number, source: string = 'frontend', reason?: string) => {
     if (!user?.id || !gameState) return;
 
-    const newExperience = gameState.experience + amount;
-    const newLevel = calculateLevelFromXp(newExperience);
-    const leveledUp = newLevel > gameState.level;
-
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          experience: newExperience,
-          level: newLevel,
-          // Award tokens on level up
-          tokens: leveledUp ? gameState.tokens + 5 : gameState.tokens
-        })
-        .eq('id', user.id);
+      const { data, error } = await supabase.rpc('award_unified_xp', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_source: source,
+        p_reason: reason || null
+      });
 
       if (error) throw error;
 
+      // Parse result from DB function
+      const result = data as {
+        xp_gained: number;
+        new_experience: number;
+        old_level: number;
+        new_level: number;
+        levels_gained: number;
+        tokens_awarded: number;
+      };
+
+      // Update local state
       setGameState(prev => prev ? {
         ...prev,
-        experience: newExperience,
-        level: newLevel,
-        tokens: leveledUp ? prev.tokens + 5 : prev.tokens,
+        experience: result.new_experience,
+        level: result.new_level,
+        tokens: prev.tokens + result.tokens_awarded,
       } : null);
 
-      if (leveledUp) {
-        toast.success(`🎉 Level Up! You're now level ${newLevel}`, {
-          description: 'You earned 5 bonus tokens!',
+      // Show level up toast if applicable
+      if (result.levels_gained > 0) {
+        toast.success(`🎉 Level Up! You're now level ${result.new_level}`, {
+          description: `You earned ${result.tokens_awarded} bonus tokens!`,
         });
       }
     } catch (err) {
@@ -290,9 +292,13 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
             newAchievements.push(achievement);
             setUnlockedAchievements(prev => [...prev, achievement.id]);
 
-            // Award XP and tokens
-            if (achievement.xp) await addExperience(achievement.xp);
-            if (achievement.tokens) await addTokens(achievement.tokens);
+            // Award XP via unified system and tokens separately
+            if (achievement.xp) {
+              await addExperience(achievement.xp, 'achievement', `Unlocked: ${achievement.name}`);
+            }
+            if (achievement.tokens) {
+              await addTokens(achievement.tokens);
+            }
 
             toast.success(`🏆 Achievement Unlocked!`, {
               description: achievement.name,
