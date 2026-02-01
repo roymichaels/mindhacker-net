@@ -55,9 +55,9 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
         <UserNotificationBell />
       </div>
 
-      {/* Messages Area - takes remaining space and scrolls */}
+      {/* Messages Area - centered like ChatGPT */}
       <ScrollArea className="flex-1 min-h-0">
-        <div className="w-full h-full px-4 pb-4">
+        <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
           {messages.length === 0 && !isStreaming ? (
             <AuroraWelcome onSuggestionClick={handleSuggestionClick} />
           ) : (
