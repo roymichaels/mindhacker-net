@@ -400,6 +400,7 @@ const App = () => (
                         >
                           <Route index element={<PanelDashboard />} />
                           <Route path="analytics" element={<Analytics />} />
+                          <Route path="notifications" element={<NotificationCenter />} />
                           <Route path="roles" element={<RolesManager />} />
                           <Route path="users" element={<Users />} />
                           <Route path="users/:userId" element={<UserProfile />} />
@@ -408,14 +409,22 @@ const App = () => (
                           <Route path="aurora-insights" element={<AuroraInsights />} />
                           <Route path="affiliates" element={<AdminAffiliates />} />
                           <Route path="newsletter" element={<Newsletter />} />
+                          <Route path="offers" element={<AdminOffers />} />
+                          <Route path="purchases" element={<Purchases />} />
                           <Route path="products" element={<AdminProducts />} />
                           <Route path="content" element={<Content />} />
+                          <Route path="videos" element={<Videos />} />
                           <Route path="recordings" element={<Recordings />} />
-                          <Route path="settings" element={<Settings />} />
-                          <Route path="theme" element={<AdminTheme />} />
+                          <Route path="forms" element={<Forms />} />
                           <Route path="landing-pages" element={<LandingPages />} />
                           <Route path="landing-pages/new" element={<LandingPageBuilder />} />
                           <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
+                          <Route path="homepage" element={<HomepageSections />} />
+                          <Route path="theme" element={<AdminTheme />} />
+                          <Route path="faqs" element={<FAQs />} />
+                          <Route path="testimonials" element={<Testimonials />} />
+                          <Route path="chat-assistant" element={<ChatAssistant />} />
+                          <Route path="settings" element={<Settings />} />
                         </Route>
 
                         {/* Coach Panel routes */}
