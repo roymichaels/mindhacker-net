@@ -31,7 +31,7 @@ export default function PractitionerShowcaseSection() {
   if (!practitioners?.length) return null;
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-background via-primary/10 to-accent/5 relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-b from-gray-900/50 via-gray-950/30 to-transparent relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />

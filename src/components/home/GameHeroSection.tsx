@@ -84,9 +84,9 @@ export default function GameHeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-8 px-4">
-      {/* HUD-style gradient background - Theme consistent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/15" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/70" />
+      {/* HUD-style gradient background - Dark theme */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-accent/5" />
       
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.05]">

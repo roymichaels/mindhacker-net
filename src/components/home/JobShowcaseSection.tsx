@@ -88,7 +88,7 @@ export default function JobShowcaseSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-primary/15 via-accent/5 to-background relative overflow-hidden" id="how-it-works">
+    <section className="py-24 px-4 bg-gradient-to-b from-gray-950/50 via-gray-900/30 to-transparent relative overflow-hidden" id="how-it-works">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />

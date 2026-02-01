@@ -52,7 +52,7 @@ export default function GamificationFeaturesSection() {
   const mockUsersLeveledUp = 78;
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-primary/15 via-accent/5 to-background relative overflow-hidden">
+    <section className="py-24 px-4 bg-gradient-to-b from-gray-900/50 via-gray-950/30 to-transparent relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-violet-500/15 rounded-full blur-3xl" />
