@@ -76,7 +76,7 @@ const CoachSidebar = () => {
   const { data: myProfile } = useMyPractitionerProfile();
 
   return (
-    <aside className="w-64 border-e border-border bg-card/50 min-h-[calc(100vh-64px)] sticky top-16 flex flex-col">
+    <aside className="w-64 border-e border-border bg-card/50 h-screen sticky top-0 flex flex-col">
       <RoleSwitcher />
       
       {/* View My Page Button */}
