@@ -653,37 +653,39 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col"
+                className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
-                {/* Orb Area */}
-                <div className="flex-1 flex items-center justify-center p-6">
+                {/* Orb Area - Fixed height */}
+                <div className="flex-shrink-0 flex items-center justify-center p-4 sm:p-6">
                   <MultiThreadOrb 
-                    size={280} 
+                    size={200} 
                     state={state === 'playing' ? 'listening' : 'idle'}
                     profile={orbProfile}
                   />
                 </div>
 
-                {/* Current Segment Text - Auto-fit, no scrolling needed */}
+                {/* Current Segment Text - Scrollable area */}
                 {currentSegment && (
-                  <motion.div 
-                    key={currentSegmentIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="px-6 pb-4 text-center flex-shrink-0"
-                  >
-                    <p className="text-xs text-primary/60 uppercase tracking-wider mb-3">
-                      {SEGMENT_LABELS[currentSegment.mood]?.[language as 'he' | 'en'] || currentSegment.mood}
-                    </p>
-                    <p className="text-base sm:text-lg leading-relaxed text-foreground/90 line-clamp-6">
-                      {currentSegment.text}
-                    </p>
-                  </motion.div>
+                  <div className="flex-1 min-h-0 overflow-y-auto px-6">
+                    <motion.div 
+                      key={currentSegmentIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="text-center pb-4"
+                    >
+                      <p className="text-xs text-primary/60 uppercase tracking-wider mb-2">
+                        {SEGMENT_LABELS[currentSegment.mood]?.[language as 'he' | 'en'] || currentSegment.mood}
+                      </p>
+                      <p className="text-base leading-relaxed text-foreground/90">
+                        {currentSegment.text}
+                      </p>
+                    </motion.div>
+                  </div>
                 )}
 
-                {/* Progress */}
-                <div className="px-6 pb-2">
+                {/* Progress - Fixed at bottom */}
+                <div className="flex-shrink-0 px-6 py-2 border-t border-border/50">
                   <Progress value={progress} className="h-1" />
                   <div className="flex justify-between text-xs text-muted-foreground mt-1">
                     <span>{formatTime(elapsedTime)}</span>
@@ -691,8 +693,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   </div>
                 </div>
 
-                {/* Controls */}
-                <div className="flex items-center justify-center gap-4 p-6 border-t border-border">
+                {/* Controls - Fixed at bottom */}
+                <div className="flex-shrink-0 flex items-center justify-center gap-4 p-4 sm:p-6">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -703,10 +705,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
                   <Button
                     size="lg"
-                    className="w-16 h-16 rounded-full"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full"
                     onClick={togglePlayPause}
                   >
-                    {state === 'playing' ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                    {state === 'playing' ? <Pause className="h-6 w-6 sm:h-8 sm:w-8" /> : <Play className="h-6 w-6 sm:h-8 sm:w-8" />}
                   </Button>
 
                   <div className="w-10" /> {/* Spacer for symmetry */}
