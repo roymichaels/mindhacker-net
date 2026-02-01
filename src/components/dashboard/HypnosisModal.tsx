@@ -29,7 +29,7 @@ import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+
 import { toast } from '@/hooks/use-toast';
 import type { VoiceProvider } from '@/services/voice';
 
@@ -63,12 +63,7 @@ const SEGMENT_LABELS: Record<string, { he: string; en: string }> = {
   emergence: { he: 'יציאה', en: 'Emergence' },
 };
 
-const PRESET_GOALS: Record<string, { he: string; en: string }> = {
-  calm: { he: 'להרגיש רגיעה עמוקה ושלווה', en: 'Feel deep calm and peace' },
-  focus: { he: 'להגביר את המיקוד והריכוז', en: 'Enhance focus and concentration' },
-  energy: { he: 'לטעון את האנרגיה והמוטיבציה', en: 'Boost energy and motivation' },
-  sleep: { he: 'להתכונן לשינה עמוקה ומרגיעה', en: 'Prepare for deep, restful sleep' },
-};
+// Default goal fallback used when no milestone is set
 
 export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { t, isRTL, language } = useTranslation();
@@ -141,13 +136,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   }, [state, duration]);
 
   const startBreathing = async () => {
-    if (!goal.trim()) {
-      toast({
-        title: language === 'he' ? 'נא להזין מטרה' : 'Please enter a goal',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // Auto-set goal from milestone if not already set
+    const sessionGoal = goal.trim() || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
+    setGoal(sessionGoal);
 
     impact('medium');
     setState('breathing');
@@ -519,105 +510,71 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-start p-6 space-y-6 overflow-y-auto"
+                className="flex-1 flex flex-col items-center justify-center p-6 space-y-8"
               >
                 <div className="text-center space-y-2">
-                  <Sparkles className="w-10 h-10 mx-auto text-primary mb-2" />
+                  <Sparkles className="w-12 h-12 mx-auto text-primary mb-4" />
                   <h1 className="text-2xl font-bold">
                     {language === 'he' ? 'סשן היפנוזה אישי' : 'Personal Hypnosis'}
                   </h1>
                 </div>
 
-                {/* Current Week Context Card */}
-                {currentMilestone && (
+                {/* Current Week Context Card - Simplified */}
+                {currentMilestone ? (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-md"
                   >
-                    <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-4">
+                    <div className="relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/15 to-primary/10 p-6 text-center">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
                       
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-medium text-primary">
-                              {language === 'he' ? `שבוע ${currentMilestone.week_number}` : `Week ${currentMilestone.week_number}`}
-                            </span>
-                          </div>
-                          <h3 className="font-semibold text-foreground truncate">
-                            {currentMilestone.title}
-                          </h3>
-                          {currentMilestone.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {currentMilestone.description}
-                            </p>
-                          )}
-                        </div>
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        <span className="text-sm font-medium text-primary">
+                          {language === 'he' ? `שבוע ${currentMilestone.week_number}` : `Week ${currentMilestone.week_number}`}
+                        </span>
                       </div>
                       
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="w-full mt-3 gap-2"
-                        onClick={() => setGoal(currentMilestone.title)}
-                      >
-                        <Target className="w-4 h-4" />
-                        {language === 'he' ? 'השתמש במטרת השבוע' : 'Use weekly goal'}
-                      </Button>
+                      <h3 className="text-lg font-bold text-foreground mb-2">
+                        {currentMilestone.title}
+                      </h3>
+                      
+                      {currentMilestone.description && (
+                        <p className="text-sm text-muted-foreground">
+                          {currentMilestone.description}
+                        </p>
+                      )}
                     </div>
                   </motion.div>
+                ) : (
+                  <div className="w-full max-w-md text-center">
+                    <p className="text-muted-foreground">
+                      {language === 'he' 
+                        ? 'סשן היפנוזה מותאם אישית על בסיס הפרופיל שלך'
+                        : 'Personalized hypnosis session based on your profile'}
+                    </p>
+                  </div>
                 )}
 
-                <div className="w-full max-w-md space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground text-center block">
-                      {currentMilestone 
-                        ? (language === 'he' ? 'או הזן מטרה אחרת:' : 'Or enter a different goal:')
-                        : (language === 'he' ? 'הזן את המטרה שלך לסשן:' : 'Enter your goal for this session:')}
-                    </label>
-                    <Input
-                      value={goal}
-                      onChange={(e) => setGoal(e.target.value)}
-                      placeholder={language === 'he' ? 'למשל: להרגיש רגיעה עמוקה' : 'e.g., Feel deep relaxation'}
-                      className="text-center"
-                    />
-                  </div>
-
-                  <div className="flex gap-2 flex-wrap justify-center">
-                    {Object.entries(PRESET_GOALS).map(([key, labels]) => (
-                      <Button
-                        key={key}
-                        variant={goal === labels[language as 'he' | 'en'] ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGoal(labels[language as 'he' | 'en'])}
-                      >
-                        {labels[language as 'he' | 'en']}
-                      </Button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-center gap-4 pt-4">
-                    <span className="text-sm text-muted-foreground">
-                      {language === 'he' ? 'משך:' : 'Duration:'}
-                    </span>
-                    {[5, 10, 15].map((d) => (
-                      <Button
-                        key={d}
-                        variant={duration === d ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setDuration(d)}
-                      >
-                        {d} {language === 'he' ? 'דק׳' : 'min'}
-                      </Button>
-                    ))}
-                  </div>
+                {/* Duration Selection */}
+                <div className="flex items-center justify-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    {language === 'he' ? 'משך:' : 'Duration:'}
+                  </span>
+                  {[5, 10, 15].map((d) => (
+                    <Button
+                      key={d}
+                      variant={duration === d ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setDuration(d)}
+                    >
+                      {d} {language === 'he' ? 'דק׳' : 'min'}
+                    </Button>
+                  ))}
                 </div>
 
-                <Button onClick={startBreathing} size="lg" className="gap-2">
+                <Button onClick={startBreathing} size="lg" className="gap-2 px-8">
                   <Play className="w-5 h-5" />
                   {language === 'he' ? 'התחל סשן' : 'Start Session'}
                 </Button>
