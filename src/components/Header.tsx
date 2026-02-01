@@ -34,7 +34,7 @@ import { useUserRoles } from "@/hooks/useUserRoles";
 import { AuroraOrbIcon } from "@/components/icons/AuroraOrbIcon";
 
 import { AuthModal } from "./AuthModal";
-import AdminSidebar from "./admin/AdminSidebar";
+import AdminSidebar from "./panel/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
 
 export interface HeaderProps {
