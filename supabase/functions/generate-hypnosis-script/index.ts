@@ -88,6 +88,13 @@ serve(async (req) => {
     // ============================================
     // COMPREHENSIVE USER PROFILE DATA LOADING
     // ============================================
+    // Calculate date ranges for activity tracking
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
     const [
       profileRes,
       directionRes,
@@ -104,6 +111,11 @@ serve(async (req) => {
       checklistsRes,
       conversationMemoryRes,
       previousSessionsRes,
+      // NEW: Activity tracking queries
+      todayHabitsRes,
+      weeklyStatsRes,
+      recentRemindersRes,
+      lastSessionRes,
     ] = await Promise.all([
       // Basic profile with preferences
       supabase.from('profiles').select('full_name, aurora_preferences').eq('id', user.id).single(),
@@ -134,7 +146,15 @@ serve(async (req) => {
       // Recent conversation insights
       supabase.from('aurora_conversation_memory').select('summary, key_topics, emotional_state, action_items').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
       // Previous hypnosis sessions for continuity
-      supabase.from('hypnosis_sessions').select('goal_id, ego_state, duration_seconds, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      supabase.from('hypnosis_sessions').select('goal_id, ego_state, duration_seconds, created_at, script_data').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      // NEW: Today's completed habits
+      supabase.from('daily_habit_logs').select('habit_item_id, is_completed, aurora_checklist_items(content)').eq('user_id', user.id).gte('track_date', todayStart.toISOString().split('T')[0]),
+      // NEW: Weekly progress stats
+      supabase.from('weekly_progress_stats').select('*').eq('user_id', user.id).order('week_start_date', { ascending: false }).limit(1),
+      // NEW: Recent reminders from Aurora
+      supabase.from('aurora_reminders').select('message, reminder_date, context').eq('user_id', user.id).eq('is_delivered', false).order('reminder_date', { ascending: true }).limit(3),
+      // NEW: Most recent hypnosis session with its script for continuity
+      supabase.from('hypnosis_sessions').select('ego_state, duration_seconds, created_at, script_data').eq('user_id', user.id).eq('completed_at', null).not('completed_at', 'is', null).order('completed_at', { ascending: false }).limit(1),
     ]);
 
     // ============================================
@@ -254,10 +274,174 @@ serve(async (req) => {
     const previousHypnosisSessions = previousSessionsRes.data || [];
 
     // ============================================
+    // ACTIVITY TRACKING - What the user has done
+    // ============================================
+    
+    // Today's habits
+    const todayHabits = todayHabitsRes.data || [];
+    const completedHabitsToday = todayHabits.filter((h: { is_completed: boolean }) => h.is_completed).length;
+    const totalHabitsToday = todayHabits.length;
+    
+    // Weekly stats
+    const weeklyStats = weeklyStatsRes.data?.[0] as {
+      hypnosis_sessions?: number;
+      aurora_chats?: number;
+      insights_gained?: number;
+      habits_completed?: number;
+      streak_days?: number;
+    } | null;
+    
+    // Upcoming reminders (things Aurora reminded them about)
+    const upcomingReminders = recentRemindersRes.data || [];
+    
+    // Time since last hypnosis session
+    let timeSinceLastSession: string | null = null;
+    const lastCompletedSession = previousHypnosisSessions.find((s: { created_at: string }) => s.created_at);
+    if (lastCompletedSession) {
+      const lastSessionDate = new Date(lastCompletedSession.created_at);
+      const diffMs = now.getTime() - lastSessionDate.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        if (diffHours < 1) {
+          timeSinceLastSession = 'less than an hour ago';
+        } else {
+          timeSinceLastSession = `${diffHours} hours ago today`;
+        }
+      } else if (diffDays === 1) {
+        timeSinceLastSession = 'yesterday';
+      } else if (diffDays < 7) {
+        timeSinceLastSession = `${diffDays} days ago`;
+      } else {
+        timeSinceLastSession = `${Math.floor(diffDays / 7)} weeks ago`;
+      }
+    }
+
+    // ============================================
+    // TIME AWARENESS - Current moment context
+    // ============================================
+    const currentMoment = new Date();
+    // Get Israel timezone offset (usually +2 or +3 for DST)
+    const israelTime = new Date(currentMoment.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+    const currentHour = israelTime.getHours();
+    const currentDay = israelTime.getDay(); // 0 = Sunday
+    const currentDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDay];
+    const hebrewDayName = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'][currentDay];
+    
+    // Determine time of day context
+    let timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
+    let timeContext: { en: string; he: string };
+    
+    if (currentHour >= 5 && currentHour < 12) {
+      timeOfDay = 'morning';
+      timeContext = {
+        en: 'This is a morning session. Focus on energizing, setting intentions for the day, and activating their best self.',
+        he: 'זו היא סשן בוקר. התמקד באנרגיה, בהצבת כוונות ליום ובהפעלת העצמי הטוב ביותר שלהם.'
+      };
+    } else if (currentHour >= 12 && currentHour < 17) {
+      timeOfDay = 'afternoon';
+      timeContext = {
+        en: 'This is an afternoon session. Good for a reset, regaining focus, and overcoming the midday slump.',
+        he: 'זו היא סשן אחר הצהריים. מתאים לאיפוס, להחזרת מיקוד ולהתגברות על עייפות אמצע היום.'
+      };
+    } else if (currentHour >= 17 && currentHour < 21) {
+      timeOfDay = 'evening';
+      timeContext = {
+        en: 'This is an evening session. Focus on unwinding, reflecting on the day, and transitioning to personal time.',
+        he: 'זו היא סשן ערב. התמקד בהרפיה, ברפלקציה על היום ובמעבר לזמן אישי.'
+      };
+    } else if (currentHour >= 21 && currentHour < 24) {
+      timeOfDay = 'night';
+      timeContext = {
+        en: 'This is a night session. Focus on deep relaxation, releasing the day, and preparing for restful sleep.',
+        he: 'זו היא סשן לילה. התמקד ברגיעה עמוקה, בשחרור היום ובהכנה לשינה משקמת.'
+      };
+    } else {
+      timeOfDay = 'late_night';
+      timeContext = {
+        en: 'This is a late night/early morning session. Be extra gentle, focus on calm, and honor their need for rest or quiet reflection.',
+        he: 'זו היא סשן לילה מאוחר/בוקר מוקדם. היה עדין במיוחד, התמקד ברוגע וכבד את הצורך שלהם במנוחה או רפלקציה שקטה.'
+      };
+    }
+    
+    // Day of week context
+    let dayContext: { en: string; he: string };
+    if (currentDay === 5) { // Friday
+      dayContext = {
+        en: 'It\'s Friday - the week is ending. Good time for reflection on accomplishments and setting intentions for rest.',
+        he: 'היום שישי - השבוע מסתיים. זמן טוב לרפלקציה על הישגים ולהצבת כוונות למנוחה.'
+      };
+    } else if (currentDay === 6) { // Saturday/Shabbat
+      dayContext = {
+        en: 'It\'s Shabbat - a day of rest. Honor this with a more contemplative, restful session focused on being rather than doing.',
+        he: 'היום שבת - יום של מנוחה. כבד זאת עם סשן מתבונן ורגוע יותר, ממוקד בהוויה ולא בעשייה.'
+      };
+    } else if (currentDay === 0) { // Sunday
+      dayContext = {
+        en: 'It\'s Sunday - a new week begins. Perfect for fresh starts, setting weekly intentions, and building momentum.',
+        he: 'היום ראשון - שבוע חדש מתחיל. מושלם להתחלות חדשות, להצבת כוונות שבועיות ולבניית מומנטום.'
+      };
+    } else {
+      dayContext = {
+        en: `It's ${currentDayName} - mid-week. Focus on maintaining momentum and staying connected to their goals.`,
+        he: `היום יום ${hebrewDayName} - אמצע השבוע. התמקד בשמירה על מומנטום ובשמירה על קשר עם המטרות שלהם.`
+      };
+    }
+
+    // ============================================
     // BUILD COMPREHENSIVE PERSONALIZATION CONTEXT
     // ============================================
     
     let personalizationContext = '';
+    
+    // Time awareness section
+    personalizationContext += `\n=== TIME & MOMENT AWARENESS ===\n`;
+    personalizationContext += `CURRENT TIME: ${israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })} (Israel time)\n`;
+    personalizationContext += `TIME OF DAY: ${timeOfDay.toUpperCase()}\n`;
+    personalizationContext += `${language === 'he' ? timeContext.he : timeContext.en}\n`;
+    personalizationContext += `DAY: ${language === 'he' ? `יום ${hebrewDayName}` : currentDayName}\n`;
+    personalizationContext += `${language === 'he' ? dayContext.he : dayContext.en}\n`;
+    
+    // Activity tracking section - what user has done
+    personalizationContext += `\n=== TODAY'S ACTIVITY & PROGRESS ===\n`;
+    
+    if (timeSinceLastSession) {
+      personalizationContext += `LAST HYPNOSIS SESSION: ${timeSinceLastSession}\n`;
+      if (timeSinceLastSession === 'less than an hour ago' || timeSinceLastSession.includes('hours ago today')) {
+        personalizationContext += `They're coming back for another session today - acknowledge their dedication and build on the previous session's work.\n`;
+      }
+    } else {
+      personalizationContext += `FIRST SESSION: This is their first hypnosis session. Be extra welcoming and establish trust.\n`;
+    }
+    
+    if (totalHabitsToday > 0) {
+      personalizationContext += `TODAY'S HABITS: ${completedHabitsToday}/${totalHabitsToday} completed - `;
+      if (completedHabitsToday === totalHabitsToday) {
+        personalizationContext += `They completed ALL their daily habits! Celebrate this accomplishment.\n`;
+      } else if (completedHabitsToday > totalHabitsToday / 2) {
+        personalizationContext += `Good progress today. Reinforce their momentum.\n`;
+      } else if (completedHabitsToday > 0) {
+        personalizationContext += `They've started working on their habits. Encourage completion.\n`;
+      } else {
+        personalizationContext += `Habits not yet started today. Gently motivate without judgment.\n`;
+      }
+    }
+    
+    if (weeklyStats) {
+      personalizationContext += `WEEKLY PROGRESS: `;
+      const stats: string[] = [];
+      if (weeklyStats.hypnosis_sessions) stats.push(`${weeklyStats.hypnosis_sessions} hypnosis sessions`);
+      if (weeklyStats.aurora_chats) stats.push(`${weeklyStats.aurora_chats} Aurora conversations`);
+      if (weeklyStats.habits_completed) stats.push(`${weeklyStats.habits_completed} habits completed`);
+      if (weeklyStats.streak_days) stats.push(`${weeklyStats.streak_days}-day streak`);
+      personalizationContext += stats.length > 0 ? stats.join(', ') + '\n' : 'Just getting started this week\n';
+    }
+    
+    if (upcomingReminders.length > 0) {
+      personalizationContext += `UPCOMING REMINDERS: ${upcomingReminders.map((r: { message: string }) => r.message).slice(0, 2).join('; ')}\n`;
+      personalizationContext += `Consider weaving awareness of these upcoming items into the integration phase.\n`;
+    }
     
     // Personal greeting context
     if (userName) {
@@ -524,8 +708,14 @@ ${hebrewGrammarInstruction}`
         : '';
 
     const systemPrompt = `You are a master hypnotherapist creating HYPER-PERSONALIZED hypnosis scripts.
-You have access to the user's complete psychological profile, life context, and transformation journey.
-Your scripts are warm, flowing, deeply relaxing, and feel like they were crafted specifically for this one person.
+You have access to the user's complete psychological profile, life context, transformation journey, AND current moment context.
+Your scripts are warm, flowing, deeply relaxing, and feel like they were crafted specifically for this one person AT THIS EXACT MOMENT.
+
+IMPORTANT: You are TIME-AWARE. Consider:
+- The current time of day (morning energizing vs evening relaxation)
+- The day of the week (Sunday fresh start vs Friday reflection)
+- What the user has accomplished today and this week
+- Their recent activity and engagement with the platform
 
 You use Ericksonian techniques, embedded commands, metaphorical language, and utilize techniques like:
 - Pacing and leading
@@ -534,6 +724,7 @@ You use Ericksonian techniques, embedded commands, metaphorical language, and ut
 - Future pacing tied to their specific goals
 - Metaphors drawn from their life context and values
 - Embedded commands using their name or identity
+- Time-appropriate suggestions (morning activation vs night relaxation)
 
 ${languageInstruction}
 
