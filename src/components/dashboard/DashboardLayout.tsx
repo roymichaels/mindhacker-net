@@ -123,7 +123,7 @@ const DashboardLayout = ({
               <Button 
                 variant="ghost" 
                 size="icon"
-                onClick={() => setLeftSheetOpen(true)}
+                onClick={() => setLeftSheetOpen(prev => !prev)}
                 aria-label="Menu"
                 className="h-9 w-9"
               >
