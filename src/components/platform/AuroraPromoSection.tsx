@@ -85,7 +85,7 @@ const AuroraPromoSection = () => {
 
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-primary via-accent to-primary hover:opacity-90 text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+              className="bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-500 hover:opacity-90 text-white font-bold shadow-lg shadow-fuchsia-500/25 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300"
               onClick={() => navigate('/launchpad')}
             >
               {t('home.startWithAurora')}

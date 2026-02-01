@@ -5,10 +5,10 @@
 /* Game-like button glow animation */
 @keyframes pulse-glow {
   0%, 100% { 
-    box-shadow: 0 0 25px rgba(34,211,238,0.5), 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 25px rgba(232,121,249,0.5), 0 8px 20px rgba(0,0,0,0.2);
   }
   50% { 
-    box-shadow: 0 0 40px rgba(34,211,238,0.7), 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 40px rgba(232,121,249,0.7), 0 8px 20px rgba(0,0,0,0.2);
   }
 }
 
@@ -47,21 +47,21 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    /* Primary - professional teal/cyan with dark text for readability */
-    --primary: 187 70% 45%;
-    --primary-foreground: 224 71% 4%;
-    --primary-glow: 187 80% 55%;
+    /* Primary - Pink/Magenta matching logo */
+    --primary: 292 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 292 95% 65%;
 
-    /* Secondary - dark text */
-    --secondary: 220 14% 90%;
-    --secondary-foreground: 224 71% 4%;
+    /* Secondary - Purple/Violet */
+    --secondary: 270 85% 55%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted elements */
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    /* Accent - warm gold with dark text */
-    --accent: 45 93% 50%;
+    /* Accent - Gold/Amber */
+    --accent: 38 95% 50%;
     --accent-foreground: 224 71% 4%;
 
     /* Destructive - with white text for contrast */
@@ -71,7 +71,7 @@
     /* Borders and inputs */
     --border: 220 13% 85%;
     --input: 220 13% 90%;
-    --ring: 187 70% 38%;
+    --ring: 292 85% 55%;
 
     /* Glass panel - solid white in light mode */
     --glass-bg: 0 0% 100%;
@@ -80,12 +80,12 @@
     /* Sidebar tokens */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 187 70% 35%;
+    --sidebar-primary: 292 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 187 70% 38%;
+    --sidebar-ring: 292 85% 55%;
   }
 
   /* 
@@ -94,47 +94,50 @@
    * Activated by next-themes adding .dark class to <html>
    */
   html.dark, .dark {
-    /* Dark backgrounds */
-    --background: 215 100% 2%;
-    --background-end: 215 60% 6%;
+    /* Dark backgrounds - Deep purple-black */
+    --background: 260 60% 5%;
+    --background-end: 260 50% 8%;
     --foreground: 0 0% 100%;
 
-    --card: 215 50% 8%;
+    --card: 260 45% 10%;
     --card-foreground: 0 0% 100%;
-    --popover: 215 50% 8%;
+    --popover: 260 45% 10%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 187 100% 50%;
-    --primary-foreground: 215 100% 2%;
-    --primary-glow: 187 100% 70%;
+    /* Primary - Pink/Magenta */
+    --primary: 292 95% 73%;
+    --primary-foreground: 260 60% 5%;
+    --primary-glow: 292 95% 80%;
 
-    --secondary: 187 100% 75%;
-    --secondary-foreground: 215 100% 2%;
+    /* Secondary - Purple/Violet */
+    --secondary: 270 95% 65%;
+    --secondary-foreground: 260 60% 5%;
 
-    --muted: 215 40% 15%;
-    --muted-foreground: 187 30% 85%;
+    --muted: 260 40% 15%;
+    --muted-foreground: 292 30% 85%;
 
-    --accent: 45 100% 73%;
-    --accent-foreground: 215 100% 2%;
+    /* Accent - Gold/Amber */
+    --accent: 38 95% 50%;
+    --accent-foreground: 260 60% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 187 80% 30%;
-    --input: 215 40% 18%;
-    --ring: 187 100% 50%;
+    --border: 292 60% 30%;
+    --input: 260 40% 18%;
+    --ring: 292 95% 73%;
 
-    --glass-bg: 215 50% 10%;
-    --glass-border: 187 100% 50%;
+    --glass-bg: 260 50% 10%;
+    --glass-border: 292 95% 73%;
 
-    --sidebar-background: 215 50% 5%;
+    --sidebar-background: 260 50% 5%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 187 100% 50%;
-    --sidebar-primary-foreground: 215 100% 2%;
-    --sidebar-accent: 215 40% 15%;
+    --sidebar-primary: 292 95% 73%;
+    --sidebar-primary-foreground: 260 60% 5%;
+    --sidebar-accent: 260 40% 15%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 187 80% 30%;
-    --sidebar-ring: 187 100% 50%;
+    --sidebar-border: 292 60% 30%;
+    --sidebar-ring: 292 95% 73%;
   }
 }
 
