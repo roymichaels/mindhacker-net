@@ -1,198 +1,211 @@
 
-# Admin & Coach Panel Integration Plan
+# Project Cleanup & Multi-Tenant Coach Platform Integration
 
-## Problem Summary
-
-The current system has two parallel admin implementations causing confusion and broken functionality:
-
-1. **Old Admin** (`src/components/admin/AdminSidebar.tsx`) - Feature-rich but unused (routes redirect)
-2. **New Panel** (`src/components/panel/AdminSidebar.tsx`) - Simplified, missing key features
-
-Additionally, there are path mismatches, missing Role Switcher in admin, and incorrect links in dashboards.
+## Executive Summary
+This plan consolidates the codebase by removing redundant files, unifying panel architecture, and ensuring proper multi-tenant support for coaches with their courses, content, and reviews.
 
 ---
 
-## Strategy: Consolidate to Unified Panel System
+## Phase 1: Remove Duplicate/Unused Files
 
-Keep the `/panel`, `/coach`, `/affiliate` route structure (as per memory) but upgrade the panel sidebars with the best features from both systems.
+### 1.1 Duplicate Affiliate Dashboard Pages
+**Problem**: Two separate affiliate dashboards exist:
+- `src/pages/AffiliateDashboard.tsx` (standalone page with Header/Footer)
+- `src/pages/panel/AffiliateDashboard.tsx` (panel version)
+
+**Action**: Keep only the panel version. Redirect `/affiliate-dashboard` route to `/affiliate`.
+
+**Files to remove**:
+- `src/pages/AffiliateDashboard.tsx`
+
+### 1.2 Unused/Legacy Panel Components
+**Problem**: `UnifiedPanel.tsx` and `UnifiedSidebar.tsx` exist but are not used in routes (replaced by separate Admin/Coach/Affiliate panels).
+
+**Action**: Remove these components if not referenced.
+
+**Files to remove**:
+- `src/components/panel/UnifiedPanel.tsx`
+- `src/components/panel/UnifiedSidebar.tsx`
+
+### 1.3 Consolidate Similar Components
+**Problem**: Some dashboard components may have redundancy.
+
+**Files to review**:
+- `src/components/dashboard/DashboardRightPanel.tsx` - verify if used
+- Check for any dead imports
 
 ---
 
-## Changes Required
+## Phase 2: Panel Architecture Unification
 
-### 1. Upgrade Admin Panel Sidebar (`src/components/panel/AdminSidebar.tsx`)
-
-**Add from old admin:**
-- Notification badge counts (unread notifications)
-- New leads count badges
-- Draft campaigns count badges
-- Quick action buttons ("New Campaign", "View Leads")
-- Translation key usage instead of hardcoded labels
-- Role Switcher component at top
-
-**Structure to match:**
+### 2.1 Current Structure (Working Well)
 ```text
-┌─────────────────────────────────┐
-│  [Role Switcher - if multi-role]│
-├─────────────────────────────────┤
-│  Quick Actions:                 │
-│  [+ New Campaign] [📧 Leads (3)]│
-├─────────────────────────────────┤
-│  ▼ Overview                     │
-│    • Dashboard                  │
-│    • Analytics                  │
-├─────────────────────────────────┤
-│  ▼ Administration               │
-│    • Users                      │
-│    • Roles                      │
-│    • Practitioners              │
-│    • Leads (3)                  │
-│    • Aurora Insights            │
-├─────────────────────────────────┤
-│  ▼ Campaigns                    │
-│    • Affiliates                 │
-│    • Newsletter (2)             │
-├─────────────────────────────────┤
-│  ▼ Content                      │
-│    • Products                   │
-│    • Content                    │
-│    • Recordings                 │
-├─────────────────────────────────┤
-│  ▼ Site                         │
-│    • Settings                   │
-│    • Theme                      │
-│    • Landing Pages              │
-└─────────────────────────────────┘
-│  [Account Dropdown]             │
-└─────────────────────────────────┘
+/panel/* -> AdminPanel (admin role)
+   ├── Dashboard, Analytics, Notifications
+   ├── Users, Roles, Practitioners, Leads
+   ├── Offers, Products, Content, Recordings
+   └── Theme, Settings, Landing Pages
+
+/coach/* -> CoachPanel (practitioner role)
+   ├── Dashboard, Clients, Services
+   ├── Calendar, Products, Earnings
+   └── Profile, Theme
+
+/affiliate/* -> AffiliatePanel (affiliate role)
+   ├── Dashboard, Links
+   ├── Referrals, Payouts
+   └── (Settings via profile)
 ```
 
-### 2. Add Missing Routes to Admin Panel
+### 2.2 Add Missing Coach Panel Routes
+**Current Gap**: Coach panel lacks full CRUD for their content
 
-Current `/panel/*` routes are missing some pages the old admin had. Add:
-- `/panel/notifications` - Notification Center
-- `/panel/forms` - Forms management
-- `/panel/videos` - Video management
-- `/panel/faqs` - FAQ management
-- `/panel/testimonials` - Testimonials
-- `/panel/purchases` - Purchase management
-- `/panel/homepage` - Homepage sections
+**Add Routes**:
+- `/coach/content` - Manage their assigned content
+- `/coach/reviews` - View/manage reviews for their products
+- `/coach/analytics` - Personal analytics dashboard
 
-### 3. Fix Coach Panel Links in PanelDashboard
-
-The `PanelDashboard.tsx` shows quick action cards for practitioners linking to wrong paths:
-- `/panel/my-clients` should be `/coach/clients`
-- `/panel/my-calendar` should be `/coach/calendar`
-- `/panel/my-earnings` should be `/coach/earnings`
-
-Actually, `PanelDashboard` is only used in `/panel` (admin) route, so these practitioner cards shouldn't appear there. The coach uses `CoachDashboard`.
-
-**Fix:** Remove practitioner/affiliate cards from `PanelDashboard` since it's admin-only, OR fix the links to go to `/coach/*` routes.
-
-### 4. Add RoleSwitcher to Admin Sidebar
-
-Currently only Coach sidebar has `RoleSwitcher`. Add it to Admin sidebar too for consistency.
-
-### 5. Use Translation Keys
-
-Replace hardcoded strings in `src/components/panel/AdminSidebar.tsx` with `t()` calls using existing `admin.*` translation keys.
+### 2.3 Unify Sidebar Structure
+Ensure all three sidebars follow the same pattern:
+- Logo + Control Center title
+- RoleSwitcher (for multi-role users)
+- ScrollArea with nav groups
+- AuroraAccountDropdown at bottom
 
 ---
 
-## Files to Modify
+## Phase 3: Multi-Tenant Coach System
 
-| File | Changes |
-|------|---------|
-| `src/components/panel/AdminSidebar.tsx` | Major rewrite - add badges, quick actions, translations, RoleSwitcher |
-| `src/components/panel/PanelDashboard.tsx` | Fix links or remove non-admin cards |
-| `src/App.tsx` | Add missing panel routes (notifications, forms, videos, etc.) |
+### 3.1 Database Schema (Already Exists)
+The schema already supports multi-tenancy:
+- `practitioners` table with `user_id` linking to auth
+- `practitioner_id` foreign key on:
+  - `offers`
+  - `products` (content_products)
+  - `practitioner_services`
+  - `practitioner_specialties`
+  - `practitioner_reviews`
+
+### 3.2 Add Coach-Client Relationship Table
+**New Table**: `practitioner_clients`
+```sql
+CREATE TABLE practitioner_clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practitioner_id UUID NOT NULL REFERENCES practitioners(id),
+  client_user_id UUID NOT NULL REFERENCES auth.users(id),
+  status TEXT DEFAULT 'active', -- active, inactive, completed
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(practitioner_id, client_user_id)
+);
+```
+
+### 3.3 RLS Policies for Coach Data
+**Ensure policies exist for**:
+- Coaches can view only their own clients
+- Coaches can view only their own products/offers
+- Coaches can view reviews for their products
+- Clients can leave reviews for coaches they've worked with
+
+### 3.4 Update Coach Client View Hook
+Enhance `useCoachClientView.ts` to:
+- Verify client is actually linked to this practitioner
+- Fetch client's progress on practitioner's courses
+- Show session history with this specific practitioner
 
 ---
 
-## Files to Delete (Cleanup)
+## Phase 4: Reviews & Content Management
 
-| File | Reason |
-|------|--------|
-| `src/pages/AdminDashboard.tsx` | Unused - admin routes redirect to /panel |
-| `src/components/admin/AdminSidebar.tsx` | Deprecated - replaced by panel version |
+### 4.1 Practitioner Reviews (Exists)
+Table `practitioner_reviews`:
+- `practitioner_id`, `user_id`, `rating`, `review_text`, `is_approved`
+
+### 4.2 Add Coach Reviews Management Page
+**New Page**: `/coach/reviews`
+- List all reviews for their products
+- Filter by product/service
+- Respond to reviews (optional)
+
+### 4.3 Content Reviews (Exists)
+Table `content_reviews`:
+- `product_id`, `user_id`, `rating`, `review_text`, `is_approved`
+
+### 4.4 Coach Content Management
+**New Page**: `/coach/content`
+- View assigned courses/content
+- See enrollment stats per course
+- View content reviews
 
 ---
 
-## Implementation Details
+## Phase 5: Analytics for Coaches
 
-### AdminSidebar.tsx Upgrade
+### 5.1 Coach Analytics Dashboard
+**New Page**: `/coach/analytics`
+- Total clients over time
+- Session completion rates
+- Revenue breakdown
+- Product performance
+- Review ratings trend
 
+---
+
+## Technical Implementation Details
+
+### Files to Create
+1. `src/pages/panel/CoachReviews.tsx` - Reviews management
+2. `src/pages/panel/CoachContent.tsx` - Content management
+3. `src/pages/panel/CoachAnalytics.tsx` - Personal analytics
+4. `src/hooks/useCoachAnalytics.ts` - Analytics hook
+
+### Files to Modify
+1. `src/App.tsx` - Add new coach routes, remove old affiliate dashboard route
+2. `src/components/panel/CoachSidebar.tsx` - Add Reviews, Content, Analytics links
+3. `src/hooks/useCoachClientView.ts` - Add practitioner-client verification
+4. `src/pages/panel/MyClients.tsx` - Connect to real data
+
+### Database Migrations
+1. Create `practitioner_clients` table
+2. Add RLS policies for practitioner data isolation
+3. Create view for coach analytics aggregation
+
+### Route Changes
 ```typescript
-// Add queries for badge counts
-const { data: unreadCount = 0 } = useQuery({
-  queryKey: ['admin-unread-notifications'],
-  queryFn: async () => {
-    const { count } = await supabase
-      .from('admin_notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_read', false);
-    return count || 0;
-  },
-});
+// Remove
+<Route path="/affiliate-dashboard" ... />
 
-const { data: newLeadsCount = 0 } = useQuery({
-  queryKey: ['admin-new-leads'],
-  queryFn: async () => {
-    const { count } = await supabase
-      .from('leads')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'new');
-    return count || 0;
-  },
-});
-
-// Add RoleSwitcher import and use at top of sidebar
-import RoleSwitcher from './RoleSwitcher';
-
-// Add Quick Actions section
-<div className="p-3 border-b border-border">
-  <div className="flex gap-2">
-    <Button size="sm" onClick={() => navigate('/panel/newsletter')}>
-      <Plus /> {t('admin.quickActions.newCampaign')}
-    </Button>
-    <Button size="sm" onClick={() => navigate('/panel/leads')}>
-      <Mail /> {newLeadsCount > 0 && <Badge>{newLeadsCount}</Badge>}
-    </Button>
-  </div>
-</div>
-```
-
-### Route Additions to App.tsx
-
-```tsx
-<Route path="notifications" element={<NotificationCenter />} />
-<Route path="forms" element={<Forms />} />
-<Route path="videos" element={<Videos />} />
-<Route path="faqs" element={<FAQs />} />
-<Route path="testimonials" element={<Testimonials />} />
-<Route path="purchases" element={<Purchases />} />
-<Route path="homepage" element={<HomepageSections />} />
-<Route path="offers" element={<AdminOffers />} />
-<Route path="chat-assistant" element={<ChatAssistant />} />
-```
-
-### Sidebar Navigation Update
-
-Add missing items to navGroups array with proper badges:
-```typescript
-{ to: '/panel/notifications', icon: Bell, label: 'Notifications', labelHe: 'התראות', badge: unreadCount },
-{ to: '/panel/leads', icon: Mail, label: 'Leads', labelHe: 'לידים', badge: newLeadsCount },
+// Add to /coach routes
+<Route path="reviews" element={<CoachReviews />} />
+<Route path="content" element={<CoachContent />} />
+<Route path="analytics" element={<CoachAnalytics />} />
 ```
 
 ---
 
 ## Summary of Changes
 
-1. **Merge features** from old admin sidebar into new panel sidebar
-2. **Add missing routes** for all admin pages
-3. **Fix/remove** incorrect practitioner links in PanelDashboard
-4. **Add RoleSwitcher** to admin panel sidebar
-5. **Use translations** instead of hardcoded strings
-6. **Clean up** deprecated files
+| Category | Action | Files Affected |
+|----------|--------|----------------|
+| Cleanup | Remove duplicate affiliate dashboard | 1 file |
+| Cleanup | Remove unused unified panel | 2 files |
+| Routes | Redirect old affiliate route | App.tsx |
+| Coach Panel | Add Reviews page | New file |
+| Coach Panel | Add Content page | New file |
+| Coach Panel | Add Analytics page | New file |
+| Coach Panel | Update sidebar | CoachSidebar.tsx |
+| Database | Add practitioner_clients table | Migration |
+| Database | Add RLS policies | Migration |
+| Hooks | Update coach client view | useCoachClientView.ts |
+| Hooks | Create coach analytics hook | New file |
+| Data | Connect MyClients to real data | MyClients.tsx |
 
-This consolidation maintains the role-based panel separation (`/panel`, `/coach`, `/affiliate`) while ensuring all admin features work correctly through the new `/panel/*` routes.
+---
+
+## Benefits
+1. **Cleaner codebase** - No duplicate files or unused components
+2. **True multi-tenancy** - Each coach sees only their data
+3. **Complete coach panel** - Reviews, content, analytics all accessible
+4. **Proper client tracking** - Explicit coach-client relationships
+5. **Security** - RLS ensures data isolation between practitioners
