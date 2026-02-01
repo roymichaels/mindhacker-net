@@ -25,17 +25,56 @@ interface MultiThreadOrbProps {
   profile: MultiThreadOrbProfile;
 }
 
-// Parse HSL color string to THREE.Color
+// Parse HSL color string to THREE.Color with brightness adjustment
 function parseHslToThreeColor(colorStr: string): THREE.Color {
-  const match = colorStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
-  if (match) {
-    const h = parseInt(match[1]) / 360;
-    const s = parseInt(match[2]) / 100;
-    const l = parseInt(match[3]) / 100;
+  let h = 0, s = 0, l = 0;
+  let matched = false;
+  
+  // Pattern 1: Space-separated (e.g., "292 95% 73%")
+  const hslSpaceMatch = colorStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
+  if (hslSpaceMatch) {
+    h = parseInt(hslSpaceMatch[1]) / 360;
+    s = parseInt(hslSpaceMatch[2]) / 100;
+    l = parseInt(hslSpaceMatch[3]) / 100;
+    matched = true;
+  }
+  
+  // Pattern 2: CSS hsl function with commas (e.g., "hsl(292, 95%, 73%)")
+  if (!matched) {
+    const hslFuncMatch = colorStr.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/);
+    if (hslFuncMatch) {
+      h = parseInt(hslFuncMatch[1]) / 360;
+      s = parseInt(hslFuncMatch[2]) / 100;
+      l = parseInt(hslFuncMatch[3]) / 100;
+      matched = true;
+    }
+  }
+  
+  // Pattern 3: CSS hsl function with spaces (e.g., "hsl(292 95% 73%)")
+  if (!matched) {
+    const hslSpaceFuncMatch = colorStr.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
+    if (hslSpaceFuncMatch) {
+      h = parseInt(hslSpaceFuncMatch[1]) / 360;
+      s = parseInt(hslSpaceFuncMatch[2]) / 100;
+      l = parseInt(hslSpaceFuncMatch[3]) / 100;
+      matched = true;
+    }
+  }
+  
+  if (matched) {
     const color = new THREE.Color();
-    color.setHSL(h, s, l);
+    
+    // CRITICAL: Reduce lightness if too bright (prevents white orb)
+    // Map L > 60% down to 40-60% range for richer colors
+    let adjustedL = l;
+    if (l > 0.6) {
+      adjustedL = 0.4 + (l - 0.6) * 0.5;
+    }
+    
+    color.setHSL(h, s, adjustedL);
     return color;
   }
+  
   return new THREE.Color(0x8844ff);
 }
 
@@ -149,7 +188,7 @@ export const MultiThreadOrb = forwardRef<OrbRef, MultiThreadOrbProps>(function M
     const lineMaterial = new THREE.LineBasicMaterial({
       color: vis.primaryColor,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.75,
     });
 
     // ===== MAIN WIREFRAME SPHERE =====
