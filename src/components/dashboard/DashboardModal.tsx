@@ -66,9 +66,6 @@ export function DashboardModal({ open, onOpenChange, initialView = 'dashboard' }
         <ScrollArea className="flex-1">
           {currentView === 'dashboard' ? (
             <div className="p-4 space-y-6">
-              <p className="text-lg font-semibold text-muted-foreground">
-                {language === 'he' ? 'ברוך שובך' : 'Welcome back'}
-              </p>
               
               {/* Unified Life Model + Gamification Dashboard */}
               <UnifiedDashboardView onOpenProfile={() => setCurrentView('profile')} />
