@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { LifePlanExpanded } from './LifePlanExpanded';
 import { ChecklistsCard, ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus } from 'lucide-react';
 
 interface DashboardModalProps {
   open: boolean;
@@ -16,11 +17,10 @@ export function AIAnalysisModal({ open, onOpenChange, language }: DashboardModal
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'ניתוח AI מלא' : 'Full AI Analysis'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'ניתוח AI מלא' : 'Full AI Analysis'}
+          icon={<Brain className="h-5 w-5" />}
+        />
         <AIAnalysisDisplay language={language} />
       </DialogContent>
     </Dialog>
@@ -31,11 +31,10 @@ export function LifePlanModal({ open, onOpenChange, language }: DashboardModalPr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
+          icon={<Target className="h-5 w-5" />}
+        />
         <LifePlanExpanded />
       </DialogContent>
     </Dialog>
@@ -46,11 +45,10 @@ export function ChecklistsModal({ open, onOpenChange, language }: DashboardModal
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'המשימות שלי' : 'My Tasks'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'המשימות שלי' : 'My Tasks'}
+          icon={<ListChecks className="h-5 w-5" />}
+        />
         <ChecklistsCard />
       </DialogContent>
     </Dialog>
@@ -61,11 +59,10 @@ export function ConsciousnessModal({ open, onOpenChange, language }: DashboardMo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'מפת התודעה' : 'Consciousness Map'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'מפת התודעה' : 'Consciousness Map'}
+          icon={<Sparkles className="h-5 w-5" />}
+        />
         <ConsciousnessCard />
       </DialogContent>
     </Dialog>
@@ -76,11 +73,10 @@ export function BehavioralModal({ open, onOpenChange, language }: DashboardModal
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'תובנות התנהגותיות' : 'Behavioral Insights'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'תובנות התנהגותיות' : 'Behavioral Insights'}
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
         <BehavioralInsightsCard />
       </DialogContent>
     </Dialog>
@@ -102,11 +98,10 @@ export function IdentityModal({ open, onOpenChange, language, values, principles
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'פרופיל זהות' : 'Identity Profile'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'כרטיס הזהות שלי' : 'My Identity Card'}
+          icon={<User className="h-5 w-5" />}
+        />
         <IdentityProfileCard 
           values={values} 
           principles={principles} 
@@ -209,11 +204,10 @@ export function TraitsModal({ open, onOpenChange, language }: DashboardModalProp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'תכונות אופי' : 'Character Traits'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'תכונות אופי' : 'Character Traits'}
+          icon={<Award className="h-5 w-5" />}
+        />
         <TraitsCard archetypeData={archetypeData} />
       </DialogContent>
     </Dialog>
@@ -228,11 +222,10 @@ export function CommitmentsModal({ open, onOpenChange, language, commitments }: 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'התחייבויות' : 'Commitments'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'התחייבויות' : 'Commitments'}
+          icon={<Heart className="h-5 w-5" />}
+        />
         <CommitmentsCard commitments={commitments} />
       </DialogContent>
     </Dialog>
@@ -247,11 +240,10 @@ export function AnchorsModal({ open, onOpenChange, language, anchors }: AnchorsM
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'עוגנים יומיים' : 'Daily Anchors'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'עוגנים יומיים' : 'Daily Anchors'}
+          icon={<Anchor className="h-5 w-5" />}
+        />
         <DailyAnchorsDisplay anchors={anchors} />
       </DialogContent>
     </Dialog>
@@ -273,11 +265,10 @@ export function FocusModal({ open, onOpenChange, language, focusPlan }: FocusMod
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {language === 'he' ? 'פוקוס נוכחי' : 'Current Focus'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          title={language === 'he' ? 'פוקוס נוכחי' : 'Current Focus'}
+          icon={<Focus className="h-5 w-5" />}
+        />
         <CurrentFocusCard
           title={focusPlan.title}
           description={focusPlan.description}
