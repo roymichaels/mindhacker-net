@@ -56,7 +56,7 @@ const MessageBubble = ({
       <div className={cn(
         "max-w-[75%] rounded-2xl px-4 py-2.5",
         isOwn 
-          ? "bg-primary text-primary-foreground rounded-br-md" 
+          ? "bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/40 text-foreground rounded-br-md" 
           : "bg-muted text-foreground rounded-bl-md"
       )}>
         <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
@@ -67,8 +67,7 @@ const MessageBubble = ({
         </p>
         {time && (
           <p className={cn(
-            "text-[10px] mt-1",
-            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+            "text-[10px] mt-1 text-muted-foreground"
           )}>
             {time}
           </p>

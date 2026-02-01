@@ -84,7 +84,7 @@ const AuroraChatMessage = ({
           <div className={cn(
             "rounded-2xl px-4 py-3",
             isOwn 
-              ? "bg-primary text-primary-foreground rounded-br-sm" 
+              ? "bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/40 text-foreground rounded-br-sm" 
               : "bg-muted text-foreground rounded-bl-sm"
           )}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
