@@ -27,7 +27,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +45,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
+  const { profile: orbProfile } = useMultiThreadOrbProfile();
   
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -112,10 +114,10 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           {/* Large Orb */}
           <div className="relative mb-6">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-2xl scale-110" />
-            <PersonalizedOrb 
+            <MultiThreadOrb 
               size={200}
-              showGlow={true}
               state="idle"
+              profile={orbProfile}
             />
           </div>
 

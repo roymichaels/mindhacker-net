@@ -108,7 +108,7 @@ const AuroraAccountDropdown = ({
           {/* Glow overlay - same as Identity Card */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none rounded-xl" />
           
-          {/* Avatar - PersonalizedOrb matching Dashboard HUD */}
+          {/* Avatar - MultiThreadOrb matching Dashboard HUD */}
           <div className={cn(
             "shrink-0 relative flex items-center justify-center z-10",
             isCollapsed ? "h-10 w-10" : "h-11 w-11"

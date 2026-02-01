@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Sparkles, Gift, Rocket, CheckCircle2 } from 'lucide-react';
-import { PersonalizedOrb } from '@/components/orb';
+import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { cn } from '@/lib/utils';
 
 interface GuestDashboardActivationProps {
@@ -91,7 +91,7 @@ export function GuestDashboardActivation({ onComplete, isCompleting, rewards }: 
       >
         {/* Orb */}
         <div className="relative mx-auto w-24 h-24">
-          <PersonalizedOrb size={96} showGlow state={isGenerating ? 'thinking' : 'idle'} disablePersonalization />
+          <MultiThreadOrb size={96} state={isGenerating ? 'thinking' : 'idle'} />
           <motion.div
             animate={isGenerating ? { rotate: 360 } : {}}
             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
