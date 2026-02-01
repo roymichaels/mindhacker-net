@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, X, Wind, Loader2, Sparkles, Lock, Rocket, Calendar, Target } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Wind, Loader2, Sparkles, Lock, Rocket, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -81,6 +81,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const startTimeRef = useRef<number>(0);
   const playingRef = useRef<boolean>(false);
   const voiceStartedRef = useRef<boolean>(false); // Track when voice actually starts
+  const currentPlayingSegmentRef = useRef<number>(-1); // Track which segment is currently playing to prevent race conditions
 
   const currentSegment = script?.segments[currentSegmentIndex];
 
@@ -108,6 +109,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setShowBreathing(false);
       playingRef.current = false;
       voiceStartedRef.current = false;
+      currentPlayingSegmentRef.current = -1;
       prefetchedAudioRef.current.clear();
     }
   }, [open]);
@@ -185,6 +187,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             setState('playing');
             playingRef.current = true;
             voiceStartedRef.current = false; // Will be set when voice actually starts
+            currentPlayingSegmentRef.current = -1; // Reset segment lock
             hapticPattern('success');
             
             playSegment(0, cachedScript, cached.audio_paths || undefined);
@@ -222,6 +225,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setState('playing');
       playingRef.current = true;
       voiceStartedRef.current = false; // Will be set when voice actually starts
+      currentPlayingSegmentRef.current = -1; // Reset segment lock
       hapticPattern('success');
       
       prefetchedAudioRef.current.clear();
@@ -305,6 +309,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       return;
     }
     
+    // Prevent race conditions - if we're already playing this or a later segment, ignore
+    if (currentPlayingSegmentRef.current >= index) {
+      return;
+    }
+    
+    // Lock this segment
+    currentPlayingSegmentRef.current = index;
+    
     const activeScript = scriptOverride || scriptRef.current;
     const activeCachedPaths = cachedPaths || cachedAudioPaths;
     
@@ -327,6 +339,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       return;
     }
 
+    // Stop any currently playing audio before starting new segment
+    stopCurrentAudio();
+    
     setCurrentSegmentIndex(index);
     impact('light');
 
@@ -468,6 +483,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     } else if (state === 'paused' && scriptRef.current) {
       setState('playing');
       playingRef.current = true;
+      // Reset segment lock to allow replaying current segment
+      currentPlayingSegmentRef.current = currentSegmentIndex - 1;
       playSegment(currentSegmentIndex, scriptRef.current);
     }
   };

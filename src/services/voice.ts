@@ -323,6 +323,7 @@ export function stopCurrentAudio(): void {
 
 /**
  * Play audio URL and return promise that resolves when complete
+ * NOTE: Does NOT stop previous audio automatically - caller must handle this if needed
  */
 export async function playAudioUrl(
   audioUrl: string,
@@ -334,8 +335,6 @@ export async function playAudioUrl(
   } = {}
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Stop any currently playing audio first
-    stopCurrentAudio();
 
     // Handle browser TTS URLs
     if (audioUrl.startsWith('browser-tts://')) {
