@@ -160,25 +160,24 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-3 sm:px-6">
-          {/* Left side - Logo only (no hamburger - sidebar has its own toggle when collapsed) */}
+          {/* Left side - Menu toggle (opposite to logo in RTL) */}
           <div className="flex items-center gap-2 sm:gap-3 justify-start">
-            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img 
-                src={logoUrl} 
-                alt={brandName} 
-                className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-                loading="eager" 
-                decoding="async"
-                onError={(e) => {
-                  // Fallback if logo fails to load
-                  const target = e.currentTarget;
-                  target.style.display = 'none';
+            {/* Mobile-only Menu Button - opens sidebar */}
+            {user && onMenuClick && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  requestAnimationFrame(() => onMenuClick());
                 }}
-              />
-              <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-                {isAdminMode ? t('admin.panelTitle') : brandName}
-              </span>
-            </Link>
+                aria-label={t('header.navigationMenu')}
+                className="h-9 w-9 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
 
             {/* Mobile Admin Sidebar Trigger - Admin pages only */}
             {isAdminMode && (
@@ -193,6 +192,31 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 </SheetContent>
               </Sheet>
             )}
+          </div>
+
+          {/* Center - Empty space to maintain grid layout */}
+          <div className="flex justify-center">
+            {/* Intentionally empty */}
+          </div>
+
+          {/* Right side - Logo and brand */}
+          <div className="flex items-center gap-2 sm:gap-3 justify-end">
+            <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+                {isAdminMode ? t('admin.panelTitle') : brandName}
+              </span>
+              <img 
+                src={logoUrl} 
+                alt={brandName} 
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+                loading="eager" 
+                decoding="async"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                }}
+              />
+            </Link>
           </div>
 
           {/* Center - Empty space to maintain grid layout */}
@@ -219,24 +243,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             ) : user ? (
               <>
                 {isAdmin && <NotificationBell />}
-                {/* Mobile-only Menu Button - opens sidebar with account dropdown */}
-                {onMenuClick && (
-                  <div className="md:hidden">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        requestAnimationFrame(() => onMenuClick());
-                      }}
-                      aria-label={t('header.navigationMenu')}
-                      className="h-9 w-9"
-                    >
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </div>
-                )}
               </>
             ) : (
               /* Guest Avatar Dropdown with Language/Theme */
