@@ -16,10 +16,10 @@ import {
 } from 'lucide-react';
 
 const BENEFITS = [
-  { icon: Brain, labelHe: 'ניתוח תודעה AI', labelEn: 'AI Consciousness Analysis' },
+  { icon: Brain, labelHe: 'ניתוח תודעה AI', labelEn: 'AI Analysis' },
   { icon: Target, labelHe: 'תוכנית 90 יום', labelEn: '90-Day Plan' },
-  { icon: Star, labelHe: 'פרופיל זהות אישי', labelEn: 'Identity DNA Profile' },
-  { icon: Zap, labelHe: 'ליווי אישי מ-Aurora', labelEn: 'Personal AI Coach' },
+  { icon: Star, labelHe: 'פרופיל זהות', labelEn: 'Identity DNA' },
+  { icon: Zap, labelHe: 'ליווי אישי', labelEn: 'AI Coach' },
 ];
 
 interface LaunchpadIntroProps {
@@ -36,12 +36,12 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
       className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 z-50" 
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* Gamified Square Card */}
+      {/* Gamified Card - removed aspect-square for proper content fit */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-sm aspect-square flex flex-col"
+        className="relative w-full max-w-sm flex flex-col"
       >
         {/* Glowing border effect */}
         <motion.div
@@ -121,12 +121,12 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
               </p>
             </motion.div>
 
-            {/* Benefits Grid - 2x2 */}
+            {/* Benefits Grid - 2x2 with full text */}
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="grid grid-cols-2 gap-2 w-full max-w-[220px] mb-4"
+              className="grid grid-cols-2 gap-3 w-full max-w-[280px] mb-4"
             >
               {BENEFITS.map((benefit, index) => (
                 <motion.div
@@ -134,12 +134,12 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.6 + index * 0.05 }}
-                  className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10"
+                  className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <benefit.icon className="w-3.5 h-3.5 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                    <benefit.icon className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="text-xs font-medium text-foreground/90 truncate">
+                  <span className="text-xs font-medium text-foreground/90 leading-tight">
                     {isRTL ? benefit.labelHe : benefit.labelEn}
                   </span>
                 </motion.div>
