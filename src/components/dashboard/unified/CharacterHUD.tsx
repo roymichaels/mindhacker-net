@@ -8,8 +8,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Progress } from '@/components/ui/progress';
 import { Flame, Gem, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,8 +32,6 @@ export function CharacterHUD({
   className,
   onClick,
 }: CharacterHUDProps) {
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
-  
   return (
     <motion.div
       className={cn(
@@ -58,17 +55,13 @@ export function CharacterHUD({
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
       </div>
       
-      {/* Orb - Using MultiThreadOrb with user profile */}
+      {/* Orb - Using PersonalizedOrb with user profile */}
       <div className="relative z-10 flex-shrink-0">
         {/* Outer glow ring */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-125" />
         {/* Inner container with proper sizing */}
         <div className="relative" style={{ width: 100, height: 100 }}>
-          <MultiThreadOrb
-            size={100}
-            state="idle"
-            profile={orbProfile}
-          />
+          <PersonalizedOrb size={100} state="idle" />
         </div>
       </div>
       

@@ -14,8 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -36,7 +35,6 @@ const AuroraAccountDropdown = ({
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const { hasRole } = useUserRoles();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -116,10 +114,9 @@ const AuroraAccountDropdown = ({
             {/* Radial gradient glow backdrop */}
             <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
             <div className="relative z-10">
-              <MultiThreadOrb 
+              <PersonalizedOrb 
                 size={isCollapsed ? 38 : 44}
                 state="idle"
-                profile={orbProfile}
               />
             </div>
           </div>

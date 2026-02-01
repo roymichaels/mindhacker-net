@@ -8,7 +8,7 @@ import { useLiveOrbProfile } from '@/hooks/useLiveOrbProfile';
 import { PHASES, STEPS, getPhaseForStep } from '@/hooks/useLaunchpadProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Check, ChevronLeft, ChevronRight, X, RotateCcw, Sparkles, Zap, Star } from 'lucide-react';
 
 interface GamifiedJourneyHeaderProps {
@@ -174,8 +174,8 @@ export function GamifiedJourneyHeader({
                 )}>
                   {/* Orb - responsive size */}
                   <div className="relative z-10">
-                    <MultiThreadOrb size={48} profile={orbProfile} className="md:hidden" />
-                    <MultiThreadOrb size={64} profile={orbProfile} className="hidden md:block" />
+                    <PersonalizedOrb size={48} className="md:hidden" />
+                    <PersonalizedOrb size={64} className="hidden md:block" />
                   </div>
                 </div>
                 

@@ -14,8 +14,7 @@ import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirecti
 import { AnswersReview } from '@/components/launchpad/summary/AnswersReview';
 import { useProfilePDF } from '@/hooks/useProfilePDF';
 import { ProfilePDFRenderer } from '@/components/pdf/ProfilePDFRenderer';
-import { MultiThreadOrb } from '@/components/orb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 
 interface SummaryData {
   consciousness_analysis: {
@@ -71,7 +70,6 @@ export default function LaunchpadComplete() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useProfilePDF();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   
   const [loading, setLoading] = useState(true);
   const [scores, setScores] = useState({ consciousness: 0, clarity: 0, readiness: 0 });
@@ -214,10 +212,8 @@ export default function LaunchpadComplete() {
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <MultiThreadOrb
-              profile={orbProfile}
+            <PersonalizedOrb
               size={144}
-              className="w-full h-full"
             />
           </motion.div>
 

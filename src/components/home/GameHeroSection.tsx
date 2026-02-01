@@ -8,8 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Trophy, Target, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -159,7 +158,7 @@ export default function GameHeroSection() {
                 transition={{ duration: 3, repeat: Infinity }}
               />
             </div>
-            <MultiThreadOrb 
+            <PersonalizedOrb 
               size={160}
               state={orbState}
               className="mx-auto relative z-10"

@@ -15,8 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 
 const guarantees = [
   { icon: Shield, keyHe: 'חינם לגמרי להתחלה', keyEn: 'Completely free to start' },
@@ -66,7 +65,7 @@ export default function FinalCTASection() {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-                <MultiThreadOrb size={120} state="speaking" />
+                <PersonalizedOrb size={120} state="speaking" disablePersonalization />
               </div>
             </motion.div>
 

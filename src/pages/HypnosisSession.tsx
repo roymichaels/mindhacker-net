@@ -9,8 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { BreathingGuide } from '@/components/hypnosis';
 import { 
   generateHypnosisScript, 
@@ -58,7 +57,6 @@ const HypnosisSession = () => {
   const { gameState, recordSession } = useGameState();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern, heartbeat } = useHaptics();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
 
   const presetId = searchParams.get('preset');
   const presetDuration = searchParams.get('duration');
@@ -748,10 +746,9 @@ const HypnosisSession = () => {
             >
               <div className="relative">
                 <div className="mx-auto" style={{ width: orbSize * 0.55, height: orbSize * 0.55 }}>
-                  <MultiThreadOrb
+                  <PersonalizedOrb
                     size={Math.floor(orbSize * 0.55)}
                     showGlow={true}
-                    profile={orbProfile}
                   />
                 </div>
                 <motion.div 
@@ -824,11 +821,10 @@ const HypnosisSession = () => {
                   <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-black/10" />
                 </div>
                 <div className="relative" style={{ width: orbSize, height: orbSize }}>
-                  <MultiThreadOrb
+                  <PersonalizedOrb
                     size={orbSize}
                     state={state === 'playing' ? 'speaking' : 'idle'}
                     showGlow={true}
-                    profile={orbProfile}
                   />
                 </div>
               </div>

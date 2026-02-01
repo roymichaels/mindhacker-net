@@ -4,8 +4,7 @@ import { useSmartSuggestions, SuggestionAction } from '@/hooks/aurora/useSmartSu
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { useMultiThreadOrbProfile } from '@/hooks/useMultiThreadOrbProfile';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 
 interface AuroraWelcomeProps {
   onSuggestionClick: (suggestion: string) => void;
@@ -31,7 +30,6 @@ const cardColors = [
 const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
-  const { profile: orbProfile } = useMultiThreadOrbProfile();
   const { openHypnosis, openDashboard } = useAuroraActions();
 
   const handleSuggestionAction = (action: SuggestionAction) => {
@@ -55,10 +53,9 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
     <div className="flex flex-col items-center justify-center py-8 px-4 space-y-5">
       {/* Aurora Orb Avatar */}
       <div className="relative">
-        <MultiThreadOrb 
+        <PersonalizedOrb 
           size={80} 
           state="idle"
-          profile={orbProfile}
         />
       </div>
 

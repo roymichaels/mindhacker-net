@@ -21,8 +21,7 @@ import { PlanPreview } from '@/components/launchpad/summary/PlanPreview';
 import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirectionSection';
 import { useGuestPDF } from '@/hooks/useGuestPDF';
 import { GuestPDFRenderer } from '@/components/pdf/GuestPDFRenderer';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import confetti from 'canvas-confetti';
 import { cn } from '@/lib/utils';
 
@@ -105,8 +104,8 @@ export default function FreeJourneyComplete() {
     }
   }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
 
-  // Use the live orb profile built during the journey (falls back to default if no personalization)
-  const orbProfile = hasPersonalization ? liveOrbProfile : DEFAULT_MULTI_THREAD_PROFILE;
+  // Use the live orb profile built during the journey (PersonalizedOrb handles this internally)
+  const hasPersonalizedOrb = hasPersonalization;
 
   // Get identity title
   const identityTitle = useMemo(() => {
@@ -185,7 +184,7 @@ export default function FreeJourneyComplete() {
           className="text-center space-y-6"
         >
           <div className="relative w-24 h-24 mx-auto">
-            <MultiThreadOrb profile={DEFAULT_MULTI_THREAD_PROFILE} size={96} />
+            <PersonalizedOrb size={96} disablePersonalization />
           </div>
           <div className="space-y-2">
             <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
@@ -243,7 +242,7 @@ export default function FreeJourneyComplete() {
           className="relative z-10"
         >
           <div className="relative w-48 h-48 md:w-56 md:h-56">
-            <MultiThreadOrb profile={orbProfile} size={224} showGlow />
+            <PersonalizedOrb size={224} showGlow />
             
             {/* Identity badge */}
             {identityTitle && (

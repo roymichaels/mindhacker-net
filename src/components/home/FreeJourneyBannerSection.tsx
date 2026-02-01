@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Gift, ArrowRight, Brain, Target, FileText, Sparkles } from 'lucide-react';
 
 export default function FreeJourneyBannerSection() {
@@ -34,7 +34,7 @@ export default function FreeJourneyBannerSection() {
             >
               <div className="relative">
                 <div className="w-24 h-24 sm:w-28 sm:h-28">
-                  <MultiThreadOrb size={112} />
+                  <PersonalizedOrb size={112} disablePersonalization />
                 </div>
                 {/* Free badge */}
                 <div className="absolute -top-1 -right-1">
