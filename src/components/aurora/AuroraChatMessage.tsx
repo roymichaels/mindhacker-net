@@ -1,10 +1,11 @@
-import { Copy, Volume2, Square, RefreshCw, Sparkles } from 'lucide-react';
+import { Copy, Volume2, Square, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
 interface AuroraChatMessageProps {
   id: string;
@@ -74,8 +75,8 @@ const AuroraChatMessage = ({
       )}>
         {/* Avatar - only for Aurora */}
         {!isOwn && (
-          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
+            <AuroraOrbIcon size={20} className="text-primary" />
           </div>
         )}
 
