@@ -95,7 +95,13 @@ export function useLaunchpadAutoSave() {
           updates.step_5_focus_areas_selected = data.focus_areas || [];
           break;
         case 9: // First Week
-          updates.step_6_actions = data;
+          // Transform from component format to DB format
+          updates.step_6_actions = {
+            habits_to_quit: (data as any).selectedQuit || [],
+            habits_to_build: (data as any).selectedBuild || [],
+            career_status: (data as any).selectedCareerStatus || '',
+            career_goal: (data as any).selectedCareerGoal || '',
+          };
           break;
         case 10: // Final Notes (NEW)
           updates.step_10_final_notes = data.notes || data.final_notes || null;
