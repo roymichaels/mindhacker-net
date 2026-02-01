@@ -9,5 +9,7 @@ export { PDFOrbPage } from './PDFOrbPage';
 export { PDFDashboardPage } from './PDFDashboardPage';
 export { PDFHawkinsPage } from './PDFHawkinsPage';
 export { ProfilePDFRenderer } from './ProfilePDFRenderer';
+export { GuestPDFRenderer } from './GuestPDFRenderer';
 export { usePDFCapture } from './usePDFCapture';
 export type { ProfilePDFData } from './ProfilePDFRenderer';
+export type { GuestPDFData } from './GuestPDFRenderer';
