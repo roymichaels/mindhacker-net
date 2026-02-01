@@ -6,6 +6,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
+import { useLiveOrbProfile } from '@/hooks/useLiveOrbProfile';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -21,7 +22,7 @@ import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirecti
 import { useGuestPDF } from '@/hooks/useGuestPDF';
 import { GuestPDFRenderer } from '@/components/pdf/GuestPDFRenderer';
 import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
-import { generateOrbThreads, DEFAULT_MULTI_THREAD_PROFILE, type MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
+import { DEFAULT_MULTI_THREAD_PROFILE } from '@/lib/orbDNAThreads';
 import confetti from 'canvas-confetti';
 import { cn } from '@/lib/utils';
 
@@ -71,27 +72,7 @@ interface GuestResult {
   };
 }
 
-// Generate orb profile from guest data
-function generateGuestOrbProfile(result: GuestResult): MultiThreadOrbProfile {
-  // Try to get hobbies from localStorage
-  let hobbies: string[] = [];
-  try {
-    const profileData = localStorage.getItem('launchpad_personal_profile');
-    if (profileData) {
-      const parsed = JSON.parse(profileData);
-      hobbies = parsed.hobbies || [];
-    }
-  } catch (e) {
-    console.error('Error parsing profile data:', e);
-  }
-
-  // Generate orb profile
-  return generateOrbThreads(
-    result.summary as any,
-    hobbies,
-    result.scores.consciousness
-  );
-}
+// Removed generateGuestOrbProfile - now using useLiveOrbProfile hook instead
 
 export default function FreeJourneyComplete() {
   const { language, isRTL } = useTranslation();
@@ -100,6 +81,7 @@ export default function FreeJourneyComplete() {
   const { isLaunchpadComplete, isLoading: launchpadLoading } = useLaunchpadProgress();
   const { isLaunchpadComplete: isGuestComplete, getGuestData } = useGuestLaunchpadProgress();
   const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useGuestPDF();
+  const { profile: liveOrbProfile, hasPersonalization } = useLiveOrbProfile();
   
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<GuestResult | null>(null);
@@ -123,11 +105,8 @@ export default function FreeJourneyComplete() {
     }
   }, [user, authLoading, launchpadLoading, isLaunchpadComplete, navigate]);
 
-  // Generate orb profile
-  const orbProfile = useMemo(() => {
-    if (!result) return DEFAULT_MULTI_THREAD_PROFILE;
-    return generateGuestOrbProfile(result);
-  }, [result]);
+  // Use the live orb profile built during the journey (falls back to default if no personalization)
+  const orbProfile = hasPersonalization ? liveOrbProfile : DEFAULT_MULTI_THREAD_PROFILE;
 
   // Get identity title
   const identityTitle = useMemo(() => {
