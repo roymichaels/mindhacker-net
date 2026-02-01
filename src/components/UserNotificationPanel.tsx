@@ -56,8 +56,10 @@ export const UserNotificationPanel = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className="w-[calc(100vw-1rem)] max-w-sm rounded-xl overflow-hidden backdrop-blur-xl bg-card/80 border border-primary/20 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_40px_-12px_hsl(var(--primary)/0.3)]"
+      className="w-[calc(100vw-1rem)] max-w-sm rounded-xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_40px_-12px_hsl(var(--primary)/0.3)]"
     >
+      {/* Glow overlay - same as Identity Card */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none rounded-xl" />
       {/* Header - Compact */}
       <div className="relative px-4 py-3 border-b border-border/50 bg-gradient-to-r from-primary/10 to-transparent">
         <div className="flex items-center justify-between gap-2">
