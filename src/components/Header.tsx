@@ -161,11 +161,11 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card shadow-sm">
-        <div className="container grid grid-cols-3 h-14 sm:h-16 items-center px-2 sm:px-4">
+        <div className="container grid grid-cols-3 h-16 sm:h-20 items-center px-2 sm:px-4">
           {/* Left side - Logo only (no hamburger - sidebar has its own toggle when collapsed) */}
           <div className="flex items-center gap-2 sm:gap-3 justify-start">
             <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-primary/10">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex-shrink-0 bg-primary/10">
                 <img 
                   src={logoUrl} 
                   alt={brandName} 
