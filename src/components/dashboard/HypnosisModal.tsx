@@ -532,12 +532,27 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         <DialogContent 
           className="max-w-2xl h-[85vh] max-h-[700px] p-0 overflow-hidden bg-background"
           dir={isRTL ? 'rtl' : 'ltr'}
+          onPointerDownOutside={(e) => {
+            // Prevent closing when clicking outside during session
+            if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
+              e.preventDefault();
+            }
+          }}
+          onInteractOutside={(e) => {
+            // Prevent all outside interactions during active session
+            if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
+              e.preventDefault();
+            }
+          }}
         >
         <VisuallyHidden>
           <DialogTitle>{language === 'he' ? 'היפנוזה' : 'Hypnosis Session'}</DialogTitle>
         </VisuallyHidden>
 
-        <div className="flex flex-col h-full">
+        <div 
+          className="flex flex-col h-full"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Setup State */}
           <AnimatePresence mode="wait">
             {state === 'setup' && (
