@@ -1,6 +1,7 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 import { Loader2 } from 'lucide-react';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { LaunchpadFlow } from '@/components/launchpad';
@@ -43,17 +44,19 @@ const AuroraLayout = () => {
   }
 
   return (
-    <DashboardLayout
-      currentConversationId={activeConversationId}
-      onNewChat={handleNewChat}
-      onSelectConversation={handleSelectConversation}
-      hideRightPanel
-    >
-      {/* Chat Area - takes full width and height */}
-      <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
-        <AuroraChatArea conversationId={activeConversationId} />
-      </div>
-    </DashboardLayout>
+    <AuroraActionsProvider>
+      <DashboardLayout
+        currentConversationId={activeConversationId}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+        hideRightPanel
+      >
+        {/* Chat Area - takes full width and height */}
+        <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
+          <AuroraChatArea conversationId={activeConversationId} />
+        </div>
+      </DashboardLayout>
+    </AuroraActionsProvider>
   );
 };
 

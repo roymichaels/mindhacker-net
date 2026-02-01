@@ -1,6 +1,7 @@
 import { CheckCircle2, Brain, Target, Heart, Lightbulb, CalendarCheck } from 'lucide-react';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
-import { useSmartSuggestions } from '@/hooks/aurora/useSmartSuggestions';
+import { useSmartSuggestions, SuggestionAction } from '@/hooks/aurora/useSmartSuggestions';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
@@ -31,6 +32,24 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
   const { profile: orbProfile } = useMultiThreadOrbProfile();
+  const { openHypnosis, openDashboard } = useAuroraActions();
+
+  const handleSuggestionAction = (action: SuggestionAction) => {
+    switch (action.type) {
+      case 'open_hypnosis':
+        openHypnosis();
+        break;
+      case 'open_dashboard':
+        openDashboard(action.view);
+        break;
+      case 'send_message':
+        onSuggestionClick(action.prompt);
+        break;
+      case 'navigate':
+        // Future: implement navigation
+        break;
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 space-y-5">
@@ -75,7 +94,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
                   colors.border,
                   colors.hover
                 )}
-                onClick={() => onSuggestionClick(suggestion.prompt)}
+                onClick={() => handleSuggestionAction(suggestion.action)}
               >
                 <div className={cn(
                   "w-8 h-8 rounded-lg flex items-center justify-center",

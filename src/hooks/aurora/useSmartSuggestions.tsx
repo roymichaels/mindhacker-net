@@ -4,10 +4,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 
-interface SmartSuggestion {
+// Action types for smart suggestions
+export type SuggestionAction = 
+  | { type: 'open_hypnosis' }
+  | { type: 'open_dashboard'; view?: 'dashboard' | 'profile' }
+  | { type: 'send_message'; prompt: string }
+  | { type: 'navigate'; path: string };
+
+export interface SmartSuggestion {
   id: string;
   text: string;
-  prompt: string;
+  action: SuggestionAction;
   priority: number;
   icon: 'task' | 'hypnosis' | 'plan' | 'habit' | 'reflection' | 'milestone';
 }
@@ -119,28 +126,37 @@ export function useSmartSuggestions() {
         {
           id: 'start-hypnosis',
           text: isHebrew ? '🧘 התחל את ההיפנוזה היומית שלך' : '🧘 Start your daily hypnosis',
-          prompt: isHebrew ? 'אני רוצה להתחיל את ההיפנוזה היומית שלי' : 'I want to start my daily hypnosis',
+          action: { type: 'open_hypnosis' },
           priority: 1,
           icon: 'hypnosis',
         },
         {
           id: 'whats-today',
           text: isHebrew ? '📋 מה יש לי היום?' : "📋 What's on my plate today?",
-          prompt: isHebrew ? 'מה יש לי היום? תן לי סיכום של המשימות וההרגלים' : "What do I have today? Give me a summary of tasks and habits",
+          action: { 
+            type: 'send_message', 
+            prompt: isHebrew ? 'מה יש לי היום? תן לי סיכום של המשימות וההרגלים' : "What do I have today? Give me a summary of tasks and habits"
+          },
           priority: 2,
           icon: 'task',
         },
         {
           id: 'progress-check',
           text: isHebrew ? '📊 איך אני מתקדם בתוכנית?' : '📊 How am I progressing?',
-          prompt: isHebrew ? 'איך אני מתקדם בתוכנית ה-90 ימים שלי? תן לי סקירה' : 'How am I progressing in my 90-day plan? Give me an overview',
+          action: { 
+            type: 'send_message', 
+            prompt: isHebrew ? 'איך אני מתקדם בתוכנית ה-90 ימים שלי? תן לי סקירה' : 'How am I progressing in my 90-day plan? Give me an overview'
+          },
           priority: 3,
           icon: 'plan',
         },
         {
           id: 'feeling-stuck',
           text: isHebrew ? '🤔 אני מרגיש תקוע...' : "🤔 I'm feeling stuck...",
-          prompt: isHebrew ? 'אני מרגיש קצת תקוע היום, בוא נדבר על זה' : "I'm feeling a bit stuck today, let's talk about it",
+          action: { 
+            type: 'send_message', 
+            prompt: isHebrew ? 'אני מרגיש קצת תקוע היום, בוא נדבר על זה' : "I'm feeling a bit stuck today, let's talk about it"
+          },
           priority: 4,
           icon: 'reflection',
         },
@@ -149,34 +165,31 @@ export function useSmartSuggestions() {
 
     const result: SmartSuggestion[] = [];
 
-    // Priority 1: Overdue tasks (highest urgency)
+    // Priority 1: Overdue tasks (highest urgency) - Opens dashboard
     if (userState.overdueTasks.length > 0) {
-      const task = userState.overdueTasks[0];
       result.push({
         id: 'overdue-task',
         text: isHebrew 
           ? `⚠️ יש ${userState.overdueTasks.length} משימות באיחור - בוא נטפל!`
           : `⚠️ ${userState.overdueTasks.length} overdue tasks - let's handle them!`,
-        prompt: isHebrew 
-          ? `יש לי משימות באיחור. המשימה הראשונה היא: "${task.content}". בוא נדבר על איך להתקדם`
-          : `I have overdue tasks. The first one is: "${task.content}". Let's talk about how to move forward`,
+        action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 1,
         icon: 'task',
       });
     }
 
-    // Priority 2: Daily hypnosis (if not done today)
+    // Priority 2: Daily hypnosis (if not done today) - Opens hypnosis modal
     if (!userState.didHypnosisToday) {
       result.push({
         id: 'daily-hypnosis',
         text: isHebrew ? '🧘 התחל את ההיפנוזה היומית שלך' : '🧘 Start your daily hypnosis',
-        prompt: isHebrew ? 'אני רוצה להתחיל את ההיפנוזה היומית שלי' : 'I want to start my daily hypnosis',
+        action: { type: 'open_hypnosis' },
         priority: 2,
         icon: 'hypnosis',
       });
     }
 
-    // Priority 3: Incomplete daily habits
+    // Priority 3: Incomplete daily habits - Opens dashboard
     if (userState.incompleteHabits.length > 0) {
       const habitCount = userState.incompleteHabits.length;
       result.push({
@@ -184,15 +197,13 @@ export function useSmartSuggestions() {
         text: isHebrew 
           ? `✨ ${habitCount} הרגלים יומיים מחכים לך`
           : `✨ ${habitCount} daily habits waiting for you`,
-        prompt: isHebrew 
-          ? 'בוא נעבור על ההרגלים היומיים שלי ונסמן מה עשיתי'
-          : "Let's go through my daily habits and mark what I've done",
+        action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 3,
         icon: 'habit',
       });
     }
 
-    // Priority 4: Today's tasks
+    // Priority 4: Today's tasks - Opens dashboard
     if (userState.todayTasks.length > 0) {
       const task = userState.todayTasks[0];
       result.push({
@@ -200,34 +211,33 @@ export function useSmartSuggestions() {
         text: isHebrew 
           ? `📋 המשימה הבאה שלך: ${task.content.substring(0, 30)}...`
           : `📋 Your next task: ${task.content.substring(0, 30)}...`,
-        prompt: isHebrew 
-          ? `בוא נדבר על המשימה הבאה שלי: "${task.content}"`
-          : `Let's talk about my next task: "${task.content}"`,
+        action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 4,
         icon: 'task',
       });
     }
 
-    // Priority 5: Current milestone progress
+    // Priority 5: Current milestone progress - Opens dashboard
     if (userState.currentMilestone) {
       result.push({
         id: 'milestone-progress',
         text: isHebrew 
           ? `🎯 שבוע ${userState.currentMilestone.week_number}: ${userState.currentMilestone.title?.substring(0, 25)}...`
           : `🎯 Week ${userState.currentMilestone.week_number}: ${userState.currentMilestone.title?.substring(0, 25)}...`,
-        prompt: isHebrew 
-          ? `איך אני מתקדם בשבוע ${userState.currentMilestone.week_number} של התוכנית? המטרה היא: ${userState.currentMilestone.title}`
-          : `How am I progressing in week ${userState.currentMilestone.week_number} of my plan? The goal is: ${userState.currentMilestone.title}`,
+        action: { type: 'open_dashboard', view: 'dashboard' },
         priority: 5,
         icon: 'milestone',
       });
     }
 
-    // Priority 6: General reflection (always available)
+    // Priority 6: General reflection (always available) - Sends message
     result.push({
       id: 'reflection',
       text: isHebrew ? '💭 אני רוצה לשתף משהו...' : '💭 I want to share something...',
-      prompt: isHebrew ? 'אני רוצה לשתף אותך במשהו שעובר עליי' : 'I want to share something that I\'m going through',
+      action: { 
+        type: 'send_message', 
+        prompt: isHebrew ? 'אני רוצה לשתף אותך במשהו שעובר עליי' : 'I want to share something that I\'m going through'
+      },
       priority: 6,
       icon: 'reflection',
     });
