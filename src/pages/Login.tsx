@@ -93,22 +93,24 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative dark" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md relative z-10">
-        <div className="glass-panel p-8 space-y-6">
+        <div className="bg-gradient-to-b from-gray-950 to-gray-900 border border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <LogIn className="h-10 w-10 md:h-12 md:w-12 text-primary cyber-glow" />
+              <div className="p-3 rounded-full bg-primary/20 border border-primary/30">
+                <LogIn className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+              </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black cyber-glow">{t('auth.loginTitle')}</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-black text-primary">{t('auth.loginTitle')}</h1>
+            <p className="text-sm md:text-base text-gray-400">
               {t('auth.loginSubtitle')}
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
+              <Label htmlFor="email" className="text-gray-300">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -119,12 +121,12 @@ const Login = () => {
                 }
                 required
                 disabled={isLoading}
-                className={isRTL ? "text-right" : "text-left"}
+                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
+              <Label htmlFor="password" className="text-gray-300">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -135,7 +137,7 @@ const Login = () => {
                 }
                 required
                 disabled={isLoading}
-                className={isRTL ? "text-right" : "text-left"}
+                className={`bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary ${isRTL ? "text-right" : "text-left"}`}
               />
             </div>
 
@@ -157,7 +159,7 @@ const Login = () => {
           </form>
 
           <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-400">
               {t('auth.noAccount')}{" "}
               <Link
                 to={`/signup${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
@@ -168,7 +170,7 @@ const Login = () => {
             </p>
             <Link
               to="/"
-              className="text-sm text-muted-foreground hover:text-foreground block"
+              className="text-sm text-gray-400 hover:text-white block"
             >
               {t('auth.backToHome')}
             </Link>
