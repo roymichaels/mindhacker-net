@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 
 import { cn } from "@/lib/utils";
@@ -30,8 +30,10 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    hideCloseButton?: boolean;
+  }
+>(({ className, children, hideCloseButton = false, ...props }, ref) => {
   const swipeHandlers = useSwipeable({
     onSwipedDown: (eventData) => {
       if (eventData.velocity > 0.5 && window.innerWidth < 640) {
@@ -60,21 +62,91 @@ const DialogContent = React.forwardRef<
         )}
         {...props}
       >
-        {/* Removed bottom-sheet swipe indicator since we now use centered pop modal */}
         {children}
-        <DialogPrimitive.Close data-dialog-close className="absolute left-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-accent data-[state=open]:text-muted-foreground hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none rtl:left-auto rtl:right-4">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+        {/* Hidden close button for swipe-to-close functionality */}
+        {!hideCloseButton && (
+          <DialogPrimitive.Close data-dialog-close className="sr-only">
+            <span>Close</span>
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </DialogPortal>
   );
 });
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
-const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
-);
+interface DialogHeaderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
+  title?: React.ReactNode;
+  icon?: React.ReactNode;
+  showBackArrow?: boolean;
+  onBack?: () => void;
+}
+
+const DialogHeader = ({ className, title, icon, showBackArrow = true, onBack, children, ...props }: DialogHeaderProps) => {
+  // If title is provided, use the new standardized layout
+  if (title) {
+    return (
+      <div 
+        className={cn(
+          "flex items-center justify-between gap-2 pb-4 border-b border-border/30",
+          className
+        )} 
+        {...props}
+      >
+        {/* Left side - Close button */}
+        <DialogPrimitive.Close 
+          data-dialog-close
+          className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          <X className="h-5 w-5" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+
+        {/* Center - Title with optional icon */}
+        <div className="flex items-center gap-2 flex-1 justify-center">
+          {icon && <span className="text-primary">{icon}</span>}
+          <DialogPrimitive.Title className="text-lg font-semibold leading-none tracking-tight">
+            {title}
+          </DialogPrimitive.Title>
+        </div>
+
+        {/* Right side - Back arrow or placeholder for balance */}
+        {showBackArrow ? (
+          <button 
+            onClick={onBack}
+            className="p-2 rounded-full opacity-70 hover:opacity-100 hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <ArrowRight className="h-5 w-5" />
+            <span className="sr-only">Back</span>
+          </button>
+        ) : (
+          <div className="w-9" /> 
+        )}
+      </div>
+    );
+  }
+
+  // Legacy fallback - original behavior for backward compatibility
+  return (
+    <div 
+      className={cn(
+        "relative flex flex-col space-y-1.5 text-center sm:text-left",
+        className
+      )} 
+      {...props}
+    >
+      {/* Close button positioned at top-left */}
+      <DialogPrimitive.Close 
+        data-dialog-close
+        className="absolute left-0 top-0 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </DialogPrimitive.Close>
+      {children}
+    </div>
+  );
+};
 DialogHeader.displayName = "DialogHeader";
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

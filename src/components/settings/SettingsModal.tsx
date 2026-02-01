@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -145,12 +144,11 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[85vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-            <Settings className="h-5 w-5 text-primary" />
-            {t('common.settings')}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader 
+          className="px-6 pt-6 pb-2"
+          title={t('common.settings')}
+          icon={<Settings className="h-5 w-5" />}
+        />
 
         <Tabs defaultValue="profile" className="flex flex-col flex-1 min-h-0" dir={isRTL ? 'rtl' : 'ltr'}>
           <TabsList className="mx-6 mb-2 grid grid-cols-4 h-auto p-1">
