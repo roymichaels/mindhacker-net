@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
+import { UserNotificationBell } from '@/components/UserNotificationBell';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -53,6 +55,12 @@ const DesktopLayoutContent = ({
 
   return (
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Fixed notification icons - always visible at top */}
+      <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
+        <AuroraChatQuickActions />
+        <UserNotificationBell />
+      </div>
+
       <div className="flex-1 flex min-h-0">
         {/* Left Sidebar - Aurora style */}
         <DashboardSidebar 
@@ -117,8 +125,14 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+          {/* Fixed notification icons - always visible at top */}
+          <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
+            <AuroraChatQuickActions />
+            <UserNotificationBell />
+          </div>
+
           {/* Mobile Header with logo and menu */}
-          <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-sidebar">
+          <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
             <div className="flex h-14 items-center justify-between px-4">
               <Button 
                 variant="ghost" 

@@ -7,8 +7,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import AuroraChatMessage from './AuroraChatMessage';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
 import AuroraWelcome from './AuroraWelcome';
-import AuroraChatQuickActions from './AuroraChatQuickActions';
-import { UserNotificationBell } from '@/components/UserNotificationBell';
 
 interface AuroraChatAreaProps {
   conversationId: string | null;
@@ -49,12 +47,6 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* ChatGPT-style fixed header - icons on left for RTL, right for LTR */}
-      <div className={`fixed top-14 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
-        <AuroraChatQuickActions />
-        <UserNotificationBell />
-      </div>
-
       {/* Messages Area - centered like ChatGPT */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
