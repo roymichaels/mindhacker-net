@@ -25,17 +25,26 @@ import { CharacterHUD } from './unified';
 interface UnifiedDashboardViewProps {
   className?: string;
   compact?: boolean;
+  onOpenProfile?: () => void;
 }
 
 type ModalType = 'ai' | 'plan' | 'tasks' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | 'focus' | null;
 
-export function UnifiedDashboardView({ className }: UnifiedDashboardViewProps) {
+export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashboardViewProps) {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+
+  const handleOpenProfile = () => {
+    if (onOpenProfile) {
+      onOpenProfile();
+    } else {
+      setProfileOpen(true);
+    }
+  };
 
   if (dashboard.isLoading) {
     return (
@@ -132,9 +141,9 @@ export function UnifiedDashboardView({ className }: UnifiedDashboardViewProps) {
         xp={dashboard.xpProgress}
         streak={dashboard.streak}
         tokens={dashboard.tokens}
-        onClick={() => setProfileOpen(true)}
+        onClick={handleOpenProfile}
       />
-      <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
+      {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
 
       {/* Quick Access Grid - Opens Modals */}
       <div className="space-y-2">
