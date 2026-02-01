@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +26,9 @@ import { format } from 'date-fns';
 import { he, enUS } from 'date-fns/locale';
 import { DashboardModal } from './DashboardModal';
 import { HypnosisModal } from './HypnosisModal';
+import { useThemeSettings } from '@/hooks/useThemeSettings';
+
+const defaultLogo = "/logo.png?v=9";
 
 interface DashboardSidebarProps {
   onNavigate?: () => void;
@@ -59,6 +62,8 @@ const DashboardSidebar = ({
   const queryClient = useQueryClient();
   const isCollapsed = !isMobileSheet && sidebar?.state === 'collapsed';
   const isAuroraPage = location.pathname === '/aurora';
+  const { theme: brandTheme } = useThemeSettings();
+  const logoUrl = brandTheme.logo_url || defaultLogo;
 
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
@@ -303,9 +308,19 @@ const DashboardSidebar = ({
         collapsible="icon"
         side={isRTL ? "right" : "left"}
       >
-        {/* Hamburger toggle at top of collapsed sidebar - aligned with menu icons */}
+        {/* Logo and hamburger toggle at top of collapsed sidebar */}
         {isCollapsed && (
-          <SidebarHeader className="p-0 flex items-center justify-center">
+          <SidebarHeader className="p-2 flex flex-col items-center gap-2">
+            {/* Logo */}
+            <Link to="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
+              <img 
+                src={logoUrl} 
+                alt="Logo" 
+                className="w-8 h-8 object-contain" 
+                loading="eager"
+              />
+            </Link>
+            {/* Menu toggle */}
             <Button
               variant="ghost"
               size="icon"
