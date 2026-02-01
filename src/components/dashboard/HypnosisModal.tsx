@@ -664,16 +664,22 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   />
                 </div>
 
-                {/* Current Segment Text */}
+                {/* Current Segment Text - Auto-fit, no scrolling needed */}
                 {currentSegment && (
-                  <div className="px-6 pb-4 text-center">
-                    <p className="text-xs text-primary/60 uppercase tracking-wider mb-2">
+                  <motion.div 
+                    key={currentSegmentIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="px-6 pb-4 text-center flex-shrink-0"
+                  >
+                    <p className="text-xs text-primary/60 uppercase tracking-wider mb-3">
                       {SEGMENT_LABELS[currentSegment.mood]?.[language as 'he' | 'en'] || currentSegment.mood}
                     </p>
-                    <p className="text-lg leading-relaxed text-foreground/90 max-h-24 overflow-y-auto">
+                    <p className="text-base sm:text-lg leading-relaxed text-foreground/90 line-clamp-6">
                       {currentSegment.text}
                     </p>
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Progress */}
