@@ -134,7 +134,7 @@ export function LaunchpadIntro({ onStart, onSkip }: LaunchpadIntroProps) {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.6 + index * 0.05 }}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10"
+                  className={`flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}
                 >
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
                     <benefit.icon className="w-4 h-4 text-primary" />
