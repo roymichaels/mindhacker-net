@@ -31,14 +31,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { AuroraOrbIcon } from "@/components/icons/AuroraOrbIcon";
 
 import { AuthModal } from "./AuthModal";
 import AdminSidebar from "./admin/AdminSidebar";
 import { ProductColorClasses } from "@/lib/productColors";
-
-
-// Default logo from public folder - new orb logo
-const defaultLogo = "/logo.png?v=9";
 
 export interface HeaderProps {
   variant?: "public" | "admin";
@@ -110,7 +107,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
 
   // Get brand name from theme settings based on language
   const brandName = isRTL ? brandTheme.brand_name : brandTheme.brand_name_en;
-  const logoUrl = brandTheme.logo_url || defaultLogo;
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -226,21 +222,10 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     </DropdownMenu>
   );
 
-  // Logo Component - Logo always on the edge (right for RTL, left for LTR)
-  // Name always next to logo (left of logo for RTL, right of logo for LTR)
+  // Logo Component - Uses AuroraOrbIcon consistently across the app
   const LogoBrand = () => (
     <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-      <img 
-        src={logoUrl} 
-        alt={brandName} 
-        className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-        loading="eager" 
-        decoding="async"
-        onError={(e) => {
-          const target = e.currentTarget;
-          target.style.display = 'none';
-        }}
-      />
+      <AuroraOrbIcon size={40} className="text-foreground flex-shrink-0" />
       <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
         {isAdminMode ? t('admin.panelTitle') : brandName}
       </span>
