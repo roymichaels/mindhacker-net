@@ -127,17 +127,16 @@ export default function FinalCTASection() {
                 size="lg"
                 onClick={() => navigate('/signup')}
                 className="group text-xl px-12 py-8 rounded-2xl 
-                  bg-gradient-to-br from-primary via-primary to-primary/80
-                  hover:from-primary/90 hover:via-primary/90 hover:to-primary/70
-                  text-primary-foreground font-black
-                  shadow-[0_0_40px_hsl(var(--primary)/0.6),0_15px_40px_rgba(0,0,0,0.3)]
-                  hover:shadow-[0_0_60px_hsl(var(--primary)/0.8),0_20px_50px_rgba(0,0,0,0.4)]
-                  border-2 border-primary/20
-                  transition-all duration-300 hover:scale-105
-                  animate-pulse-glow"
+                  bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900
+                  hover:from-gray-800 hover:via-gray-700 hover:to-gray-800
+                  text-foreground font-black
+                  shadow-[0_0_40px_rgba(0,0,0,0.6),0_15px_40px_rgba(0,0,0,0.3)]
+                  hover:shadow-[0_0_60px_hsl(var(--primary)/0.3),0_20px_50px_rgba(0,0,0,0.4)]
+                  border-2 border-primary/30
+                  transition-all duration-300 hover:scale-105"
               >
                 <Rocket className={cn(
-                  "h-6 w-6 group-hover:animate-bounce",
+                  "h-6 w-6 text-primary group-hover:animate-bounce",
                   isRTL ? "ml-3" : "mr-3"
                 )} />
                 {isRTL ? '🚀 התחל את המשחק - חינם!' : '🚀 Start The Game - Free!'}
