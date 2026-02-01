@@ -156,17 +156,127 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     navigate("/");
   };
 
+  // Guest Avatar Dropdown Component
+  const GuestAvatarDropdown = () => (
+    <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
+          <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-muted">
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              <User className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
+        <DropdownMenuLabel className="font-normal">
+          <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => {
+          setAuthModalMode("login");
+          setAuthModalOpen(true);
+        }}>
+          <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
+          {t('common.login')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          setAuthModalMode("signup");
+          setAuthModalOpen(true);
+        }}>
+          <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          {t('common.signup')}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {/* Language Switcher Sub-menu */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+            {t('common.language')}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="bg-card dark:bg-card border border-border shadow-xl z-50">
+              <DropdownMenuItem 
+                onClick={() => setLanguage('he')}
+                className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
+              >
+                <span className={isRTL ? "ml-2" : "mr-2"}>🇮🇱</span>
+                עברית
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLanguage('en')}
+                className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
+              >
+                <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
+                English
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+        {/* Theme Toggle */}
+        <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+          {isDark ? (
+            <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          ) : (
+            <Moon className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          )}
+          {isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  // Logo Component
+  const LogoBrand = () => (
+    <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+      {isRTL ? (
+        <>
+          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+            {isAdminMode ? t('admin.panelTitle') : brandName}
+          </span>
+          <img 
+            src={logoUrl} 
+            alt={brandName} 
+            className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+            loading="eager" 
+            decoding="async"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.style.display = 'none';
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <img 
+            src={logoUrl} 
+            alt={brandName} 
+            className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
+            loading="eager" 
+            decoding="async"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.style.display = 'none';
+            }}
+          />
+          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+            {isAdminMode ? t('admin.panelTitle') : brandName}
+          </span>
+        </>
+      )}
+    </Link>
+  );
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container flex h-14 sm:h-16 items-center justify-between px-3 sm:px-6">
-          {/* Left side - Logo and brand (for LTR) or Avatar (for RTL) */}
+          {/* Left side */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {isRTL ? (
-              // RTL: Show menu/avatar controls on left
+            {user ? (
+              // Logged in: Show menu controls
               <>
-                {/* Mobile-only Menu Button - opens sidebar */}
-                {user && onMenuClick && (
+                {onMenuClick && (
                   <Button 
                     variant="ghost" 
                     size="icon"
@@ -181,8 +291,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                     <Menu className="h-5 w-5" />
                   </Button>
                 )}
-
-                {/* Mobile Admin Sidebar Trigger - Admin pages only */}
                 {isAdminMode && (
                   <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <SheetTrigger asChild className="lg:hidden">
@@ -190,176 +298,44 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                         <PanelLeft className="h-5 w-5" />
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="p-0 w-72" dir="rtl">
+                    <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-72" dir={isRTL ? "rtl" : "ltr"}>
                       <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
                     </SheetContent>
                   </Sheet>
                 )}
               </>
             ) : (
-              // LTR: Show logo on left
-              <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img 
-                  src={logoUrl} 
-                  alt={brandName} 
-                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-                  loading="eager" 
-                  decoding="async"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                  }}
-                />
-                <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-                  {isAdminMode ? t('admin.panelTitle') : brandName}
-                </span>
-              </Link>
+              // Logged out: RTL = Avatar on left, LTR = Logo on left
+              isRTL ? <GuestAvatarDropdown /> : <LogoBrand />
             )}
           </div>
 
-          {/* Right side - Avatar (for LTR) or Logo (for RTL) */}
+          {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {isRTL ? (
-              // RTL: Show logo on right
-              <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-                  {isAdminMode ? t('admin.panelTitle') : brandName}
-                </span>
-                <img 
-                  src={logoUrl} 
-                  alt={brandName} 
-                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain flex-shrink-0" 
-                  loading="eager" 
-                  decoding="async"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                  }}
-                />
-              </Link>
-            ) : (
-              // LTR: Show menu/avatar controls on right
+            {user ? (
+              // Logged in: Show logo + admin controls
               <>
-                {/* Mobile-only Menu Button - opens sidebar */}
-                {user && onMenuClick && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      requestAnimationFrame(() => onMenuClick());
-                    }}
-                    aria-label={t('header.navigationMenu')}
-                    className="h-9 w-9 md:hidden"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                )}
-
-                {/* Mobile Admin Sidebar Trigger - Admin pages only */}
+                <LogoBrand />
                 {isAdminMode && (
-                  <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                    <SheetTrigger asChild className="lg:hidden">
-                      <Button variant="ghost" size="icon" aria-label={t('header.navigationMenu')}>
-                        <PanelLeft className="h-5 w-5" />
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-72" dir="ltr">
-                      <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
-                    </SheetContent>
-                  </Sheet>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/")}
+                    aria-label={t('common.home')}
+                    className="hidden sm:flex"
+                  >
+                    <Home className="h-5 w-5" />
+                  </Button>
+                )}
+                {loading ? (
+                  <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
+                ) : (
+                  isAdmin && <NotificationBell />
                 )}
               </>
-            )}
-
-            {/* Home button - Only for admin mode */}
-            {isAdminMode && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/")}
-                aria-label={t('common.home')}
-                className="hidden sm:flex"
-              >
-                <Home className="h-5 w-5" />
-              </Button>
-            )}
-
-            {loading ? (
-              <div className="h-8 w-8 sm:h-9 sm:w-9 animate-pulse bg-muted rounded-full" />
-            ) : user ? (
-              <>
-                {isAdmin && <NotificationBell />}
-              </>
             ) : (
-              /* Guest Avatar Dropdown with Language/Theme */
-              <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
-                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-muted">
-                      <AvatarFallback className="bg-muted text-muted-foreground">
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
-                  <DropdownMenuLabel className="font-normal">
-                    <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => {
-                    setAuthModalMode("login");
-                    setAuthModalOpen(true);
-                  }}>
-                    <LogOut className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4 rotate-180`} />
-                    {t('common.login')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    setAuthModalMode("signup");
-                    setAuthModalOpen(true);
-                  }}>
-                    <User className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                    {t('common.signup')}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {/* Language Switcher Sub-menu */}
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                      {t('common.language')}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent className="bg-card dark:bg-card border border-border shadow-xl z-50">
-                        <DropdownMenuItem 
-                          onClick={() => setLanguage('he')}
-                          className={language === 'he' ? 'bg-primary/10 text-primary' : ''}
-                        >
-                          <span className={isRTL ? "ml-2" : "mr-2"}>🇮🇱</span>
-                          עברית
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setLanguage('en')}
-                          className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
-                        >
-                          <span className={isRTL ? "ml-2" : "mr-2"}>🇺🇸</span>
-                          English
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  {/* Theme Toggle */}
-                  <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
-                    {isDark ? (
-                      <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                    ) : (
-                      <Moon className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                    )}
-                    {isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              // Logged out: RTL = Logo on right, LTR = Avatar on right
+              isRTL ? <LogoBrand /> : <GuestAvatarDropdown />
             )}
           </div>
         </div>
