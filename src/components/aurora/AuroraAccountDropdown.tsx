@@ -96,13 +96,19 @@ const AuroraAccountDropdown = ({
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-3 h-auto py-2",
+            "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
+            "backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+            "border border-primary/30 rounded-xl shadow-xl",
+            "hover:border-primary/50 hover:shadow-primary/20 transition-all duration-300",
             isCollapsed && "justify-center px-2"
           )}
         >
+          {/* Glow overlay - same as Identity Card */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none rounded-xl" />
+          
           {/* Avatar - PersonalizedOrb matching Dashboard HUD */}
           <div className={cn(
-            "shrink-0 relative flex items-center justify-center",
+            "shrink-0 relative flex items-center justify-center z-10",
             isCollapsed ? "h-10 w-10" : "h-11 w-11"
           )}>
             {/* Radial gradient glow backdrop */}
@@ -118,11 +124,11 @@ const AuroraAccountDropdown = ({
           
           {!isCollapsed && (
             <>
-              <div className="flex-1 text-start min-w-0">
-                <p className="text-sm font-medium truncate">{displayName}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <div className="flex-1 text-start min-w-0 z-10">
+                <p className="text-sm font-medium truncate text-white">{displayName}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
               </div>
-              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ChevronUp className="h-4 w-4 text-gray-400 shrink-0 z-10" />
             </>
           )}
         </Button>
@@ -131,12 +137,8 @@ const AuroraAccountDropdown = ({
       <DropdownMenuContent
         align={isRTL ? "end" : "start"}
         side="top"
-        className="w-56 backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 shadow-xl z-[100] overflow-hidden"
+        className="w-56 bg-popover border border-border shadow-xl z-[100]"
       >
-        {/* Glow overlay - same as Identity Card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none" />
-        
-        <div className="relative z-10">
           {/* Back to Aurora - shown when in panel areas */}
           {(showBackToAurora || isInPanel) && (
             <>
@@ -212,7 +214,6 @@ const AuroraAccountDropdown = ({
             <LogOut className="h-4 w-4 me-2" />
             {t('aurora.account.signOut')}
           </DropdownMenuItem>
-        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
