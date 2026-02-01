@@ -10,6 +10,7 @@ import {
   GameHeroSection,
   TransformationProofSection,
   JobShowcaseSection,
+  WhyChooseUsSection,
   WhatIsThisSection,
   AuroraCoachSection,
   PractitionerShowcaseSection,
@@ -85,6 +86,9 @@ const Index = () => {
         
         {/* RPG Job System showcase - character selection feel */}
         <JobShowcaseSection />
+        
+        {/* Why Choose Us - Value Props with dopamine elements */}
+        <WhyChooseUsSection />
         
         {/* What is this platform - the 3 pillars */}
         <WhatIsThisSection />
