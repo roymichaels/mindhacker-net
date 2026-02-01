@@ -15,7 +15,8 @@ import { ConsciousnessAnalysis } from '@/components/launchpad/summary/Consciousn
 import { IdentityProfile } from '@/components/launchpad/summary/IdentityProfile';
 import { PlanPreview } from '@/components/launchpad/summary/PlanPreview';
 import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirectionSection';
-import { downloadGuestPDF } from '@/lib/guestProfilePdfGenerator';
+import { useGuestPDF } from '@/hooks/useGuestPDF';
+import { GuestPDFRenderer } from '@/components/pdf/GuestPDFRenderer';
 import { MultiThreadOrb } from '@/components/orb/MultiThreadOrb';
 import { generateOrbThreads, DEFAULT_MULTI_THREAD_PROFILE, type MultiThreadOrbProfile } from '@/lib/orbDNAThreads';
 import confetti from 'canvas-confetti';
@@ -92,10 +93,10 @@ function generateGuestOrbProfile(result: GuestResult): MultiThreadOrbProfile {
 export default function FreeJourneyComplete() {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { downloadPDF, generating, containerRef, pdfData, showRenderer } = useGuestPDF();
   
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<GuestResult | null>(null);
-  const [downloading, setDownloading] = useState(false);
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const [celebrationDone, setCelebrationDone] = useState(false);
 
@@ -156,19 +157,7 @@ export default function FreeJourneyComplete() {
 
   const handleDownloadPDF = async () => {
     if (!result) return;
-    setDownloading(true);
-    try {
-      await downloadGuestPDF({
-        summary: result.summary,
-        scores: result.scores,
-        plan: result.plan as any,
-        language,
-      });
-    } catch (err) {
-      console.error('PDF download error:', err);
-    } finally {
-      setDownloading(false);
-    }
+    await downloadPDF(result);
   };
 
   const handleSignup = () => {
@@ -400,10 +389,10 @@ export default function FreeJourneyComplete() {
             size="lg"
             variant="outline"
             onClick={handleDownloadPDF}
-            disabled={downloading}
+            disabled={generating}
             className="w-full h-14 gap-3 bg-card/30 border-primary/30 hover:bg-primary/10"
           >
-            {downloading ? (
+            {generating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 {language === 'he' ? 'יוצר PDF...' : 'Generating PDF...'}
@@ -508,6 +497,11 @@ export default function FreeJourneyComplete() {
           </Link>
         </motion.p>
       </div>
+
+      {/* Hidden PDF Renderer */}
+      {showRenderer && pdfData && (
+        <GuestPDFRenderer ref={containerRef} data={pdfData} />
+      )}
     </div>
   );
 }
