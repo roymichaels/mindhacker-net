@@ -513,22 +513,12 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className="max-w-2xl h-[90vh] p-0 overflow-hidden bg-background"
+          className="max-w-2xl h-[85vh] max-h-[700px] p-0 overflow-hidden bg-background"
           dir={isRTL ? 'rtl' : 'ltr'}
         >
         <VisuallyHidden>
           <DialogTitle>{language === 'he' ? 'היפנוזה' : 'Hypnosis Session'}</DialogTitle>
         </VisuallyHidden>
-
-        {/* Close button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 right-4 z-50"
-          onClick={() => onOpenChange(false)}
-        >
-          <X className="h-5 w-5" />
-        </Button>
 
         <div className="flex flex-col h-full">
           {/* Setup State */}
