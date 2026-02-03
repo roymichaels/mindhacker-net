@@ -74,7 +74,7 @@ const UserDashboard = () => {
       <PullToRefreshIndicator {...pullToRefresh} />
       <DashboardLayout>
         {/* Dashboard Content - Unified View */}
-        <div className="space-y-6">
+        <div className="space-y-6 pb-10">
           <p className="text-lg font-semibold text-muted-foreground">{t('dashboard.welcomeBack')}</p>
           
           {/* Unified Life Model + Gamification Dashboard */}
