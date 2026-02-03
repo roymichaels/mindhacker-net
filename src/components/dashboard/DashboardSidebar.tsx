@@ -65,7 +65,7 @@ const DashboardSidebar = ({
   const sidebar = useSidebar();
   const queryClient = useQueryClient();
   const isCollapsed = !isMobileSheet && sidebar?.state === 'collapsed';
-  const isAuroraPage = location.pathname === '/aurora';
+  const isAuroraPage = location.pathname === '/aurora' || location.pathname === '/dashboard';
   const { theme: brandTheme } = useThemeSettings();
   const logoUrl = brandTheme.logo_url || defaultLogo;
 
