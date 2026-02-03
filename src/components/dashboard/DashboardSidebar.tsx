@@ -143,10 +143,10 @@ const DashboardSidebar = ({
     }
   };
 
-  // Navigation items - now open modals instead of navigating
+  // Navigation items - Dashboard first as the main entry point
   const navItems = [
+    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, onClick: () => { navigate('/dashboard'); onNavigate?.(); } },
     { id: 'aurora', icon: null, customIcon: AuroraOrbIcon, label: language === 'he' ? 'אורורה' : 'Aurora', highlight: 'purple' as const, onClick: () => { navigate('/aurora'); onNavigate?.(); } },
-    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, onClick: () => setDashboardOpen(true) },
     { id: 'hypnosis', icon: Compass, customIcon: null, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
   ];
 
