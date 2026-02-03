@@ -258,7 +258,11 @@ const DashboardSidebar = ({
                 key={item.id}
                 onClick={() => {
                   item.onClick();
-                  // Don't call onNavigate for modal items - it closes the sheet before modal opens
+                  // Close the mobile sheet for navigation items (dashboard, aurora)
+                  // Hypnosis opens a modal so we don't close the sheet for it
+                  if (item.id !== 'hypnosis') {
+                    onNavigate?.();
+                  }
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300",
