@@ -3,30 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 
 const CoachDashboard = () => {
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
 
   const stats = [
     {
-      title: isHebrew ? 'לקוחות פעילים' : 'Active Clients',
+      title: t('panel.coach.activeClients'),
       value: '12',
       icon: Users,
       change: '+2',
     },
     {
-      title: isHebrew ? 'פגישות השבוע' : 'Sessions This Week',
+      title: t('panel.coach.sessionsThisWeek'),
       value: '8',
       icon: Calendar,
       change: '+3',
     },
     {
-      title: isHebrew ? 'הכנסות החודש' : 'Monthly Earnings',
+      title: t('panel.coach.monthlyEarnings'),
       value: '₪4,200',
       icon: DollarSign,
       change: '+15%',
     },
     {
-      title: isHebrew ? 'שביעות רצון' : 'Satisfaction Rate',
+      title: t('panel.coach.satisfactionRate'),
       value: '98%',
       icon: TrendingUp,
       change: '+2%',
@@ -37,10 +36,10 @@ const CoachDashboard = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          {isHebrew ? 'דאשבורד הפרקטיקה' : 'Practice Dashboard'}
+          {t('panel.coach.dashboard')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'סקירה כללית של הפרקטיקה שלך' : 'Overview of your practice'}
+          {t('panel.coach.dashboardSubtitle')}
         </p>
       </div>
 
@@ -62,22 +61,22 @@ const CoachDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'פגישות קרובות' : 'Upcoming Sessions'}</CardTitle>
+            <CardTitle>{t('panel.coach.upcomingSessions')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין פגישות מתוכננות' : 'No scheduled sessions'}
+              {t('panel.coach.noScheduledSessions')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'פעילות אחרונה' : 'Recent Activity'}</CardTitle>
+            <CardTitle>{t('panel.coach.recentActivity')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין פעילות אחרונה' : 'No recent activity'}
+              {t('panel.coach.noRecentActivity')}
             </p>
           </CardContent>
         </Card>
