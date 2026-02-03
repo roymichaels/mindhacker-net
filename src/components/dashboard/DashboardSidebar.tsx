@@ -146,8 +146,8 @@ const DashboardSidebar = ({
 
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, onClick: () => { navigate('/dashboard'); onNavigate?.(); } },
-    { id: 'aurora', icon: null, customIcon: AuroraOrbIcon, label: language === 'he' ? 'אורורה' : 'Aurora', highlight: 'purple' as const, onClick: () => { navigate('/aurora'); onNavigate?.(); } },
+    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, path: '/dashboard' },
+    { id: 'aurora', icon: null, customIcon: AuroraOrbIcon, label: language === 'he' ? 'אורורה' : 'Aurora', highlight: 'purple' as const, path: '/aurora' },
     { id: 'hypnosis', icon: Compass, customIcon: null, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
   ];
 
@@ -257,11 +257,11 @@ const DashboardSidebar = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  item.onClick();
-                  // Close the mobile sheet for navigation items (dashboard, aurora)
-                  // Hypnosis opens a modal so we don't close the sheet for it
-                  if (item.id !== 'hypnosis') {
+                  if ('path' in item && item.path) {
+                    navigate(item.path);
                     onNavigate?.();
+                  } else if ('onClick' in item && item.onClick) {
+                    item.onClick();
                   }
                 }}
                 className={cn(
