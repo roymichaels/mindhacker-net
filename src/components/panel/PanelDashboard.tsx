@@ -129,119 +129,119 @@ const PanelDashboard = () => {
 
       {/* Quick Actions - Admin Only */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              {t('panel.analytics')}
-            </CardTitle>
-            <CardDescription>{t('panel.analyticsDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/analytics" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/analytics" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                {t('panel.analytics')}
+              </CardTitle>
+              <CardDescription>{t('panel.analyticsDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {t('panel.viewAnalytics')}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="h-5 w-5 text-primary" />
-              {t('panel.users')}
-            </CardTitle>
-            <CardDescription>{t('panel.usersDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/users" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/users" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Users className="h-5 w-5 text-primary" />
+                {t('panel.users')}
+              </CardTitle>
+              <CardDescription>{t('panel.usersDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {t('panel.manageUsers')}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Package className="h-5 w-5 text-primary" />
-              {t('panel.products')}
-            </CardTitle>
-            <CardDescription>{t('panel.productsDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/products" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/products" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Package className="h-5 w-5 text-primary" />
+                {t('panel.products')}
+              </CardTitle>
+              <CardDescription>{t('panel.productsDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {t('panel.manageProducts')}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Mail className="h-5 w-5 text-primary" />
-              {isRTL ? 'לידים' : 'Leads'}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? 'ניהול לידים ופניות' : 'Manage leads and inquiries'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/leads" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/leads" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Mail className="h-5 w-5 text-primary" />
+                {isRTL ? 'לידים' : 'Leads'}
+              </CardTitle>
+              <CardDescription>
+                {isRTL ? 'ניהול לידים ופניות' : 'Manage leads and inquiries'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {isRTL ? 'צפה בלידים' : 'View Leads'}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Bell className="h-5 w-5 text-primary" />
-              {isRTL ? 'התראות' : 'Notifications'}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? 'צפה בהתראות מערכת' : 'View system notifications'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/notifications" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/notifications" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Bell className="h-5 w-5 text-primary" />
+                {isRTL ? 'התראות' : 'Notifications'}
+              </CardTitle>
+              <CardDescription>
+                {isRTL ? 'צפה בהתראות מערכת' : 'View system notifications'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {isRTL ? 'צפה בהתראות' : 'View Notifications'}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              {isRTL ? 'קמפיינים' : 'Campaigns'}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? 'ניהול קמפיינים וניוזלטר' : 'Manage campaigns and newsletter'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="ghost" className="p-0 h-auto">
-              <Link to="/panel/newsletter" className="flex items-center gap-1 text-primary">
+        <Link to="/panel/newsletter" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                {isRTL ? 'קמפיינים' : 'Campaigns'}
+              </CardTitle>
+              <CardDescription>
+                {isRTL ? 'ניהול קמפיינים וניוזלטר' : 'Manage campaigns and newsletter'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="flex items-center gap-1 text-primary text-sm">
                 {isRTL ? 'צפה בקמפיינים' : 'View Campaigns'}
                 <ArrowIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );
