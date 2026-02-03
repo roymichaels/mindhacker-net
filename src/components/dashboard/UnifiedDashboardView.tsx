@@ -31,7 +31,7 @@ interface UnifiedDashboardViewProps {
 type ModalType = 'ai' | 'plan' | 'tasks' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | 'focus' | null;
 
 export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashboardViewProps) {
-  const { isRTL, language } = useTranslation();
+  const { isRTL, t, language } = useTranslation();
   const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
@@ -70,14 +70,11 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
             </div>
             
             <h2 className="text-2xl sm:text-3xl font-bold">
-              {language === 'he' ? 'המסע שלך מתחיל' : 'Your Journey Begins'}
+              {t('welcome.yourJourneyBegins')}
             </h2>
             
             <p className="text-muted-foreground max-w-md mx-auto">
-              {language === 'he' 
-                ? 'התחל את מסע הטרנספורמציה כדי לבנות את פרופיל הזהות שלך.'
-                : 'Start the Transformation Journey to build your identity profile.'
-              }
+              {t('auroraLanding.lifePlanSubtitle')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
@@ -87,7 +84,7 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
                 className="gap-2"
               >
                 <Rocket className="h-5 w-5" />
-                {language === 'he' ? 'התחל מסע טרנספורמציה' : 'Start Transformation Journey'}
+                {t('welcome.startTransformationJourney')}
               </Button>
               
               <Button 
@@ -97,7 +94,7 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
                 className="gap-2"
               >
                 <Sparkles className="h-5 w-5" />
-                {language === 'he' ? 'שוחח עם אורורה' : 'Chat with Aurora'}
+                {t('welcome.chatWithAurora')}
               </Button>
             </div>
           </div>
@@ -108,19 +105,19 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
           <div className="p-4 rounded-xl bg-card border text-center">
             <div className="text-2xl font-bold text-primary">1</div>
             <div className="text-xs text-muted-foreground">
-              {language === 'he' ? 'רמה' : 'Level'}
+              {t('welcome.level')}
             </div>
           </div>
           <div className="p-4 rounded-xl bg-card border text-center">
             <div className="text-2xl font-bold text-orange-500">0</div>
             <div className="text-xs text-muted-foreground">
-              {language === 'he' ? 'סטריק' : 'Streak'}
+              {t('welcome.streak')}
             </div>
           </div>
           <div className="p-4 rounded-xl bg-card border text-center">
             <div className="text-2xl font-bold text-yellow-500">0</div>
             <div className="text-xs text-muted-foreground">
-              {language === 'he' ? 'טוקנים' : 'Tokens'}
+              {t('welcome.tokens')}
             </div>
           </div>
         </div>
@@ -148,7 +145,7 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
       {/* Quick Access Grid - Opens Modals */}
       <div className="space-y-2">
         <h3 className="text-sm font-medium text-muted-foreground">
-          {language === 'he' ? 'גישה מהירה' : 'Quick Access'}
+          {t('welcome.quickAccess')}
         </h3>
         <QuickAccessGrid
           language={language}

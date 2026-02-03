@@ -5,7 +5,7 @@ import { LevelProgress } from './LevelProgress';
 import { StreakCounter } from './StreakCounter';
 import { TokenBalance } from './TokenBalance';
 import { getEgoState } from '@/lib/egoStates';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { TrendingUp, Clock, Target } from 'lucide-react';
 
 interface GameStatsCardProps {
@@ -15,8 +15,7 @@ interface GameStatsCardProps {
 
 export function GameStatsCard({ className, compact = false }: GameStatsCardProps) {
   const { gameState, sessionStats, loading } = useGameState();
-  const { language } = useLanguage();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
 
   if (loading || !gameState) {
     return (
@@ -61,10 +60,10 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
           </div>
           <div>
             <p className="text-sm text-muted-foreground">
-              {isHebrew ? 'מצב אגו פעיל' : 'Active Ego State'}
+              {t('gamification.activeEgoState')}
             </p>
             <p className="font-bold">
-              {isHebrew ? activeEgo.nameHe : activeEgo.name}
+              {activeEgo.name}
             </p>
           </div>
         </div>
@@ -81,7 +80,7 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
         <div className="text-center p-2 rounded-lg bg-muted/50">
           <StreakCounter size="sm" showLabel={false} className="justify-center" />
           <p className="text-xs text-muted-foreground mt-1">
-            {isHebrew ? 'רצף' : 'Streak'}
+            {t('gamification.streak')}
           </p>
         </div>
         <div className="text-center p-2 rounded-lg bg-muted/50">
@@ -90,7 +89,7 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
             <span className="font-bold">{sessionStats?.totalSessions || 0}</span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {isHebrew ? 'סשנים' : 'Sessions'}
+            {t('gamification.sessions')}
           </p>
         </div>
         <div className="text-center p-2 rounded-lg bg-muted/50">
@@ -101,7 +100,7 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {isHebrew ? 'זמן כולל' : 'Total Time'}
+            {t('gamification.totalTime')}
           </p>
         </div>
       </div>

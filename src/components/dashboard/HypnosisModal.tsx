@@ -499,7 +499,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-md">
           <VisuallyHidden>
-            <DialogTitle>{language === 'he' ? 'היפנוזה' : 'Hypnosis'}</DialogTitle>
+            <DialogTitle>{t('hypnosisSession.title')}</DialogTitle>
           </VisuallyHidden>
           <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
@@ -507,17 +507,15 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             </div>
             <div className="space-y-2">
               <h2 className="text-xl font-bold">
-                {language === 'he' ? 'השלם את ה-Launchpad' : 'Complete Launchpad First'}
+                {t('hypnosisSession.lockedTitle')}
               </h2>
               <p className="text-muted-foreground text-sm max-w-xs">
-                {language === 'he' 
-                  ? 'כדי לקבל חוויית היפנוזה מותאמת אישית, עליך להשלים את ה-Launchpad תחילה'
-                  : 'To receive a personalized hypnosis experience, complete the Launchpad first'}
+                {t('hypnosisSession.lockedDescription')}
               </p>
             </div>
             <Button onClick={() => onOpenChange(false)} className="gap-2">
               <Rocket className="w-4 h-4" />
-              {language === 'he' ? 'חזור' : 'Go Back'}
+              {t('hypnosisSession.goBack')}
             </Button>
           </div>
         </DialogContent>
@@ -544,7 +542,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           }}
         >
         <VisuallyHidden>
-          <DialogTitle>{language === 'he' ? 'היפנוזה' : 'Hypnosis Session'}</DialogTitle>
+          <DialogTitle>{t('hypnosisSession.title')}</DialogTitle>
         </VisuallyHidden>
 
         <div 
@@ -566,7 +564,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                     <PersonalizedOrb size={96} state="idle" />
                   </div>
                   <h1 className="text-2xl font-bold">
-                    {language === 'he' ? 'סשן היפנוזה אישי' : 'Personal Hypnosis'}
+                    {t('hypnosisSession.personalHypnosis')}
                   </h1>
                 </div>
 
@@ -583,7 +581,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                       <div className="flex items-center justify-center gap-2 mb-3">
                         <Calendar className="w-5 h-5 text-primary" />
                         <span className="text-sm font-medium text-primary">
-                          {language === 'he' ? `שבוע ${currentMilestone.week_number}` : `Week ${currentMilestone.week_number}`}
+                          {t('hypnosisSession.week')} {currentMilestone.week_number}
                         </span>
                       </div>
                       
@@ -601,9 +599,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 ) : (
                   <div className="w-full max-w-md text-center">
                     <p className="text-muted-foreground">
-                      {language === 'he' 
-                        ? 'סשן היפנוזה מותאם אישית על בסיס הפרופיל שלך'
-                        : 'Personalized hypnosis session based on your profile'}
+                      {t('hypnosisSession.personalizedSession')}
                     </p>
                   </div>
                 )}
@@ -611,7 +607,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 {/* Duration Selection */}
                 <div className="flex items-center justify-center gap-4">
                   <span className="text-sm text-muted-foreground">
-                    {language === 'he' ? 'משך:' : 'Duration:'}
+                    {t('hypnosisSession.duration')}
                   </span>
                   {[5, 10, 15].map((d) => (
                     <Button
@@ -620,14 +616,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                       size="sm"
                       onClick={() => setDuration(d)}
                     >
-                      {d} {language === 'he' ? 'דק׳' : 'min'}
+                      {d} {t('hypnosisSession.minutes')}
                     </Button>
                   ))}
                 </div>
 
                 <Button onClick={startBreathing} size="lg" className="gap-2 px-8">
                   <Play className="w-5 h-5" />
-                  {language === 'he' ? 'התחל סשן' : 'Start Session'}
+                  {t('hypnosisSession.startSession')}
                 </Button>
               </motion.div>
             )}
@@ -643,7 +639,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 <BreathingGuide isActive={true} language={language as 'he' | 'en'} />
                 <Button variant="ghost" size="sm" onClick={skipBreathing} className="mt-8">
                   <Wind className="w-4 h-4 me-2" />
-                  {language === 'he' ? 'דלג' : 'Skip'}
+                  {t('hypnosisSession.skip')}
                 </Button>
               </motion.div>
             )}
@@ -663,7 +659,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 <div className="text-center space-y-2">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                   <p className="text-lg font-medium">
-                    {language === 'he' ? 'יוצר את הסשן שלך...' : 'Creating your session...'}
+                    {t('hypnosisSession.creatingSession')}
                   </p>
                 </div>
               </motion.div>
@@ -749,7 +745,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 </div>
                 <div className="text-center space-y-2">
                   <h2 className="text-2xl font-bold">
-                    {language === 'he' ? 'סשן הושלם!' : 'Session Complete!'}
+                    {t('hypnosisSession.sessionComplete')}
                   </h2>
                   <p className="text-muted-foreground">
                     {language === 'he' 
@@ -758,7 +754,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   </p>
                 </div>
                 <Button onClick={() => onOpenChange(false)} size="lg">
-                  {language === 'he' ? 'סיום' : 'Finish'}
+                  {t('hypnosisSession.finish')}
                 </Button>
               </motion.div>
             )}

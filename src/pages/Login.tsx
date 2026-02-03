@@ -149,7 +149,7 @@ const Login = () => {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  <Loader2 className="h-4 w-4 animate-spin me-2" />
                   {t('common.loggingIn')}
                 </>
               ) : (

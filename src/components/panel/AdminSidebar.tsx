@@ -223,7 +223,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
         <div className="flex items-center justify-between">
           <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
-            <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+            <span className="font-bold text-lg">{t('sidebar.controlCenter')}</span>
           </Link>
           <NotificationBell />
         </div>
@@ -242,7 +242,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
             onClick={() => { navigate('/panel/newsletter'); onNavigate?.(); }}
           >
             <Plus className="w-3 h-3" />
-            {isHebrew ? 'קמפיין חדש' : 'New Campaign'}
+            {t('sidebar.newCampaign')}
           </Button>
           <Button 
             size="sm" 

@@ -40,7 +40,7 @@ export function FinalNotesStep({
   savedData,
   onAutoSave 
 }: FinalNotesStepProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   
   const [notes, setNotes] = useState(() => {
     // First try savedData from DB, then localStorage
@@ -87,12 +87,10 @@ export function FinalNotesStep({
       <div className="text-center space-y-2">
         <div className="text-4xl mb-3">📝</div>
         <h2 className="text-2xl font-bold">
-          {language === 'he' ? 'יש משהו נוסף?' : 'Anything else?'}
+          {t('finalNotes.title')}
         </h2>
         <p className="text-muted-foreground">
-          {language === 'he' 
-            ? 'זה המקום לכל מה שלא נשאלת - או שתרצה ש-Aurora תדע' 
-            : 'This is the place for anything we didn\'t ask - or that you want Aurora to know'}
+          {t('finalNotes.subtitle')}
         </p>
       </div>
 
@@ -100,7 +98,7 @@ export function FinalNotesStep({
       <Card className="p-4 bg-muted/50">
         <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
           <MessageSquare className="w-4 h-4" />
-          {language === 'he' ? 'רעיונות למה לכתוב:' : 'Ideas for what to write:'}
+          {t('finalNotes.ideasLabel')}
         </h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           {prompts.map((prompt, idx) => (
@@ -114,16 +112,12 @@ export function FinalNotesStep({
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder={language === 'he' 
-            ? 'כתוב כאן כל מה שחשוב לך שנדע...' 
-            : 'Write here anything important for us to know...'}
+          placeholder={t('finalNotes.placeholder')}
           className="min-h-[180px] resize-none"
           dir={isRTL ? 'rtl' : 'ltr'}
         />
         <p className="text-xs text-muted-foreground text-center">
-          {language === 'he' 
-            ? 'אופציונלי - אפשר לדלג אם אין לך מה להוסיף' 
-            : 'Optional - you can skip if you have nothing to add'}
+          {t('finalNotes.optionalSkip')}
         </p>
       </div>
 
@@ -141,8 +135,8 @@ export function FinalNotesStep({
         >
           <ArrowRight className="w-5 h-5" />
           {isCompleting 
-            ? (language === 'he' ? 'שומר...' : 'Saving...') 
-            : (language === 'he' ? '🚀 המשך לסיכום' : '🚀 Continue to Summary')}
+            ? t('finalNotes.saving')
+            : t('finalNotes.continueToSummary')}
         </Button>
         
         <Button
@@ -152,7 +146,7 @@ export function FinalNotesStep({
           className="gap-2 text-muted-foreground border-muted-foreground/30 hover:bg-muted"
         >
           <SkipForward className="w-4 h-4" />
-          {language === 'he' ? 'דלג' : 'Skip'}
+          {t('finalNotes.skip')}
         </Button>
       </div>
 
