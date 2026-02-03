@@ -139,11 +139,8 @@ const DashboardLayout = ({
                 <Menu className="h-5 w-5" />
               </Button>
               
-              {/* Center: Brand */}
-              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <span className="font-bold text-sm text-foreground">
-                  {isRTL ? brandTheme.brand_name : brandTheme.brand_name_en}
-                </span>
+              {/* Center: Logo only on mobile */}
+              <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
                 <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
               </Link>
               
