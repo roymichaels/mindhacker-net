@@ -8,7 +8,6 @@
  */
 
 import { ArchetypeId, blendArchetypes, type ArchetypeBlend } from './archetypes';
-import type { JobDefinition, JobVisualProperties, UserJob } from './jobs';
 
 // ============================================
 // HOBBY MAPPING
@@ -365,119 +364,6 @@ export function computeAvatarDNA(userData: UserDataForDNA): AvatarDNA {
   };
 }
 
-// ============================================
-// JOB-BASED AVATAR DNA (NEW SYSTEM)
-// ============================================
-
-export interface JobAvatarDNA extends AvatarDNA {
-  job: UserJob | null;
-}
-
-/**
- * Compute avatar DNA from a Job profile
- * The Job provides the base visual identity, while user data adds nuances
- */
-export function computeAvatarFromJob(
-  job: UserJob | null,
-  userData: UserDataForDNA
-): JobAvatarDNA {
-  // If no job, fall back to standard DNA computation
-  if (!job) {
-    return {
-      ...computeAvatarDNA(userData),
-      job: null,
-    };
-  }
-
-  const { visualProperties } = job;
-  
-  // Start with job's visual base
-  const baseHue = visualProperties.primaryHue;
-  const secondaryHue = visualProperties.secondaryHue;
-  
-  // Compute additional DNA from user data for nuances
-  const standardDna = computeAvatarDNA(userData);
-  
-  // Create job-influenced archetype blend
-  const jobColors = {
-    primary: `${baseHue} ${visualProperties.saturation}% ${visualProperties.lightness}%`,
-    secondary: `${secondaryHue} ${visualProperties.saturation - 5}% ${visualProperties.lightness + 5}%`,
-    accent: `${(baseHue + secondaryHue) / 2} ${visualProperties.saturation}% ${visualProperties.lightness + 10}%`,
-    gradient: [
-      `${baseHue} ${visualProperties.saturation}% ${visualProperties.lightness}%`,
-      `${secondaryHue} ${visualProperties.saturation - 5}% ${visualProperties.lightness + 5}%`,
-      `${(baseHue + secondaryHue) / 2} ${visualProperties.saturation}% ${visualProperties.lightness + 10}%`,
-    ],
-  };
-
-  const jobMorphology = {
-    edgeSharpness: morphologyToSharpness(visualProperties.morphology),
-    organicFlow: morphologyToFlow(visualProperties.morphology),
-    symmetry: morphologyToSymmetry(visualProperties.morphology),
-    complexity: visualProperties.intensity,
-  };
-
-  const jobArchetypeBlend = {
-    ...standardDna.archetypeBlend,
-    blendedColors: jobColors,
-    blendedMorphology: jobMorphology,
-  };
-
-  // Map job particle type
-  const particleTypes = new Set<string>();
-  if (visualProperties.particleType !== 'none') {
-    particleTypes.add(visualProperties.particleType);
-  }
-  // Also add user's hobby-based particles
-  standardDna.particleTypes.forEach(p => particleTypes.add(p));
-
-  return {
-    archetypeBlend: jobArchetypeBlend,
-    dominantHobbies: standardDna.dominantHobbies,
-    particleTypes,
-    textureIntensity: Math.max(visualProperties.intensity, standardDna.textureIntensity),
-    motionProfile: standardDna.motionProfile,
-    complexityLevel: standardDna.complexityLevel,
-    particleCount: standardDna.particleCount,
-    layerCount: standardDna.layerCount,
-    job,
-  };
-}
-
-// Helper functions for morphology conversion
-function morphologyToSharpness(morphology: JobVisualProperties['morphology']): number {
-  switch (morphology) {
-    case 'sharp': return 0.8;
-    case 'crystalline': return 0.6;
-    case 'geometric': return 0.5;
-    case 'organic': return 0.2;
-    case 'flowing': return 0.1;
-    default: return 0.4;
-  }
-}
-
-function morphologyToFlow(morphology: JobVisualProperties['morphology']): number {
-  switch (morphology) {
-    case 'flowing': return 0.9;
-    case 'organic': return 0.7;
-    case 'geometric': return 0.3;
-    case 'crystalline': return 0.2;
-    case 'sharp': return 0.1;
-    default: return 0.5;
-  }
-}
-
-function morphologyToSymmetry(morphology: JobVisualProperties['morphology']): number {
-  switch (morphology) {
-    case 'geometric': return 0.95;
-    case 'crystalline': return 0.85;
-    case 'sharp': return 0.7;
-    case 'organic': return 0.5;
-    case 'flowing': return 0.4;
-    default: return 0.6;
-  }
-}
-
 /**
  * Get a summary description of the avatar DNA for display
  */
@@ -515,14 +401,4 @@ export function getAvatarDNASummary(dna: AvatarDNA, isHebrew: boolean): string {
     }
     return archetypeNames[primary];
   }
-}
-
-/**
- * Get job-based avatar summary
- */
-export function getJobAvatarSummary(dna: JobAvatarDNA, isHebrew: boolean): string {
-  if (dna.job) {
-    return isHebrew ? dna.job.jobName : dna.job.jobNameEn;
-  }
-  return getAvatarDNASummary(dna, isHebrew);
 }

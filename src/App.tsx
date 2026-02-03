@@ -23,7 +23,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
 import { PageSkeleton } from "@/components/ui/skeleton";
-import GlobalBottomNav from "@/components/GlobalBottomNav";
+
 import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
@@ -154,18 +154,6 @@ const BackgroundEffect = () => {
   }
 };
 
-// Widget wrapper that conditionally shows widgets based on auth state
-const ConditionalWidgets = () => {
-  const { user } = useAuth();
-  
-  // Show bottom nav for authenticated users only
-  if (user) {
-    return <GlobalBottomNav />;
-  }
-  
-  // No global widgets for guests - game-style clean interface
-  return null;
-};
 
 const App = () => (
   <ErrorBoundary>
@@ -490,7 +478,7 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
-                      <ConditionalWidgets />
+                      
                     </Suspense>
                   </AnalyticsProvider>
                 </BrowserRouter>
