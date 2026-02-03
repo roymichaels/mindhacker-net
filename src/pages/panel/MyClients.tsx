@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const MyClients = () => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isHebrew = language === 'he';
   const { data: clients, isLoading } = useCoachClients();
   const { stats } = useCoachClientStats();
@@ -24,11 +24,11 @@ const MyClients = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">{isHebrew ? 'פעיל' : 'Active'}</Badge>;
+        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">{t('panel.clientsMgmt.statusActive')}</Badge>;
       case 'inactive':
-        return <Badge variant="secondary">{isHebrew ? 'לא פעיל' : 'Inactive'}</Badge>;
+        return <Badge variant="secondary">{t('panel.clientsMgmt.statusInactive')}</Badge>;
       case 'completed':
-        return <Badge variant="outline">{isHebrew ? 'הושלם' : 'Completed'}</Badge>;
+        return <Badge variant="outline">{t('panel.clientsMgmt.statusCompleted')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -45,15 +45,15 @@ const MyClients = () => {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Users className="h-6 w-6" />
-            {isHebrew ? 'הלקוחות שלי' : 'My Clients'}
+            {t('panel.clientsMgmt.myClients')}
           </h1>
           <p className="text-muted-foreground">
-            {isHebrew ? 'נהל את הלקוחות והמטופלים שלך' : 'Manage your clients and patients'}
+            {t('panel.clientsMgmt.manageClients')}
           </p>
         </div>
         <Button>
           <UserPlus className="h-4 w-4 me-2" />
-          {isHebrew ? 'הוסף לקוח' : 'Add Client'}
+          {t('panel.clientsMgmt.addClient')}
         </Button>
       </div>
 
@@ -62,7 +62,7 @@ const MyClients = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ לקוחות' : 'Total Clients'}
+              {t('panel.clientsMgmt.totalClients')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,7 +75,7 @@ const MyClients = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'לקוחות פעילים' : 'Active Clients'}
+              {t('panel.clientsMgmt.activeClients')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -88,7 +88,7 @@ const MyClients = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'הושלמו' : 'Completed'}
+              {t('panel.clientsMgmt.completed')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -102,9 +102,9 @@ const MyClients = () => {
       {/* Clients List */}
       <Card>
         <CardHeader>
-          <CardTitle>{isHebrew ? 'רשימת לקוחות' : 'Client List'}</CardTitle>
+          <CardTitle>{t('panel.clientsMgmt.clientList')}</CardTitle>
           <CardDescription>
-            {isHebrew ? 'כל הלקוחות המקושרים אליך' : 'All clients linked to you'}
+            {t('panel.clientsMgmt.allClientsLinked')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -118,16 +118,14 @@ const MyClients = () => {
             <div className="text-center py-12">
               <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground mb-4">
-                {isHebrew ? 'עדיין אין לך לקוחות' : 'No clients yet'}
+                {t('panel.clientsMgmt.noClientsYet')}
               </p>
               <p className="text-sm text-muted-foreground mb-4">
-                {isHebrew
-                  ? 'הוסף לקוחות כדי לנהל את הקשר איתם'
-                  : 'Add clients to manage your relationships with them'}
+                {t('panel.clientsMgmt.addClientsToManage')}
               </p>
               <Button>
                 <UserPlus className="h-4 w-4 me-2" />
-                {isHebrew ? 'הוסף לקוח ראשון' : 'Add First Client'}
+                {t('panel.clientsMgmt.addFirstClient')}
               </Button>
             </div>
           ) : (
@@ -145,7 +143,7 @@ const MyClients = () => {
                     </div>
                     <div>
                       <h3 className="font-medium">
-                        {client.profile?.full_name || (isHebrew ? 'לקוח ללא שם' : 'Unnamed Client')}
+                        {client.profile?.full_name || t('panel.clientsMgmt.unnamedClient')}
                       </h3>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
@@ -157,7 +155,7 @@ const MyClients = () => {
                         {client.notes && (
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-3 w-3" />
-                            {isHebrew ? 'יש הערות' : 'Has notes'}
+                            {t('panel.clientsMgmt.hasNotes')}
                           </span>
                         )}
                       </div>
@@ -175,16 +173,16 @@ const MyClients = () => {
                         <DropdownMenuItem asChild>
                           <Link to={`/coach/clients/${client.id}`}>
                             <Eye className="h-4 w-4 me-2" />
-                            {isHebrew ? 'צפה בפרופיל' : 'View Profile'}
+                            {t('panel.clientsMgmt.viewProfile')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <MessageSquare className="h-4 w-4 me-2" />
-                          {isHebrew ? 'שלח הודעה' : 'Send Message'}
+                          {t('panel.clientsMgmt.sendMessage')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Calendar className="h-4 w-4 me-2" />
-                          {isHebrew ? 'קבע פגישה' : 'Schedule Session'}
+                          {t('panel.clientsMgmt.scheduleSession')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

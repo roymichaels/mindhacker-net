@@ -1,6 +1,6 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Users, DollarSign, TrendingUp, Calendar, Star, BookOpen } from 'lucide-react';
+import { BarChart3, Users, TrendingUp, Star, BookOpen } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
@@ -16,11 +16,11 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { format, subDays, startOfDay, eachDayOfInterval } from 'date-fns';
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 const CoachAnalytics = () => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isHebrew = language === 'he';
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
 
@@ -87,7 +87,7 @@ const CoachAnalytics = () => {
       ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length
       : 0;
 
-  // Generate mock chart data (in real app, this would come from analytics table)
+  // Generate mock chart data
   const last30Days = eachDayOfInterval({
     start: subDays(new Date(), 29),
     end: new Date(),
@@ -116,10 +116,10 @@ const CoachAnalytics = () => {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart3 className="h-6 w-6" />
-          {isHebrew ? 'אנליטיקס' : 'Analytics'}
+          {t('panel.coach.analytics')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'מעקב אחר הביצועים שלך' : 'Track your performance metrics'}
+          {t('panel.coach.trackPerformance')}
         </p>
       </div>
 
@@ -128,7 +128,7 @@ const CoachAnalytics = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ לקוחות' : 'Total Clients'}
+              {t('panel.coach.totalClients')}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -137,7 +137,7 @@ const CoachAnalytics = () => {
               {isLoading ? <Skeleton className="h-9 w-16" /> : totalClients}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {isHebrew ? `${activeClients} פעילים` : `${activeClients} active`}
+              {activeClients} {t('panel.coach.activeCount')}
             </p>
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ const CoachAnalytics = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'קורסים' : 'Courses'}
+              {t('panel.coach.courses')}
             </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -154,7 +154,7 @@ const CoachAnalytics = () => {
               {isLoading ? <Skeleton className="h-9 w-16" /> : totalProducts}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {isHebrew ? `${totalEnrollments} נרשמים` : `${totalEnrollments} enrollments`}
+              {totalEnrollments} {t('panel.coach.enrollments')}
             </p>
           </CardContent>
         </Card>
@@ -162,7 +162,7 @@ const CoachAnalytics = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'דירוג ממוצע' : 'Avg Rating'}
+              {t('panel.coach.avgRating')}
             </CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -178,7 +178,7 @@ const CoachAnalytics = () => {
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {isHebrew ? `${reviews?.length || 0} ביקורות` : `${reviews?.length || 0} reviews`}
+              {reviews?.length || 0} {t('panel.coach.reviews')}
             </p>
           </CardContent>
         </Card>
@@ -186,7 +186,7 @@ const CoachAnalytics = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'צפיות' : 'Total Views'}
+              {t('panel.coach.totalViews')}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -199,7 +199,7 @@ const CoachAnalytics = () => {
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {isHebrew ? 'צפיות בתכנים' : 'Content views'}
+              {t('panel.coach.contentViews')}
             </p>
           </CardContent>
         </Card>
@@ -210,9 +210,9 @@ const CoachAnalytics = () => {
         {/* Client Growth */}
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'צמיחת לקוחות' : 'Client Growth'}</CardTitle>
+            <CardTitle>{t('panel.coach.clientGrowth')}</CardTitle>
             <CardDescription>
-              {isHebrew ? '30 הימים האחרונים' : 'Last 30 days'}
+              {t('panel.coach.last30Days')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -258,9 +258,9 @@ const CoachAnalytics = () => {
         {/* Product Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'ביצועי קורסים' : 'Course Performance'}</CardTitle>
+            <CardTitle>{t('panel.coach.coursePerformance')}</CardTitle>
             <CardDescription>
-              {isHebrew ? 'נרשמים לפי קורס' : 'Enrollments by course'}
+              {t('panel.coach.enrollmentsByCourse')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -269,7 +269,7 @@ const CoachAnalytics = () => {
             ) : productPerformanceData.length === 0 ? (
               <div className="h-[300px] flex items-center justify-center">
                 <p className="text-muted-foreground">
-                  {isHebrew ? 'אין נתונים להצגה' : 'No data to display'}
+                  {t('panel.coach.noDataToDisplay')}
                 </p>
               </div>
             ) : (

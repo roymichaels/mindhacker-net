@@ -36,7 +36,7 @@ interface ContentReview {
 }
 
 const CoachReviews = () => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isHebrew = language === 'he';
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
 
@@ -54,7 +54,6 @@ const CoachReviews = () => {
       
       if (error) throw error;
       
-      // Fetch profiles separately
       const userIds = data?.map(r => r.user_id) || [];
       
       if (userIds.length === 0) return data || [];
@@ -80,7 +79,6 @@ const CoachReviews = () => {
     queryFn: async (): Promise<ContentReview[]> => {
       if (!myProfile?.id) return [];
       
-      // First get the coach's products
       const { data: products } = await supabase
         .from('content_products')
         .select('id, title')
@@ -99,7 +97,6 @@ const CoachReviews = () => {
       
       if (error) throw error;
       
-      // Fetch profiles separately
       const userIds = data?.map(r => r.user_id) || [];
       
       if (userIds.length === 0) {
@@ -169,10 +166,10 @@ const CoachReviews = () => {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Star className="h-6 w-6" />
-          {isHebrew ? 'הביקורות שלי' : 'My Reviews'}
+          {t('panel.coach.myReviews')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'צפה בביקורות על הפרופיל והתכנים שלך' : 'View reviews on your profile and content'}
+          {t('panel.coach.reviewsDescription')}
         </p>
       </div>
 
@@ -181,7 +178,7 @@ const CoachReviews = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ ביקורות' : 'Total Reviews'}
+              {t('panel.coach.totalReviews')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -194,7 +191,7 @@ const CoachReviews = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'דירוג ממוצע' : 'Average Rating'}
+              {t('panel.coach.avgRating')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -214,7 +211,7 @@ const CoachReviews = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'מאושרות' : 'Approved'}
+              {t('panel.coach.approved')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -227,7 +224,7 @@ const CoachReviews = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'ממתינות' : 'Pending'}
+              {t('panel.coach.pendingReviews')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -241,9 +238,9 @@ const CoachReviews = () => {
       {/* Reviews List */}
       <Card>
         <CardHeader>
-          <CardTitle>{isHebrew ? 'כל הביקורות' : 'All Reviews'}</CardTitle>
+          <CardTitle>{t('panel.coach.allReviews')}</CardTitle>
           <CardDescription>
-            {isHebrew ? 'ביקורות על הפרופיל והקורסים שלך' : 'Reviews on your profile and courses'}
+            {t('panel.coach.reviewsOnProfileAndCourses')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -257,7 +254,7 @@ const CoachReviews = () => {
             <div className="text-center py-12">
               <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
-                {isHebrew ? 'עדיין אין ביקורות' : 'No reviews yet'}
+                {t('panel.coach.noReviewsYet')}
               </p>
             </div>
           ) : (
@@ -275,7 +272,7 @@ const CoachReviews = () => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium">{review.profile?.full_name || (isHebrew ? 'אנונימי' : 'Anonymous')}</p>
+                        <p className="font-medium">{review.profile?.full_name || t('panel.coach.anonymous')}</p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           {renderStars(review.rating || 0)}
                           <span>•</span>
@@ -292,18 +289,18 @@ const CoachReviews = () => {
                     <div className="flex items-center gap-2">
                       <Badge variant={review.type === 'practitioner' ? 'default' : 'secondary'}>
                         {review.type === 'practitioner'
-                          ? isHebrew ? 'פרופיל' : 'Profile'
-                          : isHebrew ? 'קורס' : 'Course'}
+                          ? t('panel.coach.profileReview')
+                          : t('panel.coach.courseReview')}
                       </Badge>
                       {review.is_approved ? (
                         <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
                           <CheckCircle className="h-3 w-3 me-1" />
-                          {isHebrew ? 'מאושר' : 'Approved'}
+                          {t('panel.coach.approvedStatus')}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-yellow-500 border-yellow-500/30">
                           <Clock className="h-3 w-3 me-1" />
-                          {isHebrew ? 'ממתין' : 'Pending'}
+                          {t('panel.coach.pendingStatus')}
                         </Badge>
                       )}
                     </div>
@@ -315,7 +312,7 @@ const CoachReviews = () => {
 
                   {review.type === 'content' && review.content_products && (
                     <p className="text-sm text-muted-foreground">
-                      {isHebrew ? 'קורס: ' : 'Course: '}
+                      {t('panel.coach.forCourse')}
                       <span className="font-medium">{review.content_products.title}</span>
                     </p>
                   )}
@@ -324,7 +321,7 @@ const CoachReviews = () => {
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <ThumbsUp className="h-3 w-3" />
                       <span>
-                        {review.helpful_count} {isHebrew ? 'מצאו שימושי' : 'found helpful'}
+                        {review.helpful_count} {t('panel.coach.foundHelpful')}
                       </span>
                     </div>
                   )}

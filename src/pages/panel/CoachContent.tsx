@@ -9,8 +9,7 @@ import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const CoachContent = () => {
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
 
   // Fetch coach's content products
@@ -41,11 +40,11 @@ const CoachContent = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'published':
-        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">{isHebrew ? 'פורסם' : 'Published'}</Badge>;
+        return <Badge className="bg-green-500/20 text-green-500 border-green-500/30">{t('panel.coach.published')}</Badge>;
       case 'draft':
-        return <Badge variant="secondary">{isHebrew ? 'טיוטה' : 'Draft'}</Badge>;
+        return <Badge variant="secondary">{t('panel.coach.draft')}</Badge>;
       case 'archived':
-        return <Badge variant="outline">{isHebrew ? 'בארכיון' : 'Archived'}</Badge>;
+        return <Badge variant="outline">{t('panel.coach.archived')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -56,10 +55,10 @@ const CoachContent = () => {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BookOpen className="h-6 w-6" />
-          {isHebrew ? 'התכנים שלי' : 'My Content'}
+          {t('panel.coach.myContent')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'נהל את הקורסים והתכנים שלך' : 'Manage your courses and content'}
+          {t('panel.coach.manageContent')}
         </p>
       </div>
 
@@ -68,7 +67,7 @@ const CoachContent = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ קורסים' : 'Total Courses'}
+              {t('panel.coach.totalCourses')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -81,7 +80,7 @@ const CoachContent = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ נרשמים' : 'Total Enrollments'}
+              {t('panel.coach.totalEnrollments')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -98,7 +97,7 @@ const CoachContent = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'צפיות' : 'Total Views'}
+              {t('panel.coach.totalViews')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,7 +114,7 @@ const CoachContent = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'דירוג ממוצע' : 'Average Rating'}
+              {t('panel.coach.averageRating')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -141,9 +140,9 @@ const CoachContent = () => {
       {/* Content List */}
       <Card>
         <CardHeader>
-          <CardTitle>{isHebrew ? 'הקורסים שלי' : 'My Courses'}</CardTitle>
+          <CardTitle>{t('panel.coach.myCourses')}</CardTitle>
           <CardDescription>
-            {isHebrew ? 'כל הקורסים והתכנים שיצרת' : 'All your courses and content'}
+            {t('panel.coach.allYourContent')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -157,12 +156,10 @@ const CoachContent = () => {
             <div className="text-center py-12">
               <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground mb-4">
-                {isHebrew ? 'עדיין אין לך תכנים' : 'No content yet'}
+                {t('panel.coach.noContentYet')}
               </p>
               <p className="text-sm text-muted-foreground">
-                {isHebrew
-                  ? 'צור קשר עם האדמין כדי להוסיף קורסים'
-                  : 'Contact admin to add courses'}
+                {t('panel.coach.contactAdminToAdd')}
               </p>
             </div>
           ) : (
@@ -208,7 +205,7 @@ const CoachContent = () => {
                     {getStatusBadge(product.status)}
                     <Button variant="outline" size="sm">
                       <BarChart3 className="h-4 w-4 me-2" />
-                      {isHebrew ? 'סטטיסטיקות' : 'Stats'}
+                      {t('panel.coach.stats')}
                     </Button>
                   </div>
                 </div>

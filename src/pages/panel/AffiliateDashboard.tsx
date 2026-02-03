@@ -3,30 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link2, UserPlus, DollarSign, TrendingUp } from 'lucide-react';
 
 const AffiliateDashboard = () => {
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
 
   const stats = [
     {
-      title: isHebrew ? 'קליקים החודש' : 'Monthly Clicks',
+      title: t('panel.affiliateDashboard.monthlyClicks'),
       value: '234',
       icon: Link2,
       change: '+12%',
     },
     {
-      title: isHebrew ? 'הפניות' : 'Referrals',
+      title: t('panel.affiliateDashboard.referrals'),
       value: '18',
       icon: UserPlus,
       change: '+5',
     },
     {
-      title: isHebrew ? 'עמלות' : 'Commissions',
+      title: t('panel.affiliateDashboard.commissions'),
       value: '₪1,850',
       icon: DollarSign,
       change: '+22%',
     },
     {
-      title: isHebrew ? 'המרה' : 'Conversion Rate',
+      title: t('panel.affiliateDashboard.conversionRate'),
       value: '7.7%',
       icon: TrendingUp,
       change: '+0.8%',
@@ -37,10 +36,10 @@ const AffiliateDashboard = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          {isHebrew ? 'דאשבורד שותפים' : 'Affiliate Dashboard'}
+          {t('panel.affiliateDashboard.title')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'סקירת הביצועים שלך' : 'Your performance overview'}
+          {t('panel.affiliateDashboard.subtitle')}
         </p>
       </div>
 
@@ -62,22 +61,22 @@ const AffiliateDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'הקישורים המובילים' : 'Top Performing Links'}</CardTitle>
+            <CardTitle>{t('panel.affiliateDashboard.topLinks')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין נתונים עדיין' : 'No data yet'}
+              {t('panel.affiliateDashboard.noDataYet')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>{isHebrew ? 'הפניות אחרונות' : 'Recent Referrals'}</CardTitle>
+            <CardTitle>{t('panel.affiliateDashboard.recentReferrals')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין הפניות אחרונות' : 'No recent referrals'}
+              {t('panel.affiliateDashboard.noRecentReferrals')}
             </p>
           </CardContent>
         </Card>

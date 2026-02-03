@@ -7,17 +7,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Palette, Image, FileText } from 'lucide-react';
 
 const CoachTheme = () => {
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          {isHebrew ? 'ערכת נושא' : 'Theme Settings'}
+          {t('panel.coach.themeSettings')}
         </h1>
         <p className="text-muted-foreground">
-          {isHebrew ? 'התאם אישית את המראה של הפרופיל ודפי הנחיתה שלך' : 'Customize the look of your profile and landing pages'}
+          {t('panel.coach.customizeLook')}
         </p>
       </div>
 
@@ -26,22 +25,22 @@ const CoachTheme = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="h-5 w-5" />
-              {isHebrew ? 'צבעים' : 'Colors'}
+              {t('panel.coach.colors')}
             </CardTitle>
             <CardDescription>
-              {isHebrew ? 'בחר את צבעי המותג שלך' : 'Choose your brand colors'}
+              {t('panel.coach.chooseColors')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>{isHebrew ? 'צבע ראשי' : 'Primary Color'}</Label>
+              <Label>{t('panel.coach.primaryColor')}</Label>
               <div className="flex gap-2">
                 <Input type="color" className="w-12 h-10 p-1" defaultValue="#7c3aed" />
                 <Input placeholder="#7c3aed" className="flex-1" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>{isHebrew ? 'צבע משני' : 'Secondary Color'}</Label>
+              <Label>{t('panel.coach.secondaryColor')}</Label>
               <div className="flex gap-2">
                 <Input type="color" className="w-12 h-10 p-1" defaultValue="#0ea5e9" />
                 <Input placeholder="#0ea5e9" className="flex-1" />
@@ -54,26 +53,26 @@ const CoachTheme = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Image className="h-5 w-5" />
-              {isHebrew ? 'תמונות' : 'Images'}
+              {t('panel.coach.images')}
             </CardTitle>
             <CardDescription>
-              {isHebrew ? 'העלה תמונות לפרופיל שלך' : 'Upload images for your profile'}
+              {t('panel.coach.uploadImages')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>{isHebrew ? 'תמונת פרופיל' : 'Profile Image'}</Label>
+              <Label>{t('panel.coach.profileImage')}</Label>
               <div className="border-2 border-dashed rounded-lg p-6 text-center">
                 <Button variant="outline" size="sm">
-                  {isHebrew ? 'העלה תמונה' : 'Upload Image'}
+                  {t('panel.coach.uploadImage')}
                 </Button>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>{isHebrew ? 'תמונת כריכה' : 'Cover Image'}</Label>
+              <Label>{t('panel.coach.coverImage')}</Label>
               <div className="border-2 border-dashed rounded-lg p-6 text-center">
                 <Button variant="outline" size="sm">
-                  {isHebrew ? 'העלה תמונה' : 'Upload Image'}
+                  {t('panel.coach.uploadImage')}
                 </Button>
               </div>
             </div>
@@ -84,21 +83,21 @@ const CoachTheme = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              {isHebrew ? 'תוכן הפרופיל' : 'Profile Content'}
+              {t('panel.coach.profileContent')}
             </CardTitle>
             <CardDescription>
-              {isHebrew ? 'ערוך את הטקסטים בפרופיל שלך' : 'Edit your profile texts'}
+              {t('panel.coach.editProfileTexts')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>{isHebrew ? 'כותרת' : 'Headline'}</Label>
-              <Input placeholder={isHebrew ? 'מאמן אישי מוסמך' : 'Certified Life Coach'} />
+              <Label>{t('panel.coach.headline')}</Label>
+              <Input placeholder={t('panel.coach.headlinePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label>{isHebrew ? 'תיאור קצר' : 'Short Bio'}</Label>
+              <Label>{t('panel.coach.shortBio')}</Label>
               <Textarea 
-                placeholder={isHebrew ? 'ספר על עצמך...' : 'Tell about yourself...'} 
+                placeholder={t('panel.coach.bioPlaceholder')} 
                 rows={4}
               />
             </div>
@@ -108,7 +107,7 @@ const CoachTheme = () => {
 
       <div className="flex justify-end">
         <Button>
-          {isHebrew ? 'שמור שינויים' : 'Save Changes'}
+          {t('panel.coach.saveChanges')}
         </Button>
       </div>
     </div>
