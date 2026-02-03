@@ -8,7 +8,6 @@
  */
 
 import { ArchetypeId, blendArchetypes, type ArchetypeBlend } from './archetypes';
-import type { JobDefinition, JobVisualProperties, UserJob } from './jobs';
 
 // ============================================
 // HOBBY MAPPING
