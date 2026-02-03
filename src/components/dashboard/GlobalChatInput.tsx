@@ -6,6 +6,7 @@ import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const GlobalChatInput = () => {
   const { t, tg, isRTL } = useGenderedTranslation();
@@ -37,25 +38,41 @@ const GlobalChatInput = () => {
     }
   }, [input]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
     
-    // If not on Aurora page, navigate there first
-    if (!location.pathname.startsWith('/aurora')) {
-      navigate('/aurora');
-    }
-    
-    // Send message via the registered callback
-    if (sendMessageRef.current) {
-      sendMessageRef.current(input.trim());
-    }
-    
+    const messageToSend = input.trim();
     setInput('');
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
+    
+    // If not on Aurora page, navigate first and wait
+    if (!location.pathname.startsWith('/aurora')) {
+      navigate('/aurora');
+      // Wait for navigation and component mount
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Retry sending with exponential backoff
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (attempts < maxAttempts) {
+      if (sendMessageRef.current) {
+        sendMessageRef.current(messageToSend);
+        return;
+      }
+      attempts++;
+      await new Promise(resolve => setTimeout(resolve, 100 * attempts));
+    }
+    
+    // If still not available, show error
+    console.error('Could not send message - chat not ready');
+    toast.error('Could not send message. Please try again.');
+    setInput(messageToSend); // Restore the message
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

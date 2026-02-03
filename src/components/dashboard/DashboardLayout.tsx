@@ -125,15 +125,10 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Fixed notification icons - always visible at top */}
-          <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
-            <AuroraChatQuickActions />
-            <UserNotificationBell />
-          </div>
-
-          {/* Mobile Header with logo and menu */}
+          {/* Mobile Header with logo, menu and notification icons */}
           <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
             <div className="flex h-14 items-center justify-between px-4">
+              {/* Left: Menu Button */}
               <Button 
                 variant="ghost" 
                 size="icon"
@@ -143,12 +138,20 @@ const DashboardLayout = ({
               >
                 <Menu className="h-5 w-5" />
               </Button>
+              
+              {/* Center: Brand */}
               <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <span className="font-bold text-sm text-foreground">
                   {isRTL ? brandTheme.brand_name : brandTheme.brand_name_en}
                 </span>
                 <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
               </Link>
+              
+              {/* Right: Notification Icons */}
+              <div className="flex items-center gap-1">
+                <AuroraChatQuickActions />
+                <UserNotificationBell />
+              </div>
             </div>
           </header>
           
