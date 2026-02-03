@@ -88,13 +88,25 @@ const navGroups: NavGroup[] = [
   },
 ];
 
-const CoachSidebar = () => {
+interface CoachSidebarProps {
+  onNavigate?: () => void;
+  isMobileSheet?: boolean;
+}
+
+const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) => {
   const { language } = useTranslation();
   const isHebrew = language === 'he';
   const { data: myProfile } = useMyPractitionerProfile();
 
+  const handleNavClick = () => {
+    onNavigate?.();
+  };
+
   return (
-    <aside className="w-64 border-e border-border bg-card/50 h-screen sticky top-0 flex flex-col">
+    <aside className={cn(
+      "border-e border-border bg-card/50 flex flex-col",
+      isMobileSheet ? "w-full h-full" : "w-64 h-screen sticky top-0"
+    )}>
       {/* Logo and Brand at top */}
       <div className="p-4 border-b border-border flex-shrink-0">
         <Link to="/coach" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
@@ -136,6 +148,7 @@ const CoachSidebar = () => {
                     key={item.to}
                     to={item.to}
                     end={item.to === '/coach'}
+                    onClick={handleNavClick}
                     className={({ isActive }) =>
                       cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',

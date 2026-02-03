@@ -162,24 +162,25 @@ const StorefrontSettings = () => {
   }
   
   return (
-    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Header - stack on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{t('storefrontSettings')}</h1>
-          <p className="text-muted-foreground">{t('customizeYourStorefront')}</p>
+          <h1 className="text-xl sm:text-2xl font-bold">{t('storefrontSettings')}</h1>
+          <p className="text-sm text-muted-foreground">{t('customizeYourStorefront')}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" asChild>
+          <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
             <a href={previewUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-2 h-4 w-4" />
+              <ExternalLink className="me-2 h-4 w-4" />
               {t('preview')}
             </a>
           </Button>
-          <Button onClick={handleSave} disabled={saveMutation.isPending}>
+          <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending} className="flex-1 sm:flex-none">
             {saveMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
             ) : (
-              <CheckCircle className="mr-2 h-4 w-4" />
+              <CheckCircle className="me-2 h-4 w-4" />
             )}
             {t('saveChanges')}
           </Button>
@@ -188,14 +189,14 @@ const StorefrontSettings = () => {
       
       {/* Preview URL Card */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <Globe className="h-8 w-8 text-primary" />
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">{t('yourStorefrontUrl')}</p>
-              <p className="font-mono text-sm">{previewUrl}</p>
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Globe className="h-6 w-6 sm:h-8 sm:w-8 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm text-muted-foreground">{t('yourStorefrontUrl')}</p>
+              <p className="font-mono text-xs sm:text-sm truncate">{previewUrl}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={copyUrl}>
+            <Button variant="ghost" size="icon" onClick={copyUrl} className="shrink-0">
               <Copy className="h-4 w-4" />
             </Button>
           </div>
@@ -203,43 +204,50 @@ const StorefrontSettings = () => {
       </Card>
       
       <Tabs defaultValue="branding" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="branding">
-            <Palette className="mr-2 h-4 w-4" />
-            {t('branding')}
-          </TabsTrigger>
-          <TabsTrigger value="landing">
-            <Layout className="mr-2 h-4 w-4" />
-            {t('landingPage')}
-          </TabsTrigger>
-          <TabsTrigger value="domain">
-            <Globe className="mr-2 h-4 w-4" />
-            {t('domain')}
-          </TabsTrigger>
-          <TabsTrigger value="features">
-            <Settings className="mr-2 h-4 w-4" />
-            {t('features')}
-          </TabsTrigger>
-        </TabsList>
+        {/* Scrollable tabs on mobile */}
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <TabsList className="inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-4">
+            <TabsTrigger value="branding" className="gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">{t('branding')}</span>
+              <span className="xs:hidden">Brand</span>
+            </TabsTrigger>
+            <TabsTrigger value="landing" className="gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <Layout className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">{t('landingPage')}</span>
+              <span className="xs:hidden">Landing</span>
+            </TabsTrigger>
+            <TabsTrigger value="domain" className="gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span>{t('domain')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="features" className="gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">{t('features')}</span>
+              <span className="xs:hidden">Features</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
         {/* Branding Tab */}
         <TabsContent value="branding">
           <Card>
-            <CardHeader>
-              <CardTitle>{t('brandingSettings')}</CardTitle>
-              <CardDescription>{t('customizeLookAndFeel')}</CardDescription>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-lg sm:text-xl">{t('brandingSettings')}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">{t('customizeLookAndFeel')}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{t('logoUrl')}</Label>
+                  <Label className="text-sm">{t('logoUrl')}</Label>
                   <div className="flex gap-2">
                     <Input
                       value={formData.logo_url}
                       onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
                       placeholder="https://..."
+                      className="text-sm"
                     />
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="shrink-0">
                       <Image className="h-4 w-4" />
                     </Button>
                   </div>
@@ -249,16 +257,17 @@ const StorefrontSettings = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>{t('faviconUrl')}</Label>
+                  <Label className="text-sm">{t('faviconUrl')}</Label>
                   <Input
                     value={formData.favicon_url}
                     onChange={(e) => setFormData(prev => ({ ...prev, favicon_url: e.target.value }))}
                     placeholder="https://..."
+                    className="text-sm"
                   />
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t('primaryColor')}</Label>
                   <div className="flex gap-2">
@@ -294,7 +303,7 @@ const StorefrontSettings = () => {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t('contactEmail')}</Label>
                   <div className="flex gap-2">
@@ -328,24 +337,25 @@ const StorefrontSettings = () => {
         {/* Landing Page Tab */}
         <TabsContent value="landing">
           <Card>
-            <CardHeader>
-              <CardTitle>{t('landingPageSettings')}</CardTitle>
-              <CardDescription>{t('customizeYourHomepage')}</CardDescription>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-lg sm:text-xl">{t('landingPageSettings')}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">{t('customizeYourHomepage')}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label>{t('heroImageUrl')}</Label>
+                <Label className="text-sm">{t('heroImageUrl')}</Label>
                 <Input
                   value={formData.hero_image_url}
                   onChange={(e) => setFormData(prev => ({ ...prev, hero_image_url: e.target.value }))}
                   placeholder="https://..."
+                  className="text-sm"
                 />
                 {formData.hero_image_url && (
-                  <img src={formData.hero_image_url} alt="Hero preview" className="h-32 rounded-lg mt-2" />
+                  <img src={formData.hero_image_url} alt="Hero preview" className="h-24 sm:h-32 rounded-lg mt-2 object-cover" />
                 )}
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t('heroHeadingHebrew')}</Label>
                   <Input
@@ -364,7 +374,7 @@ const StorefrontSettings = () => {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t('heroSubheadingHebrew')}</Label>
                   <Textarea
@@ -385,7 +395,7 @@ const StorefrontSettings = () => {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t('seoTitle')}</Label>
                   <Input
@@ -413,22 +423,22 @@ const StorefrontSettings = () => {
         {/* Domain Tab */}
         <TabsContent value="domain">
           <Card>
-            <CardHeader>
-              <CardTitle>{t('domainSettings')}</CardTitle>
-              <CardDescription>{t('configureYourDomain')}</CardDescription>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-lg sm:text-xl">{t('domainSettings')}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">{t('configureYourDomain')}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label>{t('subdomain')}</Label>
-                <div className="flex items-center gap-2">
+                <Label className="text-sm">{t('subdomain')}</Label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <Input
                     value={formData.subdomain}
                     onChange={(e) => setFormData(prev => ({ ...prev, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
-                    className="max-w-xs"
+                    className="flex-1 sm:max-w-xs text-sm"
                   />
-                  <span className="text-muted-foreground">.mindhacker.net</span>
+                  <span className="text-sm text-muted-foreground">.mindhacker.net</span>
                 </div>
-                <p className="text-sm text-muted-foreground">{t('subdomainDescription')}</p>
+                <p className="text-xs text-muted-foreground">{t('subdomainDescription')}</p>
               </div>
               
               <div className="space-y-2">
@@ -461,15 +471,15 @@ const StorefrontSettings = () => {
         {/* Features Tab */}
         <TabsContent value="features">
           <Card>
-            <CardHeader>
-              <CardTitle>{t('featureToggles')}</CardTitle>
-              <CardDescription>{t('enableDisableFeatures')}</CardDescription>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-lg sm:text-xl">{t('featureToggles')}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">{t('enableDisableFeatures')}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t('enableCourses')}</Label>
-                  <p className="text-sm text-muted-foreground">{t('showCoursesSection')}</p>
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm">{t('enableCourses')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('showCoursesSection')}</p>
                 </div>
                 <Switch
                   checked={formData.enable_courses}
@@ -477,10 +487,10 @@ const StorefrontSettings = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t('enableServices')}</Label>
-                  <p className="text-sm text-muted-foreground">{t('showServicesSection')}</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm">{t('enableServices')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('showServicesSection')}</p>
                 </div>
                 <Switch
                   checked={formData.enable_services}
@@ -488,10 +498,10 @@ const StorefrontSettings = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t('enableProducts')}</Label>
-                  <p className="text-sm text-muted-foreground">{t('showProductsSection')}</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm">{t('enableProducts')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('showProductsSection')}</p>
                 </div>
                 <Switch
                   checked={formData.enable_products}
@@ -499,10 +509,10 @@ const StorefrontSettings = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>{t('enableCommunity')}</Label>
-                  <p className="text-sm text-muted-foreground">{t('showCommunitySection')}</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm">{t('enableCommunity')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('showCommunitySection')}</p>
                 </div>
                 <Switch
                   checked={formData.enable_community}
