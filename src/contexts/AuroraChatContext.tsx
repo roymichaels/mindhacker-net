@@ -63,21 +63,34 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const activeConversationId = currentConversationId || defaultConversationId || null;
 
   const handleNewChat = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.error('handleNewChat: No user ID available');
+      return;
+    }
     
-    const { data, error } = await supabase
-      .from('conversations')
-      .insert({
-        participant_1: user.id,
-        participant_2: null,
-        type: 'ai',
-      })
-      .select('id')
-      .single();
-    
-    if (!error && data) {
-      setCurrentConversationId(data.id);
-      queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({
+          participant_1: user.id,
+          participant_2: null,
+          type: 'ai',
+        })
+        .select('id')
+        .single();
+      
+      if (error) {
+        console.error('Failed to create new chat:', error);
+        return;
+      }
+      
+      if (data) {
+        setCurrentConversationId(data.id);
+        queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['aurora-messages'] });
+      }
+    } catch (err) {
+      console.error('handleNewChat error:', err);
     }
   }, [user?.id, queryClient]);
 
