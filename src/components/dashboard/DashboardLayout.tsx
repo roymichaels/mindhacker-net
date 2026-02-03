@@ -18,7 +18,7 @@ interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
   currentConversationId?: string | null;
-  onNewChat?: () => void;
+  onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
   hideRightPanel?: boolean;
 }
@@ -28,7 +28,7 @@ interface DesktopLayoutContentProps {
   children: ReactNode;
   isRTL: boolean;
   currentConversationId?: string | null;
-  onNewChat?: () => void;
+  onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
   hideRightPanel: boolean;
   settingsOpen: boolean;
