@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { 
   LayoutDashboard,
   Compass,
@@ -35,7 +36,7 @@ const defaultLogo = "/aurora-icon.svg";
 interface DashboardSidebarProps {
   onNavigate?: () => void;
   currentConversationId?: string | null;
-  onNewChat?: () => void;
+  onNewChat?: () => void | Promise<void>;
   onSelectConversation?: (id: string) => void;
   isMobileSheet?: boolean; // When true, render content directly without Sidebar wrapper
   onOpenSettings?: () => void;
@@ -157,8 +158,11 @@ const DashboardSidebar = ({
         <div className="px-3 py-2 mb-3 flex items-center gap-2">
           {/* New Chat Button - separate container */}
           <button
-            onClick={() => {
-              onNewChat?.();
+            onClick={async () => {
+              if (onNewChat) {
+                await onNewChat();
+                toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+              }
               onNavigate?.();
             }}
             className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
@@ -207,8 +211,11 @@ const DashboardSidebar = ({
       {!isMobile && !isCollapsed && isAuroraPage && (
         <div className="px-3 mb-3 flex items-center gap-2 w-full min-w-0">
           <button
-            onClick={() => {
-              onNewChat?.();
+            onClick={async () => {
+              if (onNewChat) {
+                await onNewChat();
+                toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+              }
             }}
             className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
             title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
@@ -278,7 +285,10 @@ const DashboardSidebar = ({
           variant="outline"
           size="icon"
           className="w-full mb-3"
-          onClick={onNewChat}
+          onClick={async () => {
+            await onNewChat();
+            toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+          }}
           title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
         >
           <Plus className="h-4 w-4" />
