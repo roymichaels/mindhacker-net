@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
 import { getAvatarDNASummary } from '@/lib/avatarDNA';
 import { getAllArchetypes, type ArchetypeId } from '@/lib/archetypes';
@@ -28,7 +28,7 @@ export function IdentityDisplay({
   compact = false 
 }: IdentityDisplayProps) {
   const { profile, isPersonalized } = useOrbProfile();
-  const { language } = useLanguage();
+  const { t, language } = useTranslation();
   const isHebrew = language === 'he';
 
   const dominantArchetype = profile.computedFrom.dominantArchetype || 'explorer';
@@ -75,7 +75,7 @@ export function IdentityDisplay({
         <div>
           <h3 className="text-lg font-semibold">{identitySummary}</h3>
           <p className="text-sm text-muted-foreground">
-            {isHebrew ? 'הזהות הדיגיטלית שלך' : 'Your Digital Identity'}
+            {t('avatar.badge')}
           </p>
         </div>
       </div>
@@ -83,10 +83,7 @@ export function IdentityDisplay({
       {/* Personalization Status */}
       {!isPersonalized && (
         <div className="p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-          {isHebrew 
-            ? '💡 השלם את הפרופיל האישי כדי לראות את הזהות הייחודית שלך'
-            : '💡 Complete your personal profile to see your unique identity'
-          }
+          💡 {t('archetypes.completeProfile')}
         </div>
       )}
 
@@ -94,7 +91,7 @@ export function IdentityDisplay({
       {dominantHobbies.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-muted-foreground">
-            {isHebrew ? 'מה משפיע על הזהות שלך' : 'What shapes your identity'}
+            {t('archetypes.whatShapes')}
           </h4>
           <div className="flex flex-wrap gap-2">
             {dominantHobbies.map((hobby) => (
@@ -113,7 +110,7 @@ export function IdentityDisplay({
       {showBreakdown && archetypeWeights.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-medium text-muted-foreground">
-            {isHebrew ? 'הרכב הזהות' : 'Identity Composition'}
+            {t('archetypes.identityComposition')}
           </h4>
           <div className="space-y-2">
             {archetypeWeights.slice(0, 4).map(({ id, weight }) => (
@@ -147,7 +144,7 @@ export function IdentityDisplay({
             {profile.computedFrom.level}
           </div>
           <div className="text-xs text-muted-foreground">
-            {isHebrew ? 'רמה' : 'Level'}
+            {t('archetypes.level')}
           </div>
         </div>
         <div className="text-center">
@@ -155,7 +152,7 @@ export function IdentityDisplay({
             {profile.computedFrom.streak}
           </div>
           <div className="text-xs text-muted-foreground">
-            {isHebrew ? 'רצף' : 'Streak'}
+            {t('archetypes.streak')}
           </div>
         </div>
         <div className="text-center">
@@ -163,7 +160,7 @@ export function IdentityDisplay({
             {profile.computedFrom.clarityScore || 0}%
           </div>
           <div className="text-xs text-muted-foreground">
-            {isHebrew ? 'בהירות' : 'Clarity'}
+            {t('archetypes.clarity')}
           </div>
         </div>
       </div>
@@ -205,7 +202,7 @@ export function ArchetypeGrid({
   className?: string;
   onSelect?: (id: ArchetypeId) => void;
 }) {
-  const { language } = useLanguage();
+  const { language } = useTranslation();
   const isHebrew = language === 'he';
   const archetypes = getAllArchetypes();
 

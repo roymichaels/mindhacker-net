@@ -52,7 +52,7 @@ const navGroups: NavGroup[] = [
 ];
 
 const AffiliateSidebar = () => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isHebrew = language === 'he';
 
   return (
@@ -61,7 +61,7 @@ const AffiliateSidebar = () => {
       <div className="p-4 border-b border-border flex-shrink-0">
         <Link to="/affiliate" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
-          <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+          <span className="font-bold text-lg">{t('sidebar.controlCenter')}</span>
         </Link>
       </div>
 

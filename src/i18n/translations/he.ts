@@ -2810,6 +2810,110 @@ export const he = {
       signOutError: "שגיאה בהתנתקות",
     },
   },
+
+  // Panel User Dashboard translations
+  userDashboard: {
+    errorLoadingData: "שגיאה בטעינת נתונים",
+    level: "שלב",
+    tokens: "טוקנים",
+    overview: "סקירה",
+    analysis: "ניתוח AI",
+    plan: "תוכנית 90 יום",
+    identity: "זהות",
+    tasks: "משימות",
+    patterns: "דפוסים",
+    journeyStatus: "סטטוס מסע",
+    questionnaireComplete: "השאלון הושלם",
+    currentStep: "שלב נוכחי",
+    ninetyDayPlan: "תוכנית 90 יום",
+    milestones: "אבני דרך",
+    tasksTitle: "משימות",
+    checklists: "צ'קליסטים",
+    commitments: "התחייבויות",
+    lifeDirection: "כיוון חיים",
+    clarityScore: "ציון בהירות:",
+    aiSummary: "סיכום AI",
+    consciousnessScores: "ציוני תודעה",
+    consciousness: "ציון תודעה",
+    clarity: "בהירות",
+    readiness: "מוכנות לשינוי",
+    consciousnessAnalysis: "ניתוח תודעה",
+    consciousnessScore: "ציון תודעה:",
+    levelLabel: "רמה:",
+    analysisLabel: "ניתוח:",
+    identifiedChallenges: "אתגרים שזוהו",
+    noAiAnalysis: "אין ניתוח AI עדיין",
+    noNinetyDayPlan: "אין תוכנית 90 יום עדיין",
+    weekNumber: "שבוע",
+    identityProfile: "פרופיל זהות",
+    identityElements: "אלמנטי זהות",
+    noIdentityProfile: "אין פרופיל זהות עדיין",
+    noChecklists: "אין צ'קליסטים",
+    noCommitments: "אין התחייבויות",
+    energyPatterns: "דפוסי אנרגיה",
+    behavioralPatterns: "דפוסי התנהגות",
+    noPatterns: "אין דפוסים",
+  },
+
+  // Gamification translations
+  gamification: {
+    activeEgoState: "מצב אגו פעיל",
+    streak: "רצף",
+    sessions: "סשנים",
+    totalTime: "זמן כולל",
+    level: "רמה",
+    xp: "XP",
+    tokens: "טוקנים",
+  },
+
+  // Dashboard welcome translations
+  welcome: {
+    yourJourneyBegins: "המסע שלך מתחיל",
+    startTransformationJourney: "התחל מסע טרנספורמציה",
+    chatWithAurora: "שוחח עם אורורה",
+    level: "רמה",
+    streak: "סטריק",
+    tokens: "טוקנים",
+    quickAccess: "גישה מהירה",
+  },
+
+  // Launchpad final notes translations
+  finalNotes: {
+    title: "יש משהו נוסף?",
+    subtitle: "זה המקום לכל מה שלא נשאלת - או שתרצה ש-Aurora תדע",
+    ideasLabel: "רעיונות למה לכתוב:",
+    placeholder: "כתוב כאן כל מה שחשוב לך שנדע...",
+    optionalSkip: "אופציונלי - אפשר לדלג אם אין לך מה להוסיף",
+    saving: "שומר...",
+    continueToSummary: "🚀 המשך לסיכום",
+    skip: "דלג",
+  },
+
+  // Hypnosis session translations
+  hypnosisSession: {
+    title: "היפנוזה",
+    completeFirst: "השלם את ה-Launchpad",
+    goBack: "חזור",
+    personalHypnosis: "סשן היפנוזה אישי",
+    personalizedSession: "סשן היפנוזה מותאם אישית על בסיס הפרופיל שלך",
+    week: "שבוע",
+    duration: "משך:",
+    minutes: "דק׳",
+    startSession: "התחל סשן",
+    skip: "דלג",
+    creatingSession: "יוצר את הסשן שלך...",
+    sessionComplete: "סשן הושלם!",
+    earnedXp: "הרווחת {xp} XP",
+    finish: "סיום",
+    lockedTitle: "השלם את ה-Launchpad",
+    lockedDescription: "כדי לקבל חוויית היפנוזה מותאמת אישית, עליך להשלים את ה-Launchpad תחילה",
+  },
+
+  // Sidebar translations
+  sidebar: {
+    controlCenter: "מרכז שליטה",
+    newCampaign: "קמפיין חדש",
+  },
 };
 
 export type TranslationKeys = typeof he;
