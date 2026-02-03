@@ -15,6 +15,7 @@ import {
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import RoleSwitcher from './RoleSwitcher';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { NotificationBell } from '@/components/admin/NotificationBell';
 import {
   LayoutDashboard,
   BarChart3,
@@ -118,7 +119,6 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       items: [
         { to: '/panel', icon: LayoutDashboard, label: 'Dashboard', labelHe: 'דאשבורד' },
         { to: '/panel/analytics', icon: BarChart3, label: 'Analytics', labelHe: 'אנליטיקס' },
-        { to: '/panel/notifications', icon: Bell, label: 'Notifications', labelHe: 'התראות', badge: unreadCount },
       ],
     },
     {
@@ -220,10 +220,13 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
     )}>
       {/* Logo and Brand at top */}
       <div className="p-4 border-b border-border flex-shrink-0">
-        <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
-          <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to="/panel" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <AuroraOrbIcon size={32} className="text-primary flex-shrink-0" />
+            <span className="font-bold text-lg">{isHebrew ? 'מרכז שליטה' : 'Control Center'}</span>
+          </Link>
+          <NotificationBell />
+        </div>
       </div>
 
       {/* Role Switcher for multi-role users */}

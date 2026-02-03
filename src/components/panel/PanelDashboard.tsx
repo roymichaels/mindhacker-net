@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
+import { NotificationBell } from '@/components/admin/NotificationBell';
 import { 
   BarChart3, 
   Users, 
@@ -69,19 +69,7 @@ const PanelDashboard = () => {
               <Home className="h-5 w-5" />
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="icon" className="h-9 w-9 relative">
-            <Link to="/panel/notifications">
-              <Bell className="h-5 w-5" />
-              {stats && stats.unreadNotifications > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -end-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
-                >
-                  {stats.unreadNotifications}
-                </Badge>
-              )}
-            </Link>
-          </Button>
+          <NotificationBell />
         </div>
       </div>
 
