@@ -478,7 +478,7 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
-                      <ConditionalWidgets />
+                      
                     </Suspense>
                   </AnalyticsProvider>
                 </BrowserRouter>
