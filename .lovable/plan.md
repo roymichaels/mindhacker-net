@@ -1,143 +1,66 @@
 
-# Fix Mobile Chat Issues: Messages Not Sending & Header Overlap
+# Project Cleanup: Delete Unused Files
 
-## Issues Identified
-
-### Issue 1: Messages Not Sending on Mobile
-The `GlobalChatInput` uses a ref-based callback (`sendMessageRef`) to send messages. The problem is a race condition:
-- When user types a message and is NOT on `/aurora`, the code navigates there first
-- But `sendMessageRef.current()` is called immediately, before `AuroraChatArea` has mounted and registered its `sendMessage`
-- Additionally, if `conversationId` is null (still loading), the send silently fails
-
-### Issue 2: Header Overlapping Chat
-In mobile view:
-- Header is `sticky top-0 z-40` with height `h-14` (56px)
-- Notification icons are `fixed top-4 z-50` (16px from top)
-- These icons overlap the header, appearing on top of the brand name
+## Overview
+After thorough codebase analysis, I identified **9 unused files** that can be safely deleted. These files are not imported anywhere in the project and represent dead code that increases bundle size and maintenance burden.
 
 ---
 
-## Solution
+## Files to Delete
 
-### Fix 1: Reliable Message Sending
+### 1. `src/components/CheckoutDialog.tsx` (288 lines)
+**Reason**: There's a DIFFERENT `CheckoutDialog.tsx` in `src/components/checkout/` that IS used. This root-level file has a completely different API (uses `isOpen`/`onClose` props vs `open`/`onOpenChange`) and is not imported anywhere.
 
-**File: `src/components/dashboard/GlobalChatInput.tsx`**
+### 2. `src/services/unifiedVoice.ts` (379 lines)  
+**Reason**: Unified voice service that was never integrated. The app uses `src/services/voice.ts` instead.
 
-Update the submit handler to:
-1. Wait for navigation to complete before sending
-2. Store the pending message and send it when the chat is ready
-3. Add a small delay when navigating to ensure component mount
+### 3. `src/hooks/useMultiThreadOrbProfile.ts` (97 lines)
+**Reason**: Hook for multi-thread orb profiles. Superseded by `useLiveOrbProfile` which IS actively used.
 
-```typescript
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!input.trim() || isStreaming) return;
-  
-  const messageToSend = input.trim();
-  setInput('');
-  
-  if (textareaRef.current) {
-    textareaRef.current.style.height = 'auto';
-  }
-  
-  // If not on Aurora page, navigate first and wait
-  if (!location.pathname.startsWith('/aurora')) {
-    navigate('/aurora');
-    // Wait for navigation and component mount
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  
-  // Retry sending with exponential backoff
-  let attempts = 0;
-  const maxAttempts = 5;
-  
-  while (attempts < maxAttempts) {
-    if (sendMessageRef.current) {
-      sendMessageRef.current(messageToSend);
-      return;
-    }
-    attempts++;
-    await new Promise(resolve => setTimeout(resolve, 100 * attempts));
-  }
-  
-  // If still not available, show error
-  console.error('Could not send message - chat not ready');
-  toast.error('Could not send message. Please try again.');
-  setInput(messageToSend); // Restore the message
-};
-```
+### 4. `src/hooks/useFeatureAccess.ts` (~80 lines)
+**Reason**: Feature gating hook that was never integrated into the UI.
 
-### Fix 2: Header Layout (Move Icons Inside Header)
+### 5. `src/hooks/useLaunchpadChecklists.ts` (~120 lines)
+**Reason**: Checklist creation hook never wired up. The app uses `useChecklistsData` from aurora hooks instead.
 
-**File: `src/components/dashboard/DashboardLayout.tsx`**
+### 6. `src/hooks/usePermissions.ts` (~60 lines)
+**Reason**: Permissions state hook that was never used. Browser permissions are handled elsewhere.
 
-Move the notification icons from fixed positioning to inside the header:
+### 7. `src/lib/jobs.ts` (876 lines)  
+**Reason**: Entire RPG job system that was designed but never implemented. This is the largest unused file.
 
-```tsx
-// BEFORE (problematic):
-<div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
-  <AuroraChatQuickActions />
-  <UserNotificationBell />
-</div>
+### 8. `src/lib/guestProfilePdfGenerator.ts` (~200 lines)
+**Reason**: PDF generator for guests that was replaced by `useGuestPDF` hook.
 
-<header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
-  <div className="flex h-14 items-center justify-between px-4">
-    <Button ...>Menu</Button>
-    <Link ...>Logo</Link>
-  </div>
-</header>
-
-// AFTER (fixed):
-<header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
-  <div className="flex h-14 items-center justify-between px-4">
-    {/* Menu Button */}
-    <Button ...>Menu</Button>
-    
-    {/* Center: Brand */}
-    <Link ...>Logo</Link>
-    
-    {/* Right: Notification Icons */}
-    <div className="flex items-center gap-1">
-      <AuroraChatQuickActions />
-      <UserNotificationBell />
-    </div>
-  </div>
-</header>
-```
-
-This integrates the icons into the header's flex layout with proper spacing.
+### 9. `src/components/GlobalBottomNav.tsx` (6 lines)
+**Reason**: Returns `null` - navigation handled by sidebar. Still imported in `App.tsx` but does nothing.
 
 ---
 
-## Files to Modify
+## Total Impact
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/GlobalChatInput.tsx` | Add retry logic with delay for navigation |
-| `src/components/dashboard/DashboardLayout.tsx` | Move notification icons inside mobile header |
-
----
-
-## Technical Details
-
-### GlobalChatInput Changes
-1. Make `handleSubmit` async
-2. Clear input immediately for responsive UX
-3. Navigate first, then wait for mount
-4. Retry pattern with exponential backoff (100ms, 200ms, 300ms, 400ms, 500ms)
-5. Show error toast if fails after 5 attempts
-6. Restore message to input if send fails
-
-### DashboardLayout Changes (Mobile)
-1. Remove the `fixed top-4 z-50` notification icons div
-2. Add a third section to the header flex layout for the icons
-3. Use `justify-between` to space: Menu | Logo | Icons
-4. Keep desktop layout unchanged (icons remain fixed at top-right)
+| Metric | Value |
+|--------|-------|
+| Files Removed | 9 |
+| Lines Removed | ~2,100+ |
+| Effect | Cleaner codebase, smaller bundle, easier maintenance |
 
 ---
 
-## Benefits
-1. **Reliable messaging**: Messages will always send, even when navigating from other pages
-2. **Better mobile UX**: Clean header without overlapping elements
-3. **Consistent layout**: Icons properly aligned within the header bounds
-4. **Error feedback**: Users get toast notification if send fails
+## Implementation Steps
+
+1. Delete all 9 files listed above
+2. Remove `GlobalBottomNav` import and usage from `App.tsx`
+3. Verify build succeeds with no import errors
+
+---
+
+## Files NOT Deleted (Verified In Use)
+
+These were initially suspected but confirmed to be used:
+- `useLaunchpadData.ts` - Used by ProfileDrawer, ProfileContent
+- `useAdminAuroraInsights.ts` - Used by AuroraInsights admin page
+- `usePushNotifications.ts` - Used by PWAInstallModal, Install page
+- `useHaptics.ts` - Used by hypnosis sessions
+- `useDailyHypnosis.ts` - Used by HypnosisLibrary and HypnosisModal
+- `useGuestLaunchpadAutoSave.ts` - Used by LaunchpadFlow
