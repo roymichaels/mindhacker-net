@@ -36,7 +36,7 @@ const defaultLogo = "/aurora-icon.svg";
 interface DashboardSidebarProps {
   onNavigate?: () => void;
   currentConversationId?: string | null;
-  onNewChat?: () => void | Promise<void>;
+  onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
   isMobileSheet?: boolean; // When true, render content directly without Sidebar wrapper
   onOpenSettings?: () => void;
@@ -45,6 +45,7 @@ interface DashboardSidebarProps {
 interface Conversation {
   id: string;
   title: string | null;
+  created_at: string | null;
   last_message_at: string | null;
   last_message_preview: string | null;
 }
@@ -86,17 +87,17 @@ const DashboardSidebar = ({
       
       const { data, error } = await supabase
         .from('conversations')
-        .select('id, last_message_at, last_message_preview')
+        .select('id, created_at, last_message_at, last_message_preview')
         .eq('participant_1', user.id)
         .eq('type', 'ai')
-        .order('last_message_at', { ascending: false, nullsFirst: false });
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Failed to fetch conversations:', error);
         return [];
       }
       
-      return (data || []).map((conv, index) => ({
+       return (data || []).map((conv, index) => ({
         ...conv,
         title: conv.last_message_preview?.slice(0, 30) || `${language === 'he' ? 'שיחה חדשה' : 'New Chat'} ${index + 1}`,
       })) as Conversation[];
@@ -160,8 +161,12 @@ const DashboardSidebar = ({
           <button
             onClick={async () => {
               if (onNewChat) {
-                await onNewChat();
-                toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+                const ok = await onNewChat();
+                if (ok !== false) {
+                  toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+                } else {
+                  toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
+                }
               }
               onNavigate?.();
             }}
@@ -213,8 +218,12 @@ const DashboardSidebar = ({
           <button
             onClick={async () => {
               if (onNewChat) {
-                await onNewChat();
-                toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+                const ok = await onNewChat();
+                if (ok !== false) {
+                  toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+                } else {
+                  toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
+                }
               }
             }}
             className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
@@ -286,8 +295,13 @@ const DashboardSidebar = ({
           size="icon"
           className="w-full mb-3"
           onClick={async () => {
-            await onNewChat();
-            toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+            if (!onNewChat) return;
+            const ok = await onNewChat();
+            if (ok !== false) {
+              toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
+            } else {
+              toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
+            }
           }}
           title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
         >

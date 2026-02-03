@@ -4759,6 +4759,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_ai_conversation: { Args: { p_user_id: string }; Returns: string }
       create_user_notification: {
         Args: {
           p_link?: string

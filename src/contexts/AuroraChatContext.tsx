@@ -9,7 +9,7 @@ interface AuroraChatContextType {
   defaultConversationId: string | null;
   activeConversationId: string | null;
   isLoading: boolean;
-  handleNewChat: () => Promise<void>;
+  handleNewChat: () => Promise<boolean>;
   handleSelectConversation: (id: string) => void;
   // For global input - allows sending messages from anywhere
   sendMessageRef: React.MutableRefObject<((message: string) => void) | null>;
@@ -62,35 +62,33 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
 
   const activeConversationId = currentConversationId || defaultConversationId || null;
 
-  const handleNewChat = useCallback(async () => {
+  const handleNewChat = useCallback(async (): Promise<boolean> => {
     if (!user?.id) {
       console.error('handleNewChat: No user ID available');
-      return;
+      return false;
     }
     
     try {
+      // Use security-definer backend function to ensure we can reliably create and get the new id
       const { data, error } = await supabase
-        .from('conversations')
-        .insert({
-          participant_1: user.id,
-          participant_2: null,
-          type: 'ai',
-        })
-        .select('id')
-        .single();
-      
+        .rpc('create_ai_conversation', { p_user_id: user.id });
+
       if (error) {
-        console.error('Failed to create new chat:', error);
-        return;
+        console.error('Failed to create new chat (RPC):', error);
+        return false;
       }
-      
-      if (data) {
-        setCurrentConversationId(data.id);
-        queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
-        queryClient.invalidateQueries({ queryKey: ['aurora-messages'] });
-      }
+
+      const newId = data as string | null;
+      if (!newId) return false;
+
+      setCurrentConversationId(newId);
+      // Invalidate both list and messages for the newly selected conversation
+      queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['aurora-messages'] });
+      return true;
     } catch (err) {
       console.error('handleNewChat error:', err);
+      return false;
     }
   }, [user?.id, queryClient]);
 
