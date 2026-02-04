@@ -9,15 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProfileDrawer } from './ProfileDrawer';
 import { QuickAccessGrid } from './QuickAccessGrid';
 import {
-  AIAnalysisModal,
-  LifePlanModal,
   ChecklistsModal,
-  ConsciousnessModal,
-  BehavioralModal,
-  IdentityModal,
-  TraitsModal,
-  CommitmentsModal,
-  AnchorsModal,
   FocusModal,
 } from './DashboardModals';
 import { CharacterHUD } from './unified';
@@ -28,7 +20,7 @@ interface UnifiedDashboardViewProps {
   onOpenProfile?: () => void;
 }
 
-type ModalType = 'ai' | 'plan' | 'tasks' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | 'focus' | null;
+type ModalType = 'tasks' | 'focus' | null;
 
 export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashboardViewProps) {
   const { isRTL, t, language } = useTranslation();
@@ -149,71 +141,17 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
         </h3>
         <QuickAccessGrid
           language={language}
-          onOpenAI={() => setActiveModal('ai')}
-          onOpenPlan={() => setActiveModal('plan')}
           onOpenTasks={() => setActiveModal('tasks')}
-          onOpenConsciousness={() => setActiveModal('consciousness')}
-          onOpenBehavioral={() => setActiveModal('behavioral')}
-          onOpenIdentity={() => setActiveModal('identity')}
-          onOpenTraits={() => setActiveModal('traits')}
-          onOpenCommitments={() => setActiveModal('commitments')}
-          onOpenAnchors={() => setActiveModal('anchors')}
           onOpenFocus={() => setActiveModal('focus')}
           hasFocusPlan={!!dashboard.activeFocusPlan}
         />
       </div>
 
-      {/* All Modals */}
-      <AIAnalysisModal 
-        open={activeModal === 'ai'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language} 
-      />
-      <LifePlanModal 
-        open={activeModal === 'plan'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language} 
-      />
+      {/* Modals - Only tasks and focus remain in dashboard */}
       <ChecklistsModal 
         open={activeModal === 'tasks'} 
         onOpenChange={(open) => !open && setActiveModal(null)} 
         language={language} 
-      />
-      <ConsciousnessModal 
-        open={activeModal === 'consciousness'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language} 
-      />
-      <BehavioralModal 
-        open={activeModal === 'behavioral'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language} 
-      />
-      <IdentityModal 
-        open={activeModal === 'identity'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language}
-        values={dashboard.values}
-        principles={dashboard.principles}
-        selfConcepts={dashboard.selfConcepts}
-        identityTitle={dashboard.identityTitle}
-      />
-      <TraitsModal 
-        open={activeModal === 'traits'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language}
-      />
-      <CommitmentsModal 
-        open={activeModal === 'commitments'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language}
-        commitments={dashboard.activeCommitments}
-      />
-      <AnchorsModal 
-        open={activeModal === 'anchors'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language}
-        anchors={dashboard.dailyAnchors}
       />
       <FocusModal 
         open={activeModal === 'focus'} 
