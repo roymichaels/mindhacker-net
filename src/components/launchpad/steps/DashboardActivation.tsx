@@ -169,8 +169,8 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
           disabled={isCompleting || isGenerating}
           className={cn(
             "min-w-[260px] h-16 text-lg font-bold gap-2 transition-all duration-300",
-            "bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500",
-            "hover:shadow-2xl hover:shadow-emerald-500/40 hover:scale-105",
+            "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-amber-400",
+            "hover:shadow-2xl hover:shadow-amber-500/40 hover:scale-105 border border-amber-500/30",
             (isCompleting || isGenerating) && "opacity-60"
           )}
         >
