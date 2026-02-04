@@ -64,7 +64,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
     <Card className="backdrop-blur-xl bg-background/60 border-border/50">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <Battery className="h-5 w-5 text-emerald-500" />
+          <Battery className="h-5 w-5 text-red-500" />
           <CardTitle className="text-lg">
             {language === 'he' ? 'סטטוס בריאות' : 'Health Status'}
           </CardTitle>
@@ -74,14 +74,14 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
         {hasData ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {energyLevel && (
-              <div className="p-4 rounded-lg bg-gradient-to-r from-emerald-500/10 to-teal-400/10 border border-emerald-500/20">
+              <div className="p-4 rounded-lg bg-gradient-to-r from-red-500/10 to-rose-400/10 border border-red-500/20">
                 <div className="flex items-center gap-2 mb-1">
-                  <Battery className="h-4 w-4 text-emerald-500" />
+                  <Battery className="h-4 w-4 text-red-500" />
                   <p className="text-xs text-muted-foreground">
                     {language === 'he' ? 'רמת אנרגיה' : 'Energy Level'}
                   </p>
                 </div>
-                <p className="font-medium text-emerald-600 dark:text-emerald-400">
+                <p className="font-medium text-red-600 dark:text-red-400">
                   {energyLevelMap[energyLevel]?.[language === 'he' ? 'he' : 'en'] || energyLevel}
                 </p>
               </div>
@@ -133,7 +133,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
                 ? 'עדיין אין נתוני בריאות - השלם את מסע הטרנספורמציה'
                 : 'No health data yet - complete your transformation journey'}
             </p>
-            <Button asChild variant="outline" className="border-emerald-500/50 text-emerald-600 hover:bg-emerald-500/10">
+            <Button asChild variant="outline" className="border-red-500/50 text-red-600 hover:bg-red-500/10">
               <Link to="/launchpad">
                 {language === 'he' ? 'התחל את המסע' : 'Start your journey'}
                 <ArrowRight className="ms-2 h-4 w-4" />

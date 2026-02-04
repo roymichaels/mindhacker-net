@@ -57,19 +57,19 @@ const Health = () => {
   return (
     <DashboardLayout hideRightPanel>
       <div className="space-y-6 pb-24 pt-9" dir={isRTL ? "rtl" : "ltr"}>
-        {/* Header Section - Emerald gradient with white text */}
+        {/* Header Section - Red/Primary gradient */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 p-6 shadow-lg border border-emerald-400/30"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-950 to-gray-900 p-6 shadow-lg border border-red-800/50"
         >
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <Heart className="h-6 w-6 text-white" />
+                <div className="p-2 bg-red-800/30 rounded-lg backdrop-blur-sm">
+                  <Heart className="h-6 w-6 text-red-400 fill-red-400" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                <h1 className="text-2xl md:text-3xl font-bold text-red-400">
                   {language === 'he' ? 'בריאות' : 'Health'}
                 </h1>
               </div>
@@ -77,21 +77,21 @@ const Health = () => {
               {/* Check Status Button */}
               <Button
                 onClick={() => handleOpenModal('status')}
-                className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 shadow-lg font-bold border border-white/30"
+                className="bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
               >
                 <Stethoscope className="w-4 h-4 me-2" />
                 {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}
               </Button>
             </div>
-            <p className="text-emerald-100 text-sm md:text-base">
+            <p className="text-red-200 text-sm md:text-base">
               {language === 'he' 
                 ? 'מרכז הבריאות הכוללת שלך - גוף, נפש, אנרגיה ותודעה'
                 : 'Your holistic health center - body, mind, energy and consciousness'}
             </p>
           </div>
           {/* Decorative elements */}
-          <div className="absolute top-0 end-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 start-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 end-0 w-32 h-32 bg-red-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 start-0 w-24 h-24 bg-red-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
         {/* Health Status Card */}

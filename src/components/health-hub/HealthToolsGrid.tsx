@@ -105,14 +105,14 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
         >
           <Card 
             className={`backdrop-blur-xl bg-background/60 border-border/50 h-full transition-all hover:shadow-md ${
-              tool.available ? 'cursor-pointer hover:border-emerald-500/50' : 'opacity-60'
+              tool.available ? 'cursor-pointer hover:border-red-500/50' : 'opacity-60'
             }`}
             onClick={() => tool.available && tool.onClick()}
           >
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${tool.available ? 'bg-gradient-to-r from-emerald-500/20 to-teal-400/20' : 'bg-muted'}`}>
-                  <tool.icon className={`h-5 w-5 ${tool.available ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                <div className={`p-2 rounded-lg ${tool.available ? 'bg-gradient-to-r from-red-500/20 to-rose-400/20' : 'bg-muted'}`}>
+                  <tool.icon className={`h-5 w-5 ${tool.available ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`} />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm">
