@@ -158,21 +158,12 @@ export const AuthModal = ({
 
       onOpenChange(false);
       
-      // Always redirect to dashboard after login (like major apps)
-      // Check if admin to redirect to admin dashboard
-      const { data: adminCheck } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .eq('role', 'admin')
-        .single();
-      
-      if (redirectTo && !redirectTo.startsWith('/') === false) {
+      // Always redirect all users to dashboard after login
+      if (redirectTo) {
         const safeRedirect = validateRedirectPath(redirectTo);
         navigate(safeRedirect);
       } else {
-        // Redirect to appropriate dashboard
-        navigate(adminCheck ? '/admin' : '/dashboard');
+        navigate('/dashboard');
       }
     }
   };
