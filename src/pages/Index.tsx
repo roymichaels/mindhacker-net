@@ -1,23 +1,17 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
 import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  GameHeroSection,
-  TransformationProofSection,
-  JobShowcaseSection,
-  WhyChooseUsSection,
-  WhatIsThisSection,
-  AuroraCoachSection,
-  PractitionerShowcaseSection,
-  GamificationFeaturesSection,
-  FearOfMissingOutSection,
-  FinalCTASection,
-  FreeJourneyBannerSection,
+  HeroSection,
+  FeaturesSection,
+  HowItWorksSection,
+  CTASection,
 } from "@/components/home";
 
 const Index = () => {
@@ -26,12 +20,12 @@ const Index = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   
-  // Redirect logged-in users to their dashboard (like major apps)
+  // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
-      navigate(isAdmin ? '/admin' : '/dashboard', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, loading, navigate]);
   
   // Build brand settings from theme for SEO
   const brandSettings: BrandSettings = {
@@ -58,7 +52,7 @@ const Index = () => {
     ],
   });
 
-  // Don't render landing page content while checking auth - show loading
+  // Don't render landing page content while checking auth
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -67,54 +61,32 @@ const Index = () => {
     );
   }
 
-  // If user is logged in, they will be redirected by the useEffect above
+  // If user is logged in, they will be redirected
   if (user) {
     return null;
   }
 
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Theme-aware gradient background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-muted/30 to-background dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 -z-10" />
-      <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 -z-10" />
-      
       {/* Header */}
       <Header />
       
       <main className="relative z-10">
-        {/* Hero with urgency, social proof, typing effect */}
-        <GameHeroSection />
+        {/* Hero - Clean, conversion-focused */}
+        <HeroSection />
         
-        {/* Before/After transformation with loss aversion */}
-        <TransformationProofSection />
+        {/* Features - Core value props */}
+        <FeaturesSection />
         
-        {/* RPG Job System showcase - character selection feel */}
-        <JobShowcaseSection />
+        {/* How it works - 3 simple steps */}
+        <HowItWorksSection />
         
-        {/* Why Choose Us - Value Props with dopamine elements */}
-        <WhyChooseUsSection />
-        
-        {/* What is this platform - the 3 pillars */}
-        <WhatIsThisSection />
-        
-        {/* Free Transformation Journey Banner */}
-        <FreeJourneyBannerSection />
-        
-        {/* Aurora AI Coach section */}
-        <AuroraCoachSection />
-        
-        {/* Practitioner Marketplace - Human coaches */}
-        <PractitionerShowcaseSection />
-        
-        {/* Gamification features with XP, levels, streaks */}
-        <GamificationFeaturesSection />
-        
-        {/* FOMO section with countdown */}
-        <FearOfMissingOutSection />
-        
-        {/* Final CTA with all psychological triggers */}
-        <FinalCTASection />
+        {/* Final CTA */}
+        <CTASection />
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
