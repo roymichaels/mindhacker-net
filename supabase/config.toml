@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.aurora-generate-title]
 verify_jwt = false
 
+[functions.aurora-proactive]
+verify_jwt = false
+
 [functions.elevenlabs-transcribe]
 verify_jwt = false
 
