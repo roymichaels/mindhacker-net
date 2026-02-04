@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { LifePlanExpanded } from './LifePlanExpanded';
-import { ChecklistsCard, ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
+import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
+import { MissionsRoadmap } from './missions';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus } from 'lucide-react';
+import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus, Map } from 'lucide-react';
 
 interface DashboardModalProps {
   open: boolean;
@@ -44,12 +45,12 @@ export function LifePlanModal({ open, onOpenChange, language }: DashboardModalPr
 export function ChecklistsModal({ open, onOpenChange, language }: DashboardModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader 
-          title={language === 'he' ? 'המשימות שלי' : 'My Tasks'}
-          icon={<ListChecks className="h-5 w-5" />}
+          title={language === 'he' ? 'מפת המשימות' : 'Missions Roadmap'}
+          icon={<Map className="h-5 w-5" />}
         />
-        <ChecklistsCard />
+        <MissionsRoadmap />
       </DialogContent>
     </Dialog>
   );
