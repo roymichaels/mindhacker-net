@@ -73,7 +73,6 @@ const BUDGET_OPTIONS = {
 export function ResourcesStep({ onComplete, isCompleting, savedData, onAutoSave }: ResourcesStepProps) {
   const { language, isRTL } = useTranslation();
   const [existingSkills, setExistingSkills] = useState<string[]>((savedData?.existingSkills as string[]) || []);
-  const [missingSkills, setMissingSkills] = useState<string[]>((savedData?.missingSkills as string[]) || []);
   const [timeAvailable, setTimeAvailable] = useState<string>((savedData?.timeAvailable as string) || '');
   const [budget, setBudget] = useState<string>((savedData?.budget as string) || '');
   const [connections, setConnections] = useState<string>((savedData?.connections as string) || '');
@@ -82,6 +81,11 @@ export function ResourcesStep({ onComplete, isCompleting, savedData, onAutoSave 
   const skillOptions = language === 'he' ? SKILL_OPTIONS.he : SKILL_OPTIONS.en;
   const timeOptions = language === 'he' ? TIME_OPTIONS.he : TIME_OPTIONS.en;
   const budgetOptions = language === 'he' ? BUDGET_OPTIONS.he : BUDGET_OPTIONS.en;
+
+  // Auto-calculate missing skills (anything not selected = missing)
+  const missingSkills = skillOptions
+    .filter(skill => !existingSkills.includes(skill.id))
+    .map(skill => skill.id);
 
   const isValid = existingSkills.length > 0 && timeAvailable && budget;
 
@@ -96,10 +100,6 @@ export function ResourcesStep({ onComplete, isCompleting, savedData, onAutoSave 
 
   const toggleExistingSkill = (id: string) => {
     setExistingSkills(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
-  const toggleMissingSkill = (id: string) => {
-    setMissingSkills(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   const handleComplete = () => {
@@ -153,33 +153,6 @@ export function ResourcesStep({ onComplete, isCompleting, savedData, onAutoSave 
         </CardContent>
       </Card>
 
-      {/* Missing Skills */}
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <h3 className="font-semibold">
-            {language === 'he' ? 'כישורים שחסרים' : 'Skills you need'}
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            {skillOptions.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => toggleMissingSkill(option.id)}
-                className={cn(
-                  "p-3 rounded-lg border text-sm font-medium transition-all text-start",
-                  missingSkills.includes(option.id)
-                    ? "border-orange-500 bg-orange-500/10 text-orange-600"
-                    : "border-border hover:border-orange-500/50"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  {missingSkills.includes(option.id) && <Check className="w-4 h-4 text-orange-500 shrink-0" />}
-                  <span>{option.label}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Time Available */}
       <Card>
