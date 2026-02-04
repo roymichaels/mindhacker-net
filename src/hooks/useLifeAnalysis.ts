@@ -18,7 +18,7 @@ export interface LifeAnalysisData {
 
 // Pillar definitions with colors matching the Life OS theme
 const PILLARS = [
-  { id: 'personality', name: 'Personality', nameHe: 'אישיות', color: 'hsl(221 83% 53%)' },
+  { id: 'personality', name: 'Consciousness', nameHe: 'תודעה', color: 'hsl(221 83% 53%)' },
   { id: 'business', name: 'Business', nameHe: 'עסקים', color: 'hsl(38 92% 50%)' },
   { id: 'health', name: 'Health', nameHe: 'בריאות', color: 'hsl(0 84% 60%)' },
   { id: 'relationships', name: 'Relationships', nameHe: 'קשרים', color: 'hsl(330 80% 60%)' },

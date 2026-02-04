@@ -137,7 +137,7 @@ const DashboardSidebar = ({
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple' as const, path: '/dashboard' },
-    { id: 'personality', icon: User, customIcon: null, label: language === 'he' ? 'אישיות' : 'Personality', highlight: 'blue' as const, path: '/personality' },
+    { id: 'personality', icon: User, customIcon: null, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue' as const, path: '/personality' },
     { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
     { id: 'health', icon: Heart, customIcon: null, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red' as const, path: '/health' },
     { id: 'relationships', icon: Users, customIcon: null, label: language === 'he' ? 'קשרים' : 'Relationships', highlight: 'pink' as const, path: '/relationships' },

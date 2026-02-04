@@ -56,16 +56,16 @@ const Personality = () => {
 
   // SEO Configuration
   useSEO({
-    title: language === 'he' ? 'אישיות | MindOS' : 'Personality | MindOS',
+    title: language === 'he' ? 'תודעה | MindOS' : 'Consciousness | MindOS',
     description: language === 'he' 
-      ? 'מרכז הטרנספורמציה האישית שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
-      : 'Your personal transformation hub - consciousness map, identity, traits and personal plan',
+      ? 'מרכז התודעה שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
+      : 'Your consciousness hub - consciousness map, identity, traits and personal plan',
     url: `${window.location.origin}/personality`,
     type: "website",
     structuredData: [
       getBreadcrumbSchema([
         { name: language === 'he' ? 'דף הבית' : 'Home', url: window.location.origin },
-        { name: language === 'he' ? 'אישיות' : 'Personality', url: `${window.location.origin}/personality` },
+        { name: language === 'he' ? 'תודעה' : 'Consciousness', url: `${window.location.origin}/personality` },
       ]),
     ],
   });
@@ -222,7 +222,7 @@ const Personality = () => {
                   <User className="h-6 w-6 text-yellow-400" />
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">
-                  {language === 'he' ? 'אישיות' : 'Personality'}
+                  {language === 'he' ? 'תודעה' : 'Consciousness'}
                 </h1>
               </div>
               
@@ -233,14 +233,14 @@ const Personality = () => {
               >
                 <Rocket className="w-4 h-4 me-2" />
                 {hasJourneyData 
-                  ? (language === 'he' ? 'ערוך אישיות' : 'Edit Personality')
+                  ? (language === 'he' ? 'ערוך מסע' : 'Edit Journey')
                   : (language === 'he' ? 'התחל מסע' : 'Start Journey')}
               </Button>
             </div>
             <p className="text-blue-200 text-sm md:text-base">
               {language === 'he' 
-                ? 'מרכז הטרנספורמציה האישית שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
-                : 'Your personal transformation hub - consciousness map, identity, traits and personal plan'}
+                ? 'מרכז התודעה שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
+                : 'Your consciousness hub - consciousness map, identity, traits and personal plan'}
             </p>
           </div>
           {/* Decorative elements */}
@@ -311,7 +311,7 @@ const Personality = () => {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-lg font-semibold mb-4">
-            {language === 'he' ? 'כלי אישיות' : 'Personality Tools'}
+            {language === 'he' ? 'כלי תודעה' : 'Consciousness Tools'}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {personalityTools.map((tool, index) => (

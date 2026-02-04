@@ -24,8 +24,8 @@ const pillars = [
   {
     id: 'personality',
     icon: User,
-    titleHe: 'אישיות',
-    titleEn: 'Personality',
+    titleHe: 'תודעה',
+    titleEn: 'Consciousness',
     descriptionHe: 'מפת תודעה, כרטיס זהות, תכונות',
     descriptionEn: 'Consciousness map, identity card, traits',
     gradient: 'from-blue-500 to-cyan-400',
