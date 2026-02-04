@@ -51,7 +51,7 @@ interface BusinessJourneyData {
   ai_summary: string | null;
 }
 
-export function useBusinessJourneyProgress() {
+export function useBusinessJourneyProgress(journeyId?: string) {
   const { user } = useAuth();
   const [journeyData, setJourneyData] = useState<BusinessJourneyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +62,7 @@ export function useBusinessJourneyProgress() {
   const isJourneyComplete = journeyData?.journey_complete ?? false;
   const totalSteps = 10;
 
-  // Fetch or create journey
+  // Fetch journey by ID or create new one
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
@@ -71,20 +71,33 @@ export function useBusinessJourneyProgress() {
 
     const fetchOrCreateJourney = async () => {
       try {
-        // Try to fetch existing journey
-        const { data: existing, error: fetchError } = await supabase
-          .from('business_journeys')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        if (journeyId) {
+          // Fetch specific journey by ID
+          const { data: existing, error: fetchError } = await supabase
+            .from('business_journeys')
+            .select('*')
+            .eq('id', journeyId)
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          console.error('Error fetching business journey:', fetchError);
-          throw fetchError;
-        }
+          if (fetchError) {
+            console.error('Error fetching business journey:', fetchError);
+            throw fetchError;
+          }
 
-        if (existing) {
-          setJourneyData(existing as unknown as BusinessJourneyData);
+          if (existing) {
+            setJourneyData(existing as unknown as BusinessJourneyData);
+          } else {
+            // Journey not found - create new one
+            const { data: created, error: createError } = await supabase
+              .from('business_journeys')
+              .insert({ user_id: user.id })
+              .select()
+              .single();
+
+            if (createError) throw createError;
+            setJourneyData(created as unknown as BusinessJourneyData);
+          }
         } else {
           // Create new journey
           const { data: created, error: createError } = await supabase
@@ -105,7 +118,7 @@ export function useBusinessJourneyProgress() {
     };
 
     fetchOrCreateJourney();
-  }, [user]);
+  }, [user, journeyId]);
 
   const completeStep = useCallback(async ({ step, data }: { step: number; data?: Record<string, unknown> }) => {
     if (!user || !journeyData) return;

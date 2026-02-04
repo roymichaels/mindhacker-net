@@ -393,6 +393,14 @@ const App = () => (
                           }
                         />
                         <Route
+                          path="/business/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <BusinessJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
                           path="/personality"
                           element={
                             <ProtectedRoute>
