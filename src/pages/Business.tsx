@@ -59,53 +59,75 @@ const Business = () => {
         return;
       }
 
+      const parseJsonObject = (value: unknown): Record<string, any> | null => {
+        if (!value) return null;
+        if (typeof value === "object") return value as Record<string, any>;
+        if (typeof value === "string") {
+          try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === "object" ? (parsed as Record<string, any>) : null;
+          } catch {
+            return null;
+          }
+        }
+        return null;
+      };
+
       // Try to fetch launchpad progress for career info
       const { data: launchpad } = await supabase
         .from('launchpad_progress')
-        .select('step_2_profile_data, step_5_focus_areas_selected, step_1_intention')
+        .select('step_2_profile_data, step_5_focus_areas_selected, step_1_intention, step_6_actions')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (launchpad) {
         const profileData = launchpad.step_2_profile_data as Record<string, any> | null;
-        const focusAreas = launchpad.step_5_focus_areas_selected as Record<string, any> | null;
+        const focusAreas = launchpad.step_5_focus_areas_selected as string[] | null;
+        const step6Actions = launchpad.step_6_actions as Record<string, any> | null;
+        const intentionObj = parseJsonObject(launchpad.step_1_intention);
         
         // Extract business-related goals from focus areas
-        let careerGoal = '';
-        if (focusAreas) {
-          const mainAreas = focusAreas.main_area as string[] | undefined;
-          const businessSpecific = focusAreas.business_specific as string[] | undefined;
-          
+        const businessLabels: Record<string, string> = {
+          grow: language === 'he' ? 'צמיחה עסקית' : 'Business Growth',
+          marketing: language === 'he' ? 'שיווק' : 'Marketing',
+          sales: language === 'he' ? 'מכירות' : 'Sales',
+          leadership: language === 'he' ? 'מנהיגות' : 'Leadership',
+          earn_more: language === 'he' ? 'להרוויח יותר' : 'Earn more',
+        };
+
+        const focusLabels: Record<string, string> = {
+          money: language === 'he' ? 'כסף' : 'Money',
+          health: language === 'he' ? 'בריאות' : 'Health',
+          mind: language === 'he' ? 'מיינדסט' : 'Mindset',
+          business: language === 'he' ? 'עסקים' : 'Business',
+        };
+
+        const careerGoalFromStep6 = typeof step6Actions?.selectedCareerGoal === 'string'
+          ? (step6Actions.selectedCareerGoal as string)
+          : '';
+
+        const careerGoalFromIntention = (() => {
+          const mainAreas = intentionObj?.main_area as string[] | undefined;
+          const businessSpecific = intentionObj?.business_specific as string[] | undefined;
           if (mainAreas?.includes('business') && businessSpecific?.length) {
-            // Map business-specific keys to readable labels
-            const businessLabels: Record<string, string> = {
-              grow: language === 'he' ? 'צמיחה עסקית' : 'Business Growth',
-              marketing: language === 'he' ? 'שיווק' : 'Marketing',
-              sales: language === 'he' ? 'מכירות' : 'Sales',
-              leadership: language === 'he' ? 'מנהיגות' : 'Leadership',
-            };
-            careerGoal = businessSpecific
-              .map(key => businessLabels[key] || key)
-              .join(', ');
-          } else if (mainAreas?.length) {
-            // Show main focus areas if no specific business goals
-            const areaLabels: Record<string, string> = {
-              business: language === 'he' ? 'עסקים וקריירה' : 'Business & Career',
-              health: language === 'he' ? 'בריאות' : 'Health',
-              energy: language === 'he' ? 'אנרגיה' : 'Energy',
-              finance: language === 'he' ? 'כלכלה' : 'Finance',
-              emotional: language === 'he' ? 'רגשי' : 'Emotional',
-              learning: language === 'he' ? 'למידה' : 'Learning',
-            };
-            careerGoal = mainAreas
-              .map(key => areaLabels[key] || key)
-              .join(', ');
+            return businessSpecific.map(k => businessLabels[k] || k).join(', ');
           }
-        }
+          return '';
+        })();
+
+        const careerGoalFromFocusAreas = focusAreas?.length
+          ? focusAreas.map(k => focusLabels[k] || k).join(', ')
+          : '';
+
+        const careerGoal = careerGoalFromStep6 || careerGoalFromIntention || careerGoalFromFocusAreas;
+
+        const careerStatusFromStep6 = typeof step6Actions?.selectedCareerStatus === 'string'
+          ? (step6Actions.selectedCareerStatus as string)
+          : '';
         
         setCareerData({
-          currentStatus: profileData?.occupation || profileData?.currentRole,
-          careerGoal: careerGoal || (launchpad.step_1_intention as string) || '',
+          currentStatus: careerStatusFromStep6 || profileData?.occupation || profileData?.currentRole,
+          careerGoal,
         });
       }
     } catch (error) {
