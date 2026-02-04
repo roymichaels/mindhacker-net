@@ -14,7 +14,8 @@ import {
   Plus,
   Trash2,
   Menu,
-  Search
+  Search,
+  Briefcase
 } from 'lucide-react';
 import {
   Sidebar,
@@ -149,6 +150,7 @@ const DashboardSidebar = ({
     { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, path: '/dashboard' },
     { id: 'aurora', icon: null, customIcon: AuroraOrbIcon, label: language === 'he' ? 'אורורה' : 'Aurora', highlight: 'purple' as const, path: '/aurora' },
     { id: 'hypnosis', icon: Compass, customIcon: null, label: language === 'he' ? 'היפנוזה' : 'Hypnosis', highlight: 'blue' as const, onClick: () => setHypnosisOpen(true) },
+    { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
   ];
 
   // Shared content component for desktop sidebar
@@ -253,6 +255,7 @@ const DashboardSidebar = ({
             const isPurple = highlightColor === 'purple';
             const isBlue = highlightColor === 'blue';
             const isRed = highlightColor === 'red';
+            const isGold = highlightColor === 'gold';
               return (
               <button
                 key={item.id}
@@ -269,6 +272,7 @@ const DashboardSidebar = ({
                   isPurple && "bg-gradient-to-r from-[#1E1B4A] to-[#1A2D40] text-amber-400 hover:from-[#252155] hover:to-[#1F3650] font-bold shadow-sm hover:shadow-md hover:shadow-primary/20",
                   isBlue && "bg-[#1d9bf0]/10 text-[#1d9bf0] hover:bg-[#1d9bf0]/20",
                   isRed && "bg-red-500/10 text-red-400 hover:bg-red-500/20",
+                  isGold && "bg-gradient-to-r from-amber-500 to-yellow-400 text-purple-900 hover:from-amber-400 hover:to-yellow-300 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/30",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -282,7 +286,8 @@ const DashboardSidebar = ({
                   <item.icon className={cn(
                     "h-4 w-4 shrink-0", 
                     isRed && "text-red-400",
-                    isBlue && "text-[#1d9bf0]"
+                    isBlue && "text-[#1d9bf0]",
+                    isGold && "text-purple-900"
                   )} />
                 )}
                 {!isCollapsed && <span>{item.label}</span>}
