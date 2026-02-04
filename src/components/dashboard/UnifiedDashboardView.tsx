@@ -52,59 +52,8 @@ export function UnifiedDashboardView({
     );
   }
 
-  // Empty state OR launchpad not complete - show minimal empty dashboard
-  if (dashboard.isEmpty || !isLaunchpadComplete) {
-    return (
-      <div 
-        className={cn("space-y-6", className)}
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
-        {/* Welcome Card with game theme */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/20 p-6 sm:p-8">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative z-10 text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-2">
-              <Rocket className="h-8 w-8 text-primary" />
-            </div>
-            
-            <h2 className="text-2xl sm:text-3xl font-bold">
-              {t('welcome.yourJourneyBegins')}
-            </h2>
-            
-            <p className="text-muted-foreground max-w-md mx-auto">
-              {t('auroraLanding.lifePlanSubtitle')}
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-              <Button 
-                onClick={() => navigate('/launchpad')}
-                size="lg"
-                className="gap-2"
-              >
-                <Rocket className="h-5 w-5" />
-                {t('welcome.startTransformationJourney')}
-              </Button>
-              
-              <Button 
-                onClick={() => navigate('/aurora')}
-                variant="outline"
-                size="lg"
-                className="gap-2"
-              >
-                <Sparkles className="h-5 w-5" />
-                {t('welcome.chatWithAurora')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Main dashboard - Stats-First Command Center
+  // All components handle empty/zero data gracefully - no special empty state needed
   return (
     <div 
       className={cn("space-y-5", className)}
