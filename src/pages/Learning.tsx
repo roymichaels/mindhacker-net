@@ -74,7 +74,7 @@ const Learning = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent" />
           
-          <div className="relative z-10 flex items-center justify-between">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-600/20 rounded-xl">
                 <GraduationCap className="w-8 h-8 text-indigo-400" />
@@ -93,7 +93,7 @@ const Learning = () => {
             
             <Button
               onClick={() => navigate('/learning/journey')}
-              className="bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white"
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white"
             >
               <Sparkles className="w-4 h-4 me-2" />
               {language === 'he' ? 'התחל מסע' : 'Start Journey'}
