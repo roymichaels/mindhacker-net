@@ -52,10 +52,13 @@ export function UnifiedDashboardView({
     );
   }
 
-  // Empty state OR launchpad not complete - show Game Start screen
+  // Empty state OR launchpad not complete - show minimal empty dashboard
   if (dashboard.isEmpty || !isLaunchpadComplete) {
     return (
-      <div className="space-y-6">
+      <div 
+        className={cn("space-y-6", className)}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
         {/* Welcome Card with game theme */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/20 p-6 sm:p-8">
           {/* Decorative elements */}
@@ -97,9 +100,6 @@ export function UnifiedDashboardView({
             </div>
           </div>
         </div>
-        
-        {/* Quick Stats Preview */}
-        <StatsGrid />
       </div>
     );
   }
