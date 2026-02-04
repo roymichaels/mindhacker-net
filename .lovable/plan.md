@@ -1,91 +1,242 @@
 
-# Create Business Page
 
-## Overview
-Creating a new `/business` route and page component for the Business tab that was added to the sidebar. This page will serve as a hub for career and business growth, aligned with the platform's "elite transformation" and "Mind Hacker" positioning.
+# מסע עסקי - Business Journey
 
-## Technical Approach
+## סקירה כללית
+יצירת כפתור "הקמת עסק חדש" בבאנר של דף העסקים, והעברת המשתמש לתהליך שיחה עסקית מקיף (דומה למסע הטרנספורמציה) שסוחט כל פיסת מידע אפשרית על העסק.
 
-### 1. Create the Business Page Component
-**File:** `src/pages/Business.tsx`
+## הגישה הטכנית
 
-The page will follow existing patterns from UserDashboard and HypnosisLibrary:
-- Use `DashboardLayout` for consistent navigation
-- RTL support via `useTranslation` hook
-- Protected route (requires authentication)
-- Mobile-first responsive design
-- Glass morphism styling consistent with Game UI standards
+### 1. מבנה הנתונים - טבלה חדשה
+**טבלה:** `business_journeys`
 
-### 2. Add Route to App.tsx
-Add a protected route for `/business` after the existing protected user routes.
+הטבלה תאחסן את כל המידע מהמסע העסקי:
 
-### 3. Add Translations
-Add business-related translation keys to both `he.ts` and `en.ts` files.
+| שדה | סוג | תיאור |
+|-----|------|--------|
+| id | uuid | מפתח ראשי |
+| user_id | uuid | קישור למשתמש |
+| business_name | text | שם העסק |
+| current_step | int | שלב נוכחי במסע |
+| journey_complete | boolean | האם המסע הושלם |
+| step_1_vision | jsonb | חזון ומטרה |
+| step_2_business_model | jsonb | מודל עסקי |
+| step_3_target_audience | jsonb | קהל יעד |
+| step_4_value_proposition | jsonb | הצעת ערך |
+| step_5_challenges | jsonb | אתגרים ומכשולים |
+| step_6_resources | jsonb | משאבים ויכולות |
+| step_7_financial | jsonb | תכנון פיננסי |
+| step_8_marketing | jsonb | אסטרטגיית שיווק |
+| step_9_operations | jsonb | תפעול ומבנה |
+| step_10_action_plan | jsonb | תוכנית פעולה |
+| ai_summary | text | סיכום AI |
+| created_at/updated_at | timestamp | חותמות זמן |
 
-## Page Content Structure
-
-The Business page will display:
-
-**Header Section:**
-- Gold gradient header with business icon
-- Title: "עסקים" / "Business"
-- Subtitle about career transformation
-
-**Career Status Card:**
-- Display user's current career status (from launchpad data)
-- Display user's career goal
-- If no data, show CTA to complete launchpad
-
-**Business Tools Section (3-4 cards):**
-1. **Career Actions** - AI-generated weekly action items (using existing `generate-first-week-actions` edge function)
-2. **90-Day Business Plan** - Link to life plan focused on career milestones
-3. **Elite Challenges** - Challenge missions from the transformation plan
-4. **Business Resources** - Coming soon placeholder for future content
-
-**Quick Actions Grid:**
-- Start Business Session (hypnosis)
-- Ask Aurora about Business
-- View Full Plan
-
-## Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/pages/Business.tsx` | Create | Main business page component |
-| `src/App.tsx` | Modify | Add protected route |
-| `src/i18n/translations/he.ts` | Modify | Add Hebrew translations |
-| `src/i18n/translations/en.ts` | Modify | Add English translations |
-
-## Component Structure
+### 2. מבנה השלבים (10 שלבים עסקיים)
 
 ```text
-Business Page
-├── DashboardLayout
-│   └── Content Container
-│       ├── Header (gold gradient, icon, title)
-│       ├── Career Status Card
-│       │   ├── Current Status
-│       │   └── Career Goal
-│       ├── Business Tools Grid
-│       │   ├── Weekly Actions Card
-│       │   ├── 90-Day Plan Card
-│       │   ├── Elite Challenges Card
-│       │   └── Resources Card (coming soon)
-│       └── Quick Actions Section
-│           ├── Business Hypnosis
-│           ├── Ask Aurora
-│           └── View Plan
+שלב 1: חזון ומטרה 🎯
+├── למה אתה רוצה להקים עסק?
+├── מה החזון ארוך הטווח?
+├── מה ההגדרה שלך להצלחה?
+└── ניסיון עסקי קודם
+
+שלב 2: מודל עסקי 💼
+├── סוג העסק (מוצר/שירות/היברידי)
+├── מודל הכנסות (חד פעמי/מנוי/עמלה)
+├── האם יש עסק קיים לשפר?
+└── תחום/תעשייה
+
+שלב 3: קהל יעד 👥
+├── מי הלקוח האידיאלי?
+├── דמוגרפיה (גיל, מין, מיקום)
+├── בעיות שהלקוח חווה
+├── היכן הלקוחות נמצאים?
+└── תקציב הלקוח
+
+שלב 4: הצעת ערך ייחודית 💎
+├── מה מייחד אותך מהמתחרים?
+├── מה הבעיה שאתה פותר?
+├── למה לבחור בך?
+└── יתרון תחרותי
+
+שלב 5: אתגרים ומכשולים ⚠️
+├── פחדים וחששות
+├── מה עצר אותך עד עכשיו?
+├── חסמים מנטליים
+├── מגבלות חיצוניות
+└── מה יכול להשתבש?
+
+שלב 6: משאבים ויכולות 🛠️
+├── כישורים שיש לך
+├── כישורים שחסרים
+├── זמן זמין לעסק (שעות/שבוע)
+├── תקציב התחלתי
+├── קשרים וקונטקטים
+└── ניסיון רלוונטי
+
+שלב 7: תכנון פיננסי 💰
+├── יעד הכנסה חודשי
+├── עלויות צפויות
+├── תמחור מתוכנן
+├── מקורות מימון
+├── break-even צפוי
+└── יעדים לשנה ראשונה
+
+שלב 8: שיווק ומכירות 📣
+├── ערוצי שיווק מתוכננים
+├── תקציב שיווק
+├── נוכחות דיגיטלית נוכחית
+├── אסטרטגיית תוכן
+├── תהליך מכירה
+└── בניית מותג
+
+שלב 9: תפעול ומבנה ⚙️
+├── מבנה העסק (עצמאי/שותפות/חברה)
+├── צוות נדרש
+├── כלים וטכנולוגיה
+├── מיקום העסק
+├── שעות פעילות
+└── תהליכי עבודה
+
+שלב 10: תוכנית פעולה 🚀
+├── 3 פעולות ראשונות
+├── יעדים ל-30 יום
+├── יעדים ל-90 יום
+├── התחייבות אישית
+└── סיכום AI מקיף
 ```
 
-## Styling Details
-- Gold gradient header: `from-amber-500 to-yellow-400`
-- Purple accent text: `text-purple-900`
-- Glass morphism cards: `backdrop-blur-xl bg-background/60`
-- Consistent with existing dashboard card styling
-- Motion animations using framer-motion
+### 3. ארכיטקטורת קומפוננטות
 
-## Data Requirements
-The page will fetch from existing data:
-- `launchpad_progress` table for career status/goal
-- Optionally call `generate-first-week-actions` for dynamic career steps
-- Link to existing life plan data
+```text
+src/
+├── pages/
+│   └── BusinessJourney.tsx          # דף ראשי של המסע
+│
+├── components/
+│   └── business-journey/
+│       ├── BusinessJourneyFlow.tsx  # קומפוננטת הזרימה הראשית
+│       ├── BusinessJourneyHeader.tsx # Header עם Orb וProgress
+│       ├── index.ts
+│       └── steps/
+│           ├── VisionStep.tsx        # שלב 1
+│           ├── BusinessModelStep.tsx # שלב 2
+│           ├── TargetAudienceStep.tsx# שלב 3
+│           ├── ValuePropositionStep.tsx # שלב 4
+│           ├── ChallengesStep.tsx    # שלב 5
+│           ├── ResourcesStep.tsx     # שלב 6
+│           ├── FinancialStep.tsx     # שלב 7
+│           ├── MarketingStep.tsx     # שלב 8
+│           ├── OperationsStep.tsx    # שלב 9
+│           └── ActionPlanStep.tsx    # שלב 10
+│
+├── hooks/
+│   └── useBusinessJourneyProgress.ts # ניהול התקדמות
+```
+
+### 4. שינויים בקבצים קיימים
+
+| קובץ | פעולה | תיאור |
+|------|--------|--------|
+| `src/pages/Business.tsx` | עריכה | הוספת כפתור "הקמת עסק חדש" בבאנר |
+| `src/App.tsx` | עריכה | הוספת route חדש `/business/journey` |
+| `src/i18n/translations/he.ts` | עריכה | תרגומים עבריים |
+| `src/i18n/translations/en.ts` | עריכה | תרגומים אנגליים |
+
+### 5. עיצוב UI
+
+**כפתור בבאנר:**
+- כפתור זהוב בולט עם אייקון Rocket
+- טקסט: "הקם עסק חדש" / "Start New Business"
+- מיקום: בצד ימין של הבאנר (או שמאל ב-LTR)
+
+**עיצוב המסע:**
+- שימוש ב-GamifiedJourneyHeader (כמו במסע הטרנספורמציה)
+- צבעי זהב/אמבר במקום כחול/ירוק
+- Orb עסקי מתפתח
+- Progress bar עם XP
+
+### 6. שאלות מפורטות לכל שלב
+
+**שלב 1 - חזון ומטרה:**
+```text
+Q1: למה אתה רוצה להקים עסק? (multi-select)
+   - חופש כלכלי
+   - עצמאות
+   - מימוש חלום
+   - עזרה לאחרים
+   - בריחה מעבודה שכירה
+   - יצירת מורשת
+
+Q2: מה החזון שלך לעסק ב-5 שנים? (open text)
+
+Q3: איך נראית הצלחה בשבילך? (multi-select)
+   - הכנסה גבוהה
+   - גמישות בזמן
+   - השפעה על אחרים
+   - צמיחה אישית
+   - מוניטין וכבוד
+   - עבודה עם אנשים שאני אוהב
+
+Q4: מה הניסיון העסקי שלך? (single-select)
+   - ראשון בחיים
+   - ניסיתי בעבר ונכשלתי
+   - יש לי עסק קטן כיום
+   - ניהלתי עסק בעבר
+   - יש לי מספר עסקים
+```
+
+**שלב 3 - קהל יעד:**
+```text
+Q1: מי הלקוח האידיאלי שלך? (multi-select)
+   - בעלי עסקים קטנים
+   - מנהלים בכירים
+   - יזמים
+   - עצמאים
+   - אנשים פרטיים
+   - חברות גדולות
+   - סטארטאפים
+
+Q2: איפה הלקוחות שלך נמצאים? (multi-select)
+   - פייסבוק
+   - אינסטגרם
+   - לינקדאין
+   - גוגל
+   - אירועים פיזיים
+   - המלצות מפה לאוזן
+   - קבוצות ווטסאפ
+
+Q3: מה תקציב הלקוח הממוצע? (single-select)
+   - עד 500 ש"ח
+   - 500-2,000 ש"ח
+   - 2,000-10,000 ש"ח
+   - 10,000-50,000 ש"ח
+   - מעל 50,000 ש"ח
+```
+
+## זרימת משתמש
+
+```text
+1. משתמש נכנס לדף /business
+2. רואה באנר עם כפתור "הקמת עסק חדש"
+3. לוחץ על הכפתור
+4. מועבר ל-/business/journey
+5. עובר 10 שלבים של שאלות מפורטות
+6. בסיום - מקבל סיכום AI מקיף
+7. חוזר לדף /business עם הנתונים המלאים
+```
+
+## אבטחה
+
+- RLS policy: משתמש יכול לראות ולערוך רק את המסעות שלו
+- Authenticated users only
+- Auto-save כל שלב
+
+## אינטגרציות עתידיות
+
+- Edge function לניתוח AI של המסע
+- יצירת Business Plan PDF אוטומטי
+- המלצות מותאמות אישית מ-Aurora
+- אינטגרציה עם לוח 90 הימים
+
