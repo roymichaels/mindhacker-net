@@ -132,6 +132,7 @@ const AdminTheme = lazy(() => import("./pages/admin/Theme"));
 const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
 const LandingPageBuilder = lazy(() => import("./pages/admin/LandingPageBuilder"));
 const AuroraInsights = lazy(() => import("./pages/admin/AuroraInsights"));
+const Businesses = lazy(() => import("./pages/admin/Businesses"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -447,6 +448,7 @@ const App = () => (
                           <Route path="users/:userId/dashboard" element={<UserDashboardView />} />
                           <Route path="practitioners" element={<Users />} />
                           <Route path="leads" element={<Leads />} />
+                          <Route path="businesses" element={<Businesses />} />
                           <Route path="aurora-insights" element={<AuroraInsights />} />
                           <Route path="affiliates" element={<AdminAffiliates />} />
                           <Route path="newsletter" element={<Newsletter />} />
