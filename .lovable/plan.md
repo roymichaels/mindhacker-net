@@ -1,258 +1,147 @@
 
-# Dashboard Redesign Plan: Stats-First Command Center
+# Plan: Upgrade Business Hub to Match Health Hub Quality
 
-## Current Problem
-The dashboard has multiple disconnected components:
-- `TodaysFocusCard` - Shows focus/tasks/streak status (somewhat useful)
-- `SmartSuggestionsRow` - Scrollable chips (good concept, poor visibility)  
-- `CommandCenterGrid` - 6 generic action cards (navigation, not actionable)
-- `ProgressSection` - Two cards with basic progress (too static)
-- `CompactSessions` - Scheduled sessions (rarely used)
+## Overview
+The Health hub has a much more polished, feature-rich, and visually cohesive design compared to the Business hub. This plan will bring the Business page up to the same level of quality by restructuring the layout, adding a dedicated tools grid component, creating business-specific modals, and updating the header to match the dark HUD aesthetic.
 
-**Result:** User sees "options" but not **what to do next**. No at-a-glance stats or visual progress.
+## Key Differences Identified
 
----
+| Feature | Health Hub | Business Hub (Current) |
+|---------|-----------|----------------------|
+| Header Style | Dark red-950 to gray-900 gradient with red theme | Bright amber-500 to yellow-400 gradient (less HUD-like) |
+| Tools Grid | Dedicated component with 8 interactive tool cards, each with unique gradient, hover effects, and modal triggers | 4 basic cards in a simple grid |
+| Status Card | Dedicated HealthStatusCard component with metrics, progress bars, and visual scoring | Basic Career Status inline card |
+| Modals | 6 dedicated modals for deep interaction (Physical, Mental, Energetic, Subconscious, Sleep, Meditation) | No modals |
+| Layout Order | Tools first (action-oriented), then Status (data display) | Mixed with My Businesses section, then status, then tools |
 
-## New Vision: "One-Glance Command Center"
+## Implementation Plan
 
-Think of it as a **personal cockpit** that instantly tells the user:
-1. **Where they are** (stats/graphs)
-2. **What's next** (the single most important action)
-3. **How they're doing** (trends over time)
+### Phase 1: Create Business Hub Component Structure
 
----
-
-## New Component Architecture
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│  NEXT ACTION BANNER                                          │
-│  "🎯 היום: השלם את ההרגל היומי שלך" + [כפתור פעולה]            │
-│  Dynamic based on: overdue tasks > habits > hypnosis > plan │
-└─────────────────────────────────────────────────────────────┘
-
-┌──────────────┬──────────────┬──────────────┬──────────────┐
-│   LEVEL      │   STREAK     │   WEEKLY XP  │   TOKENS     │
-│   Lvl 5      │   🔥 7 days  │   +320 XP    │   💎 45      │
-│   [progress] │   [fire anim]│   [+14% ↑]   │              │
-└──────────────┴──────────────┴──────────────┴──────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│  WEEKLY ACTIVITY GRAPH (Recharts Area/Bar)                  │
-│  Shows: Hypnosis sessions, Habits completed, Tasks done     │
-│  Last 7 days - simple visual trend                          │
-└─────────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────┬──────────────────────────────┐
-│  TODAY'S HABITS              │  90-DAY PLAN PROGRESS        │
-│  ☑ Morning meditation        │  ████████░░░░ 67% Week 8/12  │
-│  ☐ Drink 8 glasses water     │  Current: "שינה איכותית"      │
-│  ☐ 20 min exercise           │  [View Full Plan →]          │
-│  Progress: 1/3 (33%)         │                              │
-└──────────────────────────────┴──────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│  QUICK ACTIONS (Minimal - Only 4 Essential)                 │
-│  [💬 Aurora] [🧘 Hypnosis] [✅ Missions] [📊 Insights]       │
-└─────────────────────────────────────────────────────────────┘
+**1.1 Create `src/components/business-hub/` folder structure:**
+```
+src/components/business-hub/
+  - index.ts
+  - BusinessToolsGrid.tsx
+  - BusinessStatusCard.tsx
+  - modals/
+    - index.ts
+    - FinancialsModal.tsx
+    - MarketingModal.tsx
+    - OperationsModal.tsx
+    - StrategyModal.tsx
+    - BrandingModal.tsx
+    - GrowthModal.tsx
 ```
 
+### Phase 2: Create BusinessToolsGrid Component
+
+**2.1 Create `BusinessToolsGrid.tsx`** - 8 business-focused tool cards:
+- **Financials** (Dollar icon) - Budget, revenue, expenses tracking
+- **Marketing** (Megaphone icon) - Marketing strategy and channels
+- **Operations** (Settings icon) - Daily operations and processes
+- **Strategy** (Lightbulb icon) - Business strategy and planning
+- **Branding** (Palette icon) - Brand identity and positioning
+- **Growth** (TrendingUp icon) - Growth metrics and goals
+- **Business Hypnosis** (Headphones icon) - Links to hypnosis with business goal
+- **90-Day Plan** (Calendar icon) - Links to life-plan
+
+Each card will have:
+- Unique gradient (gold-based palette variations)
+- Icon with matching color
+- Modal trigger on click (or navigation for hypnosis/plan)
+- Hover animation effects (scale, opacity transitions)
+- Same card structure as Health tools grid
+
+### Phase 3: Create BusinessStatusCard Component
+
+**3.1 Create `BusinessStatusCard.tsx`:**
+- Similar structure to HealthStatusCard
+- Metrics grid showing: Current Status, Revenue Goal, Team Size, Business Stage
+- Overall business score calculation
+- Progress bars for each metric
+- Dark HUD styling with amber/gold accents
+- Empty state with CTA to complete business journey
+
+### Phase 4: Create Business Modals
+
+**4.1 Create 6 modals following Health modal pattern:**
+- Each modal opens from the tools grid
+- Dark gradient background (gray-950 to gray-900) with amber border accents
+- Metrics display with progress indicators
+- Recommendations section
+- Action buttons
+
+### Phase 5: Update Business.tsx Page
+
+**5.1 Update header styling:**
+- Change from bright gradient to dark HUD style: `from-amber-950 to-gray-900 border border-amber-800/50`
+- Text colors: `text-amber-400` for title, `text-amber-200` for subtitle
+- Icon container: `bg-amber-800/30` with `text-amber-400` icon
+- Action buttons with gold gradient styling
+
+**5.2 Restructure layout order:**
+1. Header with Start Journey + Check Status buttons
+2. Business Tools Grid (action-oriented first)
+3. My Businesses section
+4. Business Status Card (data display)
+
+**5.3 Add modal state management:**
+- Add activeModal state similar to Health page
+- Import and render all business modals
+- Connect tool card clicks to modal opens
+
+### Phase 6: File Changes Summary
+
+**New Files to Create:**
+1. `src/components/business-hub/index.ts`
+2. `src/components/business-hub/BusinessToolsGrid.tsx`
+3. `src/components/business-hub/BusinessStatusCard.tsx`
+4. `src/components/business-hub/modals/index.ts`
+5. `src/components/business-hub/modals/FinancialsModal.tsx`
+6. `src/components/business-hub/modals/MarketingModal.tsx`
+7. `src/components/business-hub/modals/OperationsModal.tsx`
+8. `src/components/business-hub/modals/StrategyModal.tsx`
+9. `src/components/business-hub/modals/BrandingModal.tsx`
+10. `src/components/business-hub/modals/GrowthModal.tsx`
+
+**Files to Modify:**
+1. `src/pages/Business.tsx` - Complete restructure with new components and styling
+
 ---
 
-## Files to Create/Modify
+## Technical Details
 
-### New Components
+### Color Palette for Business (Gold Theme - HUD Style)
+- Primary background gradient: `from-amber-950 to-gray-900`
+- Border accent: `border-amber-800/50`
+- Title text: `text-amber-400`
+- Subtitle text: `text-amber-200`
+- Icon container: `bg-amber-800/30`
+- Tool card gradients: Variations of amber, yellow, orange, and gold
 
-```text
-src/components/dashboard/v2/
-├── NextActionBanner.tsx       # Dynamic priority-based "do this now"
-├── StatsGrid.tsx              # 4-stat cards (level, streak, XP, tokens)
-├── WeeklyActivityChart.tsx    # Recharts line/area graph
-├── TodaysHabitsCard.tsx       # Compact habit checklist with inline toggle
-├── PlanProgressCard.tsx       # 90-day plan mini-view
-├── QuickActionsBar.tsx        # Minimal 4-button bar
-└── index.ts                   # Export all
+### Tool Card Color Mapping
+| Tool | Gradient | Icon Color |
+|------|----------|------------|
+| Financials | from-emerald-500/20 | text-emerald-400 |
+| Marketing | from-purple-500/20 | text-purple-400 |
+| Operations | from-amber-500/20 | text-amber-400 |
+| Strategy | from-cyan-500/20 | text-cyan-400 |
+| Branding | from-pink-500/20 | text-pink-400 |
+| Growth | from-green-500/20 | text-green-400 |
+| Business Hypnosis | from-yellow-500/20 | text-yellow-400 |
+| 90-Day Plan | from-orange-500/20 | text-orange-400 |
+
+### Modal Structure Pattern
+```tsx
+<Dialog>
+  <DialogContent className="bg-gradient-to-b from-gray-950 to-gray-900 border-amber-800/50">
+    <DialogHeader>
+      {/* X button, Title with icon, spacer */}
+    </DialogHeader>
+    {/* Overall score card */}
+    {/* Metrics grid */}
+    {/* Recommendations */}
+  </DialogContent>
+</Dialog>
 ```
-
-### Data Hooks
-
-```text
-src/hooks/
-├── useWeeklyActivity.ts       # Aggregate hypnosis, habits, tasks by day
-└── useDashboardStats.ts       # Level, XP, streak, tokens in one call
-```
-
-### Files to Modify
-
-1. **UserDashboard.tsx** - Replace `UnifiedDashboardView` + `CompactSessions` with new layout
-2. **UnifiedDashboardView.tsx** - Complete overhaul with new v2 components
-
----
-
-## Technical Implementation Details
-
-### 1. NextActionBanner.tsx
-**Logic:** Priority-based single action:
-```typescript
-const priority = [
-  { condition: overdueTasks > 0, action: 'complete_task', icon: '⚠️' },
-  { condition: !didHypnosisToday, action: 'hypnosis', icon: '🧘' },
-  { condition: incompleteHabits > 0, action: 'habits', icon: '✨' },
-  { condition: currentMilestone, action: 'milestone', icon: '🎯' },
-  { condition: true, action: 'aurora_chat', icon: '💬' }, // fallback
-];
-```
-**UI:** Full-width gradient card with icon, text, and CTA button.
-
-### 2. StatsGrid.tsx
-**Data sources:**
-- Level/XP: `useGameState()` → `gameState.level`, `gameState.experience`
-- Streak: `useGameState()` → `gameState.sessionStreak`
-- Tokens: `useGameState()` → `gameState.tokens`
-- Weekly XP: Calculate from `xp_events` last 7 days
-
-**UI:** 4 equal cards in grid, each with:
-- Large number
-- Label
-- Micro-animation (XP progress bar, streak fire)
-
-### 3. WeeklyActivityChart.tsx
-**Data query:**
-```sql
--- Aggregate daily activity for last 7 days
-SELECT 
-  DATE(created_at) as day,
-  COUNT(*) FILTER (WHERE source = 'hypnosis') as hypnosis,
-  COUNT(*) FILTER (WHERE source = 'habit') as habits,
-  COUNT(*) FILTER (WHERE source = 'task') as tasks
-FROM xp_events
-WHERE user_id = ? AND created_at >= NOW() - INTERVAL '7 days'
-GROUP BY DATE(created_at)
-ORDER BY day
-```
-
-**Alternative simpler approach:**
-- Fetch from `hypnosis_sessions` (count per day)
-- Fetch from `daily_habit_logs` (count per day)
-- Merge into chart data
-
-**Chart type:** Stacked area chart or grouped bar (Recharts)
-
-### 4. TodaysHabitsCard.tsx
-**Data:** Use existing `useDailyHabits()` hook
-**UI:** Compact card with:
-- List of habits with checkbox
-- Inline toggle (no modal)
-- Progress indicator at bottom
-
-### 5. PlanProgressCard.tsx
-**Data:** Use existing `ProgressSection` query
-**UI:** Simplified:
-- Progress bar with percentage
-- Current week/milestone title
-- "View Plan" link
-
-### 6. QuickActionsBar.tsx
-**Actions:** Only 4 essentials:
-1. Aurora (chat)
-2. Hypnosis
-3. Missions (tasks modal)
-4. Insights (navigate to /personality or stats)
-
----
-
-## Mobile-First Layout
-
-```text
-Mobile (< 640px):
-┌────────────────────┐
-│ Next Action Banner │
-├────────────────────┤
-│ Stats (2x2 grid)   │
-├────────────────────┤
-│ Weekly Chart       │
-├────────────────────┤
-│ Today's Habits     │
-├────────────────────┤
-│ 90-Day Progress    │
-├────────────────────┤
-│ Quick Actions Bar  │
-└────────────────────┘
-
-Desktop (≥ 768px):
-┌─────────────────────────────────────┐
-│ Next Action Banner                  │
-├─────────┬─────────┬────────┬────────┤
-│ Level   │ Streak  │ XP     │ Tokens │
-├─────────┴─────────┴────────┴────────┤
-│ Weekly Activity Chart               │
-├──────────────────┬──────────────────┤
-│ Today's Habits   │ 90-Day Progress  │
-├──────────────────┴──────────────────┤
-│ Quick Actions Bar                   │
-└─────────────────────────────────────┘
-```
-
----
-
-## Translations Required
-
-New keys for `useTranslation`:
-```typescript
-{
-  'dashboard.v2.nextAction': { he: 'הפעולה הבאה שלך', en: 'Your Next Action' },
-  'dashboard.v2.completeNow': { he: 'בצע עכשיו', en: 'Complete Now' },
-  'dashboard.v2.weeklyActivity': { he: 'פעילות שבועית', en: 'Weekly Activity' },
-  'dashboard.v2.todaysHabits': { he: 'ההרגלים של היום', en: "Today's Habits" },
-  'dashboard.v2.planProgress': { he: 'התקדמות בתוכנית', en: 'Plan Progress' },
-  'dashboard.v2.weekOf': { he: 'שבוע', en: 'Week' },
-  'dashboard.v2.of': { he: 'מתוך', en: 'of' },
-  // Stats
-  'stats.level': { he: 'רמה', en: 'Level' },
-  'stats.streak': { he: 'רצף', en: 'Streak' },
-  'stats.weeklyXp': { he: 'XP שבועי', en: 'Weekly XP' },
-  'stats.tokens': { he: 'טוקנים', en: 'Tokens' },
-}
-```
-
----
-
-## Implementation Order
-
-### Phase 1: Core Components
-1. Create `useWeeklyActivity.ts` hook (aggregate data)
-2. Create `StatsGrid.tsx` (4 stat cards)
-3. Create `NextActionBanner.tsx` (priority logic)
-4. Create `WeeklyActivityChart.tsx` (Recharts integration)
-
-### Phase 2: Action Components  
-5. Create `TodaysHabitsCard.tsx` (inline toggle)
-6. Create `PlanProgressCard.tsx` (compact 90-day view)
-7. Create `QuickActionsBar.tsx` (4 buttons)
-
-### Phase 3: Integration
-8. Create `DashboardV2.tsx` wrapper component
-9. Update `UserDashboard.tsx` to use new layout
-10. Remove/deprecate old components (keep for reference)
-
----
-
-## Key Design Principles
-
-1. **Single Source of Truth:** One banner tells user what to do
-2. **Visual First:** Graphs and progress bars over text
-3. **Inline Actions:** Toggle habits without modals
-4. **Mobile-Optimized:** Touch-friendly, stack on narrow screens
-5. **Theme-Aware:** Uses semantic colors (primary, muted, etc.)
-6. **RTL Support:** All components respect `isRTL`
-
----
-
-## Success Metrics
-
-After implementation, user should be able to:
-- See their level/streak/XP in 1 second
-- Know exactly what to do next in 2 seconds  
-- View weekly trend without scrolling
-- Complete a habit with 1 tap
-- Access any core action in 2 taps max
