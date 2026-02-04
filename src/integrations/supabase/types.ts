@@ -2384,6 +2384,47 @@ export type Database = {
           },
         ]
       }
+      health_journeys: {
+        Row: {
+          created_at: string | null
+          current_step: number | null
+          id: string
+          is_completed: boolean | null
+          journey_data: Json | null
+          plan_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          is_completed?: boolean | null
+          journey_data?: Json | null
+          plan_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          is_completed?: boolean | null
+          journey_data?: Json | null
+          plan_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_journeys_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       homepage_sections: {
         Row: {
           content_en: string | null

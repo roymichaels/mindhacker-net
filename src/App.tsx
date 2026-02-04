@@ -71,6 +71,8 @@ const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const Personality = lazy(() => import("./pages/Personality"));
 const Health = lazy(() => import("./pages/Health"));
+const HealthJourney = lazy(() => import("./pages/HealthJourney"));
+const HealthPlan = lazy(() => import("./pages/HealthPlan"));
 // Free guest journey
 const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
 const GuestLaunchpad = lazy(() => import("./pages/GuestLaunchpad"));
@@ -424,6 +426,30 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <Health />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/health/journey"
+                          element={
+                            <ProtectedRoute>
+                              <HealthJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/health/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <HealthJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/health/plan"
+                          element={
+                            <ProtectedRoute>
+                              <HealthPlan />
                             </ProtectedRoute>
                           }
                         />

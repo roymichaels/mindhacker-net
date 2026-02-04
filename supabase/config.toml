@@ -96,3 +96,6 @@ verify_jwt = false
 
 [functions.generate-branding-suggestions]
 verify_jwt = false
+
+[functions.generate-health-plan]
+verify_jwt = false

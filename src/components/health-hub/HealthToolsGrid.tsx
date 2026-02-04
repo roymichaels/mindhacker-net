@@ -142,12 +142,12 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
                   <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-foreground truncate">
-                    {language === 'he' ? tool.titleHe : tool.titleEn}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                    {language === 'he' ? tool.descHe : tool.descEn}
-                  </p>
+                <h3 className="font-semibold text-xs text-foreground leading-tight">
+                  {language === 'he' ? tool.titleHe : tool.titleEn}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight">
+                  {language === 'he' ? tool.descHe : tool.descEn}
+                </p>
                 </div>
                 <ArrowRight className={`h-4 w-4 ${tool.iconColor} opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1`} />
               </div>

@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { Heart, Stethoscope } from "lucide-react";
+import { Heart, Stethoscope, Rocket } from "lucide-react";
 import { HealthStatusCard, HealthToolsGrid } from "@/components/health-hub";
 import { useLaunchpadData } from "@/hooks/useLaunchpadData";
 import {
@@ -95,14 +95,24 @@ const Health = () => {
                 </h1>
               </div>
               
-              {/* Check Status Button */}
-              <Button
-                onClick={() => handleOpenModal('physical')}
-                className="bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
-              >
-                <Stethoscope className="w-4 h-4 me-2" />
-                {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => navigate('/health/journey')}
+                  className="bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
+                >
+                  <Rocket className="w-4 h-4 me-2" />
+                  {language === 'he' ? 'התחל מסע' : 'Start Journey'}
+                </Button>
+                <Button
+                  onClick={() => handleOpenModal('physical')}
+                  variant="outline"
+                  className="border-red-600/50 text-red-400 hover:bg-red-900/30"
+                >
+                  <Stethoscope className="w-4 h-4 me-2" />
+                  {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}
+                </Button>
+              </div>
             </div>
             <p className="text-red-200 text-sm md:text-base">
               {language === 'he' 
