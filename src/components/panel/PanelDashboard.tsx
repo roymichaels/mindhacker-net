@@ -1,7 +1,7 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationBell } from '@/components/admin/NotificationBell';
@@ -21,7 +21,20 @@ import {
 
 const PanelDashboard = () => {
   const { t, isRTL } = useTranslation();
+  const navigate = useNavigate();
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
+  const makeCardNav = (to: string) => ({
+    role: 'link' as const,
+    tabIndex: 0,
+    onClick: () => navigate(to),
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        navigate(to);
+      }
+    },
+  });
 
   // Fetch stats
   const { data: stats, isLoading } = useQuery({
@@ -129,8 +142,10 @@ const PanelDashboard = () => {
 
       {/* Quick Actions - Admin Only */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Link to="/panel/analytics" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/analytics')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <BarChart3 className="h-5 w-5 text-primary" />
@@ -144,11 +159,12 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
 
-        <Link to="/panel/users" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/users')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="h-5 w-5 text-primary" />
@@ -162,11 +178,12 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
 
-        <Link to="/panel/products" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/products')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Package className="h-5 w-5 text-primary" />
@@ -180,11 +197,12 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
 
-        <Link to="/panel/leads" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/leads')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Mail className="h-5 w-5 text-primary" />
@@ -200,11 +218,12 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
 
-        <Link to="/panel/notifications" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/notifications')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Bell className="h-5 w-5 text-primary" />
@@ -220,11 +239,12 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
 
-        <Link to="/panel/newsletter" className="block">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+        <Card
+          {...makeCardNav('/panel/newsletter')}
+          className="hover:shadow-md transition-shadow cursor-pointer h-full"
+        >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5 text-primary" />
@@ -240,8 +260,7 @@ const PanelDashboard = () => {
                 <ArrowIcon className="h-4 w-4" />
               </span>
             </CardContent>
-          </Card>
-        </Link>
+        </Card>
       </div>
     </div>
   );
