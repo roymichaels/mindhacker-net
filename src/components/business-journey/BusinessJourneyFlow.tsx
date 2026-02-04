@@ -16,6 +16,7 @@ import { FinancialStep } from './steps/FinancialStep';
 import { MarketingStep } from './steps/MarketingStep';
 import { OperationsStep } from './steps/OperationsStep';
 import { ActionPlanStep } from './steps/ActionPlanStep';
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -254,7 +255,7 @@ export function BusinessJourneyFlow({ className, onComplete, onClose }: Business
       
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">
-        <div className="w-full max-w-2xl pb-8">
+        <div className="w-full max-w-2xl pb-24">
           <AnimatePresence mode="wait">
             <motion.div
               key={`step-${displayedStep}`}
@@ -268,6 +269,9 @@ export function BusinessJourneyFlow({ className, onComplete, onClose }: Business
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Aurora Chat Dock */}
+      <JourneyChatDock />
     </div>
   );
 }
