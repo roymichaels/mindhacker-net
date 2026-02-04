@@ -162,31 +162,22 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Mobile Header with logo, menu and notification icons */}
+          {/* Mobile Header with menu and notification icons */}
           <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
-            <div className="grid grid-cols-3 h-14 items-center px-4">
+            <div className="flex h-14 items-center justify-between px-4">
               {/* Left: Menu Button */}
-              <div className="flex justify-start">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => setLeftSheetOpen(prev => !prev)}
-                  aria-label="Menu"
-                  className="h-9 w-9"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </div>
-              
-              {/* Center: Logo */}
-              <div className="flex justify-center">
-                <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-                  <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
-                </Link>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setLeftSheetOpen(prev => !prev)}
+                aria-label="Menu"
+                className="h-9 w-9"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               
               {/* Right: Notification Icons */}
-              <div className="flex justify-end items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
