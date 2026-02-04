@@ -33,9 +33,9 @@ export function SidebarCharacterHUD({
     <motion.div
       className={cn(
         "relative p-3 rounded-xl w-full",
-        "backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
-        "border border-primary/30 shadow-lg",
-        onClick && "cursor-pointer hover:border-primary/40 transition-all duration-300",
+        "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+        "border border-border dark:border-primary/30 shadow-md dark:shadow-lg",
+        onClick && "cursor-pointer hover:border-primary/30 dark:hover:border-primary/40 transition-all duration-300",
         className
       )}
       initial={{ opacity: 0, y: -10 }}
@@ -45,7 +45,7 @@ export function SidebarCharacterHUD({
     >
       {/* Ambient glow effect */}
       <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 dark:from-primary/10 via-transparent to-accent/5 dark:to-accent/10" />
       </div>
       
       <div className="relative z-10 flex items-center gap-3">
