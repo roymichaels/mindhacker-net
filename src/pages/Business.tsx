@@ -238,13 +238,24 @@ const Business = () => {
           className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 p-6 shadow-lg"
         >
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                <Briefcase className="h-6 w-6 text-purple-900" />
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                  <Briefcase className="h-6 w-6 text-purple-900" />
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold text-purple-900">
+                  {t('business.title')}
+                </h1>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-purple-900">
-                {t('business.title')}
-              </h1>
+              
+              {/* Start New Business Button */}
+              <Button
+                onClick={() => navigate('/business/journey')}
+                className="bg-purple-900 text-amber-100 hover:bg-purple-800 shadow-lg"
+              >
+                <Rocket className="w-4 h-4 me-2" />
+                {language === 'he' ? 'הקם עסק חדש' : 'Start New Business'}
+              </Button>
             </div>
             <p className="text-purple-900/80 text-sm md:text-base">
               {t('business.subtitle')}

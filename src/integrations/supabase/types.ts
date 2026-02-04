@@ -645,6 +645,69 @@ export type Database = {
         }
         Relationships: []
       }
+      business_journeys: {
+        Row: {
+          ai_summary: string | null
+          business_name: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_10_action_plan: Json | null
+          step_2_business_model: Json | null
+          step_3_target_audience: Json | null
+          step_4_value_proposition: Json | null
+          step_5_challenges: Json | null
+          step_6_resources: Json | null
+          step_7_financial: Json | null
+          step_8_marketing: Json | null
+          step_9_operations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          business_name?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_10_action_plan?: Json | null
+          step_2_business_model?: Json | null
+          step_3_target_audience?: Json | null
+          step_4_value_proposition?: Json | null
+          step_5_challenges?: Json | null
+          step_6_resources?: Json | null
+          step_7_financial?: Json | null
+          step_8_marketing?: Json | null
+          step_9_operations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          business_name?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_10_action_plan?: Json | null
+          step_2_business_model?: Json | null
+          step_3_target_audience?: Json | null
+          step_4_value_proposition?: Json | null
+          step_5_challenges?: Json | null
+          step_6_resources?: Json | null
+          step_7_financial?: Json | null
+          step_8_marketing?: Json | null
+          step_9_operations?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_assistant_settings: {
         Row: {
           created_at: string | null
