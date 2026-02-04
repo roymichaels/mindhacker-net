@@ -645,6 +645,77 @@ export type Database = {
         }
         Relationships: []
       }
+      business_branding: {
+        Row: {
+          accent_color: string | null
+          brand_story: string | null
+          brand_voice: string | null
+          business_id: string
+          core_values: string[] | null
+          created_at: string
+          font_body: string | null
+          font_heading: string | null
+          id: string
+          logo_url: string | null
+          mission_statement: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          tagline: string | null
+          target_emotions: string[] | null
+          tone_keywords: string[] | null
+          updated_at: string
+          vision_statement: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          brand_story?: string | null
+          brand_voice?: string | null
+          business_id: string
+          core_values?: string[] | null
+          created_at?: string
+          font_body?: string | null
+          font_heading?: string | null
+          id?: string
+          logo_url?: string | null
+          mission_statement?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          tagline?: string | null
+          target_emotions?: string[] | null
+          tone_keywords?: string[] | null
+          updated_at?: string
+          vision_statement?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          brand_story?: string | null
+          brand_voice?: string | null
+          business_id?: string
+          core_values?: string[] | null
+          created_at?: string
+          font_body?: string | null
+          font_heading?: string | null
+          id?: string
+          logo_url?: string | null
+          mission_statement?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          tagline?: string | null
+          target_emotions?: string[] | null
+          tone_keywords?: string[] | null
+          updated_at?: string
+          vision_statement?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_branding_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "business_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_journeys: {
         Row: {
           ai_summary: string | null
@@ -707,6 +778,174 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      business_orb_profiles: {
+        Row: {
+          accent_color: string
+          business_id: string
+          computed_from: Json | null
+          created_at: string
+          geometry_detail: number | null
+          id: string
+          morph_intensity: number | null
+          morph_speed: number | null
+          particle_count: number | null
+          particle_enabled: boolean | null
+          primary_color: string
+          secondary_colors: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          accent_color: string
+          business_id: string
+          computed_from?: Json | null
+          created_at?: string
+          geometry_detail?: number | null
+          id?: string
+          morph_intensity?: number | null
+          morph_speed?: number | null
+          particle_count?: number | null
+          particle_enabled?: boolean | null
+          primary_color: string
+          secondary_colors?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          business_id?: string
+          computed_from?: Json | null
+          created_at?: string
+          geometry_detail?: number | null
+          id?: string
+          morph_intensity?: number | null
+          morph_speed?: number | null
+          particle_count?: number | null
+          particle_enabled?: boolean | null
+          primary_color?: string
+          secondary_colors?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_orb_profiles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "business_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_plan_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          focus_area: string | null
+          id: string
+          is_completed: boolean | null
+          plan_id: string
+          tasks: Json | null
+          title: string
+          tokens_reward: number | null
+          updated_at: string
+          week_number: number
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          focus_area?: string | null
+          id?: string
+          is_completed?: boolean | null
+          plan_id: string
+          tasks?: Json | null
+          title: string
+          tokens_reward?: number | null
+          updated_at?: string
+          week_number: number
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          focus_area?: string | null
+          id?: string
+          is_completed?: boolean | null
+          plan_id?: string
+          tasks?: Json | null
+          title?: string
+          tokens_reward?: number | null
+          updated_at?: string
+          week_number?: number
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plan_milestones_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "business_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_plans: {
+        Row: {
+          business_id: string
+          created_at: string
+          current_week: number | null
+          description: string | null
+          end_date: string | null
+          id: string
+          plan_data: Json | null
+          start_date: string | null
+          status: string | null
+          title: string
+          total_weeks: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          current_week?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          plan_data?: Json | null
+          start_date?: string | null
+          status?: string | null
+          title: string
+          total_weeks?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          current_week?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          plan_data?: Json | null
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          total_weeks?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plans_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_assistant_settings: {
         Row: {
