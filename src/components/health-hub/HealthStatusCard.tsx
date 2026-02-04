@@ -19,7 +19,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
   // Extract health data from launchpad profile
   const profileData = launchpadData?.personalProfile || {};
   
-  // Map raw values to display labels - handle both formats (underscore and hyphen)
+  // Map raw values to display labels
   const energyLevelMap: Record<string, { he: string; en: string; score: number }> = {
     high: { he: 'גבוהה', en: 'High', score: 100 },
     medium: { he: 'בינונית', en: 'Medium', score: 65 },
@@ -28,51 +28,105 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
   };
 
   const sleepHoursMap: Record<string, { he: string; en: string; score: number }> = {
-    'less_than_5': { he: 'פחות מ-5', en: '< 5h', score: 20 },
     'less-than-5': { he: 'פחות מ-5', en: '< 5h', score: 20 },
-    '5_to_6': { he: '5-6 שעות', en: '5-6h', score: 40 },
+    'less_than_5': { he: 'פחות מ-5', en: '< 5h', score: 20 },
     '5-to-6': { he: '5-6 שעות', en: '5-6h', score: 40 },
-    '6_to_7': { he: '6-7 שעות', en: '6-7h', score: 70 },
+    '5_to_6': { he: '5-6 שעות', en: '5-6h', score: 40 },
+    '5-6': { he: '5-6 שעות', en: '5-6h', score: 40 },
+    '6-7': { he: '6-7 שעות', en: '6-7h', score: 70 },
     '6-to-7': { he: '6-7 שעות', en: '6-7h', score: 70 },
-    '7_to_8': { he: '7-8 שעות', en: '7-8h', score: 100 },
+    '6_to_7': { he: '6-7 שעות', en: '6-7h', score: 70 },
+    '7-8': { he: '7-8 שעות', en: '7-8h', score: 100 },
     '7-to-8': { he: '7-8 שעות', en: '7-8h', score: 100 },
-    'more_than_8': { he: 'יותר מ-8', en: '8h+', score: 90 },
+    '7_to_8': { he: '7-8 שעות', en: '7-8h', score: 100 },
     'more-than-8': { he: 'יותר מ-8', en: '8h+', score: 90 },
+    'more_than_8': { he: 'יותר מ-8', en: '8h+', score: 90 },
   };
 
+  // Activity/Exercise frequency map - using actual DB values
   const activityMap: Record<string, { he: string; en: string; score: number }> = {
-    daily: { he: 'יומית', en: 'Daily', score: 100 },
-    few_times_week: { he: 'מספר פעמים', en: 'Few/week', score: 75 },
+    'daily': { he: 'יומית', en: 'Daily', score: 100 },
+    '5-6/week': { he: '5-6 בשבוע', en: '5-6/week', score: 95 },
+    '3-4/week': { he: '3-4 בשבוע', en: '3-4/week', score: 80 },
+    '1-2/week': { he: '1-2 בשבוע', en: '1-2/week', score: 60 },
+    'few_times_week': { he: 'מספר פעמים', en: 'Few/week', score: 75 },
     'few-times-week': { he: 'מספר פעמים', en: 'Few/week', score: 75 },
-    once_week: { he: 'פעם בשבוע', en: '1x/week', score: 50 },
+    'once_week': { he: 'פעם בשבוע', en: '1x/week', score: 50 },
     'once-week': { he: 'פעם בשבוע', en: '1x/week', score: 50 },
-    rarely: { he: 'לעתים נדירות', en: 'Rarely', score: 25 },
-    none: { he: 'לא פעיל', en: 'None', score: 10 },
+    'rarely': { he: 'לעתים רחוקות', en: 'Rarely', score: 25 },
+    'none': { he: 'לא פעיל', en: 'None', score: 10 },
   };
 
-  const hydrationMap: Record<string, { he: string; en: string; score: number }> = {
-    excellent: { he: 'מצוינת', en: 'Excellent', score: 100 },
-    good: { he: 'טובה', en: 'Good', score: 75 },
-    moderate: { he: 'בינונית', en: 'Moderate', score: 50 },
-    poor: { he: 'לא מספיקה', en: 'Poor', score: 25 },
-    // Handle free-text hydration values
-    water: { he: 'מים', en: 'Water', score: 80 },
-    'natural-juicecoconut-water': { he: 'מיצים טבעיים', en: 'Natural juice', score: 70 },
+  // Hydration items map (for array values)
+  const hydrationItemMap: Record<string, { he: string; en: string }> = {
+    'water': { he: 'מים', en: 'Water' },
+    'natural-juice': { he: 'מיץ טבעי', en: 'Natural Juice' },
+    'natural_juice': { he: 'מיץ טבעי', en: 'Natural Juice' },
+    'coconut-water': { he: 'מי קוקוס', en: 'Coconut Water' },
+    'coconut_water': { he: 'מי קוקוס', en: 'Coconut Water' },
+    'tea': { he: 'תה', en: 'Tea' },
+    'coffee': { he: 'קפה', en: 'Coffee' },
+    'herbal-tea': { he: 'תה צמחים', en: 'Herbal Tea' },
+    'herbal_tea': { he: 'תה צמחים', en: 'Herbal Tea' },
+    'juice': { he: 'מיץ', en: 'Juice' },
+    'soda': { he: 'שתייה קלה', en: 'Soda' },
+    'energy-drinks': { he: 'משקאות אנרגיה', en: 'Energy Drinks' },
+    'sports-drinks': { he: 'משקאות ספורט', en: 'Sports Drinks' },
   };
 
-  const energyLevel = profileData.energy_level as string || '';
-  const sleepHours = profileData.sleep_hours as string || '';
-  const activityFrequency = profileData.activity_frequency as string || '';
-  const hydration = profileData.hydration as string || '';
+  // Get raw values - note: exercise_frequency is the actual field name
+  const energyLevel = (profileData.energy_level as string) || '';
+  const sleepHours = (profileData.sleep_hours as string) || '';
+  const exerciseFrequency = (profileData.exercise_frequency as string) || '';
+  const hydrationRaw = profileData.hydration;
+  
+  // Handle hydration as array or string
+  const getHydrationDisplay = (): { display: string; score: number } => {
+    if (!hydrationRaw) return { display: '', score: 0 };
+    
+    const isHebrew = language === 'he';
+    
+    if (Array.isArray(hydrationRaw)) {
+      // Map each hydration item to its label
+      const labels = hydrationRaw.map(item => {
+        const mapped = hydrationItemMap[item as string];
+        return mapped ? mapped[isHebrew ? 'he' : 'en'] : null;
+      }).filter(Boolean);
+      
+      if (labels.length === 0) return { display: '', score: 0 };
+      
+      // Score based on water presence and variety
+      const hasWater = hydrationRaw.includes('water');
+      const score = hasWater ? 80 + Math.min(hydrationRaw.length * 5, 20) : 60;
+      
+      // Show first 2 items max
+      const displayItems = labels.slice(0, 2);
+      const display = displayItems.join(', ') + (labels.length > 2 ? '...' : '');
+      
+      return { display, score };
+    }
+    
+    // Handle as string (legacy)
+    const mapped = hydrationItemMap[hydrationRaw as string];
+    if (mapped) {
+      return { 
+        display: mapped[isHebrew ? 'he' : 'en'], 
+        score: hydrationRaw === 'water' ? 80 : 60 
+      };
+    }
+    
+    return { display: '', score: 0 };
+  };
 
-  const hasData = energyLevel || sleepHours || activityFrequency || hydration;
+  const hydrationData = getHydrationDisplay();
+  const hasData = energyLevel || sleepHours || exerciseFrequency || hydrationData.display;
 
   // Calculate overall health score
   const scores = [
     energyLevelMap[energyLevel]?.score || 0,
     sleepHoursMap[sleepHours]?.score || 0,
-    activityMap[activityFrequency]?.score || 0,
-    hydrationMap[hydration]?.score || (hydration ? 60 : 0), // Default score for unknown hydration values
+    activityMap[exerciseFrequency]?.score || 0,
+    hydrationData.score,
   ].filter(s => s > 0);
   
   const overallScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
@@ -124,27 +178,27 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
     },
     {
       key: 'activity',
-      value: activityFrequency,
+      value: exerciseFrequency,
       icon: ActivityIcon,
       labelHe: 'פעילות',
       labelEn: 'Activity',
-      displayValue: activityMap[activityFrequency]?.[language === 'he' ? 'he' : 'en'],
-      score: activityMap[activityFrequency]?.score || 0,
+      displayValue: activityMap[exerciseFrequency]?.[language === 'he' ? 'he' : 'en'],
+      score: activityMap[exerciseFrequency]?.score || 0,
       color: 'text-green-400',
       bgColor: 'from-green-500/20 to-emerald-400/10',
     },
     {
       key: 'hydration',
-      value: hydration,
+      value: hydrationData.display,
       icon: Droplets,
       labelHe: 'הידרציה',
       labelEn: 'Hydration',
-      displayValue: hydrationMap[hydration]?.[language === 'he' ? 'he' : 'en'] || (hydration ? (language === 'he' ? 'מותאם' : 'Custom') : undefined),
-      score: hydrationMap[hydration]?.score || (hydration ? 60 : 0),
+      displayValue: hydrationData.display,
+      score: hydrationData.score,
       color: 'text-blue-400',
       bgColor: 'from-blue-500/20 to-cyan-400/10',
     },
-  ].filter(m => m.value);
+  ].filter(m => m.value && m.displayValue);
 
   return (
     <Card className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border-red-800/30 overflow-hidden">
@@ -178,7 +232,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
         )}
       </CardHeader>
       <CardContent className="pt-2">
-        {hasData ? (
+        {metrics.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {metrics.map((metric) => (
               <div 
