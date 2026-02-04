@@ -16,6 +16,10 @@ interface AuroraChatContextType {
   registerSendMessage: (fn: (message: string) => void) => void;
   isStreaming: boolean;
   setIsStreaming: (streaming: boolean) => void;
+  // Chat expanded state - shows message bubbles when focused
+  isChatExpanded: boolean;
+  setIsChatExpanded: (expanded: boolean) => void;
+  toggleChatExpanded: () => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -39,7 +43,12 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
   const sendMessageRef = useRef<((message: string) => void) | null>(null);
+
+  const toggleChatExpanded = useCallback(() => {
+    setIsChatExpanded(prev => !prev);
+  }, []);
 
   // Get or create the default AI conversation
   const { data: defaultConversationId, isLoading } = useQuery({
@@ -114,6 +123,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerSendMessage,
         isStreaming,
         setIsStreaming,
+        isChatExpanded,
+        setIsChatExpanded,
+        toggleChatExpanded,
       }}
     >
       {children}

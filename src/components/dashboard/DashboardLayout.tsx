@@ -4,6 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardRightPanel from './DashboardRightPanel';
 import GlobalChatInput from './GlobalChatInput';
+import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { SettingsModal } from '@/components/settings';
@@ -101,12 +102,13 @@ const DesktopLayoutContent = ({
 
       {/* Global Chat Input - fixed at bottom, adjusts for sidebar */}
       <div 
-        className="fixed bottom-0 right-0 z-40 transition-all duration-200"
+        className="fixed bottom-0 right-0 z-40 transition-all duration-200 flex flex-col items-center"
         style={{ 
           [isRTL ? 'right' : 'left']: sidebarWidth,
           [isRTL ? 'left' : 'right']: 0 
         }}
       >
+        <AuroraChatBubbles />
         <GlobalChatInput />
       </div>
 
@@ -222,7 +224,8 @@ const DashboardLayout = ({
           </main>
 
           {/* Global Chat Input - fixed at bottom */}
-          <div className="fixed bottom-0 left-0 right-0 z-40">
+          <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center px-4">
+            <AuroraChatBubbles />
             <GlobalChatInput />
           </div>
         </div>
