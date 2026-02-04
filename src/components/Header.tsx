@@ -25,6 +25,7 @@ import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { handleError } from "@/lib/errorHandling";
+import { cn } from "@/lib/utils";
 import { NotificationBell } from "./admin/NotificationBell";
 import { useTheme } from "next-themes";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -223,8 +224,15 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   );
 
   // Logo Component - Uses AuroraOrbIcon consistently across the app
-  const LogoBrand = () => (
-    <Link to={isAdminMode ? "/admin" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+  // Hidden on mobile when logged in (logo is shown in mobile sidebar instead)
+  const LogoBrand = ({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) => (
+    <Link 
+      to={isAdminMode ? "/admin" : "/"} 
+      className={cn(
+        "flex items-center gap-2 hover:opacity-80 transition-opacity",
+        hiddenOnMobile && "hidden md:flex"
+      )}
+    >
       <AuroraOrbIcon size={40} className="text-foreground flex-shrink-0" />
       <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
         {isAdminMode ? t('admin.panelTitle') : brandName}
@@ -239,9 +247,9 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           {/* Left side - Logo + Brand */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
-              // Logged in: Show logo + admin controls
+              // Logged in: Show logo + admin controls (hidden on mobile - shown in sidebar)
               <>
-                <LogoBrand />
+                <LogoBrand hiddenOnMobile={!isAdminMode} />
                 {isAdminMode && (
                   <Button
                     variant="ghost"
