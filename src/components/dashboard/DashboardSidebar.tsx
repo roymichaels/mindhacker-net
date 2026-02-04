@@ -280,7 +280,7 @@ const DashboardSidebar = ({
                   "w-full min-w-0 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 overflow-hidden",
                   isPurple && "bg-gradient-to-r from-purple-100 to-muted dark:from-purple-950 dark:to-gray-900 text-purple-700 dark:text-purple-300 hover:from-purple-200 hover:to-muted/80 dark:hover:from-purple-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 border border-purple-300 dark:border-purple-800/50",
                   isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-cyan-300 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
-                  isGold && "bg-gradient-to-r from-amber-400 to-yellow-300 dark:from-amber-500 dark:to-yellow-400 text-amber-900 dark:text-amber-950 hover:from-amber-300 hover:to-yellow-200 dark:hover:from-amber-400 dark:hover:to-yellow-300 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/30 border border-amber-500/50",
+                  isGold && "bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950 dark:to-yellow-950 text-amber-700 dark:text-amber-300 hover:from-amber-200 hover:to-yellow-200 dark:hover:from-amber-900 dark:hover:to-yellow-900 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/20 dark:hover:shadow-amber-900/30 border border-amber-300 dark:border-amber-800/50",
                   isRed && "bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-950 dark:to-rose-950 text-red-700 dark:text-red-300 hover:from-red-200 hover:to-rose-200 dark:hover:from-red-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-red-500/20 dark:hover:shadow-red-900/30 border border-red-300 dark:border-red-800/50",
                   isCollapsed && "justify-center px-2"
                 )}
@@ -293,7 +293,7 @@ const DashboardSidebar = ({
                     "h-4 w-4 shrink-0", 
                     isPurple && "text-purple-700 dark:text-purple-300",
                     isBlue && "text-blue-700 dark:text-cyan-300",
-                    isGold && "text-amber-900 dark:text-amber-950",
+                    isGold && "text-amber-700 dark:text-amber-300",
                     isRed && "text-red-700 dark:text-red-300"
                   )} />
                 )}
