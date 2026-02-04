@@ -77,7 +77,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
           ))
         ) : (
           suggestions.slice(0, 4).map((suggestion, index) => {
-            const Icon = iconMap[suggestion.icon];
+            const Icon = iconMap[suggestion.icon as keyof typeof iconMap] || Lightbulb;
             const colors = cardColors[index % cardColors.length];
             return (
               <button
