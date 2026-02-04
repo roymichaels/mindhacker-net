@@ -136,7 +136,7 @@ const DashboardSidebar = ({
     { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, path: '/dashboard' },
     { id: 'personality', icon: User, customIcon: null, label: language === 'he' ? 'אישיות' : 'Personality', highlight: 'blue' as const, path: '/personality' },
     { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
-    { id: 'health', icon: Heart, customIcon: null, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'emerald' as const, path: '/health' },
+    { id: 'health', icon: Heart, customIcon: null, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red' as const, path: '/health' },
   ];
 
   // Search results component
@@ -266,7 +266,6 @@ const DashboardSidebar = ({
             const isRed = highlightColor === 'red';
             const isGold = highlightColor === 'gold';
             const isBlue = highlightColor === 'blue';
-            const isEmerald = highlightColor === 'emerald';
               return (
               <button
                 key={item.id}
@@ -281,7 +280,6 @@ const DashboardSidebar = ({
                   isRed && "bg-gradient-to-r from-muted to-muted/80 dark:from-gray-900 dark:to-gray-800 text-primary hover:from-muted/80 hover:to-muted/60 dark:hover:from-gray-800 dark:hover:to-gray-700 font-bold shadow-sm hover:shadow-md hover:shadow-primary/20 border border-primary/30",
                   isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-yellow-400 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
                   isGold && "bg-gradient-to-r from-amber-500 to-yellow-400 text-purple-900 hover:from-amber-400 hover:to-yellow-300 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/30",
-                  isEmerald && "bg-gradient-to-r from-emerald-100 to-muted dark:from-emerald-950 dark:to-gray-900 text-emerald-700 dark:text-emerald-400 hover:from-emerald-200 hover:to-muted/80 dark:hover:from-emerald-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 dark:hover:shadow-emerald-900/30 border border-emerald-300 dark:border-emerald-800/50",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -293,7 +291,6 @@ const DashboardSidebar = ({
                     "h-4 w-4 shrink-0", 
                     isRed && "text-primary",
                     isBlue && "text-blue-700 dark:text-yellow-400",
-                    isEmerald && "text-emerald-700 dark:text-emerald-400",
                     isGold && "text-purple-900"
                   )} />
                 )}
