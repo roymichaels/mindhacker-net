@@ -50,8 +50,8 @@ export function QuickAccessGrid({
     {
       id: 'personality',
       icon: User,
-      label: 'Personality',
-      labelHe: 'אישיות',
+      label: 'Consciousness',
+      labelHe: 'תודעה',
       gradient: 'from-blue-500/20 to-cyan-500/20',
       onClick: () => navigate('/personality'),
     },
