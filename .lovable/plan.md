@@ -1,221 +1,117 @@
 
-# Plan: Dashboard Optimization - Command Center
+# תוכנית: מרכז הבריאות (Health Hub)
 
-## Current State Analysis
+## סקירה כללית
+יצירת האב בריאות חדש (`/health`) בדומה ל-Personality ו-Business, המתמקד בבריאות רב-ממדית: פיזית, נפשית, אנרגטית, תת-מודעית ועוד.
 
-The dashboard currently has:
-1. **Sidebar** (left): Character HUD + Search + Navigation (Dashboard, Personality, Business)
-2. **Main Area**: Welcome message + Quick Access Grid (Tasks, Personality, Business, PDF, Focus) + Sessions
-3. **Right Panel** (hidden on most pages): Courses, Recordings, Sessions, Affiliate
-4. **Bottom**: Global Aurora Chat
+---
 
-### Issues Identified:
-- Quick Access Grid duplicates sidebar navigation (Personality, Business links)
-- Sessions are buried at the bottom
-- No clear "next action" or daily priority system
-- Limited visibility of user progress and achievements
-- PDF download is low-value prime real estate
-- Missing quick access to hypnosis sessions
-- No unified view of "what should I do today"
+## עיצוב ויזואלי
 
-## Proposed Dashboard Architecture
+**ערכת צבעים:**
+- גרדיאנט ראשי: ירוק-אזמרגד (`from-emerald-500 to-teal-400`)
+- צבע טקסט: לבן (`text-white`)
+- צבע אייקון: לבן (`text-white`)
+- צבע הדגשה: ירוק-400 (`emerald-400`)
 
-### Design Philosophy
-Transform the dashboard into an **Action-Oriented Command Center** with three zones:
+**אייקון ראשי:** `Heart` מ-Lucide
 
-```text
-+------------------+--------------------------------+
-|                  |        TODAY'S FOCUS           |
-|    SIDEBAR       +--------------------------------+
-|                  |                                |
-|  - HUD           |     QUICK ACTIONS GRID         |
-|  - Search        |     (4-6 primary actions)      |
-|  - Nav           +--------------------------------+
-|                  |                                |
-|                  |     PROGRESS & INSIGHTS        |
-|                  |     (2 columns on desktop)     |
-|                  |                                |
-+------------------+--------------------------------+
-|           AURORA CHAT INPUT (sticky)              |
-+---------------------------------------------------+
-```
+---
 
-## Detailed Changes
+## מבנה הדף
 
-### 1. Today's Focus Card (NEW - Top Priority)
+### 1. באנר כותרת
+- אייקון לב עם גרדיאנט ירוק-אזמרגד
+- כותרת: "בריאות" / "Health"
+- תת-כותרת: "מרכז הבריאות הכוללת שלך - גוף, נפש, אנרגיה ותודעה"
+- כפתור CTA: "בדוק סטטוס" / "Check Status" → פותח מודל סטטוס בריאות
 
-A dynamic card at the very top showing:
-- **If has active focus plan**: Show focus title + days remaining + progress
-- **If has uncompleted daily tasks**: "You have X tasks today"
-- **If on a streak**: Motivational streak message
-- **If idle**: Suggestion to start hypnosis or chat with Aurora
+### 2. כרטיס סטטוס בריאות
+- רמת אנרגיה כוללת (מחושבת מהנתונים)
+- שעות שינה ממוצעות
+- תדירות פעילות גופנית
+- (נתונים מגיעים מ-`launchpad_progress.step_2_profile_data`)
 
-This replaces the generic "Welcome back" message.
+### 3. גריד קטגוריות בריאות (8 כרטיסים)
 
-### 2. Redesigned Quick Actions Grid
+| קטגוריה | אייקון | תיאור |
+|---------|--------|-------|
+| **בריאות פיזית** | Activity | תזונה, שינה, פעילות גופנית |
+| **בריאות נפשית** | Brain | ניהול מתח, רגשות, חוסן נפשי |
+| **בריאות אנרגטית** | Zap | רמות אנרגיה, חיוניות, התאוששות |
+| **תת-מודע** | Sparkles | אמונות מגבילות, דפוסים נסתרים |
+| **היפנוזה לבריאות** | Headphones | סשנים ממוקדי בריאות |
+| **הרגלים** | Target | מעקב הרגלי בריאות יומיים |
+| **מדיטציה ונשימה** | Wind | תרגולי הרפיה ומיינדפולנס |
+| **שינה** | Moon | איכות ודפוסי שינה |
 
-Replace current grid with **6 action-oriented cards** in 2 rows:
+---
 
-**Row 1 - Primary Actions:**
-| Aurora Chat | Hypnosis | My Tasks |
-|-------------|----------|----------|
-| Direct chat | Quick session | Today's tasks |
+## פרטים טכניים
 
-**Row 2 - Progress & Tools:**
-| 90-Day Plan | Launchpad | More Tools |
-|-------------|-----------|------------|
-| View progress | Edit journey | Dropdown with PDF, Settings |
+### קבצים חדשים
 
-Remove Personality/Business from quick actions (already in sidebar nav).
+1. **`src/pages/Health.tsx`**
+   - דף ראשי של האב הבריאות
+   - מבנה זהה ל-`Personality.tsx` ו-`Business.tsx`
+   - שימוש ב-`DashboardLayout` עם `hideRightPanel`
+   - SEO עם `useSEO` ו-`getBreadcrumbSchema`
 
-### 3. Progress & Insights Section (2 Columns)
+2. **`src/components/health-hub/HealthStatusCard.tsx`**
+   - כרטיס סטטוס עם נתוני בריאות מ-launchpad
 
-**Column 1 - Active Progress:**
-- **90-Day Plan Mini-Card**: Current week, completion %, next milestone
-- **Streak & Achievements**: Visual streak counter, recent achievements
+3. **`src/components/health-hub/HealthToolsGrid.tsx`**
+   - גריד 8 הכלים/קטגוריות
 
-**Column 2 - Scheduled & Upcoming:**
-- **Upcoming Sessions**: Next hypnosis or coaching sessions
-- **Weekly Suggestions**: AI-generated tasks/suggestions from Aurora
+4. **`src/components/health-hub/index.ts`**
+   - קובץ ייצוא מרכזי
 
-### 4. Smart Suggestions Row (AI-Powered)
+### עדכונים לקבצים קיימים
 
-A horizontal scrollable row of contextual suggestions:
-- "Complete your evening anchors"
-- "You're 2 days from a 7-day streak!"
-- "Time for your focus session"
-- "Finish Week 4 to unlock rewards"
+1. **`src/App.tsx`**
+   - הוספת lazy import ל-`Health`
+   - הוספת Route: `/health` (Protected)
 
-### 5. Sidebar Enhancements
+2. **`src/components/dashboard/DashboardSidebar.tsx`**
+   - הוספת פריט ניווט "בריאות" / "Health"
+   - סגנון: גרדיאנט ירוק (`from-emerald-500 to-teal-400`)
+   - מיקום: אחרי Business
 
-Keep the Character HUD and add:
-- **Daily Streak Flame** indicator (always visible)
-- **Notification badge** on navigation items (e.g., "3 tasks")
+3. **`src/i18n/translations/he.ts`**
+   - הוספת מפתחות תרגום למודול `health`
 
-### 6. Remove Duplications
+4. **`src/i18n/translations/en.ts`**
+   - הוספת מפתחות תרגום באנגלית
 
-- Remove Personality & Business from QuickAccessGrid (in sidebar)
-- Remove PDF from main grid (move to "More Tools" dropdown)
-- Keep Sessions compact at bottom OR integrate into main grid
+---
 
-## Files to Modify
-
-### Modify:
-1. `src/pages/UserDashboard.tsx` - Restructure layout
-2. `src/components/dashboard/UnifiedDashboardView.tsx` - New section structure
-3. `src/components/dashboard/QuickAccessGrid.tsx` - Redesign with 6 action cards
-
-### Create:
-1. `src/components/dashboard/TodaysFocusCard.tsx` - Dynamic focus display
-2. `src/components/dashboard/ProgressSection.tsx` - 2-column progress view
-3. `src/components/dashboard/SmartSuggestionsRow.tsx` - AI suggestions carousel
-4. `src/components/dashboard/QuickActionsCard.tsx` - New card component
-
-## New Component Details
-
-### TodaysFocusCard.tsx
-```tsx
-// Shows contextual "What's important today" based on:
-// - Active focus plan
-// - Pending tasks count
-// - Current streak
-// - Time of day (morning/evening anchors)
-```
-
-### SmartSuggestionsRow.tsx
-```tsx
-// Horizontal scroll of action chips:
-// - Pulls from useSmartSuggestions hook (already exists)
-// - Each chip is clickable and triggers the action
-```
-
-### ProgressSection.tsx
-```tsx
-// Two-column layout:
-// Left: 90-day progress mini-view + streak visual
-// Right: Upcoming sessions + next steps
-```
-
-## Implementation Order
-
-1. **Phase 1: TodaysFocusCard**
-   - Create new component
-   - Replace welcome message
-   - Test with various user states
-
-2. **Phase 2: QuickActionsGrid Redesign**
-   - Update to 6-card layout
-   - Remove duplicate nav items
-   - Add "More Tools" dropdown
-
-3. **Phase 3: ProgressSection**
-   - Create 2-column layout
-   - Integrate 90-day mini view
-   - Add streak visualization
-
-4. **Phase 4: SmartSuggestions**
-   - Create horizontal scroll component
-   - Connect to useSmartSuggestions
-   - Style as action chips
-
-5. **Phase 5: Final Polish**
-   - Mobile optimization
-   - Animation polish
-   - Test all flows
-
-## Mobile Considerations
-
-- TodaysFocusCard: Full width, compact
-- QuickActionsGrid: 2x3 grid (smaller cards)
-- ProgressSection: Stack vertically
-- SmartSuggestions: Horizontal swipe
-
-## Visual Preview
+## מבנה הקוד
 
 ```text
-+----------------------------------------+
-|  TODAY'S FOCUS                    [→]  |
-|  🎯 "Productivity Mode" - Day 5 of 14  |
-|  ████████░░░░░░░ 35%                   |
-+----------------------------------------+
-
-+------------+ +------------+ +------------+
-| 💬 Aurora  | | 🧘 Hypnosis| | ✅ Tasks   |
-| Chat now   | | Start      | | 3 pending  |
-+------------+ +------------+ +------------+
-+------------+ +------------+ +------------+
-| 📋 90-Day  | | 🚀 Journey | | ⚙️ More    |
-| Week 4/12  | | Edit       | | Tools ▼    |
-+------------+ +------------+ +------------+
-
-+-------------------+ +-------------------+
-| 📈 PROGRESS       | | 📅 UPCOMING       |
-|                   | |                   |
-| Week 4 of 12      | | Tomorrow 10:00    |
-| ████░░░░ 33%      | | Coaching Session  |
-|                   | |                   |
-| 🔥 5-day streak   | | Friday 18:00      |
-|                   | | Hypnosis Session  |
-+-------------------+ +-------------------+
-
-→ Complete evening anchors | Start focus | +3 to 7-day streak! →
-
-+----------------------------------------+
-|  💬 Ask Aurora anything...        [→]  |
-+----------------------------------------+
+src/
+├── pages/
+│   └── Health.tsx                    # דף ראשי
+├── components/
+│   └── health-hub/
+│       ├── index.ts                  # ייצוא
+│       ├── HealthStatusCard.tsx      # כרטיס סטטוס
+│       └── HealthToolsGrid.tsx       # גריד כלים
 ```
 
-## Translation Keys to Add
+---
 
-```json
-{
-  "dashboard.todaysFocus": "המיקוד של היום / Today's Focus",
-  "dashboard.noFocusSet": "לא הוגדר מיקוד / No focus set",
-  "dashboard.startSession": "התחל סשן / Start Session",
-  "dashboard.viewPlan": "צפה בתוכנית / View Plan",
-  "dashboard.moreTools": "כלים נוספים / More Tools",
-  "dashboard.progress": "התקדמות / Progress",
-  "dashboard.upcoming": "קרוב / Upcoming",
-  "dashboard.suggestions": "הצעות / Suggestions"
-}
-```
+## אינטגרציות
+
+- **נתוני בריאות מ-Launchpad:** שעות שינה, תזונה, פעילות גופנית, הידרציה
+- **היפנוזה לבריאות:** קישור ל-`/hypnosis?goal=health`
+- **Aurora:** קישור ל-`/aurora` עם הקשר בריאות
+- **Missions Roadmap:** קטגוריית `health` כבר קיימת במערכת
+
+---
+
+## המשך עתידי (לא נכלל כרגע)
+
+- Health Journey (מסע בריאות אישי)
+- מעקב מדדים יומיים
+- אינטגרציה עם מכשירים
+- תוכניות אימון מותאמות
