@@ -10,10 +10,11 @@ import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, Compass } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
+import { HypnosisModal } from './HypnosisModal';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -27,6 +28,7 @@ interface DashboardLayoutProps {
 interface DesktopLayoutContentProps {
   children: ReactNode;
   isRTL: boolean;
+  language: string;
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
@@ -34,11 +36,14 @@ interface DesktopLayoutContentProps {
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
   handleOpenSettings: () => void;
+  hypnosisOpen: boolean;
+  setHypnosisOpen: (open: boolean) => void;
 }
 
 const DesktopLayoutContent = ({
   children,
   isRTL,
+  language,
   currentConversationId,
   onNewChat,
   onSelectConversation,
@@ -46,6 +51,8 @@ const DesktopLayoutContent = ({
   settingsOpen,
   setSettingsOpen,
   handleOpenSettings,
+  hypnosisOpen,
+  setHypnosisOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
   const isExpanded = sidebar?.state === 'expanded';
@@ -57,6 +64,15 @@ const DesktopLayoutContent = ({
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Fixed notification icons - always visible at top */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 bg-[#1d9bf0]/10 hover:bg-[#1d9bf0]/20 text-[#1d9bf0]"
+          onClick={() => setHypnosisOpen(true)}
+          title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
+        >
+          <Compass className="h-5 w-5" />
+        </Button>
         <AuroraChatQuickActions />
         <UserNotificationBell />
       </div>
@@ -96,6 +112,9 @@ const DesktopLayoutContent = ({
 
       {/* Settings Modal */}
       <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+      
+      {/* Hypnosis Modal */}
+      <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
     </div>
   );
 };
@@ -107,11 +126,12 @@ const DashboardLayout = ({
   onSelectConversation,
   hideRightPanel = false,
 }: DashboardLayoutProps) => {
-  const { isRTL } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [rightSheetOpen, setRightSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [hypnosisOpen, setHypnosisOpen] = useState(false);
 
   const handleOpenSettings = () => {
     setLeftSheetOpen(false); // Close sidebar sheet on mobile
@@ -150,6 +170,15 @@ const DashboardLayout = ({
               
               {/* Right: Notification Icons */}
               <div className="flex justify-end items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 bg-[#1d9bf0]/10 hover:bg-[#1d9bf0]/20 text-[#1d9bf0]"
+                  onClick={() => setHypnosisOpen(true)}
+                  title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
+                >
+                  <Compass className="h-5 w-5" />
+                </Button>
                 <AuroraChatQuickActions />
                 <UserNotificationBell />
               </div>
@@ -182,6 +211,9 @@ const DashboardLayout = ({
           {/* Settings Modal */}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
+          {/* Hypnosis Modal */}
+          <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 min-h-0 overflow-hidden">
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col px-3 pt-3 bg-sidebar backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
@@ -202,6 +234,7 @@ const DashboardLayout = ({
     <SidebarProvider defaultOpen={true}>
       <DesktopLayoutContent
         isRTL={isRTL}
+        language={language}
         currentConversationId={currentConversationId}
         onNewChat={onNewChat}
         onSelectConversation={onSelectConversation}
@@ -209,6 +242,8 @@ const DashboardLayout = ({
         settingsOpen={settingsOpen}
         setSettingsOpen={setSettingsOpen}
         handleOpenSettings={handleOpenSettings}
+        hypnosisOpen={hypnosisOpen}
+        setHypnosisOpen={setHypnosisOpen}
       >
         {children}
       </DesktopLayoutContent>
