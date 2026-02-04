@@ -86,7 +86,7 @@ const Business = () => {
           className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950 to-gray-900 p-6 shadow-lg border border-amber-800/50"
         >
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-800/30 rounded-lg backdrop-blur-sm">
                   <Briefcase className="h-6 w-6 text-amber-400" />
@@ -97,10 +97,10 @@ const Business = () => {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   onClick={() => navigate('/business/journey')}
-                  className="bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg font-bold border border-amber-400/30"
+                  className="flex-1 sm:flex-none bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg font-bold border border-amber-400/30"
                 >
                   <Rocket className="w-4 h-4 me-2" />
                   {language === 'he' ? 'התחל מסע' : 'Start Journey'}
@@ -108,7 +108,7 @@ const Business = () => {
                 <Button
                   onClick={() => handleOpenModal('financials')}
                   variant="outline"
-                  className="border-amber-600/50 text-amber-400 hover:bg-amber-900/30"
+                  className="flex-1 sm:flex-none border-amber-600/50 text-amber-400 hover:bg-amber-900/30"
                 >
                   <Stethoscope className="w-4 h-4 me-2" />
                   {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}

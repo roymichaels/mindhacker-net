@@ -74,7 +74,7 @@ const Relationships = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent" />
           
-          <div className="relative z-10 flex items-center justify-between">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-pink-600/20 rounded-xl">
                 <Users className="w-8 h-8 text-pink-400" />
@@ -93,7 +93,7 @@ const Relationships = () => {
             
             <Button
               onClick={() => navigate('/relationships/journey')}
-              className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white"
+              className="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white"
             >
               <Sparkles className="w-4 h-4 me-2" />
               {language === 'he' ? 'התחל מסע' : 'Start Journey'}
