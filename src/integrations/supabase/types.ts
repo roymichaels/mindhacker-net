@@ -312,33 +312,53 @@ export type Database = {
       }
       aurora_checklists: {
         Row: {
+          category: string | null
           context: string | null
           created_at: string
           id: string
+          milestone_id: string | null
           origin: string
+          priority: number | null
           status: string
+          time_scope: string | null
           title: string
           user_id: string
         }
         Insert: {
+          category?: string | null
           context?: string | null
           created_at?: string
           id?: string
+          milestone_id?: string | null
           origin?: string
+          priority?: number | null
           status?: string
+          time_scope?: string | null
           title: string
           user_id: string
         }
         Update: {
+          category?: string | null
           context?: string | null
           created_at?: string
           id?: string
+          milestone_id?: string | null
           origin?: string
+          priority?: number | null
           status?: string
+          time_scope?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "aurora_checklists_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       aurora_commitments: {
         Row: {
