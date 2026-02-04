@@ -1,21 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 import { 
   LayoutDashboard,
-  Plus,
-  Trash2,
   Menu,
   Search,
   Briefcase,
-  User
+  User,
+  MessageSquare
 } from 'lucide-react';
 import {
   Sidebar,
@@ -31,6 +29,7 @@ import { DashboardModal } from './DashboardModal';
 import { HypnosisModal } from './HypnosisModal';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 
 const defaultLogo = "/aurora-icon.svg";
 
@@ -39,157 +38,156 @@ interface DashboardSidebarProps {
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
-  isMobileSheet?: boolean; // When true, render content directly without Sidebar wrapper
+  isMobileSheet?: boolean;
   onOpenSettings?: () => void;
 }
 
-interface Conversation {
+interface MessageSearchResult {
   id: string;
-  title: string | null;
-  created_at: string | null;
-  last_message_at: string | null;
-  last_message_preview: string | null;
+  content: string;
+  conversation_id: string;
+  created_at: string;
 }
 
 const DashboardSidebar = ({ 
   onNavigate,
-  currentConversationId,
-  onNewChat,
-  onSelectConversation,
   isMobileSheet = false,
   onOpenSettings,
 }: DashboardSidebarProps) => {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const sidebar = useSidebar();
-  const queryClient = useQueryClient();
   const isCollapsed = !isMobileSheet && sidebar?.state === 'collapsed';
-  const isAuroraPage = location.pathname === '/aurora' || location.pathname === '/dashboard';
   const { theme: brandTheme } = useThemeSettings();
-  const logoUrl = brandTheme.logo_url || defaultLogo;
+  const chatContext = useAuroraChatContextSafe();
 
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    onNavigate?.();
-  };
-
-  // Fetch Aurora conversations only when on Aurora page
-  const { data: conversations = [] } = useQuery({
-    queryKey: ['aurora-conversations', user?.id],
+  // Search Aurora messages
+  const { data: searchResults = [], isLoading: isSearching } = useQuery({
+    queryKey: ['aurora-message-search', user?.id, searchQuery],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !searchQuery.trim() || searchQuery.length < 2) return [];
       
-      const { data, error } = await supabase
+      // Get user's AI conversations
+      const { data: conversations } = await supabase
         .from('conversations')
-        .select('id, created_at, last_message_at, last_message_preview')
+        .select('id')
         .eq('participant_1', user.id)
-        .eq('type', 'ai')
-        .order('created_at', { ascending: false });
+        .eq('type', 'ai');
+      
+      if (!conversations?.length) return [];
+      
+      const conversationIds = conversations.map(c => c.id);
+      
+      // Search messages in those conversations
+      const { data, error } = await supabase
+        .from('messages')
+        .select('id, content, conversation_id, created_at')
+        .in('conversation_id', conversationIds)
+        .ilike('content', `%${searchQuery}%`)
+        .order('created_at', { ascending: false })
+        .limit(10);
       
       if (error) {
-        console.error('Failed to fetch conversations:', error);
+        console.error('Failed to search messages:', error);
         return [];
       }
       
-       return (data || []).map((conv, index) => ({
-        ...conv,
-        title: conv.last_message_preview?.slice(0, 30) || `${language === 'he' ? 'שיחה חדשה' : 'New Chat'} ${index + 1}`,
-      })) as Conversation[];
+      return data as MessageSearchResult[];
     },
-    enabled: !!user?.id && isAuroraPage,
+    enabled: !!user?.id && searchQuery.length >= 2,
   });
 
-  const handleDeleteConversation = async (e: React.MouseEvent, conversationId: string) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    try {
-      // First delete all messages in the conversation
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .delete()
-        .eq('conversation_id', conversationId);
-      
-      if (messagesError) {
-        console.error('Failed to delete messages:', messagesError);
-      }
-      
-      // Then delete the conversation itself
-      const { error: convError } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-      
-      if (convError) {
-        console.error('Failed to delete conversation:', convError);
-        return;
-      }
-      
-      // Refresh the conversations list
-      queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['aurora-default-conversation'] });
-      
-      // If the deleted conversation was the current one, start a new chat
-      if (conversationId === currentConversationId) {
-        onNewChat?.();
-      }
-    } catch (error) {
-      console.error('Delete conversation error:', error);
+  // Show/hide search results dropdown
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      setShowSearchResults(true);
+    } else {
+      setShowSearchResults(false);
     }
+  }, [searchQuery]);
+
+  const handleSearchResultClick = (result: MessageSearchResult) => {
+    if (chatContext?.openChatAndScrollToMessage) {
+      chatContext.openChatAndScrollToMessage(result.conversation_id, result.id);
+    }
+    setSearchQuery('');
+    setShowSearchResults(false);
+    onNavigate?.();
   };
 
   // Navigation items - Dashboard first as the main entry point
-  // Aurora removed - chat accessible via global input at bottom
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'red' as const, path: '/dashboard' },
     { id: 'personality', icon: User, customIcon: null, label: language === 'he' ? 'אישיות' : 'Personality', highlight: 'blue' as const, path: '/personality' },
     { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
   ];
 
+  // Search results component
+  const SearchResultsDropdown = () => {
+    if (!showSearchResults || searchQuery.length < 2) return null;
+    
+    return (
+      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto">
+        {isSearching ? (
+          <div className="p-3 text-center text-sm text-muted-foreground">
+            {language === 'he' ? 'מחפש...' : 'Searching...'}
+          </div>
+        ) : searchResults.length === 0 ? (
+          <div className="p-3 text-center text-sm text-muted-foreground">
+            {language === 'he' ? 'לא נמצאו תוצאות' : 'No results found'}
+          </div>
+        ) : (
+          <div className="py-1">
+            {searchResults.map((result) => (
+              <button
+                key={result.id}
+                onClick={() => handleSearchResultClick(result)}
+                className="w-full text-start px-3 py-2 hover:bg-muted flex items-start gap-2 transition-colors"
+              >
+                <MessageSquare className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm truncate">{result.content.slice(0, 60)}...</p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(result.created_at), 'dd/MM/yyyy', {
+                      locale: language === 'he' ? he : enUS,
+                    })}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Shared content component for desktop sidebar
   const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
-      {/* Mobile: Separate New Chat button and Search bar */}
-      {isMobile && isAuroraPage && (
-        <div className="px-3 py-2 mb-3 flex items-center gap-2">
-          {/* New Chat Button - separate container */}
-          <button
-            onClick={async () => {
-              if (onNewChat) {
-                const ok = await onNewChat();
-                if (ok !== false) {
-                  toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
-                } else {
-                  toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
-                }
-              }
-              onNavigate?.();
-            }}
-            className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
-            title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
-          >
-            <Plus className="h-4 w-4 text-muted-foreground" />
-          </button>
-          
-          {/* Search Input - separate container */}
-          <div className="flex-1 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
+      {/* Mobile: Search bar */}
+      {isMobile && (
+        <div className="px-3 py-2 mb-3 relative">
+          <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={language === 'he' ? 'חיפוש...' : 'Search...'}
+              onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+              placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
               className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               dir={isRTL ? 'rtl' : 'ltr'}
             />
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           </div>
+          <SearchResultsDropdown />
         </div>
       )}
 
@@ -214,36 +212,23 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Desktop: Search bar above navigation */}
-      {!isMobile && !isCollapsed && isAuroraPage && (
-        <div className="px-3 mb-3 flex items-center gap-2 w-full min-w-0">
-          <button
-            onClick={async () => {
-              if (onNewChat) {
-                const ok = await onNewChat();
-                if (ok !== false) {
-                  toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
-                } else {
-                  toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
-                }
-              }
-            }}
-            className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
-            title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
-          >
-            <Plus className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <div className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
+      {/* Desktop: Search bar above navigation - shown on ALL pages */}
+      {!isMobile && !isCollapsed && (
+        <div className="px-3 mb-3 relative w-full min-w-0">
+          <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
             <input
               type="text"
+              ref={searchInputRef}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={language === 'he' ? 'חיפוש...' : 'Search...'}
+              onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+              placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
               className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               dir={isRTL ? 'rtl' : 'ltr'}
             />
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           </div>
+          <SearchResultsDropdown />
         </div>
       )}
 
@@ -289,85 +274,6 @@ const DashboardSidebar = ({
           })}
         </div>
       </div>
-
-      {/* New Chat Button - collapsed desktop only */}
-      {isAuroraPage && isCollapsed && onNewChat && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-full mb-3"
-          onClick={async () => {
-            if (!onNewChat) return;
-            const ok = await onNewChat();
-            if (ok !== false) {
-              toast.success(language === 'he' ? 'שיחה חדשה נוצרה' : 'New chat created');
-            } else {
-              toast.error(language === 'he' ? 'לא הצלחנו ליצור שיחה חדשה' : 'Could not create a new chat');
-            }
-          }}
-          title={language === 'he' ? 'שיחה חדשה' : 'New Chat'}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      )}
-
-      {/* Recent Conversations - right below New Chat button (only on Aurora page) */}
-      {isAuroraPage && !isCollapsed && conversations.length > 0 && (
-        <div className="mb-2">
-          <p className="text-xs text-muted-foreground px-3 mb-2 uppercase tracking-wider">
-            {language === 'he' ? 'שיחות אחרונות' : 'Recent Chats'}
-          </p>
-          <ScrollArea className="max-h-[250px]">
-            <div className="space-y-1">
-              {conversations
-                .filter((conv) => 
-                  !searchQuery || 
-                  conv.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  conv.last_message_preview?.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .slice(0, 10)
-                .map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => {
-                    onSelectConversation?.(conv.id);
-                    if (isMobile) onNavigate?.();
-                  }}
-                  className={cn(
-                    "w-full text-start px-3 py-2 rounded-lg text-sm transition-colors group flex items-center justify-between gap-2",
-                    "hover:bg-muted",
-                    conv.id === currentConversationId && "bg-primary/10 text-primary"
-                  )}
-                >
-                  <div className="flex-1 min-w-0">
-                    <span className="truncate block text-sm">{conv.title}</span>
-                    {conv.last_message_at && (
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(conv.last_message_at), 'dd/MM', {
-                          locale: language === 'he' ? he : enUS,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 flex items-center justify-center rounded-md hover:bg-accent cursor-pointer"
-                    onClick={(e) => handleDeleteConversation(e, conv.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleDeleteConversation(e as unknown as React.MouseEvent, conv.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
 
       {/* Spacer to push footer to bottom */}
       <div className="flex-1" />
