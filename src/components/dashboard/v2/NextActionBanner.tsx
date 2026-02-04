@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight } from 'lucide-react';
+import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight, Rocket } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +23,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
   const navigate = useNavigate();
   const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
+  const { isLaunchpadComplete, completionPercentage } = useLaunchpadProgress();
   const { habits, completedCount, totalCount } = useTodaysHabits();
   
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -60,6 +62,25 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
 
   // Priority-based action determination
   const getNextAction = () => {
+    // Priority 0: Consciousness journey not complete (required base)
+    if (!isLaunchpadComplete) {
+      return {
+        id: 'consciousness_journey',
+        icon: Rocket,
+        iconColor: 'text-purple-500',
+        bgGradient: 'from-purple-500/20 via-purple-500/10 to-transparent',
+        borderColor: 'border-purple-500/30',
+        title: language === 'he' 
+          ? 'השלם את מסע התודעה' 
+          : 'Complete the Consciousness Journey',
+        subtitle: language === 'he' 
+          ? `${completionPercentage}% הושלמו - זה הבסיס להכל`
+          : `${completionPercentage}% complete - this is the foundation for everything`,
+        action: () => navigate('/launchpad'),
+        actionLabel: language === 'he' ? 'המשך במסע' : 'Continue Journey',
+      };
+    }
+
     // Priority 1: Overdue tasks
     if (overdueTasks > 0) {
       return {

@@ -93,8 +93,8 @@ const DesktopLayoutContent = ({
           onOpenProfile={() => setProfileOpen(true)}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
+        {/* Main Content - pt-14 to clear top notification icons */}
+        <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 pt-14 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
           {children}
         </main>
 
