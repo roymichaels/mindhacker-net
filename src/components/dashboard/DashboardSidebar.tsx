@@ -287,7 +287,13 @@ const DashboardSidebar = ({
                 title={isCollapsed ? item.label : undefined}
               >
                 {item.customIcon ? (
-                  <item.customIcon className="h-4 w-4 shrink-0" size={16} />
+                  <item.customIcon className={cn(
+                    "h-4 w-4 shrink-0",
+                    isPurple && "text-purple-700 dark:text-purple-300",
+                    isBlue && "text-blue-700 dark:text-cyan-300",
+                    isGold && "text-amber-700 dark:text-amber-300",
+                    isRed && "text-red-700 dark:text-red-300"
+                  )} size={16} />
                 ) : item.icon && (
                   <item.icon className={cn(
                     "h-4 w-4 shrink-0", 
