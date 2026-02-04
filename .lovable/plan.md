@@ -1,230 +1,486 @@
 
-# Analysis: Redundancies Across Journey Flows
+# MindOS Life Operating System - Comprehensive Optimization Plan
 
 ## Executive Summary
-After analyzing the three journey flows (Launchpad/Transformation, Business, and Health), I've identified **significant code duplication** across multiple layers. The journeys share similar patterns but implement them independently, creating maintenance overhead and inconsistent user experiences.
+
+After extensive analysis of the codebase, I've identified **significant redundancies** and **missing pillars** that prevent MindOS from being a complete Life Operating System. This plan addresses three major areas:
+
+1. **Code Consolidation** - Eliminate ~1,000+ lines of duplicated code across journeys
+2. **Missing Life Pillars** - Add critical hubs for Relationships, Learning/Growth, and Finances
+3. **Unified Architecture** - Create shared infrastructure for scalable expansion
 
 ---
 
-## Critical Redundancies Found
+## Part 1: Code Redundancy Analysis
 
-### 1. Journey Header Components (HIGH REDUNDANCY)
+### Critical Redundancies Found
 
-**Files:**
-- `src/components/launchpad/GamifiedJourneyHeader.tsx` (260 lines)
-- `src/components/business-journey/BusinessJourneyHeader.tsx` (239 lines)
-- Health journey uses inline header in `HealthJourneyContainer.tsx`
+| Component | Files Affected | Duplication Level |
+|-----------|---------------|-------------------|
+| Journey Headers | GamifiedJourneyHeader.tsx (260 lines), BusinessJourneyHeader.tsx (239 lines), HealthJourneyContainer inline header | ~85% identical |
+| Journey Flows | LaunchpadFlow.tsx (461 lines), BusinessJourneyFlow.tsx (281 lines), HealthJourneyContainer.tsx (285 lines) | ~70% identical |
+| Progress Hooks | useLaunchpadProgress.ts (559 lines), useBusinessJourneyProgress.ts (286 lines), useHealthJourney.ts (250 lines) | ~65% identical |
+| Reset Dialogs | AlertDialog in 3 files | 100% identical |
+| Auto-Save Pattern | 20+ step components | 100% identical |
 
-**Duplication:** ~85% identical code
-- Same prop interface structure
+### Specific Duplications
+
+**1. Journey Headers (GamifiedJourneyHeader vs BusinessJourneyHeader)**
+- Both have identical prop interfaces
 - Same navigation buttons (close, prev, next, reset)
-- Same progress bar logic
-- Same phase indicator rendering
-- Only differs in: theme colors, icon, and specific metadata
+- Same progress bar rendering
+- Same phase indicator logic
+- Only differs: theme colors, icon, and PHASES/STEPS constants
 
-**Recommendation:** Create a unified `<JourneyHeader>` component with theme prop:
-```typescript
-type JourneyTheme = 'launchpad' | 'business' | 'health';
-<JourneyHeader theme="business" steps={STEPS} phases={PHASES} ... />
+**2. Flow Containers**
+- All three use identical patterns:
+```tsx
+// Duplicated in all 3 flows:
+const [viewingStep, setViewingStep] = useState<number | null>(null);
+const [showResetDialog, setShowResetDialog] = useState(false);
+const displayedStep = viewingStep ?? currentStep;
+// Same AnimatePresence + motion.div transitions
+// Same handleNavigatePrev/handleNavigateNext logic
+// Same reset dialog AlertDialog markup
 ```
 
----
+**3. Progress Hooks**
+- `getPhaseForStep()` is duplicated 3 times with same logic
+- `isLastStepInPhase()` is duplicated 3 times with same logic
+- `getStepDataKey()` helper exists in 2 hooks identically
 
-### 2. Journey Flow Container Pattern (HIGH REDUNDANCY)
-
-**Files:**
-- `src/components/launchpad/LaunchpadFlow.tsx` (461 lines)
-- `src/components/business-journey/BusinessJourneyFlow.tsx` (281 lines)
-- `src/components/health-hub/journey/HealthJourneyContainer.tsx` (285 lines)
-
-**Duplicated Logic:**
-- Loading states with Loader2 spinner
-- Reset dialog (AlertDialog) - identical markup
-- Step navigation (prev/next with viewingStep state)
-- AnimatePresence + motion.div step transitions
-- renderCurrentStep() switch pattern
-- Completion screen layout
-
-**Recommendation:** Extract a `<BaseJourneyFlow>` wrapper that handles:
-- Navigation state (currentStep, viewingStep)
-- Reset dialog
-- Loading/completion screens
-- Step rendering with animations
-
----
-
-### 3. Progress Hook Patterns (MEDIUM REDUNDANCY)
-
-**Files:**
-- `src/hooks/useLaunchpadProgress.ts` (559 lines)
-- `src/hooks/useBusinessJourneyProgress.ts` (286 lines)
-- `src/hooks/useHealthJourney.ts` (250 lines)
-- `src/hooks/useGuestLaunchpadProgress.ts` (346 lines)
-
-**Duplicated Patterns:**
-- Phase/step metadata definitions
-- `getPhaseForStep()` function - identical logic
-- `isLastStepInPhase()` function - identical logic
-- completeStep mutation pattern
-- saveStepData pattern
-- resetJourney pattern
-- Step rewards calculation
-
-**Recommendation:** Create base hook utilities:
-```typescript
-// src/hooks/journey/useJourneyProgress.ts
-export function createJourneyProgressHook(config: JourneyConfig) { ... }
-export function getPhaseForStep(phases: Phase[], stepId: number) { ... }
-export function isLastStepInPhase(phases: Phase[], stepId: number) { ... }
-```
-
----
-
-### 4. Auto-Save Pattern in Step Components (HIGH REDUNDANCY)
-
-Every step component implements the same auto-save pattern:
-```typescript
+**4. Auto-Save Pattern in Steps**
+Every step component implements:
+```tsx
 useEffect(() => {
   if (onAutoSave) {
-    const timer = setTimeout(() => {
-      onAutoSave({ ...data });
-    }, 500);
+    const timer = setTimeout(() => onAutoSave(data), 500);
     return () => clearTimeout(timer);
   }
-}, [dependencies, onAutoSave]);
+}, [data, onAutoSave]);
 ```
 
-**Found in 20+ files** across all three journeys.
+---
 
-**Recommendation:** Create a reusable hook:
-```typescript
-// src/hooks/useAutoSave.ts
+## Part 2: Missing Life Pillars
+
+Current navigation has only 4 pillars:
+- **Dashboard** (Command Center)
+- **Personality** (Identity/Transformation)
+- **Business** (Career)
+- **Health** (Physical/Mental)
+
+### Missing Pillars for a Complete Life OS
+
+| Pillar | Purpose | Impact |
+|--------|---------|--------|
+| **Relationships** | Family, Partner, Social connections | Critical for holistic life |
+| **Finances** | Personal money, savings, investments | Foundational for goals |
+| **Learning** | Skills, education, reading | Growth-focused |
+| **Spirituality/Purpose** | Meaning, meditation, values | Already partially covered in Personality |
+
+### Proposed New Hubs
+
+**1. Relationships Hub (/relationships)**
+- Theme: Pink/Rose gradient
+- Icon: Users or Heart
+- Journey: Relationship mapping, communication styles, family dynamics
+- Tools: Family tree, relationship health score, communication tracker
+- Modals: Partner, Family, Social, Boundaries, Communication, Gratitude
+
+**2. Finances Hub (/finances)**
+- Theme: Green/Emerald gradient
+- Icon: Wallet or DollarSign
+- Journey: Financial assessment, goals, habits
+- Tools: Budget tracker, savings goals, income tracking
+- Modals: Income, Expenses, Savings, Investments, Debt, Goals
+
+**3. Learning Hub (/learning)**
+- Theme: Indigo/Violet gradient
+- Icon: GraduationCap or BookOpen
+- Journey: Learning style, skill gaps, goals
+- Tools: Reading tracker, skill tree, learning goals
+- Modals: Skills, Books, Courses, Goals, Habits, Progress
+
+---
+
+## Part 3: Implementation Plan
+
+### Phase 1: Shared Infrastructure (Foundation)
+
+**1.1 Create Journey Shared Components**
+
+```
+src/components/journey-shared/
+├── index.ts
+├── types.ts                    # Shared interfaces
+├── JourneyHeader.tsx           # Unified header with theme prop
+├── JourneyResetDialog.tsx      # Extracted reset dialog
+├── JourneyLoadingState.tsx     # Shared loading screen
+├── JourneyPhaseIndicator.tsx   # Phase progress component
+└── JourneyStepContainer.tsx    # Motion wrapper for steps
+```
+
+**1.2 Create Journey Shared Hooks**
+
+```
+src/hooks/journey/
+├── index.ts
+├── useAutoSave.ts              # Replaces 20+ useEffect patterns
+├── useJourneyNavigation.ts     # Step navigation logic
+├── utils.ts                    # getPhaseForStep, isLastStepInPhase
+└── createJourneyHook.ts        # Factory for journey progress hooks
+```
+
+**1.3 Define Theme System**
+
+```tsx
+// src/components/journey-shared/types.ts
+export type JourneyTheme = 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning';
+
+export interface JourneyThemeConfig {
+  id: JourneyTheme;
+  colors: {
+    primary: string;      // e.g., 'blue-500'
+    secondary: string;    // e.g., 'cyan-400'
+    background: string;   // e.g., 'from-blue-950 to-gray-900'
+    border: string;       // e.g., 'blue-800/50'
+    text: string;         // e.g., 'blue-400'
+  };
+  icon: LucideIcon;
+  title: { he: string; en: string };
+  phases: Phase[];
+  steps: Step[];
+}
+```
+
+### Phase 2: Refactor Existing Journeys
+
+**2.1 Create Unified JourneyHeader**
+
+Replace `GamifiedJourneyHeader.tsx` and `BusinessJourneyHeader.tsx` with single component:
+
+```tsx
+<JourneyHeader
+  theme="business"
+  currentStep={currentStep}
+  totalSteps={totalSteps}
+  phases={BUSINESS_PHASES}
+  steps={BUSINESS_STEPS}
+  // ... other props
+/>
+```
+
+**2.2 Extract JourneyResetDialog**
+
+Single component used by all journeys:
+```tsx
+<JourneyResetDialog
+  open={showResetDialog}
+  onOpenChange={setShowResetDialog}
+  onConfirm={handleResetJourney}
+  isResetting={isResetting}
+  journeyType="business" // for translation context
+/>
+```
+
+**2.3 Create useAutoSave Hook**
+
+```tsx
+// src/hooks/journey/useAutoSave.ts
 export function useAutoSave<T>(
   data: T,
   onSave?: (data: T) => void,
   debounceMs = 500
-) { ... }
+) {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    if (!onSave) return;
+    
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    
+    timeoutRef.current = setTimeout(() => {
+      onSave(data);
+    }, debounceMs);
+    
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [data, onSave, debounceMs]);
+}
+```
+
+**2.4 Extract Utility Functions**
+
+```tsx
+// src/hooks/journey/utils.ts
+export function getPhaseForStep<T extends { steps: number[] }>(
+  phases: T[],
+  stepNumber: number
+): T | undefined {
+  return phases.find(phase => phase.steps.includes(stepNumber));
+}
+
+export function isLastStepInPhase<T extends { steps: number[] }>(
+  phases: T[],
+  stepNumber: number
+): boolean {
+  const phase = getPhaseForStep(phases, stepNumber);
+  if (!phase) return false;
+  return phase.steps[phase.steps.length - 1] === stepNumber;
+}
+```
+
+### Phase 3: Standardize Health Journey
+
+Currently, Health Journey uses different patterns:
+- Uses `data` + `onUpdate` props instead of `onComplete` + `savedData`
+- No phase system
+- Inline header instead of component
+
+**Refactor to match Launchpad/Business patterns:**
+- Convert step components to use standard props
+- Add phases: Assessment, Habits, Optimization
+- Use shared JourneyHeader component
+
+### Phase 4: Add New Pillars
+
+**4.1 Create Hub Template**
+
+Base all new hubs on the Health hub structure (the cleanest):
+
+```tsx
+// Template structure for new hubs
+const [HubName] = () => {
+  return (
+    <DashboardLayout hideRightPanel>
+      <div className="space-y-6 pb-24 pt-9">
+        {/* Header Section with themed gradient */}
+        <motion.div className="bg-gradient-to-r from-[theme]-950 to-gray-900">
+          {/* Icon, Title, Action buttons */}
+        </motion.div>
+
+        {/* Tools Grid */}
+        <[HubName]ToolsGrid />
+
+        {/* Status Card */}
+        <[HubName]StatusCard />
+      </div>
+
+      {/* Modals */}
+      {/* 6-8 themed modals */}
+    </DashboardLayout>
+  );
+};
+```
+
+**4.2 Database Tables Needed**
+
+```sql
+-- Relationships pillar
+CREATE TABLE relationships_journeys (...);
+CREATE TABLE relationship_profiles (...);
+
+-- Finances pillar
+CREATE TABLE finance_journeys (...);
+CREATE TABLE finance_goals (...);
+CREATE TABLE finance_entries (...);
+
+-- Learning pillar
+CREATE TABLE learning_journeys (...);
+CREATE TABLE learning_goals (...);
+CREATE TABLE reading_tracker (...);
+```
+
+**4.3 Update Navigation**
+
+Add new pillars to `DashboardSidebar.tsx`:
+
+```tsx
+const navItems = [
+  { id: 'dashboard', highlight: 'purple', path: '/dashboard' },
+  { id: 'personality', highlight: 'blue', path: '/personality' },
+  { id: 'business', highlight: 'gold', path: '/business' },
+  { id: 'health', highlight: 'red', path: '/health' },
+  // NEW:
+  { id: 'relationships', highlight: 'pink', path: '/relationships' },
+  { id: 'finances', highlight: 'green', path: '/finances' },
+  { id: 'learning', highlight: 'indigo', path: '/learning' },
+];
 ```
 
 ---
 
-### 5. Step Component Interface (MEDIUM REDUNDANCY)
+## Part 4: File Changes Summary
 
-All step components share nearly identical prop interfaces:
-```typescript
-// Launchpad pattern:
-interface StepProps {
-  onComplete: (data: Record<string, unknown>) => void;
-  isCompleting: boolean;
-  rewards?: { xp: number; tokens: number; unlock: string };
-  savedData?: Record<string, unknown>;
-  onAutoSave?: (data: Record<string, unknown>) => void;
-}
+### New Files to Create
 
-// Business pattern:
-interface StepProps {
-  onComplete: (data: Record<string, unknown>) => void;
-  isCompleting: boolean;
-  savedData?: Record<string, unknown>;
-  onAutoSave?: (data: Record<string, unknown>) => void;
-}
-
-// Health pattern (DIFFERENT):
-interface StepProps {
-  data: Record<string, unknown>;
-  onUpdate: (data: Record<string, unknown>) => void;
-  language: string;
-}
-```
-
-**Issue:** Health journey uses a different pattern (controlled vs uncontrolled), causing inconsistency.
-
-**Recommendation:** Standardize on a single `BaseStepProps` interface.
-
----
-
-### 6. Phase Transition Screen (PARTIAL REDUNDANCY)
-
-**Current state:**
-- Launchpad has `PhaseTransition.tsx` - full celebration screen
-- Business journey has NO phase transition
-- Health journey has NO phase transition
-
-**Recommendation:** The PhaseTransition component could be reused for Business/Health with theme customization, OR all journeys should skip it for consistency.
-
----
-
-### 7. Reset Dialog Markup (HIGH REDUNDANCY)
-
-The exact same AlertDialog reset confirmation appears in:
-- `LaunchpadFlow.tsx` (lines 407-436)
-- `BusinessJourneyFlow.tsx` (lines 227-256)
-
-**100% identical except for the word "עסקי" (business) in one translation.**
-
-**Recommendation:** Extract to `<JourneyResetDialog>` component.
-
----
-
-## Step Data Key Pattern Redundancy
-
-Both Business and Health journeys implement identical helper functions:
-```typescript
-// useBusinessJourneyProgress.ts
-function getStepDataKey(step: number): string {
-  const keys: Record<number, string> = { 1: 'vision', 2: 'business_model', ... };
-  return keys[step] || 'unknown';
-}
-
-// useHealthJourney.ts
-function getStepName(stepNumber: number): string {
-  const stepNames: Record<number, string> = { 1: 'vision', 2: 'current_state', ... };
-  return stepNames[stepNumber] || 'unknown';
-}
-```
-
----
-
-## Recommended Refactoring Architecture
-
+**Shared Infrastructure (10 files):**
 ```
 src/components/journey-shared/
-├── BaseJourneyFlow.tsx          # Core flow container
-├── JourneyHeader.tsx            # Unified header with theme
-├── JourneyResetDialog.tsx       # Shared reset confirmation
-├── JourneyPhaseTransition.tsx   # Optional phase celebration
-├── JourneyLoadingState.tsx      # Shared loading screen
-├── JourneyCompletionScreen.tsx  # Shared completion screen
-└── types.ts                     # Shared interfaces
+  - index.ts
+  - types.ts
+  - JourneyHeader.tsx
+  - JourneyResetDialog.tsx
+  - JourneyLoadingState.tsx
+  - JourneyPhaseIndicator.tsx
+  - JourneyStepContainer.tsx
+  - themes.ts
 
 src/hooks/journey/
-├── useJourneyNavigation.ts      # Step navigation logic
-├── useJourneyAutoSave.ts        # Debounced auto-save
-├── createJourneyHook.ts         # Factory for journey hooks
-└── utils.ts                     # getPhaseForStep, isLastStepInPhase
+  - index.ts
+  - useAutoSave.ts
+  - useJourneyNavigation.ts
+  - utils.ts
+```
+
+**Relationships Hub (~20 files):**
+```
+src/pages/Relationships.tsx
+src/pages/RelationshipsJourney.tsx
+src/components/relationships-hub/
+  - index.ts
+  - RelationshipsToolsGrid.tsx
+  - RelationshipsStatusCard.tsx
+  - modals/ (6 modals)
+src/components/relationships-journey/
+  - RelationshipsJourneyFlow.tsx
+  - steps/ (8 steps)
+src/hooks/useRelationshipsJourney.ts
+src/hooks/useRelationshipsData.ts
+```
+
+**Finances Hub (~20 files):**
+```
+src/pages/Finances.tsx
+src/pages/FinancesJourney.tsx
+src/components/finances-hub/
+  - index.ts
+  - FinancesToolsGrid.tsx
+  - FinancesStatusCard.tsx
+  - modals/ (6 modals)
+src/components/finances-journey/
+  - FinancesJourneyFlow.tsx
+  - steps/ (8 steps)
+src/hooks/useFinancesJourney.ts
+src/hooks/useFinancesData.ts
+```
+
+**Learning Hub (~20 files):**
+```
+src/pages/Learning.tsx
+src/pages/LearningJourney.tsx
+src/components/learning-hub/
+  - index.ts
+  - LearningToolsGrid.tsx
+  - LearningStatusCard.tsx
+  - modals/ (6 modals)
+src/components/learning-journey/
+  - LearningJourneyFlow.tsx
+  - steps/ (8 steps)
+src/hooks/useLearningJourney.ts
+src/hooks/useLearningData.ts
+```
+
+### Files to Modify
+
+**Refactoring (6 files):**
+- `src/components/launchpad/LaunchpadFlow.tsx` - Use shared components
+- `src/components/business-journey/BusinessJourneyFlow.tsx` - Use shared components
+- `src/components/health-hub/journey/HealthJourneyContainer.tsx` - Standardize patterns
+- `src/components/launchpad/GamifiedJourneyHeader.tsx` - Replace with shared
+- `src/components/business-journey/BusinessJourneyHeader.tsx` - Replace with shared
+- `src/components/dashboard/DashboardSidebar.tsx` - Add new nav items
+
+**Step Components (20+ files):**
+- All step components across journeys - Use `useAutoSave` hook
+
+---
+
+## Part 5: Priority Order
+
+| Priority | Task | Impact | Effort |
+|----------|------|--------|--------|
+| 1 | Create `useAutoSave` hook | High (affects 20+ files) | Low |
+| 2 | Extract `JourneyResetDialog` | Medium | Low |
+| 3 | Create journey utility functions | Medium | Low |
+| 4 | Create unified `JourneyHeader` | High | Medium |
+| 5 | Add Relationships Hub | High (complete life coverage) | High |
+| 6 | Add Finances Hub | High (foundational pillar) | High |
+| 7 | Add Learning Hub | Medium (growth pillar) | High |
+| 8 | Standardize Health Journey patterns | Medium | Medium |
+
+---
+
+## Technical Architecture Diagram
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                      MindOS Life Operating System                │
+├─────────────────────────────────────────────────────────────────┤
+│                          Navigation Layer                        │
+│  ┌──────┐ ┌───────────┐ ┌────────┐ ┌──────┐ ┌─────────────────┐ │
+│  │Dash- │ │Personality│ │Business│ │Health│ │ NEW: Relations, │ │
+│  │board │ │   (Blue)  │ │ (Gold) │ │(Red) │ │ Finance, Learn  │ │
+│  └──────┘ └───────────┘ └────────┘ └──────┘ └─────────────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│                         Hub Layer                                │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │  Each Hub:                                                   │ │
+│  │  - Header (themed gradient)                                  │ │
+│  │  - ToolsGrid (8 interactive cards)                           │ │
+│  │  - StatusCard (metrics + score)                              │ │
+│  │  - 6-8 Modals (deep interaction)                             │ │
+│  │  - Journey Flow (onboarding)                                 │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│                      Shared Journey Layer                        │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │  JourneyHeader (themed) ← replaces 3 duplicate headers       │ │
+│  │  JourneyResetDialog ← replaces 3 duplicate dialogs           │ │
+│  │  JourneyLoadingState ← shared loading UI                     │ │
+│  │  useAutoSave ← replaces 20+ useEffect patterns               │ │
+│  │  useJourneyNavigation ← shared nav logic                     │ │
+│  │  utils.ts ← getPhaseForStep, isLastStepInPhase               │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│                         Data Layer                               │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │  Existing Tables:                                            │ │
+│  │  - launchpad_progress, life_plans, life_plan_milestones      │ │
+│  │  - business_journeys, health_journeys                        │ │
+│  │  New Tables:                                                 │ │
+│  │  - relationships_journeys, finance_journeys, learning_journeys│
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Estimated Code Reduction
+## Expected Outcomes
 
-| Area | Current Lines | After Refactor | Savings |
-|------|--------------|----------------|---------|
-| Headers | 500+ | ~150 + configs | 70% |
-| Flow Containers | 1,000+ | ~300 + configs | 70% |
-| Progress Hooks | 1,400+ | ~500 + configs | 65% |
-| Auto-save | ~200 (scattered) | ~30 | 85% |
-| Reset Dialogs | ~60 | ~20 | 67% |
+**Code Quality:**
+- ~1,000 lines of duplicate code eliminated
+- Consistent patterns across all journeys
+- Easier maintenance and feature additions
 
-**Total estimated reduction: ~800-1,000 lines of duplicated code**
+**Feature Completeness:**
+- 7 life pillars instead of 4
+- Complete Life Operating System coverage
+- Scalable architecture for future pillars
+
+**User Experience:**
+- Consistent UI/UX across all journeys
+- Comprehensive life tracking
+- Deeper personalization through more data points
 
 ---
 
-## Priority Order for Refactoring
+## Implementation Notes
 
-1. **HIGH PRIORITY:** Extract `JourneyResetDialog` (easiest, high impact)
-2. **HIGH PRIORITY:** Create `useAutoSave` hook (affects 20+ files)
-3. **MEDIUM PRIORITY:** Unify `JourneyHeader` with theme system
-4. **MEDIUM PRIORITY:** Extract journey utility functions to shared module
-5. **LOWER PRIORITY:** Create `BaseJourneyFlow` wrapper
-6. **LOWER PRIORITY:** Standardize Health journey step interface to match others
+1. **Start with infrastructure** - Build shared components first to avoid creating more duplication
+2. **Refactor before adding** - Clean up existing journeys before adding new hubs
+3. **One pillar at a time** - Add new hubs incrementally (Relationships first, then Finances, then Learning)
+4. **Test thoroughly** - Each refactor should maintain existing functionality
+5. **Use existing patterns** - Health hub is the cleanest reference implementation
