@@ -10,12 +10,22 @@ import { motion } from "framer-motion";
 import { Heart, Stethoscope } from "lucide-react";
 import { HealthStatusCard, HealthToolsGrid } from "@/components/health-hub";
 import { useLaunchpadData } from "@/hooks/useLaunchpadData";
+import {
+  PhysicalHealthModal,
+  MentalHealthModal,
+  EnergeticHealthModal,
+  SubconsciousHealthModal,
+  SleepModal,
+  MeditationModal,
+} from "@/components/health-hub/modals";
+
+type HealthModalType = 'physical' | 'mental' | 'energetic' | 'subconscious' | 'sleep' | 'meditation' | 'habits' | 'status' | null;
 
 const Health = () => {
   const { isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const { isLoading } = useLaunchpadData();
-  const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [activeModal, setActiveModal] = useState<HealthModalType>(null);
 
   // SEO Configuration
   useSEO({
@@ -34,9 +44,20 @@ const Health = () => {
   });
 
   const handleOpenModal = (modalType: string) => {
-    setActiveModal(modalType);
-    // TODO: Implement modal functionality when needed
-    console.log('Opening modal:', modalType);
+    // Handle special cases
+    if (modalType === 'hypnosis') {
+      navigate('/hypnosis?goal=health');
+      return;
+    }
+    if (modalType === 'habits') {
+      navigate('/dashboard?tab=missions&category=health');
+      return;
+    }
+    setActiveModal(modalType as HealthModalType);
+  };
+
+  const handleCloseModal = () => {
+    setActiveModal(null);
   };
 
   if (isLoading) {
@@ -76,7 +97,7 @@ const Health = () => {
               
               {/* Check Status Button */}
               <Button
-                onClick={() => handleOpenModal('status')}
+                onClick={() => handleOpenModal('physical')}
                 className="bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
               >
                 <Stethoscope className="w-4 h-4 me-2" />
@@ -115,6 +136,38 @@ const Health = () => {
           <HealthToolsGrid language={language} onOpenModal={handleOpenModal} />
         </motion.div>
       </div>
+
+      {/* Modals */}
+      <PhysicalHealthModal 
+        isOpen={activeModal === 'physical'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
+      <MentalHealthModal 
+        isOpen={activeModal === 'mental'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
+      <EnergeticHealthModal 
+        isOpen={activeModal === 'energetic'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
+      <SubconsciousHealthModal 
+        isOpen={activeModal === 'subconscious'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
+      <SleepModal 
+        isOpen={activeModal === 'sleep'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
+      <MeditationModal 
+        isOpen={activeModal === 'meditation'} 
+        onClose={handleCloseModal} 
+        language={language} 
+      />
     </DashboardLayout>
   );
 };
