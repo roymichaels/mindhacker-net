@@ -14,7 +14,10 @@ import {
   Briefcase,
   User,
   Heart,
-  MessageSquare
+  MessageSquare,
+  Users,
+  Wallet,
+  GraduationCap
 } from 'lucide-react';
 import {
   Sidebar,
@@ -137,6 +140,9 @@ const DashboardSidebar = ({
     { id: 'personality', icon: User, customIcon: null, label: language === 'he' ? 'אישיות' : 'Personality', highlight: 'blue' as const, path: '/personality' },
     { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
     { id: 'health', icon: Heart, customIcon: null, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red' as const, path: '/health' },
+    { id: 'relationships', icon: Users, customIcon: null, label: language === 'he' ? 'קשרים' : 'Relationships', highlight: 'pink' as const, path: '/relationships' },
+    { id: 'finances', icon: Wallet, customIcon: null, label: language === 'he' ? 'פיננסים' : 'Finances', highlight: 'green' as const, path: '/finances' },
+    { id: 'learning', icon: GraduationCap, customIcon: null, label: language === 'he' ? 'למידה' : 'Learning', highlight: 'indigo' as const, path: '/learning' },
   ];
 
   // Search results component
@@ -267,6 +273,9 @@ const DashboardSidebar = ({
             const isRed = highlightColor === 'red';
             const isGold = highlightColor === 'gold';
             const isBlue = highlightColor === 'blue';
+            const isPink = highlightColor === 'pink';
+            const isGreen = highlightColor === 'green';
+            const isIndigo = highlightColor === 'indigo';
               return (
               <button
                 key={item.id}
@@ -282,6 +291,9 @@ const DashboardSidebar = ({
                   isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-cyan-300 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
                   isGold && "bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950 dark:to-yellow-950 text-amber-700 dark:text-amber-300 hover:from-amber-200 hover:to-yellow-200 dark:hover:from-amber-900 dark:hover:to-yellow-900 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/20 dark:hover:shadow-amber-900/30 border border-amber-300 dark:border-amber-800/50",
                   isRed && "bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-950 dark:to-rose-950 text-red-700 dark:text-red-300 hover:from-red-200 hover:to-rose-200 dark:hover:from-red-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-red-500/20 dark:hover:shadow-red-900/30 border border-red-300 dark:border-red-800/50",
+                  isPink && "bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-950 dark:to-rose-950 text-pink-700 dark:text-pink-300 hover:from-pink-200 hover:to-rose-200 dark:hover:from-pink-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-pink-500/20 dark:hover:shadow-pink-900/30 border border-pink-300 dark:border-pink-800/50",
+                  isGreen && "bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 text-emerald-700 dark:text-emerald-300 hover:from-emerald-200 hover:to-green-200 dark:hover:from-emerald-900 dark:hover:to-green-900 font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 dark:hover:shadow-emerald-900/30 border border-emerald-300 dark:border-emerald-800/50",
+                  isIndigo && "bg-gradient-to-r from-indigo-100 to-violet-100 dark:from-indigo-950 dark:to-violet-950 text-indigo-700 dark:text-indigo-300 hover:from-indigo-200 hover:to-violet-200 dark:hover:from-indigo-900 dark:hover:to-violet-900 font-bold shadow-sm hover:shadow-md hover:shadow-indigo-500/20 dark:hover:shadow-indigo-900/30 border border-indigo-300 dark:border-indigo-800/50",
                   isCollapsed && "justify-center px-2"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -292,7 +304,10 @@ const DashboardSidebar = ({
                     isPurple && "text-purple-700 dark:text-purple-300",
                     isBlue && "text-blue-700 dark:text-cyan-300",
                     isGold && "text-amber-700 dark:text-amber-300",
-                    isRed && "text-red-700 dark:text-red-300"
+                    isRed && "text-red-700 dark:text-red-300",
+                    isPink && "text-pink-700 dark:text-pink-300",
+                    isGreen && "text-emerald-700 dark:text-emerald-300",
+                    isIndigo && "text-indigo-700 dark:text-indigo-300"
                   )} size={16} />
                 ) : item.icon && (
                   <item.icon className={cn(
@@ -300,7 +315,10 @@ const DashboardSidebar = ({
                     isPurple && "text-purple-700 dark:text-purple-300",
                     isBlue && "text-blue-700 dark:text-cyan-300",
                     isGold && "text-amber-700 dark:text-amber-300",
-                    isRed && "text-red-700 dark:text-red-300"
+                    isRed && "text-red-700 dark:text-red-300",
+                    isPink && "text-pink-700 dark:text-pink-300",
+                    isGreen && "text-emerald-700 dark:text-emerald-300",
+                    isIndigo && "text-indigo-700 dark:text-indigo-300"
                   )} />
                 )}
                 {!isCollapsed && <span>{item.label}</span>}

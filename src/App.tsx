@@ -73,6 +73,10 @@ const Personality = lazy(() => import("./pages/Personality"));
 const Health = lazy(() => import("./pages/Health"));
 const HealthJourney = lazy(() => import("./pages/HealthJourney"));
 const HealthPlan = lazy(() => import("./pages/HealthPlan"));
+// New Life OS Pillars
+const Relationships = lazy(() => import("./pages/Relationships"));
+const Finances = lazy(() => import("./pages/Finances"));
+const Learning = lazy(() => import("./pages/Learning"));
 // Free guest journey
 const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
 const GuestLaunchpad = lazy(() => import("./pages/GuestLaunchpad"));
@@ -450,6 +454,33 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <HealthPlan />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Relationships Hub */}
+                        <Route
+                          path="/relationships"
+                          element={
+                            <ProtectedRoute>
+                              <Relationships />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Finances Hub */}
+                        <Route
+                          path="/finances"
+                          element={
+                            <ProtectedRoute>
+                              <Finances />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Learning Hub */}
+                        <Route
+                          path="/learning"
+                          element={
+                            <ProtectedRoute>
+                              <Learning />
                             </ProtectedRoute>
                           }
                         />

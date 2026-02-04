@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep, isLastStepInPhase } from '@/hooks/useLaunchpadProgress';
@@ -23,16 +22,7 @@ import { GuestDashboardActivation } from './steps/GuestDashboardActivation';
 import { GamifiedJourneyHeader } from './GamifiedJourneyHeader';
 import { PhaseTransition } from './PhaseTransition';
 import JourneyChatDock from '@/components/aurora/JourneyChatDock';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
 
 export type LaunchpadMode = 'authenticated' | 'guest';
 
@@ -356,16 +346,7 @@ export function LaunchpadFlow({ className, mode = 'authenticated', onComplete, o
 
   // Show loader while data is loading (authenticated only)
   if (!isGuest && isLoadingData) {
-    return (
-      <div className={cn("min-h-screen flex items-center justify-center", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">
-            {language === 'he' ? 'טוען את המסע שלך...' : 'Loading your journey...'}
-          </p>
-        </div>
-      </div>
-    );
+    return <JourneyLoadingState theme="launchpad" />;
   }
 
   // Show phase transition screen
@@ -403,37 +384,14 @@ export function LaunchpadFlow({ className, mode = 'authenticated', onComplete, o
         showReset={currentStep > 1}
       />
 
-      {/* Reset Dialog */}
-      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <AlertDialogContent dir={isRTL ? 'rtl' : 'ltr'}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {language === 'he' ? 'התחל מסע מחדש?' : 'Start Journey Over?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {language === 'he' 
-                ? 'פעולה זו תמחק את כל התשובות שלך ותתחיל את המסע מההתחלה. פעולה זו לא ניתנת לביטול.'
-                : 'This will delete all your answers and start the journey from the beginning. This action cannot be undone.'
-              }
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className={cn(isRTL && "flex-row-reverse")}>
-            <AlertDialogCancel>
-              {language === 'he' ? 'ביטול' : 'Cancel'}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleResetJourney}
-              disabled={isResetting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isResetting 
-                ? (language === 'he' ? 'מאפס...' : 'Resetting...')
-                : (language === 'he' ? 'התחל מחדש' : 'Start Over')
-              }
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Reset Dialog - using shared component */}
+      <JourneyResetDialog
+        open={showResetDialog}
+        onOpenChange={setShowResetDialog}
+        onConfirm={handleResetJourney}
+        isResetting={isResetting}
+        journeyType="launchpad"
+      />
       
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">

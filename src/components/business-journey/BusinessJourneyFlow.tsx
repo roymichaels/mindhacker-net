@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useBusinessJourneyProgress, BUSINESS_STEPS, BUSINESS_PHASES, getBusinessPhaseForStep, isLastStepInBusinessPhase } from '@/hooks/useBusinessJourneyProgress';
+import { useBusinessJourneyProgress, BUSINESS_STEPS, BUSINESS_PHASES } from '@/hooks/useBusinessJourneyProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { BusinessJourneyHeader } from './BusinessJourneyHeader';
+import { JourneyHeader, JourneyResetDialog, JourneyLoadingState } from '@/components/journey-shared';
 import { VisionStep } from './steps/VisionStep';
 import { BusinessModelStep } from './steps/BusinessModelStep';
 import { TargetAudienceStep } from './steps/TargetAudienceStep';
@@ -18,16 +17,6 @@ import { MarketingStep } from './steps/MarketingStep';
 import { OperationsStep } from './steps/OperationsStep';
 import { ActionPlanStep } from './steps/ActionPlanStep';
 import JourneyChatDock from '@/components/aurora/JourneyChatDock';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 
 interface BusinessJourneyFlowProps {
   className?: string;
@@ -147,23 +136,15 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
 
   // Show loader while data is loading
   if (isLoading) {
-    return (
-      <div className={cn("min-h-screen flex items-center justify-center", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-500" />
-          <p className="text-muted-foreground">
-            {language === 'he' ? 'טוען את המסע העסקי שלך...' : 'Loading your business journey...'}
-          </p>
-        </div>
-      </div>
-    );
+    return <JourneyLoadingState theme="business" />;
   }
 
   // Show completion screen
   if (isJourneyComplete && viewingStep === null) {
     return (
       <div className={cn("min-h-screen flex flex-col bg-background", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-        <BusinessJourneyHeader
+        <JourneyHeader
+          theme="business"
           currentStep={currentStep}
           totalSteps={totalSteps}
           displayedStep={totalSteps}
@@ -175,6 +156,8 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
           onClose={handleClose}
           onReset={() => setShowResetDialog(true)}
           showReset={true}
+          phases={BUSINESS_PHASES}
+          steps={BUSINESS_STEPS}
         />
         
         <div className="flex-1 flex items-center justify-center p-4">
@@ -208,8 +191,9 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
 
   return (
     <div className={cn("min-h-screen flex flex-col bg-background", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Business Journey Header */}
-      <BusinessJourneyHeader
+      {/* Business Journey Header - using shared component */}
+      <JourneyHeader
+        theme="business"
         currentStep={currentStep}
         totalSteps={totalSteps}
         displayedStep={displayedStep}
@@ -221,39 +205,18 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
         onClose={handleClose}
         onReset={() => setShowResetDialog(true)}
         showReset={currentStep > 1}
+        phases={BUSINESS_PHASES}
+        steps={BUSINESS_STEPS}
       />
 
-      {/* Reset Dialog */}
-      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <AlertDialogContent dir={isRTL ? 'rtl' : 'ltr'}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {language === 'he' ? 'התחל מסע מחדש?' : 'Start Journey Over?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {language === 'he' 
-                ? 'פעולה זו תמחק את כל התשובות שלך ותתחיל את המסע העסקי מההתחלה. פעולה זו לא ניתנת לביטול.'
-                : 'This will delete all your answers and start the business journey from the beginning. This action cannot be undone.'
-              }
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className={cn(isRTL && "flex-row-reverse")}>
-            <AlertDialogCancel>
-              {language === 'he' ? 'ביטול' : 'Cancel'}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleResetJourney}
-              disabled={isResetting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isResetting 
-                ? (language === 'he' ? 'מאפס...' : 'Resetting...')
-                : (language === 'he' ? 'התחל מחדש' : 'Start Over')
-              }
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Reset Dialog - using shared component */}
+      <JourneyResetDialog
+        open={showResetDialog}
+        onOpenChange={setShowResetDialog}
+        onConfirm={handleResetJourney}
+        isResetting={isResetting}
+        journeyType="business"
+      />
       
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">
