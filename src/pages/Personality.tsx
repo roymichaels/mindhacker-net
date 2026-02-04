@@ -33,6 +33,7 @@ import {
   AnchorsModal,
 } from "@/components/dashboard/DashboardModals";
 import { useUnifiedDashboard } from "@/hooks/useUnifiedDashboard";
+import { useOnboardingProgress } from "@/hooks/aurora/useOnboardingProgress";
 
 type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | null;
 
@@ -42,10 +43,16 @@ const Personality = () => {
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const dashboard = useUnifiedDashboard();
+  const { onboarding } = useOnboardingProgress();
   const [identityData, setIdentityData] = useState<{
     identityTitle?: string;
     mainValues?: string[];
   } | null>(null);
+  
+  // Check if user has completed or started the journey
+  const hasJourneyData = onboarding?.onboarding_complete || 
+    onboarding?.direction_clarity !== 'incomplete' || 
+    onboarding?.identity_understanding !== 'shallow';
 
   // SEO Configuration
   useSEO({
@@ -219,13 +226,15 @@ const Personality = () => {
                 </h1>
               </div>
               
-              {/* Start Transformation Journey Button */}
+              {/* Start/Edit Transformation Journey Button */}
               <Button
                 onClick={() => navigate('/launchpad')}
-                className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 shadow-lg font-bold"
+                className="bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-500 hover:to-blue-400 shadow-lg font-bold border border-blue-400/30"
               >
                 <Rocket className="w-4 h-4 me-2" />
-                {language === 'he' ? 'התחל מסע' : 'Start Journey'}
+                {hasJourneyData 
+                  ? (language === 'he' ? 'ערוך אישיות' : 'Edit Personality')
+                  : (language === 'he' ? 'התחל מסע' : 'Start Journey')}
               </Button>
             </div>
             <p className="text-blue-200 text-sm md:text-base">
