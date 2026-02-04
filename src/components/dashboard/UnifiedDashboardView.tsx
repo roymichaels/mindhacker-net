@@ -7,17 +7,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { ProfileDrawer } from './ProfileDrawer';
-import { TodaysFocusCard } from './TodaysFocusCard';
-import { CommandCenterGrid } from './CommandCenterGrid';
-import { ProgressSection } from './ProgressSection';
-import { SmartSuggestionsRow } from './SmartSuggestionsRow';
 import {
-  ChecklistsModal,
-  FocusModal,
-} from './DashboardModals';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+  StatsGrid,
+  NextActionBanner,
+  WeeklyActivityChart,
+  TodaysHabitsCard,
+  PlanProgressCard,
+  QuickActionsBar,
+} from './v2';
 
 interface UnifiedDashboardViewProps {
   className?: string;
@@ -27,38 +24,17 @@ interface UnifiedDashboardViewProps {
   onOpenChat?: () => void;
 }
 
-type ModalType = 'tasks' | 'focus' | null;
-
 export function UnifiedDashboardView({ 
   className, 
   onOpenProfile,
   onOpenHypnosis,
   onOpenChat,
 }: UnifiedDashboardViewProps) {
-  const { isRTL, t, language } = useTranslation();
+  const { isRTL, t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
-
-  // Fetch pending tasks count
-  const { data: pendingTasksCount = 0 } = useQuery({
-    queryKey: ['pending-tasks-count', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const today = new Date().toISOString().split('T')[0];
-      const { count } = await supabase
-        .from('aurora_checklist_items')
-        .select('id, aurora_checklists!inner(user_id)', { count: 'exact', head: true })
-        .eq('aurora_checklists.user_id', user.id)
-        .eq('is_completed', false)
-        .or(`due_date.is.null,due_date.lte.${today}`);
-      return count || 0;
-    },
-    enabled: !!user?.id,
-  });
 
   const handleOpenProfile = () => {
     if (onOpenProfile) {
@@ -66,11 +42,6 @@ export function UnifiedDashboardView({
     } else {
       setProfileOpen(true);
     }
-  };
-
-  const handleSendMessage = (prompt: string) => {
-    // Navigate to Aurora chat with pre-filled message
-    navigate('/aurora', { state: { initialMessage: prompt } });
   };
 
   if (dashboard.isLoading) {
@@ -128,31 +99,12 @@ export function UnifiedDashboardView({
         </div>
         
         {/* Quick Stats Preview */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-primary">1</div>
-            <div className="text-xs text-muted-foreground">
-              {t('welcome.level')}
-            </div>
-          </div>
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-orange-500">0</div>
-            <div className="text-xs text-muted-foreground">
-              {t('welcome.streak')}
-            </div>
-          </div>
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-yellow-500">0</div>
-            <div className="text-xs text-muted-foreground">
-              {t('welcome.tokens')}
-            </div>
-          </div>
-        </div>
+        <StatsGrid />
       </div>
     );
   }
 
-  // Main dashboard - Command Center Layout
+  // Main dashboard - Stats-First Command Center
   return (
     <div 
       className={cn("space-y-5", className)}
@@ -160,41 +112,28 @@ export function UnifiedDashboardView({
     >
       {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
 
-      {/* Zone 1: Today's Focus Card */}
-      <TodaysFocusCard
-        pendingTasksCount={pendingTasksCount}
+      {/* Zone 1: Next Action Banner - Priority-based single action */}
+      <NextActionBanner
         onOpenHypnosis={onOpenHypnosis}
         onOpenChat={onOpenChat}
       />
 
-      {/* Zone 2: Smart Suggestions Row */}
-      <SmartSuggestionsRow
-        onOpenHypnosis={onOpenHypnosis}
-        onSendMessage={handleSendMessage}
-      />
+      {/* Zone 2: Stats Grid - Level, Streak, Weekly XP, Tokens */}
+      <StatsGrid />
 
-      {/* Zone 3: Quick Actions Command Center Grid */}
-      <CommandCenterGrid
-        pendingTasksCount={pendingTasksCount}
+      {/* Zone 3: Weekly Activity Chart */}
+      <WeeklyActivityChart />
+
+      {/* Zone 4: Habits + Plan Progress (2 columns on desktop) */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <TodaysHabitsCard />
+        <PlanProgressCard />
+      </div>
+
+      {/* Zone 5: Quick Actions Bar */}
+      <QuickActionsBar
         onOpenChat={onOpenChat}
         onOpenHypnosis={onOpenHypnosis}
-        onOpenTasks={() => setActiveModal('tasks')}
-      />
-
-      {/* Zone 4: Progress & Insights Section */}
-      <ProgressSection />
-
-      {/* Modals - Only tasks and focus remain in dashboard */}
-      <ChecklistsModal 
-        open={activeModal === 'tasks'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language} 
-      />
-      <FocusModal 
-        open={activeModal === 'focus'} 
-        onOpenChange={(open) => !open && setActiveModal(null)} 
-        language={language}
-        focusPlan={dashboard.activeFocusPlan}
       />
     </div>
   );

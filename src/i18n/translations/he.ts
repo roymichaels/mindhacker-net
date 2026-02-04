@@ -3018,6 +3018,12 @@ export const he = {
       poor: "לא מספיקה",
     },
   },
+  stats: {
+    level: "רמה",
+    streak: "רצף",
+    weeklyXp: "XP שבועי",
+    tokens: "טוקנים",
+  },
 };
 
 export type TranslationKeys = typeof he;
