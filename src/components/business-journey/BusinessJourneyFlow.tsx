@@ -256,13 +256,13 @@ export function BusinessJourneyFlow({ className, onComplete, onClose }: Business
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-2xl pb-24">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`step-${displayedStep}`}
-              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
               {renderCurrentStep()}
             </motion.div>
