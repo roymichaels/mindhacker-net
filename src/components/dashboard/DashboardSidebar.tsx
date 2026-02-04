@@ -210,7 +210,7 @@ const DashboardSidebar = ({
 
       {/* Character HUD - Show above search when launchpad is complete */}
       {!dashboard.isLoading && !dashboard.isEmpty && isLaunchpadComplete && !isCollapsed && (
-        <div className={cn("px-2 mb-3", isMobile && "px-3")}>
+        <div className={cn("mb-4 w-full", isMobile ? "px-0" : "px-2")}>
           <SidebarCharacterHUD
             identityTitle={dashboard.identityTitle}
             level={dashboard.level}
@@ -225,17 +225,17 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Mobile: Search bar */}
+      {/* Mobile: Search bar - Full width */}
       {isMobile && (
-        <div className="px-3 py-2 mb-3 relative">
-          <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg">
+        <div className="mb-4 relative w-full">
+          <div className="h-10 flex items-center gap-2 px-4 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg w-full">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
               placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-w-0"
               dir={isRTL ? 'rtl' : 'ltr'}
             />
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -264,9 +264,9 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Navigation Section */}
-      <div className={cn("mb-4", isMobile && "px-1")}>
-        <div className="space-y-1 w-full overflow-hidden">
+      {/* Navigation Section - Full width */}
+      <div className={cn("mb-4 w-full", isMobile ? "px-0" : "")}>
+        <div className="space-y-2 w-full overflow-hidden">
         {navItems.map((item) => {
             const highlightColor = item.highlight;
             const isPurple = highlightColor === 'purple';
@@ -286,7 +286,7 @@ const DashboardSidebar = ({
                   }
                 }}
                 className={cn(
-                  "w-full min-w-0 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 overflow-hidden",
+                  "w-full min-w-0 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 overflow-hidden",
                   isPurple && "bg-gradient-to-r from-purple-100 to-muted dark:from-purple-950 dark:to-gray-900 text-purple-700 dark:text-purple-300 hover:from-purple-200 hover:to-muted/80 dark:hover:from-purple-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 border border-purple-300 dark:border-purple-800/50",
                   isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-cyan-300 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
                   isGold && "bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950 dark:to-yellow-950 text-amber-700 dark:text-amber-300 hover:from-amber-200 hover:to-yellow-200 dark:hover:from-amber-900 dark:hover:to-yellow-900 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/20 dark:hover:shadow-amber-900/30 border border-amber-300 dark:border-amber-800/50",
@@ -294,7 +294,7 @@ const DashboardSidebar = ({
                   isPink && "bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-950 dark:to-rose-950 text-pink-700 dark:text-pink-300 hover:from-pink-200 hover:to-rose-200 dark:hover:from-pink-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-pink-500/20 dark:hover:shadow-pink-900/30 border border-pink-300 dark:border-pink-800/50",
                   isGreen && "bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 text-emerald-700 dark:text-emerald-300 hover:from-emerald-200 hover:to-green-200 dark:hover:from-emerald-900 dark:hover:to-green-900 font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 dark:hover:shadow-emerald-900/30 border border-emerald-300 dark:border-emerald-800/50",
                   isIndigo && "bg-gradient-to-r from-indigo-100 to-violet-100 dark:from-indigo-950 dark:to-violet-950 text-indigo-700 dark:text-indigo-300 hover:from-indigo-200 hover:to-violet-200 dark:hover:from-indigo-900 dark:hover:to-violet-900 font-bold shadow-sm hover:shadow-md hover:shadow-indigo-500/20 dark:hover:shadow-indigo-900/30 border border-indigo-300 dark:border-indigo-800/50",
-                  isCollapsed && "justify-center px-2"
+                  isCollapsed && "justify-center px-2 py-2.5 rounded-lg"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
@@ -337,20 +337,20 @@ const DashboardSidebar = ({
   if (isMobileSheet) {
     return (
       <>
-        <div className="flex flex-col h-full bg-sidebar border-sidebar-border">
-          {/* Mobile: Logo and Brand Name Header */}
-          <div className="flex items-center gap-2 px-4 py-4 border-b border-border">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
-              <span className="font-bold text-base text-foreground">
+        <div className="flex flex-col h-full w-full bg-sidebar border-sidebar-border">
+          {/* Mobile: Logo and Brand Name Header - Full width */}
+          <div className="flex items-center gap-3 px-4 py-4 border-b border-border w-full">
+            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-1" onClick={onNavigate}>
+              <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white flex-shrink-0" size={40} />
+              <span className="font-bold text-lg text-foreground">
                 {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
               </span>
             </Link>
           </div>
-          <div className="p-2 flex flex-col flex-1">
+          <div className="px-4 py-3 flex flex-col flex-1 w-full">
             <SidebarInnerContent isMobile={true} />
           </div>
-          <div className="p-2 border-t border-border">
+          <div className="px-4 py-3 border-t border-border w-full">
             <AuroraAccountDropdown
               isCollapsed={false}
               onOpenSettings={onOpenSettings}
