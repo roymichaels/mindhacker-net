@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, Home } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { NotificationBell } from '@/components/admin/NotificationBell';
 
@@ -40,8 +40,13 @@ const AdminPanel = () => {
               </Link>
             </div>
             
-            {/* Right: Notification Icon */}
-            <div className="flex justify-end items-center">
+            {/* Right: Home + Notification Icons */}
+            <div className="flex justify-end items-center gap-1">
+              <Button asChild variant="ghost" size="icon" className="h-9 w-9">
+                <Link to="/">
+                  <Home className="h-5 w-5" />
+                </Link>
+              </Button>
               <NotificationBell />
             </div>
           </div>

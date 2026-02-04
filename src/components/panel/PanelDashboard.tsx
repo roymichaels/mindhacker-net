@@ -1,10 +1,8 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { NotificationBell } from '@/components/admin/NotificationBell';
 import { 
   BarChart3, 
   Users, 
@@ -16,7 +14,6 @@ import {
   ArrowRight,
   Loader2,
   TrendingUp,
-  Home,
 } from 'lucide-react';
 
 const PanelDashboard = () => {
@@ -66,24 +63,12 @@ const PanelDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with welcome message and action icons */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold">{t('panel.welcomeBack')}</h1>
-          <p className="text-muted-foreground">
-            {t('panel.dashboardSubtitle')}
-          </p>
-        </div>
-        
-        {/* Home and Notifications icons */}
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-            <Link to="/">
-              <Home className="h-5 w-5" />
-            </Link>
-          </Button>
-          <NotificationBell />
-        </div>
+      {/* Header with welcome message */}
+      <div>
+        <h1 className="text-2xl font-bold">{t('panel.welcomeBack')}</h1>
+        <p className="text-muted-foreground">
+          {t('panel.dashboardSubtitle')}
+        </p>
       </div>
 
       {/* Stats Overview */}
