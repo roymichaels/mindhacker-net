@@ -2914,6 +2914,19 @@ export const he = {
     controlCenter: "מרכז שליטה",
     newCampaign: "קמפיין חדש",
   },
+
+  // Business page translations
+  business: {
+    title: "עסקים",
+    subtitle: "מרכז הצמיחה העסקית שלך - כלים ואסטרטגיות לטרנספורמציה קריירתית",
+    careerStatus: "סטטוס קריירה",
+    currentStatus: "המצב הנוכחי",
+    careerGoal: "היעד הקריירתי",
+    noCareerData: "לא נמצאו נתונים קריירתיים. השלם את ה-Launchpad כדי להגדיר את היעדים שלך.",
+    completeLaunchpad: "השלם את ה-Launchpad",
+    tools: "כלים עסקיים",
+    quickActions: "פעולות מהירות",
+  },
 };
 
 export type TranslationKeys = typeof he;

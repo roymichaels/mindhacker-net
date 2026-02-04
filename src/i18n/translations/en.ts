@@ -2860,4 +2860,17 @@ export const en: TranslationKeys = {
     controlCenter: "Control Center",
     newCampaign: "New Campaign",
   },
+
+  // Business page translations
+  business: {
+    title: "Business",
+    subtitle: "Your business growth hub - tools and strategies for career transformation",
+    careerStatus: "Career Status",
+    currentStatus: "Current Status",
+    careerGoal: "Career Goal",
+    noCareerData: "No career data found. Complete the Launchpad to define your goals.",
+    completeLaunchpad: "Complete Launchpad",
+    tools: "Business Tools",
+    quickActions: "Quick Actions",
+  },
 };
