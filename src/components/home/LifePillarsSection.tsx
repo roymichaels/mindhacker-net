@@ -190,22 +190,31 @@ const LifePillarsSection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, type: "spring" as const }}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center"
           >
-            {/* Glow */}
+            {/* Outer Glow */}
             <motion.div 
               className="absolute inset-0 flex items-center justify-center"
-              animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 3, repeat: Infinity }}
+              animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 4, repeat: Infinity }}
             >
-              <div className="w-48 h-48 rounded-full bg-primary/20 blur-[40px]" />
+              <div className="w-72 h-72 rounded-full bg-primary/30 blur-[60px]" />
             </motion.div>
             
-            <PersonalizedOrb size={120} state="idle" className="relative z-10" />
+            {/* Inner Glow */}
+            <motion.div 
+              className="absolute inset-0 flex items-center justify-center"
+              animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+            >
+              <div className="w-56 h-56 rounded-full bg-primary/20 blur-[40px]" />
+            </motion.div>
+            
+            <PersonalizedOrb size={180} state="idle" className="relative z-10" />
             
             {/* Label */}
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <span className="text-sm font-medium text-muted-foreground">
+            <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 whitespace-nowrap">
+              <span className="text-base font-semibold text-muted-foreground">
                 {isRTL ? 'הזהות שלך' : 'Your Identity'}
               </span>
             </div>
