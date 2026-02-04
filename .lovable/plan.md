@@ -1,218 +1,259 @@
 
-# Strategic Health Hub Domination Plan 🎯
-
-## The Vision: Health as the Keystone
-
-The Health hub isn't just another feature - it's the **missing pillar** that completes the Mind Hacker trinity. Just like how Raymond Reddington has multiple revenue streams that all feed into one empire, Health will become the glue that binds Personality (mind) and Business (career) together.
+# Health Hub Enhancement Plan
+## תיקון טקסט + תוכנית בריאות 90 יום
 
 ---
 
-## Current State Analysis
+## חלק 1: תיקון תצוגת הטקסט (Text Truncation Fix)
 
-### What We Have
-1. **Health.tsx** - Basic page with header, status card, and tools grid
-2. **HealthStatusCard** - Shows energy, sleep, activity, hydration from launchpad
-3. **HealthToolsGrid** - 8 cards (physical, mental, energetic, subconscious, hypnosis, habits, meditation, sleep)
-4. **Missions System** - Already has `health` category in `aurora_checklists`
-5. **Hypnosis** - Already supports `?goal=health` deep-linking
-6. **Cross-module sync** - Aurora Life Model and Hypnosis already share data
+### הבעיה הנוכחית
+הכרטיסים ב-HealthToolsGrid חותכים את הטקסט עם "..." בגלל:
+1. `truncate` על הכותרת (שורה 145)
+2. `line-clamp-1` על התיאור (שורה 148)
+3. גובה קבוע בפריסת 4 עמודות
 
-### Critical Gaps
-1. **Tools are placeholders** - Cards just call `onOpenModal` with no implementation
-2. **No Health Journey** - Unlike Business (10-step journey), Health has no onboarding
-3. **No dedicated modals** - Personality has 8 modals (AI, Plan, Consciousness, etc.)
-4. **No health-specific data tables** - Business has `business_journeys`, Health has nothing
-5. **Missing Smart Suggestions integration** - Dashboard shows health missions but not health-specific suggestions
-6. **No Health-to-Aurora feedback loop** - Unlike Business hub which maps career data
+### הפתרון
+- הסרת `truncate` מהכותרת
+- שינוי `line-clamp-1` ל-`line-clamp-2` בתיאור
+- הקטנת גודל הפונט לכותרת (`text-xs` במקום `text-sm`)
+- הוספת גובה מינימלי קבוע לכל כרטיס
 
----
-
-## Strategic Architecture
-
-### Phase 1: Core Infrastructure (Immediate)
-
-**1.1 Create Health Modals**
-Like Personality hub has `AIAnalysisModal`, `ConsciousnessModal`, etc., create:
-- `PhysicalHealthModal` - Body metrics, nutrition, exercise
-- `MentalHealthModal` - Stress, emotions, resilience  
-- `EnergeticHealthModal` - Energy patterns, vitality
-- `SubconsciousHealthModal` - Limiting beliefs affecting health
-- `SleepModal` - Sleep quality analysis
-- `MeditationModal` - Breathing exercises, mindfulness tools
-- `HabitsHealthModal` - Health-specific habits tracker
-
-**1.2 Fix HealthToolsGrid Actions**
-Replace placeholder `onOpenModal` with actual navigation/modal triggers:
-- Physical → opens PhysicalHealthModal
-- Mental → opens MentalHealthModal  
-- Hypnosis → navigates to `/hypnosis?goal=health` (already works)
-- Habits → opens filtered missions view (category=health)
-- Meditation → opens inline breathing guide OR dedicated page
-
-**1.3 Enhance HealthStatusCard**
-Transform from static display to dynamic health score:
-- Calculate "Health Index" (0-100) from multiple inputs
-- Show trend arrow (improving/declining)
-- Add quick-action chips ("Log sleep", "Track mood")
-
-### Phase 2: Data Layer (Foundation)
-
-**2.1 Leverage Existing Tables**
-No new tables needed - use what exists:
-- `aurora_checklists` with `category='health'` for missions
-- `launchpad_progress.step_2_profile_data` for health baseline
-- `aurora_energy_patterns` for energy data
-- `aurora_behavioral_patterns` for behavioral health
-
-**2.2 Health Data Extraction Hook**
-Create `useHealthData.ts`:
-- Pull from multiple sources (launchpad, energy patterns, habits)
-- Calculate composite health metrics
-- Feed into SmartSuggestions for health-specific prompts
-
-### Phase 3: Integration Excellence
-
-**3.1 Aurora Health Context**
-Inject health data into `aurora-chat` edge function:
-- Current energy level
-- Sleep quality trends
-- Active health missions
-- Recent health-related hypnosis sessions
-
-**3.2 Hypnosis Health Enhancement**
-The `generate-hypnosis-script` already loads comprehensive user data - extend with:
-- Health-specific metaphors for `goal=health`
-- Energy restoration scripts
-- Sleep improvement sessions
-- Stress release protocols
-
-**3.3 Smart Suggestions Health Module**
-Add health-specific suggestions to `useSmartSuggestions`:
-- "Morning energy boost session"
-- "Evening wind-down hypnosis"
-- "Complete your health check-in"
-- "3 health habits remaining today"
-
-### Phase 4: Premium Flows (Future)
-
-**4.1 Health Journey (Like Business Journey)**
-10-step gamified health assessment:
-1. Current health baseline
-2. Sleep patterns deep-dive
-3. Nutrition habits
-4. Movement & exercise
-5. Stress & mental load
-6. Energy rhythms
-7. Subconscious blocks
-8. Health vision (90 days)
-9. AI health plan generation
-10. Dashboard activation
-
-**4.2 Health Milestones Integration**
-Add health-category milestones to `life_plan_milestones`:
-- Week 1-4: Foundation (sleep, hydration)
-- Week 5-8: Optimization (energy, stress)
-- Week 9-12: Mastery (vitality, peak state)
-
----
-
-## Technical Implementation
-
-### Files to Create
-
-```text
-src/components/health-hub/
-├── modals/
-│   ├── PhysicalHealthModal.tsx
-│   ├── MentalHealthModal.tsx
-│   ├── EnergeticHealthModal.tsx
-│   ├── SubconsciousHealthModal.tsx
-│   ├── SleepModal.tsx
-│   ├── MeditationModal.tsx
-│   └── index.ts
-├── HealthScoreCard.tsx          # Enhanced status with score
-├── HealthQuickActions.tsx       # Inline actions
-├── BreathingExercise.tsx        # Inline meditation tool
-└── HealthMissionsPreview.tsx    # Filtered missions display
-```
-
-### Files to Modify
-
-1. **Health.tsx** - Add modal state management, render modals
-2. **HealthToolsGrid.tsx** - Connect cards to actual functionality
-3. **HealthStatusCard.tsx** - Add health score calculation
-4. **useSmartSuggestions.ts** - Add health category logic
-5. **generate-hypnosis-script** - Enhance health goal handling
-
-### New Hook
+### שינויים ב-HealthToolsGrid.tsx
 
 ```typescript
-// src/hooks/useHealthData.ts
-export interface HealthData {
-  healthScore: number;           // 0-100 composite
-  energyLevel: 'high' | 'medium' | 'low' | 'varies';
-  sleepQuality: 'excellent' | 'good' | 'moderate' | 'poor';
-  activityLevel: 'daily' | 'weekly' | 'rarely' | 'none';
-  hydrationStatus: string;
-  stressLevel: 'low' | 'moderate' | 'high';
-  pendingHealthMissions: number;
-  healthStreak: number;          // Days of consecutive health check-ins
-  lastHealthHypnosis: Date | null;
-  recommendations: string[];     // AI-generated suggestions
+// שורה 145 - הסרת truncate
+<h3 className="font-semibold text-xs text-foreground leading-tight">
+  {language === 'he' ? tool.titleHe : tool.titleEn}
+</h3>
+
+// שורה 148 - שינוי ל-2 שורות
+<p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight">
+  {language === 'he' ? tool.descHe : tool.descEn}
+</p>
+```
+
+---
+
+## חלק 2: תוכנית 90 יום לבריאות (Health 90-Day Plan)
+
+### ארכיטקטורה
+
+```text
++---------------------+     +----------------------+     +------------------+
+|   Health Hub Page   | --> | Health Journey (NEW) | --> | Health 90-Day    |
+|   /health           |     | 8-Step Assessment    |     | Plan Generation  |
++---------------------+     +----------------------+     +------------------+
+         |                            |                          |
+         v                            v                          v
+  [Start Health         [Collect Deep Health        [AI Generates 12
+   Journey Button]       Profile Data]               Weekly Milestones]
+                                                            |
+                                                            v
+                                                  [Store in life_plans
+                                                   + life_plan_milestones
+                                                   with category='health']
+```
+
+### מסע הבריאות (Health Journey) - 8 שלבים
+
+| שלב | נושא | מה נאסף |
+|-----|------|---------|
+| 1 | חזון בריאות | איך אתה רוצה להרגיש בעוד 90 יום? |
+| 2 | מצב נוכחי | רמת אנרגיה, איכות שינה, כאבים |
+| 3 | תזונה | הרגלי אכילה, אלרגיות, מים |
+| 4 | פעילות גופנית | סוג תרגול, תדירות, מגבלות |
+| 5 | שינה ומנוחה | שעות, איכות, בעיות |
+| 6 | מתח ורגש | רמת סטרס, טריגרים, התמודדות |
+| 7 | אמונות מגבילות | חסמים תת-מודעים לגבי בריאות |
+| 8 | סיכום והפעלה | AI מייצר תוכנית מותאמת |
+
+---
+
+## קבצים חדשים ליצירה
+
+### 1. Edge Function - generate-health-plan
+`supabase/functions/generate-health-plan/index.ts`
+
+```typescript
+// פונקציה שמקבלת את נתוני מסע הבריאות
+// ומחזירה תוכנית 90 יום עם 12 אבני דרך
+// התמקדות: שינה, תזונה, תנועה, מנוחה נפשית
+```
+
+### 2. Health Journey Component
+`src/components/health-hub/journey/HealthJourney.tsx`
+
+```typescript
+// דומה ל-BusinessJourney אבל עם 8 שלבים ממוקדי בריאות
+// עיצוב: גרדיאנט אדום-ורוד (מתאים ל-Health Hub)
+// גיימיפיקציה: XP על כל שלב שהושלם
+```
+
+### 3. Health Journey Steps
+```text
+src/components/health-hub/journey/
+├── steps/
+│   ├── HealthVisionStep.tsx      // שלב 1
+│   ├── CurrentStateStep.tsx      // שלב 2
+│   ├── NutritionStep.tsx         // שלב 3
+│   ├── ExerciseStep.tsx          // שלב 4
+│   ├── SleepStep.tsx             // שלב 5
+│   ├── StressStep.tsx            // שלב 6
+│   ├── BeliefsStep.tsx           // שלב 7
+│   └── ActivationStep.tsx        // שלב 8 (סיכום)
+└── useHealthJourney.ts           // Hook לניהול מצב
+```
+
+### 4. Route חדש
+`/health/journey` - מסע הבריאות
+
+### 5. דף תוכנית 90 יום לבריאות
+`src/pages/HealthPlan.tsx`
+
+```typescript
+// דומה ל-LifePlan.tsx אבל ממוקד בבריאות
+// מציג רק את התוכניות עם focus_area='health'
+// או תוכניות שנוצרו מ-Health Journey
+```
+
+---
+
+## שינויים בקבצים קיימים
+
+### Health.tsx
+```typescript
+// הוספת כפתור "התחל מסע בריאות" בהדר
+// דומה ל-Business Hub
+
+<Button onClick={() => navigate('/health/journey')}>
+  <Rocket className="w-4 h-4 me-2" />
+  {language === 'he' ? 'התחל מסע בריאות' : 'Start Health Journey'}
+</Button>
+
+// הוספת סקשן "תוכנית 90 יום" אם קיימת
+<HealthPlanPreview />
+```
+
+### HealthToolsGrid.tsx
+```typescript
+// הוספת כפתור לתוכנית 90 יום
+{
+  id: 'health-plan',
+  icon: Calendar,
+  titleHe: 'תוכנית 90 יום',
+  titleEn: '90-Day Health Plan',
+  descHe: 'מפת דרכים לבריאות מיטבית',
+  descEn: 'Roadmap to optimal health',
+  onClick: () => navigate('/health/plan'),
 }
 ```
 
 ---
 
-## Priority Execution Order
+## סכמת מסד הנתונים
 
-### Immediate (This Session)
-1. Create modal components for health tools
-2. Wire up HealthToolsGrid to modals
-3. Add modal state management to Health.tsx
-4. Create basic content for Physical and Mental modals
+### שימוש בטבלאות קיימות
+נשתמש ב-`life_plans` ו-`life_plan_milestones` הקיימות:
 
-### Next Session
-5. Enhance HealthStatusCard with score
-6. Create `useHealthData` hook
-7. Integrate with Smart Suggestions
+```sql
+-- life_plans כבר תומך ב-plan_data כ-JSONB
+-- נוסיף שדה category לזיהוי תוכניות בריאות
 
-### Future Iterations
-8. Build Health Journey (like Business Journey)
-9. Health-specific milestones
-10. Advanced analytics and trends
+-- בטבלת life_plan_milestones כבר יש:
+-- focus_area TEXT - ישמש לזיהוי (physical/nutrition/sleep/stress)
+```
 
----
-
-## The Axelrod Play
-
-Like Bobby would say: "We're not just building features, we're building an ecosystem where every piece makes the other pieces more valuable."
-
-- **Personality** answers "Who am I?"
-- **Business** answers "What do I achieve?"
-- **Health** answers "How do I sustain peak performance?"
-
-Together, they create a closed loop where each improvement in one domain amplifies the others. That's not a product - that's a **moat**.
+### אפשרות: טבלת health_journeys (אופציונלי)
+```sql
+CREATE TABLE health_journeys (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users NOT NULL,
+  journey_data JSONB DEFAULT '{}',
+  current_step INTEGER DEFAULT 1,
+  is_completed BOOLEAN DEFAULT FALSE,
+  plan_id UUID REFERENCES life_plans(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
 
 ---
 
-## Deliverables Summary
+## אינטגרציות
 
-### New Components
-- 7 modal components for health tools
-- HealthScoreCard (enhanced status)
-- BreathingExercise (inline tool)
-- HealthMissionsPreview
+### 1. Aurora Chat
+הזרקת מידע מתוכנית הבריאות:
+- אבן הדרך הנוכחית בבריאות
+- התקדמות כללית בתוכנית
+- המלצות היפנוזה ספציפיות לבריאות
 
-### Modified Files
-- Health.tsx (modal management)
-- HealthToolsGrid.tsx (action routing)
-- HealthStatusCard.tsx (score calculation)
+### 2. Smart Suggestions (כבר קיים)
+כבר הוספנו הצעות ממוקדות בריאות ב-`useSmartSuggestions.tsx`
 
-### New Hook
-- useHealthData.ts
+### 3. Missions Roadmap
+סינון משימות לפי `category='health'` כבר עובד
 
-### Integration Points
-- Smart Suggestions (health category)
-- Aurora Chat (health context)
-- Hypnosis (health goal enhancement)
+---
+
+## סדר ביצוע
+
+### שלב 1 - מיידי (תיקון טקסט)
+1. תיקון HealthToolsGrid.tsx - הסרת truncation
+2. הוספת min-height לכרטיסים
+3. בדיקה ב-RTL וב-LTR
+
+### שלב 2 - תשתית
+4. יצירת edge function: generate-health-plan
+5. יצירת hook: useHealthJourney
+6. יצירת קומפוננט: HealthJourney (מעטפת)
+
+### שלב 3 - מסע הבריאות
+7. יצירת 8 steps לשלבי המסע
+8. עיצוב בסגנון אדום/ורוד
+9. חיבור לדאטאבייס
+
+### שלב 4 - תצוגת תוכנית
+10. יצירת HealthPlan.tsx (דף הצגת תוכנית)
+11. הוספת HealthPlanPreview.tsx לדף Health
+12. חיבור לניווט
+
+---
+
+## דוגמת אבני דרך לתוכנית בריאות
+
+| שבוע | מיקוד | משימות לדוגמה |
+|------|-------|---------------|
+| 1 | יסודות שינה | לישון 7 שעות, לכבות מסכים שעה לפני |
+| 2 | הידרציה | 8 כוסות מים ביום, להפחית קפאין |
+| 3 | תנועה | הליכה 20 דקות ביום |
+| 4 | מנוחה נפשית | 5 דקות מדיטציה יומית |
+| 5-8 | בנייה | הגברת עצימות ותדירות |
+| 9-12 | תנופה | יצירת הרגלים קבועים |
+
+---
+
+## טכני - סיכום
+
+### קבצים חדשים
+```text
+supabase/functions/generate-health-plan/index.ts
+src/pages/HealthPlan.tsx
+src/pages/HealthJourney.tsx
+src/components/health-hub/journey/
+  ├── HealthJourneyContainer.tsx
+  ├── steps/*.tsx (8 קבצים)
+  └── useHealthJourney.ts
+src/components/health-hub/HealthPlanPreview.tsx
+```
+
+### קבצים לעדכון
+```text
+src/components/health-hub/HealthToolsGrid.tsx  // תיקון טקסט + כפתור תוכנית
+src/pages/Health.tsx                            // הוספת כפתור מסע + preview
+src/App.tsx                                     // routes חדשים
+```
+
+### Routes חדשים
+- `/health/journey` - מסע הבריאות
+- `/health/plan` - תוכנית 90 יום
+
