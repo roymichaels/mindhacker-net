@@ -75,7 +75,10 @@ const HealthJourney = lazy(() => import("./pages/HealthJourney"));
 const HealthPlan = lazy(() => import("./pages/HealthPlan"));
 // New Life OS Pillars
 const Relationships = lazy(() => import("./pages/Relationships"));
+const RelationshipsJourney = lazy(() => import("./pages/RelationshipsJourney"));
 const Finances = lazy(() => import("./pages/Finances"));
+const FinancesJourney = lazy(() => import("./pages/FinancesJourney"));
+const LearningJourney = lazy(() => import("./pages/LearningJourney"));
 const Learning = lazy(() => import("./pages/Learning"));
 // Free guest journey
 const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
@@ -466,6 +469,22 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        <Route
+                          path="/relationships/journey"
+                          element={
+                            <ProtectedRoute>
+                              <RelationshipsJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/relationships/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <RelationshipsJourney />
+                            </ProtectedRoute>
+                          }
+                        />
                         {/* Finances Hub */}
                         <Route
                           path="/finances"
@@ -475,12 +494,44 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        <Route
+                          path="/finances/journey"
+                          element={
+                            <ProtectedRoute>
+                              <FinancesJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/finances/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <FinancesJourney />
+                            </ProtectedRoute>
+                          }
+                        />
                         {/* Learning Hub */}
                         <Route
                           path="/learning"
                           element={
                             <ProtectedRoute>
                               <Learning />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/learning/journey"
+                          element={
+                            <ProtectedRoute>
+                              <LearningJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/learning/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <LearningJourney />
                             </ProtectedRoute>
                           }
                         />
