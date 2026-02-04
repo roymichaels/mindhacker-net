@@ -68,12 +68,44 @@ const Business = () => {
 
       if (launchpad) {
         const profileData = launchpad.step_2_profile_data as Record<string, any> | null;
-        const focusAreas = launchpad.step_5_focus_areas_selected as string[] | null;
+        const focusAreas = launchpad.step_5_focus_areas_selected as Record<string, any> | null;
+        
+        // Extract business-related goals from focus areas
+        let careerGoal = '';
+        if (focusAreas) {
+          const mainAreas = focusAreas.main_area as string[] | undefined;
+          const businessSpecific = focusAreas.business_specific as string[] | undefined;
+          
+          if (mainAreas?.includes('business') && businessSpecific?.length) {
+            // Map business-specific keys to readable labels
+            const businessLabels: Record<string, string> = {
+              grow: language === 'he' ? 'צמיחה עסקית' : 'Business Growth',
+              marketing: language === 'he' ? 'שיווק' : 'Marketing',
+              sales: language === 'he' ? 'מכירות' : 'Sales',
+              leadership: language === 'he' ? 'מנהיגות' : 'Leadership',
+            };
+            careerGoal = businessSpecific
+              .map(key => businessLabels[key] || key)
+              .join(', ');
+          } else if (mainAreas?.length) {
+            // Show main focus areas if no specific business goals
+            const areaLabels: Record<string, string> = {
+              business: language === 'he' ? 'עסקים וקריירה' : 'Business & Career',
+              health: language === 'he' ? 'בריאות' : 'Health',
+              energy: language === 'he' ? 'אנרגיה' : 'Energy',
+              finance: language === 'he' ? 'כלכלה' : 'Finance',
+              emotional: language === 'he' ? 'רגשי' : 'Emotional',
+              learning: language === 'he' ? 'למידה' : 'Learning',
+            };
+            careerGoal = mainAreas
+              .map(key => areaLabels[key] || key)
+              .join(', ');
+          }
+        }
         
         setCareerData({
           currentStatus: profileData?.occupation || profileData?.currentRole,
-          careerGoal: focusAreas?.find(a => a.toLowerCase().includes('career') || a.toLowerCase().includes('business')) 
-            || launchpad.step_1_intention,
+          careerGoal: careerGoal || (launchpad.step_1_intention as string) || '',
         });
       }
     } catch (error) {
