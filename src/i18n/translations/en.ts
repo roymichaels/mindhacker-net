@@ -2964,4 +2964,10 @@ export const en: TranslationKeys = {
       poor: "Poor",
     },
   },
+  stats: {
+    level: "Level",
+    streak: "Streak",
+    weeklyXp: "Weekly XP",
+    tokens: "Tokens",
+  },
 };
