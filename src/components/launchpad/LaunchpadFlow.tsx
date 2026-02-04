@@ -22,6 +22,7 @@ import { DashboardActivation } from './steps/DashboardActivation';
 import { GuestDashboardActivation } from './steps/GuestDashboardActivation';
 import { GamifiedJourneyHeader } from './GamifiedJourneyHeader';
 import { PhaseTransition } from './PhaseTransition';
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -436,7 +437,7 @@ export function LaunchpadFlow({ className, mode = 'authenticated', onComplete, o
       
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center p-4 overflow-y-auto">
-        <div className="w-full max-w-2xl pb-8">
+        <div className="w-full max-w-2xl pb-24">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${mode}-step-${displayedStep}`}
@@ -450,6 +451,9 @@ export function LaunchpadFlow({ className, mode = 'authenticated', onComplete, o
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Aurora Chat Dock - only for authenticated users */}
+      {!isGuest && <JourneyChatDock />}
     </div>
   );
 }
