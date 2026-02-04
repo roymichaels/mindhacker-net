@@ -7,28 +7,58 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { ProfileDrawer } from './ProfileDrawer';
-import { QuickAccessGrid } from './QuickAccessGrid';
+import { TodaysFocusCard } from './TodaysFocusCard';
+import { CommandCenterGrid } from './CommandCenterGrid';
+import { ProgressSection } from './ProgressSection';
+import { SmartSuggestionsRow } from './SmartSuggestionsRow';
 import {
   ChecklistsModal,
   FocusModal,
 } from './DashboardModals';
-import { CharacterHUD } from './unified';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UnifiedDashboardViewProps {
   className?: string;
   compact?: boolean;
   onOpenProfile?: () => void;
+  onOpenHypnosis?: () => void;
+  onOpenChat?: () => void;
 }
 
 type ModalType = 'tasks' | 'focus' | null;
 
-export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashboardViewProps) {
+export function UnifiedDashboardView({ 
+  className, 
+  onOpenProfile,
+  onOpenHypnosis,
+  onOpenChat,
+}: UnifiedDashboardViewProps) {
   const { isRTL, t, language } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+
+  // Fetch pending tasks count
+  const { data: pendingTasksCount = 0 } = useQuery({
+    queryKey: ['pending-tasks-count', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const today = new Date().toISOString().split('T')[0];
+      const { count } = await supabase
+        .from('aurora_checklist_items')
+        .select('id, aurora_checklists!inner(user_id)', { count: 'exact', head: true })
+        .eq('aurora_checklists.user_id', user.id)
+        .eq('is_completed', false)
+        .or(`due_date.is.null,due_date.lte.${today}`);
+      return count || 0;
+    },
+    enabled: !!user?.id,
+  });
 
   const handleOpenProfile = () => {
     if (onOpenProfile) {
@@ -36,6 +66,11 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
     } else {
       setProfileOpen(true);
     }
+  };
+
+  const handleSendMessage = (prompt: string) => {
+    // Navigate to Aurora chat with pre-filled message
+    navigate('/aurora', { state: { initialMessage: prompt } });
   };
 
   if (dashboard.isLoading) {
@@ -117,26 +152,37 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
     );
   }
 
-  // Main dashboard - Launchpad complete (HUD is now in sidebar)
+  // Main dashboard - Command Center Layout
   return (
     <div 
-      className={cn("space-y-4", className)}
+      className={cn("space-y-5", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
 
-      {/* Quick Access Grid - Opens Modals */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium text-muted-foreground">
-          {t('welcome.quickAccess')}
-        </h3>
-        <QuickAccessGrid
-          language={language}
-          onOpenTasks={() => setActiveModal('tasks')}
-          onOpenFocus={() => setActiveModal('focus')}
-          hasFocusPlan={!!dashboard.activeFocusPlan}
-        />
-      </div>
+      {/* Zone 1: Today's Focus Card */}
+      <TodaysFocusCard
+        pendingTasksCount={pendingTasksCount}
+        onOpenHypnosis={onOpenHypnosis}
+        onOpenChat={onOpenChat}
+      />
+
+      {/* Zone 2: Smart Suggestions Row */}
+      <SmartSuggestionsRow
+        onOpenHypnosis={onOpenHypnosis}
+        onSendMessage={handleSendMessage}
+      />
+
+      {/* Zone 3: Quick Actions Command Center Grid */}
+      <CommandCenterGrid
+        pendingTasksCount={pendingTasksCount}
+        onOpenChat={onOpenChat}
+        onOpenHypnosis={onOpenHypnosis}
+        onOpenTasks={() => setActiveModal('tasks')}
+      />
+
+      {/* Zone 4: Progress & Insights Section */}
+      <ProgressSection />
 
       {/* Modals - Only tasks and focus remain in dashboard */}
       <ChecklistsModal 
