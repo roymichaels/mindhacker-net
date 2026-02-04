@@ -10,7 +10,7 @@ import { ProfileDrawer } from './ProfileDrawer';
 import {
   StatsGrid,
   NextActionBanner,
-  WeeklyActivityChart,
+  LifeAnalysisChart,
   TodaysHabitsCard,
   PlanProgressCard,
   QuickActionsBar,
@@ -121,8 +121,8 @@ export function UnifiedDashboardView({
       {/* Zone 2: Stats Grid - Level, Streak, Weekly XP, Tokens */}
       <StatsGrid />
 
-      {/* Zone 3: Weekly Activity Chart */}
-      <WeeklyActivityChart />
+      {/* Zone 3: Life Analysis Chart */}
+      <LifeAnalysisChart />
 
       {/* Zone 4: Habits + Plan Progress (2 columns on desktop) */}
       <div className="grid gap-4 md:grid-cols-2">
