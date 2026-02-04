@@ -1,15 +1,17 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PieChart as PieChartIcon, Sparkles } from 'lucide-react';
+import { PieChart as PieChartIcon, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeAnalysis } from '@/hooks/useLifeAnalysis';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export function LifeAnalysisChart() {
   const { t, isRTL, language } = useTranslation();
   const { data, isLoading } = useLifeAnalysis();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
 
   if (isLoading) {
     return (
@@ -122,17 +124,25 @@ export function LifeAnalysisChart() {
           </div>
         </div>
 
-        {/* Empty State Message */}
+        {/* Empty State Message - differentiate between no journey and no data */}
         {!hasData && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mt-3 text-center"
           >
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
+              <Lock className="h-3.5 w-3.5" />
+            </div>
             <p className="text-xs text-muted-foreground">
-              {language === 'he' 
-                ? 'השלם את מסע הטרנספורמציה כדי לפתוח תובנות' 
-                : 'Complete your transformation journey to unlock insights'}
+              {!isLaunchpadComplete
+                ? (language === 'he' 
+                    ? 'השלם את מסע התודעה כדי לפתוח תובנות' 
+                    : 'Complete the consciousness journey to unlock insights')
+                : (language === 'he' 
+                    ? 'המשך להשתמש באפליקציה כדי לבנות את הפרופיל שלך' 
+                    : 'Continue using the app to build your profile')
+              }
             </p>
           </motion.div>
         )}

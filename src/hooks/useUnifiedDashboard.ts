@@ -3,6 +3,7 @@ import { useLifeModel, useDashboard, useOnboardingProgress } from '@/hooks/auror
 import { useAuth } from '@/contexts/AuthContext';
 import { calculateXpProgress } from '@/lib/achievements';
 import { getEgoState } from '@/lib/egoStates';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 
 export interface UnifiedDashboardData {
   // User
@@ -82,6 +83,7 @@ export interface UnifiedDashboardData {
   hasIdentity: boolean;
   hasEnergy: boolean;
   isLifeModelComplete: boolean;
+  isLaunchpadComplete: boolean; // Consciousness journey complete (base requirement)
   
   // State
   isLoading: boolean;
@@ -94,6 +96,7 @@ export function useUnifiedDashboard(): UnifiedDashboardData {
   const { lifeDirection, activeFocusPlan, dailyMinimums } = useLifeModel();
   const { values, principles, selfConcepts, characterTraits, identityTitle, fiveYearVision, tenYearVision, activeCommitments } = useDashboard();
   const { progressPercentage, hasDirection, hasIdentity, hasEnergy, isLifeModelComplete } = useOnboardingProgress();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
 
   // Calculate XP progress
   const xpProgress = calculateXpProgress(gameState?.experience ?? 0);
@@ -189,6 +192,7 @@ export function useUnifiedDashboard(): UnifiedDashboardData {
     hasIdentity,
     hasEnergy,
     isLifeModelComplete,
+    isLaunchpadComplete, // Consciousness journey complete (base requirement)
     
     // State
     isLoading: gameLoading,
