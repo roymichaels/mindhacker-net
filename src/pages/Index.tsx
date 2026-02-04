@@ -9,15 +9,13 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   GameHeroSection,
-  WhatIsThisSection,
+  SystemArchitectureSection,
   LifePillarsSection,
-  GamificationFeaturesSection,
   AuroraCoachSection,
+  TransformationJourneySection,
   WhyChooseUsSection,
-  JobShowcaseSection,
-  PractitionerShowcaseSection,
-  FreeJourneyBannerSection,
   TransformationProofSection,
+  FreeJourneyBannerSection,
   FearOfMissingOutSection,
   FinalCTASection,
 } from "@/components/home";
@@ -80,35 +78,29 @@ const Index = () => {
       <Header />
       
       <main className="relative z-10">
-        {/* Hero - Gamified with Orb and typing effect */}
+        {/* Hero - Mind OS with orbiting pillars */}
         <GameHeroSection />
         
-        {/* What Is This - 3 Technology Pillars */}
-        <WhatIsThisSection />
+        {/* System Architecture - How the layers work together */}
+        <SystemArchitectureSection />
         
-        {/* NEW: 7 Life Pillars - Life OS Domains */}
+        {/* Life Pillars - Radial 7 domains around central orb */}
         <LifePillarsSection />
         
-        {/* Gamification Features - XP, Levels, Streaks */}
-        <GamificationFeaturesSection />
-        
-        {/* Aurora Coach - AI with orbiting ego states */}
+        {/* Aurora Coach - Cross-pillar intelligence with conversation preview */}
         <AuroraCoachSection />
+        
+        {/* Transformation Journey - 90-day path timeline */}
+        <TransformationJourneySection />
         
         {/* Why Choose Us - 6 Value Props */}
         <WhyChooseUsSection />
         
-        {/* Job Showcase - RPG Job Discovery */}
-        <JobShowcaseSection />
-        
-        {/* Practitioner Showcase - Human Coaches */}
-        <PractitionerShowcaseSection />
+        {/* Transformation Proof - Before/After */}
+        <TransformationProofSection />
         
         {/* Free Journey Banner - Gift Offer */}
         <FreeJourneyBannerSection />
-        
-        {/* Transformation Proof - Before/After */}
-        <TransformationProofSection />
         
         {/* FOMO - Countdown Urgency */}
         <FearOfMissingOutSection />

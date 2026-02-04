@@ -1,3 +1,8 @@
+/**
+ * AuroraCoachSection - Aurora AI with Cross-Pillar Intelligence
+ * Shows orbiting ego states and conversation preview demonstrating holistic awareness
+ */
+
 import { motion } from 'framer-motion';
 import { MessageCircle, Sparkles, Shield, Heart, Eye, Zap, Flame, Sun, Moon, Crown, Feather, Brain, Clock, Bot } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -25,6 +30,13 @@ const egoStateIcons = [
   { icon: Feather, color: 'text-teal-400', name: 'Lover' },
   { icon: Brain, color: 'text-emerald-400', name: 'Explorer' },
   { icon: Clock, color: 'text-violet-400', name: 'Magician' },
+];
+
+// Conversation examples showing cross-pillar awareness
+const conversationExamples = [
+  { key: 'auroraConvoExample1', delay: 0 },
+  { key: 'auroraConvoExample2', delay: 0.2 },
+  { key: 'auroraConvoExample3', delay: 0.4 },
 ];
 
 export default function AuroraCoachSection() {
@@ -122,7 +134,7 @@ export default function AuroraCoachSection() {
             </div>
           </motion.div>
 
-          {/* Right - Aurora Persona & Features */}
+          {/* Right - Aurora Persona, Features & Conversation Preview */}
           <motion.div
             initial={{ opacity: 0, x: isRTL ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -163,12 +175,50 @@ export default function AuroraCoachSection() {
               ))}
             </div>
 
+            {/* NEW: Conversation Preview - Cross-Pillar Intelligence */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="space-y-3"
+            >
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-primary" />
+                {t('home.auroraConversationTitle')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('home.auroraConversationSubtitle')}
+              </p>
+              
+              {/* Example Conversations */}
+              <div className="space-y-2">
+                {conversationExamples.map((example, i) => (
+                  <motion.div
+                    key={example.key}
+                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.5 + example.delay }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="flex-1 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm text-foreground/80 italic">
+                      {t(`home.${example.key}`)}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Easy Message CTA */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
               className="p-5 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20"
             >
               <div className="flex items-center gap-3">

@@ -2761,6 +2761,62 @@ export const en: TranslationKeys = {
         comeback: "Everything designed to make you want to return",
       },
     },
+    
+    // NEW: System Architecture Section
+    systemArchBadge: "How It Works",
+    systemArchTitle: "Your Mind's Operating System",
+    systemArchSubtitle: "Four integrated layers working together to create lasting transformation",
+    systemArchIntegration: "All layers synchronize in real-time for holistic growth",
+    
+    // Layers
+    layerConsciousTitle: "Conscious Layer — Aurora AI",
+    layerConsciousDesc: "Your daily guide and coach. Aurora understands context, remembers everything, and orchestrates your entire journey.",
+    layerApplicationTitle: "Application Layer — 7 Life Domains",
+    layerApplicationDesc: "Personality, Business, Health, Relationships, Finances, Learning, Purpose — all connected, all optimized.",
+    layerSubconsciousTitle: "Subconscious Layer — Hypnosis Engine",
+    layerSubconsciousDesc: "Deep programming that rewires limiting beliefs and installs empowering patterns while you relax.",
+    layerMotivationTitle: "Motivation Engine — Gamification",
+    layerMotivationDesc: "XP, levels, streaks, and achievements that make growth addictive and keep you coming back.",
+    
+    // NEW: Transformation Journey Section
+    journeyBadge: "The 90-Day Path",
+    journeyTitle: "Your Transformation Journey",
+    journeySubtitle: "A structured path from discovery to mastery — with Aurora guiding every step",
+    journeyCta: "Start Your Transformation",
+    journeyXpLabel: "Earn up to",
+    journeyLevelLabel: "Reach",
+    journeyAchievementsLabel: "Unlock",
+    journeyBadgesLabel: "badges",
+    
+    // Phases
+    phaseFoundationTitle: "Foundation",
+    phaseFoundationDesc: "Build your Digital Avatar, complete the Launchpad questionnaire, and let Aurora learn your patterns.",
+    phaseFoundationFeature1: "Complete personality assessment",
+    phaseFoundationFeature2: "Build your unique 3D Avatar",
+    phaseFoundationFeature3: "Unlock first hypnosis sessions",
+    
+    phaseDeepWorkTitle: "Deep Work",
+    phaseDeepWorkDesc: "Activate your 90-day plan with daily missions, habit tracking, and weekly insights from Aurora.",
+    phaseDeepWorkFeature1: "Daily missions across 7 life pillars",
+    phaseDeepWorkFeature2: "XP accumulation & level progression",
+    phaseDeepWorkFeature3: "Weekly pattern recognition & insights",
+    
+    phaseMasteryTitle: "Mastery",
+    phaseMasteryDesc: "System-wide optimization where cross-pillar synergies emerge and transformation becomes your new normal.",
+    phaseMasteryFeature1: "Cross-pillar optimization",
+    phaseMasteryFeature2: "Advanced community features",
+    phaseMasteryFeature3: "Continuous evolution of your Avatar",
+    
+    // NEW: Aurora Conversation Preview
+    auroraConversationTitle: "Aurora Knows Your Whole Story",
+    auroraConversationSubtitle: "She connects insights from every domain to guide you holistically",
+    auroraConvoExample1: "\"I noticed your business stress is affecting your sleep. Let's address both.\"",
+    auroraConvoExample2: "\"Your meditation streak is helping your focus. Ready for a business hypnosis?\"",
+    auroraConvoExample3: "\"Based on yesterday's session, here are 3 tasks for today.\"",
+    
+    // NEW: Hero - Mind OS Focus
+    mindOsTitle: "Your Mind's Operating System",
+    mindOsSubtitle: "7 life domains. One integrated brain. AI + Hypnosis + Gamification working together.",
   },
 
   practitionerLanding: {

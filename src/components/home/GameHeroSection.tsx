@@ -1,11 +1,24 @@
 /**
- * GameHeroSection - Immersive, high-impact gamified hero
- * Premium "Life RPG" aesthetic with maximum conversion focus
+ * GameHeroSection - Mind OS Hero with Unified System Visualization
+ * "Your Mind's Operating System" with orbiting 7 pillars around central Orb
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Trophy, Target, Zap, Play, ChevronDown, Star, Flame } from 'lucide-react';
+import { 
+  Sparkles, 
+  ChevronDown, 
+  User, 
+  Briefcase, 
+  Heart, 
+  Users, 
+  Wallet, 
+  GraduationCap, 
+  Compass,
+  Brain,
+  AudioLines,
+  Gamepad2
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
@@ -13,90 +26,29 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
-// Typing effect for pain points
-const useTypingEffect = (texts: string[], typingSpeed = 50, pauseTime = 2000) => {
-  const [displayText, setDisplayText] = useState('');
-  const [textIndex, setTextIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(true);
-  
-  useEffect(() => {
-    const currentText = texts[textIndex];
-    
-    if (isTyping) {
-      if (displayText.length < currentText.length) {
-        const timeout = setTimeout(() => {
-          setDisplayText(currentText.slice(0, displayText.length + 1));
-        }, typingSpeed);
-        return () => clearTimeout(timeout);
-      } else {
-        const timeout = setTimeout(() => {
-          setIsTyping(false);
-        }, pauseTime);
-        return () => clearTimeout(timeout);
-      }
-    } else {
-      if (displayText.length > 0) {
-        const timeout = setTimeout(() => {
-          setDisplayText(displayText.slice(0, -1));
-        }, typingSpeed / 2);
-        return () => clearTimeout(timeout);
-      } else {
-        setTextIndex((prev) => (prev + 1) % texts.length);
-        setIsTyping(true);
-      }
-    }
-  }, [displayText, isTyping, textIndex, texts, typingSpeed, pauseTime]);
-  
-  return displayText;
-};
+// 7 Life Pillars for orbital visualization
+const lifePillars = [
+  { icon: User, color: 'text-blue-400', bg: 'bg-blue-500/20', name: 'Personality' },
+  { icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-500/20', name: 'Business' },
+  { icon: Heart, color: 'text-red-400', bg: 'bg-red-500/20', name: 'Health' },
+  { icon: Users, color: 'text-pink-400', bg: 'bg-pink-500/20', name: 'Relationships' },
+  { icon: Wallet, color: 'text-emerald-400', bg: 'bg-emerald-500/20', name: 'Finances' },
+  { icon: GraduationCap, color: 'text-indigo-400', bg: 'bg-indigo-500/20', name: 'Learning' },
+  { icon: Compass, color: 'text-purple-400', bg: 'bg-purple-500/20', name: 'Purpose' },
+];
 
-// Floating stat badge component
-const FloatingBadge = ({ 
-  children, 
-  className, 
-  delay = 0 
-}: { 
-  children: React.ReactNode; 
-  className?: string;
-  delay?: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.8, y: 20 }}
-    animate={{ opacity: 1, scale: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    className={cn(
-      "absolute hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl",
-      "bg-card/90 backdrop-blur-md border border-border/50",
-      "shadow-lg shadow-black/10",
-      className
-    )}
-  >
-    {children}
-  </motion.div>
-);
+// System components (Aurora, Hypnosis, Gamification)
+const systemComponents = [
+  { icon: Brain, label: 'AI Coach', color: 'text-violet-400' },
+  { icon: AudioLines, label: 'Hypnosis', color: 'text-teal-400' },
+  { icon: Gamepad2, label: 'Gamification', color: 'text-amber-400' },
+];
 
 export default function GameHeroSection() {
-  const { isRTL } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
-  
-  // Dynamic typing effect for pain points
-  const typingTexts = useMemo(() => isRTL ? [
-    'שאתה מרגיש תקוע...',
-    'שאתה יודע שאתה מסוגל ליותר...',
-    'שהחיים עוברים מהר מדי...',
-    'שאתה רוצה שינוי אמיתי...',
-    'שמשהו חייב להשתנות...',
-  ] : [
-    "you feel stuck...",
-    "you know you're capable of more...",
-    "life is passing too quickly...",
-    "you want real change...",
-    "something needs to shift...",
-  ], [isRTL]);
-  
-  const typedText = useTypingEffect(typingTexts, 55, 1800);
   
   // Orb animation cycle
   useEffect(() => {
@@ -118,13 +70,8 @@ export default function GameHeroSection() {
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       {/* Multi-layer background */}
       <div className="absolute inset-0">
-        {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
-        
-        {/* Radial glow from orb area */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-primary/5 to-transparent" />
-        
-        {/* Accent color wash */}
         <div className="absolute inset-0 bg-gradient-to-t from-accent/5 via-transparent to-primary/5" />
         
         {/* Animated gradient overlay */}
@@ -153,85 +100,15 @@ export default function GameHeroSection() {
           }}
         />
       </div>
-      
-      {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(25)].map((_, i) => (
-          <motion.div
-            key={i}
-            className={cn(
-              "absolute rounded-full",
-              i % 3 === 0 ? "w-2 h-2 bg-primary/30" : "w-1 h-1 bg-primary/50"
-            )}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -150, 0],
-              x: [0, Math.random() * 50 - 25, 0],
-              opacity: [0, 0.8, 0],
-              scale: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 6 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
 
-      {/* Floating stat badges - desktop only */}
-      <FloatingBadge className="top-[25%] left-[8%]" delay={1}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-          <Star className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{isRTL ? 'רמה' : 'Level'}</div>
-          <div className="font-bold text-foreground">47</div>
-        </div>
-      </FloatingBadge>
-
-      <FloatingBadge className="top-[35%] right-[10%]" delay={1.2}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-          <Flame className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{isRTL ? 'רצף' : 'Streak'}</div>
-          <div className="font-bold text-foreground">21 🔥</div>
-        </div>
-      </FloatingBadge>
-
-      <FloatingBadge className="bottom-[30%] left-[12%]" delay={1.4}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
-          <Trophy className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{isRTL ? 'הישגים' : 'Achievements'}</div>
-          <div className="font-bold text-foreground">156</div>
-        </div>
-      </FloatingBadge>
-
-      <FloatingBadge className="bottom-[25%] right-[8%]" delay={1.6}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
-          <Zap className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">XP</div>
-          <div className="font-bold text-foreground">12,450</div>
-        </div>
-      </FloatingBadge>
-
-      <div className="relative z-10 container mx-auto max-w-5xl px-4" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="text-center space-y-6">
+      <div className="relative z-10 container mx-auto max-w-6xl px-4 py-12" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="text-center space-y-8">
           
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, type: "spring" }}
+            transition={{ duration: 0.6, type: "spring" as const }}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full 
               bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20
               border border-primary/30 shadow-lg shadow-primary/10"
@@ -247,154 +124,162 @@ export default function GameHeroSection() {
             </span>
           </motion.div>
 
-          {/* 3D Orb with enhanced glow */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, type: "spring", stiffness: 100 }}
-            className="relative mx-auto py-6"
-          >
-            {/* Multiple glow layers */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <motion.div 
-                className="w-80 h-80 rounded-full bg-primary/20 blur-[100px]"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <motion.div 
-                className="w-64 h-64 rounded-full bg-accent/30 blur-[60px]"
-                animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.4, 0.2] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-              />
-            </div>
-            
-            {/* Pulsing rings */}
-            {[1, 2, 3].map((ring) => (
-              <motion.div
-                key={ring}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              >
-                <motion.div 
-                  className={cn(
-                    "rounded-full border",
-                    ring === 1 && "w-52 h-52 border-primary/40",
-                    ring === 2 && "w-64 h-64 border-primary/20",
-                    ring === 3 && "w-80 h-80 border-primary/10"
-                  )}
-                  animate={{ 
-                    scale: [1, 1.2 + ring * 0.1, 1], 
-                    opacity: [0.6 - ring * 0.15, 0, 0.6 - ring * 0.15] 
-                  }}
-                  transition={{ 
-                    duration: 2.5 + ring * 0.5, 
-                    repeat: Infinity,
-                    delay: ring * 0.3 
-                  }}
-                />
-              </motion.div>
-            ))}
-            
-            <PersonalizedOrb 
-              size={180}
-              state={orbState}
-              className="mx-auto relative z-10"
-            />
-          </motion.div>
-
-          {/* Dynamic pain point - typing effect */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="h-10 flex items-center justify-center"
-          >
-            <span className="text-lg sm:text-xl text-muted-foreground">
-              {isRTL ? 'מכיר את הרגע ' : 'Know that feeling when '}
-              <span className="text-primary font-semibold">{typedText}</span>
-              <motion.span 
-                animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity }}
-                className="text-primary"
-              >|</motion.span>
-            </span>
-          </motion.div>
-
-          {/* Main Title */}
+          {/* Main Title - Mind OS */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]"
           >
-            <motion.span 
-              className="block text-foreground mb-2"
-              initial={{ opacity: 0, x: isRTL ? 30 : -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              {isRTL ? 'הפוך את החיים שלך' : 'Turn Your Life Into'}
-            </motion.span>
-            <motion.span 
-              className="block"
-              initial={{ opacity: 0, x: isRTL ? -30 : 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                {isRTL ? 'למשחק שאתה מנצח' : 'A Game You Win'}
-              </span>
-            </motion.span>
+            <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+              {t('home.mindOsTitle')}
+            </span>
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto"
           >
-            {isRTL 
-              ? 'מאמן AI אישי + גיימיפיקציה + היפנוזה מותאמת = טרנספורמציה אמיתית'
-              : 'Personal AI Coach + Gamification + Custom Hypnosis = Real Transformation'}
+            {t('home.mindOsSubtitle')}
           </motion.p>
 
-          {/* Value Props Pills */}
+          {/* Central Orb with Orbiting Pillars */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="flex flex-wrap items-center justify-center gap-3"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.5, type: "spring" as const, stiffness: 100 }}
+            className="relative mx-auto py-8"
           >
-            {[
-              { icon: '🧠', text: isRTL ? 'מאמן AI 24/7' : 'AI Coach 24/7' },
-              { icon: '⚡', text: isRTL ? 'XP על כל פעולה' : 'XP for Actions' },
-              { icon: '🎧', text: isRTL ? 'היפנוזה אישית' : 'Personal Hypnosis' },
-              { icon: '🎯', text: isRTL ? 'תוכנית 90 יום' : '90-Day Plan' },
-            ].map((item, i) => (
+            {/* Glow layers */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <motion.div 
-                key={i} 
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl 
-                  bg-card/80 backdrop-blur-sm border border-border/50
-                  hover:border-primary/30 hover:bg-card transition-all duration-300"
-                whileHover={{ scale: 1.05, y: -2 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 + i * 0.1 }}
+                className="w-[400px] h-[400px] rounded-full bg-primary/15 blur-[100px]"
+                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+            </div>
+            
+            {/* Orbiting 7 Pillars */}
+            <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto">
+              {/* Orbital Track */}
+              <div className="absolute inset-0 rounded-full border border-border/30" />
+              
+              {/* Rotating Container for Pillars */}
+              <motion.div
+                className="absolute inset-0"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
               >
-                <span className="text-xl">{item.icon}</span>
-                <span className="font-semibold text-sm text-foreground">{item.text}</span>
+                {lifePillars.map((pillar, index) => {
+                  const Icon = pillar.icon;
+                  const angle = (index * (360 / 7)) * (Math.PI / 180);
+                  const radius = 140; // sm radius
+                  const x = Math.cos(angle) * radius + 160;
+                  const y = Math.sin(angle) * radius + 160;
+                  
+                  return (
+                    <motion.div
+                      key={pillar.name}
+                      className={cn(
+                        "absolute w-11 h-11 sm:w-12 sm:h-12 rounded-xl",
+                        "flex items-center justify-center",
+                        "bg-card/90 backdrop-blur-sm border border-border/50",
+                        "shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                      )}
+                      style={{ 
+                        left: `calc(50% + ${Math.cos(angle) * radius}px - 22px)`,
+                        top: `calc(50% + ${Math.sin(angle) * radius}px - 22px)`,
+                      }}
+                      // Counter-rotate to keep icons upright
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                      whileHover={{ scale: 1.2 }}
+                      title={pillar.name}
+                    >
+                      <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", pillar.color)} />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
-            ))}
+              
+              {/* Central Orb */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  {/* Pulsing rings */}
+                  {[1, 2].map((ring) => (
+                    <motion.div
+                      key={ring}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    >
+                      <motion.div 
+                        className={cn(
+                          "rounded-full border border-primary/40",
+                          ring === 1 ? "w-44 h-44" : "w-52 h-52"
+                        )}
+                        animate={{ 
+                          scale: [1, 1.15, 1], 
+                          opacity: [0.5, 0, 0.5] 
+                        }}
+                        transition={{ 
+                          duration: 2.5, 
+                          repeat: Infinity,
+                          delay: ring * 0.4 
+                        }}
+                      />
+                    </motion.div>
+                  ))}
+                  
+                  <PersonalizedOrb 
+                    size={140}
+                    state={orbState}
+                    className="relative z-10"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* System Components Labels - Below Orb */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="flex items-center justify-center gap-4 sm:gap-6 mt-8"
+            >
+              {systemComponents.map((comp, i) => {
+                const Icon = comp.icon;
+                return (
+                  <motion.div
+                    key={comp.label}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50"
+                    whileHover={{ scale: 1.05 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2 + i * 0.1 }}
+                  >
+                    <Icon className={cn("h-4 w-4", comp.color)} />
+                    <span className="text-xs sm:text-sm font-medium text-foreground">
+                      {isRTL 
+                        ? comp.label === 'AI Coach' ? 'מאמן AI' 
+                          : comp.label === 'Hypnosis' ? 'היפנוזה' 
+                          : 'גיימיפיקציה'
+                        : comp.label
+                      }
+                    </span>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
           </motion.div>
 
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
+            transition={{ duration: 0.6, delay: 1.3 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             {/* Primary CTA - Free Journey */}
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
@@ -431,52 +316,32 @@ export default function GameHeroSection() {
                   hover:border-primary/50 hover:bg-primary/5
                   group transition-all duration-300"
               >
-                <Play className={cn("h-5 w-5 fill-current group-hover:text-primary transition-colors", isRTL ? "ml-2" : "mr-2")} />
-                {isRTL ? 'הרשמה למערכת' : 'Sign Up Free'}
+                {isRTL ? 'הרשמה מהירה' : 'Quick Sign Up'}
               </Button>
             </motion.div>
           </motion.div>
 
-          {/* Trust signals */}
+          {/* Scroll Indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
-            className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-muted-foreground pt-4"
+            transition={{ delay: 2 }}
+            className="pt-8"
           >
-            <span className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              {isRTL ? 'חינם להתחלה' : 'Free to start'}
-            </span>
-            <span className="hidden sm:inline">•</span>
-            <span className="flex items-center gap-1.5">
-              <Target className="h-4 w-4 text-primary" />
-              {isRTL ? 'תוצאות מהיום הראשון' : 'Results from day one'}
-            </span>
-            <span className="hidden sm:inline">•</span>
-            <span className="flex items-center gap-1.5">
-              <Trophy className="h-4 w-4 text-amber-500" />
-              {isRTL ? 'ללא כרטיס אשראי' : 'No credit card'}
-            </span>
+            <motion.button
+              onClick={scrollToContent}
+              className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors mx-auto"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <span className="text-sm font-medium">
+                {isRTL ? 'גלול למטה' : 'Scroll Down'}
+              </span>
+              <ChevronDown className="h-5 w-5" />
+            </motion.button>
           </motion.div>
         </div>
       </div>
-      
-      {/* Scroll indicator */}
-      <motion.button
-        onClick={scrollToContent}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground hover:text-primary transition-colors"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5 }}
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <ChevronDown className="h-8 w-8" />
-        </motion.div>
-      </motion.button>
     </section>
   );
 }

@@ -2815,6 +2815,62 @@ export const he = {
         comeback: "הכל מתוכנן כדי שתרצה לחזור",
       },
     },
+    
+    // NEW: System Architecture Section
+    systemArchBadge: "איך זה עובד",
+    systemArchTitle: "מערכת ההפעלה של התודעה שלך",
+    systemArchSubtitle: "ארבע שכבות משולבות שעובדות יחד ליצירת טרנספורמציה אמיתית",
+    systemArchIntegration: "כל השכבות מסונכרנות בזמן אמת לצמיחה הוליסטית",
+    
+    // Layers
+    layerConsciousTitle: "שכבת התודעה — Aurora AI",
+    layerConsciousDesc: "המדריכה היומית שלך. Aurora מבינה הקשר, זוכרת הכל, ומנהלת את כל המסע שלך.",
+    layerApplicationTitle: "שכבת האפליקציה — 7 תחומי חיים",
+    layerApplicationDesc: "אישיות, עסקים, בריאות, מערכות יחסים, פיננסים, למידה, ייעוד — הכל מחובר, הכל ממוטב.",
+    layerSubconsciousTitle: "שכבת התת-מודע — מנוע ההיפנוזה",
+    layerSubconsciousDesc: "תכנות עמוק שמשנה אמונות מגבילות ומתקין דפוסים מעצימים בזמן שאתה נרגע.",
+    layerMotivationTitle: "מנוע המוטיבציה — גיימיפיקציה",
+    layerMotivationDesc: "XP, רמות, רצפים והישגים שהופכים את הצמיחה לממכרת וגורמים לך לחזור.",
+    
+    // NEW: Transformation Journey Section
+    journeyBadge: "מסלול 90 הימים",
+    journeyTitle: "מסע הטרנספורמציה שלך",
+    journeySubtitle: "מסלול מובנה מגילוי לשליטה — עם Aurora שמדריכה בכל צעד",
+    journeyCta: "התחל את הטרנספורמציה",
+    journeyXpLabel: "צבור עד",
+    journeyLevelLabel: "הגע ל",
+    journeyAchievementsLabel: "פתח",
+    journeyBadgesLabel: "תגים",
+    
+    // Phases
+    phaseFoundationTitle: "יסודות",
+    phaseFoundationDesc: "בנה את האווטר הדיגיטלי שלך, השלם את שאלון ה-Launchpad ותן ל-Aurora ללמוד את הדפוסים שלך.",
+    phaseFoundationFeature1: "השלם הערכת אישיות",
+    phaseFoundationFeature2: "בנה אווטר תלת-ממדי ייחודי",
+    phaseFoundationFeature3: "פתח סשני היפנוזה ראשונים",
+    
+    phaseDeepWorkTitle: "עבודה עמוקה",
+    phaseDeepWorkDesc: "הפעל את תוכנית 90 הימים עם משימות יומיות, מעקב הרגלים ותובנות שבועיות מ-Aurora.",
+    phaseDeepWorkFeature1: "משימות יומיות ב-7 תחומי חיים",
+    phaseDeepWorkFeature2: "צבירת XP ועליית רמות",
+    phaseDeepWorkFeature3: "זיהוי דפוסים ותובנות שבועיות",
+    
+    phaseMasteryTitle: "שליטה",
+    phaseMasteryDesc: "אופטימיזציה כוללת שבה סינרגיות בין תחומים מתעוררות והטרנספורמציה הופכת לנורמה החדשה שלך.",
+    phaseMasteryFeature1: "אופטימיזציה חוצת-תחומים",
+    phaseMasteryFeature2: "פיצ'רים מתקדמים של קהילה",
+    phaseMasteryFeature3: "התפתחות מתמשכת של האווטר",
+    
+    // NEW: Aurora Conversation Preview
+    auroraConversationTitle: "Aurora מכירה את כל הסיפור שלך",
+    auroraConversationSubtitle: "היא מחברת תובנות מכל התחומים כדי להנחות אותך באופן הוליסטי",
+    auroraConvoExample1: "\"שמתי לב שהלחץ העסקי משפיע על השינה שלך. בוא נטפל בשניהם.\"",
+    auroraConvoExample2: "\"רצף המדיטציות עוזר לריכוז. מוכן להיפנוזה עסקית?\"",
+    auroraConvoExample3: "\"בהתבסס על הסשן של אתמול, הנה 3 משימות להיום.\"",
+    
+    // NEW: Hero - Mind OS Focus
+    mindOsTitle: "מערכת ההפעלה של התודעה",
+    mindOsSubtitle: "7 תחומי חיים. מוח אחד משולב. AI + היפנוזה + גיימיפיקציה עובדים יחד.",
   },
 
   practitionerLanding: {
