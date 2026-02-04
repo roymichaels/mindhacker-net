@@ -254,7 +254,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/dashboard")}
                     aria-label={t('common.home')}
                     className="hidden sm:flex"
                   >
