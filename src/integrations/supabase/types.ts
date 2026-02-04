@@ -2252,6 +2252,60 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_current_state: Json | null
+          step_3_income: Json | null
+          step_4_expenses: Json | null
+          step_5_savings: Json | null
+          step_6_debt: Json | null
+          step_7_goals: Json | null
+          step_8_action_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_current_state?: Json | null
+          step_3_income?: Json | null
+          step_4_expenses?: Json | null
+          step_5_savings?: Json | null
+          step_6_debt?: Json | null
+          step_7_goals?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_current_state?: Json | null
+          step_3_income?: Json | null
+          step_4_expenses?: Json | null
+          step_5_savings?: Json | null
+          step_6_debt?: Json | null
+          step_7_goals?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       form_analyses: {
         Row: {
           analysis_summary: string
@@ -2983,6 +3037,60 @@ export type Database = {
           preferred_time?: string | null
           source?: string
           status?: string
+        }
+        Relationships: []
+      }
+      learning_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_learning_style: Json | null
+          step_3_skills: Json | null
+          step_4_reading: Json | null
+          step_5_courses: Json | null
+          step_6_practice: Json | null
+          step_7_goals: Json | null
+          step_8_action_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_learning_style?: Json | null
+          step_3_skills?: Json | null
+          step_4_reading?: Json | null
+          step_5_courses?: Json | null
+          step_6_practice?: Json | null
+          step_7_goals?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_learning_style?: Json | null
+          step_3_skills?: Json | null
+          step_4_reading?: Json | null
+          step_5_courses?: Json | null
+          step_6_practice?: Json | null
+          step_7_goals?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -4365,6 +4473,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      relationships_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_current_state: Json | null
+          step_3_family: Json | null
+          step_4_partner: Json | null
+          step_5_social: Json | null
+          step_6_communication: Json | null
+          step_7_boundaries: Json | null
+          step_8_action_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_current_state?: Json | null
+          step_3_family?: Json | null
+          step_4_partner?: Json | null
+          step_5_social?: Json | null
+          step_6_communication?: Json | null
+          step_7_boundaries?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_current_state?: Json | null
+          step_3_family?: Json | null
+          step_4_partner?: Json | null
+          step_5_social?: Json | null
+          step_6_communication?: Json | null
+          step_7_boundaries?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
