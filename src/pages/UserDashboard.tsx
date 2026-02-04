@@ -10,11 +10,13 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import CompactSessions from "@/components/dashboard/CompactSessions";
 import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardView";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HypnosisModal } from "@/components/dashboard/HypnosisModal";
 
 const UserDashboard = () => {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [hypnosisOpen, setHypnosisOpen] = useState(false);
   
   // SEO Configuration
   useSEO({
@@ -55,6 +57,14 @@ const UserDashboard = () => {
     },
   });
 
+  const handleOpenChat = () => {
+    navigate('/aurora');
+  };
+
+  const handleOpenHypnosis = () => {
+    setHypnosisOpen(true);
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -73,19 +83,21 @@ const UserDashboard = () => {
     <div className="min-h-screen relative">
       <PullToRefreshIndicator {...pullToRefresh} />
       <DashboardLayout>
-        {/* Dashboard Content - Unified View */}
+        {/* Dashboard Content - Command Center */}
         <div className="space-y-6 pb-10">
-          <p className="text-lg font-semibold text-muted-foreground">{t('dashboard.welcomeBack')}</p>
-          
-          {/* Unified Life Model + Gamification Dashboard */}
-          <UnifiedDashboardView />
+          {/* Unified Dashboard with all zones */}
+          <UnifiedDashboardView 
+            onOpenHypnosis={handleOpenHypnosis}
+            onOpenChat={handleOpenChat}
+          />
 
-          {/* Sessions */}
-          <div className="grid gap-6">
-            <CompactSessions />
-          </div>
+          {/* Sessions - Compact View */}
+          <CompactSessions />
         </div>
       </DashboardLayout>
+
+      {/* Hypnosis Modal */}
+      <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
     </div>
   );
 };
