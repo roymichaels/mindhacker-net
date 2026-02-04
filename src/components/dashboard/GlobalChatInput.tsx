@@ -16,7 +16,12 @@ const GlobalChatInput = () => {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const { sendMessageRef, isStreaming } = useAuroraChatContext();
+  const { sendMessageRef, isStreaming, setIsChatExpanded } = useAuroraChatContext();
+
+  // Handle focus to expand chat bubbles
+  const handleFocus = () => {
+    setIsChatExpanded(true);
+  };
 
   const handleTranscription = (text: string) => {
     setIsTranscribing(false);
@@ -49,12 +54,7 @@ const GlobalChatInput = () => {
       textareaRef.current.style.height = 'auto';
     }
     
-    // If not on Aurora page, navigate first and wait
-    if (!location.pathname.startsWith('/aurora')) {
-      navigate('/aurora');
-      // Wait for navigation and component mount
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+    // Messages are now sent directly through the context - no navigation needed
     
     // Retry sending with exponential backoff
     let attempts = 0;
@@ -92,7 +92,7 @@ const GlobalChatInput = () => {
   };
 
   return (
-    <div className="shrink-0 w-full pt-3 pb-[15px] px-4">
+    <div className="shrink-0 w-full pt-3 pb-[15px] px-4" data-global-chat-input>
       <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
         <div className="relative flex items-end gap-3">
           {/* Input Container - same style as sidebar search bar */}
@@ -102,6 +102,7 @@ const GlobalChatInput = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={handleFocus}
               placeholder={tg('aurora.chat.placeholder')}
               disabled={isStreaming || isRecording}
               rows={1}
