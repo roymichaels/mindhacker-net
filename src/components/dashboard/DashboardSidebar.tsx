@@ -30,6 +30,9 @@ import { HypnosisModal } from './HypnosisModal';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { SidebarCharacterHUD } from './unified/SidebarCharacterHUD';
 
 const defaultLogo = "/aurora-icon.svg";
 
@@ -61,6 +64,8 @@ const DashboardSidebar = ({
   const isCollapsed = !isMobileSheet && sidebar?.state === 'collapsed';
   const { theme: brandTheme } = useThemeSettings();
   const chatContext = useAuroraChatContextSafe();
+  const dashboard = useUnifiedDashboard();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
 
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
@@ -172,6 +177,40 @@ const DashboardSidebar = ({
   // Shared content component for desktop sidebar
   const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
+      {/* Desktop: Logo and Brand Name Header */}
+      {!isMobile && !isCollapsed && (
+        <div className="flex items-center justify-between px-3 py-4 mb-2 border-b border-border">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
+            <span className="font-bold text-base text-foreground">
+              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
+            </span>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => sidebar?.toggleSidebar()}
+            title={language === 'he' ? 'כווץ תפריט' : 'Collapse Menu'}
+          >
+            <Menu className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
+      )}
+
+      {/* Character HUD - Show above search when launchpad is complete */}
+      {!dashboard.isLoading && !dashboard.isEmpty && isLaunchpadComplete && !isCollapsed && (
+        <div className={cn("px-2 mb-3", isMobile && "px-3")}>
+          <SidebarCharacterHUD
+            identityTitle={dashboard.identityTitle}
+            level={dashboard.level}
+            xp={dashboard.xpProgress}
+            streak={dashboard.streak}
+            tokens={dashboard.tokens}
+          />
+        </div>
+      )}
+
       {/* Mobile: Search bar */}
       {isMobile && (
         <div className="px-3 py-2 mb-3 relative">
@@ -188,27 +227,6 @@ const DashboardSidebar = ({
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           </div>
           <SearchResultsDropdown />
-        </div>
-      )}
-
-      {/* Desktop: Logo and Brand Name Header */}
-      {!isMobile && !isCollapsed && (
-        <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
-            <span className="font-bold text-base text-foreground">
-              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
-            </span>
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => sidebar?.toggleSidebar()}
-            title={language === 'he' ? 'כווץ תפריט' : 'Collapse Menu'}
-          >
-            <Menu className="h-4 w-4 text-muted-foreground" />
-          </Button>
         </div>
       )}
 
