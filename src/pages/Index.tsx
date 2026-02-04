@@ -8,10 +8,18 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  HeroSection,
-  FeaturesSection,
-  HowItWorksSection,
-  CTASection,
+  GameHeroSection,
+  WhatIsThisSection,
+  LifePillarsSection,
+  GamificationFeaturesSection,
+  AuroraCoachSection,
+  WhyChooseUsSection,
+  JobShowcaseSection,
+  PractitionerShowcaseSection,
+  FreeJourneyBannerSection,
+  TransformationProofSection,
+  FearOfMissingOutSection,
+  FinalCTASection,
 } from "@/components/home";
 
 const Index = () => {
@@ -72,17 +80,41 @@ const Index = () => {
       <Header />
       
       <main className="relative z-10">
-        {/* Hero - Clean, conversion-focused */}
-        <HeroSection />
+        {/* Hero - Gamified with Orb and typing effect */}
+        <GameHeroSection />
         
-        {/* Features - Core value props */}
-        <FeaturesSection />
+        {/* What Is This - 3 Technology Pillars */}
+        <WhatIsThisSection />
         
-        {/* How it works - 3 simple steps */}
-        <HowItWorksSection />
+        {/* NEW: 7 Life Pillars - Life OS Domains */}
+        <LifePillarsSection />
         
-        {/* Final CTA */}
-        <CTASection />
+        {/* Gamification Features - XP, Levels, Streaks */}
+        <GamificationFeaturesSection />
+        
+        {/* Aurora Coach - AI with orbiting ego states */}
+        <AuroraCoachSection />
+        
+        {/* Why Choose Us - 6 Value Props */}
+        <WhyChooseUsSection />
+        
+        {/* Job Showcase - RPG Job Discovery */}
+        <JobShowcaseSection />
+        
+        {/* Practitioner Showcase - Human Coaches */}
+        <PractitionerShowcaseSection />
+        
+        {/* Free Journey Banner - Gift Offer */}
+        <FreeJourneyBannerSection />
+        
+        {/* Transformation Proof - Before/After */}
+        <TransformationProofSection />
+        
+        {/* FOMO - Countdown Urgency */}
+        <FearOfMissingOutSection />
+        
+        {/* Final CTA - Ultimate Closer */}
+        <FinalCTASection />
       </main>
 
       {/* Footer */}
