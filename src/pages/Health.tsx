@@ -115,25 +115,25 @@ const Health = () => {
           <div className="absolute bottom-0 start-0 w-24 h-24 bg-red-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
-        {/* Health Status Card */}
+        {/* Health Tools Grid - FIRST (Action-oriented) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <HealthStatusCard language={language} />
+          <h2 className="text-lg font-semibold mb-4">
+            {language === 'he' ? 'כלי בריאות' : 'Health Tools'}
+          </h2>
+          <HealthToolsGrid language={language} onOpenModal={handleOpenModal} />
         </motion.div>
 
-        {/* Health Tools Grid */}
+        {/* Health Status Card - SECOND (Data display) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-lg font-semibold mb-4">
-            {language === 'he' ? 'כלי בריאות' : 'Health Tools'}
-          </h2>
-          <HealthToolsGrid language={language} onOpenModal={handleOpenModal} />
+          <HealthStatusCard language={language} />
         </motion.div>
       </div>
 
