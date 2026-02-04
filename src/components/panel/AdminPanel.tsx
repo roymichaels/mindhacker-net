@@ -17,20 +17,19 @@ const AdminPanel = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background">
-          <div className="grid grid-cols-3 h-14 items-center px-4">
+        {/* Mobile Header - Fixed at top */}
+        <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border/50 bg-background/95 backdrop-blur-sm">
+          <div className="grid grid-cols-3 h-full items-center px-4">
             {/* Left: Menu Button */}
             <div className="flex justify-start">
-              <Button 
-                variant="ghost" 
-                size="icon"
+              <button 
+                type="button"
                 onClick={() => setSidebarOpen(prev => !prev)}
                 aria-label="Menu"
-                className="h-9 w-9"
+                className="h-11 w-11 flex items-center justify-center rounded-md hover:bg-accent transition-colors"
               >
                 <Menu className="h-5 w-5" />
-              </Button>
+              </button>
             </div>
             
             {/* Center: Logo */}
@@ -42,15 +41,20 @@ const AdminPanel = () => {
             
             {/* Right: Home + Notification Icons */}
             <div className="flex justify-end items-center gap-1">
-              <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-                <Link to="/">
-                  <Home className="h-5 w-5" />
-                </Link>
-              </Button>
+              <Link 
+                to="/" 
+                className="h-11 w-11 flex items-center justify-center rounded-md hover:bg-accent transition-colors"
+                aria-label="Home"
+              >
+                <Home className="h-5 w-5" />
+              </Link>
               <NotificationBell />
             </div>
           </div>
         </header>
+
+        {/* Spacer for fixed header */}
+        <div className="h-14 flex-shrink-0" />
 
         {/* Mobile Sidebar Sheet */}
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
