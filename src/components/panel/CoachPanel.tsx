@@ -27,7 +27,7 @@ const CoachPanel = () => {
             </SheetTrigger>
             <SheetContent 
               side={isRTL ? "right" : "left"} 
-              className="w-72 p-0 border-border"
+              className="w-[85vw] max-w-sm p-0 border-border"
               hideClose
             >
               <CoachSidebar onNavigate={() => setMobileMenuOpen(false)} isMobileSheet />

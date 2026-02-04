@@ -300,7 +300,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                         <PanelLeft className="h-5 w-5" />
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-72" dir={isRTL ? "rtl" : "ltr"}>
+                    <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-[85vw] max-w-sm" dir={isRTL ? "rtl" : "ltr"}>
                       <AdminSidebar isMobile onNavigate={() => setMobileMenuOpen(false)} />
                     </SheetContent>
                   </Sheet>
