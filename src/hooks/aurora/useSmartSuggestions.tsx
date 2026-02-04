@@ -6,17 +6,18 @@ import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 
 // Action types for smart suggestions
 export type SuggestionAction = 
-  | { type: 'open_hypnosis' }
+  | { type: 'open_hypnosis'; goal?: string }
   | { type: 'open_dashboard'; view?: 'dashboard' | 'profile' }
   | { type: 'send_message'; prompt: string }
-  | { type: 'navigate'; path: string };
+  | { type: 'navigate'; path: string }
+  | { type: 'open_health_modal'; modal: string };
 
 export interface SmartSuggestion {
   id: string;
   text: string;
   action: SuggestionAction;
   priority: number;
-  icon: 'task' | 'hypnosis' | 'plan' | 'habit' | 'reflection' | 'milestone';
+  icon: 'task' | 'hypnosis' | 'plan' | 'habit' | 'reflection' | 'milestone' | 'health' | 'energy';
 }
 
 export function useSmartSuggestions() {
@@ -230,7 +231,38 @@ export function useSmartSuggestions() {
       });
     }
 
-    // Priority 6: General reflection (always available) - Sends message
+    // Priority 6: Health-based suggestions (time-aware)
+    const currentHour = new Date().getHours();
+    if (currentHour >= 20 || currentHour < 6) {
+      // Evening/night: sleep hypnosis
+      result.push({
+        id: 'health-sleep',
+        text: isHebrew ? '🌙 היפנוזה לשינה עמוקה' : '🌙 Deep sleep hypnosis',
+        action: { type: 'open_hypnosis', goal: 'sleep' },
+        priority: 6,
+        icon: 'health',
+      });
+    } else if (currentHour >= 6 && currentHour < 10) {
+      // Morning: energy boost
+      result.push({
+        id: 'health-energy',
+        text: isHebrew ? '⚡ היפנוזה לאנרגיה בוקרית' : '⚡ Morning energy hypnosis',
+        action: { type: 'open_hypnosis', goal: 'energy' },
+        priority: 6,
+        icon: 'energy',
+      });
+    } else if (currentHour >= 14 && currentHour < 16) {
+      // Afternoon slump: quick recharge
+      result.push({
+        id: 'health-recharge',
+        text: isHebrew ? '🔋 טעינה מהירה של 5 דקות' : '🔋 Quick 5-minute recharge',
+        action: { type: 'navigate', path: '/health' },
+        priority: 6,
+        icon: 'energy',
+      });
+    }
+
+    // Priority 7: General reflection (always available) - Sends message
     result.push({
       id: 'reflection',
       text: isHebrew ? '💭 אני רוצה לשתף משהו...' : '💭 I want to share something...',
@@ -238,7 +270,7 @@ export function useSmartSuggestions() {
         type: 'send_message', 
         prompt: isHebrew ? 'אני רוצה לשתף אותך במשהו שעובר עליי' : 'I want to share something that I\'m going through'
       },
-      priority: 6,
+      priority: 7,
       icon: 'reflection',
     });
 
