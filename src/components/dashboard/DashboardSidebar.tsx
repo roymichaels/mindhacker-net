@@ -278,7 +278,7 @@ const DashboardSidebar = ({
                 ) : item.icon && (
                   <item.icon className={cn(
                     "h-4 w-4 shrink-0", 
-                    isRed && "text-red-400",
+                    isRed && "text-primary",
                     isBlue && "text-yellow-400",
                     isGold && "text-purple-900"
                   )} />
