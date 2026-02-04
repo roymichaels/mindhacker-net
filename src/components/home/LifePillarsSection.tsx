@@ -184,7 +184,7 @@ const LifePillarsSection = () => {
             })}
           </svg>
           
-          {/* Central Orb - Positioned at exact center (350, 350) */}
+          {/* Central Orb - Exact center of 700x700 container */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -192,14 +192,15 @@ const LifePillarsSection = () => {
             transition={{ duration: 0.8, type: "spring" as const }}
             className="absolute z-20"
             style={{ 
-              left: '350px', 
-              top: '350px',
-              transform: 'translate(-50%, -50%)'
+              left: 'calc(50% - 90px)',
+              top: 'calc(50% - 90px)',
+              width: '180px',
+              height: '180px',
             }}
           >
-            {/* Outer Glow */}
+            {/* Outer Glow - Centered behind orb */}
             <motion.div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
               animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
               transition={{ duration: 4, repeat: Infinity }}
             >
@@ -208,19 +209,18 @@ const LifePillarsSection = () => {
             
             {/* Inner Glow */}
             <motion.div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
               animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
               transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
             >
               <div className="w-56 h-56 rounded-full bg-primary/20 blur-[40px]" />
             </motion.div>
             
-            <div className="flex items-center justify-center">
-              <PersonalizedOrb size={180} state="idle" />
-            </div>
+            {/* The Orb - fills parent container exactly */}
+            <PersonalizedOrb size={180} state="idle" className="relative z-10" />
             
             {/* Label */}
-            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap">
               <span className="text-base font-semibold text-muted-foreground">
                 {isRTL ? 'הזהות שלך' : 'Your Identity'}
               </span>
