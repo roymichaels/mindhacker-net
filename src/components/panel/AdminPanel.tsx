@@ -42,7 +42,7 @@ const AdminPanel = () => {
             {/* Right: Home + Notification Icons */}
             <div className="flex justify-end items-center gap-1">
               <Link 
-                to="/" 
+                to="/dashboard" 
                 className="h-11 w-11 flex items-center justify-center rounded-md hover:bg-accent transition-colors"
                 aria-label="Home"
               >
