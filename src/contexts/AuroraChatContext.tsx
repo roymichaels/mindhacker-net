@@ -1,7 +1,16 @@
-import { createContext, useContext, useState, ReactNode, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+
+// Command types for cross-app control
+export type CommandType = 'navigate' | 'setting' | 'mode' | 'action';
+
+export interface AuroraCommand {
+  type: CommandType;
+  command: string;
+  params?: Record<string, string>;
+}
 
 interface AuroraChatContextType {
   currentConversationId: string | null;
@@ -24,6 +33,12 @@ interface AuroraChatContextType {
   scrollToMessageId: string | null;
   setScrollToMessageId: (id: string | null) => void;
   openChatAndScrollToMessage: (conversationId: string, messageId: string) => void;
+  // Command execution
+  executeCommand: (command: AuroraCommand) => void;
+  registerCommandHandler: (handler: (command: AuroraCommand) => void) => void;
+  // Proactive messages
+  pendingProactiveMessage: string | null;
+  setPendingProactiveMessage: (message: string | null) => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -49,7 +64,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
+  const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string) => void) | null>(null);
+  const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
 
   const toggleChatExpanded = useCallback(() => {
     setIsChatExpanded(prev => !prev);
@@ -120,6 +137,34 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     setIsChatExpanded(true);
   }, []);
 
+  // Command execution system
+  const executeCommand = useCallback((command: AuroraCommand) => {
+    console.log('Aurora executing command:', command);
+    
+    if (commandHandlerRef.current) {
+      commandHandlerRef.current(command);
+    }
+    
+    // Emit global event for components not using the hook
+    window.dispatchEvent(new CustomEvent('aurora:command', { detail: command }));
+  }, []);
+
+  const registerCommandHandler = useCallback((handler: (command: AuroraCommand) => void) => {
+    commandHandlerRef.current = handler;
+  }, []);
+
+  // Listen for global Aurora events
+  useEffect(() => {
+    const handleNewChatEvent = () => {
+      handleNewChat();
+    };
+
+    window.addEventListener('aurora:new-chat', handleNewChatEvent);
+    return () => {
+      window.removeEventListener('aurora:new-chat', handleNewChatEvent);
+    };
+  }, [handleNewChat]);
+
   return (
     <AuroraChatContext.Provider
       value={{
@@ -140,6 +185,10 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         scrollToMessageId,
         setScrollToMessageId,
         openChatAndScrollToMessage,
+        executeCommand,
+        registerCommandHandler,
+        pendingProactiveMessage,
+        setPendingProactiveMessage,
       }}
     >
       {children}

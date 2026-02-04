@@ -242,6 +242,39 @@ export type Database = {
         }
         Relationships: []
       }
+      aurora_action_preferences: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          execution_count: number | null
+          id: string
+          last_executed_at: string | null
+          trust_level: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          execution_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          trust_level?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          execution_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          trust_level?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       aurora_behavioral_patterns: {
         Row: {
           created_at: string
@@ -602,29 +635,86 @@ export type Database = {
       aurora_onboarding_progress: {
         Row: {
           direction_clarity: string
+          energy_level: string | null
           energy_patterns_status: string
           id: string
           identity_understanding: string
+          last_active_at: string | null
+          last_active_page: string | null
+          mood_signals: Json | null
           onboarding_complete: boolean
+          proactive_enabled: boolean | null
           updated_at: string
           user_id: string
+          voice_mode_enabled: boolean | null
         }
         Insert: {
           direction_clarity?: string
+          energy_level?: string | null
           energy_patterns_status?: string
           id?: string
           identity_understanding?: string
+          last_active_at?: string | null
+          last_active_page?: string | null
+          mood_signals?: Json | null
           onboarding_complete?: boolean
+          proactive_enabled?: boolean | null
           updated_at?: string
           user_id: string
+          voice_mode_enabled?: boolean | null
         }
         Update: {
           direction_clarity?: string
+          energy_level?: string | null
           energy_patterns_status?: string
           id?: string
           identity_understanding?: string
+          last_active_at?: string | null
+          last_active_page?: string | null
+          mood_signals?: Json | null
           onboarding_complete?: boolean
+          proactive_enabled?: boolean | null
           updated_at?: string
+          user_id?: string
+          voice_mode_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      aurora_proactive_queue: {
+        Row: {
+          clicked_at: string | null
+          created_at: string | null
+          dismissed_at: string | null
+          id: string
+          priority: number | null
+          scheduled_for: string
+          sent_at: string | null
+          trigger_data: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          clicked_at?: string | null
+          created_at?: string | null
+          dismissed_at?: string | null
+          id?: string
+          priority?: number | null
+          scheduled_for: string
+          sent_at?: string | null
+          trigger_data?: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          clicked_at?: string | null
+          created_at?: string | null
+          dismissed_at?: string | null
+          id?: string
+          priority?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          trigger_data?: Json | null
+          trigger_type?: string
           user_id?: string
         }
         Relationships: []
@@ -5300,6 +5390,27 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      get_pending_proactive_items: {
+        Args: { p_user_id: string }
+        Returns: {
+          clicked_at: string | null
+          created_at: string | null
+          dismissed_at: string | null
+          id: string
+          priority: number | null
+          scheduled_for: string
+          sent_at: string | null
+          trigger_data: Json | null
+          trigger_type: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "aurora_proactive_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_practitioner_by_domain: {
         Args: { domain_input: string }
         Returns: string
@@ -5319,6 +5430,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      queue_proactive_message: {
+        Args: {
+          p_priority?: number
+          p_scheduled_for?: string
+          p_trigger_data?: Json
+          p_trigger_type: string
+          p_user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
