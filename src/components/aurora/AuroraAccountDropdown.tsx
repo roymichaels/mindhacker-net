@@ -79,8 +79,15 @@ const AuroraAccountDropdown = ({
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    try {
+      await supabase.auth.signOut();
+      // Force a full page reload to clear all state and redirect
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback: force reload anyway
+      window.location.href = '/';
+    }
   };
 
   const handleSettingsClick = () => {

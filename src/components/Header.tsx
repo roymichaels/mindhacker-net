@@ -145,12 +145,18 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
   }, [user, t, isAdminMode]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: t('messages.logoutSuccess'),
-      description: t('messages.goodbye'),
-    });
-    navigate("/");
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: t('messages.logoutSuccess'),
+        description: t('messages.goodbye'),
+      });
+      // Force a full page reload to clear all state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
+    }
   };
 
   // Guest Avatar Dropdown Component
