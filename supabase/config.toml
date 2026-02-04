@@ -90,3 +90,9 @@ verify_jwt = false
 
 [functions.analyze-life-plan]
 verify_jwt = false
+
+[functions.generate-business-plan]
+verify_jwt = false
+
+[functions.generate-branding-suggestions]
+verify_jwt = false

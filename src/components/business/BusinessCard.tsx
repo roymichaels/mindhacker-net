@@ -108,10 +108,16 @@ export function BusinessCard({ journey, onDelete, isDeleting }: BusinessCardProp
                 variant="ghost"
                 size="sm"
                 className="text-amber-600 hover:text-amber-700 hover:bg-amber-500/10"
-                onClick={() => navigate(`/business/journey/${journey.id}`)}
+                onClick={() => {
+                  if (journey.journey_complete) {
+                    navigate(`/business/${journey.id}`);
+                  } else {
+                    navigate(`/business/journey/${journey.id}`);
+                  }
+                }}
               >
                 {journey.journey_complete 
-                  ? (language === 'he' ? 'צפה' : 'View')
+                  ? (language === 'he' ? 'לוח בקרה' : 'Dashboard')
                   : (language === 'he' ? 'המשך' : 'Continue')
                 }
                 <ArrowRight className="h-4 w-4 ms-1" />

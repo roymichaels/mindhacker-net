@@ -68,6 +68,7 @@ const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const LifePlan = lazy(() => import("./pages/LifePlan"));
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
+const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const Personality = lazy(() => import("./pages/Personality"));
 // Free guest journey
 const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
@@ -398,6 +399,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <BusinessJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/business/:businessId"
+                          element={
+                            <ProtectedRoute>
+                              <BusinessDashboard />
                             </ProtectedRoute>
                           }
                         />
