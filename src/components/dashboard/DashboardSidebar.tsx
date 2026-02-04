@@ -43,6 +43,7 @@ interface DashboardSidebarProps {
   onSelectConversation?: (id: string) => void;
   isMobileSheet?: boolean;
   onOpenSettings?: () => void;
+  onOpenProfile?: () => void;
 }
 
 interface MessageSearchResult {
@@ -56,6 +57,7 @@ const DashboardSidebar = ({
   onNavigate,
   isMobileSheet = false,
   onOpenSettings,
+  onOpenProfile,
 }: DashboardSidebarProps) => {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
@@ -207,6 +209,10 @@ const DashboardSidebar = ({
             xp={dashboard.xpProgress}
             streak={dashboard.streak}
             tokens={dashboard.tokens}
+            onClick={() => {
+              onOpenProfile?.();
+              onNavigate?.();
+            }}
           />
         </div>
       )}
@@ -303,6 +309,15 @@ const DashboardSidebar = ({
     return (
       <>
         <div className="flex flex-col h-full bg-sidebar border-sidebar-border">
+          {/* Mobile: Logo and Brand Name Header */}
+          <div className="flex items-center gap-2 px-4 py-4 border-b border-border">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
+              <span className="font-bold text-base text-foreground">
+                {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
+              </span>
+            </Link>
+          </div>
           <div className="p-2 flex flex-col flex-1">
             <SidebarInnerContent isMobile={true} />
           </div>

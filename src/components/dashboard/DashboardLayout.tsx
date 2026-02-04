@@ -16,6 +16,7 @@ import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { HypnosisModal } from './HypnosisModal';
+import { ProfileDrawer } from './ProfileDrawer';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -39,6 +40,8 @@ interface DesktopLayoutContentProps {
   handleOpenSettings: () => void;
   hypnosisOpen: boolean;
   setHypnosisOpen: (open: boolean) => void;
+  profileOpen: boolean;
+  setProfileOpen: (open: boolean) => void;
 }
 
 const DesktopLayoutContent = ({
@@ -54,6 +57,8 @@ const DesktopLayoutContent = ({
   handleOpenSettings,
   hypnosisOpen,
   setHypnosisOpen,
+  profileOpen,
+  setProfileOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
   const isExpanded = sidebar?.state === 'expanded';
@@ -85,6 +90,7 @@ const DesktopLayoutContent = ({
           onNewChat={onNewChat}
           onSelectConversation={onSelectConversation}
           onOpenSettings={handleOpenSettings}
+          onOpenProfile={() => setProfileOpen(true)}
         />
 
         {/* Main Content */}
@@ -117,6 +123,9 @@ const DesktopLayoutContent = ({
       
       {/* Hypnosis Modal */}
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+      
+      {/* Profile Drawer */}
+      <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
     </div>
   );
 };
@@ -134,10 +143,16 @@ const DashboardLayout = ({
   const [rightSheetOpen, setRightSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleOpenSettings = () => {
     setLeftSheetOpen(false); // Close sidebar sheet on mobile
     setSettingsOpen(true);
+  };
+
+  const handleOpenProfile = () => {
+    setLeftSheetOpen(false); // Close sidebar sheet on mobile
+    setProfileOpen(true);
   };
 
   const { theme: brandTheme } = useThemeSettings();
@@ -197,6 +212,7 @@ const DashboardLayout = ({
                 onNewChat={onNewChat}
                 onSelectConversation={onSelectConversation}
                 onOpenSettings={handleOpenSettings}
+                onOpenProfile={handleOpenProfile}
               />
             </SheetContent>
           </Sheet>
@@ -215,6 +231,9 @@ const DashboardLayout = ({
 
           {/* Hypnosis Modal */}
           <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+
+          {/* Profile Drawer */}
+          <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 min-h-0 overflow-hidden">
@@ -247,6 +266,8 @@ const DashboardLayout = ({
         handleOpenSettings={handleOpenSettings}
         hypnosisOpen={hypnosisOpen}
         setHypnosisOpen={setHypnosisOpen}
+        profileOpen={profileOpen}
+        setProfileOpen={setProfileOpen}
       >
         {children}
       </DesktopLayoutContent>
