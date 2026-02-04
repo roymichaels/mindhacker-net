@@ -206,12 +206,12 @@ const Personality = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 p-6 shadow-lg"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950 to-gray-900 p-6 shadow-lg border border-blue-800/50"
         >
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <div className="p-2 bg-blue-800/30 rounded-lg backdrop-blur-sm">
                   <User className="h-6 w-6 text-yellow-400" />
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">
@@ -225,18 +225,18 @@ const Personality = () => {
                 className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 shadow-lg font-bold"
               >
                 <Rocket className="w-4 h-4 me-2" />
-                {language === 'he' ? 'התחל מסע טרנספורמציה' : 'Start Transformation'}
+                {language === 'he' ? 'התחל מסע' : 'Start Journey'}
               </Button>
             </div>
-            <p className="text-yellow-100 text-sm md:text-base">
+            <p className="text-blue-200 text-sm md:text-base">
               {language === 'he' 
                 ? 'מרכז הטרנספורמציה האישית שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
                 : 'Your personal transformation hub - consciousness map, identity, traits and personal plan'}
             </p>
           </div>
           {/* Decorative elements */}
-          <div className="absolute top-0 end-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 start-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 end-0 w-32 h-32 bg-blue-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 start-0 w-24 h-24 bg-blue-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
         {/* Identity Status Card */}
