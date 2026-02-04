@@ -1,259 +1,258 @@
 
-# Health Hub Enhancement Plan
-## תיקון טקסט + תוכנית בריאות 90 יום
+# Dashboard Redesign Plan: Stats-First Command Center
+
+## Current Problem
+The dashboard has multiple disconnected components:
+- `TodaysFocusCard` - Shows focus/tasks/streak status (somewhat useful)
+- `SmartSuggestionsRow` - Scrollable chips (good concept, poor visibility)  
+- `CommandCenterGrid` - 6 generic action cards (navigation, not actionable)
+- `ProgressSection` - Two cards with basic progress (too static)
+- `CompactSessions` - Scheduled sessions (rarely used)
+
+**Result:** User sees "options" but not **what to do next**. No at-a-glance stats or visual progress.
 
 ---
 
-## חלק 1: תיקון תצוגת הטקסט (Text Truncation Fix)
+## New Vision: "One-Glance Command Center"
 
-### הבעיה הנוכחית
-הכרטיסים ב-HealthToolsGrid חותכים את הטקסט עם "..." בגלל:
-1. `truncate` על הכותרת (שורה 145)
-2. `line-clamp-1` על התיאור (שורה 148)
-3. גובה קבוע בפריסת 4 עמודות
-
-### הפתרון
-- הסרת `truncate` מהכותרת
-- שינוי `line-clamp-1` ל-`line-clamp-2` בתיאור
-- הקטנת גודל הפונט לכותרת (`text-xs` במקום `text-sm`)
-- הוספת גובה מינימלי קבוע לכל כרטיס
-
-### שינויים ב-HealthToolsGrid.tsx
-
-```typescript
-// שורה 145 - הסרת truncate
-<h3 className="font-semibold text-xs text-foreground leading-tight">
-  {language === 'he' ? tool.titleHe : tool.titleEn}
-</h3>
-
-// שורה 148 - שינוי ל-2 שורות
-<p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight">
-  {language === 'he' ? tool.descHe : tool.descEn}
-</p>
-```
+Think of it as a **personal cockpit** that instantly tells the user:
+1. **Where they are** (stats/graphs)
+2. **What's next** (the single most important action)
+3. **How they're doing** (trends over time)
 
 ---
 
-## חלק 2: תוכנית 90 יום לבריאות (Health 90-Day Plan)
-
-### ארכיטקטורה
+## New Component Architecture
 
 ```text
-+---------------------+     +----------------------+     +------------------+
-|   Health Hub Page   | --> | Health Journey (NEW) | --> | Health 90-Day    |
-|   /health           |     | 8-Step Assessment    |     | Plan Generation  |
-+---------------------+     +----------------------+     +------------------+
-         |                            |                          |
-         v                            v                          v
-  [Start Health         [Collect Deep Health        [AI Generates 12
-   Journey Button]       Profile Data]               Weekly Milestones]
-                                                            |
-                                                            v
-                                                  [Store in life_plans
-                                                   + life_plan_milestones
-                                                   with category='health']
+┌─────────────────────────────────────────────────────────────┐
+│  NEXT ACTION BANNER                                          │
+│  "🎯 היום: השלם את ההרגל היומי שלך" + [כפתור פעולה]            │
+│  Dynamic based on: overdue tasks > habits > hypnosis > plan │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────────┬──────────────┬──────────────┬──────────────┐
+│   LEVEL      │   STREAK     │   WEEKLY XP  │   TOKENS     │
+│   Lvl 5      │   🔥 7 days  │   +320 XP    │   💎 45      │
+│   [progress] │   [fire anim]│   [+14% ↑]   │              │
+└──────────────┴──────────────┴──────────────┴──────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  WEEKLY ACTIVITY GRAPH (Recharts Area/Bar)                  │
+│  Shows: Hypnosis sessions, Habits completed, Tasks done     │
+│  Last 7 days - simple visual trend                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────┬──────────────────────────────┐
+│  TODAY'S HABITS              │  90-DAY PLAN PROGRESS        │
+│  ☑ Morning meditation        │  ████████░░░░ 67% Week 8/12  │
+│  ☐ Drink 8 glasses water     │  Current: "שינה איכותית"      │
+│  ☐ 20 min exercise           │  [View Full Plan →]          │
+│  Progress: 1/3 (33%)         │                              │
+└──────────────────────────────┴──────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  QUICK ACTIONS (Minimal - Only 4 Essential)                 │
+│  [💬 Aurora] [🧘 Hypnosis] [✅ Missions] [📊 Insights]       │
+└─────────────────────────────────────────────────────────────┘
 ```
-
-### מסע הבריאות (Health Journey) - 8 שלבים
-
-| שלב | נושא | מה נאסף |
-|-----|------|---------|
-| 1 | חזון בריאות | איך אתה רוצה להרגיש בעוד 90 יום? |
-| 2 | מצב נוכחי | רמת אנרגיה, איכות שינה, כאבים |
-| 3 | תזונה | הרגלי אכילה, אלרגיות, מים |
-| 4 | פעילות גופנית | סוג תרגול, תדירות, מגבלות |
-| 5 | שינה ומנוחה | שעות, איכות, בעיות |
-| 6 | מתח ורגש | רמת סטרס, טריגרים, התמודדות |
-| 7 | אמונות מגבילות | חסמים תת-מודעים לגבי בריאות |
-| 8 | סיכום והפעלה | AI מייצר תוכנית מותאמת |
 
 ---
 
-## קבצים חדשים ליצירה
+## Files to Create/Modify
 
-### 1. Edge Function - generate-health-plan
-`supabase/functions/generate-health-plan/index.ts`
+### New Components
 
-```typescript
-// פונקציה שמקבלת את נתוני מסע הבריאות
-// ומחזירה תוכנית 90 יום עם 12 אבני דרך
-// התמקדות: שינה, תזונה, תנועה, מנוחה נפשית
-```
-
-### 2. Health Journey Component
-`src/components/health-hub/journey/HealthJourney.tsx`
-
-```typescript
-// דומה ל-BusinessJourney אבל עם 8 שלבים ממוקדי בריאות
-// עיצוב: גרדיאנט אדום-ורוד (מתאים ל-Health Hub)
-// גיימיפיקציה: XP על כל שלב שהושלם
-```
-
-### 3. Health Journey Steps
 ```text
-src/components/health-hub/journey/
-├── steps/
-│   ├── HealthVisionStep.tsx      // שלב 1
-│   ├── CurrentStateStep.tsx      // שלב 2
-│   ├── NutritionStep.tsx         // שלב 3
-│   ├── ExerciseStep.tsx          // שלב 4
-│   ├── SleepStep.tsx             // שלב 5
-│   ├── StressStep.tsx            // שלב 6
-│   ├── BeliefsStep.tsx           // שלב 7
-│   └── ActivationStep.tsx        // שלב 8 (סיכום)
-└── useHealthJourney.ts           // Hook לניהול מצב
+src/components/dashboard/v2/
+├── NextActionBanner.tsx       # Dynamic priority-based "do this now"
+├── StatsGrid.tsx              # 4-stat cards (level, streak, XP, tokens)
+├── WeeklyActivityChart.tsx    # Recharts line/area graph
+├── TodaysHabitsCard.tsx       # Compact habit checklist with inline toggle
+├── PlanProgressCard.tsx       # 90-day plan mini-view
+├── QuickActionsBar.tsx        # Minimal 4-button bar
+└── index.ts                   # Export all
 ```
 
-### 4. Route חדש
-`/health/journey` - מסע הבריאות
+### Data Hooks
 
-### 5. דף תוכנית 90 יום לבריאות
-`src/pages/HealthPlan.tsx`
+```text
+src/hooks/
+├── useWeeklyActivity.ts       # Aggregate hypnosis, habits, tasks by day
+└── useDashboardStats.ts       # Level, XP, streak, tokens in one call
+```
 
+### Files to Modify
+
+1. **UserDashboard.tsx** - Replace `UnifiedDashboardView` + `CompactSessions` with new layout
+2. **UnifiedDashboardView.tsx** - Complete overhaul with new v2 components
+
+---
+
+## Technical Implementation Details
+
+### 1. NextActionBanner.tsx
+**Logic:** Priority-based single action:
 ```typescript
-// דומה ל-LifePlan.tsx אבל ממוקד בבריאות
-// מציג רק את התוכניות עם focus_area='health'
-// או תוכניות שנוצרו מ-Health Journey
+const priority = [
+  { condition: overdueTasks > 0, action: 'complete_task', icon: '⚠️' },
+  { condition: !didHypnosisToday, action: 'hypnosis', icon: '🧘' },
+  { condition: incompleteHabits > 0, action: 'habits', icon: '✨' },
+  { condition: currentMilestone, action: 'milestone', icon: '🎯' },
+  { condition: true, action: 'aurora_chat', icon: '💬' }, // fallback
+];
+```
+**UI:** Full-width gradient card with icon, text, and CTA button.
+
+### 2. StatsGrid.tsx
+**Data sources:**
+- Level/XP: `useGameState()` → `gameState.level`, `gameState.experience`
+- Streak: `useGameState()` → `gameState.sessionStreak`
+- Tokens: `useGameState()` → `gameState.tokens`
+- Weekly XP: Calculate from `xp_events` last 7 days
+
+**UI:** 4 equal cards in grid, each with:
+- Large number
+- Label
+- Micro-animation (XP progress bar, streak fire)
+
+### 3. WeeklyActivityChart.tsx
+**Data query:**
+```sql
+-- Aggregate daily activity for last 7 days
+SELECT 
+  DATE(created_at) as day,
+  COUNT(*) FILTER (WHERE source = 'hypnosis') as hypnosis,
+  COUNT(*) FILTER (WHERE source = 'habit') as habits,
+  COUNT(*) FILTER (WHERE source = 'task') as tasks
+FROM xp_events
+WHERE user_id = ? AND created_at >= NOW() - INTERVAL '7 days'
+GROUP BY DATE(created_at)
+ORDER BY day
+```
+
+**Alternative simpler approach:**
+- Fetch from `hypnosis_sessions` (count per day)
+- Fetch from `daily_habit_logs` (count per day)
+- Merge into chart data
+
+**Chart type:** Stacked area chart or grouped bar (Recharts)
+
+### 4. TodaysHabitsCard.tsx
+**Data:** Use existing `useDailyHabits()` hook
+**UI:** Compact card with:
+- List of habits with checkbox
+- Inline toggle (no modal)
+- Progress indicator at bottom
+
+### 5. PlanProgressCard.tsx
+**Data:** Use existing `ProgressSection` query
+**UI:** Simplified:
+- Progress bar with percentage
+- Current week/milestone title
+- "View Plan" link
+
+### 6. QuickActionsBar.tsx
+**Actions:** Only 4 essentials:
+1. Aurora (chat)
+2. Hypnosis
+3. Missions (tasks modal)
+4. Insights (navigate to /personality or stats)
+
+---
+
+## Mobile-First Layout
+
+```text
+Mobile (< 640px):
+┌────────────────────┐
+│ Next Action Banner │
+├────────────────────┤
+│ Stats (2x2 grid)   │
+├────────────────────┤
+│ Weekly Chart       │
+├────────────────────┤
+│ Today's Habits     │
+├────────────────────┤
+│ 90-Day Progress    │
+├────────────────────┤
+│ Quick Actions Bar  │
+└────────────────────┘
+
+Desktop (≥ 768px):
+┌─────────────────────────────────────┐
+│ Next Action Banner                  │
+├─────────┬─────────┬────────┬────────┤
+│ Level   │ Streak  │ XP     │ Tokens │
+├─────────┴─────────┴────────┴────────┤
+│ Weekly Activity Chart               │
+├──────────────────┬──────────────────┤
+│ Today's Habits   │ 90-Day Progress  │
+├──────────────────┴──────────────────┤
+│ Quick Actions Bar                   │
+└─────────────────────────────────────┘
 ```
 
 ---
 
-## שינויים בקבצים קיימים
+## Translations Required
 
-### Health.tsx
+New keys for `useTranslation`:
 ```typescript
-// הוספת כפתור "התחל מסע בריאות" בהדר
-// דומה ל-Business Hub
-
-<Button onClick={() => navigate('/health/journey')}>
-  <Rocket className="w-4 h-4 me-2" />
-  {language === 'he' ? 'התחל מסע בריאות' : 'Start Health Journey'}
-</Button>
-
-// הוספת סקשן "תוכנית 90 יום" אם קיימת
-<HealthPlanPreview />
-```
-
-### HealthToolsGrid.tsx
-```typescript
-// הוספת כפתור לתוכנית 90 יום
 {
-  id: 'health-plan',
-  icon: Calendar,
-  titleHe: 'תוכנית 90 יום',
-  titleEn: '90-Day Health Plan',
-  descHe: 'מפת דרכים לבריאות מיטבית',
-  descEn: 'Roadmap to optimal health',
-  onClick: () => navigate('/health/plan'),
+  'dashboard.v2.nextAction': { he: 'הפעולה הבאה שלך', en: 'Your Next Action' },
+  'dashboard.v2.completeNow': { he: 'בצע עכשיו', en: 'Complete Now' },
+  'dashboard.v2.weeklyActivity': { he: 'פעילות שבועית', en: 'Weekly Activity' },
+  'dashboard.v2.todaysHabits': { he: 'ההרגלים של היום', en: "Today's Habits" },
+  'dashboard.v2.planProgress': { he: 'התקדמות בתוכנית', en: 'Plan Progress' },
+  'dashboard.v2.weekOf': { he: 'שבוע', en: 'Week' },
+  'dashboard.v2.of': { he: 'מתוך', en: 'of' },
+  // Stats
+  'stats.level': { he: 'רמה', en: 'Level' },
+  'stats.streak': { he: 'רצף', en: 'Streak' },
+  'stats.weeklyXp': { he: 'XP שבועי', en: 'Weekly XP' },
+  'stats.tokens': { he: 'טוקנים', en: 'Tokens' },
 }
 ```
 
 ---
 
-## סכמת מסד הנתונים
+## Implementation Order
 
-### שימוש בטבלאות קיימות
-נשתמש ב-`life_plans` ו-`life_plan_milestones` הקיימות:
+### Phase 1: Core Components
+1. Create `useWeeklyActivity.ts` hook (aggregate data)
+2. Create `StatsGrid.tsx` (4 stat cards)
+3. Create `NextActionBanner.tsx` (priority logic)
+4. Create `WeeklyActivityChart.tsx` (Recharts integration)
 
-```sql
--- life_plans כבר תומך ב-plan_data כ-JSONB
--- נוסיף שדה category לזיהוי תוכניות בריאות
+### Phase 2: Action Components  
+5. Create `TodaysHabitsCard.tsx` (inline toggle)
+6. Create `PlanProgressCard.tsx` (compact 90-day view)
+7. Create `QuickActionsBar.tsx` (4 buttons)
 
--- בטבלת life_plan_milestones כבר יש:
--- focus_area TEXT - ישמש לזיהוי (physical/nutrition/sleep/stress)
-```
-
-### אפשרות: טבלת health_journeys (אופציונלי)
-```sql
-CREATE TABLE health_journeys (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  journey_data JSONB DEFAULT '{}',
-  current_step INTEGER DEFAULT 1,
-  is_completed BOOLEAN DEFAULT FALSE,
-  plan_id UUID REFERENCES life_plans(id),
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
+### Phase 3: Integration
+8. Create `DashboardV2.tsx` wrapper component
+9. Update `UserDashboard.tsx` to use new layout
+10. Remove/deprecate old components (keep for reference)
 
 ---
 
-## אינטגרציות
+## Key Design Principles
 
-### 1. Aurora Chat
-הזרקת מידע מתוכנית הבריאות:
-- אבן הדרך הנוכחית בבריאות
-- התקדמות כללית בתוכנית
-- המלצות היפנוזה ספציפיות לבריאות
-
-### 2. Smart Suggestions (כבר קיים)
-כבר הוספנו הצעות ממוקדות בריאות ב-`useSmartSuggestions.tsx`
-
-### 3. Missions Roadmap
-סינון משימות לפי `category='health'` כבר עובד
+1. **Single Source of Truth:** One banner tells user what to do
+2. **Visual First:** Graphs and progress bars over text
+3. **Inline Actions:** Toggle habits without modals
+4. **Mobile-Optimized:** Touch-friendly, stack on narrow screens
+5. **Theme-Aware:** Uses semantic colors (primary, muted, etc.)
+6. **RTL Support:** All components respect `isRTL`
 
 ---
 
-## סדר ביצוע
+## Success Metrics
 
-### שלב 1 - מיידי (תיקון טקסט)
-1. תיקון HealthToolsGrid.tsx - הסרת truncation
-2. הוספת min-height לכרטיסים
-3. בדיקה ב-RTL וב-LTR
-
-### שלב 2 - תשתית
-4. יצירת edge function: generate-health-plan
-5. יצירת hook: useHealthJourney
-6. יצירת קומפוננט: HealthJourney (מעטפת)
-
-### שלב 3 - מסע הבריאות
-7. יצירת 8 steps לשלבי המסע
-8. עיצוב בסגנון אדום/ורוד
-9. חיבור לדאטאבייס
-
-### שלב 4 - תצוגת תוכנית
-10. יצירת HealthPlan.tsx (דף הצגת תוכנית)
-11. הוספת HealthPlanPreview.tsx לדף Health
-12. חיבור לניווט
-
----
-
-## דוגמת אבני דרך לתוכנית בריאות
-
-| שבוע | מיקוד | משימות לדוגמה |
-|------|-------|---------------|
-| 1 | יסודות שינה | לישון 7 שעות, לכבות מסכים שעה לפני |
-| 2 | הידרציה | 8 כוסות מים ביום, להפחית קפאין |
-| 3 | תנועה | הליכה 20 דקות ביום |
-| 4 | מנוחה נפשית | 5 דקות מדיטציה יומית |
-| 5-8 | בנייה | הגברת עצימות ותדירות |
-| 9-12 | תנופה | יצירת הרגלים קבועים |
-
----
-
-## טכני - סיכום
-
-### קבצים חדשים
-```text
-supabase/functions/generate-health-plan/index.ts
-src/pages/HealthPlan.tsx
-src/pages/HealthJourney.tsx
-src/components/health-hub/journey/
-  ├── HealthJourneyContainer.tsx
-  ├── steps/*.tsx (8 קבצים)
-  └── useHealthJourney.ts
-src/components/health-hub/HealthPlanPreview.tsx
-```
-
-### קבצים לעדכון
-```text
-src/components/health-hub/HealthToolsGrid.tsx  // תיקון טקסט + כפתור תוכנית
-src/pages/Health.tsx                            // הוספת כפתור מסע + preview
-src/App.tsx                                     // routes חדשים
-```
-
-### Routes חדשים
-- `/health/journey` - מסע הבריאות
-- `/health/plan` - תוכנית 90 יום
-
+After implementation, user should be able to:
+- See their level/streak/XP in 1 second
+- Know exactly what to do next in 2 seconds  
+- View weekly trend without scrolling
+- Complete a habit with 1 tap
+- Access any core action in 2 taps max
