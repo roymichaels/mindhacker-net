@@ -20,7 +20,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'תזונה, שינה ופעילות גופנית',
       descEn: 'Nutrition, sleep and physical activity',
       onClick: () => onOpenModal?.('physical'),
-      available: true,
+      gradient: 'from-rose-500/20 via-red-500/10 to-transparent',
+      iconBg: 'bg-rose-500/20',
+      iconColor: 'text-rose-400',
+      borderColor: 'border-rose-500/20 hover:border-rose-500/50',
     },
     {
       id: 'mental',
@@ -30,7 +33,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'ניהול מתח, רגשות וחוסן נפשי',
       descEn: 'Stress management, emotions and resilience',
       onClick: () => onOpenModal?.('mental'),
-      available: true,
+      gradient: 'from-purple-500/20 via-violet-500/10 to-transparent',
+      iconBg: 'bg-purple-500/20',
+      iconColor: 'text-purple-400',
+      borderColor: 'border-purple-500/20 hover:border-purple-500/50',
     },
     {
       id: 'energetic',
@@ -40,7 +46,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'רמות אנרגיה, חיוניות והתאוששות',
       descEn: 'Energy levels, vitality and recovery',
       onClick: () => onOpenModal?.('energetic'),
-      available: true,
+      gradient: 'from-amber-500/20 via-yellow-500/10 to-transparent',
+      iconBg: 'bg-amber-500/20',
+      iconColor: 'text-amber-400',
+      borderColor: 'border-amber-500/20 hover:border-amber-500/50',
     },
     {
       id: 'subconscious',
@@ -50,7 +59,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'אמונות מגבילות ודפוסים נסתרים',
       descEn: 'Limiting beliefs and hidden patterns',
       onClick: () => onOpenModal?.('subconscious'),
-      available: true,
+      gradient: 'from-cyan-500/20 via-teal-500/10 to-transparent',
+      iconBg: 'bg-cyan-500/20',
+      iconColor: 'text-cyan-400',
+      borderColor: 'border-cyan-500/20 hover:border-cyan-500/50',
     },
     {
       id: 'hypnosis',
@@ -60,7 +72,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'סשנים ממוקדי בריאות',
       descEn: 'Health-focused sessions',
       onClick: () => navigate('/hypnosis?goal=health'),
-      available: true,
+      gradient: 'from-red-500/20 via-rose-500/10 to-transparent',
+      iconBg: 'bg-red-500/20',
+      iconColor: 'text-red-400',
+      borderColor: 'border-red-500/20 hover:border-red-500/50',
     },
     {
       id: 'habits',
@@ -70,7 +85,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'מעקב הרגלי בריאות יומיים',
       descEn: 'Daily health habits tracking',
       onClick: () => onOpenModal?.('habits'),
-      available: true,
+      gradient: 'from-green-500/20 via-emerald-500/10 to-transparent',
+      iconBg: 'bg-green-500/20',
+      iconColor: 'text-green-400',
+      borderColor: 'border-green-500/20 hover:border-green-500/50',
     },
     {
       id: 'meditation',
@@ -80,7 +98,10 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'תרגולי הרפיה ומיינדפולנס',
       descEn: 'Relaxation and mindfulness practices',
       onClick: () => onOpenModal?.('meditation'),
-      available: true,
+      gradient: 'from-blue-500/20 via-indigo-500/10 to-transparent',
+      iconBg: 'bg-blue-500/20',
+      iconColor: 'text-blue-400',
+      borderColor: 'border-blue-500/20 hover:border-blue-500/50',
     },
     {
       id: 'sleep',
@@ -90,41 +111,45 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
       descHe: 'איכות ודפוסי שינה',
       descEn: 'Sleep quality and patterns',
       onClick: () => onOpenModal?.('sleep'),
-      available: true,
+      gradient: 'from-indigo-500/20 via-purple-500/10 to-transparent',
+      iconBg: 'bg-indigo-500/20',
+      iconColor: 'text-indigo-400',
+      borderColor: 'border-indigo-500/20 hover:border-indigo-500/50',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {healthTools.map((tool, index) => (
         <motion.div
           key={tool.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 * index }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 * index }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
           <Card 
-            className={`backdrop-blur-xl bg-background/60 border-border/50 h-full transition-all hover:shadow-md ${
-              tool.available ? 'cursor-pointer hover:border-red-500/50' : 'opacity-60'
-            }`}
-            onClick={() => tool.available && tool.onClick()}
+            className={`relative overflow-hidden backdrop-blur-xl bg-gray-900/60 ${tool.borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 group`}
+            onClick={tool.onClick}
           >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${tool.available ? 'bg-gradient-to-r from-red-500/20 to-rose-400/20' : 'bg-muted'}`}>
-                  <tool.icon className={`h-5 w-5 ${tool.available ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`} />
+            {/* Gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-50 group-hover:opacity-80 transition-opacity`} />
+            
+            <CardContent className="relative p-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2.5 rounded-xl ${tool.iconBg} backdrop-blur-sm`}>
+                  <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm text-foreground truncate">
                     {language === 'he' ? tool.titleHe : tool.titleEn}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                     {language === 'he' ? tool.descHe : tool.descEn}
                   </p>
                 </div>
-                {tool.available && (
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                )}
+                <ArrowRight className={`h-4 w-4 ${tool.iconColor} opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1`} />
               </div>
             </CardContent>
           </Card>
