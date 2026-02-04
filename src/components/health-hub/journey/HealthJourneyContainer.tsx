@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Heart, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Heart, CheckCircle2, X } from "lucide-react";
 import { useHealthJourney } from "@/hooks/useHealthJourney";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -153,20 +153,32 @@ const HealthJourneyContainer = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-red-600/20 rounded-lg">
-              <Heart className="h-6 w-6 text-red-400 fill-red-400" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-600/20 rounded-lg">
+                <Heart className="h-6 w-6 text-red-400 fill-red-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-red-400">
+                  {language === 'he' ? 'מסע הבריאות' : 'Health Journey'}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'he' 
+                    ? `שלב ${activeStep} מתוך ${TOTAL_STEPS}` 
+                    : `Step ${activeStep} of ${TOTAL_STEPS}`}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-red-400">
-                {language === 'he' ? 'מסע הבריאות' : 'Health Journey'}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {language === 'he' 
-                  ? `שלב ${activeStep} מתוך ${TOTAL_STEPS}` 
-                  : `Step ${activeStep} of ${TOTAL_STEPS}`}
-              </p>
-            </div>
+            
+            {/* Exit Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/health')}
+              className="text-muted-foreground hover:text-red-400 hover:bg-red-900/30"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
 
           {/* Progress Bar */}
