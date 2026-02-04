@@ -8,3 +8,4 @@ export { DailyHabitsCard } from './DailyHabitsCard';
 export { ConsciousnessCard } from './ConsciousnessCard';
 export { BehavioralInsightsCard } from './BehavioralInsightsCard';
 export { CharacterHUD } from './CharacterHUD';
+export { SidebarCharacterHUD } from './SidebarCharacterHUD';

@@ -117,21 +117,12 @@ export function UnifiedDashboardView({ className, onOpenProfile }: UnifiedDashbo
     );
   }
 
-  // Main dashboard - Launchpad complete
+  // Main dashboard - Launchpad complete (HUD is now in sidebar)
   return (
     <div 
       className={cn("space-y-4", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* MapleStory-style Character HUD - Compact with Orb, XP, Stats - Clickable to open Profile */}
-      <CharacterHUD
-        identityTitle={dashboard.identityTitle}
-        level={dashboard.level}
-        xp={dashboard.xpProgress}
-        streak={dashboard.streak}
-        tokens={dashboard.tokens}
-        onClick={handleOpenProfile}
-      />
       {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
 
       {/* Quick Access Grid - Opens Modals */}
