@@ -9,8 +9,11 @@ import {
   Users, 
   Wallet, 
   GraduationCap, 
-  Compass 
+  Compass,
+  ArrowRight,
+  Sparkles
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const pillars = [
   {
@@ -21,8 +24,9 @@ const pillars = [
     descriptionHe: 'גלה מי אתה באמת',
     descriptionEn: 'Discover who you truly are',
     gradient: 'from-blue-500 to-cyan-400',
-    shadowColor: 'shadow-blue-500/30',
-    bgGlow: 'bg-blue-500/20',
+    shadowColor: 'shadow-blue-500/25',
+    bgGlow: 'bg-blue-500/30',
+    borderColor: 'border-blue-500/30',
   },
   {
     id: 'business',
@@ -32,8 +36,9 @@ const pillars = [
     descriptionHe: 'בנה את האימפריה שלך',
     descriptionEn: 'Build your empire',
     gradient: 'from-amber-500 to-yellow-400',
-    shadowColor: 'shadow-amber-500/30',
-    bgGlow: 'bg-amber-500/20',
+    shadowColor: 'shadow-amber-500/25',
+    bgGlow: 'bg-amber-500/30',
+    borderColor: 'border-amber-500/30',
   },
   {
     id: 'health',
@@ -43,8 +48,9 @@ const pillars = [
     descriptionHe: 'גוף, נפש ואנרגיה',
     descriptionEn: 'Body, mind & energy',
     gradient: 'from-red-500 to-rose-400',
-    shadowColor: 'shadow-red-500/30',
-    bgGlow: 'bg-red-500/20',
+    shadowColor: 'shadow-red-500/25',
+    bgGlow: 'bg-red-500/30',
+    borderColor: 'border-red-500/30',
   },
   {
     id: 'relationships',
@@ -54,8 +60,9 @@ const pillars = [
     descriptionHe: 'קשרים עמוקים יותר',
     descriptionEn: 'Deeper connections',
     gradient: 'from-pink-500 to-rose-400',
-    shadowColor: 'shadow-pink-500/30',
-    bgGlow: 'bg-pink-500/20',
+    shadowColor: 'shadow-pink-500/25',
+    bgGlow: 'bg-pink-500/30',
+    borderColor: 'border-pink-500/30',
   },
   {
     id: 'finances',
@@ -65,8 +72,9 @@ const pillars = [
     descriptionHe: 'שלוט בכסף שלך',
     descriptionEn: 'Master your money',
     gradient: 'from-emerald-500 to-green-400',
-    shadowColor: 'shadow-emerald-500/30',
-    bgGlow: 'bg-emerald-500/20',
+    shadowColor: 'shadow-emerald-500/25',
+    bgGlow: 'bg-emerald-500/30',
+    borderColor: 'border-emerald-500/30',
   },
   {
     id: 'learning',
@@ -76,8 +84,9 @@ const pillars = [
     descriptionHe: 'צמח כל יום',
     descriptionEn: 'Grow every day',
     gradient: 'from-indigo-500 to-violet-400',
-    shadowColor: 'shadow-indigo-500/30',
-    bgGlow: 'bg-indigo-500/20',
+    shadowColor: 'shadow-indigo-500/25',
+    bgGlow: 'bg-indigo-500/30',
+    borderColor: 'border-indigo-500/30',
   },
   {
     id: 'purpose',
@@ -87,8 +96,9 @@ const pillars = [
     descriptionHe: 'מצא את המשמעות',
     descriptionEn: 'Find your meaning',
     gradient: 'from-purple-500 to-fuchsia-400',
-    shadowColor: 'shadow-purple-500/30',
-    bgGlow: 'bg-purple-500/20',
+    shadowColor: 'shadow-purple-500/25',
+    bgGlow: 'bg-purple-500/30',
+    borderColor: 'border-purple-500/30',
   },
 ];
 
@@ -164,20 +174,21 @@ const LifePillarsSection = () => {
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 mb-6"
           >
-            <span className="text-primary font-medium text-sm">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-primary font-semibold text-sm">
               {isRTL ? '7 עמודי החיים' : '7 Life Pillars'}
             </span>
           </motion.div>
           
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
               {isRTL ? 'מערכת ההפעלה המלאה לחיים שלך' : 'Your Complete Life Operating System'}
             </span>
           </h2>
           
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
             {isRTL 
               ? 'שבעה תחומים קריטיים. מערכת אחת משולבת. טרנספורמציה אמיתית.'
               : 'Seven critical domains. One integrated system. Real transformation.'}
@@ -209,55 +220,55 @@ const LifePillarsSection = () => {
                 `}
               >
                 {/* Card */}
-                <div className={`
-                  relative h-full p-6 rounded-2xl
-                  bg-card/50 backdrop-blur-xl
-                  border border-border/50
-                  hover:border-primary/30
-                  transition-all duration-300
-                  overflow-hidden
-                  ${pillar.shadowColor} hover:shadow-lg
-                `}>
+                <div className={cn(
+                  "relative h-full p-6 rounded-2xl",
+                  "bg-card/60 backdrop-blur-xl",
+                  "border-2",
+                  pillar.borderColor,
+                  "hover:shadow-xl transition-all duration-300",
+                  "overflow-hidden",
+                  pillar.shadowColor
+                )}>
                   {/* Glow Effect */}
-                  <div className={`
-                    absolute -top-20 -right-20 w-40 h-40 rounded-full
-                    ${pillar.bgGlow} blur-3xl opacity-0 group-hover:opacity-100
-                    transition-opacity duration-500
-                  `} />
+                  <div className={cn(
+                    "absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl",
+                    "opacity-0 group-hover:opacity-80 transition-opacity duration-500",
+                    pillar.bgGlow
+                  )} />
                   
                   {/* Icon */}
-                  <div className={`
-                    relative z-10 w-14 h-14 rounded-xl mb-4
-                    bg-gradient-to-br ${pillar.gradient}
-                    flex items-center justify-center
-                    shadow-lg ${pillar.shadowColor}
-                    group-hover:scale-110 transition-transform duration-300
-                  `}>
+                  <motion.div 
+                    className={cn(
+                      "relative z-10 w-14 h-14 rounded-xl mb-4",
+                      "bg-gradient-to-br flex items-center justify-center",
+                      "shadow-lg",
+                      pillar.gradient,
+                      pillar.shadowColor
+                    )}
+                    whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+                    transition={{ duration: 0.4 }}
+                  >
                     <Icon className="w-7 h-7 text-white" />
-                  </div>
+                  </motion.div>
                   
                   {/* Content */}
                   <div className="relative z-10">
-                    <h3 className="text-lg font-bold mb-1 text-foreground">
+                    <h3 className="text-lg font-bold mb-1.5 text-foreground">
                       {isRTL ? pillar.titleHe : pillar.titleEn}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {isRTL ? pillar.descriptionHe : pillar.descriptionEn}
                     </p>
                   </div>
 
                   {/* Hover Arrow */}
-                  <motion.div
-                    initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
-                    whileHover={{ opacity: 1, x: 0 }}
-                    className={`
-                      absolute bottom-4 ${isRTL ? 'left-4' : 'right-4'}
-                      text-primary opacity-0 group-hover:opacity-100
-                      transition-opacity duration-300
-                    `}
-                  >
-                    <span className="text-lg">{isRTL ? '←' : '→'}</span>
-                  </motion.div>
+                  <div className={cn(
+                    "absolute bottom-4 text-primary opacity-0 group-hover:opacity-100",
+                    "transition-all duration-300 transform",
+                    isRTL ? "left-4 group-hover:translate-x-[-4px]" : "right-4 group-hover:translate-x-[4px]"
+                  )}>
+                    <ArrowRight className={cn("h-5 w-5", isRTL && "rotate-180")} />
+                  </div>
                 </div>
               </motion.div>
             );
