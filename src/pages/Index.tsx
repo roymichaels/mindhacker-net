@@ -12,6 +12,7 @@ import {
   SystemArchitectureSection,
   LifePillarsSection,
   AuroraCoachSection,
+  HandsFreeSection,
   TransformationJourneySection,
   WhyChooseUsSection,
   TransformationProofSection,
@@ -89,6 +90,9 @@ const Index = () => {
         
         {/* Aurora Coach - Cross-pillar intelligence with conversation preview */}
         <AuroraCoachSection />
+        
+        {/* Hands-Free Experience - Voice & Chat centric control */}
+        <HandsFreeSection />
         
         {/* Transformation Journey - 90-day path timeline */}
         <TransformationJourneySection />
