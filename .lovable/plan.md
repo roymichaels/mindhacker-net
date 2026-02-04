@@ -1,84 +1,97 @@
 
+# Plan: Add Businesses to Admin Panel
 
-# הסרת בחירת "כישורים שחסרים" ממסע העסקי
+## Overview
+Add a comprehensive "Businesses" management section to the admin panel that allows administrators to view and manage all user business journeys created through the business journey flow.
 
-## הבעיה
-בשלב 6 של המסע העסקי (`ResourcesStep`), יש שני חלקים נפרדים:
-1. **כישורים שיש לך** - המשתמש בוחר מה יש לו
-2. **כישורים שחסרים** - המשתמש בוחר מה חסר לו
+## What Will Be Added
 
-זה מיותר כי הכישורים שלא נבחרו בחלק הראשון הם אוטומטית הכישורים החסרים.
+### 1. New Admin Page: Businesses.tsx
+A new page at `/panel/businesses` that displays:
 
-## הפתרון
-הסרת החלק השני ("כישורים שחסרים") לגמרי, וחישוב אוטומטי של הכישורים החסרים לפי מה שלא נבחר.
+**Statistics Cards:**
+- Total businesses created
+- Active journeys (in progress)
+- Completed journeys
+- Journeys started today/this week
 
-## שינויים טכניים
+**Main Table with columns:**
+- Business name (or "Unnamed" if not set)
+- User name (linked to user profile)
+- Progress (step X/10)
+- Status badge (In Progress / Completed)
+- Industry (from step 2 data)
+- Created date
+- Actions (View details, View user)
 
-### קובץ: `src/components/business-journey/steps/ResourcesStep.tsx`
+**Features:**
+- Search by business name or user name
+- Filter by status (all/in-progress/completed)
+- Click to view detailed journey data
 
-1. **הסרת state של `missingSkills`**:
-```typescript
-// לפני:
-const [missingSkills, setMissingSkills] = useState<string[]>([]);
+### 2. Business Detail Dialog/View
+When clicking on a business, show:
+- Vision & goals (step 1)
+- Business model (step 2)
+- Target audience (step 3)
+- Value proposition (step 4)
+- Challenges (step 5)
+- Resources (step 6)
+- Financial plan (step 7)
+- Marketing strategy (step 8)
+- Operations (step 9)
+- Action plan (step 10)
+- AI Summary (if available)
 
-// אחרי:
-// לא צריך - יחושב אוטומטית
+### 3. Sidebar Navigation Update
+Add "Businesses" item to the Administration group in AdminSidebar.tsx with a `Briefcase` icon.
+
+### 4. Route Configuration
+Add route `/panel/businesses` to App.tsx under the admin panel routes.
+
+## Technical Details
+
+### Files to Create:
+```
+src/pages/admin/Businesses.tsx (main admin page)
 ```
 
-2. **חישוב אוטומטי של הכישורים החסרים**:
-```typescript
-// חישוב אוטומטי - כל מה שלא נבחר = חסר
-const missingSkills = skillOptions
-  .filter(skill => !existingSkills.includes(skill.id))
-  .map(skill => skill.id);
+### Files to Modify:
+```
+src/components/panel/AdminSidebar.tsx (add nav item)
+src/App.tsx (add route)
 ```
 
-3. **הסרת ה-UI של "כישורים שחסרים"**:
-   - מחיקת ה-Card והבאטונים של בחירת כישורים חסרים (שורות 156-182)
-   - הסרת הפונקציה `toggleMissingSkill`
-
-4. **עדכון ה-auto save וה-complete**:
-   - שמירת `missingSkills` המחושבים אוטומטית
-
-## UI חדש
-
-```text
-┌─────────────────────────────────────────┐
-│        משאבים ויכולות                  │
-├─────────────────────────────────────────┤
-│  כישורים שיש לך                        │
-│  ┌─────────┐ ┌─────────┐               │
-│  │ מכירות ✓│ │ שיווק  │               │
-│  └─────────┘ └─────────┘               │
-│  ┌─────────┐ ┌─────────┐               │
-│  │טכנולוגיה✓│ │פיננסים │               │
-│  └─────────┘ └─────────┘               │
-│  ...                                    │
-├─────────────────────────────────────────┤
-│  כמה זמן יש לך לעסק בשבוע?             │ ← נשאר
-├─────────────────────────────────────────┤
-│  תקציב התחלתי                          │ ← נשאר
-├─────────────────────────────────────────┤
-│  קשרים וקונטקטים                       │ ← נשאר
-├─────────────────────────────────────────┤
-│  ניסיון רלוונטי                        │ ← נשאר
-└─────────────────────────────────────────┘
-
-* "כישורים שחסרים" הוסר - יחושב אוטומטית *
+### Database Query Pattern:
+```sql
+SELECT 
+  bj.*,
+  p.full_name as user_name,
+  p.id as profile_id
+FROM business_journeys bj
+JOIN profiles p ON bj.user_id = p.id
+ORDER BY bj.created_at DESC
 ```
 
-## לוגיקה
+### UI Components Used:
+- AdminPageHeader (consistent with other admin pages)
+- Card, CardContent for stats
+- Table with TableHeader, TableBody, TableRow, TableCell
+- Badge for status indicators
+- Dialog for detail view
+- Input for search
+- Select for filters
 
-| כישור | נבחר? | סטטוס |
-|--------|-------|--------|
-| מכירות | ✓ | **יש לך** |
-| שיווק | ✗ | *חסר* (אוטומטי) |
-| טכנולוגיה | ✓ | **יש לך** |
-| פיננסים | ✗ | *חסר* (אוטומטי) |
+### Translation Keys to Add:
+- `admin.businesses.title`: "עסקים" / "Businesses"
+- `admin.businesses.subtitle`: "ניהול מסעות עסקיים של משתמשים" / "Manage user business journeys"
+- `admin.businesses.totalBusinesses`: "סה\"כ עסקים" / "Total Businesses"
+- `admin.businesses.inProgress`: "בתהליך" / "In Progress"
+- `admin.businesses.completed`: "הושלמו" / "Completed"
+- `admin.businesses.viewDetails`: "צפה בפרטים" / "View Details"
 
-## קובץ לעריכה
-
-| קובץ | פעולה |
-|------|--------|
-| `src/components/business-journey/steps/ResourcesStep.tsx` | הסרת UI של כישורים חסרים וחישוב אוטומטי |
-
+## Implementation Order
+1. Create the Businesses.tsx admin page with all features
+2. Add sidebar navigation item
+3. Add route in App.tsx
+4. Test functionality
