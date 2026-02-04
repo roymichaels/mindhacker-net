@@ -20,6 +20,10 @@ interface AuroraChatContextType {
   isChatExpanded: boolean;
   setIsChatExpanded: (expanded: boolean) => void;
   toggleChatExpanded: () => void;
+  // Search and navigate to specific message
+  scrollToMessageId: string | null;
+  setScrollToMessageId: (id: string | null) => void;
+  openChatAndScrollToMessage: (conversationId: string, messageId: string) => void;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -44,6 +48,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string) => void) | null>(null);
 
   const toggleChatExpanded = useCallback(() => {
@@ -109,6 +114,12 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     sendMessageRef.current = fn;
   }, []);
 
+  const openChatAndScrollToMessage = useCallback((conversationId: string, messageId: string) => {
+    setCurrentConversationId(conversationId);
+    setScrollToMessageId(messageId);
+    setIsChatExpanded(true);
+  }, []);
+
   return (
     <AuroraChatContext.Provider
       value={{
@@ -126,6 +137,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         isChatExpanded,
         setIsChatExpanded,
         toggleChatExpanded,
+        scrollToMessageId,
+        setScrollToMessageId,
+        openChatAndScrollToMessage,
       }}
     >
       {children}

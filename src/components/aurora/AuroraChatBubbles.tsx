@@ -19,7 +19,9 @@ const AuroraChatBubbles = () => {
     setIsChatExpanded,
     registerSendMessage,
     isStreaming,
-    setIsStreaming 
+    setIsStreaming,
+    scrollToMessageId,
+    setScrollToMessageId
   } = useAuroraChatContext();
   
   const { 
@@ -30,6 +32,7 @@ const AuroraChatBubbles = () => {
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Register send message function for global access
   useEffect(() => {
@@ -43,12 +46,33 @@ const AuroraChatBubbles = () => {
     });
   }, [registerSendMessage, sendMessage, setIsStreaming]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive (only if not searching)
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !scrollToMessageId) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, scrollToMessageId]);
+
+  // Scroll to specific message when searching
+  useEffect(() => {
+    if (scrollToMessageId && isChatExpanded && messages.length > 0) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const messageEl = messageRefs.current.get(scrollToMessageId);
+        if (messageEl) {
+          messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight the message briefly
+          messageEl.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+          setTimeout(() => {
+            messageEl.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+            setScrollToMessageId(null);
+          }, 2000);
+        } else {
+          setScrollToMessageId(null);
+        }
+      }, 300);
+    }
+  }, [scrollToMessageId, isChatExpanded, messages, setScrollToMessageId]);
 
   // Handle click outside to close
   const handleClickOutside = useCallback((e: MouseEvent) => {
@@ -128,10 +152,13 @@ const AuroraChatBubbles = () => {
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
+                    ref={(el) => {
+                      if (el) messageRefs.current.set(message.id, el);
+                    }}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
-                      "flex gap-3",
+                      "flex gap-3 transition-all duration-300 rounded-lg",
                       message.is_ai_message ? "justify-start" : "justify-end"
                     )}
                   >
