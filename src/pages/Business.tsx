@@ -4,11 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
+import { useBusinessJourneys } from "@/hooks/useBusinessJourneys";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BusinessCard } from "@/components/business/BusinessCard";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { 
   Briefcase, 
   Target, 
@@ -19,13 +22,16 @@ import {
   MessageCircle,
   Rocket,
   BookOpen,
-  TrendingUp
+  TrendingUp,
+  Plus
 } from "lucide-react";
 
 const Business = () => {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { journeys, isLoading: journeysLoading, deleteJourney, refetch } = useBusinessJourneys();
   const [careerData, setCareerData] = useState<{
     currentStatus?: string;
     careerGoal?: string;
@@ -266,11 +272,84 @@ const Business = () => {
           <div className="absolute bottom-0 start-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
-        {/* Career Status Card */}
+        {/* My Businesses Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {language === 'he' ? 'העסקים שלי' : 'My Businesses'}
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/business/journey')}
+              className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+            >
+              <Plus className="h-4 w-4 me-1" />
+              {language === 'he' ? 'עסק חדש' : 'New Business'}
+            </Button>
+          </div>
+          
+          {journeysLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-24 w-full rounded-xl" />
+              <Skeleton className="h-24 w-full rounded-xl" />
+            </div>
+          ) : journeys.length > 0 ? (
+            <div className="space-y-3">
+              {journeys.map((journey, index) => (
+                <BusinessCard
+                  key={journey.id}
+                  journey={journey}
+                  onDelete={async (id) => {
+                    setDeletingId(id);
+                    const success = await deleteJourney(id);
+                    if (success) {
+                      toast.success(language === 'he' ? 'העסק נמחק בהצלחה' : 'Business deleted successfully');
+                    } else {
+                      toast.error(language === 'he' ? 'שגיאה במחיקת העסק' : 'Error deleting business');
+                    }
+                    setDeletingId(null);
+                  }}
+                  isDeleting={deletingId === journey.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card className="backdrop-blur-xl bg-background/60 border-border/50 border-dashed">
+              <CardContent className="p-8 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 mb-4">
+                  <Briefcase className="h-6 w-6 text-amber-500" />
+                </div>
+                <h3 className="font-semibold mb-2">
+                  {language === 'he' ? 'אין לך עסקים עדיין' : 'No businesses yet'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {language === 'he' 
+                    ? 'התחל את המסע העסקי הראשון שלך ובנה את העסק שחלמת עליו'
+                    : 'Start your first business journey and build the business you have been dreaming of'
+                  }
+                </p>
+                <Button
+                  onClick={() => navigate('/business/journey')}
+                  className="bg-gradient-to-r from-amber-500 to-yellow-400 text-purple-900 hover:from-amber-600 hover:to-yellow-500"
+                >
+                  <Rocket className="h-4 w-4 me-2" />
+                  {language === 'he' ? 'התחל עכשיו' : 'Start Now'}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+
+        {/* Career Status Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
           <Card className="backdrop-blur-xl bg-background/60 border-border/50">
             <CardHeader className="pb-3">

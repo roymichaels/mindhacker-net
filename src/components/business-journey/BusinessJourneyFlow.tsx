@@ -30,11 +30,12 @@ import {
 
 interface BusinessJourneyFlowProps {
   className?: string;
+  journeyId?: string;
   onComplete?: () => void;
   onClose?: () => void;
 }
 
-export function BusinessJourneyFlow({ className, onComplete, onClose }: BusinessJourneyFlowProps) {
+export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose }: BusinessJourneyFlowProps) {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
   
@@ -50,7 +51,7 @@ export function BusinessJourneyFlow({ className, onComplete, onClose }: Business
     getStepData,
     resetJourney,
     getStepRewards,
-  } = useBusinessJourneyProgress();
+  } = useBusinessJourneyProgress(journeyId);
   
   const [viewingStep, setViewingStep] = useState<number | null>(null);
   const [showResetDialog, setShowResetDialog] = useState(false);
