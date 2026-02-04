@@ -1,256 +1,221 @@
 
-# Plan: Business Orb & Full Business Dashboard System
+# Plan: Dashboard Optimization - Command Center
 
-## Overview
-Transform the business experience into a complete parallel ecosystem to the Personality hub. Each business will have its own unique visual orb identity, and clicking on a business will open a full-featured dashboard with 90-day plans, AI analysis, branding tools, marketing strategy, and all the capabilities currently available in the Personality hub.
+## Current State Analysis
 
-## Phase 1: Business Orb System
+The dashboard currently has:
+1. **Sidebar** (left): Character HUD + Search + Navigation (Dashboard, Personality, Business)
+2. **Main Area**: Welcome message + Quick Access Grid (Tasks, Personality, Business, PDF, Focus) + Sessions
+3. **Right Panel** (hidden on most pages): Courses, Recordings, Sessions, Affiliate
+4. **Bottom**: Global Aurora Chat
 
-### 1.1 Business Orb Profile Generation
-Create a visual DNA system for businesses that generates unique orbs based on business data:
+### Issues Identified:
+- Quick Access Grid duplicates sidebar navigation (Personality, Business links)
+- Sessions are buried at the bottom
+- No clear "next action" or daily priority system
+- Limited visibility of user progress and achievements
+- PDF download is low-value prime real estate
+- Missing quick access to hypnosis sessions
+- No unified view of "what should I do today"
 
-**New file: `src/lib/businessOrbSystem.ts`**
-- Map business journey data (industry, model, vision) to color palettes
-- Industry-based color mapping:
-  - Tech/Software: Cyan-Purple (tech palette)
-  - Creative/Design: Magenta-Cyan (creative palette)  
-  - Health/Wellness: Teal-Magenta (healing palette)
-  - Finance/Consulting: Gold-Cyan (explorer palette)
-  - Retail/E-commerce: Orange-Purple (action palette)
-  - Education/Coaching: Purple-Cyan (mystic palette)
-- Business model affects morphology (service = flowing, product = angular, hybrid = balanced)
-- Business maturity/progress affects intensity and complexity
+## Proposed Dashboard Architecture
 
-### 1.2 Business Orb Component
-**New file: `src/components/orb/BusinessOrb.tsx`**
-- Similar to PersonalizedOrb but fetches business-specific profile
-- Props: `businessId`, `size`, `state`
-- Uses business_journeys data to generate visual parameters
-- Gold/amber accent to match business hub theme
+### Design Philosophy
+Transform the dashboard into an **Action-Oriented Command Center** with three zones:
 
-### 1.3 Database: Business Orb Profiles
-**New table: `business_orb_profiles`**
-```sql
-CREATE TABLE business_orb_profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id UUID REFERENCES business_journeys(id) ON DELETE CASCADE,
-  primary_color TEXT NOT NULL,
-  secondary_colors TEXT[] DEFAULT '{}',
-  accent_color TEXT NOT NULL,
-  morph_intensity NUMERIC DEFAULT 0.15,
-  geometry_detail INTEGER DEFAULT 4,
-  computed_from JSONB DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(business_id)
-);
+```text
++------------------+--------------------------------+
+|                  |        TODAY'S FOCUS           |
+|    SIDEBAR       +--------------------------------+
+|                  |                                |
+|  - HUD           |     QUICK ACTIONS GRID         |
+|  - Search        |     (4-6 primary actions)      |
+|  - Nav           +--------------------------------+
+|                  |                                |
+|                  |     PROGRESS & INSIGHTS        |
+|                  |     (2 columns on desktop)     |
+|                  |                                |
++------------------+--------------------------------+
+|           AURORA CHAT INPUT (sticky)              |
++---------------------------------------------------+
 ```
 
-## Phase 2: Unified Orb Visualization
+## Detailed Changes
 
-### 2.1 Multi-Orb Merge Component
-**New file: `src/components/orb/UnifiedOrb.tsx`**
-- Visual representation showing personality + business orbs merging
-- Animated blend effect showing orbs combining into unified identity
-- Used in main dashboard to show "complete self" visualization
-- Particle streams connecting the orbs
+### 1. Today's Focus Card (NEW - Top Priority)
 
-### 2.2 Dashboard Integration
-Update `CharacterHUD` and `PersonalizedOrb` usage to optionally show merged visualization when user has businesses.
+A dynamic card at the very top showing:
+- **If has active focus plan**: Show focus title + days remaining + progress
+- **If has uncompleted daily tasks**: "You have X tasks today"
+- **If on a streak**: Motivational streak message
+- **If idle**: Suggestion to start hypnosis or chat with Aurora
 
-## Phase 3: Full Business Dashboard
+This replaces the generic "Welcome back" message.
 
-### 3.1 Business Dashboard Page
-**New file: `src/pages/BusinessDashboard.tsx`**
-Route: `/business/:businessId`
+### 2. Redesigned Quick Actions Grid
 
-Main sections:
-1. **Business HUD** - Similar to CharacterHUD but for business
-   - Business Orb (small)
-   - Business name
-   - Progress/health indicators
-   - Key metrics
+Replace current grid with **6 action-oriented cards** in 2 rows:
 
-2. **Quick Stats Grid**
-   - Revenue goals
-   - Customer count targets
-   - Marketing reach
-   - Action completion rate
+**Row 1 - Primary Actions:**
+| Aurora Chat | Hypnosis | My Tasks |
+|-------------|----------|----------|
+| Direct chat | Quick session | Today's tasks |
 
-3. **Tool Cards Grid** (mirrors Personality tools):
-   - AI Business Analysis
-   - 90-Day Business Plan
-   - Branding & Identity
-   - Marketing Strategy
-   - Operations Hub
-   - Financial Dashboard
-   - Audience Insights
-   - Challenges & Growth
+**Row 2 - Progress & Tools:**
+| 90-Day Plan | Launchpad | More Tools |
+|-------------|-----------|------------|
+| View progress | Edit journey | Dropdown with PDF, Settings |
 
-### 3.2 Business Dashboard Modals
-**New file: `src/components/business/BusinessDashboardModals.tsx`**
+Remove Personality/Business from quick actions (already in sidebar nav).
 
-Modals for each tool:
-- `BusinessAIAnalysisModal` - AI analysis of business data
-- `Business90DayPlanModal` - Business-specific milestones
-- `BrandingModal` - Logo, colors, voice, values
-- `MarketingStrategyModal` - Marketing plan details
-- `OperationsModal` - Operations data from journey
-- `FinancialModal` - Financial planning data
-- `AudienceModal` - Target audience insights
-- `BusinessChallengesModal` - Current challenges & solutions
+### 3. Progress & Insights Section (2 Columns)
 
-### 3.3 Business-Specific 90-Day Plan
-**New table: `business_plans`**
-```sql
-CREATE TABLE business_plans (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id UUID REFERENCES business_journeys(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  status TEXT DEFAULT 'active',
-  start_date DATE,
-  end_date DATE,
-  plan_data JSONB DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
+**Column 1 - Active Progress:**
+- **90-Day Plan Mini-Card**: Current week, completion %, next milestone
+- **Streak & Achievements**: Visual streak counter, recent achievements
 
-CREATE TABLE business_plan_milestones (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  plan_id UUID REFERENCES business_plans(id) ON DELETE CASCADE,
-  week_number INTEGER NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  tasks TEXT[] DEFAULT '{}',
-  is_completed BOOLEAN DEFAULT false,
-  completed_at TIMESTAMPTZ,
-  xp_reward INTEGER DEFAULT 50,
-  tokens_reward INTEGER DEFAULT 10,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+**Column 2 - Scheduled & Upcoming:**
+- **Upcoming Sessions**: Next hypnosis or coaching sessions
+- **Weekly Suggestions**: AI-generated tasks/suggestions from Aurora
+
+### 4. Smart Suggestions Row (AI-Powered)
+
+A horizontal scrollable row of contextual suggestions:
+- "Complete your evening anchors"
+- "You're 2 days from a 7-day streak!"
+- "Time for your focus session"
+- "Finish Week 4 to unlock rewards"
+
+### 5. Sidebar Enhancements
+
+Keep the Character HUD and add:
+- **Daily Streak Flame** indicator (always visible)
+- **Notification badge** on navigation items (e.g., "3 tasks")
+
+### 6. Remove Duplications
+
+- Remove Personality & Business from QuickAccessGrid (in sidebar)
+- Remove PDF from main grid (move to "More Tools" dropdown)
+- Keep Sessions compact at bottom OR integrate into main grid
+
+## Files to Modify
+
+### Modify:
+1. `src/pages/UserDashboard.tsx` - Restructure layout
+2. `src/components/dashboard/UnifiedDashboardView.tsx` - New section structure
+3. `src/components/dashboard/QuickAccessGrid.tsx` - Redesign with 6 action cards
+
+### Create:
+1. `src/components/dashboard/TodaysFocusCard.tsx` - Dynamic focus display
+2. `src/components/dashboard/ProgressSection.tsx` - 2-column progress view
+3. `src/components/dashboard/SmartSuggestionsRow.tsx` - AI suggestions carousel
+4. `src/components/dashboard/QuickActionsCard.tsx` - New card component
+
+## New Component Details
+
+### TodaysFocusCard.tsx
+```tsx
+// Shows contextual "What's important today" based on:
+// - Active focus plan
+// - Pending tasks count
+// - Current streak
+// - Time of day (morning/evening anchors)
 ```
 
-### 3.4 Branding System
-**New table: `business_branding`**
-```sql
-CREATE TABLE business_branding (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id UUID REFERENCES business_journeys(id) ON DELETE CASCADE,
-  logo_url TEXT,
-  primary_color TEXT,
-  secondary_color TEXT,
-  accent_color TEXT,
-  font_family TEXT,
-  brand_voice TEXT,
-  tagline TEXT,
-  mission_statement TEXT,
-  vision_statement TEXT,
-  core_values TEXT[] DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(business_id)
-);
+### SmartSuggestionsRow.tsx
+```tsx
+// Horizontal scroll of action chips:
+// - Pulls from useSmartSuggestions hook (already exists)
+// - Each chip is clickable and triggers the action
 ```
 
-## Phase 4: Business Card & Navigation Updates
-
-### 4.1 Enhanced BusinessCard
-Update `src/components/business/BusinessCard.tsx`:
-- Add small BusinessOrb preview
-- Click navigates to `/business/:businessId` (full dashboard)
-- Show key metrics preview
-
-### 4.2 Route Configuration
-Update `src/App.tsx`:
-```typescript
-<Route path="/business/:businessId" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
+### ProgressSection.tsx
+```tsx
+// Two-column layout:
+// Left: 90-day progress mini-view + streak visual
+// Right: Upcoming sessions + next steps
 ```
-
-## Phase 5: AI-Powered Business Generation
-
-### 5.1 Business Plan Generation Edge Function
-**New function: `supabase/functions/generate-business-plan/index.ts`**
-- Takes business journey data
-- Generates personalized 90-day business plan with weekly milestones
-- Creates actionable tasks for each week
-- Returns structured plan data
-
-### 5.2 Branding Suggestions
-**New function: `supabase/functions/generate-branding-suggestions/index.ts`**
-- Analyzes business vision, audience, value proposition
-- Suggests color palettes, voice tone, taglines
-- Returns branding recommendations
 
 ## Implementation Order
 
-1. **Database First**
-   - Create business_orb_profiles table
-   - Create business_plans and business_plan_milestones tables
-   - Create business_branding table
-   - Add RLS policies
+1. **Phase 1: TodaysFocusCard**
+   - Create new component
+   - Replace welcome message
+   - Test with various user states
 
-2. **Orb System**
-   - Create businessOrbSystem.ts
-   - Create BusinessOrb.tsx component
-   - Create useBusinessOrbProfile hook
+2. **Phase 2: QuickActionsGrid Redesign**
+   - Update to 6-card layout
+   - Remove duplicate nav items
+   - Add "More Tools" dropdown
 
-3. **Business Dashboard**
-   - Create BusinessDashboard.tsx page
-   - Create BusinessDashboardModals.tsx
-   - Add route configuration
+3. **Phase 3: ProgressSection**
+   - Create 2-column layout
+   - Integrate 90-day mini view
+   - Add streak visualization
 
-4. **Business Card Update**
-   - Add orb preview to BusinessCard
-   - Update navigation to new dashboard
+4. **Phase 4: SmartSuggestions**
+   - Create horizontal scroll component
+   - Connect to useSmartSuggestions
+   - Style as action chips
 
-5. **AI Features**
-   - Create edge functions for plan/branding generation
-   - Integrate with dashboard
+5. **Phase 5: Final Polish**
+   - Mobile optimization
+   - Animation polish
+   - Test all flows
 
-6. **Unified Orb**
-   - Create UnifiedOrb component
-   - Integrate into main dashboard
+## Mobile Considerations
 
-## File Summary
+- TodaysFocusCard: Full width, compact
+- QuickActionsGrid: 2x3 grid (smaller cards)
+- ProgressSection: Stack vertically
+- SmartSuggestions: Horizontal swipe
 
-### New Files:
-- `src/lib/businessOrbSystem.ts`
-- `src/components/orb/BusinessOrb.tsx`
-- `src/components/orb/UnifiedOrb.tsx`
-- `src/hooks/useBusinessOrbProfile.ts`
-- `src/pages/BusinessDashboard.tsx`
-- `src/components/business/BusinessDashboardModals.tsx`
-- `src/components/business/BusinessHUD.tsx`
-- `src/hooks/useBusinessPlan.ts`
-- `src/hooks/useBusinessBranding.ts`
-- `supabase/functions/generate-business-plan/index.ts`
-- `supabase/functions/generate-branding-suggestions/index.ts`
+## Visual Preview
 
-### Modified Files:
-- `src/components/business/BusinessCard.tsx`
-- `src/App.tsx`
-- `src/pages/Business.tsx`
+```text
++----------------------------------------+
+|  TODAY'S FOCUS                    [→]  |
+|  🎯 "Productivity Mode" - Day 5 of 14  |
+|  ████████░░░░░░░ 35%                   |
++----------------------------------------+
 
-### New Database Tables:
-- `business_orb_profiles`
-- `business_plans`
-- `business_plan_milestones`
-- `business_branding`
++------------+ +------------+ +------------+
+| 💬 Aurora  | | 🧘 Hypnosis| | ✅ Tasks   |
+| Chat now   | | Start      | | 3 pending  |
++------------+ +------------+ +------------+
++------------+ +------------+ +------------+
+| 📋 90-Day  | | 🚀 Journey | | ⚙️ More    |
+| Week 4/12  | | Edit       | | Tools ▼    |
++------------+ +------------+ +------------+
 
-## Technical Considerations
++-------------------+ +-------------------+
+| 📈 PROGRESS       | | 📅 UPCOMING       |
+|                   | |                   |
+| Week 4 of 12      | | Tomorrow 10:00    |
+| ████░░░░ 33%      | | Coaching Session  |
+|                   | |                   |
+| 🔥 5-day streak   | | Friday 18:00      |
+|                   | | Hypnosis Session  |
++-------------------+ +-------------------+
 
-### Performance
-- Lazy load business dashboard and modals
-- Cache orb profiles with React Query
-- Debounce autosave for branding/plan edits
+→ Complete evening anchors | Start focus | +3 to 7-day streak! →
 
-### Data Flow
-- Business journey data feeds into orb generation
-- AI functions use journey data for personalized plans
-- Branding colors can optionally sync to business orb
++----------------------------------------+
+|  💬 Ask Aurora anything...        [→]  |
++----------------------------------------+
+```
 
-### Consistency
-- Reuse existing modal patterns from DashboardModals
-- Match Personality hub card layout and styling
-- Use gold/amber theme consistently for business features
+## Translation Keys to Add
+
+```json
+{
+  "dashboard.todaysFocus": "המיקוד של היום / Today's Focus",
+  "dashboard.noFocusSet": "לא הוגדר מיקוד / No focus set",
+  "dashboard.startSession": "התחל סשן / Start Session",
+  "dashboard.viewPlan": "צפה בתוכנית / View Plan",
+  "dashboard.moreTools": "כלים נוספים / More Tools",
+  "dashboard.progress": "התקדמות / Progress",
+  "dashboard.upcoming": "קרוב / Upcoming",
+  "dashboard.suggestions": "הצעות / Suggestions"
+}
+```
