@@ -3,6 +3,7 @@ export { default as GameHeroSection } from './GameHeroSection';
 export { default as SystemArchitectureSection } from './SystemArchitectureSection';
 export { default as LifePillarsSection } from './LifePillarsSection';
 export { default as AuroraCoachSection } from './AuroraCoachSection';
+export { default as HandsFreeSection } from './HandsFreeSection';
 export { default as TransformationJourneySection } from './TransformationJourneySection';
 export { default as WhyChooseUsSection } from './WhyChooseUsSection';
 export { default as TransformationProofSection } from './TransformationProofSection';
