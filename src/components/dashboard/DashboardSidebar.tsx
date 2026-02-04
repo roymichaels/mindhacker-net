@@ -275,8 +275,8 @@ const DashboardSidebar = ({
                 }}
                 className={cn(
                   "w-full min-w-0 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 overflow-hidden",
-                  isRed && "bg-gradient-to-r from-gray-900 to-gray-800 text-primary hover:from-gray-800 hover:to-gray-700 font-bold shadow-sm hover:shadow-md hover:shadow-primary/20 border border-primary/30",
-                  isBlue && "bg-gradient-to-r from-blue-950 to-gray-900 text-yellow-400 hover:from-blue-900 hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-900/30 border border-blue-800/50",
+                  isRed && "bg-gradient-to-r from-muted to-muted/80 dark:from-gray-900 dark:to-gray-800 text-primary hover:from-muted/80 hover:to-muted/60 dark:hover:from-gray-800 dark:hover:to-gray-700 font-bold shadow-sm hover:shadow-md hover:shadow-primary/20 border border-primary/30",
+                  isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-yellow-400 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
                   isGold && "bg-gradient-to-r from-amber-500 to-yellow-400 text-purple-900 hover:from-amber-400 hover:to-yellow-300 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/30",
                   isCollapsed && "justify-center px-2"
                 )}
@@ -288,7 +288,7 @@ const DashboardSidebar = ({
                   <item.icon className={cn(
                     "h-4 w-4 shrink-0", 
                     isRed && "text-primary",
-                    isBlue && "text-yellow-400",
+                    isBlue && "text-blue-700 dark:text-yellow-400",
                     isGold && "text-purple-900"
                   )} />
                 )}

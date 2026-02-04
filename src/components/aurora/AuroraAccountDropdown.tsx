@@ -97,14 +97,14 @@ const AuroraAccountDropdown = ({
           variant="ghost"
           className={cn(
             "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
-            "backdrop-blur-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
-            "border border-primary/30 rounded-xl shadow-xl",
-            "hover:border-primary/50 hover:shadow-primary/20 transition-all duration-300",
+            "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+            "border border-border dark:border-primary/30 rounded-xl shadow-lg dark:shadow-xl",
+            "hover:border-primary/40 dark:hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300",
             isCollapsed && "justify-center px-2"
           )}
         >
           {/* Glow overlay - same as Identity Card */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none rounded-xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-primary/20 via-transparent to-accent/10 dark:to-accent/20 pointer-events-none rounded-xl" />
           
           {/* Avatar - MultiThreadOrb matching Dashboard HUD */}
           <div className={cn(
@@ -124,10 +124,10 @@ const AuroraAccountDropdown = ({
           {!isCollapsed && (
             <>
               <div className="flex-1 text-start min-w-0 z-10">
-                <p className="text-sm font-medium truncate text-white">{displayName}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                <p className="text-sm font-medium truncate text-foreground">{displayName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
-              <ChevronUp className="h-4 w-4 text-gray-400 shrink-0 z-10" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 z-10" />
             </>
           )}
         </Button>
