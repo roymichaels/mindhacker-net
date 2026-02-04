@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useBusinessJourneyProgress, BUSINESS_STEPS, BUSINESS_PHASES, getBusinessPhaseForStep, isLastStepInBusinessPhase } from '@/hooks/useBusinessJourneyProgress';
@@ -193,12 +194,12 @@ export function BusinessJourneyFlow({ className, journeyId, onComplete, onClose 
                 ? 'כל הכבוד! אספת את כל המידע הנדרש להקמת העסק שלך. עכשיו הזמן לפעולה!'
                 : 'Congratulations! You have gathered all the information needed to start your business. Now it is time for action!'}
             </p>
-            <button
+            <Button
               onClick={handleClose}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-purple-900 font-semibold hover:from-amber-600 hover:to-yellow-500 transition-all"
             >
               {language === 'he' ? 'חזור לדף העסקים' : 'Back to Business Page'}
-            </button>
+            </Button>
           </motion.div>
         </div>
       </div>
