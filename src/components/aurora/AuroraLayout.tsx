@@ -60,7 +60,6 @@ const AuroraLayout = () => {
         currentConversationId={activeConversationId}
         onNewChat={handleNewChat}
         onSelectConversation={handleSelectConversation}
-        hideRightPanel
       >
         {/* Chat Area - takes full width and height */}
         <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>

@@ -2,7 +2,6 @@ import { ReactNode, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardSidebar from './DashboardSidebar';
-import DashboardRightPanel from './DashboardRightPanel';
 import GlobalChatInput from './GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -23,7 +22,6 @@ interface DashboardLayoutProps {
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
-  hideRightPanel?: boolean;
 }
 
 // Separate component for desktop layout to access sidebar context
@@ -34,7 +32,6 @@ interface DesktopLayoutContentProps {
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
-  hideRightPanel: boolean;
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
   handleOpenSettings: () => void;
@@ -51,7 +48,6 @@ const DesktopLayoutContent = ({
   currentConversationId,
   onNewChat,
   onSelectConversation,
-  hideRightPanel,
   settingsOpen,
   setSettingsOpen,
   handleOpenSettings,
@@ -97,13 +93,6 @@ const DesktopLayoutContent = ({
         <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 pt-14 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
           {children}
         </main>
-
-        {/* Right Panel */}
-        {!hideRightPanel && (
-          <aside className="w-80 shrink-0 sticky top-0 h-screen overflow-y-auto border-s hidden xl:block">
-            <DashboardRightPanel />
-          </aside>
-        )}
       </div>
 
       {/* Global Chat Input - fixed at bottom, adjusts for sidebar */}
@@ -135,12 +124,10 @@ const DashboardLayout = ({
   currentConversationId,
   onNewChat,
   onSelectConversation,
-  hideRightPanel = false,
 }: DashboardLayoutProps) => {
   const { language, isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
-  const [rightSheetOpen, setRightSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -208,15 +195,6 @@ const DashboardLayout = ({
             </SheetContent>
           </Sheet>
 
-          {/* Right Panel Sheet */}
-          {!hideRightPanel && (
-            <Sheet open={rightSheetOpen} onOpenChange={setRightSheetOpen}>
-              <SheetContent side={isRTL ? "left" : "right"} className="w-80 p-0 overflow-y-auto">
-                <DashboardRightPanel />
-              </SheetContent>
-            </Sheet>
-          )}
-
           {/* Settings Modal */}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
@@ -251,7 +229,6 @@ const DashboardLayout = ({
         currentConversationId={currentConversationId}
         onNewChat={onNewChat}
         onSelectConversation={onSelectConversation}
-        hideRightPanel={hideRightPanel}
         settingsOpen={settingsOpen}
         setSettingsOpen={setSettingsOpen}
         handleOpenSettings={handleOpenSettings}
