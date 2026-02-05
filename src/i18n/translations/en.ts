@@ -79,7 +79,7 @@ export const en: TranslationKeys = {
     clarity: "Clarity",
   },
   header: {
-    brandName: "Mind Hacker",
+    brandName: "MindOS",
     navigationMenu: "Navigation Menu",
     adminPanel: "Admin Panel",
     practitionerPanel: "Coach Panel",
@@ -206,7 +206,7 @@ export const en: TranslationKeys = {
     },
   },
   footer: {
-    copyright: "© 2025 Mind Hacker. All rights reserved.",
+    copyright: "© 2025 MindOS. All rights reserved.",
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
     contactUs: "Contact Us",

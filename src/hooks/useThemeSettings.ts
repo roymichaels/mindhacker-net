@@ -89,9 +89,9 @@ export interface ThemePreset {
 }
 
 const defaultTheme: ThemeSettings = {
-  brand_name: "מיינד האקר",
-  brand_name_en: "Mind Hacker",
-  company_legal_name: "Mind Hacker OÜ",
+  brand_name: "מיינדOS",
+  brand_name_en: "MindOS",
+  company_legal_name: "MindOS OÜ",
   company_country: "Estonia",
   founder_name: "דין אושר אזולאי",
   founder_name_en: "Dean Osher Azulay",
@@ -135,7 +135,7 @@ const defaultTheme: ThemeSettings = {
   logo_url: "",
   favicon_url: "",
   og_image_url: "",
-  site_url: "https://mind-hacker.net",
+  site_url: "https://mindos.app",
   hero_portrait_url: "",
   pwa_icon_url: "",
   introspection_form_id: "866eb5a92355da936aea2b7bcb50726cc3f01badf5ebbeaecfff9b2c4aa7539e",
