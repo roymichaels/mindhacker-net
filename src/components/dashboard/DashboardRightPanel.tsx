@@ -2,7 +2,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import CompactCourses from './CompactCourses';
 import CompactRecordings from './CompactRecordings';
 import CompactSessions from './CompactSessions';
-import CompactAffiliate from './CompactAffiliate';
 
 const DashboardRightPanel = () => {
   const { t } = useTranslation();
@@ -14,7 +13,6 @@ const DashboardRightPanel = () => {
       <CompactCourses />
       <CompactRecordings />
       <CompactSessions />
-      <CompactAffiliate />
     </div>
   );
 };
