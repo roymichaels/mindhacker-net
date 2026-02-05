@@ -459,7 +459,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent 
-        className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col overflow-hidden bg-background"
+        className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col bg-background overflow-visible"
         onPointerDownOutside={(e) => {
           if (state === 'generating' || state === 'playing' || state === 'paused') {
             e.preventDefault();
@@ -495,7 +495,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-visible"
             >
-              <div className="flex-shrink-0 overflow-visible" style={{ minHeight: orbSize + 40 }}>
+              <div 
+                className="flex-shrink-0 p-8"
+                style={{ minHeight: orbSize + 80 }}
+              >
                 <PersonalizedOrb 
                   size={orbSize} 
                   state="listening"
@@ -529,10 +532,13 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col min-h-0 overflow-hidden"
+              className="flex-1 flex flex-col min-h-0"
             >
-              {/* Orb Area */}
-              <div className="flex-shrink-0 flex items-center justify-center min-h-[160px] sm:min-h-[200px] p-2 sm:p-4 overflow-visible">
+              {/* Orb Area - with extra padding for glow/particles */}
+              <div 
+                className="flex-shrink-0 flex items-center justify-center p-6 sm:p-8"
+                style={{ minHeight: orbSizeCompact + 60 }}
+              >
                 <PersonalizedOrb 
                   size={orbSizeCompact} 
                   state={state === 'playing' ? 'listening' : 'idle'}
