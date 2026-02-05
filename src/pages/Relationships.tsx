@@ -70,20 +70,20 @@ const Relationships = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-950 to-gray-900 p-6 border border-pink-800/30"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-100 to-pink-50 dark:from-pink-950 dark:to-gray-900 p-6 border border-pink-200 dark:border-pink-800/30"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 dark:from-pink-500/10 to-transparent" />
           
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="relative z-10 flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-pink-600/20 rounded-xl">
-                <Users className="w-8 h-8 text-pink-400" />
+              <div className="p-3 bg-pink-500/20 dark:bg-pink-600/20 rounded-xl">
+                <Users className="w-8 h-8 text-pink-600 dark:text-pink-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-pink-400">
+                <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400">
                   {language === 'he' ? 'מרכז הקשרים' : 'Relationships Hub'}
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-pink-600/80 dark:text-muted-foreground">
                   {language === 'he' 
                     ? 'בנה קשרים עמוקים ומשמעותיים' 
                     : 'Build deep and meaningful connections'}
@@ -93,7 +93,7 @@ const Relationships = () => {
             
             <Button
               onClick={() => navigate('/relationships/journey')}
-              className="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white"
+              className="w-full sm:w-auto self-stretch sm:self-auto bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white"
             >
               <Sparkles className="w-4 h-4 me-2" />
               {language === 'he' ? 'התחל מסע' : 'Start Journey'}
@@ -110,10 +110,10 @@ const Relationships = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="p-4 bg-gray-900/60 backdrop-blur-xl rounded-xl border border-pink-800/30 hover:border-pink-600/50 transition-all text-start group"
+              className="p-4 bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-xl border border-pink-200 dark:border-pink-800/30 hover:border-pink-400 dark:hover:border-pink-600/50 transition-all text-start group shadow-sm"
             >
-              <div className="p-2 bg-pink-600/20 rounded-lg w-fit mb-3 group-hover:bg-pink-600/30 transition-colors">
-                <tool.icon className="w-5 h-5 text-pink-400" />
+              <div className="p-2 bg-pink-100 dark:bg-pink-600/20 rounded-lg w-fit mb-3 group-hover:bg-pink-200 dark:group-hover:bg-pink-600/30 transition-colors">
+                <tool.icon className="w-5 h-5 text-pink-600 dark:text-pink-400" />
               </div>
               <h3 className="font-semibold text-foreground mb-1">{tool.label}</h3>
               <p className="text-xs text-muted-foreground">{tool.description}</p>
@@ -126,9 +126,9 @@ const Relationships = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="p-6 bg-gray-900/60 backdrop-blur-xl rounded-xl border border-pink-800/30"
+          className="p-6 bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-xl border border-pink-200 dark:border-pink-800/30 shadow-sm"
         >
-          <h2 className="text-lg font-semibold text-pink-400 mb-4">
+          <h2 className="text-lg font-semibold text-pink-700 dark:text-pink-400 mb-4">
             {language === 'he' ? 'מדד בריאות הקשרים' : 'Relationship Health Index'}
           </h2>
           <div className="flex items-center justify-center h-32 text-muted-foreground">
