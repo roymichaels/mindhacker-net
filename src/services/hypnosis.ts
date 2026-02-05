@@ -165,13 +165,33 @@ export function generateCacheKey(options: {
   durationMinutes: number;
   language: 'he' | 'en';
 }): string {
+  // Get current date (Israel timezone) for daily uniqueness
+  const now = new Date();
+  const israelDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' });
+  
+  // Get time-of-day bucket (morning/afternoon/evening/night)
+  const israelHour = parseInt(
+    now.toLocaleTimeString('en-US', { 
+      timeZone: 'Asia/Jerusalem', 
+      hour: 'numeric', 
+      hour12: false 
+    })
+  );
+  
+  let timeBucket: string;
+  if (israelHour >= 5 && israelHour < 12) timeBucket = 'morning';
+  else if (israelHour >= 12 && israelHour < 17) timeBucket = 'afternoon';
+  else if (israelHour >= 17 && israelHour < 21) timeBucket = 'evening';
+  else timeBucket = 'night';
+  
   // Create a simple hash of the goal for the cache key
   const goalHash = options.goal
     .toLowerCase()
     .replace(/\s+/g, '_')
     .substring(0, 30);
   
-  return `${options.egoState}_${goalHash}_${options.durationMinutes}_${options.language}`;
+  // Include date and time bucket for daily/time-appropriate freshness
+  return `${options.egoState}_${goalHash}_${options.durationMinutes}_${options.language}_${israelDate}_${timeBucket}`;
 }
 
 /**
