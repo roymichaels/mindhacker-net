@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, BarChart3, Users, Zap, Target, X } from "lucide-react";
 import { motion } from "framer-motion";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface GrowthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language: string;
 }
 
-const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
-  const isHebrew = language === 'he';
+ const GrowthModal = ({ isOpen, onClose }: GrowthModalProps) => {
+   const { t } = useTranslation();
 
   const growthMetrics = [
     {
       id: 'revenue-growth',
       icon: BarChart3,
-      label: isHebrew ? 'צמיחת הכנסות' : 'Revenue Growth',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.growth.revenueGrowth'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
@@ -27,8 +27,8 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
     {
       id: 'customer-growth',
       icon: Users,
-      label: isHebrew ? 'צמיחת לקוחות' : 'Customer Growth',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.growth.customerGrowth'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
@@ -36,8 +36,8 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
     {
       id: 'momentum',
       icon: Zap,
-      label: isHebrew ? 'מומנטום' : 'Momentum',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.growth.momentum'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-500/10',
@@ -45,8 +45,8 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
     {
       id: 'goals',
       icon: Target,
-      label: isHebrew ? 'השגת יעדים' : 'Goal Achievement',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.growth.goalAchievement'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10',
@@ -64,7 +64,7 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
           </div>
           <DialogTitle className="flex items-center gap-2 text-green-400">
             <TrendingUp className="h-5 w-5" />
-            {isHebrew ? 'צמיחה' : 'Growth'}
+             {t('businessHub.modals.growth.title')}
           </DialogTitle>
           <div className="w-8" />
         </DialogHeader>
@@ -75,7 +75,7 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
-                  {isHebrew ? 'קצב צמיחה' : 'Growth Rate'}
+                   {t('businessHub.modals.growth.growthRate')}
                 </span>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="h-4 w-4 text-green-500" />
@@ -114,9 +114,7 @@ const GrowthModal = ({ isOpen, onClose, language }: GrowthModalProps) => {
           <Card className="bg-background/60 border-border/50">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {isHebrew 
-                  ? 'מעקב צמיחה מלא יהיה זמין בקרוב. השלם את מסע העסקים שלך כדי להתחיל.'
-                  : 'Full growth tracking coming soon. Complete your business journey to get started.'}
+                 {t('businessHub.comingSoonGrowth')}
               </p>
             </CardContent>
           </Card>

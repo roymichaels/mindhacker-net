@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Settings, TrendingUp, Clock, CheckCircle, Workflow, X } from "lucide-react";
 import { motion } from "framer-motion";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface OperationsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language: string;
 }
 
-const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) => {
-  const isHebrew = language === 'he';
+ const OperationsModal = ({ isOpen, onClose }: OperationsModalProps) => {
+   const { t } = useTranslation();
 
   const operationsMetrics = [
     {
       id: 'efficiency',
       icon: Workflow,
-      label: isHebrew ? 'יעילות' : 'Efficiency',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.operations.efficiency'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
@@ -27,8 +27,8 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
     {
       id: 'productivity',
       icon: Clock,
-      label: isHebrew ? 'פרודוקטיביות' : 'Productivity',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.operations.productivity'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
@@ -36,8 +36,8 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
     {
       id: 'tasks',
       icon: CheckCircle,
-      label: isHebrew ? 'משימות' : 'Tasks',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.operations.tasks'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
@@ -45,8 +45,8 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
     {
       id: 'processes',
       icon: Settings,
-      label: isHebrew ? 'תהליכים' : 'Processes',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.operations.processes'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-orange-500',
       bgColor: 'bg-orange-500/10',
@@ -64,7 +64,7 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
           </div>
           <DialogTitle className="flex items-center gap-2 text-amber-400">
             <Settings className="h-5 w-5" />
-            {isHebrew ? 'תפעול' : 'Operations'}
+             {t('businessHub.modals.operations.title')}
           </DialogTitle>
           <div className="w-8" />
         </DialogHeader>
@@ -75,7 +75,7 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
-                  {isHebrew ? 'יעילות תפעולית' : 'Operational Efficiency'}
+                   {t('businessHub.modals.operations.operationalEfficiency')}
                 </span>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="h-4 w-4 text-amber-500" />
@@ -114,9 +114,7 @@ const OperationsModal = ({ isOpen, onClose, language }: OperationsModalProps) =>
           <Card className="bg-background/60 border-border/50">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {isHebrew 
-                  ? 'מעקב תפעולי מלא יהיה זמין בקרוב. השלם את מסע העסקים שלך כדי להתחיל.'
-                  : 'Full operations tracking coming soon. Complete your business journey to get started.'}
+                 {t('businessHub.comingSoonOperations')}
               </p>
             </CardContent>
           </Card>

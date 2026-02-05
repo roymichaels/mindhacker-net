@@ -133,7 +133,7 @@ const Business = () => {
           <h2 className="text-lg font-semibold mb-4">
             {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
           </h2>
-          <BusinessToolsGrid language={language} onOpenModal={handleOpenModal} />
+           <BusinessToolsGrid onOpenModal={handleOpenModal} />
         </motion.div>
 
         {/* My Businesses Section */}
@@ -215,40 +215,34 @@ const Business = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <BusinessStatusCard language={language} />
+           <BusinessStatusCard />
         </motion.div>
       </div>
 
       {/* Modals */}
       <FinancialsModal 
         isOpen={activeModal === 'financials'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
       <MarketingModal 
         isOpen={activeModal === 'marketing'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
       <OperationsModal 
         isOpen={activeModal === 'operations'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
       <StrategyModal 
         isOpen={activeModal === 'strategy'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
       <BrandingModal 
         isOpen={activeModal === 'branding'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
       <GrowthModal 
         isOpen={activeModal === 'growth'} 
-        onClose={handleCloseModal} 
-        language={language} 
+         onClose={handleCloseModal}
       />
     </DashboardLayout>
   );

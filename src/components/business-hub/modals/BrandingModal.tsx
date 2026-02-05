@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Palette, TrendingUp, Image, Type, Sparkles, X } from "lucide-react";
 import { motion } from "framer-motion";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface BrandingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language: string;
 }
 
-const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
-  const isHebrew = language === 'he';
+ const BrandingModal = ({ isOpen, onClose }: BrandingModalProps) => {
+   const { t } = useTranslation();
 
   const brandingMetrics = [
     {
       id: 'identity',
       icon: Sparkles,
-      label: isHebrew ? 'זהות' : 'Identity',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.branding.identity'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-pink-500',
       bgColor: 'bg-pink-500/10',
@@ -27,8 +27,8 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
     {
       id: 'visuals',
       icon: Image,
-      label: isHebrew ? 'ויזואל' : 'Visuals',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.branding.visuals'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
@@ -36,8 +36,8 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
     {
       id: 'typography',
       icon: Type,
-      label: isHebrew ? 'טיפוגרפיה' : 'Typography',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.branding.typography'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-indigo-500',
       bgColor: 'bg-indigo-500/10',
@@ -45,8 +45,8 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
     {
       id: 'colors',
       icon: Palette,
-      label: isHebrew ? 'צבעים' : 'Colors',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.branding.colors'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-rose-500',
       bgColor: 'bg-rose-500/10',
@@ -64,7 +64,7 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
           </div>
           <DialogTitle className="flex items-center gap-2 text-pink-400">
             <Palette className="h-5 w-5" />
-            {isHebrew ? 'מיתוג' : 'Branding'}
+             {t('businessHub.modals.branding.title')}
           </DialogTitle>
           <div className="w-8" />
         </DialogHeader>
@@ -75,7 +75,7 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
-                  {isHebrew ? 'חוזק מותג' : 'Brand Strength'}
+                   {t('businessHub.modals.branding.brandStrength')}
                 </span>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="h-4 w-4 text-pink-500" />
@@ -114,9 +114,7 @@ const BrandingModal = ({ isOpen, onClose, language }: BrandingModalProps) => {
           <Card className="bg-background/60 border-border/50">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {isHebrew 
-                  ? 'כלי מיתוג מלאים יהיו זמינים בקרוב. השלם את מסע העסקים שלך כדי להתחיל.'
-                  : 'Full branding tools coming soon. Complete your business journey to get started.'}
+                 {t('businessHub.comingSoonBranding')}
               </p>
             </CardContent>
           </Card>
