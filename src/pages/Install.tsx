@@ -35,8 +35,8 @@ const Install = () => {
   const instructions = getInstallInstructions();
 
   useSEO({
-    title: 'התקן את האפליקציה | מיינד האקר',
-    description: 'התקן את אפליקציית מיינד האקר במכשיר שלך וקבל התראות על תוכן חדש',
+    title: 'התקן את האפליקציה | MindOS',
+    description: 'התקן את אפליקציית MindOS במכשיר שלך וקבל התראות על תוכן חדש',
   });
 
   const handleInstall = async () => {
@@ -67,7 +67,7 @@ const Install = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary mb-6 shadow-lg shadow-primary/25">
             <span className="text-3xl font-bold text-primary-foreground">מ</span>
           </div>
-          <h1 className="text-3xl font-bold mb-4">מיינד האקר</h1>
+          <h1 className="text-3xl font-bold mb-4">MindOS</h1>
           <p className="text-muted-foreground text-lg">
             התקן כאפליקציה וקבל חוויה מושלמת
           </p>

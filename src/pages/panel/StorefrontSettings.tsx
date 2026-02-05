@@ -436,7 +436,7 @@ const StorefrontSettings = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
                     className="flex-1 sm:max-w-xs text-sm"
                   />
-                  <span className="text-sm text-muted-foreground">.mindhacker.net</span>
+                  <span className="text-sm text-muted-foreground">.mindos.app</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{t('subdomainDescription')}</p>
               </div>
@@ -459,7 +459,7 @@ const StorefrontSettings = () => {
                     <div className="bg-background p-4 rounded-lg font-mono text-sm">
                       <p>Type: CNAME</p>
                       <p>Name: @</p>
-                      <p>Value: mindhacker.net</p>
+                      <p>Value: mindos.app</p>
                     </div>
                   </CardContent>
                 </Card>

@@ -23,7 +23,7 @@ export function PDFCoverPage({ userName, language }: PDFCoverPageProps) {
       {/* Logo */}
       <div className="relative mb-8">
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center shadow-2xl shadow-violet-500/30">
-          <span className="text-white text-3xl font-bold">MH</span>
+          <span className="text-white text-3xl font-bold">מO</span>
         </div>
         <div className="absolute inset-0 w-24 h-24 rounded-full bg-violet-500/20 animate-pulse blur-xl" />
       </div>
@@ -45,7 +45,7 @@ export function PDFCoverPage({ userName, language }: PDFCoverPageProps) {
       
       {/* Footer */}
       <div className="absolute bottom-10 text-center">
-        <p className="text-sm text-white/30">MindHacker.net</p>
+        <p className="text-sm text-white/30">MindOS</p>
       </div>
     </div>
   );

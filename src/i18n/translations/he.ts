@@ -77,7 +77,7 @@ export const he = {
     clarity: "בהירות",
   },
   header: {
-    brandName: "מיינד האקר",
+    brandName: "מיינדOS",
     navigationMenu: "תפריט ניווט",
     adminPanel: "פאנל ניהול",
     practitionerPanel: "פאנל מאמן",
@@ -204,7 +204,7 @@ export const he = {
     },
   },
   footer: {
-    copyright: "© 2025 מיינד האקר. כל הזכויות שמורות.",
+    copyright: "© 2025 MindOS. כל הזכויות שמורות.",
     privacyPolicy: "מדיניות פרטיות",
     termsOfService: "תנאי שימוש",
     contactUs: "צור קשר",
