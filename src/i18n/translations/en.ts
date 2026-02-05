@@ -3122,8 +3122,64 @@ export const en: TranslationKeys = {
        grow: "Business Growth",
        marketing: "Marketing",
        sales: "Sales",
-       leadership: "Leadership",
-       earn_more: "Earn more",
-     },
-   },
+        leadership: "Leadership",
+        earn_more: "Earn more",
+      },
+    },
+    bugReport: {
+      // Widget
+      buttonTooltip: "Report a Bug",
+      
+      // Dialog
+      title: "Report a Bug",
+      subtitle: "Help us improve by reporting issues",
+      
+      // Form fields
+      category: "Category",
+      categoryUI: "UI Issue",
+      categoryPerformance: "Performance",
+      categoryFeature: "Feature Not Working",
+      categoryOther: "Other",
+      
+      priority: "Priority",
+      priorityLow: "Low",
+      priorityMedium: "Medium", 
+      priorityHigh: "High",
+      priorityCritical: "Critical",
+      
+      titleLabel: "Title",
+      titlePlaceholder: "Brief description of the issue",
+      
+      descriptionLabel: "Description",
+      descriptionPlaceholder: "What happened? What did you expect?",
+      
+      screenshotLabel: "Screenshot",
+      captureScreenshot: "Capture Screenshot",
+      screenshotCaptured: "Screenshot captured!",
+      
+      emailLabel: "Email (optional)",
+      emailPlaceholder: "For follow-up",
+      
+      // Context info
+      pageInfo: "Page",
+      deviceInfo: "Device",
+      
+      // Actions
+      submit: "Submit Report",
+      submitting: "Submitting...",
+      
+      // Success/Error
+      successTitle: "Thank you!",
+      successMessage: "Your report has been submitted",
+      errorTitle: "Error",
+      errorMessage: "Failed to submit report",
+      
+      // Admin
+      adminTitle: "Bug Reports",
+      status: "Status",
+      statusNew: "New",
+      statusInProgress: "In Progress",
+      statusResolved: "Resolved",
+      statusClosed: "Closed",
+    },
 };

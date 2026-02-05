@@ -45,6 +45,7 @@ import {
   PanelTop,
   Sparkles,
   Bot,
+  Bug,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -180,6 +181,7 @@ const AdminSidebar = ({ isMobile = false, onNavigate }: AdminSidebarProps) => {
       labelHe: 'מערכת',
       icon: Settings,
       items: [
+        { to: '/panel/bug-reports', icon: Bug, label: 'Bug Reports', labelHe: 'דיווחי באגים' },
         { to: '/panel/chat-assistant', icon: Bot, label: 'Chat Assistant', labelHe: 'עוזר צ\'אט' },
         { to: '/panel/settings', icon: Settings, label: 'Settings', labelHe: 'הגדרות' },
       ],

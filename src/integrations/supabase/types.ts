@@ -755,6 +755,93 @@ export type Database = {
         }
         Relationships: []
       }
+      bug_reports: {
+        Row: {
+          admin_notes: string | null
+          browser: string | null
+          category: string
+          contact_email: string | null
+          created_at: string | null
+          description: string
+          device_type: string | null
+          id: string
+          os: string | null
+          page_path: string
+          page_url: string
+          priority: string
+          resolved_at: string | null
+          resolved_by: string | null
+          screen_size: string | null
+          screenshot_url: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          browser?: string | null
+          category?: string
+          contact_email?: string | null
+          created_at?: string | null
+          description: string
+          device_type?: string | null
+          id?: string
+          os?: string | null
+          page_path: string
+          page_url: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screen_size?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          browser?: string | null
+          category?: string
+          contact_email?: string | null
+          created_at?: string | null
+          description?: string
+          device_type?: string | null
+          id?: string
+          os?: string | null
+          page_path?: string
+          page_url?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screen_size?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bug_reports_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bug_reports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_branding: {
         Row: {
           accent_color: string | null

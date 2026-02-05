@@ -22,6 +22,7 @@ import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
+import BugReportWidget from "@/components/BugReportWidget";
 import { PageSkeleton } from "@/components/ui/skeleton";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -142,6 +143,7 @@ const AdminTheme = lazy(() => import("./pages/admin/Theme"));
 const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
 const LandingPageBuilder = lazy(() => import("./pages/admin/LandingPageBuilder"));
 const AuroraInsights = lazy(() => import("./pages/admin/AuroraInsights"));
+const BugReports = lazy(() => import("./pages/admin/BugReports"));
 const Businesses = lazy(() => import("./pages/admin/Businesses"));
 
 const queryClient = new QueryClient({
@@ -584,6 +586,7 @@ const App = () => (
                           <Route path="faqs" element={<FAQs />} />
                           <Route path="testimonials" element={<Testimonials />} />
                           <Route path="chat-assistant" element={<ChatAssistant />} />
+                          <Route path="bug-reports" element={<BugReports />} />
                           <Route path="settings" element={<Settings />} />
                         </Route>
 
@@ -632,6 +635,7 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
+                      <BugReportWidget />
                       
                     </Suspense>
                   </AnalyticsProvider>
