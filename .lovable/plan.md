@@ -1,346 +1,241 @@
 
-# Strategic Plan: Aurora as Jarvis - The Ultimate Hands-Free Life Operating System
+# Translation Standardization Plan
+
+## Summary
+The codebase has **128 files** with hardcoded inline translations using `isHebrew ? '...' : '...'` or `language === 'he' ? '...' : '...'` patterns instead of the centralized `t()` translation function. This violates the established translation standardization policy and makes maintenance difficult.
 
 ## Current State Analysis
 
-Based on codebase exploration, Aurora already has strong foundations:
+The project already has a robust translation infrastructure:
+- **Translation files**: `src/i18n/translations/he.ts` (3,085 lines) and `en.ts` (3,029 lines)
+- **Translation hook**: `useTranslation()` providing `t()` function
+- **Language context**: `LanguageContext` for language state management
 
-### What Aurora Can Do Today
-- **Voice Input/Output**: Recording → ElevenLabs transcription → Response → ElevenLabs TTS
-- **Action Tags System**: `[task:complete]`, `[habit:create]`, `[reminder:set]`, etc.
-- **Background Analysis**: Every 4 messages triggers `aurora-analyze` to learn patterns
-- **Conversation Memory**: Summarizes every 8 messages for long-term context
-- **Push Notifications**: Infrastructure exists (`push-notifications` edge function)
-- **Smart Suggestions**: Context-aware suggestions based on time of day, habits, tasks
+However, many components bypass this system with inline conditionals.
 
-### Current Gaps for "Jarvis-Level" Experience
-1. **No Proactive Outreach**: Aurora only responds; never initiates contact
-2. **No Real-Time Voice Mode**: Voice is record-then-send, not continuous
-3. **No Ambient Awareness**: Doesn't know time of day, location, or device state
-4. **No Cross-Session Continuity**: Each chat session starts fresh emotionally
-5. **No Predictive Actions**: Doesn't anticipate needs before user asks
-6. **No Auto-Execution**: Still requires explicit confirmation for actions
-7. **No System-Wide Commands**: Can't control app navigation, settings, or modes
+## Files Requiring Translation Updates
 
----
+### High Priority - Business Hub (6 modals)
+1. `src/components/business-hub/modals/FinancialsModal.tsx`
+2. `src/components/business-hub/modals/MarketingModal.tsx`
+3. `src/components/business-hub/modals/OperationsModal.tsx`
+4. `src/components/business-hub/modals/StrategyModal.tsx`
+5. `src/components/business-hub/modals/BrandingModal.tsx`
+6. `src/components/business-hub/modals/GrowthModal.tsx`
+7. `src/components/business-hub/BusinessToolsGrid.tsx`
+8. `src/components/business-hub/BusinessStatusCard.tsx`
 
-## The Jarvis Vision: 5 Pillars of Enhancement
+### High Priority - Health Hub (6 modals)
+1. `src/components/health-hub/modals/PhysicalHealthModal.tsx`
+2. `src/components/health-hub/modals/MentalHealthModal.tsx`
+3. `src/components/health-hub/modals/EnergeticHealthModal.tsx`
+4. `src/components/health-hub/modals/SubconsciousHealthModal.tsx`
+5. `src/components/health-hub/modals/SleepModal.tsx`
+6. `src/components/health-hub/modals/MeditationModal.tsx`
+7. `src/components/health-hub/HealthToolsGrid.tsx`
+
+### Medium Priority - Journey Components
+- Learning Journey steps (8 files)
+- Finance Journey steps (8 files)
+- Relationships Journey steps (8 files)
+- Business Journey steps (existing files)
+- Health Journey steps (8 files)
+
+### Other Components (100+ files)
+- Dashboard components
+- Panel pages
+- Unified components
+- Sidebar and navigation
+
+## Implementation Approach
+
+### Step 1: Add Translation Keys to he.ts and en.ts
+
+Add new translation sections for:
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│              AURORA AS JARVIS                          │
-├─────────────────────────────────────────────────────────┤
-│  1. PROACTIVE INTELLIGENCE                              │
-│     └─ Aurora reaches out before you ask                │
-├─────────────────────────────────────────────────────────┤
-│  2. CONTEXTUAL AWARENESS                                │
-│     └─ Knows time, location, patterns, mood             │
-├─────────────────────────────────────────────────────────┤
-│  3. SEAMLESS VOICE MODE                                 │
-│     └─ Natural conversation, not record-and-send        │
-├─────────────────────────────────────────────────────────┤
-│  4. AUTO-EXECUTION                                      │
-│     └─ Trusted actions happen without confirmation      │
-├─────────────────────────────────────────────────────────┤
-│  5. CROSS-APP COMMAND CENTER                            │
-│     └─ Navigate, control settings, launch features      │
-└─────────────────────────────────────────────────────────┘
+businessHub:
+  modals:
+    financials:
+      title: Financials / פיננסים
+      financialHealth: Financial Health / בריאות פיננסית
+      revenue: Revenue / הכנסות
+      expenses: Expenses / הוצאות
+      profit: Profit / רווח
+      savings: Savings / חיסכון
+      comingSoon: Coming soon / בקרוב
+      comingSoonNotice: Full financial tracking coming soon...
+    marketing:
+      title: Marketing / שיווק
+      marketingPerformance: Marketing Performance / ביצועי שיווק
+      reach: Reach / חשיפה
+      engagement: Engagement / מעורבות
+      leads: Leads / לידים
+      conversion: Conversion / המרה
+    operations:
+      title: Operations / תפעול
+      operationalEfficiency: Operational Efficiency / יעילות תפעולית
+      efficiency: Efficiency / יעילות
+      productivity: Productivity / פרודוקטיביות
+      tasks: Tasks / משימות
+      processes: Processes / תהליכים
+    strategy:
+      title: Strategy / אסטרטגיה
+      strategicClarity: Strategic Clarity / בהירות אסטרטגית
+      vision: Vision / חזון
+      goals: Goals / יעדים
+      roadmap: Roadmap / מפת דרכים
+      innovation: Innovation / חדשנות
+    branding:
+      title: Branding / מיתוג
+      brandStrength: Brand Strength / חוזק מותג
+      identity: Identity / זהות
+      visuals: Visuals / ויזואל
+      typography: Typography / טיפוגרפיה
+      colors: Colors / צבעים
+    growth:
+      title: Growth / צמיחה
+      growthRate: Growth Rate / קצב צמיחה
+      revenueGrowth: Revenue Growth / צמיחת הכנסות
+      customerGrowth: Customer Growth / צמיחת לקוחות
+      momentum: Momentum / מומנטום
+      goalAchievement: Goal Achievement / השגת יעדים
+  tools:
+    financials: Financials / פיננסים
+    marketing: Marketing / שיווק
+    operations: Operations / תפעול
+    strategy: Strategy / אסטרטגיה
+    branding: Branding / מיתוג
+    growth: Growth / צמיחה
+    hypnosis: Business Hypnosis / היפנוזה עסקית
+    90DayPlan: 90-Day Plan / תוכנית 90 יום
+
+healthHub:
+  modals:
+    physical:
+      title: Physical Health / בריאות פיזית
+      overallScore: Overall Score / ציון כללי
+      physicalActivity: Physical Activity / פעילות גופנית
+      nutrition: Nutrition / תזונה
+      sleepQuality: Sleep Quality / איכות שינה
+      hydration: Hydration / הידרציה
+      improvementRecommendations: Improvement Recommendations / המלצות לשיפור
+    mental:
+      title: Mental Health / בריאות נפשית
+      stressLevel: Stress Level / רמת מתח
+      stressRelief: Stress Relief Hypnosis / היפנוזה להפחתת מתח
+      mentalResilience: Build Mental Resilience / חיזוק חוסן נפשי
+      improveFocus: Improve Focus / שיפור ריכוז
+      chatWithAurora: Chat with Aurora to share how you're feeling / צ׳אט עם אורורה...
+    energetic:
+      title: Energy Health / בריאות אנרגטית
+      energyLevel: Energy Level / רמת אנרגיה
+      energyHypnosis: Energy Hypnosis / היפנוזה לאנרגיה
+      vitalityBoost: Vitality Boost / חיזוק חיוניות
+      consecutiveDays: consecutive days of health activity / ימים רצופים...
+    subconscious:
+      title: Subconscious / תת-מודע
+      discoverRelease: Discover and release limiting beliefs / גלה ושחרר...
+      commonAreas: Common Areas to Work On / תחומים נפוצים לעבודה
+      bodyImage: Body Image / דימוי גוף
+      healthAnxiety: Health Anxiety / חרדת בריאות
+      selfSabotage: Self-Sabotage / חבלה עצמית
+      emotionalEating: Emotional Eating / אכילה רגשית
+      deepWork: Deep Work / עבודה עמוקה
+    sleep:
+      title: Sleep / שינה
+      sleepQuality: Sleep Quality / איכות שינה
+      deepSleepHypnosis: Deep Sleep Hypnosis / היפנוזה לשינה עמוקה
+      tipsForBetterSleep: Tips for Better Sleep / טיפים לשינה טובה יותר
+      keepConsistentHours: Keep consistent hours / שמור על שעות קבועות
+      avoidScreens: Avoid screens / הימנע ממסכים
+      comfortableEnvironment: Comfortable environment / סביבה נוחה
+    meditation:
+      title: Breathing & Meditation / נשימה ומדיטציה
+      boxBreathing: Box Breathing / נשימה מרובעת
+      relaxationBreath: Relaxation Breath / נשימת הרפיה
+      breatheIn: Breathe in... / שאפו...
+      hold: Hold... / החזיקו...
+      breatheOut: Breathe out... / נשפו...
+      wait: Wait... / המתינו...
+      pressToStart: Press to start / לחצו להתחיל
+      start: Start / התחל
+      stop: Stop / עצור
+      cyclesCompleted: cycles completed / מחזורים הושלמו
+  tools:
+    physical: Physical Health / בריאות פיזית
+    mental: Mental Health / בריאות נפשית
+    energetic: Energy Health / בריאות אנרגטית
+    subconscious: Subconscious / תת-מודע
+    hypnosis: Health Hypnosis / היפנוזה לבריאות
+    habits: Habits / הרגלים
+    meditation: Meditation & Breathing / מדיטציה ונשימה
+    sleep: Sleep / שינה
 ```
 
----
+### Step 2: Refactor Components to Use t() Function
 
-## Implementation Plan
+For each component, replace inline conditionals with translation keys:
 
-### Phase 1: Proactive Intelligence System
-
-#### 1.1 Scheduled Check-Ins (Edge Function Cron)
-
-**New File:** `supabase/functions/aurora-proactive/index.ts`
-
-Creates a scheduled job that:
-- Runs every 30 minutes for active users
-- Checks for: overdue tasks, forgotten habits, upcoming reminders, pattern anomalies
-- Sends push notifications with Aurora's voice
-
-**Database Changes:**
-```sql
-CREATE TABLE aurora_proactive_queue (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  trigger_type TEXT NOT NULL, -- 'overdue_task', 'habit_reminder', 'milestone_ending', 'pattern_alert'
-  trigger_data JSONB,
-  priority INTEGER DEFAULT 5,
-  scheduled_for TIMESTAMPTZ NOT NULL,
-  sent_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_proactive_queue_scheduled ON aurora_proactive_queue(scheduled_for, sent_at);
-```
-
-**Push Notification Types:**
-- "🔔 Hey, you haven't logged your morning workout yet..."
-- "📋 You have 3 overdue tasks from yesterday. Want me to reschedule them?"
-- "🎯 Week 3 ends tomorrow - you're at 80% completion!"
-- "🌙 It's getting late. Want a sleep hypnosis session?"
-
-#### 1.2 Smart Greeting System
-
-**Modify:** `supabase/functions/aurora-chat/index.ts`
-
-When conversation starts, Aurora opens with contextual awareness:
+**Before:**
 ```typescript
-const generateSmartOpener = (context) => {
-  // Morning: "Good morning! You have X tasks today..."
-  // After absence: "Missed you yesterday! Your streak..."
-  // After completion: "Welcome back! You crushed it yesterday..."
-  // Pattern detected: "I noticed you've been struggling with X..."
-};
+const isHebrew = language === 'he';
+// ...
+<DialogTitle>{isHebrew ? 'פיננסים' : 'Financials'}</DialogTitle>
 ```
 
----
-
-### Phase 2: Enhanced Contextual Awareness
-
-#### 2.1 User Context Tracker
-
-**New File:** `src/hooks/aurora/useUserContext.tsx`
-
-Tracks real-time user state:
+**After:**
 ```typescript
-interface UserContext {
-  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
-  dayOfWeek: string;
-  lastActiveTime: Date;
-  currentPage: string;
-  deviceType: 'mobile' | 'desktop';
-  focusMode: boolean;
-  energyLevel?: 'low' | 'medium' | 'high'; // from recent hypnosis
-  currentStreak: number;
-  moodSignals: string[]; // extracted from recent messages
+const { t } = useTranslation();
+// ...
+<DialogTitle>{t('businessHub.modals.financials.title')}</DialogTitle>
+```
+
+### Step 3: Remove language prop from components
+
+Components should use `useTranslation()` hook instead of receiving `language` as a prop.
+
+**Before:**
+```typescript
+interface FinancialsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  language: string;
 }
 ```
 
-#### 2.2 Mood & Energy Pattern Detection
-
-**Modify:** `supabase/functions/aurora-analyze/index.ts`
-
-Add sentiment analysis layer:
+**After:**
 ```typescript
-const extractMoodSignals = (messages) => {
-  // Detect: frustration, excitement, fatigue, motivation
-  // Store in aurora_user_context table
-  // Use in next response tone adjustment
-};
+interface FinancialsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 ```
 
----
+## Implementation Order
 
-### Phase 3: Seamless Voice Mode (OpenAI Realtime API)
+Due to the scope (128 files), I recommend implementing in phases:
 
-#### 3.1 Real-Time Voice Chat
+**Phase 1: Business Hub Components** (8 files)
+- Add translation keys for businessHub section
+- Refactor all 6 modals + 2 grid/card components
 
-**New File:** `supabase/functions/aurora-realtime/index.ts`
+**Phase 2: Health Hub Components** (7 files)
+- Add translation keys for healthHub section
+- Refactor all 6 modals + tools grid
 
-Implements OpenAI Realtime API with WebSockets:
-- Continuous listening with VAD (Voice Activity Detection)
-- Aurora responds in real-time with ElevenLabs voice
-- No button pressing needed - just speak naturally
+**Phase 3: Journey Components** (~40 files)
+- Learning, Finance, Relationships, Business, Health journeys
+- Each journey has 8+ step components
 
-**Frontend Component:**
+**Phase 4: Remaining Components** (~70+ files)
+- Dashboard components
+- Panel pages
+- Other UI components
 
-**New File:** `src/components/aurora/AuroraVoiceMode.tsx`
+## Technical Notes
 
-```tsx
-// Full-screen voice mode with animated orb
-// Pulsing waveform when Aurora is listening
-// Visual feedback when Aurora is speaking
-// "Hey Aurora" wake word detection (future)
-```
-
-#### 3.2 Voice Mode Toggle
-
-**Modify:** `src/components/aurora/AuroraChatBubbles.tsx`
-
-Add voice mode toggle button that:
-- Switches to full-screen voice interface
-- Maintains context from text chat
-- Shows visual transcript in real-time
-
----
-
-### Phase 4: Auto-Execution & Trust Levels
-
-#### 4.1 Action Trust System
-
-**Database Changes:**
-```sql
-CREATE TABLE aurora_action_preferences (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  action_type TEXT NOT NULL, -- 'task_complete', 'habit_log', 'reminder_set'
-  trust_level TEXT NOT NULL, -- 'always_ask', 'auto_execute', 'confirm_once'
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**Modify:** `src/hooks/aurora/useAuroraChat.tsx`
-
-Before executing an action:
-```typescript
-const shouldAutoExecute = async (actionType: string) => {
-  const pref = await getUserActionPreference(actionType);
-  if (pref === 'auto_execute') return true;
-  if (pref === 'confirm_once') {
-    // Show quick inline confirmation
-    return await showInlineConfirmation();
-  }
-  return false; // Always ask
-};
-```
-
-#### 4.2 Inline Confirmation UI
-
-**New File:** `src/components/aurora/AuroraActionConfirmation.tsx`
-
-Instead of plain text, show actionable cards:
-```tsx
-// "I'm about to mark 'Send proposal' as complete. Confirm?"
-// [✓ Yes] [✗ No] [⚙️ Always do this]
-```
-
----
-
-### Phase 5: Cross-App Command Center
-
-#### 5.1 Navigation Commands
-
-**New File:** `src/hooks/aurora/useAuroraCommands.tsx`
-
-Aurora can execute app commands:
-```typescript
-const commands = {
-  'open_dashboard': () => navigate('/dashboard'),
-  'open_hypnosis': (goal?: string) => navigate(`/hypnosis?goal=${goal}`),
-  'open_health': () => navigate('/health'),
-  'toggle_dark_mode': () => setTheme('dark'),
-  'set_focus_mode': () => enableFocusMode(),
-  'show_calendar': () => navigate('/life-plan'),
-};
-```
-
-**New Action Tags:**
-- `[navigate:dashboard]` - Navigate to dashboard
-- `[navigate:hypnosis:sleep]` - Open hypnosis with goal
-- `[setting:theme:dark]` - Change app settings
-- `[mode:focus:on]` - Enable focus mode
-
-#### 5.2 Global Command Listener
-
-**Modify:** `src/contexts/AuroraChatContext.tsx`
-
-Register a global command handler that listens for Aurora commands from anywhere in the app:
-```typescript
-const executeCommand = useCallback((command: AuroraCommand) => {
-  switch (command.type) {
-    case 'navigate': navigate(command.path); break;
-    case 'setting': updateSetting(command.key, command.value); break;
-    case 'action': triggerAction(command.action); break;
-  }
-}, [navigate]);
-```
-
----
-
-## Technical Implementation Details
-
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `supabase/functions/aurora-proactive/index.ts` | Scheduled proactive outreach |
-| `src/hooks/aurora/useUserContext.tsx` | Real-time user context tracking |
-| `src/hooks/aurora/useAuroraCommands.tsx` | App command execution |
-| `src/components/aurora/AuroraVoiceMode.tsx` | Full-screen voice interface |
-| `src/components/aurora/AuroraActionConfirmation.tsx` | Inline action confirmations |
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `supabase/functions/aurora-chat/index.ts` | Smart greetings, mood awareness, new action tags |
-| `src/hooks/aurora/useAuroraChat.tsx` | Action trust system, command execution |
-| `src/contexts/AuroraChatContext.tsx` | Global command handler |
-| `src/components/aurora/AuroraChatBubbles.tsx` | Voice mode toggle, action cards |
-| `supabase/functions/aurora-analyze/index.ts` | Mood/sentiment extraction |
-
-### Database Migrations
-
-```sql
--- Proactive queue for scheduled outreach
-CREATE TABLE aurora_proactive_queue (...);
-
--- User action preferences (trust levels)
-CREATE TABLE aurora_action_preferences (...);
-
--- Enhanced user context
-ALTER TABLE aurora_user_context ADD COLUMN mood_signals JSONB;
-ALTER TABLE aurora_user_context ADD COLUMN energy_level TEXT;
-ALTER TABLE aurora_user_context ADD COLUMN last_active_page TEXT;
-```
-
----
-
-## Recommended Implementation Order
-
-### Sprint 1: Proactive Intelligence (1-2 weeks)
-1. Create `aurora_proactive_queue` table
-2. Build `aurora-proactive` edge function
-3. Integrate with push notifications
-4. Add smart greeting system
-
-### Sprint 2: Enhanced Context (1 week)
-1. Create `useUserContext` hook
-2. Add mood signal extraction to analyzer
-3. Inject context into chat responses
-
-### Sprint 3: Auto-Execution (1 week)
-1. Create action preferences table
-2. Implement trust level system
-3. Build inline confirmation UI
-
-### Sprint 4: Command Center (1 week)
-1. Create `useAuroraCommands` hook
-2. Add navigation action tags
-3. Build global command listener
-
-### Sprint 5: Voice Mode (2 weeks)
-1. Implement OpenAI Realtime API edge function
-2. Build full-screen voice UI
-3. Add continuous listening mode
-
----
-
-## Success Metrics
-
-| Metric | Target |
-|--------|--------|
-| Messages initiated by Aurora | > 30% of total interactions |
-| Voice mode adoption | > 20% of active users |
-| Auto-executed actions | > 50% of repeatable actions |
-| User retention improvement | +15% |
-| Daily active session length | +25% |
-
----
-
-## Summary
-
-This plan transforms Aurora from a reactive chatbot into a proactive life operating system that:
-
-1. **Reaches out first** - Push notifications for important updates
-2. **Knows your context** - Time, mood, patterns, and preferences
-3. **Speaks naturally** - Real-time voice conversation
-4. **Acts without asking** - Trusted actions execute automatically
-5. **Controls the whole app** - Navigation, settings, modes
-
-The result: A true "Jarvis for life" experience where users can manage their entire transformation journey just by talking.
+- Each modal component has ~5-15 translation strings
+- Helper functions within components (like `getActivityLabel`) should also use translation keys
+- Metric arrays with `titleHe`/`titleEn` pattern should be refactored to use translation keys
+- Consider creating reusable translation patterns for common UI elements (Coming soon, Not specified, etc.)
