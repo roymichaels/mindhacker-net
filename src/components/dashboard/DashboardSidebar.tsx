@@ -332,7 +332,20 @@ const DashboardSidebar = ({
                     isIndigo && "text-indigo-700 dark:text-indigo-300"
                   )} />
                 )}
-                {!isCollapsed && <span>{item.label}</span>}
+                {!isCollapsed && (
+                  <span className={cn(
+                    "bg-clip-text text-transparent",
+                    isPurple && "bg-gradient-to-r from-purple-500 via-fuchsia-400 to-purple-500 dark:from-purple-400 dark:via-fuchsia-300 dark:to-purple-400",
+                    isBlue && "bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 dark:from-blue-400 dark:via-cyan-300 dark:to-blue-400",
+                    isGold && "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 dark:from-amber-400 dark:via-yellow-300 dark:to-amber-400",
+                    isRed && "bg-gradient-to-r from-red-500 via-rose-400 to-red-500 dark:from-red-400 dark:via-rose-300 dark:to-red-400",
+                    isPink && "bg-gradient-to-r from-pink-500 via-rose-400 to-pink-500 dark:from-pink-400 dark:via-rose-300 dark:to-pink-400",
+                    isGreen && "bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-500 dark:from-emerald-400 dark:via-green-300 dark:to-emerald-400",
+                    isIndigo && "bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-500 dark:from-indigo-400 dark:via-violet-300 dark:to-indigo-400"
+                  )}>
+                    {item.label}
+                  </span>
+                )}
               </button>
             );
           })}
