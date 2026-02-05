@@ -77,7 +77,7 @@ export const he = {
     clarity: "בהירות",
   },
   header: {
-    brandName: "מיינדOS",
+    brandName: "מיינד OS",
     navigationMenu: "תפריט ניווט",
     adminPanel: "פאנל ניהול",
     practitionerPanel: "פאנל מאמן",
@@ -777,7 +777,7 @@ export const he = {
     loginSuccess: "התחברת בהצלחה!",
     welcomeBack: "ברוך הבא חזרה",
     signupSuccess: "חשבון נוצר בהצלחה!",
-    welcomeNew: "ברוך הבא למיינד האקר",
+    welcomeNew: "ברוך הבא ל-מיינד OS",
     logoutSuccess: "התנתקת בהצלחה",
     goodbye: "להתראות!",
     loadError: "לא ניתן לטעון את הנתונים",
@@ -1242,10 +1242,10 @@ export const he = {
     notDefined: "לא מוגדר",
   },
   consciousnessLeapLanding: {
-    seoTitle: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית | Mind Hacker",
+    seoTitle: "קפיצה לתודעה חדשה | תהליך טרנספורמציה אישית | MindOS",
     seoDescription: "תהליך מקיף וממוקד לשינוי עמוק ובר-קיימא. 4 מפגשים שיביאו אותך לבהירות, כיוון ושחרור דפוסים ישנים.",
-    seoKeywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, Mind Hacker, טרנספורמציה",
-    brandName: "מיינד האקר",
+    seoKeywords: "תודעה, בהירות, חיבור עצמי, תהליך אישי, MindOS, טרנספורמציה",
+    brandName: "מיינד OS",
     navCta: "בוא נדבר",
     limitedSpots: "מקומות מוגבלים",
     heroTitle: "קפיצה",
@@ -1717,8 +1717,8 @@ export const he = {
     },
     privacy: {
       title: "מדיניות פרטיות",
-      seoTitle: "מדיניות פרטיות | מיינד האקר",
-      seoDescription: "מדיניות הפרטיות של מיינד האקר - כיצד אנו אוספים, משתמשים ומגנים על המידע שלך בהתאם ל-GDPR",
+    seoTitle: "מדיניות פרטיות | מיינד OS",
+    seoDescription: "מדיניות הפרטיות של מיינד OS - כיצד אנו אוספים, משתמשים ומגנים על המידע שלך בהתאם ל-GDPR",
       lastUpdated: "עודכן לאחרונה",
       introTitle: "מבוא",
       introText: "Mind Hacker OÜ, חברה רשומה באסטוניה, מכבדת את פרטיותך ומחויבת להגן על המידע האישי שלך בהתאם לתקנות הגנת המידע הכללית (GDPR) של האיחוד האירופי ולחוקי הפרטיות הבינלאומיים.",
@@ -1761,8 +1761,8 @@ export const he = {
     },
     terms: {
       title: "תנאי שימוש",
-      seoTitle: "תנאי שימוש | מיינד האקר",
-      seoDescription: "תנאי השימוש של מיינד האקר - הסכם בינלאומי לשירותי אימון תודעתי",
+      seoTitle: "תנאי שימוש | מיינד OS",
+      seoDescription: "תנאי השימוש של מיינד OS - הסכם בינלאומי לשירותי אימון תודעתי",
       lastUpdated: "עודכן לאחרונה",
       acceptanceTitle: "קבלת התנאים",
       acceptanceText: "בשימוש באתר ובשירותי Mind Hacker OÜ, חברה רשומה באסטוניה, אתה מסכים לתנאי שימוש אלה. אם אינך מסכים לתנאים, אנא הימנע משימוש באתר ובשירותים.",
@@ -1903,7 +1903,7 @@ export const he = {
     justNow: "עכשיו",
   },
   progressiveEngagement: {
-    welcomeTitle: "ברוכים הבאים למיינד האקר",
+    welcomeTitle: "ברוכים הבאים ל-מיינד OS",
     welcomeMessage: "אנחנו שמחים שהגעת. יש לנו מתנה מיוחדת שמחכה לך — משהו שיכול לשנות את הדרך שבה אתה רואה את עצמך.",
     discoverGift: "גלה את המתנה שלך",
     maybeLater: "אולי אחר כך",
@@ -2018,7 +2018,7 @@ export const he = {
   },
   community: {
     // Page titles
-    pageTitle: "קהילה | מיינד האקר",
+    pageTitle: "קהילה | מיינד OS",
     pageDescription: "הצטרף לקהילה שלנו, שתף חוויות והתפתח יחד עם אחרים",
     eventsPageTitle: "אירועים | קהילה",
     eventsPageDescription: "אירועים קהילתיים, מפגשים ווובינרים",
