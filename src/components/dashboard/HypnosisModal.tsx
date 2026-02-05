@@ -26,6 +26,7 @@ import { saveSession } from '@/services/userMemory';
 import { awardXp } from '@/services/unifiedContext';
 import { useHaptics } from '@/hooks/useHaptics';
 import { cn } from '@/lib/utils';
+import { KaraokeText } from '@/components/hypnosis/KaraokeText';
 import { toast } from '@/hooks/use-toast';
 import type { VoiceProvider } from '@/services/voice';
 
@@ -59,6 +60,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs');
   const [voiceStarted, setVoiceStarted] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0); // 0-1 for karaoke effect
 
   const startTimeRef = useRef<number>(0);
   const playingRef = useRef<boolean>(false);
@@ -144,6 +146,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setElapsedTime(0);
       setVoiceStarted(false);
       setCachedAudioUrl(null);
+      setAudioProgress(0);
     }
   }, [open, fullCleanup]);
 
@@ -262,6 +265,12 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       }
     };
 
+    const handleTimeUpdate = (currentTime: number, audioDuration: number) => {
+      if (audioDuration > 0) {
+        setAudioProgress(currentTime / audioDuration);
+      }
+    };
+
     const onComplete = () => {
       if (sessionIdRef.current !== currentSessionId) return;
       handleSessionComplete();
@@ -275,12 +284,13 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         
         if (signedUrl) {
           await playAudioUrl(signedUrl, {
+            onTimeUpdate: handleTimeUpdate,
             onStart: markVoiceStarted,
             onEnd: onComplete,
             onError: () => {
               if (sessionIdRef.current !== currentSessionId) return;
               // Fallback to synthesis
-              synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, onComplete, currentSessionId);
+              synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, handleTimeUpdate, onComplete, currentSessionId);
             },
           });
           return;
@@ -291,23 +301,37 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     }
 
     // Synthesize new audio
-    await synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, onComplete, currentSessionId);
+    await synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, handleTimeUpdate, onComplete, currentSessionId);
   };
 
   const synthesizeAndPlay = async (
     text: string, 
     onStart: () => void, 
+    onTimeUpdate: (currentTime: number, audioDuration: number) => void,
     onEnd: () => void,
     currentSessionId: number
   ) => {
     if (isMuted) {
       onStart();
-      // Calculate reading time based on words
+      // Calculate reading time based on words and simulate progress
       const wordsPerMinute = 130;
       const words = text.split(/\s+/).length;
       const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
       
+      // Simulate progress for muted mode
+      const startTime = Date.now();
+      const progressInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const simulatedProgress = Math.min(elapsed / readingTime, 1);
+        onTimeUpdate(elapsed / 1000, readingTime / 1000);
+        
+        if (simulatedProgress >= 1) {
+          clearInterval(progressInterval);
+        }
+      }, 100);
+      
       scheduleTimeout(() => {
+        clearInterval(progressInterval);
         if (sessionIdRef.current === currentSessionId && playingRef.current) {
           onEnd();
         }
@@ -327,6 +351,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       if (result) {
         setVoiceProvider(result.provider);
         await playAudioUrl(result.audioUrl, {
+          onTimeUpdate,
           onStart,
           onEnd,
           onError: () => {
@@ -336,13 +361,21 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           },
         });
       } else {
-        // Fallback to timed display
+        // Fallback to timed display with simulated progress
         onStart();
         const wordsPerMinute = 130;
         const words = text.split(/\s+/).length;
         const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
         
+        const startTime = Date.now();
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          onTimeUpdate(elapsed / 1000, readingTime / 1000);
+          if (elapsed >= readingTime) clearInterval(progressInterval);
+        }, 100);
+        
         scheduleTimeout(() => {
+          clearInterval(progressInterval);
           if (sessionIdRef.current === currentSessionId && playingRef.current) {
             onEnd();
           }
@@ -580,21 +613,23 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 />
               </div>
 
-              {/* Script Text - Scrollable */}
+              {/* Script Text - Scrollable with Karaoke Effect */}
               {script?.fullScript && (
                 <div 
                   className="flex-1 min-h-0 px-6 overflow-y-auto"
                   ref={scrollContainerRef}
+                  data-scroll-container
                 >
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center py-4"
                   >
-                    <p className="text-lg leading-loose text-foreground/90 whitespace-pre-wrap">
-                      {script.fullScript}
-                    </p>
+                    <KaraokeText 
+                      text={script.fullScript}
+                      progress={audioProgress}
+                      isRTL={isRTL}
+                    />
                   </motion.div>
                 </div>
               )}
