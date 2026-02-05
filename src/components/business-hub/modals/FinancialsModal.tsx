@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, TrendingUp, PiggyBank, BarChart3, X } from "lucide-react";
 import { motion } from "framer-motion";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface FinancialsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language: string;
 }
 
-const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) => {
-  const isHebrew = language === 'he';
+ const FinancialsModal = ({ isOpen, onClose }: FinancialsModalProps) => {
+   const { t } = useTranslation();
 
   const financialMetrics = [
     {
       id: 'revenue',
       icon: DollarSign,
-      label: isHebrew ? 'הכנסות' : 'Revenue',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.financials.revenue'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10',
@@ -27,8 +27,8 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
     {
       id: 'expenses',
       icon: BarChart3,
-      label: isHebrew ? 'הוצאות' : 'Expenses',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.financials.expenses'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-red-500',
       bgColor: 'bg-red-500/10',
@@ -36,8 +36,8 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
     {
       id: 'profit',
       icon: TrendingUp,
-      label: isHebrew ? 'רווח' : 'Profit',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.financials.profit'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
@@ -45,8 +45,8 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
     {
       id: 'savings',
       icon: PiggyBank,
-      label: isHebrew ? 'חיסכון' : 'Savings',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.financials.savings'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
@@ -64,7 +64,7 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
           </div>
           <DialogTitle className="flex items-center gap-2 text-amber-400">
             <DollarSign className="h-5 w-5" />
-            {isHebrew ? 'פיננסים' : 'Financials'}
+             {t('businessHub.modals.financials.title')}
           </DialogTitle>
           <div className="w-8" />
         </DialogHeader>
@@ -75,7 +75,7 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
-                  {isHebrew ? 'בריאות פיננסית' : 'Financial Health'}
+                   {t('businessHub.modals.financials.financialHealth')}
                 </span>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="h-4 w-4 text-amber-500" />
@@ -114,9 +114,7 @@ const FinancialsModal = ({ isOpen, onClose, language }: FinancialsModalProps) =>
           <Card className="bg-background/60 border-border/50">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {isHebrew 
-                  ? 'מעקב פיננסי מלא יהיה זמין בקרוב. השלם את מסע העסקים שלך כדי להתחיל.'
-                  : 'Full financial tracking coming soon. Complete your business journey to get started.'}
+                 {t('businessHub.comingSoonFinancials')}
               </p>
             </CardContent>
           </Card>

@@ -2,23 +2,22 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { ArrowRight, DollarSign, Megaphone, Settings, Lightbulb, Palette, TrendingUp, Headphones, Calendar } from "lucide-react";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface BusinessToolsGridProps {
-  language: string;
   onOpenModal?: (modalType: string) => void;
 }
 
-const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) => {
+ const BusinessToolsGrid = ({ onOpenModal }: BusinessToolsGridProps) => {
   const navigate = useNavigate();
+   const { t } = useTranslation();
 
   const businessTools = [
     {
       id: 'financials',
       icon: DollarSign,
-      titleHe: 'פיננסים',
-      titleEn: 'Financials',
-      descHe: 'תקציב, הכנסות והוצאות',
-      descEn: 'Budget, revenue and expenses',
+       title: t('businessHub.tools.financials'),
+       desc: t('businessHub.tools.financialsDesc'),
       onClick: () => onOpenModal?.('financials'),
       gradient: 'from-emerald-500/30 via-green-500/20 to-transparent dark:from-emerald-500/20 dark:via-green-500/10 dark:to-transparent',
       iconBg: 'bg-emerald-500/30 dark:bg-emerald-500/20',
@@ -28,10 +27,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'marketing',
       icon: Megaphone,
-      titleHe: 'שיווק',
-      titleEn: 'Marketing',
-      descHe: 'אסטרטגיות וערוצים שיווקיים',
-      descEn: 'Strategies and marketing channels',
+       title: t('businessHub.tools.marketing'),
+       desc: t('businessHub.tools.marketingDesc'),
       onClick: () => onOpenModal?.('marketing'),
       gradient: 'from-purple-500/30 via-violet-500/20 to-transparent dark:from-purple-500/20 dark:via-violet-500/10 dark:to-transparent',
       iconBg: 'bg-purple-500/30 dark:bg-purple-500/20',
@@ -41,10 +38,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'operations',
       icon: Settings,
-      titleHe: 'תפעול',
-      titleEn: 'Operations',
-      descHe: 'ניהול יומיומי ותהליכים',
-      descEn: 'Daily management and processes',
+       title: t('businessHub.tools.operations'),
+       desc: t('businessHub.tools.operationsDesc'),
       onClick: () => onOpenModal?.('operations'),
       gradient: 'from-amber-500/30 via-yellow-500/20 to-transparent dark:from-amber-500/20 dark:via-yellow-500/10 dark:to-transparent',
       iconBg: 'bg-amber-500/30 dark:bg-amber-500/20',
@@ -54,10 +49,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'strategy',
       icon: Lightbulb,
-      titleHe: 'אסטרטגיה',
-      titleEn: 'Strategy',
-      descHe: 'תכנון ואסטרטגיה עסקית',
-      descEn: 'Business planning and strategy',
+       title: t('businessHub.tools.strategy'),
+       desc: t('businessHub.tools.strategyDesc'),
       onClick: () => onOpenModal?.('strategy'),
       gradient: 'from-cyan-500/30 via-teal-500/20 to-transparent dark:from-cyan-500/20 dark:via-teal-500/10 dark:to-transparent',
       iconBg: 'bg-cyan-500/30 dark:bg-cyan-500/20',
@@ -67,10 +60,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'branding',
       icon: Palette,
-      titleHe: 'מיתוג',
-      titleEn: 'Branding',
-      descHe: 'זהות מותג ומיצוב',
-      descEn: 'Brand identity and positioning',
+       title: t('businessHub.tools.branding'),
+       desc: t('businessHub.tools.brandingDesc'),
       onClick: () => onOpenModal?.('branding'),
       gradient: 'from-pink-500/30 via-rose-500/20 to-transparent dark:from-pink-500/20 dark:via-rose-500/10 dark:to-transparent',
       iconBg: 'bg-pink-500/30 dark:bg-pink-500/20',
@@ -80,10 +71,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'growth',
       icon: TrendingUp,
-      titleHe: 'צמיחה',
-      titleEn: 'Growth',
-      descHe: 'מדדי צמיחה ויעדים',
-      descEn: 'Growth metrics and goals',
+       title: t('businessHub.tools.growth'),
+       desc: t('businessHub.tools.growthDesc'),
       onClick: () => onOpenModal?.('growth'),
       gradient: 'from-green-500/30 via-emerald-500/20 to-transparent dark:from-green-500/20 dark:via-emerald-500/10 dark:to-transparent',
       iconBg: 'bg-green-500/30 dark:bg-green-500/20',
@@ -93,10 +82,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: 'hypnosis',
       icon: Headphones,
-      titleHe: 'היפנוזה עסקית',
-      titleEn: 'Business Hypnosis',
-      descHe: 'סשנים ממוקדי עסקים',
-      descEn: 'Business-focused sessions',
+       title: t('businessHub.tools.hypnosis'),
+       desc: t('businessHub.tools.hypnosisDesc'),
       onClick: () => navigate('/hypnosis?goal=business'),
       gradient: 'from-yellow-500/30 via-amber-500/20 to-transparent dark:from-yellow-500/20 dark:via-amber-500/10 dark:to-transparent',
       iconBg: 'bg-yellow-500/30 dark:bg-yellow-500/20',
@@ -106,10 +93,8 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
     {
       id: '90-day-plan',
       icon: Calendar,
-      titleHe: 'תוכנית 90 יום',
-      titleEn: '90-Day Plan',
-      descHe: 'מפת דרכים אסטרטגית',
-      descEn: 'Strategic roadmap',
+       title: t('businessHub.tools.plan90Day'),
+       desc: t('businessHub.tools.plan90DayDesc'),
       onClick: () => navigate('/life-plan'),
       gradient: 'from-orange-500/30 via-red-500/20 to-transparent dark:from-orange-500/20 dark:via-red-500/10 dark:to-transparent',
       iconBg: 'bg-orange-500/30 dark:bg-orange-500/20',
@@ -143,10 +128,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-xs text-foreground leading-tight">
-                    {language === 'he' ? tool.titleHe : tool.titleEn}
+                       {tool.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight">
-                    {language === 'he' ? tool.descHe : tool.descEn}
+                       {tool.desc}
                   </p>
                 </div>
                 <ArrowRight className={`h-4 w-4 ${tool.iconColor} opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1`} />

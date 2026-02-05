@@ -4,13 +4,11 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { ArrowRight, Briefcase, Target, DollarSign, TrendingUp } from "lucide-react";
 import { useLaunchpadData } from "@/hooks/useLaunchpadData";
+ import { useTranslation } from "@/hooks/useTranslation";
 
-interface BusinessStatusCardProps {
-  language: string;
-}
-
-const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
+ const BusinessStatusCard = () => {
   const { data: launchpadData, isLoading } = useLaunchpadData();
+   const { t, language } = useTranslation();
 
   // Extract business data from launchpad profile
   const profileData = launchpadData?.personalProfile || {};
@@ -18,13 +16,6 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
   const welcomeQuiz = launchpadData?.welcomeQuiz || {};
   const firstWeek = launchpadData?.firstWeek || { habits_to_quit: [], habits_to_build: [], career_status: '', career_goal: '' };
   
-  // Map focus areas to business labels
-  const focusLabels: Record<string, { he: string; en: string }> = {
-    money: { he: 'כסף', en: 'Money' },
-    business: { he: 'עסקים', en: 'Business' },
-    career: { he: 'קריירה', en: 'Career' },
-  };
-
   // Get business-related focus areas
   const businessFocusAreas = focusAreas.filter(
     (area: string) => ['money', 'business', 'career'].includes(area)
@@ -37,14 +28,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
   const businessSpecific = Array.isArray(welcomeQuiz.business_specific) ? welcomeQuiz.business_specific : [];
   const careerGoal = firstWeek.career_goal || (businessSpecific.length > 0 
     ? businessSpecific.map((k: string) => {
-        const labels: Record<string, { he: string; en: string }> = {
-          grow: { he: 'צמיחה עסקית', en: 'Business Growth' },
-          marketing: { he: 'שיווק', en: 'Marketing' },
-          sales: { he: 'מכירות', en: 'Sales' },
-          leadership: { he: 'מנהיגות', en: 'Leadership' },
-          earn_more: { he: 'להרוויח יותר', en: 'Earn more' },
-        };
-        return labels[k]?.[language === 'he' ? 'he' : 'en'] || k;
+         return t(`businessHub.goalLabels.${k}`) || k;
       }).join(', ')
     : '');
 
@@ -87,8 +71,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       key: 'status',
       value: currentStatus,
       icon: Briefcase,
-      labelHe: 'סטטוס נוכחי',
-      labelEn: 'Current Status',
+       label: t('businessHub.currentStatus'),
       displayValue: currentStatus,
       score: currentStatus ? 70 : 0,
       color: 'text-amber-600 dark:text-amber-400',
@@ -98,9 +81,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       key: 'goals',
       value: careerGoal,
       icon: Target,
-      labelHe: 'יעדים',
-      labelEn: 'Goals',
-      displayValue: careerGoal || (language === 'he' ? 'לא צוין' : 'Not set'),
+       label: t('businessHub.goals'),
+       displayValue: careerGoal || t('businessHub.notSet'),
       score: careerGoal ? 80 : 0,
       color: 'text-emerald-600 dark:text-emerald-400',
       bgColor: 'from-emerald-500/30 to-green-400/20 dark:from-emerald-500/20 dark:to-green-400/10',
@@ -109,11 +91,10 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       key: 'focus',
       value: businessFocusAreas.length > 0 ? 'set' : null,
       icon: DollarSign,
-      labelHe: 'תחומי מיקוד',
-      labelEn: 'Focus Areas',
+       label: t('businessHub.focusAreas'),
       displayValue: businessFocusAreas.length > 0 
-        ? businessFocusAreas.map((a: string) => focusLabels[a]?.[language === 'he' ? 'he' : 'en'] || a).join(', ')
-        : (language === 'he' ? 'לא צוין' : 'Not set'),
+         ? businessFocusAreas.map((a: string) => t(`businessHub.focusLabels.${a}`) || a).join(', ')
+         : t('businessHub.notSet'),
       score: businessFocusAreas.length > 0 ? 60 + businessFocusAreas.length * 10 : 0,
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'from-purple-500/30 to-violet-400/20 dark:from-purple-500/20 dark:to-violet-400/10',
@@ -122,9 +103,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       key: 'stage',
       value: hasData ? 'active' : null,
       icon: TrendingUp,
-      labelHe: 'שלב עסקי',
-      labelEn: 'Business Stage',
-      displayValue: language === 'he' ? 'התחלה' : 'Starting',
+       label: t('businessHub.businessStage'),
+       displayValue: t('businessHub.starting'),
       score: 50,
       color: 'text-cyan-600 dark:text-cyan-400',
       bgColor: 'from-cyan-500/30 to-blue-400/20 dark:from-cyan-500/20 dark:to-blue-400/10',
@@ -140,7 +120,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
               <Briefcase className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
             <CardTitle className="text-base text-amber-700 dark:text-amber-400">
-              {language === 'he' ? 'סטטוס עסקי' : 'Business Status'}
+               {t('businessHub.status')}
             </CardTitle>
           </div>
           {hasData && overallScore > 0 && (
@@ -173,7 +153,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
                 <div className="flex items-center gap-2 mb-2">
                   <metric.icon className={`h-4 w-4 ${metric.color}`} />
                   <p className="text-xs text-muted-foreground">
-                    {language === 'he' ? metric.labelHe : metric.labelEn}
+                     {metric.label}
                   </p>
                 </div>
                 <p className={`font-semibold text-sm ${metric.color} truncate`}>
@@ -194,13 +174,11 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
               <Briefcase className="h-8 w-8 text-amber-500/60 dark:text-amber-400/50" />
             </div>
             <p className="text-muted-foreground mb-4">
-              {language === 'he' 
-                ? 'עדיין אין נתונים עסקיים - התחל את מסע העסקים שלך'
-                : 'No business data yet - start your business journey'}
+               {t('businessHub.noBusinessData')}
             </p>
             <Button asChild className="bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400">
               <Link to="/business/journey">
-                {language === 'he' ? 'התחל את המסע' : 'Start your journey'}
+                 {t('businessHub.startYourJourney')}
                 <ArrowRight className="ms-2 h-4 w-4" />
               </Link>
             </Button>

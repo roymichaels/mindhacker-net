@@ -4,22 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Lightbulb, TrendingUp, Target, Compass, Map, X } from "lucide-react";
 import { motion } from "framer-motion";
+ import { useTranslation } from "@/hooks/useTranslation";
 
 interface StrategyModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language: string;
 }
 
-const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
-  const isHebrew = language === 'he';
+ const StrategyModal = ({ isOpen, onClose }: StrategyModalProps) => {
+   const { t } = useTranslation();
 
   const strategyMetrics = [
     {
       id: 'vision',
       icon: Compass,
-      label: isHebrew ? 'חזון' : 'Vision',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.strategy.vision'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-500/10',
@@ -27,8 +27,8 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
     {
       id: 'goals',
       icon: Target,
-      label: isHebrew ? 'יעדים' : 'Goals',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.strategy.goals'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
@@ -36,8 +36,8 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
     {
       id: 'roadmap',
       icon: Map,
-      label: isHebrew ? 'מפת דרכים' : 'Roadmap',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.strategy.roadmap'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
@@ -45,8 +45,8 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
     {
       id: 'innovation',
       icon: Lightbulb,
-      label: isHebrew ? 'חדשנות' : 'Innovation',
-      valueLabel: isHebrew ? 'בקרוב' : 'Coming soon',
+       label: t('businessHub.modals.strategy.innovation'),
+       valueLabel: t('businessHub.comingSoon'),
       score: null,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-500/10',
@@ -64,7 +64,7 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
           </div>
           <DialogTitle className="flex items-center gap-2 text-cyan-400">
             <Lightbulb className="h-5 w-5" />
-            {isHebrew ? 'אסטרטגיה' : 'Strategy'}
+             {t('businessHub.modals.strategy.title')}
           </DialogTitle>
           <div className="w-8" />
         </DialogHeader>
@@ -75,7 +75,7 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
-                  {isHebrew ? 'בהירות אסטרטגית' : 'Strategic Clarity'}
+                   {t('businessHub.modals.strategy.strategicClarity')}
                 </span>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="h-4 w-4 text-cyan-500" />
@@ -114,9 +114,7 @@ const StrategyModal = ({ isOpen, onClose, language }: StrategyModalProps) => {
           <Card className="bg-background/60 border-border/50">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {isHebrew 
-                  ? 'כלי אסטרטגיה מלאים יהיו זמינים בקרוב. השלם את מסע העסקים שלך כדי להתחיל.'
-                  : 'Full strategy tools coming soon. Complete your business journey to get started.'}
+                 {t('businessHub.comingSoonStrategy')}
               </p>
             </CardContent>
           </Card>
