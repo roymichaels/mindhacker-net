@@ -1,9 +1,12 @@
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
+ import { Flame, Gem, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+ import { Progress } from '@/components/ui/progress';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -17,6 +20,7 @@ import { useTheme } from 'next-themes';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
+ import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 
 interface AuroraAccountDropdownProps {
   isCollapsed?: boolean;
@@ -37,6 +41,7 @@ const AuroraAccountDropdown = ({
   const { hasRole } = useUserRoles();
   const navigate = useNavigate();
   const location = useLocation();
+   const dashboard = useUnifiedDashboard();
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -143,8 +148,56 @@ const AuroraAccountDropdown = ({
       <DropdownMenuContent
         align={isRTL ? "end" : "start"}
         side="top"
-        className="w-56 bg-popover border border-border shadow-xl z-[100]"
+         className="w-64 bg-popover border border-border shadow-xl z-[100]"
       >
+           {/* Character Stats HUD - at top of dropdown */}
+           {!dashboard.isLoading && (
+             <>
+               <DropdownMenuLabel className="pb-2">
+                 <div className="space-y-2">
+                   {/* Identity Title */}
+                   {dashboard.identityTitle && (
+                     <div className="flex items-center gap-1.5">
+                       <span className="text-sm">{dashboard.identityTitle.icon}</span>
+                       <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                         {dashboard.identityTitle.title}
+                       </span>
+                     </div>
+                   )}
+                   
+                   {/* XP Bar */}
+                   <div className="space-y-1">
+                     <div className="flex justify-between text-[10px] text-muted-foreground">
+                       <span>XP</span>
+                       <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
+                     </div>
+                     <Progress 
+                       value={dashboard.xpProgress.percentage} 
+                       className="h-1.5 bg-muted/50"
+                     />
+                   </div>
+                   
+                   {/* Stats Row */}
+                   <div className="flex items-center justify-between pt-1">
+                     <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs">
+                       <Star className="h-3 w-3" />
+                       <span className="font-bold">Lv.{dashboard.level}</span>
+                     </div>
+                     <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                       <Gem className="h-3 w-3" />
+                       <span className="font-semibold">{dashboard.tokens}</span>
+                     </div>
+                     <div className="flex items-center gap-1 text-orange-500 text-xs">
+                       <Flame className="h-3 w-3" />
+                       <span className="font-semibold">{dashboard.streak}</span>
+                     </div>
+                   </div>
+                 </div>
+               </DropdownMenuLabel>
+               <DropdownMenuSeparator />
+             </>
+           )}
+ 
           {/* Back to Aurora - shown when in panel areas */}
           {(showBackToAurora || isInPanel) && (
             <>
