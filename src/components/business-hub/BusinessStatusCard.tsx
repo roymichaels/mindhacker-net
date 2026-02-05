@@ -76,7 +76,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
 
   if (isLoading) {
     return (
-      <Card className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border-amber-800/30 animate-pulse">
+      <Card className="backdrop-blur-xl bg-gradient-to-br from-amber-50/80 to-white/80 dark:from-gray-900/80 dark:to-gray-950/80 border-amber-300/50 dark:border-amber-800/30 animate-pulse">
         <CardContent className="p-6 h-40" />
       </Card>
     );
@@ -91,8 +91,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       labelEn: 'Current Status',
       displayValue: currentStatus,
       score: currentStatus ? 70 : 0,
-      color: 'text-amber-400',
-      bgColor: 'from-amber-500/20 to-yellow-400/10',
+      color: 'text-amber-600 dark:text-amber-400',
+      bgColor: 'from-amber-500/30 to-yellow-400/20 dark:from-amber-500/20 dark:to-yellow-400/10',
     },
     {
       key: 'goals',
@@ -102,8 +102,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       labelEn: 'Goals',
       displayValue: careerGoal || (language === 'he' ? 'לא צוין' : 'Not set'),
       score: careerGoal ? 80 : 0,
-      color: 'text-emerald-400',
-      bgColor: 'from-emerald-500/20 to-green-400/10',
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bgColor: 'from-emerald-500/30 to-green-400/20 dark:from-emerald-500/20 dark:to-green-400/10',
     },
     {
       key: 'focus',
@@ -115,8 +115,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
         ? businessFocusAreas.map((a: string) => focusLabels[a]?.[language === 'he' ? 'he' : 'en'] || a).join(', ')
         : (language === 'he' ? 'לא צוין' : 'Not set'),
       score: businessFocusAreas.length > 0 ? 60 + businessFocusAreas.length * 10 : 0,
-      color: 'text-purple-400',
-      bgColor: 'from-purple-500/20 to-violet-400/10',
+      color: 'text-purple-600 dark:text-purple-400',
+      bgColor: 'from-purple-500/30 to-violet-400/20 dark:from-purple-500/20 dark:to-violet-400/10',
     },
     {
       key: 'stage',
@@ -126,20 +126,20 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
       labelEn: 'Business Stage',
       displayValue: language === 'he' ? 'התחלה' : 'Starting',
       score: 50,
-      color: 'text-cyan-400',
-      bgColor: 'from-cyan-500/20 to-blue-400/10',
+      color: 'text-cyan-600 dark:text-cyan-400',
+      bgColor: 'from-cyan-500/30 to-blue-400/20 dark:from-cyan-500/20 dark:to-blue-400/10',
     },
   ].filter(m => m.value);
 
   return (
-    <Card className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border-amber-800/30 overflow-hidden">
+    <Card className="backdrop-blur-xl bg-gradient-to-br from-amber-50/80 to-white/80 dark:from-gray-900/80 dark:to-gray-950/80 border-amber-300/50 dark:border-amber-800/30 overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-amber-500/20 rounded-lg">
-              <Briefcase className="h-4 w-4 text-amber-400" />
+            <div className="p-1.5 bg-amber-500/30 dark:bg-amber-500/20 rounded-lg">
+              <Briefcase className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <CardTitle className="text-base text-amber-400">
+            <CardTitle className="text-base text-amber-700 dark:text-amber-400">
               {language === 'he' ? 'סטטוס עסקי' : 'Business Status'}
             </CardTitle>
           </div>
@@ -157,7 +157,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
           <div className="mt-2">
             <Progress 
               value={overallScore} 
-              className="h-1.5 bg-gray-800"
+              className="h-1.5 bg-gray-200 dark:bg-gray-800"
             />
           </div>
         )}
@@ -168,7 +168,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
             {metrics.map((metric) => (
               <div 
                 key={metric.key}
-                className={`p-3 rounded-xl bg-gradient-to-br ${metric.bgColor} border border-white/5 backdrop-blur-sm`}
+                className={`p-3 rounded-xl bg-gradient-to-br ${metric.bgColor} border border-black/5 dark:border-white/5 backdrop-blur-sm`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <metric.icon className={`h-4 w-4 ${metric.color}`} />
@@ -179,7 +179,7 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
                 <p className={`font-semibold text-sm ${metric.color} truncate`}>
                   {metric.displayValue}
                 </p>
-                <div className="mt-2 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div className="mt-2 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${getProgressColor(metric.score)} transition-all`}
                     style={{ width: `${metric.score}%` }}
@@ -190,8 +190,8 @@ const BusinessStatusCard = ({ language }: BusinessStatusCardProps) => {
           </div>
         ) : (
           <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <Briefcase className="h-8 w-8 text-amber-400/50" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/20 dark:bg-amber-500/10 flex items-center justify-center">
+              <Briefcase className="h-8 w-8 text-amber-500/60 dark:text-amber-400/50" />
             </div>
             <p className="text-muted-foreground mb-4">
               {language === 'he' 
