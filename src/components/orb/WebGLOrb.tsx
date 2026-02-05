@@ -252,6 +252,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
   const morphPhaseRef = useRef(0);
+  // Safety margin to keep morphing/particles inside the canvas (prevents clipping)
+  const fitScaleRef = useRef<number>(1);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
   const [internalAudioLevel, setInternalAudioLevel] = useState(0);
@@ -406,7 +408,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
 
     // Fit-to-canvas safety margin (prevents visual clipping on small sizes)
-    const fitScale = size <= 200 ? 0.82 : 0.9;
+    const fitScale = size <= 200 ? 0.78 : 0.86;
+    fitScaleRef.current = fitScale;
     mainWireframe.scale.setScalar(fitScale);
 
     scene.add(mainWireframe);
@@ -470,8 +473,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     inner2Geo.dispose();
 
     // ===== PARTICLES - Gradient colored =====
-    const ps = new ParticleSystem(particleCount, activePalette.primary, 0.5, 2.0);
-    ps.mesh.scale.setScalar(fitScale);
+    // Keep particle cloud slightly tighter so it doesn't get cut off by the canvas.
+    const ps = new ParticleSystem(particleCount, activePalette.primary, 0.45, 1.6);
+    ps.mesh.scale.setScalar(fitScale * 0.85);
     scene.add(ps.mesh);
     particleSystemRef.current = ps;
 
@@ -683,12 +687,15 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       }
 
       // ===== INNER STRUCTURES ANIMATION - ENHANCED =====
+      // IMPORTANT: Always multiply by fitScaleRef, otherwise dynamic scaling can exceed the canvas and clip.
+      const fitScale = fitScaleRef.current;
+
       if (innerStructures[0]) {
         innerStructures[0].rotation.y += 0.006 * rotMod;
         innerStructures[0].rotation.x -= 0.004 * rotMod;
         innerStructures[0].rotation.z += Math.sin(time * 0.8) * 0.002;
         const scale = 1 + Math.sin(time * 1.8) * 0.12 + audioLevel * 0.15;
-        innerStructures[0].scale.setScalar(scale);
+        innerStructures[0].scale.setScalar(fitScale * scale);
       }
       
       if (innerStructures[1]) {
@@ -696,7 +703,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         innerStructures[1].rotation.z += 0.005 * rotMod;
         innerStructures[1].rotation.x += Math.cos(time * 0.6) * 0.003;
         const scale = 1 + Math.sin(time * 2.2 + 1.5) * 0.15 + audioLevel * 0.12;
-        innerStructures[1].scale.setScalar(scale);
+        innerStructures[1].scale.setScalar(fitScale * scale);
       }
 
       // Update particles
