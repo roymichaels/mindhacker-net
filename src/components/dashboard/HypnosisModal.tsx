@@ -51,11 +51,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   const [state, setState] = useState<SessionState>('generating');
   const [goal, setGoal] = useState('');
-  const duration = 5; // Fixed 5-minute sessions for minimal friction
   const [script, setScript] = useState<HypnosisScript | null>(null);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [estimatedDuration, setEstimatedDuration] = useState(0); // seconds, calculated from script
   const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs');
   const [voiceStarted, setVoiceStarted] = useState(false);
@@ -159,17 +159,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   // Progress timer
   useEffect(() => {
-    if (state !== 'playing' || !voiceStarted) return;
+    if (state !== 'playing' || !voiceStarted || estimatedDuration <= 0) return;
     
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
       setElapsedTime(elapsed);
-      const totalSeconds = duration * 60;
-      setProgress(Math.min((elapsed / totalSeconds) * 100, 100));
+      setProgress(Math.min((elapsed / estimatedDuration) * 100, 100));
     }, 100);
 
     return () => clearInterval(interval);
-  }, [state, duration, voiceStarted]);
+  }, [state, estimatedDuration, voiceStarted]);
 
   const startSession = async (initialGoal?: string) => {
     const sessionGoal = initialGoal || goal.trim() || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
@@ -186,7 +185,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       const cacheKey = generateCacheKey({
         egoState: 'personalized',
         goal: sessionGoal,
-        durationMinutes: duration,
+        durationMinutes: 5, // Use fixed value for cache key consistency
         language: language as 'he' | 'en',
       });
 
@@ -207,11 +206,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         }
       }
 
-      // Generate new script
+      // Generate new script (let AI decide optimal length based on context)
       const generatedScript = await generateHypnosisScript({
         egoState: 'personalized',
         goal: sessionGoal,
-        durationMinutes: duration,
+        durationMinutes: 5, // Target ~5 min but AI can adjust
         userLevel: gameState?.level || 1,
         sessionStreak: gameState?.sessionStreak || 0,
         previousSessions: 0,
@@ -229,7 +228,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         await saveScriptToCache(user.id, cacheKey, generatedScript, {
           egoState: 'personalized',
           goal: sessionGoal,
-          durationMinutes: duration,
+          durationMinutes: 5,
           language: language as 'he' | 'en',
         });
         // Trigger background audio caching
@@ -257,6 +256,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     
     if (!playingRef.current || !activeScript.fullScript) return;
 
+    // Calculate duration based on word count (130 words per minute for slow hypnosis speech)
+    const wordCount = activeScript.fullScript.split(/\s+/).length;
+    const calculatedDuration = (wordCount / 130) * 60; // in seconds
+    setEstimatedDuration(calculatedDuration);
+
     const markVoiceStarted = () => {
       if (!voiceStarted) {
         setVoiceStarted(true);
@@ -267,6 +271,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     const handleTimeUpdate = (currentTime: number, audioDuration: number) => {
       if (audioDuration > 0) {
         setAudioProgress(currentTime / audioDuration);
+        // Update estimated duration if we get actual audio duration
+        if (audioDuration !== calculatedDuration) {
+          setEstimatedDuration(audioDuration);
+        }
       }
     };
 
@@ -397,25 +405,29 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     impact('heavy');
     hapticPattern('success');
 
+    // Calculate XP based on actual duration (10 XP per minute)
+    const actualDurationMinutes = Math.max(1, Math.round(estimatedDuration / 60));
+    const xpEarned = actualDurationMinutes * 10;
+
     if (user?.id) {
       try {
         await saveSession(user.id, {
           egoState: 'personalized',
-          durationSeconds: duration * 60,
-          experienceGained: duration * 10,
+          durationSeconds: estimatedDuration,
+          experienceGained: xpEarned,
         });
         
-        await awardXp(user.id, duration * 10, 'hypnosis');
+        await awardXp(user.id, xpEarned, 'hypnosis');
         recordSession?.({
           egoState: 'personalized',
-          durationSeconds: duration * 60,
-          experienceGained: duration * 10,
+          durationSeconds: estimatedDuration,
+          experienceGained: xpEarned,
         });
       } catch (error) {
         console.error('Failed to save session:', error);
       }
     }
-  }, [user?.id, duration, impact, hapticPattern, recordSession, clearAllTimeouts]);
+  }, [user?.id, estimatedDuration, impact, hapticPattern, recordSession, clearAllTimeouts]);
 
   const togglePlayPause = () => {
     if (state === 'playing') {
@@ -571,7 +583,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 <Progress value={progress} className="h-1" />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>{formatTime(elapsedTime)}</span>
-                  <span>{formatTime(duration * 60)}</span>
+                  <span>{formatTime(estimatedDuration)}</span>
                 </div>
               </div>
 
@@ -631,7 +643,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
               <div className="flex flex-col gap-3">
                 <p className="text-sm text-primary">
-                  +{duration * 10} XP
+                  +{Math.max(1, Math.round(estimatedDuration / 60)) * 10} XP
                 </p>
                 <Button onClick={handleClose} size="lg">
                   {t('common.close')}
