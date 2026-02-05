@@ -680,7 +680,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
-        className="max-w-2xl h-[85svh] max-h-[85svh] p-0 overflow-hidden bg-background"
+        className="max-w-2xl min-h-[60svh] max-h-[92svh] h-auto p-0 flex flex-col overflow-hidden bg-background"
         dir={isRTL ? 'rtl' : 'ltr'}
         onPointerDownOutside={(e) => {
           // Prevent closing when clicking outside during session
@@ -789,7 +789,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center p-6 pt-10 space-y-6"
+                className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-6"
               >
                 <div className="overflow-visible">
                   <PersonalizedOrb 
@@ -830,7 +830,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
                 {/* Orb Area - Fixed height */}
-                <div className="flex-shrink-0 flex items-center justify-center p-4 pt-8 sm:p-6 overflow-visible">
+                <div className="flex-shrink-0 flex items-center justify-center p-2 pt-4 sm:p-6 overflow-visible">
                   <PersonalizedOrb 
                     size={orbSizeCompact} 
                     state={state === 'playing' ? 'listening' : 'idle'}
@@ -870,7 +870,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 </div>
 
                 {/* Controls - Fixed at bottom */}
-                <div className="flex-shrink-0 flex items-center justify-center gap-4 p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                <div className="flex-shrink-0 flex items-center justify-center gap-4 p-3 sm:p-6 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                   <Button
                     variant="ghost"
                     size="icon"
