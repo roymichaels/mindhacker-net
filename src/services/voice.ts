@@ -135,16 +135,20 @@ async function tryOpenAITTS(
       }
     );
 
-    if (!response.ok) {
+    // Check for fallback signal first
+    const contentType = response.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
       const data = await response.json().catch(() => ({}));
       if (data.fallback) {
         console.warn('OpenAI TTS signaled fallback');
         return null;
       }
+    }
+
+    if (!response.ok) {
       throw new Error(`OpenAI TTS failed: ${response.status}`);
     }
 
-    const contentType = response.headers.get('content-type');
     if (contentType?.includes('audio')) {
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -190,10 +194,13 @@ async function tryBrowserFallback(
     return null;
   }
 
+  console.log('Using browser TTS fallback for', text.length, 'characters');
+  
   // Browser TTS doesn't give us an audio URL
   // Return a special marker that the player should use speechSynthesis
+  // Store the FULL text, not truncated
   return { 
-    audioUrl: `browser-tts://${encodeURIComponent(text.substring(0, 100))}`, 
+    audioUrl: `browser-tts://${encodeURIComponent(text)}`, 
     usedFallback: true,
     provider: 'browser',
   };
@@ -201,6 +208,7 @@ async function tryBrowserFallback(
 
 /**
  * Play text using browser's speech synthesis directly
+ * Handles long text by chunking into sentences
  */
 export function speakWithBrowser(
   text: string,
@@ -218,24 +226,53 @@ export function speakWithBrowser(
   // Cancel any ongoing speech
   speechSynthesis.cancel();
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = options.rate || 0.9;
-  utterance.pitch = 1;
-
-  // Try to find a suitable voice
-  const voices = speechSynthesis.getVoices();
-  const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
-  const englishFemaleVoice = voices.find(v => 
-    v.lang.startsWith('en') && v.name.toLowerCase().includes('female')
-  );
+  // For long texts, chunk into sentences for better reliability
+  const chunks = text.length > 500 
+    ? text.split(/(?<=[.!?])\s+/).filter(c => c.trim())
+    : [text];
   
-  utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
+  let currentChunk = 0;
 
-  utterance.onend = () => options.onEnd?.();
-  utterance.onerror = (event) => options.onError?.(new Error(event.error));
+  const speakChunk = () => {
+    if (currentChunk >= chunks.length) {
+      options.onEnd?.();
+      return;
+    }
 
-  speechSynthesis.speak(utterance);
-  return utterance;
+    const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+    utterance.rate = options.rate || 0.9;
+    utterance.pitch = 1;
+
+    // Try to find a suitable voice
+    const voices = speechSynthesis.getVoices();
+    const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
+    const englishFemaleVoice = voices.find(v => 
+      v.lang.startsWith('en') && v.name.toLowerCase().includes('female')
+    );
+    
+    utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
+
+    utterance.onend = () => {
+      currentChunk++;
+      speakChunk();
+    };
+    
+    utterance.onerror = (event) => {
+      // Skip to next chunk on error
+      console.warn('Browser TTS chunk error:', event.error);
+      currentChunk++;
+      if (currentChunk < chunks.length) {
+        speakChunk();
+      } else {
+        options.onEnd?.();
+      }
+    };
+
+    speechSynthesis.speak(utterance);
+  };
+
+  speakChunk();
+  return null; // Can't return single utterance when chunking
 }
 
 /**

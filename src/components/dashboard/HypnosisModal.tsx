@@ -493,9 +493,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-6"
+              className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-visible"
             >
-              <div className="overflow-visible">
+              <div className="flex-shrink-0 overflow-visible" style={{ minHeight: orbSize + 40 }}>
                 <PersonalizedOrb 
                   size={orbSize} 
                   state="listening"
