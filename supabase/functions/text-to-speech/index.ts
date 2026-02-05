@@ -11,7 +11,9 @@ interface TTSRequest {
   speed?: number;
 }
 
-// Using Lovable AI gateway for TTS via OpenAI-compatible endpoint
+// This edge function is a fallback that signals the client to use browser TTS
+// Since Lovable AI Gateway doesn't support audio/TTS models, we return a fallback signal
+// The primary TTS is handled by ElevenLabs, this is just a secondary fallback path
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,7 +21,7 @@ serve(async (req) => {
 
   try {
     const body: TTSRequest = await req.json();
-    const { text, voice = 'nova', speed = 0.9 } = body;
+    const { text } = body;
 
     if (!text || text.trim().length === 0) {
       return new Response(JSON.stringify({ error: 'Text is required' }), {
@@ -28,71 +30,23 @@ serve(async (req) => {
       });
     }
 
-    // Limit text length for TTS
-    const maxLength = 4096;
-    const truncatedText = text.length > maxLength ? text.substring(0, maxLength) : text;
+    console.log('TTS fallback request - signaling browser TTS:', { textLength: text.length });
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
-    }
-
-    console.log('TTS request:', { textLength: truncatedText.length, voice, speed });
-
-    // Use OpenAI TTS via gateway
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: truncatedText,
-        voice: voice,
-        speed: speed,
-        response_format: 'mp3',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('TTS error:', response.status, errorText);
-
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      throw new Error(`TTS failed: ${response.status}`);
-    }
-
-    // Return the audio directly
-    const audioBuffer = await response.arrayBuffer();
-    
-    console.log('TTS success:', { audioSize: audioBuffer.byteLength });
-
-    return new Response(audioBuffer, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': audioBuffer.byteLength.toString(),
-      },
+    // Since Lovable Gateway doesn't support TTS models (tts-1, etc.),
+    // we signal the client to use browser's built-in speechSynthesis
+    return new Response(JSON.stringify({ 
+      fallback: true,
+      message: 'Use browser TTS - OpenAI TTS not available via Gateway',
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('TTS error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error',
-      fallback: true, // Signal client to use browser TTS
+      fallback: true,
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
