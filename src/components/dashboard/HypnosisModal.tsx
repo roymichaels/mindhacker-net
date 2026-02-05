@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Loader2, Sparkles, Lock, Rocket, Calendar } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed - using native scroll for ref support
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -704,8 +704,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
                 {/* Current Segment Text - Scrollable area with auto-scroll */}
                 {currentSegment && (
-                  <ScrollArea 
-                    className="flex-1 min-h-0 px-6"
+                  <div 
+                    className="flex-1 min-h-0 px-6 overflow-y-auto"
                     ref={scrollContainerRef}
                   >
                     <motion.div 
@@ -722,7 +722,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                         {currentSegment.text}
                       </p>
                     </motion.div>
-                  </ScrollArea>
+                  </div>
                 )}
 
                 {/* Progress - Fixed at bottom */}
