@@ -130,7 +130,7 @@ const HealthToolsGrid = ({ language, onOpenModal }: HealthToolsGridProps) => {
           whileTap={{ scale: 0.98 }}
         >
           <Card 
-            className={`relative overflow-hidden backdrop-blur-xl bg-gray-900/60 ${tool.borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 group`}
+            className={`relative overflow-hidden backdrop-blur-xl bg-white/80 dark:bg-gray-900/60 ${tool.borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-red-500/5 group`}
             onClick={tool.onClick}
           >
             {/* Gradient overlay */}

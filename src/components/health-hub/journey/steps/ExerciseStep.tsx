@@ -94,8 +94,8 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Dumbbell className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Dumbbell className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'פעילות גופנית' : 'Physical Activity'}
@@ -108,9 +108,9 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
       </div>
 
       {/* Current Activity Level */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Dumbbell className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Dumbbell className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'רמת הפעילות הנוכחית שלי' : 'My current activity level'}
         </Label>
         <RadioGroup
@@ -134,8 +134,8 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
       </div>
 
       {/* Preferred Exercise Types */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label>
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="text-foreground">
           {language === 'he' ? 'סוגי פעילות שמעניינים אותי' : 'Activities I\'m interested in'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -159,9 +159,9 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
       </div>
 
       {/* Frequency Goal */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Target className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Target className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'היעד שלי לפעילות' : 'My activity goal'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -172,7 +172,7 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
               className={`p-3 rounded-lg text-sm text-center transition-all ${
                 data.frequency_goal === option.value
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-700/50 hover:bg-gray-700 text-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
               {option.label}
@@ -183,8 +183,8 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
 
       {/* Limitations */}
       <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400" />
+        <Label className="flex items-center gap-2 text-foreground">
+          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'מגבלות או פציעות שצריך להתחשב בהן' : 'Limitations or injuries to consider'}
         </Label>
         <Textarea
@@ -193,7 +193,7 @@ const ExerciseStep = ({ data, onUpdate, language }: ExerciseStepProps) => {
             : 'I have a knee/back/other issue...'}
           value={(data.limitations || []).join('\n') || ''}
           onChange={(e) => handleChange('limitations', e.target.value.split('\n').filter(Boolean))}
-          className="min-h-[60px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[60px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
     </div>

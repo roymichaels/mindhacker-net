@@ -72,8 +72,8 @@ const NutritionStep = ({ data, onUpdate, language }: NutritionStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Apple className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Apple className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'התזונה שלך' : 'Your Nutrition'}
@@ -87,8 +87,8 @@ const NutritionStep = ({ data, onUpdate, language }: NutritionStepProps) => {
 
       {/* Eating Habits Description */}
       <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <Apple className="w-4 h-4 text-red-400" />
+        <Label className="flex items-center gap-2 text-foreground">
+          <Apple className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'תאר את הרגלי האכילה שלך' : 'Describe your eating habits'}
         </Label>
         <Textarea
@@ -97,14 +97,14 @@ const NutritionStep = ({ data, onUpdate, language }: NutritionStepProps) => {
             : 'What does a typical eating day look like?'}
           value={data.eating_habits || ''}
           onChange={(e) => handleChange('eating_habits', e.target.value)}
-          className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Water Intake */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Droplets className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Droplets className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'כמה מים אתה שותה ביום?' : 'How much water do you drink daily?'}
         </Label>
         <RadioGroup
@@ -128,9 +128,9 @@ const NutritionStep = ({ data, onUpdate, language }: NutritionStepProps) => {
       </div>
 
       {/* Diet Challenges */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'אתגרים בתזונה (סמן הכל שרלוונטי)' : 'Diet challenges (select all that apply)'}
         </Label>
         <div className="grid grid-cols-2 gap-3">

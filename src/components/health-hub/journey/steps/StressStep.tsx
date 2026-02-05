@@ -108,8 +108,8 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Brain className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Brain className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'מתח ורגש' : 'Stress & Emotions'}
@@ -122,9 +122,9 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
       </div>
 
       {/* Stress Level */}
-      <div className="space-y-4 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-400" />
+      <div className="space-y-4 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'רמת הלחץ הממוצעת שלי (1-10)' : 'My average stress level (1-10)'}
         </Label>
         <div className="px-2">
@@ -138,16 +138,16 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>{language === 'he' ? 'רגוע' : 'Calm'}</span>
-            <span className="font-bold text-red-400 text-lg">{data.stress_level || 5}</span>
+            <span className="font-bold text-red-600 dark:text-red-400 text-lg">{data.stress_level || 5}</span>
             <span>{language === 'he' ? 'לחוץ מאוד' : 'Very stressed'}</span>
           </div>
         </div>
       </div>
 
       {/* Stress Triggers */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'מקורות לחץ עיקריים' : 'Main stress sources'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -171,9 +171,9 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
       </div>
 
       {/* Coping Methods */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Heart className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Heart className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'איך אני מתמודד עם לחץ?' : 'How do I cope with stress?'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -197,8 +197,8 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
       </div>
 
       {/* Relaxation Time */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label>
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="text-foreground">
           {language === 'he' ? 'כמה זמן ביום אני מקדיש להרפיה?' : 'How much daily time do I dedicate to relaxation?'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -209,7 +209,7 @@ const StressStep = ({ data, onUpdate, language }: StressStepProps) => {
               className={`p-3 rounded-lg text-sm text-center transition-all ${
                 data.relaxation_time === option.value
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-700/50 hover:bg-gray-700 text-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
               {option.label}
