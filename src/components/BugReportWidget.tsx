@@ -18,10 +18,13 @@ export const BugReportWidget = () => {
   // Show the prompt after a delay if not dismissed
   useEffect(() => {
     const wasDismissed = localStorage.getItem(PROMPT_DISMISSED_KEY);
+    console.log('[BugWidget] Checking prompt - dismissed:', wasDismissed);
     if (!wasDismissed) {
+      console.log('[BugWidget] Will show prompt in 3 seconds...');
       const timer = setTimeout(() => {
+        console.log('[BugWidget] Showing prompt now');
         setShowPrompt(true);
-      }, 5000); // Show after 5 seconds
+      }, 3000); // Show after 3 seconds (reduced for better UX)
       return () => clearTimeout(timer);
     }
   }, []);
