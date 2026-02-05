@@ -75,7 +75,7 @@ export const BugReportWidget = () => {
                   "bg-background/90 backdrop-blur-xl",
                   "border border-border rounded-lg px-3 py-2",
                   "shadow-md",
-                  "start-14 max-w-[70vw]"
+                  "left-14 max-w-[70vw]"
                 )}
               >
                 <p className="text-xs text-foreground leading-tight whitespace-normal">
