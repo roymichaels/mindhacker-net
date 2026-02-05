@@ -20,8 +20,8 @@ const HealthVisionStep = ({ data, onUpdate, language }: HealthVisionStepProps) =
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Sparkles className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Sparkles className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'חזון הבריאות שלך' : 'Your Health Vision'}
@@ -35,8 +35,8 @@ const HealthVisionStep = ({ data, onUpdate, language }: HealthVisionStepProps) =
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-red-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-red-600 dark:text-red-400" />
             {language === 'he' ? 'החזון שלי לבריאות מיטבית' : 'My vision for optimal health'}
           </Label>
           <Textarea
@@ -45,13 +45,13 @@ const HealthVisionStep = ({ data, onUpdate, language }: HealthVisionStepProps) =
               : 'In 90 days I see myself...'}
             value={data.health_vision || ''}
             onChange={(e) => handleChange('health_vision', e.target.value)}
-            className="min-h-[100px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+            className="min-h-[100px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-red-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Heart className="w-4 h-4 text-red-600 dark:text-red-400" />
             {language === 'he' ? 'איך אני רוצה להרגיש כל יום?' : 'How do I want to feel every day?'}
           </Label>
           <Textarea
@@ -60,13 +60,13 @@ const HealthVisionStep = ({ data, onUpdate, language }: HealthVisionStepProps) =
               : 'I want to wake up feeling...'}
             value={data.ideal_feeling || ''}
             onChange={(e) => handleChange('ideal_feeling', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-red-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Sparkles className="w-4 h-4 text-red-600 dark:text-red-400" />
             {language === 'he' ? 'למה זה חשוב לי עכשיו?' : 'Why is this important to me now?'}
           </Label>
           <Textarea
@@ -75,7 +75,7 @@ const HealthVisionStep = ({ data, onUpdate, language }: HealthVisionStepProps) =
               : 'The reason I\'m committed to this change is...'}
             value={data.motivation || ''}
             onChange={(e) => handleChange('motivation', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>

@@ -76,8 +76,8 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Rocket className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Rocket className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'סיכום והפעלה' : 'Summary & Activation'}
@@ -91,8 +91,8 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
 
       {/* Journey Summary */}
       {summaryItems.length > 0 && (
-        <div className="p-4 bg-gradient-to-br from-red-900/30 to-gray-900/50 rounded-lg border border-red-800/30">
-          <h3 className="font-semibold text-red-400 mb-3 flex items-center gap-2">
+        <div className="p-4 bg-gradient-to-br from-red-100 to-gray-100 dark:from-red-900/30 dark:to-gray-900/50 rounded-lg border border-red-300/50 dark:border-red-800/30">
+          <h3 className="font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             {language === 'he' ? 'מה אספנו עד כה' : 'What we\'ve gathered'}
           </h3>
@@ -108,9 +108,9 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
       )}
 
       {/* Commitment Level */}
-      <div className="space-y-4 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-red-400" />
+      <div className="space-y-4 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Sparkles className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'רמת המחויבות שלי לשינוי (1-10)' : 'My commitment level to change (1-10)'}
         </Label>
         <div className="px-2">
@@ -124,16 +124,16 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>{language === 'he' ? 'מתלבט' : 'Uncertain'}</span>
-            <span className="font-bold text-red-400 text-lg">{data.commitment_level || 7}</span>
+            <span className="font-bold text-red-600 dark:text-red-400 text-lg">{data.commitment_level || 7}</span>
             <span>{language === 'he' ? 'מחויב לגמרי' : 'Fully committed'}</span>
           </div>
         </div>
       </div>
 
       {/* Priority Area */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Target className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Target className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'התחום שהכי חשוב לי להתמקד בו' : 'The area most important for me to focus on'}
         </Label>
         <RadioGroup
@@ -158,7 +158,7 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
 
       {/* First Action */}
       <div className="space-y-2">
-        <Label>
+        <Label className="text-foreground">
           {language === 'he' ? 'הפעולה הראשונה שאני מתחייב לעשות היום' : 'The first action I commit to doing today'}
         </Label>
         <Textarea
@@ -167,13 +167,13 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
             : 'Today I will do...'}
           value={data.first_action || ''}
           onChange={(e) => handleChange('first_action', e.target.value)}
-          className="min-h-[60px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[60px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Support Needed */}
       <div className="space-y-2">
-        <Label>
+        <Label className="text-foreground">
           {language === 'he' ? 'איזו תמיכה אני צריך?' : 'What support do I need?'}
         </Label>
         <Textarea
@@ -182,13 +182,13 @@ const ActivationStep = ({ data, onUpdate, language, journeyData }: ActivationSte
             : 'To succeed, I need...'}
           value={data.support_needed || ''}
           onChange={(e) => handleChange('support_needed', e.target.value)}
-          className="min-h-[60px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[60px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Motivational Message */}
-      <div className="p-4 bg-gradient-to-r from-red-600/20 to-pink-600/20 rounded-lg border border-red-500/30 text-center">
-        <Sparkles className="w-6 h-6 text-red-400 mx-auto mb-2" />
+      <div className="p-4 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-600/20 dark:to-pink-600/20 rounded-lg border border-red-300/50 dark:border-red-500/30 text-center">
+        <Sparkles className="w-6 h-6 text-red-600 dark:text-red-400 mx-auto mb-2" />
         <p className="text-sm text-foreground">
           {language === 'he' 
             ? 'לחץ על "סיים וצור תוכנית" כדי לקבל תוכנית בריאות מותאמת אישית ל-90 יום עם משימות שבועיות!' 

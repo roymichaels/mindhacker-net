@@ -90,8 +90,8 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Moon className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Moon className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'שינה ומנוחה' : 'Sleep & Rest'}
@@ -104,9 +104,9 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
       </div>
 
       {/* Sleep Hours */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Clock className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'כמה שעות אני ישן בלילה?' : 'How many hours do I sleep at night?'}
         </Label>
         <RadioGroup
@@ -130,9 +130,9 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
       </div>
 
       {/* Sleep Quality */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Moon className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Moon className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'איכות השינה שלי' : 'My sleep quality'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -143,7 +143,7 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
               className={`p-3 rounded-lg text-sm text-center transition-all ${
                 data.sleep_quality === option.value
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-700/50 hover:bg-gray-700 text-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
               {option.label}
@@ -153,9 +153,9 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
       </div>
 
       {/* Sleep Issues */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'בעיות שינה (סמן הכל שרלוונטי)' : 'Sleep issues (select all that apply)'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -180,7 +180,7 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
 
       {/* Bedtime Routine */}
       <div className="space-y-2">
-        <Label>
+        <Label className="text-foreground">
           {language === 'he' ? 'תאר את הרוטינה שלך לפני השינה' : 'Describe your bedtime routine'}
         </Label>
         <Textarea
@@ -189,7 +189,7 @@ const SleepStep = ({ data, onUpdate, language }: SleepStepProps) => {
             : 'What do you do in the hour before bed?'}
           value={data.bedtime_routine || ''}
           onChange={(e) => handleChange('bedtime_routine', e.target.value)}
-          className="min-h-[60px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[60px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
     </div>

@@ -83,8 +83,8 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Sparkles className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Sparkles className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'אמונות מגבילות' : 'Limiting Beliefs'}
@@ -97,9 +97,9 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
       </div>
 
       {/* Limiting Beliefs */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Lock className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'אמונות שמגבילות אותי' : 'Beliefs that limit me'}
         </Label>
         <p className="text-xs text-muted-foreground mb-2">
@@ -128,9 +128,9 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
       </div>
 
       {/* Subconscious Blocks */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Lightbulb className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Lightbulb className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'דפוסים תת-מודעים' : 'Subconscious patterns'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
@@ -155,7 +155,7 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
 
       {/* Past Obstacles */}
       <div className="space-y-2">
-        <Label>
+        <Label className="text-foreground">
           {language === 'he' ? 'מה עצר אותי בניסיונות קודמים?' : 'What stopped me in past attempts?'}
         </Label>
         <Textarea
@@ -164,13 +164,13 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
             : 'In previous attempts to improve my health...'}
           value={data.past_obstacles || ''}
           onChange={(e) => handleChange('past_obstacles', e.target.value)}
-          className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Limiting Patterns Description */}
       <div className="space-y-2">
-        <Label>
+        <Label className="text-foreground">
           {language === 'he' ? 'דפוס מחשבתי שחוזר על עצמו' : 'A recurring thought pattern'}
         </Label>
         <Textarea
@@ -179,7 +179,7 @@ const BeliefsStep = ({ data, onUpdate, language }: BeliefsStepProps) => {
             : 'When I think about health, the thought that comes up is...'}
           value={data.limiting_patterns || ''}
           onChange={(e) => handleChange('limiting_patterns', e.target.value)}
-          className="min-h-[60px] bg-gray-800/50 border-gray-700 focus:border-red-500"
+          className="min-h-[60px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-red-500 text-foreground placeholder:text-muted-foreground"
         />
       </div>
     </div>

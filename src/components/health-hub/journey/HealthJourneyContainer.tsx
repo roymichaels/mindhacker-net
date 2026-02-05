@@ -131,7 +131,7 @@ const HealthJourneyContainer = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-red-950/50 to-background p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-b from-red-100 to-background dark:from-red-950/50 dark:to-background p-4 md:p-8">
         <div className="max-w-2xl mx-auto space-y-6">
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-4 w-full" />
@@ -143,7 +143,7 @@ const HealthJourneyContainer = () => {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-b from-red-950/50 to-background" 
+      className="min-h-screen bg-gradient-to-b from-red-100 to-background dark:from-red-950/50 dark:to-background" 
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="max-w-2xl mx-auto p-4 md:p-8">
@@ -155,11 +155,11 @@ const HealthJourneyContainer = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-600/20 rounded-lg">
-                <Heart className="h-6 w-6 text-red-400 fill-red-400" />
+              <div className="p-2 bg-red-500/20 dark:bg-red-600/20 rounded-lg">
+                <Heart className="h-6 w-6 text-red-600 dark:text-red-400 fill-red-600 dark:fill-red-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-red-400">
+                <h1 className="text-2xl font-bold text-red-700 dark:text-red-400">
                   {language === 'he' ? 'מסע הבריאות' : 'Health Journey'}
                 </h1>
                 <p className="text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ const HealthJourneyContainer = () => {
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-red-400">
+              <span className="font-medium text-red-700 dark:text-red-400">
                 {language === 'he' 
                   ? stepTitles.he[activeStep - 1] 
                   : stepTitles.en[activeStep - 1]}
@@ -195,7 +195,7 @@ const HealthJourneyContainer = () => {
             </div>
             <Progress 
               value={progressPercentage} 
-              className="h-2 bg-red-950/50 [&>div]:bg-gradient-to-r [&>div]:from-red-600 [&>div]:to-red-400" 
+              className="h-2 bg-red-200 dark:bg-red-950/50 [&>div]:bg-gradient-to-r [&>div]:from-red-600 [&>div]:to-red-400" 
             />
           </div>
 
@@ -215,8 +215,8 @@ const HealthJourneyContainer = () => {
                     isCompleted 
                       ? 'bg-red-600 text-white' 
                       : isCurrent 
-                        ? 'bg-red-600/30 text-red-400 ring-2 ring-red-400' 
-                        : 'bg-gray-800/50 text-gray-500'
+                        ? 'bg-red-500/30 dark:bg-red-600/30 text-red-700 dark:text-red-400 ring-2 ring-red-500 dark:ring-red-400' 
+                        : 'bg-gray-200 dark:bg-gray-800/50 text-gray-500'
                   } ${stepNum <= currentStep ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed'}`}
                 >
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : stepNum}
@@ -234,7 +234,7 @@ const HealthJourneyContainer = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-red-800/30 p-6"
+            className="bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-red-300/50 dark:border-red-800/30 p-6 shadow-lg dark:shadow-none"
           >
             {renderStep()}
           </motion.div>
@@ -249,7 +249,7 @@ const HealthJourneyContainer = () => {
           <Button
             variant="outline"
             onClick={handleBack}
-            className="border-red-800/50 hover:bg-red-900/30"
+            className="border-red-300 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30"
           >
             {isRTL ? <ArrowRight className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 me-2" />}
             {language === 'he' ? 'הקודם' : 'Back'}

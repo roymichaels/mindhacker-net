@@ -62,8 +62,8 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/20 mb-4">
-          <Activity className="w-8 h-8 text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 dark:bg-red-600/20 mb-4">
+          <Activity className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'המצב הנוכחי שלך' : 'Your Current State'}
@@ -76,9 +76,9 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
       </div>
 
       {/* Overall Health Rating */}
-      <div className="space-y-4 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-red-400" />
+      <div className="space-y-4 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Zap className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'דירוג הבריאות הכללית שלי (1-10)' : 'My overall health rating (1-10)'}
         </Label>
         <div className="px-2">
@@ -92,16 +92,16 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>1</span>
-            <span className="font-bold text-red-400 text-lg">{data.overall_health || 5}</span>
+            <span className="font-bold text-red-600 dark:text-red-400 text-lg">{data.overall_health || 5}</span>
             <span>10</span>
           </div>
         </div>
       </div>
 
       {/* Energy Level */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label className="flex items-center gap-2">
-          <Battery className="w-4 h-4 text-red-400" />
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="flex items-center gap-2 text-foreground">
+          <Battery className="w-4 h-4 text-red-600 dark:text-red-400" />
           {language === 'he' ? 'רמת האנרגיה היומית שלי' : 'My daily energy level'}
         </Label>
         <div className="grid grid-cols-5 gap-2">
@@ -112,7 +112,7 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
               className={`p-2 rounded-lg text-xs text-center transition-all ${
                 data.energy_level === level
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-700/50 hover:bg-gray-700 text-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
               {level}
@@ -122,8 +122,8 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
       </div>
 
       {/* Pain Areas */}
-      <div className="space-y-3 p-4 bg-gray-800/30 rounded-lg">
-        <Label>
+      <div className="space-y-3 p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+        <Label className="text-foreground">
           {language === 'he' ? 'אזורי כאב או אי-נוחות (סמן הכל שרלוונטי)' : 'Pain or discomfort areas (select all that apply)'}
         </Label>
         <div className="grid grid-cols-2 gap-3">
