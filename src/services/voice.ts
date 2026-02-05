@@ -235,14 +235,26 @@ export function speakWithBrowser(
   
   let currentChunk = 0;
   let hasStarted = false;
+  let cancelled = false;
+  let progressInterval: ReturnType<typeof setInterval> | null = null;
+  
+  // Track word-level progress for smooth karaoke
+  const totalWords = text.split(/\s+/).length;
+  let wordsSpoken = 0;
+  
+  // Calculate words per chunk for progress tracking
+  const wordsPerChunk = chunks.map(c => c.split(/\s+/).length);
 
   // Preload voices first
   const loadVoicesAndSpeak = () => {
+    if (cancelled) return;
+    
     const voices = speechSynthesis.getVoices();
     
     const speakChunk = () => {
-      if (currentChunk >= chunks.length) {
-        options.onEnd?.();
+      if (cancelled || currentChunk >= chunks.length) {
+        if (progressInterval) clearInterval(progressInterval);
+        if (!cancelled) options.onEnd?.();
         return;
       }
 
@@ -258,27 +270,64 @@ export function speakWithBrowser(
       
       utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
 
+      // Estimate chunk duration for smooth progress interpolation
+      const chunkWords = wordsPerChunk[currentChunk];
+      const chunkDurationMs = (chunkWords / 130) * 60 * 1000 / (options.rate || 0.85);
+      let chunkStartTime = 0;
+      
       utterance.onstart = () => {
+        if (cancelled) {
+          speechSynthesis.cancel();
+          return;
+        }
+        
+        chunkStartTime = Date.now();
+        
         if (!hasStarted) {
           hasStarted = true;
           options.onStart?.();
+          
+          // Start smooth progress interpolation
+          progressInterval = setInterval(() => {
+            if (cancelled) {
+              if (progressInterval) clearInterval(progressInterval);
+              return;
+            }
+            
+            // Calculate interpolated progress within current chunk
+            const chunkElapsed = Date.now() - chunkStartTime;
+            const chunkProgress = Math.min(chunkElapsed / chunkDurationMs, 1);
+            const chunkWordsSpoken = chunkProgress * chunkWords;
+            
+            const totalProgress = (wordsSpoken + chunkWordsSpoken) / totalWords;
+            options.onProgress?.(Math.min(totalProgress, 0.99)); // Never hit 1.0 until truly done
+          }, 100);
         }
       };
 
       utterance.onend = () => {
+        if (cancelled) return;
+        
+        // Update words spoken count
+        wordsSpoken += wordsPerChunk[currentChunk];
         currentChunk++;
+        
         // Report progress
-        options.onProgress?.(currentChunk / chunks.length);
+        options.onProgress?.(wordsSpoken / totalWords);
         speakChunk();
       };
       
       utterance.onerror = (event) => {
+        if (cancelled) return;
+        
         // Skip to next chunk on error
         console.warn('Browser TTS chunk error:', event.error);
+        wordsSpoken += wordsPerChunk[currentChunk];
         currentChunk++;
         if (currentChunk < chunks.length) {
           speakChunk();
         } else {
+          if (progressInterval) clearInterval(progressInterval);
           options.onEnd?.();
         }
       };
@@ -295,19 +344,30 @@ export function speakWithBrowser(
     loadVoicesAndSpeak();
   } else {
     // Wait for voices to load
-    speechSynthesis.onvoiceschanged = () => {
+    const voicesChangedHandler = () => {
+      speechSynthesis.onvoiceschanged = null;
       loadVoicesAndSpeak();
     };
-    // Fallback timeout
+    speechSynthesis.onvoiceschanged = voicesChangedHandler;
+    
+    // Fallback timeout - if no voices load, report error
     setTimeout(() => {
-      if (!hasStarted) {
-        loadVoicesAndSpeak();
+      if (!hasStarted && !cancelled) {
+        speechSynthesis.onvoiceschanged = null;
+        // Try anyway with empty voices
+        if (speechSynthesis.getVoices().length > 0) {
+          loadVoicesAndSpeak();
+        } else {
+          options.onError?.(new Error('No speech synthesis voices available'));
+        }
       }
-    }, 500);
+    }, 1000);
   }
 
   return {
     cancel: () => {
+      cancelled = true;
+      if (progressInterval) clearInterval(progressInterval);
       speechSynthesis.cancel();
     }
   };
@@ -418,16 +478,14 @@ export async function playAudioUrl(
       // Calculate estimated duration based on word count (130 words per minute for slow hypnosis)
       const wordCount = text.split(/\s+/).length;
       const estimatedDuration = (wordCount / 130) * 60; // seconds
-      let startTime = 0;
       
-      speakWithBrowser(text, {
+      const browserTTS = speakWithBrowser(text, {
         rate: 0.85,
         onStart: () => {
-          startTime = Date.now();
           options.onStart?.();
         },
         onProgress: (progress) => {
-          // Calculate current time based on progress
+          // Convert progress (0-1) to currentTime based on estimated duration
           const currentTime = progress * estimatedDuration;
           options.onTimeUpdate?.(currentTime, estimatedDuration);
         },
@@ -440,6 +498,14 @@ export async function playAudioUrl(
           reject(error);
         },
       });
+      
+      // If browser TTS failed to start, reject immediately
+      if (!browserTTS) {
+        const error = new Error('Browser TTS not available');
+        options.onError?.(error);
+        reject(error);
+      }
+      
       return;
     }
 
