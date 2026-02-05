@@ -130,7 +130,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-emerald-950/50 to-background p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-background dark:from-emerald-950/50 dark:to-background p-4 md:p-8">
         <div className="max-w-2xl mx-auto space-y-6">
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-4 w-full" />
@@ -142,7 +142,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-b from-emerald-950/50 to-background" 
+      className="min-h-screen bg-gradient-to-b from-emerald-100 to-background dark:from-emerald-950/50 dark:to-background" 
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="max-w-2xl mx-auto p-4 md:p-8">
@@ -154,11 +154,11 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-600/20 rounded-lg">
-                <DollarSign className="h-6 w-6 text-emerald-400" />
+              <div className="p-2 bg-emerald-500/20 dark:bg-emerald-600/20 rounded-lg">
+                <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-emerald-400">
+                <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                   {language === 'he' ? 'מסע הפיננסים' : 'Finances Journey'}
                 </h1>
                 <p className="text-sm text-muted-foreground">
@@ -182,7 +182,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-emerald-400">
+              <span className="font-medium text-emerald-700 dark:text-emerald-400">
                 {language === 'he' 
                   ? stepTitles.he[activeStep - 1] 
                   : stepTitles.en[activeStep - 1]}
@@ -193,7 +193,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
             </div>
             <Progress 
               value={progressPercentage} 
-              className="h-2 bg-emerald-950/50 [&>div]:bg-gradient-to-r [&>div]:from-emerald-600 [&>div]:to-emerald-400" 
+              className="h-2 bg-emerald-200 dark:bg-emerald-950/50 [&>div]:bg-gradient-to-r [&>div]:from-emerald-600 [&>div]:to-emerald-400" 
             />
           </div>
 
@@ -213,8 +213,8 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
                     isCompleted 
                       ? 'bg-emerald-600 text-white' 
                       : isCurrent 
-                        ? 'bg-emerald-600/30 text-emerald-400 ring-2 ring-emerald-400' 
-                        : 'bg-gray-800/50 text-gray-500'
+                        ? 'bg-emerald-500/30 dark:bg-emerald-600/30 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-500 dark:ring-emerald-400' 
+                        : 'bg-gray-200 dark:bg-gray-800/50 text-gray-500'
                   } ${stepNum <= currentStep ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed'}`}
                 >
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : stepNum}
@@ -232,7 +232,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-emerald-800/30 p-6"
+            className="bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-emerald-300/50 dark:border-emerald-800/30 p-6 shadow-lg dark:shadow-none"
           >
             {renderStep()}
           </motion.div>
@@ -247,7 +247,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
           <Button
             variant="outline"
             onClick={handleBack}
-            className="border-emerald-800/50 hover:bg-emerald-900/30"
+            className="border-emerald-300 dark:border-emerald-800/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
           >
             {isRTL ? <ArrowRight className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 me-2" />}
             {language === 'he' ? 'הקודם' : 'Back'}

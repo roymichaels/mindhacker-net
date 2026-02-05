@@ -24,8 +24,8 @@ const IncomeStep = ({ data, onUpdate, language }: IncomeStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-600/20 mb-4">
-          <TrendingUp className="w-8 h-8 text-emerald-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 dark:bg-emerald-600/20 mb-4">
+          <TrendingUp className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'הכנסות' : 'Income'}
@@ -39,8 +39,8 @@ const IncomeStep = ({ data, onUpdate, language }: IncomeStepProps) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-emerald-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Briefcase className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             {language === 'he' ? 'הכנסה עיקרית' : 'Primary Income'}
           </Label>
           <Textarea
@@ -49,20 +49,20 @@ const IncomeStep = ({ data, onUpdate, language }: IncomeStepProps) => {
               : 'My primary income source is...'}
             value={(data.primary_income as string) || ''}
             onChange={(e) => handleChange('primary_income', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-emerald-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-emerald-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             {language === 'he' ? 'יציבות הכנסה' : 'Income Stability'}
           </Label>
           <Select
             value={(data.income_stability as string) || ''}
             onValueChange={(value) => handleChange('income_stability', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר רמת יציבות' : 'Select stability level'} />
             </SelectTrigger>
             <SelectContent>
@@ -76,8 +76,8 @@ const IncomeStep = ({ data, onUpdate, language }: IncomeStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-emerald-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             {language === 'he' ? 'פוטנציאל צמיחה בהכנסה' : 'Income Growth Potential'}
           </Label>
           <Textarea
@@ -86,7 +86,7 @@ const IncomeStep = ({ data, onUpdate, language }: IncomeStepProps) => {
               : 'I see potential to increase my income by...'}
             value={(data.income_growth_potential as string) || ''}
             onChange={(e) => handleChange('income_growth_potential', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-emerald-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-emerald-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
