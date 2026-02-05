@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Loader2, Calendar, X } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Loader2, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -35,7 +35,7 @@ interface HypnosisModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type SessionState = 'setup' | 'generating' | 'playing' | 'paused' | 'complete';
+type SessionState = 'generating' | 'playing' | 'paused' | 'complete';
 
 export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { t, isRTL, language } = useTranslation();
@@ -49,10 +49,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { impact, pattern: hapticPattern } = useHaptics();
   const { currentMilestone, suggestedGoal, isLoading: isLoadingContext } = useDailyHypnosis();
 
-  const [state, setState] = useState<SessionState>('setup');
+  const [state, setState] = useState<SessionState>('generating');
   const [goal, setGoal] = useState('');
-  const [goalInitialized, setGoalInitialized] = useState(false);
-  const [duration, setDuration] = useState(10);
+  const duration = 5; // Fixed 5-minute sessions for minimal friction
   const [script, setScript] = useState<HypnosisScript | null>(null);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -125,22 +124,22 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     return () => clearInterval(interval);
   }, [state, language]);
 
-  // Auto-populate goal from profile context when modal opens
+  // Auto-start session when modal opens
   useEffect(() => {
-    if (open && !isLoadingContext && suggestedGoal && !goalInitialized) {
-      setGoal(suggestedGoal);
-      setGoalInitialized(true);
+    if (open && !isLoadingContext) {
+      const sessionGoal = suggestedGoal || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
+      setGoal(sessionGoal);
+      startSession(sessionGoal);
     }
-  }, [open, isLoadingContext, suggestedGoal, goalInitialized]);
+  }, [open, isLoadingContext]);
 
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
       sessionIdRef.current++;
       fullCleanup();
-      setState('setup');
+      setState('generating');
       setGoal('');
-      setGoalInitialized(false);
       setScript(null);
       setProgress(0);
       setElapsedTime(0);
@@ -172,8 +171,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     return () => clearInterval(interval);
   }, [state, duration, voiceStarted]);
 
-  const startSession = async () => {
-    const sessionGoal = goal.trim() || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
+  const startSession = async (initialGoal?: string) => {
+    const sessionGoal = initialGoal || goal.trim() || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
     setGoal(sessionGoal);
     impact('medium');
     playingRef.current = true;
@@ -249,7 +248,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         title: language === 'he' ? 'שגיאה ביצירת הסשן' : 'Error generating session',
         variant: 'destructive',
       });
-      setState('setup');
+      handleClose();
     }
   };
 
@@ -487,79 +486,6 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         </Button>
 
         <AnimatePresence mode="wait">
-          {/* Setup State */}
-          {state === 'setup' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col items-center justify-center p-6 space-y-6"
-            >
-              <div className="text-center">
-                <h1 className="text-2xl font-bold">
-                  {t('hypnosisSession.personalHypnosis')}
-                </h1>
-              </div>
-
-              {/* Current Week Context */}
-              {currentMilestone ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="w-full max-w-md"
-                >
-                  <div className="relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/15 to-primary/10 p-6 text-center">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
-                    
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      <span className="text-sm font-medium text-primary">
-                        {t('hypnosisSession.week')} {currentMilestone.week_number}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-lg font-bold text-foreground mb-2">
-                      {currentMilestone.title}
-                    </h3>
-                    
-                    {currentMilestone.description && (
-                      <p className="text-sm text-muted-foreground">
-                        {currentMilestone.description}
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              ) : (
-                <div className="w-full max-w-md text-center">
-                  <p className="text-muted-foreground">
-                    {t('hypnosisSession.personalizedSession')}
-                  </p>
-                </div>
-              )}
-
-              {/* Duration Selection */}
-              <div className="flex items-center justify-center gap-4">
-                <span className="text-sm text-muted-foreground">
-                  {t('hypnosisSession.duration')}
-                </span>
-                {[5, 10, 15].map((d) => (
-                  <Button
-                    key={d}
-                    variant={duration === d ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setDuration(d)}
-                  >
-                    {d} {t('hypnosisSession.minutes')}
-                  </Button>
-                ))}
-              </div>
-
-              <Button onClick={startSession} size="lg" className="gap-2 px-8">
-                <Play className="w-5 h-5" />
-                {t('hypnosisSession.startSession')}
-              </Button>
-            </motion.div>
-          )}
 
           {/* Generating State */}
           {state === 'generating' && (
