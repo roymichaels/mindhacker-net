@@ -118,7 +118,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   // Auto-scroll to top when segment changes
   useEffect(() => {
     if (scrollContainerRef.current && currentSegmentIndex >= 0) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      // Defer to the next frame so layout is ready (prevents "doesn't scroll" on mobile)
+      requestAnimationFrame(() => {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
   }, [currentSegmentIndex]);
 
@@ -546,22 +549,22 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
-          className="max-w-2xl h-[85vh] max-h-[700px] p-0 overflow-hidden bg-background"
-          dir={isRTL ? 'rtl' : 'ltr'}
-          onPointerDownOutside={(e) => {
-            // Prevent closing when clicking outside during session
-            if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
-              e.preventDefault();
-            }
-          }}
-          onInteractOutside={(e) => {
-            // Prevent all outside interactions during active session
-            if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
-              e.preventDefault();
-            }
-          }}
-        >
+      <DialogContent 
+        className="max-w-2xl h-[85svh] max-h-[85svh] p-0 overflow-hidden bg-background"
+        dir={isRTL ? 'rtl' : 'ltr'}
+        onPointerDownOutside={(e) => {
+          // Prevent closing when clicking outside during session
+          if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          // Prevent all outside interactions during active session
+          if (state === 'playing' || state === 'paused' || state === 'generating' || state === 'breathing') {
+            e.preventDefault();
+          }
+        }}
+      >
         <VisuallyHidden>
           <DialogTitle>{t('hypnosisSession.title')}</DialogTitle>
         </VisuallyHidden>
@@ -580,7 +583,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col items-center justify-center p-6 space-y-8"
               >
                 <div className="text-center space-y-2">
-                  <div className="relative w-24 h-24 mx-auto mb-4">
+                  <div className="relative w-24 h-24 mx-auto mb-4 overflow-visible">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-125" />
                     <PersonalizedOrb size={96} state="idle" />
                   </div>
@@ -659,7 +662,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col items-center justify-center p-6 space-y-6"
               >
                 <PersonalizedOrb 
-                  size={200} 
+                  size={180} 
                   state="listening"
                 />
                 <div className="text-center space-y-4">
@@ -695,9 +698,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
                 {/* Orb Area - Fixed height */}
-                <div className="flex-shrink-0 flex items-center justify-center p-4 sm:p-6">
+                <div className="flex-shrink-0 flex items-center justify-center p-4 sm:p-6 overflow-visible">
                   <PersonalizedOrb 
-                    size={200} 
+                    size={180} 
                     state={state === 'playing' ? 'listening' : 'idle'}
                   />
                 </div>
@@ -735,7 +738,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 </div>
 
                 {/* Controls - Fixed at bottom */}
-                <div className="flex-shrink-0 flex items-center justify-center gap-4 p-4 sm:p-6">
+                <div className="flex-shrink-0 flex items-center justify-center gap-4 p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                   <Button
                     variant="ghost"
                     size="icon"
