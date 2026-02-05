@@ -79,13 +79,25 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const [breathingCountdown, setBreathingCountdown] = useState(0);
   const [cachedAudioPaths, setCachedAudioPaths] = useState<string[] | null>(null);
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs');
+  
+  // NEW: State (not just ref) for timer reactivity
+  const [voiceStarted, setVoiceStarted] = useState(false);
 
   const prefetchedAudioRef = useRef<Map<number, { url: string; provider: VoiceProvider }>>(new Map());
   const startTimeRef = useRef<number>(0);
   const playingRef = useRef<boolean>(false);
-  const voiceStartedRef = useRef<boolean>(false); // Track when voice actually starts
+  const voiceStartedRef = useRef<boolean>(false); // Track when voice actually starts (ref for sync checks)
   const currentPlayingSegmentRef = useRef<number>(-1); // Track which segment is currently playing to prevent race conditions
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // NEW: Timeout tracking for cleanup
+  const timeoutRefs = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  
+  // NEW: Session ID for stale callback detection
+  const sessionIdRef = useRef<number>(0);
+  
+  // NEW: Abort controller for async operations
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const currentSegment = script?.segments[currentSegmentIndex];
   
@@ -105,6 +117,41 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       'Almost ready...',
     ],
   };
+
+  // NEW: Helper to schedule timeouts that can be tracked and cleared
+  const scheduleTimeout = useCallback((fn: () => void, delay: number) => {
+    const id = setTimeout(() => {
+      timeoutRefs.current.delete(id);
+      fn();
+    }, delay);
+    timeoutRefs.current.add(id);
+    return id;
+  }, []);
+
+  // NEW: Clear all tracked timeouts
+  const clearAllTimeouts = useCallback(() => {
+    timeoutRefs.current.forEach(id => clearTimeout(id));
+    timeoutRefs.current.clear();
+  }, []);
+
+  // NEW: Comprehensive cleanup function
+  const fullCleanup = useCallback(() => {
+    // 1. Stop the playing flag immediately
+    playingRef.current = false;
+    
+    // 2. Clear ALL scheduled timeouts
+    clearAllTimeouts();
+    
+    // 3. Stop all audio elements
+    stopCurrentAudio();
+    stopBrowserSpeech();
+    
+    // 4. Abort any pending fetch/synthesis requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  }, [clearAllTimeouts]);
 
   // Rotate messages during generating
   useEffect(() => {
@@ -138,14 +185,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     }
   }, [open, isLoadingContext, suggestedGoal, goalInitialized]);
 
-  // Reset state when modal closes
+  // Reset state when modal closes - ENHANCED with session ID invalidation
   useEffect(() => {
     if (!open) {
-      // Immediately stop ALL audio + prevent any queued segment timeouts from continuing
-      playingRef.current = false;
-      stopCurrentAudio();
-      stopBrowserSpeech();
+      // Increment session ID to invalidate all pending callbacks
+      sessionIdRef.current++;
+      
+      // Full cleanup
+      fullCleanup();
 
+      // Reset all state
       setState('setup');
       setGoal('');
       setGoalInitialized(false);
@@ -155,26 +204,26 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setProgress(0);
       setElapsedTime(0);
       setShowBreathing(false);
+      setVoiceStarted(false);
       voiceStartedRef.current = false;
       currentPlayingSegmentRef.current = -1;
       prefetchedAudioRef.current.clear();
     }
-  }, [open]);
+  }, [open, fullCleanup]);
 
   // Hard cleanup on unmount (route changes etc.)
   useEffect(() => {
     return () => {
-      playingRef.current = false;
-      stopCurrentAudio();
-      stopBrowserSpeech();
+      sessionIdRef.current++;
+      fullCleanup();
     };
-  }, []);
+  }, [fullCleanup]);
 
-  // Progress timer - only runs when voice has actually started
+  // Progress timer - NOW properly reacts to voiceStarted state
   useEffect(() => {
     if (state !== 'playing') return;
-    // Don't update timer until voice has started
-    if (!voiceStartedRef.current) return;
+    // Don't update timer until voice has actually started
+    if (!voiceStarted) return;
     
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
@@ -184,7 +233,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [state, duration]);
+  }, [state, duration, voiceStarted]); // Added voiceStarted as dependency
+
+  // Helper to mark voice as started - updates both ref and state
+  const markVoiceStarted = useCallback(() => {
+    if (!voiceStartedRef.current) {
+      voiceStartedRef.current = true;
+      setVoiceStarted(true); // Trigger state update for timer effect
+      startTimeRef.current = Date.now();
+    }
+  }, []);
 
   const startBreathing = async () => {
     // Auto-set goal from milestone if not already set
@@ -203,6 +261,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     setState('generating');
     hapticPattern('selection');
     playingRef.current = true;
+    
+    // Create new abort controller for this session
+    abortControllerRef.current = new AbortController();
+    const currentSessionId = sessionIdRef.current;
 
     try {
       const cacheKey = generateCacheKey({
@@ -214,6 +276,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
       if (user?.id) {
         const cached = await checkScriptCache(user.id, cacheKey);
+        
+        // Check if session was cancelled during cache check
+        if (sessionIdRef.current !== currentSessionId) return;
         
         if (cached?.script_data) {
           const cachedScript = cached.script_data as unknown as HypnosisScript;
@@ -228,8 +293,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
             
             setState('playing');
             playingRef.current = true;
-            voiceStartedRef.current = false; // Will be set when voice actually starts
-            currentPlayingSegmentRef.current = -1; // Reset segment lock
+            voiceStartedRef.current = false;
+            setVoiceStarted(false);
+            currentPlayingSegmentRef.current = -1;
             hapticPattern('success');
             
             playSegment(0, cachedScript, cached.audio_paths || undefined);
@@ -247,6 +313,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         previousSessions: 0,
         language: language as 'he' | 'en',
       });
+
+      // Check if session was cancelled during script generation
+      if (sessionIdRef.current !== currentSessionId) return;
 
       if (!generatedScript?.segments?.length) {
         throw new Error('Invalid script: no segments generated');
@@ -266,13 +335,17 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setScript(generatedScript);
       setState('playing');
       playingRef.current = true;
-      voiceStartedRef.current = false; // Will be set when voice actually starts
-      currentPlayingSegmentRef.current = -1; // Reset segment lock
+      voiceStartedRef.current = false;
+      setVoiceStarted(false);
+      currentPlayingSegmentRef.current = -1;
       hapticPattern('success');
       
       prefetchedAudioRef.current.clear();
       playSegment(0, generatedScript);
     } catch (error) {
+      // Check if this was an abort
+      if (sessionIdRef.current !== currentSessionId) return;
+      
       console.error('Failed to generate script:', error);
       hapticPattern('error');
       toast({
@@ -321,6 +394,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     // Stop any currently playing audio immediately
     stopCurrentAudio();
     stopBrowserSpeech();
+    clearAllTimeouts();
     
     impact('heavy');
     hapticPattern('success');
@@ -343,9 +417,12 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         console.error('Failed to save session:', error);
       }
     }
-  }, [user?.id, duration, goal, impact, hapticPattern, recordSession]);
+  }, [user?.id, duration, goal, impact, hapticPattern, recordSession, clearAllTimeouts]);
 
   const playSegment = useCallback(async (index: number, scriptOverride?: HypnosisScript, cachedPaths?: string[]) => {
+    // Capture session ID at the start of this call
+    const currentSessionId = sessionIdRef.current;
+    
     // Early return if session was paused/stopped
     if (!playingRef.current) {
       return;
@@ -387,20 +464,15 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     setCurrentSegmentIndex(index);
     impact('light');
 
-    // Helper function to start timer on first audio
-    const markVoiceStarted = () => {
-      if (!voiceStartedRef.current) {
-        voiceStartedRef.current = true;
-        startTimeRef.current = Date.now();
-      }
-    };
-
     if (isMuted) {
       const wordsPerMinute = 130;
       const words = segment.text.split(/\s+/).length;
       const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 2000);
       
-      setTimeout(() => {
+      // Use tracked timeout instead of raw setTimeout
+      scheduleTimeout(() => {
+        // Guard against stale callbacks
+        if (sessionIdRef.current !== currentSessionId) return;
         if (playingRef.current) {
           playSegment(index + 1, activeScript, activeCachedPaths);
         }
@@ -415,14 +487,18 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         await playAudioUrl(prefetched.url, {
           onStart: markVoiceStarted,
           onEnd: () => {
+            // Guard against stale callbacks
+            if (sessionIdRef.current !== currentSessionId) return;
             if (playingRef.current) {
               playSegment(index + 1, activeScript, activeCachedPaths);
             }
           },
           onError: () => {
-            // Double-check playingRef before and after timeout
+            // Guard against stale callbacks
+            if (sessionIdRef.current !== currentSessionId) return;
             if (playingRef.current) {
-              setTimeout(() => {
+              scheduleTimeout(() => {
+                if (sessionIdRef.current !== currentSessionId) return;
                 if (playingRef.current) {
                   playSegment(index + 1, activeScript, activeCachedPaths);
                 }
@@ -439,19 +515,27 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     if (activeCachedPaths && activeCachedPaths[index]) {
       try {
         const cachedUrl = await getCachedAudioUrl(activeCachedPaths[index]);
+        
+        // Check if session was cancelled during fetch
+        if (sessionIdRef.current !== currentSessionId) return;
+        
         if (cachedUrl) {
           void prefetchSegmentAudio(index + 1, activeScript, activeCachedPaths);
           await playAudioUrl(cachedUrl, {
             onStart: markVoiceStarted,
             onEnd: () => {
+              // Guard against stale callbacks
+              if (sessionIdRef.current !== currentSessionId) return;
               if (playingRef.current) {
                 playSegment(index + 1, activeScript, activeCachedPaths);
               }
             },
             onError: () => {
-              // Double-check playingRef before and after timeout
+              // Guard against stale callbacks
+              if (sessionIdRef.current !== currentSessionId) return;
               if (playingRef.current) {
-                setTimeout(() => {
+                scheduleTimeout(() => {
+                  if (sessionIdRef.current !== currentSessionId) return;
                   if (playingRef.current) {
                     playSegment(index + 1, activeScript, activeCachedPaths);
                   }
@@ -462,6 +546,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           return;
         }
       } catch (error) {
+        // Check if session was cancelled
+        if (sessionIdRef.current !== currentSessionId) return;
         console.warn('Failed to get cached audio:', error);
       }
     }
@@ -475,19 +561,26 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         speed: 0.9,
       });
 
+      // Check if session was cancelled during synthesis
+      if (sessionIdRef.current !== currentSessionId) return;
+
       if (result) {
         setVoiceProvider(result.provider);
         await playAudioUrl(result.audioUrl, {
           onStart: markVoiceStarted,
           onEnd: () => {
+            // Guard against stale callbacks
+            if (sessionIdRef.current !== currentSessionId) return;
             if (playingRef.current) {
               playSegment(index + 1, activeScript, activeCachedPaths);
             }
           },
           onError: () => {
-            // Double-check playingRef before and after timeout
+            // Guard against stale callbacks
+            if (sessionIdRef.current !== currentSessionId) return;
             if (playingRef.current) {
-              setTimeout(() => {
+              scheduleTimeout(() => {
+                if (sessionIdRef.current !== currentSessionId) return;
                 if (playingRef.current) {
                   playSegment(index + 1, activeScript, activeCachedPaths);
                 }
@@ -500,20 +593,27 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         const words = segment.text.split(/\s+/).length;
         const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 2000);
         
-        setTimeout(() => {
+        // Use tracked timeout
+        scheduleTimeout(() => {
+          if (sessionIdRef.current !== currentSessionId) return;
           if (playingRef.current) {
             playSegment(index + 1, activeScript, activeCachedPaths);
           }
         }, readingTime);
       }
     } catch (error) {
-      setTimeout(() => {
+      // Check if session was cancelled
+      if (sessionIdRef.current !== currentSessionId) return;
+      
+      // Use tracked timeout
+      scheduleTimeout(() => {
+        if (sessionIdRef.current !== currentSessionId) return;
         if (playingRef.current) {
           playSegment(index + 1, activeScript, activeCachedPaths);
         }
       }, 1000);
     }
-  }, [isMuted, voiceProvider, impact, cachedAudioPaths, handleSessionComplete, prefetchSegmentAudio]);
+  }, [isMuted, voiceProvider, impact, cachedAudioPaths, handleSessionComplete, prefetchSegmentAudio, markVoiceStarted, scheduleTimeout]);
 
   const togglePlayPause = () => {
     impact('medium');
@@ -522,6 +622,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       playingRef.current = false;
       stopCurrentAudio();
       stopBrowserSpeech();
+      clearAllTimeouts(); // Clear any pending segment timeouts
     } else if (state === 'paused' && scriptRef.current) {
       setState('playing');
       playingRef.current = true;
@@ -569,9 +670,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   const handleDialogOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
-      playingRef.current = false;
-      stopCurrentAudio();
-      stopBrowserSpeech();
+      // Increment session ID to invalidate all pending callbacks
+      sessionIdRef.current++;
+      fullCleanup();
     }
     onOpenChange(nextOpen);
   };
