@@ -3,6 +3,34 @@ import { cn } from '@/lib/utils';
 import type { OrbRef, OrbProps, OrbState } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
 
+function normalizeCssColor(input: string | undefined | null): string {
+  if (!input) return 'transparent';
+  const trimmed = input.trim();
+
+  // Already a valid CSS function
+  if (/^(hsl|hsla|rgb|rgba)\(/i.test(trimmed)) return trimmed;
+
+  // Space-separated HSL like: "292 95% 73%" (common in orb profiles)
+  if (/^\d+\s+\d+%\s+\d+%$/.test(trimmed)) {
+    return `hsl(${trimmed})`;
+  }
+
+  // Hex or named colors fallback
+  return trimmed;
+}
+
+function hslWithAlpha(input: string | undefined | null, alpha: number): string {
+  const c = normalizeCssColor(input);
+  const m = c.match(/^hsl\((\s*\d+\s*),\s*(\d+%\s*),\s*(\d+%\s*)\)$/i);
+  if (m) return `hsl(${m[1]} ${m[2]} ${m[3]} / ${alpha})`;
+
+  const m2 = c.match(/^hsl\((\s*\d+)\s+(\d+%)\s+(\d+%)\)$/i);
+  if (m2) return `hsl(${m2[1]} ${m2[2]} ${m2[3]} / ${alpha})`;
+
+  // If it's not HSL, return as-is (better than breaking)
+  return c;
+}
+
 export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   { size = 300, state: externalState, audioLevel: externalAudioLevel, tunnelMode, egoState = 'guardian', className, showGlow = true, onReady, profile, themeColors },
   ref
@@ -18,20 +46,27 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
   // Use profile colors first, then theme colors, then fall back to ego state colors
   const egoColors = getEgoStateColors(egoState);
   const colors = profile ? {
-    primary: profile.primaryColor,
-    secondary: profile.secondaryColors[0] || profile.primaryColor,
-    accent: profile.accentColor,
-    glow: profile.accentColor,
-    highlight: egoColors.highlight,
-    shadow: egoColors.shadow,
+    primary: normalizeCssColor(profile.primaryColor),
+    secondary: normalizeCssColor(profile.secondaryColors[0] || profile.primaryColor),
+    accent: normalizeCssColor(profile.accentColor),
+    glow: normalizeCssColor(profile.accentColor),
+    highlight: normalizeCssColor(egoColors.highlight),
+    shadow: normalizeCssColor(egoColors.shadow),
   } : themeColors ? {
-    primary: themeColors.primary,
-    secondary: themeColors.secondary,
-    accent: themeColors.accent,
-    glow: themeColors.glow,
-    highlight: `${themeColors.primary.replace(')', ', 0.8)')}`,
-    shadow: `${themeColors.secondary.replace(')', ', 0.6)')}`,
-  } : egoColors;
+    primary: normalizeCssColor(themeColors.primary),
+    secondary: normalizeCssColor(themeColors.secondary),
+    accent: normalizeCssColor(themeColors.accent),
+    glow: normalizeCssColor(themeColors.glow),
+    highlight: hslWithAlpha(themeColors.primary, 0.8),
+    shadow: hslWithAlpha(themeColors.secondary, 0.6),
+  } : {
+    primary: normalizeCssColor(egoColors.primary),
+    secondary: normalizeCssColor(egoColors.secondary),
+    accent: normalizeCssColor(egoColors.accent),
+    glow: normalizeCssColor(egoColors.glow),
+    highlight: normalizeCssColor(egoColors.highlight),
+    shadow: normalizeCssColor(egoColors.shadow),
+  };
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
@@ -108,14 +143,14 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
           width: size * 0.8,
           height: size * 0.8,
           background: `
-            radial-gradient(circle at 30% 30%, ${colors.highlight} 0%, transparent 40%),
-            radial-gradient(circle at 70% 70%, ${colors.shadow} 0%, transparent 40%),
+            radial-gradient(circle at 30% 30%, ${hslWithAlpha(colors.highlight, 1)} 0%, transparent 40%),
+            radial-gradient(circle at 70% 70%, ${hslWithAlpha(colors.shadow, 1)} 0%, transparent 40%),
             linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)
           `,
           boxShadow: `
             0 0 ${30 + audioLevel * 20}px ${colors.glow},
-            0 0 ${60 + audioLevel * 40}px ${colors.accent}40,
-            inset 0 0 ${40 + audioLevel * 20}px ${colors.highlight}40
+            0 0 ${60 + audioLevel * 40}px ${hslWithAlpha(colors.accent, 0.25)},
+            inset 0 0 ${40 + audioLevel * 20}px ${hslWithAlpha(colors.highlight, 0.25)}
           `,
           transform: `scale(${totalScale})`,
           transition: 'transform 0.1s ease-out, box-shadow 0.2s ease-out',
@@ -125,7 +160,7 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
         <div
           className="absolute inset-4 rounded-full opacity-40"
           style={{
-            background: `radial-gradient(circle at 40% 40%, ${colors.highlight} 0%, transparent 60%)`,
+            background: `radial-gradient(circle at 40% 40%, ${hslWithAlpha(colors.highlight, 1)} 0%, transparent 60%)`,
           }}
         />
 
@@ -134,8 +169,8 @@ export const CSSOrb = forwardRef<OrbRef, OrbProps>(function CSSOrb(
           className="absolute inset-0 rounded-full opacity-20"
           style={{
             background: `
-              repeating-linear-gradient(0deg, transparent, transparent 10px, ${colors.accent}20 10px, ${colors.accent}20 11px),
-              repeating-linear-gradient(90deg, transparent, transparent 10px, ${colors.accent}20 10px, ${colors.accent}20 11px)
+              repeating-linear-gradient(0deg, transparent, transparent 10px, ${hslWithAlpha(colors.accent, 0.12)} 10px, ${hslWithAlpha(colors.accent, 0.12)} 11px),
+              repeating-linear-gradient(90deg, transparent, transparent 10px, ${hslWithAlpha(colors.accent, 0.12)} 10px, ${hslWithAlpha(colors.accent, 0.12)} 11px)
             `,
           }}
         />
