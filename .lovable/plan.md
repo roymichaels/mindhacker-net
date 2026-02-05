@@ -1,153 +1,244 @@
 
-# Rebranding: Mind Hacker → MindOS / מיינדOS
 
-## ✅ COMPLETED
-
-All rebranding changes have been implemented.
+# Bug Reporting Widget System
 
 ## Overview
-Complete rebranding of the application from "Mind Hacker / מיינד האקר" to "MindOS / מיינדOS". This aligns with the existing "Life Operating System" positioning already present in some areas (PWA manifest, homepage hero).
+Create a beautiful, advanced bug reporting system that allows all users to easily report issues from anywhere in the app. The system will automatically capture contextual information (current page, user details, device info) and present an elegant floating widget that matches the app's "Game UI" aesthetic.
 
 ---
 
-## Scope of Changes
+## Features
 
-### 1. Translation Files (Primary Brand References)
-**Files:** `src/i18n/translations/he.ts`, `src/i18n/translations/en.ts`
+### User-Facing Features
+- **Floating Bug Report Button**: A persistent, beautifully animated button in the corner of the screen
+- **Smart Context Capture**: Automatically records current page, URL, timestamp, device info, and browser
+- **Category Selection**: Users can classify bugs (UI Issue, Performance, Feature Not Working, Other)
+- **Priority Indicator**: Optional severity selection (Low, Medium, High, Critical)
+- **Screenshot Capability**: Button to capture and attach a screenshot (using html2canvas - already installed)
+- **Description Field**: Rich text area for detailed bug descriptions
+- **Contact Preference**: Optional email field for follow-up
+- **Success Animation**: Satisfying confirmation with confetti (canvas-confetti - already installed)
 
-| Location | Current | New |
-|----------|---------|-----|
-| `header.brandName` | מיינד האקר / Mind Hacker | מיינדOS / MindOS |
-| `footer.copyright` | © 2025 מיינד האקר / Mind Hacker | © 2025 MindOS |
-| `toast.welcomeNew` | ברוך הבא למיינד האקר | ברוך הבא ל-MindOS |
-| `seo.indexTitle` | Mind Hacker \| AI-Powered... | MindOS \| AI-Powered... |
-| `seo.indexKeywords` | ...Mind Hacker | ...MindOS |
-| `about.name` | Mind Hacker Team | MindOS Team |
-| `about.defaultStory` | Mind Hacker was built... | MindOS was built... |
-| `invitation.signature` | Mind Hacker Team | MindOS Team |
-| `chatWidget.assistantName` | Mind Hacker Assistant | MindOS Assistant |
-| `exitIntent.imageAlt` | Mind Hacker | MindOS |
-| `personalHypnosis.seo*` | ...Mind Hacker... | ...MindOS... |
-| `consciousnessLeapLanding.brandName` | מיינד האקר / Mind Hacker | מיינדOS / MindOS |
-| `consciousnessLeapLanding.aboutSectionTitleHighlight` | Mind Hacker | MindOS |
-| `consciousnessLeapLanding.aboutText1` | Mind Hacker is... | MindOS is... |
-| `progressiveEngagement.welcomeTitle` | ברוכים הבאים למיינד האקר | ברוכים הבאים ל-MindOS |
-| `community.pageTitle` | קהילה \| מיינד האקר | קהילה \| MindOS |
-| `legal.privacy.seoTitle` | מדיניות פרטיות \| מיינד האקר | מדיניות פרטיות \| MindOS |
-| `legal.terms.seoTitle` | תנאי שימוש \| מיינד האקר | תנאי שימוש \| MindOS |
+### Admin Features
+- **Bug Reports Dashboard**: New admin page to view, filter, and manage all bug reports
+- **Status Management**: Track reports through statuses (New, In Progress, Resolved, Closed)
+- **Filtering**: By status, priority, category, date range
+- **User Context Display**: See exactly where and when the bug occurred
 
 ---
 
-### 2. Default Theme Settings (Fallback Values)
-**File:** `src/hooks/useThemeSettings.ts`
+## Technical Implementation
 
-```text
-Line 92:  brand_name: "מיינד האקר" → "מיינדOS"
-Line 93:  brand_name_en: "Mind Hacker" → "MindOS"
-Line 94:  company_legal_name: "Mind Hacker OÜ" → "MindOS OÜ"
-Line 138: site_url: "https://mind-hacker.net" → "https://mindos.app" (or current domain)
-```
-
----
-
-### 3. PWA Install Page
-**File:** `src/pages/Install.tsx`
-
-```text
-Line 38: title: 'התקן את האפליקציה | מיינד האקר' → '...| MindOS'
-Line 39: description: 'התקן את אפליקציית מיינד האקר...' → '...MindOS...'
-Line 70: <h1>מיינד האקר</h1> → <h1>MindOS</h1>
-```
-
----
-
-### 4. PWA Hook
-**File:** `src/hooks/usePWA.ts`
-
-```text
-Line 132: 'בחר "התקן את מיינד האקר"' → 'בחר "התקן את MindOS"'
-```
-
----
-
-### 5. Subscriptions Page
-**File:** `src/pages/Subscriptions.tsx`
-
-```text
-Line 230: 'הצטרף למיינד האקר...' → 'הצטרף ל-MindOS...'
-```
-
----
-
-### 6. Admin Theme Page (Placeholder)
-**File:** `src/pages/admin/Theme.tsx`
-
-```text
-Line 703: placeholder="מיינד האקר" → placeholder="מיינדOS"
-```
-
----
-
-### 7. PDF Cover Page
-**File:** `src/components/pdf/PDFCoverPage.tsx`
-
-```text
-Line 26: <span>MH</span> → <span>מO</span> or use Orb icon
-Line 48: <p>MindHacker.net</p> → <p>MindOS</p>
-```
-
----
-
-### 8. Storefront Settings (Domain References)
-**File:** `src/pages/panel/StorefrontSettings.tsx`
-
-```text
-Line 439: '.mindhacker.net' → '.mindos.app' (or new domain)
-Line 462: 'Value: mindhacker.net' → 'Value: mindos.app'
-```
-
----
-
-### 9. Legal Pages (Company Name in Content)
-**Files:** `src/i18n/translations/he.ts`, `src/i18n/translations/en.ts`
-
-Update all legal content references:
-- `legal.company.name`: "Mind Hacker OÜ" → "MindOS OÜ"
-- `legal.privacy.introText`: References to "Mind Hacker OÜ"
-- `legal.terms.acceptanceText`: References to "Mind Hacker OÜ"
-- `legal.terms.servicesIntro`: References to "Mind Hacker OÜ"
-- `legal.terms.liabilityText`: References to "Mind Hacker OÜ"
-
----
-
-### 10. Database Update (Live Brand Settings)
-Update `theme_settings` table via SQL migration:
+### 1. Database Schema
+Create a new `bug_reports` table to store all submissions:
 
 ```sql
-UPDATE theme_settings SET setting_value = 'מיינדOS' WHERE setting_key = 'brand_name';
-UPDATE theme_settings SET setting_value = 'MindOS' WHERE setting_key = 'brand_name_en';
-UPDATE theme_settings SET setting_value = 'MindOS OÜ' WHERE setting_key = 'company_legal_name';
+CREATE TABLE bug_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  
+  -- Bug Details
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'other',
+  priority TEXT NOT NULL DEFAULT 'medium',
+  
+  -- Context (auto-captured)
+  page_path TEXT NOT NULL,
+  page_url TEXT NOT NULL,
+  user_agent TEXT,
+  device_type TEXT,
+  browser TEXT,
+  os TEXT,
+  screen_size TEXT,
+  
+  -- Optional
+  screenshot_url TEXT,
+  contact_email TEXT,
+  
+  -- Admin fields
+  status TEXT NOT NULL DEFAULT 'new',
+  admin_notes TEXT,
+  resolved_at TIMESTAMPTZ,
+  resolved_by UUID REFERENCES profiles(id),
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS Policies
+ALTER TABLE bug_reports ENABLE ROW LEVEL SECURITY;
+
+-- Users can insert their own reports
+CREATE POLICY "Users can create bug reports"
+  ON bug_reports FOR INSERT
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- Users can view their own reports
+CREATE POLICY "Users can view own reports"
+  ON bug_reports FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Admins can do everything
+CREATE POLICY "Admins full access"
+  ON bug_reports FOR ALL
+  USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Index for performance
+CREATE INDEX idx_bug_reports_status ON bug_reports(status);
+CREATE INDEX idx_bug_reports_created ON bug_reports(created_at DESC);
 ```
 
+### 2. New Components
+
+#### A. BugReportWidget (Floating Button + Dialog)
+**File**: `src/components/BugReportWidget.tsx`
+
+- Floating button with gradient animation (bottom-left corner, respecting pointer-events rules)
+- Opens a beautiful dialog matching the app's glassmorphism style
+- Auto-captures page context on open
+- Form with validation using react-hook-form + zod
+
+#### B. BugReportForm (Form Content)
+**File**: `src/components/bug-report/BugReportForm.tsx`
+
+- Category select (UI, Performance, Feature, Other)
+- Priority select with color indicators
+- Title input
+- Description textarea
+- Optional screenshot capture button
+- Optional email input
+- Submit with loading state
+
+#### C. Admin Bug Reports Page
+**File**: `src/pages/admin/BugReports.tsx`
+
+- Data table with sorting
+- Status badges with colors
+- Filter controls
+- Detail drawer/modal for each report
+- Quick status update actions
+
+### 3. Translation Keys
+Add to both `he.ts` and `en.ts`:
+
+```typescript
+bugReport: {
+  // Widget
+  buttonTooltip: "Report a Bug",
+  
+  // Dialog
+  title: "Report a Bug",
+  subtitle: "Help us improve by reporting issues",
+  
+  // Form fields
+  category: "Category",
+  categoryUI: "UI Issue",
+  categoryPerformance: "Performance",
+  categoryFeature: "Feature Not Working",
+  categoryOther: "Other",
+  
+  priority: "Priority",
+  priorityLow: "Low",
+  priorityMedium: "Medium", 
+  priorityHigh: "High",
+  priorityCritical: "Critical",
+  
+  titleLabel: "Title",
+  titlePlaceholder: "Brief description of the issue",
+  
+  descriptionLabel: "Description",
+  descriptionPlaceholder: "What happened? What did you expect?",
+  
+  screenshotLabel: "Screenshot",
+  captureScreenshot: "Capture Screenshot",
+  screenshotCaptured: "Screenshot captured!",
+  
+  emailLabel: "Email (optional)",
+  emailPlaceholder: "For follow-up",
+  
+  // Context info
+  pageInfo: "Page",
+  deviceInfo: "Device",
+  
+  // Actions
+  submit: "Submit Report",
+  submitting: "Submitting...",
+  
+  // Success/Error
+  successTitle: "Thank you!",
+  successMessage: "Your report has been submitted",
+  errorTitle: "Error",
+  errorMessage: "Failed to submit report",
+  
+  // Admin
+  adminTitle: "Bug Reports",
+  status: "Status",
+  statusNew: "New",
+  statusInProgress: "In Progress",
+  statusResolved: "Resolved",
+  statusClosed: "Closed",
+}
+```
+
+### 4. File Structure
+
+```text
+src/
+├── components/
+│   ├── BugReportWidget.tsx          # Main floating widget
+│   └── bug-report/
+│       ├── BugReportForm.tsx        # Form component
+│       ├── BugReportDialog.tsx      # Dialog wrapper
+│       ├── CategorySelect.tsx       # Category dropdown
+│       ├── PrioritySelect.tsx       # Priority with colors
+│       └── ScreenshotCapture.tsx    # Screenshot functionality
+├── pages/
+│   └── admin/
+│       └── BugReports.tsx           # Admin management page
+├── hooks/
+│   └── useBugReport.ts              # Context capture + submission logic
+```
+
+### 5. Integration Points
+
+**App.tsx** - Add widget globally (after CookieConsent):
+```tsx
+<CookieConsent />
+<BugReportWidget />
+```
+
+**Admin Routes** - Add new admin page:
+```tsx
+<Route path="bug-reports" element={<BugReports />} />
+```
+
+**Admin Sidebar** - Add navigation link with Bug icon
+
 ---
 
-## Summary Statistics
+## Visual Design
 
-| Category | Files | Changes |
-|----------|-------|---------|
-| Translation files | 2 | ~50 string updates |
-| Theme/Config | 2 | 4 default values |
-| Pages | 4 | 6 hardcoded strings |
-| Components | 1 | 2 PDF text elements |
-| Database | 1 migration | 3 settings |
+### Floating Button
+- Gradient border animation (purple to fuchsia - matching brand)
+- Glassmorphism background
+- Bug icon with subtle glow
+- Positioned bottom-left (opposite to chat input)
+- Respects RTL layout
+- Uses `pointer-events-none` container with `pointer-events-auto` on button
 
-**Total: ~10 files, ~65 changes**
+### Dialog
+- Dark glassmorphism matching existing modals
+- Category pills with icons
+- Priority badges with severity colors (green/yellow/orange/red)
+- Screenshot preview thumbnail
+- Animated success state with confetti
 
----
-
-## Technical Notes
-
-1. **No visual design changes** - only text/brand name swaps
-2. **PWA manifest in vite.config.ts** already uses "MindOS" - no change needed
-3. **Domain URL** updates are optional and depend on the actual domain being used
-4. **Company legal name** change should be verified with actual registration before updating legal pages
+### Admin Page
+- Cards with status color coding
+- Expandable rows for full details
+- Quick action buttons
+- Filter chips
