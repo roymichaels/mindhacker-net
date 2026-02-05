@@ -25,8 +25,8 @@ const PracticeStep = ({ data, onUpdate, language }: PracticeStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-600/20 mb-4">
-          <Hammer className="w-8 h-8 text-indigo-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 mb-4">
+          <Hammer className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'תרגול ויישום' : 'Practice & Application'}
@@ -40,15 +40,15 @@ const PracticeStep = ({ data, onUpdate, language }: PracticeStepProps) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Repeat className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Repeat className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'תדירות תרגול' : 'Practice Frequency'}
           </Label>
           <Select
             value={(data.practice_frequency as string) || ''}
             onValueChange={(value) => handleChange('practice_frequency', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר תדירות' : 'Select frequency'} />
             </SelectTrigger>
             <SelectContent>
@@ -62,8 +62,8 @@ const PracticeStep = ({ data, onUpdate, language }: PracticeStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Hammer className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Hammer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'שיטות תרגול' : 'Practice Methods'}
           </Label>
           <Textarea
@@ -72,13 +72,13 @@ const PracticeStep = ({ data, onUpdate, language }: PracticeStepProps) => {
               : 'I practice by...'}
             value={(data.practice_methods as string) || ''}
             onChange={(e) => handleChange('practice_methods', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-indigo-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-indigo-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'אזורי יישום' : 'Application Areas'}
           </Label>
           <Textarea
@@ -87,7 +87,7 @@ const PracticeStep = ({ data, onUpdate, language }: PracticeStepProps) => {
               : 'I apply what I\'ve learned in...'}
             value={(data.application_areas as string) || ''}
             onChange={(e) => handleChange('application_areas', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-indigo-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-indigo-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
