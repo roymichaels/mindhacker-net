@@ -24,8 +24,8 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/20 mb-4">
-          <Users className="w-8 h-8 text-pink-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-500/20 dark:bg-pink-600/20 mb-4">
+          <Users className="w-8 h-8 text-pink-600 dark:text-pink-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'חברה וקהילה' : 'Social Circle & Community'}
@@ -39,15 +39,15 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'גודל המעגל החברתי' : 'Social Circle Size'}
           </Label>
           <Select
             value={(data.social_circle_size as string) || ''}
             onValueChange={(value) => handleChange('social_circle_size', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר גודל' : 'Select size'} />
             </SelectTrigger>
             <SelectContent>
@@ -61,8 +61,8 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'איכות החברויות' : 'Friendship Quality'}
           </Label>
           <Textarea
@@ -71,13 +71,13 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
               : 'My friendships are characterized by...'}
             value={(data.friendship_quality as string) || ''}
             onChange={(e) => handleChange('friendship_quality', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Globe className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'מעורבות בקהילה' : 'Community Involvement'}
           </Label>
           <Textarea
@@ -86,13 +86,13 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
               : 'I\'m involved in communities like...'}
             value={(data.community_involvement as string) || ''}
             onChange={(e) => handleChange('community_involvement', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'מטרות נטוורקינג' : 'Networking Goals'}
           </Label>
           <Textarea
@@ -101,7 +101,7 @@ const SocialStep = ({ data, onUpdate, language }: SocialStepProps) => {
               : 'I want to expand my connections by...'}
             value={(data.networking_goals as string) || ''}
             onChange={(e) => handleChange('networking_goals', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>

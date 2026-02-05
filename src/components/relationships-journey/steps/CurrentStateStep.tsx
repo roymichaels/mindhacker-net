@@ -17,8 +17,8 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/20 mb-4">
-          <Activity className="w-8 h-8 text-pink-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-500/20 dark:bg-pink-600/20 mb-4">
+          <Activity className="w-8 h-8 text-pink-600 dark:text-pink-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'המצב הנוכחי שלך' : 'Your Current State'}
@@ -32,8 +32,8 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
 
       <div className="space-y-6">
         <div className="space-y-4">
-          <Label className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Heart className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'שביעות רצון מהקשרים' : 'Relationship Satisfaction'}
           </Label>
           <Slider
@@ -45,14 +45,14 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{language === 'he' ? 'לא מרוצה' : 'Not satisfied'}</span>
-            <span className="font-medium text-pink-400">{(data.relationship_satisfaction as number) || 50}%</span>
+            <span className="font-medium text-pink-600 dark:text-pink-400">{(data.relationship_satisfaction as number) || 50}%</span>
             <span>{language === 'he' ? 'מאוד מרוצה' : 'Very satisfied'}</span>
           </div>
         </div>
 
         <div className="space-y-4">
-          <Label className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'רמת בדידות' : 'Loneliness Level'}
           </Label>
           <Slider
@@ -64,14 +64,14 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{language === 'he' ? 'לא בודד' : 'Not lonely'}</span>
-            <span className="font-medium text-pink-400">{(data.loneliness_level as number) || 30}%</span>
+            <span className="font-medium text-pink-600 dark:text-pink-400">{(data.loneliness_level as number) || 30}%</span>
             <span>{language === 'he' ? 'מאוד בודד' : 'Very lonely'}</span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'רמת התמיכה שאתה מקבל' : 'Support level you receive'}
           </Label>
           <Textarea
@@ -80,7 +80,7 @@ const CurrentStateStep = ({ data, onUpdate, language }: CurrentStateStepProps) =
               : 'Describe the support level you receive from your environment...'}
             value={(data.support_level as string) || ''}
             onChange={(e) => handleChange('support_level', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>

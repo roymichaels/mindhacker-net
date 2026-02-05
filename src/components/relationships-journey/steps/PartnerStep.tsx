@@ -27,8 +27,8 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/20 mb-4">
-          <Heart className="w-8 h-8 text-pink-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-500/20 dark:bg-pink-600/20 mb-4">
+          <Heart className="w-8 h-8 text-pink-600 dark:text-pink-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'זוגיות ורומנטיקה' : 'Partnership & Romance'}
@@ -42,15 +42,15 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Heart className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'סטטוס זוגי' : 'Relationship Status'}
           </Label>
           <Select
             value={(data.relationship_status as string) || ''}
             onValueChange={(value) => handleChange('relationship_status', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר סטטוס' : 'Select status'} />
             </SelectTrigger>
             <SelectContent>
@@ -65,8 +65,8 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
 
         {(data.relationship_status && data.relationship_status !== 'single') && (
           <div className="space-y-4">
-            <Label className="flex items-center gap-2">
-              <Heart className="w-4 h-4 text-pink-400" />
+            <Label className="flex items-center gap-2 text-foreground">
+              <Heart className="w-4 h-4 text-pink-600 dark:text-pink-400" />
               {language === 'he' ? 'שביעות רצון מהזוגיות' : 'Partner Satisfaction'}
             </Label>
             <Slider
@@ -78,15 +78,15 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{language === 'he' ? 'לא מרוצה' : 'Not satisfied'}</span>
-              <span className="font-medium text-pink-400">{(data.partner_satisfaction as number) || 50}%</span>
+              <span className="font-medium text-pink-600 dark:text-pink-400">{(data.partner_satisfaction as number) || 50}%</span>
               <span>{language === 'he' ? 'מאוד מרוצה' : 'Very satisfied'}</span>
             </div>
           </div>
         )}
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <MessageCircle className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'איכות התקשורת' : 'Communication Quality'}
           </Label>
           <Textarea
@@ -95,13 +95,13 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
               : 'The communication in my relationship is...'}
             value={(data.communication_quality as string) || ''}
             onChange={(e) => handleChange('communication_quality', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'מטרות רומנטיות' : 'Romantic Goals'}
           </Label>
           <Textarea
@@ -110,7 +110,7 @@ const PartnerStep = ({ data, onUpdate, language }: PartnerStepProps) => {
               : 'My goals in the romance area are...'}
             value={(data.romantic_goals as string) || ''}
             onChange={(e) => handleChange('romantic_goals', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>

@@ -18,8 +18,8 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/20 mb-4">
-          <Rocket className="w-8 h-8 text-pink-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-500/20 dark:bg-pink-600/20 mb-4">
+          <Rocket className="w-8 h-8 text-pink-600 dark:text-pink-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'תוכנית פעולה' : 'Action Plan'}
@@ -33,8 +33,8 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'הקשר בעדיפות הגבוהה ביותר' : 'Priority Relationship'}
           </Label>
           <Textarea
@@ -43,13 +43,13 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
               : 'The relationship I want to focus on is...'}
             value={(data.priority_relationship as string) || ''}
             onChange={(e) => handleChange('priority_relationship', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'הפעולה הראשונה שלי' : 'My First Action'}
           </Label>
           <Textarea
@@ -58,13 +58,13 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
               : 'The first step I will take is...'}
             value={(data.first_action as string) || ''}
             onChange={(e) => handleChange('first_action', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Calendar className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'התחייבות שבועית' : 'Weekly Commitment'}
           </Label>
           <Textarea
@@ -73,13 +73,13 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
               : 'Every week I commit to...'}
             value={(data.weekly_commitment as string) || ''}
             onChange={(e) => handleChange('weekly_commitment', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Rocket className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Rocket className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'תמיכה שאני צריך' : 'Support I Need'}
           </Label>
           <Textarea
@@ -88,7 +88,7 @@ const ActionPlanStep = ({ data, onUpdate, language }: ActionPlanStepProps) => {
               : 'To succeed I need...'}
             value={(data.support_needed as string) || ''}
             onChange={(e) => handleChange('support_needed', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
