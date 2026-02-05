@@ -3135,6 +3135,7 @@ export const en: TranslationKeys = {
     bugReport: {
       // Widget
       buttonTooltip: "Report a Bug",
+      promptCta: "Found a bug? Tap here",
       
       // Dialog
       title: "Report a Bug",
