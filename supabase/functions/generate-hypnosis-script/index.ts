@@ -18,22 +18,6 @@ interface ScriptRequest {
   isDailySession?: boolean;
 }
 
-interface ScriptSegment {
-  id: string;
-  text: string;
-  mood: string;
-  durationPercent: number;
-}
-
-const SEGMENT_STRUCTURE = [
-  { id: 'welcome', percent: 8, mood: 'warm' },
-  { id: 'induction', percent: 25, mood: 'calming' },
-  { id: 'deepening', percent: 20, mood: 'deepening' },
-  { id: 'core_work', percent: 30, mood: 'transformative' },
-  { id: 'integration', percent: 12, mood: 'integrating' },
-  { id: 'emergence', percent: 5, mood: 'energizing' },
-];
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -88,7 +72,6 @@ serve(async (req) => {
     // ============================================
     // COMPREHENSIVE USER PROFILE DATA LOADING
     // ============================================
-    // Calculate date ranges for activity tracking
     const now = new Date();
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
@@ -111,49 +94,29 @@ serve(async (req) => {
       checklistsRes,
       conversationMemoryRes,
       previousSessionsRes,
-      // NEW: Activity tracking queries
       todayHabitsRes,
       weeklyStatsRes,
       recentRemindersRes,
       lastSessionRes,
     ] = await Promise.all([
-      // Basic profile with preferences
       supabase.from('profiles').select('full_name, aurora_preferences').eq('id', user.id).single(),
-      // Life direction
       supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-      // Identity elements (values, principles, self-concepts, job title)
       supabase.from('aurora_identity_elements').select('element_type, content, metadata').eq('user_id', user.id),
-      // Energy patterns
       supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
-      // Behavioral patterns
       supabase.from('aurora_behavioral_patterns').select('pattern_type, description').eq('user_id', user.id),
-      // Active focus plan
       supabase.from('aurora_focus_plans').select('title, description').eq('user_id', user.id).eq('status', 'active').limit(1),
-      // Launchpad AI Summary
       supabase.from('launchpad_summaries').select('summary_data').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
-      // Raw launchpad responses for deeper context
       supabase.from('launchpad_progress').select('step_2_profile_data, step_3_lifestyle_data, step_5_blockers_data, step_10_final_notes').eq('user_id', user.id).single(),
-      // Active life plan for milestones
       supabase.from('life_plans').select('id, title').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1),
-      // Active commitments
       supabase.from('aurora_commitments').select('title, description').eq('user_id', user.id).eq('status', 'active'),
-      // Life visions
       supabase.from('aurora_life_visions').select('title, description, timeframe, focus_areas').eq('user_id', user.id).limit(3),
-      // Daily minimums (habits user committed to)
       supabase.from('aurora_daily_minimums').select('title, category').eq('user_id', user.id).eq('is_active', true),
-      // Active checklists and their items
       supabase.from('aurora_checklists').select('title, aurora_checklist_items(content, is_completed)').eq('user_id', user.id).eq('status', 'active').limit(3),
-      // Recent conversation insights
       supabase.from('aurora_conversation_memory').select('summary, key_topics, emotional_state, action_items').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
-      // Previous hypnosis sessions for continuity
       supabase.from('hypnosis_sessions').select('goal_id, ego_state, duration_seconds, created_at, script_data').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
-      // NEW: Today's completed habits
       supabase.from('daily_habit_logs').select('habit_item_id, is_completed, aurora_checklist_items(content)').eq('user_id', user.id).gte('track_date', todayStart.toISOString().split('T')[0]),
-      // NEW: Weekly progress stats
       supabase.from('weekly_progress_stats').select('*').eq('user_id', user.id).order('week_start_date', { ascending: false }).limit(1),
-      // NEW: Recent reminders from Aurora
       supabase.from('aurora_reminders').select('message, reminder_date, context').eq('user_id', user.id).eq('is_delivered', false).order('reminder_date', { ascending: true }).limit(3),
-      // NEW: Most recent hypnosis session with its script for continuity
       supabase.from('hypnosis_sessions').select('ego_state, duration_seconds, created_at, script_data').eq('user_id', user.id).eq('completed_at', null).not('completed_at', 'is', null).order('completed_at', { ascending: false }).limit(1),
     ]);
 
@@ -161,16 +124,13 @@ serve(async (req) => {
     // EXTRACT AND STRUCTURE USER DATA
     // ============================================
     
-    // User basics (extract first name from full_name)
     const fullName = profileRes.data?.full_name as string | null;
     const userName = fullName ? fullName.split(' ')[0] : null;
     const userGender = (profileRes.data?.aurora_preferences as { gender?: string } | null)?.gender || 'neutral';
     
-    // Life direction
     const lifeDirection = directionRes.data?.[0]?.content || null;
     const clarityScore = directionRes.data?.[0]?.clarity_score || null;
     
-    // Identity elements parsed by type
     const identityElements = identityRes.data || [];
     const values = identityElements.filter(i => i.element_type === 'value').map(i => i.content);
     const principles = identityElements.filter(i => i.element_type === 'principle').map(i => i.content);
@@ -179,14 +139,10 @@ serve(async (req) => {
     const jobTitle = identityTitle?.content || null;
     const jobIcon = (identityTitle?.metadata as { icon?: string })?.icon || null;
     
-    // Patterns
     const energyPatterns = energyRes.data || [];
     const behavioralPatterns = behavioralRes.data || [];
-    
-    // Focus
     const currentFocus = focusRes.data?.[0] || null;
     
-    // Launchpad summary
     const launchpadSummary = launchpadRes.data?.[0]?.summary_data as {
       consciousness_analysis?: {
         current_state?: string;
@@ -217,7 +173,6 @@ serve(async (req) => {
       };
     } | null;
     
-    // Raw launchpad data for specific details
     const launchpadProgress = launchpadProgressRes.data;
     const profileData = launchpadProgress?.step_2_profile_data as {
       sleepTime?: string;
@@ -236,7 +191,6 @@ serve(async (req) => {
       specialInstructions?: string;
     } | null;
     
-    // Current milestone
     let currentMilestone: { title: string; description?: string | null; week_number: number } | null = null;
     if (milestoneRes.data?.[0]?.id) {
       const { data: milestones } = await supabase
@@ -252,16 +206,10 @@ serve(async (req) => {
       }
     }
     
-    // Commitments
     const activeCommitments = commitmentsRes.data || [];
-    
-    // Visions
     const lifeVisions = visionsRes.data || [];
-    
-    // Daily habits
     const dailyHabits = dailyMinimumsRes.data || [];
     
-    // Recent conversation insights
     const conversationMemory = conversationMemoryRes.data || [];
     const recentEmotionalStates = conversationMemory
       .map(c => c.emotional_state)
@@ -270,19 +218,16 @@ serve(async (req) => {
       .flatMap(c => c.key_topics || [])
       .slice(0, 5);
     
-    // Previous sessions
     const previousHypnosisSessions = previousSessionsRes.data || [];
 
     // ============================================
-    // ACTIVITY TRACKING - What the user has done
+    // ACTIVITY TRACKING
     // ============================================
     
-    // Today's habits
     const todayHabits = todayHabitsRes.data || [];
     const completedHabitsToday = todayHabits.filter((h: { is_completed: boolean }) => h.is_completed).length;
     const totalHabitsToday = todayHabits.length;
     
-    // Weekly stats
     const weeklyStats = weeklyStatsRes.data?.[0] as {
       hypnosis_sessions?: number;
       aurora_chats?: number;
@@ -291,10 +236,8 @@ serve(async (req) => {
       streak_days?: number;
     } | null;
     
-    // Upcoming reminders (things Aurora reminded them about)
     const upcomingReminders = recentRemindersRes.data || [];
     
-    // Time since last hypnosis session
     let timeSinceLastSession: string | null = null;
     const lastCompletedSession = previousHypnosisSessions.find((s: { created_at: string }) => s.created_at);
     if (lastCompletedSession) {
@@ -319,17 +262,15 @@ serve(async (req) => {
     }
 
     // ============================================
-    // TIME AWARENESS - Current moment context
+    // TIME AWARENESS
     // ============================================
     const currentMoment = new Date();
-    // Get Israel timezone offset (usually +2 or +3 for DST)
     const israelTime = new Date(currentMoment.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
     const currentHour = israelTime.getHours();
-    const currentDay = israelTime.getDay(); // 0 = Sunday
+    const currentDay = israelTime.getDay();
     const currentDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDay];
     const hebrewDayName = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'][currentDay];
     
-    // Determine time of day context
     let timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
     let timeContext: { en: string; he: string };
     
@@ -365,19 +306,18 @@ serve(async (req) => {
       };
     }
     
-    // Day of week context
     let dayContext: { en: string; he: string };
-    if (currentDay === 5) { // Friday
+    if (currentDay === 5) {
       dayContext = {
         en: 'It\'s Friday - the week is ending. Good time for reflection on accomplishments and setting intentions for rest.',
         he: 'היום שישי - השבוע מסתיים. זמן טוב לרפלקציה על הישגים ולהצבת כוונות למנוחה.'
       };
-    } else if (currentDay === 6) { // Saturday/Shabbat
+    } else if (currentDay === 6) {
       dayContext = {
         en: 'It\'s Shabbat - a day of rest. Honor this with a more contemplative, restful session focused on being rather than doing.',
         he: 'היום שבת - יום של מנוחה. כבד זאת עם סשן מתבונן ורגוע יותר, ממוקד בהוויה ולא בעשייה.'
       };
-    } else if (currentDay === 0) { // Sunday
+    } else if (currentDay === 0) {
       dayContext = {
         en: 'It\'s Sunday - a new week begins. Perfect for fresh starts, setting weekly intentions, and building momentum.',
         he: 'היום ראשון - שבוע חדש מתחיל. מושלם להתחלות חדשות, להצבת כוונות שבועיות ולבניית מומנטום.'
@@ -395,210 +335,170 @@ serve(async (req) => {
     
     let personalizationContext = '';
     
-    // Time awareness section
     personalizationContext += `\n=== TIME & MOMENT AWARENESS ===\n`;
     personalizationContext += `CURRENT TIME: ${israelTime.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })} (Israel time)\n`;
-    personalizationContext += `TIME OF DAY: ${timeOfDay.toUpperCase()}\n`;
+    personalizationContext += `DAY: ${language === 'he' ? hebrewDayName : currentDayName}\n`;
+    personalizationContext += `TIME OF DAY: ${timeOfDay}\n`;
     personalizationContext += `${language === 'he' ? timeContext.he : timeContext.en}\n`;
-    personalizationContext += `DAY: ${language === 'he' ? `יום ${hebrewDayName}` : currentDayName}\n`;
     personalizationContext += `${language === 'he' ? dayContext.he : dayContext.en}\n`;
     
-    // Activity tracking section - what user has done
-    personalizationContext += `\n=== TODAY'S ACTIVITY & PROGRESS ===\n`;
-    
-    if (timeSinceLastSession) {
-      personalizationContext += `LAST HYPNOSIS SESSION: ${timeSinceLastSession}\n`;
-      if (timeSinceLastSession === 'less than an hour ago' || timeSinceLastSession.includes('hours ago today')) {
-        personalizationContext += `They're coming back for another session today - acknowledge their dedication and build on the previous session's work.\n`;
-      }
-    } else {
-      personalizationContext += `FIRST SESSION: This is their first hypnosis session. Be extra welcoming and establish trust.\n`;
-    }
-    
-    if (totalHabitsToday > 0) {
-      personalizationContext += `TODAY'S HABITS: ${completedHabitsToday}/${totalHabitsToday} completed - `;
-      if (completedHabitsToday === totalHabitsToday) {
-        personalizationContext += `They completed ALL their daily habits! Celebrate this accomplishment.\n`;
-      } else if (completedHabitsToday > totalHabitsToday / 2) {
-        personalizationContext += `Good progress today. Reinforce their momentum.\n`;
-      } else if (completedHabitsToday > 0) {
-        personalizationContext += `They've started working on their habits. Encourage completion.\n`;
-      } else {
-        personalizationContext += `Habits not yet started today. Gently motivate without judgment.\n`;
+    if (completedHabitsToday > 0 || totalHabitsToday > 0) {
+      personalizationContext += `\n=== TODAY'S PROGRESS ===\n`;
+      if (completedHabitsToday > 0) {
+        personalizationContext += `TODAY'S WINS: Completed ${completedHabitsToday}/${totalHabitsToday} habits. Acknowledge their dedication!\n`;
+      } else if (totalHabitsToday > 0) {
+        personalizationContext += `HABITS PENDING: ${totalHabitsToday} habits waiting. Encourage without pressure.\n`;
       }
     }
     
     if (weeklyStats) {
-      personalizationContext += `WEEKLY PROGRESS: `;
-      const stats: string[] = [];
-      if (weeklyStats.hypnosis_sessions) stats.push(`${weeklyStats.hypnosis_sessions} hypnosis sessions`);
-      if (weeklyStats.aurora_chats) stats.push(`${weeklyStats.aurora_chats} Aurora conversations`);
-      if (weeklyStats.habits_completed) stats.push(`${weeklyStats.habits_completed} habits completed`);
-      if (weeklyStats.streak_days) stats.push(`${weeklyStats.streak_days}-day streak`);
-      personalizationContext += stats.length > 0 ? stats.join(', ') + '\n' : 'Just getting started this week\n';
+      personalizationContext += `\n=== THIS WEEK'S ACTIVITY ===\n`;
+      if (weeklyStats.hypnosis_sessions) {
+        personalizationContext += `HYPNOSIS SESSIONS THIS WEEK: ${weeklyStats.hypnosis_sessions}\n`;
+      }
+      if (weeklyStats.habits_completed) {
+        personalizationContext += `HABITS COMPLETED THIS WEEK: ${weeklyStats.habits_completed}\n`;
+      }
+      if (weeklyStats.streak_days) {
+        personalizationContext += `CURRENT STREAK: ${weeklyStats.streak_days} days - acknowledge their consistency!\n`;
+      }
+    }
+    
+    if (timeSinceLastSession) {
+      personalizationContext += `\nLAST HYPNOSIS SESSION: ${timeSinceLastSession}\n`;
+      if (timeSinceLastSession.includes('week')) {
+        personalizationContext += `Welcome them back warmly - it's been a while.\n`;
+      }
     }
     
     if (upcomingReminders.length > 0) {
-      personalizationContext += `UPCOMING REMINDERS: ${upcomingReminders.map((r: { message: string }) => r.message).slice(0, 2).join('; ')}\n`;
-      personalizationContext += `Consider weaving awareness of these upcoming items into the integration phase.\n`;
+      personalizationContext += `\n=== AURORA'S REMINDERS (things on their mind) ===\n`;
+      upcomingReminders.forEach((r: { message: string }) => {
+        personalizationContext += `- ${r.message}\n`;
+      });
     }
     
-    // Personal greeting context
     if (userName) {
-      personalizationContext += `\nUSER'S NAME: ${userName} - Use their name naturally once or twice during the session to deepen the personal connection.\n`;
+      personalizationContext += `\n=== USER IDENTITY ===\n`;
+      personalizationContext += `NAME: ${userName} - Use their name naturally throughout the script (2-3 times, at key moments).\n`;
     }
     
-    // Identity and role
     if (jobTitle) {
-      personalizationContext += `\nIDENTITY ROLE: "${jobTitle}" ${jobIcon ? `(${jobIcon})` : ''} - This is who they are becoming. Reference this identity in suggestions and future pacing.\n`;
+      personalizationContext += `IDENTITY/ROLE: ${jobTitle}${jobIcon ? ` ${jobIcon}` : ''} - Reference their professional identity when appropriate.\n`;
     }
     
-    // Life direction and clarity
-    if (lifeDirection) {
-      personalizationContext += `\nLIFE DIRECTION: "${lifeDirection}"`;
-      if (clarityScore) {
-        personalizationContext += ` (Clarity: ${clarityScore}/10)`;
-      }
-      personalizationContext += ` - Weave this overarching direction into metaphors and the session's narrative arc.\n`;
-    }
-    
-    // Core values
     if (values.length > 0) {
-      personalizationContext += `\nCORE VALUES: ${values.slice(0, 5).join(', ')} - These are their compass. Anchor all suggestions to these values.\n`;
+      personalizationContext += `CORE VALUES: ${values.join(', ')} - These drive their decisions and can be woven into metaphors.\n`;
     }
     
-    // Principles
     if (principles.length > 0) {
-      personalizationContext += `\nGUIDING PRINCIPLES: ${principles.slice(0, 3).join('; ')} - Reference these as the rules they live by.\n`;
+      personalizationContext += `GUIDING PRINCIPLES: ${principles.join(', ')}\n`;
     }
     
-    // Self-concepts
     if (selfConcepts.length > 0) {
-      personalizationContext += `\nSELF-CONCEPTS: "${selfConcepts[0]}" - This is how they see themselves. Reinforce positive aspects, gently expand limiting ones.\n`;
+      personalizationContext += `SELF-CONCEPTS: ${selfConcepts.join(', ')} - How they see themselves.\n`;
     }
     
-    // Current focus
-    if (currentFocus) {
-      personalizationContext += `\nACTIVE FOCUS PLAN: "${currentFocus.title}"${currentFocus.description ? ` - ${currentFocus.description}` : ''}\n`;
+    if (lifeDirection) {
+      personalizationContext += `\n=== LIFE DIRECTION ===\n`;
+      personalizationContext += `"${lifeDirection}"\n`;
+      if (clarityScore) {
+        personalizationContext += `CLARITY LEVEL: ${clarityScore}/100\n`;
+      }
     }
     
-    // Life visions
-    if (lifeVisions.length > 0) {
-      const visionsList = lifeVisions.map(v => `${v.timeframe}: ${v.title}`).join('; ');
-      personalizationContext += `\nLIFE VISIONS: ${visionsList} - Use these for future pacing and visualization exercises.\n`;
-    }
-    
-    // Commitments
-    if (activeCommitments.length > 0) {
-      const commitmentsList = activeCommitments.slice(0, 3).map(c => c.title).join(', ');
-      personalizationContext += `\nACTIVE COMMITMENTS: ${commitmentsList} - Strengthen their resolve toward these commitments.\n`;
-    }
-    
-    // Daily habits
-    if (dailyHabits.length > 0) {
-      const habitsList = dailyHabits.slice(0, 5).map(h => h.title).join(', ');
-      personalizationContext += `\nDAILY HABITS: ${habitsList} - These are the building blocks of their transformation. Reinforce them.\n`;
-    }
-    
-    // Energy patterns
-    if (energyPatterns.length > 0) {
-      const patterns = energyPatterns.map(e => `${e.pattern_type}: ${e.description}`).join('; ');
-      personalizationContext += `\nENERGY PATTERNS: ${patterns} - Be mindful of these in pacing and timing suggestions.\n`;
-    }
-    
-    // Behavioral patterns
-    if (behavioralPatterns.length > 0) {
-      const patterns = behavioralPatterns.map(b => `${b.pattern_type}: ${b.description}`).join('; ');
-      personalizationContext += `\nBEHAVIORAL PATTERNS: ${patterns} - Gently work with these patterns in the core work.\n`;
-    }
-
-    // Launchpad AI insights
     if (launchpadSummary) {
-      const consciousness = launchpadSummary.consciousness_analysis;
-      const identity = launchpadSummary.identity_profile;
-      const behavioral = launchpadSummary.behavioral_insights;
-      const lifeDir = launchpadSummary.life_direction;
-      const focus = launchpadSummary.recommended_focus;
-
-      personalizationContext += `\n\n=== DEEP PSYCHOLOGICAL PROFILE ===\n`;
-      
-      if (consciousness?.current_state) {
-        personalizationContext += `CONSCIOUSNESS STATE: "${consciousness.current_state}"\n`;
+      personalizationContext += `\n=== CONSCIOUSNESS ANALYSIS ===\n`;
+      if (launchpadSummary.consciousness_analysis) {
+        const ca = launchpadSummary.consciousness_analysis;
+        if (ca.current_state) personalizationContext += `CURRENT STATE: ${ca.current_state}\n`;
+        if (ca.awareness_level) personalizationContext += `AWARENESS LEVEL: ${ca.awareness_level}\n`;
+        if (ca.strengths?.length) personalizationContext += `STRENGTHS: ${ca.strengths.join(', ')} - Build on these.\n`;
+        if (ca.blind_spots?.length) personalizationContext += `BLIND SPOTS: ${ca.blind_spots.join(', ')} - Address gently.\n`;
       }
-      if (consciousness?.awareness_level) {
-        personalizationContext += `AWARENESS LEVEL: ${consciousness.awareness_level}\n`;
+      if (launchpadSummary.identity_profile) {
+        const ip = launchpadSummary.identity_profile;
+        if (ip.character_archetype) personalizationContext += `ARCHETYPE: ${ip.character_archetype}\n`;
+        if (ip.core_values?.length) personalizationContext += `DISCOVERED VALUES: ${ip.core_values.join(', ')}\n`;
       }
-      if (consciousness?.patterns && consciousness.patterns.length > 0) {
-        personalizationContext += `MENTAL PATTERNS: ${consciousness.patterns.join(', ')}\n`;
+      if (launchpadSummary.behavioral_insights) {
+        const bi = launchpadSummary.behavioral_insights;
+        if (bi.growth_areas?.length) personalizationContext += `GROWTH AREAS: ${bi.growth_areas.join(', ')}\n`;
+        if (bi.triggers?.length) personalizationContext += `TRIGGERS: ${bi.triggers.join(', ')} - Be mindful of these.\n`;
       }
-      if (consciousness?.strengths && consciousness.strengths.length > 0) {
-        personalizationContext += `CORE STRENGTHS (leverage these): ${consciousness.strengths.join(', ')}\n`;
-      }
-      if (consciousness?.blind_spots && consciousness.blind_spots.length > 0) {
-        personalizationContext += `BLIND SPOTS (illuminate gently): ${consciousness.blind_spots.join(', ')}\n`;
-      }
-      
-      if (identity?.character_archetype) {
-        personalizationContext += `ARCHETYPE: ${identity.character_archetype} - Use imagery and metaphors fitting this archetype.\n`;
-      }
-      
-      if (behavioral?.triggers && behavioral.triggers.length > 0) {
-        personalizationContext += `EMOTIONAL TRIGGERS (handle with care): ${behavioral.triggers.join(', ')}\n`;
-      }
-      if (behavioral?.coping_mechanisms && behavioral.coping_mechanisms.length > 0) {
-        personalizationContext += `COPING MECHANISMS: ${behavioral.coping_mechanisms.join(', ')}\n`;
-      }
-      if (behavioral?.growth_areas && behavioral.growth_areas.length > 0) {
-        personalizationContext += `GROWTH AREAS: ${behavioral.growth_areas.join(', ')}\n`;
-      }
-      
-      if (lifeDir?.life_mission) {
-        personalizationContext += `LIFE MISSION: "${lifeDir.life_mission}"\n`;
-      }
-      
-      if (focus) {
-        if (focus.immediate) personalizationContext += `IMMEDIATE FOCUS: ${focus.immediate}\n`;
-        if (focus.short_term) personalizationContext += `SHORT-TERM FOCUS: ${focus.short_term}\n`;
-        if (focus.long_term) personalizationContext += `LONG-TERM FOCUS: ${focus.long_term}\n`;
+      if (launchpadSummary.life_direction) {
+        const ld = launchpadSummary.life_direction;
+        if (ld.central_aspiration) personalizationContext += `CENTRAL ASPIRATION: ${ld.central_aspiration}\n`;
+        if (ld.life_mission) personalizationContext += `LIFE MISSION: ${ld.life_mission}\n`;
       }
     }
     
-    // Blockers and limiting beliefs
     if (blockersData) {
-      personalizationContext += `\n=== TRANSFORMATION BLOCKERS ===\n`;
-      if (blockersData.fears && blockersData.fears.length > 0) {
-        personalizationContext += `FEARS: ${blockersData.fears.join(', ')} - Address with compassion and reframing.\n`;
+      personalizationContext += `\n=== INNER BARRIERS ===\n`;
+      if (blockersData.limitingBeliefs?.length) {
+        personalizationContext += `LIMITING BELIEFS: ${blockersData.limitingBeliefs.join(', ')} - These need gentle reframing.\n`;
       }
-      if (blockersData.limitingBeliefs && blockersData.limitingBeliefs.length > 0) {
-        personalizationContext += `LIMITING BELIEFS: ${blockersData.limitingBeliefs.join(', ')} - Use embedded commands and metaphors to dissolve these.\n`;
+      if (blockersData.fears?.length) {
+        personalizationContext += `FEARS: ${blockersData.fears.join(', ')} - Address with compassion.\n`;
       }
-      if (blockersData.obstacles && blockersData.obstacles.length > 0) {
-        personalizationContext += `OBSTACLES: ${blockersData.obstacles.join(', ')} - Help them see pathways around/through these.\n`;
-      }
-    }
-    
-    // Lifestyle context
-    if (profileData) {
-      personalizationContext += `\n=== LIFESTYLE CONTEXT ===\n`;
-      if (profileData.sleepTime) personalizationContext += `SLEEP TIME: ${profileData.sleepTime}\n`;
-      if (profileData.wakeTime) personalizationContext += `WAKE TIME: ${profileData.wakeTime}\n`;
-      if (profileData.energyPeaks && profileData.energyPeaks.length > 0) {
-        personalizationContext += `ENERGY PEAKS: ${profileData.energyPeaks.join(', ')}\n`;
+      if (blockersData.obstacles?.length) {
+        personalizationContext += `OBSTACLES: ${blockersData.obstacles.join(', ')}\n`;
       }
     }
     
-    // Health constraints and special instructions
+    if (energyPatterns.length > 0) {
+      personalizationContext += `\n=== ENERGY PATTERNS ===\n`;
+      energyPatterns.forEach((p: { pattern_type: string; description: string }) => {
+        personalizationContext += `${p.pattern_type}: ${p.description}\n`;
+      });
+    }
+    
+    if (currentFocus) {
+      personalizationContext += `\n=== CURRENT FOCUS ===\n`;
+      personalizationContext += `FOCUS: "${currentFocus.title}"\n`;
+      if (currentFocus.description) {
+        personalizationContext += `DETAILS: ${currentFocus.description}\n`;
+      }
+    }
+    
+    if (activeCommitments.length > 0) {
+      personalizationContext += `\n=== ACTIVE COMMITMENTS ===\n`;
+      activeCommitments.forEach((c: { title: string }) => {
+        personalizationContext += `- ${c.title}\n`;
+      });
+      personalizationContext += `Reinforce these commitments in the core work.\n`;
+    }
+    
+    if (lifeVisions.length > 0) {
+      personalizationContext += `\n=== LIFE VISIONS ===\n`;
+      lifeVisions.forEach((v: { title: string; timeframe: string; focus_areas?: string[] }) => {
+        personalizationContext += `${v.timeframe.toUpperCase()}: "${v.title}"`;
+        if (v.focus_areas?.length) {
+          personalizationContext += ` (Focus areas: ${v.focus_areas.join(', ')})`;
+        }
+        personalizationContext += `\n`;
+      });
+    }
+    
+    if (dailyHabits.length > 0) {
+      personalizationContext += `\n=== DAILY HABITS (their commitments) ===\n`;
+      dailyHabits.forEach((h: { title: string; category?: string }) => {
+        personalizationContext += `- ${h.title}${h.category ? ` (${h.category})` : ''}\n`;
+      });
+    }
+    
     if (finalNotes) {
-      personalizationContext += `\n=== SPECIAL CONSIDERATIONS ===\n`;
       if (finalNotes.healthConstraints) {
-        personalizationContext += `HEALTH CONSTRAINTS: ${finalNotes.healthConstraints} - BE SENSITIVE to these in all suggestions.\n`;
+        personalizationContext += `\n=== HEALTH CONSIDERATIONS ===\n`;
+        personalizationContext += `${finalNotes.healthConstraints}\n`;
+        personalizationContext += `IMPORTANT: Respect these constraints in any physical imagery or suggestions.\n`;
       }
       if (finalNotes.specialInstructions) {
-        personalizationContext += `SPECIAL INSTRUCTIONS: ${finalNotes.specialInstructions}\n`;
+        personalizationContext += `\n=== SPECIAL INSTRUCTIONS FROM USER ===\n`;
+        personalizationContext += `${finalNotes.specialInstructions}\n`;
       }
     }
     
-    // 90-day plan context
     if (currentMilestone) {
       personalizationContext += `\n=== 90-DAY TRANSFORMATION PLAN ===\n`;
       personalizationContext += `CURRENT WEEK: ${currentMilestone.week_number}\n`;
@@ -606,10 +506,9 @@ serve(async (req) => {
       if (currentMilestone.description) {
         personalizationContext += `DETAILS: ${currentMilestone.description}\n`;
       }
-      personalizationContext += `Weave progress toward this specific weekly goal into the core work and integration segments.\n`;
+      personalizationContext += `Weave progress toward this specific weekly goal into the core work.\n`;
     }
     
-    // Recent emotional states from conversations
     if (recentEmotionalStates.length > 0) {
       personalizationContext += `\n=== RECENT EMOTIONAL CONTEXT ===\n`;
       personalizationContext += `RECENT EMOTIONAL STATES: ${recentEmotionalStates.join(', ')} - Meet them where they are emotionally.\n`;
@@ -618,25 +517,22 @@ serve(async (req) => {
       personalizationContext += `RECENT TOPICS ON THEIR MIND: ${recentTopics.join(', ')}\n`;
     }
     
-    // Session continuity
     if (previousHypnosisSessions.length > 0) {
       personalizationContext += `\n=== SESSION CONTINUITY ===\n`;
       personalizationContext += `This is session #${previousHypnosisSessions.length + 1}. Build on previous work. Reference their journey and progress.\n`;
     }
     
-    // Daily session context
     if (isDailySession) {
       personalizationContext += `\nThis is their DAILY SESSION - make it feel personally crafted for today. Create a sense of ritual and consistency.\n`;
     }
 
     // ============================================
-    // BUILD THE PROMPT
+    // BUILD THE PROMPT - SINGLE CONTINUOUS SCRIPT
     // ============================================
     
     const wordsPerMinute = 130;
     const totalWords = durationMinutes * wordsPerMinute;
     
-    // Gender-specific Hebrew grammar - STRICT ENFORCEMENT
     let hebrewGrammarInstruction = '';
     if (userGender === 'male') {
       hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
@@ -673,7 +569,6 @@ STRICTLY FORBIDDEN:
 - DO NOT use the word "אתה" as "you" - only "את"
 - Every single verb and pronoun must be feminine`;
     } else {
-      // Default to masculine in Hebrew (grammatical convention) when no preference set
       hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
 The user hasn't set a gender preference. Use MASCULINE singular forms as Hebrew default.
 
@@ -707,17 +602,23 @@ ${hebrewGrammarInstruction}`
         ? `Note their ${sessionStreak}-day streak - they're building momentum.`
         : '';
 
-    const systemPrompt = `You are a master hypnotherapist creating HYPER-PERSONALIZED hypnosis scripts.
-You have access to the user's complete psychological profile, life context, transformation journey, AND current moment context.
-Your scripts are warm, flowing, deeply relaxing, and feel like they were crafted specifically for this one person AT THIS EXACT MOMENT.
+    const systemPrompt = `You are a master hypnotherapist creating a SINGLE CONTINUOUS hypnosis script.
+This is NOT segmented - it's ONE flowing, uninterrupted experience from start to finish.
+
+You have access to the user's complete psychological profile, life context, and current moment context.
+Your script is warm, flowing, deeply relaxing, and feels like it was crafted specifically for this one person AT THIS EXACT MOMENT.
+
+CRITICAL: Write as ONE CONTINUOUS FLOWING TEXT. No segments, no markers, no breaks.
+The script should flow naturally from welcome → induction → deepening → core work → integration → emergence.
+Transitions should be seamless and invisible.
 
 IMPORTANT: You are TIME-AWARE. Consider:
 - The current time of day (morning energizing vs evening relaxation)
 - The day of the week (Sunday fresh start vs Friday reflection)
 - What the user has accomplished today and this week
-- Their recent activity and engagement with the platform
+- Their recent activity and engagement
 
-You use Ericksonian techniques, embedded commands, metaphorical language, and utilize techniques like:
+You use Ericksonian techniques, embedded commands, metaphorical language, and utilize:
 - Pacing and leading
 - Yes sets
 - Confusion techniques for deepening
@@ -738,65 +639,36 @@ COMPREHENSIVE USER PROFILE
 ${personalizationContext}
 ============================================
 
-Create a hypnosis script with exactly these segments in order:
+Structure your CONTINUOUS script to include (but DON'T use any markers or labels):
 
-1. WELCOME (8% - ~${Math.round(totalWords * 0.08)} words)
-   - Greet warmly, possibly using their name
-   - Establish safety and trust
-   - Reference their identity/role if available
-   - Introduce the session goal: "${goal}"
-
-2. INDUCTION (25% - ~${Math.round(totalWords * 0.25)} words)
-   - Guide into hypnotic state with progressive relaxation
-   - Use their preferred relaxation style based on their energy patterns
-   - Create imagery that resonates with their values and life context
-
-3. DEEPENING (20% - ~${Math.round(totalWords * 0.20)} words)
-   - Deepen the trance with counting, stairs, or other techniques
-   - Use metaphors drawn from their life experience
-   - If they have a specific archetype, use fitting imagery
-
-4. CORE_WORK (30% - ~${Math.round(totalWords * 0.30)} words)
-   - The main therapeutic work addressing: "${goal}"
-   - Leverage their strengths
-   - Gently work with their blind spots and limiting beliefs
-   - Connect to their weekly milestone if available
-   - Use embedded commands to reinforce their commitments
-   - Address any fears or blockers with reframing
-
-5. INTEGRATION (12% - ~${Math.round(totalWords * 0.12)} words)
-   - Lock in the changes
-   - Future pacing tied to their 90-day plan and life visions
-   - Connect to their daily habits and commitments
-   - Positive suggestions for the coming days
-
-6. EMERGENCE (5% - ~${Math.round(totalWords * 0.05)} words)
-   - Gently bring back to full awareness
-   - Leave them feeling empowered and clear
-   - Brief acknowledgment of the work done
+1. Welcome (~8%) - Greet warmly, establish safety, introduce the goal: "${goal}"
+2. Induction (~25%) - Progressive relaxation, hypnotic state
+3. Deepening (~20%) - Deepen trance with counting, stairs, metaphors
+4. Core Work (~30%) - Main therapeutic work for: "${goal}"
+5. Integration (~12%) - Lock in changes, future pacing
+6. Emergence (~5%) - Gently return to awareness
 
 CRITICAL INSTRUCTIONS:
+- Write as ONE FLOWING TEXT - no headers, no segment markers, no breaks
 - This script should feel like it was written specifically for this ONE person
-- Reference their name, values, identity, and specific life context naturally
+- Reference their name, values, identity naturally
 - Every metaphor should resonate with their psychological profile
-- The core work should address both the stated goal AND underlying patterns/beliefs
 - Make them feel truly SEEN and understood
 - Respect any health constraints or special instructions
 
 Total target: approximately ${totalWords} words.
-Mark each segment clearly with [SEGMENT_NAME] at the start.`;
+DO NOT include any segment markers like [WELCOME] or [INDUCTION] - just flowing text.`;
 
-    const userPrompt = `Create a ${durationMinutes}-minute hypnosis script for:
+    const userPrompt = `Create a ${durationMinutes}-minute CONTINUOUS hypnosis script for:
 Goal: ${goal}
 ${currentMilestone ? `Weekly Milestone: ${currentMilestone.title}` : ''}
 ${userName ? `User: ${userName}` : ''}
 ${jobTitle ? `Identity: ${jobTitle}` : ''}
 
-This should be a deeply personal, transformative experience based on their complete profile.
+This should be a deeply personal, transformative experience.
+Write it as ONE CONTINUOUS FLOWING TEXT with no breaks or markers.`;
 
-Mark segments with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WORK], [INTEGRATION], [EMERGENCE].`;
-
-    console.log('Generating hyper-personalized hypnosis script:', { 
+    console.log('Generating continuous hypnosis script:', { 
       goal, 
       durationMinutes, 
       language,
@@ -850,37 +722,26 @@ Mark segments with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WORK], [INTEGRATIO
     const aiResponse = await response.json();
     const fullScript = aiResponse.choices?.[0]?.message?.content || '';
 
-    // Parse segments from the generated script
-    const segments: ScriptSegment[] = [];
-    const segmentPatterns = [
-      { id: 'welcome', pattern: /\[WELCOME\]([\s\S]*?)(?=\[INDUCTION\]|$)/i },
-      { id: 'induction', pattern: /\[INDUCTION\]([\s\S]*?)(?=\[DEEPENING\]|$)/i },
-      { id: 'deepening', pattern: /\[DEEPENING\]([\s\S]*?)(?=\[CORE_WORK\]|$)/i },
-      { id: 'core_work', pattern: /\[CORE_WORK\]([\s\S]*?)(?=\[INTEGRATION\]|$)/i },
-      { id: 'integration', pattern: /\[INTEGRATION\]([\s\S]*?)(?=\[EMERGENCE\]|$)/i },
-      { id: 'emergence', pattern: /\[EMERGENCE\]([\s\S]*?)$/i },
-    ];
-
-    for (const { id, pattern } of segmentPatterns) {
-      const match = fullScript.match(pattern);
-      const structureInfo = SEGMENT_STRUCTURE.find(s => s.id === id);
-      
-      segments.push({
-        id,
-        text: match ? match[1].trim() : '',
-        mood: structureInfo?.mood || 'neutral',
-        durationPercent: structureInfo?.percent || 0,
-      });
-    }
+    // Clean up any accidental segment markers the AI might have added
+    const cleanedScript = fullScript
+      .replace(/\[WELCOME\]/gi, '')
+      .replace(/\[INDUCTION\]/gi, '')
+      .replace(/\[DEEPENING\]/gi, '')
+      .replace(/\[CORE_WORK\]/gi, '')
+      .replace(/\[INTEGRATION\]/gi, '')
+      .replace(/\[EMERGENCE\]/gi, '')
+      .replace(/---+/g, '')
+      .replace(/\*\*\*+/g, '')
+      .trim();
 
     const script = {
       title: goal,
       egoState: 'personalized',
       language,
-      segments,
+      fullScript: cleanedScript,
       metadata: {
         durationMinutes,
-        totalWords: fullScript.split(/\s+/).length,
+        totalWords: cleanedScript.split(/\s+/).length,
         wordsPerMinute,
         generatedAt: new Date().toISOString(),
         userLevel,
@@ -899,8 +760,7 @@ Mark segments with [WELCOME], [INDUCTION], [DEEPENING], [CORE_WORK], [INTEGRATIO
       },
     };
 
-    console.log('Hyper-personalized script generated successfully:', {
-      segmentCount: segments.length,
+    console.log('Continuous script generated successfully:', {
       totalWords: script.metadata.totalWords,
       personalizationDepth: Object.values(script.metadata.personalizationSources).filter(Boolean).length,
     });

@@ -4,7 +4,7 @@ export interface HypnosisScript {
   title: string;
   egoState: string;
   language: 'he' | 'en';
-  segments: ScriptSegment[];
+  fullScript: string; // Single continuous script text
   metadata: {
     durationMinutes: number;
     totalWords: number;
@@ -23,17 +23,10 @@ export interface CachedScript {
   duration_minutes: number;
   language: string;
   script_data: HypnosisScript;
-  audio_paths: string[] | null;
+  audio_url: string | null; // Single audio URL instead of array
   created_at: string;
   last_used_at: string;
   use_count: number;
-}
-
-export interface ScriptSegment {
-  id: string;
-  text: string;
-  mood: string;
-  durationPercent: number;
 }
 
 export interface GoalSuggestion {
@@ -261,7 +254,7 @@ export async function saveScriptToCache(
 }
 
 /**
- * Get signed URL for cached audio segment
+ * Get signed URL for cached audio
  */
 export async function getCachedAudioUrl(
   audioPath: string,
@@ -282,12 +275,12 @@ export async function getCachedAudioUrl(
 }
 
 /**
- * Trigger background audio caching for a script
+ * Trigger background audio caching for the full script
  */
 export async function cacheScriptAudio(
   userId: string,
   cacheKey: string,
-  segments: { id: string; text: string; mood: string; durationPercent: number }[],
+  fullScript: string,
   language: 'he' | 'en' = 'he'
 ): Promise<void> {
   try {
@@ -296,7 +289,7 @@ export async function cacheScriptAudio(
       body: {
         userId,
         cacheKey,
-        segments,
+        fullScript,
         language,
       },
     }).then(({ error }) => {
