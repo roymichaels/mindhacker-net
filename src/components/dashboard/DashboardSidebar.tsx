@@ -35,6 +35,7 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { PersonalizedOrb } from '@/components/orb/PersonalizedOrb';
 
 const defaultLogo = "/aurora-icon.svg";
 
@@ -205,43 +206,74 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Mobile: Search bar - Full width */}
+      {/* Mobile: Orb + Search bar - Full width */}
       {isMobile && (
-        <div className="mb-4 relative w-full">
-          <div className="h-10 flex items-center gap-2 px-4 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg w-full">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-              placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-w-0"
-              dir={isRTL ? 'rtl' : 'ltr'}
-            />
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <>
+          {/* Personalized Orb - Click to open profile */}
+          <button
+            onClick={() => {
+              navigate('/profile');
+              onNavigate?.();
+            }}
+            className="mb-4 w-full flex justify-center group"
+            title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
+          >
+            <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
+              <PersonalizedOrb size={80} />
+            </div>
+          </button>
+          
+          {/* Search bar */}
+          <div className="mb-4 relative w-full">
+            <div className="h-10 flex items-center gap-2 px-4 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-w-0"
+                dir={isRTL ? 'rtl' : 'ltr'}
+              />
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            </div>
+            <SearchResultsDropdown />
           </div>
-          <SearchResultsDropdown />
-        </div>
+        </>
       )}
 
-      {/* Desktop: Search bar above navigation - shown on ALL pages */}
+      {/* Desktop: Orb + Search bar above navigation */}
       {!isMobile && !isCollapsed && (
-        <div className="px-3 mb-3 relative w-full min-w-0">
-          <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
-            <input
-              type="text"
-              ref={searchInputRef}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-              placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
-              className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              dir={isRTL ? 'rtl' : 'ltr'}
-            />
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <>
+          {/* Personalized Orb - Click to open profile */}
+          <button
+            onClick={() => navigate('/profile')}
+            className="mb-3 w-full flex justify-center group"
+            title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
+          >
+            <div className="relative w-16 h-16 group-hover:scale-105 transition-transform duration-300">
+              <PersonalizedOrb size={64} />
+            </div>
+          </button>
+          
+          {/* Search bar */}
+          <div className="px-3 mb-3 relative w-full min-w-0">
+            <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
+              <input
+                type="text"
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
+                className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                dir={isRTL ? 'rtl' : 'ltr'}
+              />
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            </div>
+            <SearchResultsDropdown />
           </div>
-          <SearchResultsDropdown />
-        </div>
+        </>
       )}
 
       {/* Navigation Section - Full width */}
