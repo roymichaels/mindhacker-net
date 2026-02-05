@@ -141,8 +141,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   // Reset state when modal closes
   useEffect(() => {
     if (!open) {
-      stopCurrentAudio(); // Stop any playing audio
+      // Immediately stop ALL audio + prevent any queued segment timeouts from continuing
+      playingRef.current = false;
+      stopCurrentAudio();
       stopBrowserSpeech();
+
       setState('setup');
       setGoal('');
       setGoalInitialized(false);
@@ -152,12 +155,20 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setProgress(0);
       setElapsedTime(0);
       setShowBreathing(false);
-      playingRef.current = false;
       voiceStartedRef.current = false;
       currentPlayingSegmentRef.current = -1;
       prefetchedAudioRef.current.clear();
     }
   }, [open]);
+
+  // Hard cleanup on unmount (route changes etc.)
+  useEffect(() => {
+    return () => {
+      playingRef.current = false;
+      stopCurrentAudio();
+      stopBrowserSpeech();
+    };
+  }, []);
 
   // Progress timer - only runs when voice has actually started
   useEffect(() => {
@@ -181,6 +192,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     setGoal(sessionGoal);
 
     impact('medium');
+    // Ensure we're marked as playing before we start generating
+    playingRef.current = true;
+
     // Skip breathing - go directly to generating
     handleStartSession();
   };
@@ -188,6 +202,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const handleStartSession = async () => {
     setState('generating');
     hapticPattern('selection');
+    playingRef.current = true;
 
     try {
       const cacheKey = generateCacheKey({
@@ -505,7 +520,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     if (state === 'playing') {
       setState('paused');
       playingRef.current = false;
-      stopCurrentAudio(); // Stop audio playback
+      stopCurrentAudio();
       stopBrowserSpeech();
     } else if (state === 'paused' && scriptRef.current) {
       setState('playing');
@@ -552,9 +567,18 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     );
   }
 
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      playingRef.current = false;
+      stopCurrentAudio();
+      stopBrowserSpeech();
+    }
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+      <DialogContent
         className="max-w-2xl h-[85svh] max-h-[85svh] p-0 overflow-hidden bg-background"
         dir={isRTL ? 'rtl' : 'ltr'}
         onPointerDownOutside={(e) => {
