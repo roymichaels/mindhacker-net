@@ -182,10 +182,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     const currentSessionId = sessionIdRef.current;
 
     try {
+      // No fixed session length: generate an adaptive script and calculate duration from word-count.
+      // We still pass a numeric field to the generator, but 0 means "auto" in our app logic.
+      const durationMinutes = 0;
+
       const cacheKey = generateCacheKey({
         egoState: 'personalized',
         goal: sessionGoal,
-        durationMinutes: 5, // Use fixed value for cache key consistency
+        durationMinutes,
         language: language as 'he' | 'en',
       });
 
@@ -193,7 +197,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       if (user?.id) {
         const cached = await checkScriptCache(user.id, cacheKey);
         if (sessionIdRef.current !== currentSessionId) return;
-        
+
         if (cached?.script_data?.fullScript) {
           setScript(cached.script_data);
           if (cached.audio_url) {
@@ -206,11 +210,11 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         }
       }
 
-      // Generate new script (let AI decide optimal length based on context)
+      // Generate new script (adaptive length)
       const generatedScript = await generateHypnosisScript({
         egoState: 'personalized',
         goal: sessionGoal,
-        durationMinutes: 5, // Target ~5 min but AI can adjust
+        durationMinutes,
         userLevel: gameState?.level || 1,
         sessionStreak: gameState?.sessionStreak || 0,
         previousSessions: 0,
@@ -228,7 +232,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         await saveScriptToCache(user.id, cacheKey, generatedScript, {
           egoState: 'personalized',
           goal: sessionGoal,
-          durationMinutes: 5,
+          durationMinutes,
           language: language as 'he' | 'en',
         });
         // Trigger background audio caching
@@ -361,10 +365,23 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
           onTimeUpdate,
           onStart,
           onEnd,
-          onError: () => {
-            if (sessionIdRef.current === currentSessionId && playingRef.current) {
-              onEnd();
+          onError: (err) => {
+            if (sessionIdRef.current !== currentSessionId || !playingRef.current) return;
+
+            // Most common reason voice "doesn't start": autoplay is blocked until user gesture.
+            const name = err instanceof Error ? (err as any).name : undefined;
+            if (name === 'NotAllowedError') {
+              setState('paused');
+              toast({
+                title: language === 'he' ? 'לחץ על הפעלה כדי להתחיל' : 'Tap Play to start',
+                description: language === 'he'
+                  ? 'הדפדפן חסם הפעלה אוטומטית של קול עד אינטראקציה.'
+                  : 'Your browser blocked autoplay until you interact.',
+              });
+              return;
             }
+
+            onEnd();
           },
         });
       } else {
@@ -373,14 +390,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         const wordsPerMinute = 130;
         const words = text.split(/\s+/).length;
         const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
-        
+
         const startTime = Date.now();
         const progressInterval = setInterval(() => {
           const elapsed = Date.now() - startTime;
           onTimeUpdate(elapsed / 1000, readingTime / 1000);
           if (elapsed >= readingTime) clearInterval(progressInterval);
         }, 100);
-        
+
         scheduleTimeout(() => {
           clearInterval(progressInterval);
           if (sessionIdRef.current === currentSessionId && playingRef.current) {
