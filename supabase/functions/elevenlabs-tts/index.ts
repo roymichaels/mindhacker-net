@@ -103,33 +103,70 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('ElevenLabs TTS error:', response.status, errorText);
 
+      // Try to parse ElevenLabs error payload (often JSON)
+      let parsed: any = null;
+      try {
+        parsed = JSON.parse(errorText);
+      } catch {
+        // ignore
+      }
+
+      const detailStatus = parsed?.detail?.status;
+      const detailMessage = parsed?.detail?.message;
+
+      // ElevenLabs may return 401 for quota issues in some cases.
+      if (detailStatus === 'quota_exceeded') {
+        return new Response(
+          JSON.stringify({
+            error: 'Quota exceeded',
+            message: detailMessage || 'Your ElevenLabs quota is exceeded.',
+            fallback: true,
+          }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       if (response.status === 401) {
-        return new Response(JSON.stringify({ 
-          error: 'Invalid API key',
-          fallback: true,
-        }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({
+            error: 'Unauthorized',
+            message: 'ElevenLabs rejected the request (check API key permissions).',
+            fallback: true,
+          }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
 
       if (response.status === 429) {
-        return new Response(JSON.stringify({ 
-          error: 'Rate limit exceeded',
-          fallback: true,
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({
+            error: 'Rate limit exceeded',
+            fallback: true,
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
 
-      return new Response(JSON.stringify({ 
-        error: `ElevenLabs TTS failed: ${response.status}`,
-        fallback: true,
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          error: `ElevenLabs TTS failed: ${response.status}`,
+          message: detailMessage || errorText,
+          fallback: true,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Return the audio directly
