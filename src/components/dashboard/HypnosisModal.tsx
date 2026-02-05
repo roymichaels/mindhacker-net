@@ -795,6 +795,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   <PersonalizedOrb 
                     size={orbSize} 
                     state="listening"
+                    renderer="css"
                   />
                 </div>
                 <div className="text-center space-y-4">
@@ -834,6 +835,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   <PersonalizedOrb 
                     size={orbSizeCompact} 
                     state={state === 'playing' ? 'listening' : 'idle'}
+                    renderer="css"
                   />
                 </div>
 

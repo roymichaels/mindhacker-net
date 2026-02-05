@@ -70,6 +70,8 @@ export interface OrbProps {
   className?: string;
   showGlow?: boolean;
   onReady?: () => void;
+  /** Which renderer to use. 'auto' prefers WebGL when available. */
+  renderer?: 'auto' | 'css' | 'webgl';
   /** Personalized orb profile */
   profile?: OrbProfile;
   /** Theme colors from admin panel */
