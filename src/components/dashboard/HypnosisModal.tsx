@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Wind, Loader2, Sparkles, Lock, Rocket, Calendar } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Loader2, Sparkles, Lock, Rocket, Calendar } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -12,7 +13,6 @@ import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { BreathingGuide } from '@/components/hypnosis';
 import { 
   generateHypnosisScript, 
   type HypnosisScript,
@@ -80,8 +80,47 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const playingRef = useRef<boolean>(false);
   const voiceStartedRef = useRef<boolean>(false); // Track when voice actually starts
   const currentPlayingSegmentRef = useRef<number>(-1); // Track which segment is currently playing to prevent race conditions
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const currentSegment = script?.segments[currentSegmentIndex];
+  
+  // Rotating generating messages
+  const [generatingMessageIndex, setGeneratingMessageIndex] = useState(0);
+  const GENERATING_MESSAGES = {
+    he: [
+      'מנתח את הפרופיל שלך...',
+      'מתאים את הסשן אישית...',
+      'יוצר את החוויה המושלמת עבורך...',
+      'הסשן כמעט מוכן...',
+    ],
+    en: [
+      'Analyzing your profile...',
+      'Personalizing your session...',
+      'Creating the perfect experience...',
+      'Almost ready...',
+    ],
+  };
+
+  // Rotate messages during generating
+  useEffect(() => {
+    if (state !== 'generating') {
+      setGeneratingMessageIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setGeneratingMessageIndex((prev) => 
+        (prev + 1) % GENERATING_MESSAGES[language as 'he' | 'en'].length
+      );
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [state, language]);
+
+  // Auto-scroll to top when segment changes
+  useEffect(() => {
+    if (scrollContainerRef.current && currentSegmentIndex >= 0) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentSegmentIndex]);
 
   // Auto-populate goal from profile context when modal opens
   useEffect(() => {
@@ -134,25 +173,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     setGoal(sessionGoal);
 
     impact('medium');
-    setState('breathing');
-    setShowBreathing(true);
-    setBreathingCountdown(8); // Reduced from 20 to 8 seconds
-
-    const interval = setInterval(() => {
-      setBreathingCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setShowBreathing(false);
-          handleStartSession();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const skipBreathing = () => {
-    setShowBreathing(false);
+    // Skip breathing - go directly to generating
     handleStartSession();
   };
 
@@ -628,23 +649,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               </motion.div>
             )}
 
-            {/* Breathing State */}
-            {state === 'breathing' && showBreathing && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center p-6"
-              >
-                <BreathingGuide isActive={true} language={language as 'he' | 'en'} />
-                <Button variant="ghost" size="sm" onClick={skipBreathing} className="mt-8">
-                  <Wind className="w-4 h-4 me-2" />
-                  {t('hypnosisSession.skip')}
-                </Button>
-              </motion.div>
-            )}
 
-            {/* Generating State */}
+            {/* Generating State - Enhanced */}
             {state === 'generating' && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -656,10 +662,25 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   size={200} 
                   state="listening"
                 />
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-4">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-                  <p className="text-lg font-medium">
-                    {t('hypnosisSession.creatingSession')}
+                  
+                  {/* Rotating messages */}
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={generatingMessageIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-lg font-medium"
+                    >
+                      {GENERATING_MESSAGES[language as 'he' | 'en'][generatingMessageIndex]}
+                    </motion.p>
+                  </AnimatePresence>
+                  
+                  {/* Disclaimer */}
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    {t('hypnosisSession.generatingDisclaimer')}
                   </p>
                 </div>
               </motion.div>
@@ -681,24 +702,27 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                   />
                 </div>
 
-                {/* Current Segment Text - Scrollable area */}
+                {/* Current Segment Text - Scrollable area with auto-scroll */}
                 {currentSegment && (
-                  <div className="flex-1 min-h-0 overflow-y-auto px-6">
+                  <ScrollArea 
+                    className="flex-1 min-h-0 px-6"
+                    ref={scrollContainerRef}
+                  >
                     <motion.div 
                       key={currentSegmentIndex}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="text-center pb-4"
+                      className="text-center py-4"
                     >
-                      <p className="text-xs text-primary/60 uppercase tracking-wider mb-2">
+                      <p className="text-xs text-primary/60 uppercase tracking-wider mb-3">
                         {SEGMENT_LABELS[currentSegment.mood]?.[language as 'he' | 'en'] || currentSegment.mood}
                       </p>
-                      <p className="text-base leading-relaxed text-foreground/90">
+                      <p className="text-lg leading-loose text-foreground/90 whitespace-pre-wrap">
                         {currentSegment.text}
                       </p>
                     </motion.div>
-                  </div>
+                  </ScrollArea>
                 )}
 
                 {/* Progress - Fixed at bottom */}

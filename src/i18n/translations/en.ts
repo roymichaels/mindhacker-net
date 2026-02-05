@@ -2957,6 +2957,12 @@ export const en: TranslationKeys = {
     finish: "Finish",
     lockedTitle: "Complete Launchpad First",
     lockedDescription: "To receive a personalized hypnosis experience, complete the Launchpad first",
+    // Generating state messages
+    analyzingProfile: "Analyzing your profile...",
+    personalizingSession: "Personalizing your session...",
+    creatingExperience: "Creating the perfect experience...",
+    almostReady: "Almost ready...",
+    generatingDisclaimer: "Creating a personalized session may take up to 30 seconds",
   },
 
   // Sidebar translations
