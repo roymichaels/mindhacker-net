@@ -20,10 +20,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'תקציב, הכנסות והוצאות',
       descEn: 'Budget, revenue and expenses',
       onClick: () => onOpenModal?.('financials'),
-      gradient: 'from-emerald-500/20 via-green-500/10 to-transparent',
-      iconBg: 'bg-emerald-500/20',
-      iconColor: 'text-emerald-400',
-      borderColor: 'border-emerald-500/20 hover:border-emerald-500/50',
+      gradient: 'from-emerald-500/30 via-green-500/20 to-transparent dark:from-emerald-500/20 dark:via-green-500/10 dark:to-transparent',
+      iconBg: 'bg-emerald-500/30 dark:bg-emerald-500/20',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      borderColor: 'border-emerald-500/30 hover:border-emerald-500/60 dark:border-emerald-500/20 dark:hover:border-emerald-500/50',
     },
     {
       id: 'marketing',
@@ -33,10 +33,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'אסטרטגיות וערוצים שיווקיים',
       descEn: 'Strategies and marketing channels',
       onClick: () => onOpenModal?.('marketing'),
-      gradient: 'from-purple-500/20 via-violet-500/10 to-transparent',
-      iconBg: 'bg-purple-500/20',
-      iconColor: 'text-purple-400',
-      borderColor: 'border-purple-500/20 hover:border-purple-500/50',
+      gradient: 'from-purple-500/30 via-violet-500/20 to-transparent dark:from-purple-500/20 dark:via-violet-500/10 dark:to-transparent',
+      iconBg: 'bg-purple-500/30 dark:bg-purple-500/20',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      borderColor: 'border-purple-500/30 hover:border-purple-500/60 dark:border-purple-500/20 dark:hover:border-purple-500/50',
     },
     {
       id: 'operations',
@@ -46,10 +46,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'ניהול יומיומי ותהליכים',
       descEn: 'Daily management and processes',
       onClick: () => onOpenModal?.('operations'),
-      gradient: 'from-amber-500/20 via-yellow-500/10 to-transparent',
-      iconBg: 'bg-amber-500/20',
-      iconColor: 'text-amber-400',
-      borderColor: 'border-amber-500/20 hover:border-amber-500/50',
+      gradient: 'from-amber-500/30 via-yellow-500/20 to-transparent dark:from-amber-500/20 dark:via-yellow-500/10 dark:to-transparent',
+      iconBg: 'bg-amber-500/30 dark:bg-amber-500/20',
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      borderColor: 'border-amber-500/30 hover:border-amber-500/60 dark:border-amber-500/20 dark:hover:border-amber-500/50',
     },
     {
       id: 'strategy',
@@ -59,10 +59,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'תכנון ואסטרטגיה עסקית',
       descEn: 'Business planning and strategy',
       onClick: () => onOpenModal?.('strategy'),
-      gradient: 'from-cyan-500/20 via-teal-500/10 to-transparent',
-      iconBg: 'bg-cyan-500/20',
-      iconColor: 'text-cyan-400',
-      borderColor: 'border-cyan-500/20 hover:border-cyan-500/50',
+      gradient: 'from-cyan-500/30 via-teal-500/20 to-transparent dark:from-cyan-500/20 dark:via-teal-500/10 dark:to-transparent',
+      iconBg: 'bg-cyan-500/30 dark:bg-cyan-500/20',
+      iconColor: 'text-cyan-600 dark:text-cyan-400',
+      borderColor: 'border-cyan-500/30 hover:border-cyan-500/60 dark:border-cyan-500/20 dark:hover:border-cyan-500/50',
     },
     {
       id: 'branding',
@@ -72,10 +72,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'זהות מותג ומיצוב',
       descEn: 'Brand identity and positioning',
       onClick: () => onOpenModal?.('branding'),
-      gradient: 'from-pink-500/20 via-rose-500/10 to-transparent',
-      iconBg: 'bg-pink-500/20',
-      iconColor: 'text-pink-400',
-      borderColor: 'border-pink-500/20 hover:border-pink-500/50',
+      gradient: 'from-pink-500/30 via-rose-500/20 to-transparent dark:from-pink-500/20 dark:via-rose-500/10 dark:to-transparent',
+      iconBg: 'bg-pink-500/30 dark:bg-pink-500/20',
+      iconColor: 'text-pink-600 dark:text-pink-400',
+      borderColor: 'border-pink-500/30 hover:border-pink-500/60 dark:border-pink-500/20 dark:hover:border-pink-500/50',
     },
     {
       id: 'growth',
@@ -85,10 +85,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'מדדי צמיחה ויעדים',
       descEn: 'Growth metrics and goals',
       onClick: () => onOpenModal?.('growth'),
-      gradient: 'from-green-500/20 via-emerald-500/10 to-transparent',
-      iconBg: 'bg-green-500/20',
-      iconColor: 'text-green-400',
-      borderColor: 'border-green-500/20 hover:border-green-500/50',
+      gradient: 'from-green-500/30 via-emerald-500/20 to-transparent dark:from-green-500/20 dark:via-emerald-500/10 dark:to-transparent',
+      iconBg: 'bg-green-500/30 dark:bg-green-500/20',
+      iconColor: 'text-green-600 dark:text-green-400',
+      borderColor: 'border-green-500/30 hover:border-green-500/60 dark:border-green-500/20 dark:hover:border-green-500/50',
     },
     {
       id: 'hypnosis',
@@ -98,10 +98,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'סשנים ממוקדי עסקים',
       descEn: 'Business-focused sessions',
       onClick: () => navigate('/hypnosis?goal=business'),
-      gradient: 'from-yellow-500/20 via-amber-500/10 to-transparent',
-      iconBg: 'bg-yellow-500/20',
-      iconColor: 'text-yellow-400',
-      borderColor: 'border-yellow-500/20 hover:border-yellow-500/50',
+      gradient: 'from-yellow-500/30 via-amber-500/20 to-transparent dark:from-yellow-500/20 dark:via-amber-500/10 dark:to-transparent',
+      iconBg: 'bg-yellow-500/30 dark:bg-yellow-500/20',
+      iconColor: 'text-yellow-600 dark:text-yellow-400',
+      borderColor: 'border-yellow-500/30 hover:border-yellow-500/60 dark:border-yellow-500/20 dark:hover:border-yellow-500/50',
     },
     {
       id: '90-day-plan',
@@ -111,10 +111,10 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
       descHe: 'מפת דרכים אסטרטגית',
       descEn: 'Strategic roadmap',
       onClick: () => navigate('/life-plan'),
-      gradient: 'from-orange-500/20 via-red-500/10 to-transparent',
-      iconBg: 'bg-orange-500/20',
-      iconColor: 'text-orange-400',
-      borderColor: 'border-orange-500/20 hover:border-orange-500/50',
+      gradient: 'from-orange-500/30 via-red-500/20 to-transparent dark:from-orange-500/20 dark:via-red-500/10 dark:to-transparent',
+      iconBg: 'bg-orange-500/30 dark:bg-orange-500/20',
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      borderColor: 'border-orange-500/30 hover:border-orange-500/60 dark:border-orange-500/20 dark:hover:border-orange-500/50',
     },
   ];
 
@@ -130,7 +130,7 @@ const BusinessToolsGrid = ({ language, onOpenModal }: BusinessToolsGridProps) =>
           whileTap={{ scale: 0.98 }}
         >
           <Card 
-            className={`relative overflow-hidden backdrop-blur-xl bg-gray-900/60 ${tool.borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 group`}
+            className={`relative overflow-hidden backdrop-blur-xl bg-white/80 dark:bg-gray-900/60 ${tool.borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10 dark:hover:shadow-amber-500/5 group`}
             onClick={tool.onClick}
           >
             {/* Gradient overlay */}
