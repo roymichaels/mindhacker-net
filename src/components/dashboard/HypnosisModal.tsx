@@ -361,6 +361,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
       if (result) {
         setVoiceProvider(result.provider);
+        
+        // For browser TTS, the progress is handled inside playAudioUrl via speakWithBrowser
+        // which now has smooth word-level interpolation
         await playAudioUrl(result.audioUrl, {
           onTimeUpdate,
           onStart,
@@ -381,34 +384,41 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               return;
             }
 
-            onEnd();
+            // Voice failed - show error and don't auto-complete
+            console.error('Voice playback failed:', err);
+            toast({
+              title: language === 'he' ? 'שגיאה בהפעלת הקול' : 'Voice playback error',
+              description: language === 'he' 
+                ? 'לא הצלחנו להפעיל את הקול. נסה שוב.' 
+                : 'Could not play voice. Please try again.',
+              variant: 'destructive',
+            });
+            handleClose();
           },
         });
       } else {
-        // Fallback to timed display with simulated progress
-        onStart();
-        const wordsPerMinute = 130;
-        const words = text.split(/\s+/).length;
-        const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
-
-        const startTime = Date.now();
-        const progressInterval = setInterval(() => {
-          const elapsed = Date.now() - startTime;
-          onTimeUpdate(elapsed / 1000, readingTime / 1000);
-          if (elapsed >= readingTime) clearInterval(progressInterval);
-        }, 100);
-
-        scheduleTimeout(() => {
-          clearInterval(progressInterval);
-          if (sessionIdRef.current === currentSessionId && playingRef.current) {
-            onEnd();
-          }
-        }, readingTime);
+        // ALL TTS providers failed - show error instead of simulating progress
+        console.error('All TTS providers failed');
+        toast({
+          title: language === 'he' ? 'שגיאה בסינתזת הקול' : 'Voice synthesis failed',
+          description: language === 'he' 
+            ? 'לא הצלחנו ליצור קול. נסה שוב מאוחר יותר.' 
+            : 'Could not generate voice. Please try again later.',
+          variant: 'destructive',
+        });
+        handleClose();
       }
     } catch (error) {
       console.error('TTS failed:', error);
       if (sessionIdRef.current === currentSessionId && playingRef.current) {
-        onEnd();
+        toast({
+          title: language === 'he' ? 'שגיאה' : 'Error',
+          description: language === 'he' 
+            ? 'אירעה שגיאה בלתי צפויה. נסה שוב.' 
+            : 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        });
+        handleClose();
       }
     }
   };
