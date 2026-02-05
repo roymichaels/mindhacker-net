@@ -404,6 +404,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     });
     
     const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
+
+    // Fit-to-canvas safety margin (prevents visual clipping on small sizes)
+    const fitScale = size <= 200 ? 0.82 : 0.9;
+    mainWireframe.scale.setScalar(fitScale);
+
     scene.add(mainWireframe);
     mainWireframeRef.current = mainWireframe;
 
@@ -432,6 +437,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     inner1Edges.setAttribute('color', new THREE.BufferAttribute(inner1Colors, 3));
     
     const inner1Wireframe = new THREE.LineSegments(inner1Edges, lineMaterial.clone());
+    inner1Wireframe.scale.setScalar(fitScale);
     scene.add(inner1Wireframe);
     innerStructures.push(inner1Wireframe);
 
@@ -452,6 +458,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     inner2Edges.setAttribute('color', new THREE.BufferAttribute(inner2Colors, 3));
     
     const inner2Wireframe = new THREE.LineSegments(inner2Edges, lineMaterial.clone());
+    inner2Wireframe.scale.setScalar(fitScale);
     scene.add(inner2Wireframe);
     innerStructures.push(inner2Wireframe);
 
@@ -464,6 +471,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // ===== PARTICLES - Gradient colored =====
     const ps = new ParticleSystem(particleCount, activePalette.primary, 0.5, 2.0);
+    ps.mesh.scale.setScalar(fitScale);
     scene.add(ps.mesh);
     particleSystemRef.current = ps;
 
