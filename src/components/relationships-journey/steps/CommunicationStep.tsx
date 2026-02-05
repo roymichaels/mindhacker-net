@@ -31,8 +31,8 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-600/20 mb-4">
-          <MessageCircle className="w-8 h-8 text-pink-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-500/20 dark:bg-pink-600/20 mb-4">
+          <MessageCircle className="w-8 h-8 text-pink-600 dark:text-pink-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'סגנון תקשורת' : 'Communication Style'}
@@ -46,15 +46,15 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <MessageCircle className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'סגנון התקשורת שלך' : 'Your Communication Style'}
           </Label>
           <Select
             value={(data.communication_style as string) || ''}
             onValueChange={(value) => handleChange('communication_style', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר סגנון' : 'Select style'} />
             </SelectTrigger>
             <SelectContent>
@@ -68,15 +68,15 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Heart className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'גישה לקונפליקטים' : 'Conflict Approach'}
           </Label>
           <Select
             value={(data.conflict_approach as string) || ''}
             onValueChange={(value) => handleChange('conflict_approach', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר גישה' : 'Select approach'} />
             </SelectTrigger>
             <SelectContent>
@@ -90,8 +90,8 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Ear className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Ear className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'כישורי הקשבה' : 'Listening Skills'}
           </Label>
           <Textarea
@@ -100,13 +100,13 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
               : 'When someone talks to me, I...'}
             value={(data.listening_skills as string) || ''}
             onChange={(e) => handleChange('listening_skills', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-pink-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <MessageCircle className="w-4 h-4 text-pink-600 dark:text-pink-400" />
             {language === 'he' ? 'אתגרי ביטוי' : 'Expression Challenges'}
           </Label>
           <Textarea
@@ -115,7 +115,7 @@ const CommunicationStep = ({ data, onUpdate, language }: CommunicationStepProps)
               : 'I find it hard to express myself when...'}
             value={(data.expression_challenges as string) || ''}
             onChange={(e) => handleChange('expression_challenges', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-pink-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-pink-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
