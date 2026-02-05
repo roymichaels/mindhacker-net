@@ -118,7 +118,6 @@ const CoachAnalytics = lazy(() => import("./pages/panel/CoachAnalytics"));
 const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
 const UserDashboardView = lazy(() => import("./pages/panel/UserDashboardView"));
 const ClientProfile = lazy(() => import("./pages/panel/ClientProfile"));
-const Profile = lazy(() => import("./pages/Profile"));
 // Admin pages
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
@@ -540,14 +539,6 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <Success />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/profile"
-                          element={
-                            <ProtectedRoute>
-                              <Profile />
                             </ProtectedRoute>
                           }
                         />
