@@ -522,15 +522,23 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-visible"
+              className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-6 sm:space-y-8"
+              style={{ overflow: 'visible' }}
             >
+              {/* Orb container - larger padding and explicit sizing to prevent clipping */}
               <div 
-                className="flex-shrink-0 p-8"
-                style={{ minHeight: orbSize + 80 }}
+                className="relative flex items-center justify-center"
+                style={{ 
+                  width: orbSize + 100, 
+                  height: orbSize + 100,
+                  minWidth: orbSize + 100,
+                  minHeight: orbSize + 100,
+                }}
               >
                 <PersonalizedOrb 
                   size={orbSize} 
                   state="listening"
+                  showGlow={true}
                 />
               </div>
               <div className="text-center space-y-4">
