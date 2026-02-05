@@ -3011,6 +3011,12 @@ export const he = {
     finish: "סיום",
     lockedTitle: "השלם את ה-Launchpad",
     lockedDescription: "כדי לקבל חוויית היפנוזה מותאמת אישית, עליך להשלים את ה-Launchpad תחילה",
+    // Generating state messages
+    analyzingProfile: "מנתח את הפרופיל שלך...",
+    personalizingSession: "מתאים את הסשן אישית...",
+    creatingExperience: "יוצר את החוויה המושלמת עבורך...",
+    almostReady: "הסשן כמעט מוכן...",
+    generatingDisclaimer: "יצירת סשן אישי עשויה לקחת עד 30 שניות",
   },
 
   // Sidebar translations
