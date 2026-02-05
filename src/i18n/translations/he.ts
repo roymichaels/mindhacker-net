@@ -3189,6 +3189,7 @@ export const he = {
     bugReport: {
       // Widget
       buttonTooltip: "דווח על באג",
+      promptCta: "נתקלת בבאג? לחץ כאן",
       
       // Dialog
       title: "דיווח על באג",

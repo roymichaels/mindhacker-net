@@ -7,14 +7,13 @@ import { useBugReport } from '@/hooks/useBugReport';
 import { BugReportForm } from '@/components/bug-report/BugReportForm';
 import { cn } from '@/lib/utils';
 
-const PROMPT_DISMISSED_KEY = 'bug-report-prompt-dismissed';
+const PROMPT_DISMISSED_KEY = 'bug-report-prompt-dismissed-v2';
 
 export const BugReportWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
   const { captureContext } = useBugReport();
-
   // Show the prompt after a delay if not dismissed
   useEffect(() => {
     const wasDismissed = localStorage.getItem(PROMPT_DISMISSED_KEY);
@@ -58,10 +57,10 @@ export const BugReportWidget = () => {
 
   return (
     <>
-      {/* Floating Button Container - positioned on left, above bottom dock */}
+      {/* Floating Button Container - positioned on start, above bottom dock */}
       <div
         id="bug-report-widget"
-        className="fixed left-4 bottom-20 z-40 pointer-events-none"
+        className="fixed start-4 bottom-20 z-40 pointer-events-none"
       >
         <div className="relative flex items-center gap-2">
           {/* Prompt Bubble */}
@@ -72,19 +71,21 @@ export const BugReportWidget = () => {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -20, scale: 0.9 }}
                 className={cn(
-                  "pointer-events-auto absolute bottom-0 flex items-center gap-2",
-                  "bg-gradient-to-r from-gray-900 to-gray-800",
-                  "border border-primary/30 rounded-lg px-3 py-2",
-                  "shadow-lg shadow-primary/20",
-                  isRTL ? "right-14" : "left-14"
+                  "pointer-events-auto absolute top-1/2 -translate-y-1/2 flex items-center gap-2",
+                  "bg-background/90 backdrop-blur-xl",
+                  "border border-border rounded-lg px-3 py-2",
+                  "shadow-md",
+                  "start-14 max-w-[70vw]"
                 )}
               >
-                <p className="text-xs text-foreground whitespace-nowrap">
-                  {isRTL ? "נתקלת בבאג? לחץ כאן 👈" : "Found a bug? Click here 👉"}
+                <p className="text-xs text-foreground leading-tight whitespace-normal">
+                  {t('bugReport.promptCta')}
                 </p>
                 <button
+                  type="button"
                   onClick={dismissPrompt}
-                  className="p-0.5 rounded-full hover:bg-white/10 transition-colors"
+                  className="p-0.5 rounded-full hover:bg-muted transition-colors"
+                  aria-label={t('common.close')}
                 >
                   <X className="h-3 w-3 text-muted-foreground" />
                 </button>
@@ -97,10 +98,9 @@ export const BugReportWidget = () => {
             onClick={handleOpen}
             className={cn(
               "pointer-events-auto relative p-3 rounded-full",
-              "bg-gradient-to-br from-gray-900 to-gray-800",
-              "border border-primary/30",
-              "shadow-lg shadow-primary/20",
-              "hover:shadow-xl hover:shadow-primary/30",
+              "bg-gradient-to-br from-card to-muted",
+              "border border-border",
+              "shadow-md hover:shadow-lg",
               "transition-shadow duration-300",
               "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
             )}
@@ -111,14 +111,12 @@ export const BugReportWidget = () => {
             transition={{ delay: 1, duration: 0.3 }}
             title={t('bugReport.buttonTooltip')}
           >
-            {/* Gradient border animation */}
+            {/* Subtle animated glow */}
             <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-purple-500 opacity-50 blur-sm"
-              animate={{
-                rotate: [0, 360],
-              }}
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/30 via-primary/15 to-primary/30 opacity-40 blur-md"
+              animate={{ rotate: [0, 360] }}
               transition={{
-                duration: 8,
+                duration: 10,
                 repeat: Infinity,
                 ease: 'linear',
               }}
