@@ -89,7 +89,7 @@ export interface ThemePreset {
 }
 
 const defaultTheme: ThemeSettings = {
-  brand_name: "מיינדOS",
+  brand_name: "מיינד OS",
   brand_name_en: "MindOS",
   company_legal_name: "MindOS OÜ",
   company_country: "Estonia",

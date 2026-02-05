@@ -700,7 +700,7 @@ const Theme = () => {
                   <Input
                     value={localTheme.brand_name}
                     onChange={(e) => handleChange('brand_name', e.target.value)}
-                    placeholder="מיינדOS"
+                    placeholder="מיינד OS"
                     dir="rtl"
                   />
                 </div>
