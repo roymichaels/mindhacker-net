@@ -35,8 +35,6 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { SidebarCharacterHUD } from './unified/SidebarCharacterHUD';
 
 const defaultLogo = "/aurora-icon.svg";
 
@@ -71,7 +69,6 @@ const DashboardSidebar = ({
   const { theme: brandTheme } = useThemeSettings();
   const chatContext = useAuroraChatContextSafe();
   const dashboard = useUnifiedDashboard();
-  const { isLaunchpadComplete } = useLaunchpadProgress();
 
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
@@ -205,23 +202,6 @@ const DashboardSidebar = ({
           >
             <Menu className="h-4 w-4 text-muted-foreground" />
           </Button>
-        </div>
-      )}
-
-      {/* Character HUD - Always show for authenticated users */}
-      {!dashboard.isLoading && !isCollapsed && (
-        <div className={cn("mb-4 w-full", isMobile ? "px-0" : "px-2")}>
-          <SidebarCharacterHUD
-            identityTitle={dashboard.identityTitle}
-            level={dashboard.level}
-            xp={dashboard.xpProgress}
-            streak={dashboard.streak}
-            tokens={dashboard.tokens}
-            onClick={() => {
-              onOpenProfile?.();
-              onNavigate?.();
-            }}
-          />
         </div>
       )}
 
