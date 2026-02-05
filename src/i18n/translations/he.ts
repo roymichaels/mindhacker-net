@@ -3177,9 +3177,65 @@ export const he = {
        marketing: "שיווק",
        sales: "מכירות",
        leadership: "מנהיגות",
-       earn_more: "להרוויח יותר",
-     },
-   },
+        earn_more: "להרוויח יותר",
+      },
+    },
+    bugReport: {
+      // Widget
+      buttonTooltip: "דווח על באג",
+      
+      // Dialog
+      title: "דיווח על באג",
+      subtitle: "עזור לנו להשתפר על ידי דיווח על בעיות",
+      
+      // Form fields
+      category: "קטגוריה",
+      categoryUI: "בעיית ממשק",
+      categoryPerformance: "ביצועים",
+      categoryFeature: "פיצ׳ר לא עובד",
+      categoryOther: "אחר",
+      
+      priority: "עדיפות",
+      priorityLow: "נמוכה",
+      priorityMedium: "בינונית", 
+      priorityHigh: "גבוהה",
+      priorityCritical: "קריטית",
+      
+      titleLabel: "כותרת",
+      titlePlaceholder: "תיאור קצר של הבעיה",
+      
+      descriptionLabel: "תיאור",
+      descriptionPlaceholder: "מה קרה? מה ציפית שיקרה?",
+      
+      screenshotLabel: "צילום מסך",
+      captureScreenshot: "צלם מסך",
+      screenshotCaptured: "צילום מסך נתפס!",
+      
+      emailLabel: "אימייל (אופציונלי)",
+      emailPlaceholder: "לצורך מעקב",
+      
+      // Context info
+      pageInfo: "עמוד",
+      deviceInfo: "מכשיר",
+      
+      // Actions
+      submit: "שלח דיווח",
+      submitting: "שולח...",
+      
+      // Success/Error
+      successTitle: "תודה!",
+      successMessage: "הדיווח שלך נשלח בהצלחה",
+      errorTitle: "שגיאה",
+      errorMessage: "שליחת הדיווח נכשלה",
+      
+      // Admin
+      adminTitle: "דיווחי באגים",
+      status: "סטטוס",
+      statusNew: "חדש",
+      statusInProgress: "בטיפול",
+      statusResolved: "נפתר",
+      statusClosed: "סגור",
+    },
 };
 
 export type TranslationKeys = typeof he;
