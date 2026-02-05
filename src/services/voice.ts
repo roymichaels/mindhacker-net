@@ -214,10 +214,12 @@ export function speakWithBrowser(
   text: string,
   options: {
     rate?: number;
+    onStart?: () => void;
+    onProgress?: (progress: number) => void;
     onEnd?: () => void;
     onError?: (error: Error) => void;
   } = {}
-): SpeechSynthesisUtterance | null {
+): { cancel: () => void } | null {
   if (!('speechSynthesis' in window)) {
     options.onError?.(new Error('Speech synthesis not supported'));
     return null;
@@ -232,47 +234,83 @@ export function speakWithBrowser(
     : [text];
   
   let currentChunk = 0;
+  let hasStarted = false;
 
-  const speakChunk = () => {
-    if (currentChunk >= chunks.length) {
-      options.onEnd?.();
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
-    utterance.rate = options.rate || 0.9;
-    utterance.pitch = 1;
-
-    // Try to find a suitable voice
+  // Preload voices first
+  const loadVoicesAndSpeak = () => {
     const voices = speechSynthesis.getVoices();
-    const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
-    const englishFemaleVoice = voices.find(v => 
-      v.lang.startsWith('en') && v.name.toLowerCase().includes('female')
-    );
     
-    utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
-
-    utterance.onend = () => {
-      currentChunk++;
-      speakChunk();
-    };
-    
-    utterance.onerror = (event) => {
-      // Skip to next chunk on error
-      console.warn('Browser TTS chunk error:', event.error);
-      currentChunk++;
-      if (currentChunk < chunks.length) {
-        speakChunk();
-      } else {
+    const speakChunk = () => {
+      if (currentChunk >= chunks.length) {
         options.onEnd?.();
+        return;
       }
+
+      const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+      utterance.rate = options.rate || 0.85;
+      utterance.pitch = 1;
+
+      // Try to find a suitable voice
+      const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
+      const englishFemaleVoice = voices.find(v => 
+        v.lang.startsWith('en') && v.name.toLowerCase().includes('female')
+      );
+      
+      utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
+
+      utterance.onstart = () => {
+        if (!hasStarted) {
+          hasStarted = true;
+          options.onStart?.();
+        }
+      };
+
+      utterance.onend = () => {
+        currentChunk++;
+        // Report progress
+        options.onProgress?.(currentChunk / chunks.length);
+        speakChunk();
+      };
+      
+      utterance.onerror = (event) => {
+        // Skip to next chunk on error
+        console.warn('Browser TTS chunk error:', event.error);
+        currentChunk++;
+        if (currentChunk < chunks.length) {
+          speakChunk();
+        } else {
+          options.onEnd?.();
+        }
+      };
+
+      speechSynthesis.speak(utterance);
     };
 
-    speechSynthesis.speak(utterance);
+    speakChunk();
   };
 
-  speakChunk();
-  return null; // Can't return single utterance when chunking
+  // Some browsers need time to load voices
+  const voices = speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    loadVoicesAndSpeak();
+  } else {
+    // Wait for voices to load
+    speechSynthesis.onvoiceschanged = () => {
+      loadVoicesAndSpeak();
+    };
+    // Fallback timeout
+    setTimeout(() => {
+      if (!hasStarted) {
+        loadVoicesAndSpeak();
+      }
+    }, 500);
+  }
+
+  return {
+    cancel: () => {
+      speechSynthesis.cancel();
+    }
+  };
 }
 
 /**
@@ -376,8 +414,23 @@ export async function playAudioUrl(
     // Handle browser TTS URLs
     if (audioUrl.startsWith('browser-tts://')) {
       const text = decodeURIComponent(audioUrl.replace('browser-tts://', ''));
-      options.onStart?.(); // Voice starts immediately with browser TTS
+      
+      // Calculate estimated duration based on word count (130 words per minute for slow hypnosis)
+      const wordCount = text.split(/\s+/).length;
+      const estimatedDuration = (wordCount / 130) * 60; // seconds
+      let startTime = 0;
+      
       speakWithBrowser(text, {
+        rate: 0.85,
+        onStart: () => {
+          startTime = Date.now();
+          options.onStart?.();
+        },
+        onProgress: (progress) => {
+          // Calculate current time based on progress
+          const currentTime = progress * estimatedDuration;
+          options.onTimeUpdate?.(currentTime, estimatedDuration);
+        },
         onEnd: () => {
           options.onEnd?.();
           resolve();
