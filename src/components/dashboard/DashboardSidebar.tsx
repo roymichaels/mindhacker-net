@@ -208,8 +208,8 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Character HUD - Show above search when launchpad is complete */}
-      {!dashboard.isLoading && !dashboard.isEmpty && isLaunchpadComplete && !isCollapsed && (
+      {/* Character HUD - Always show for authenticated users */}
+      {!dashboard.isLoading && !isCollapsed && (
         <div className={cn("mb-4 w-full", isMobile ? "px-0" : "px-2")}>
           <SidebarCharacterHUD
             identityTitle={dashboard.identityTitle}
