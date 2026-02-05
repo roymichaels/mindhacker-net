@@ -135,25 +135,28 @@ export const BugReportWidget = () => {
         {isOpen && (
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent 
-              className="max-w-md max-h-[90vh] overflow-y-auto"
+              className="max-w-md h-[85svh] max-h-[85svh] flex flex-col overflow-hidden"
               hideCloseButton
             >
               <DialogHeader 
                 title={t('bugReport.title')} 
                 icon={<Bug className="h-5 w-5" />}
                 showBackArrow={false}
+                className="flex-shrink-0"
               />
-              <DialogDescription className="text-center text-muted-foreground -mt-2">
+              <DialogDescription className="text-center text-muted-foreground -mt-2 flex-shrink-0">
                 {t('bugReport.subtitle')}
               </DialogDescription>
               
-              <BugReportForm
-                onSuccess={handleClose}
-                contextInfo={{
-                  pagePath: context.pagePath,
-                  deviceInfo,
-                }}
-              />
+              <div className="flex-1 overflow-y-auto min-h-0 pb-4">
+                <BugReportForm
+                  onSuccess={handleClose}
+                  contextInfo={{
+                    pagePath: context.pagePath,
+                    deviceInfo,
+                  }}
+                />
+              </div>
             </DialogContent>
           </Dialog>
         )}
