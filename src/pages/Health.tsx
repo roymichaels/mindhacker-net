@@ -82,15 +82,15 @@ const Health = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-950 to-gray-900 p-6 shadow-lg border border-red-800/50"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-100 to-red-50 dark:from-red-950 dark:to-gray-900 p-6 shadow-lg border border-red-200 dark:border-red-800/50"
         >
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+            <div className="flex flex-col gap-3 mb-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-800/30 rounded-lg backdrop-blur-sm">
-                  <Heart className="h-6 w-6 text-red-400 fill-red-400" />
+                <div className="p-2 bg-red-500/20 dark:bg-red-800/30 rounded-lg backdrop-blur-sm">
+                  <Heart className="h-6 w-6 text-red-600 dark:text-red-400 fill-red-600 dark:fill-red-400" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-red-400">
+                <h1 className="text-2xl md:text-3xl font-bold text-red-700 dark:text-red-400">
                   {language === 'he' ? 'בריאות' : 'Health'}
                 </h1>
               </div>
@@ -99,7 +99,7 @@ const Health = () => {
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   onClick={() => navigate('/health/journey')}
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 shadow-lg font-bold border border-red-400/30"
                 >
                   <Rocket className="w-4 h-4 me-2" />
                   {language === 'he' ? 'התחל מסע' : 'Start Journey'}
@@ -107,22 +107,22 @@ const Health = () => {
                 <Button
                   onClick={() => handleOpenModal('physical')}
                   variant="outline"
-                  className="flex-1 sm:flex-none border-red-600/50 text-red-400 hover:bg-red-900/30"
+                  className="flex-1 border-red-400 dark:border-red-600/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
                 >
                   <Stethoscope className="w-4 h-4 me-2" />
                   {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}
                 </Button>
               </div>
             </div>
-            <p className="text-red-200 text-sm md:text-base">
+            <p className="text-red-600/80 dark:text-red-200 text-sm md:text-base">
               {language === 'he' 
                 ? 'מרכז הבריאות הכוללת שלך - גוף, נפש, אנרגיה ותודעה'
                 : 'Your holistic health center - body, mind, energy and consciousness'}
             </p>
           </div>
           {/* Decorative elements */}
-          <div className="absolute top-0 end-0 w-32 h-32 bg-red-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 start-0 w-24 h-24 bg-red-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 end-0 w-32 h-32 bg-red-500/10 dark:bg-red-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 start-0 w-24 h-24 bg-red-500/10 dark:bg-red-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
         {/* Health Tools Grid - FIRST (Action-oriented) */}

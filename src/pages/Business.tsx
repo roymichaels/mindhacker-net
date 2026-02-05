@@ -83,15 +83,15 @@ const Business = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950 to-gray-900 p-6 shadow-lg border border-amber-800/50"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-100 to-amber-50 dark:from-amber-950 dark:to-gray-900 p-6 shadow-lg border border-amber-200 dark:border-amber-800/50"
         >
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+            <div className="flex flex-col gap-3 mb-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-800/30 rounded-lg backdrop-blur-sm">
-                  <Briefcase className="h-6 w-6 text-amber-400" />
+                <div className="p-2 bg-amber-500/20 dark:bg-amber-800/30 rounded-lg backdrop-blur-sm">
+                  <Briefcase className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-amber-400">
+                <h1 className="text-2xl md:text-3xl font-bold text-amber-700 dark:text-amber-400">
                   {t('business.title')}
                 </h1>
               </div>
@@ -100,7 +100,7 @@ const Business = () => {
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   onClick={() => navigate('/business/journey')}
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg font-bold border border-amber-400/30"
+                  className="flex-1 bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg font-bold border border-amber-400/30"
                 >
                   <Rocket className="w-4 h-4 me-2" />
                   {language === 'he' ? 'התחל מסע' : 'Start Journey'}
@@ -108,20 +108,20 @@ const Business = () => {
                 <Button
                   onClick={() => handleOpenModal('financials')}
                   variant="outline"
-                  className="flex-1 sm:flex-none border-amber-600/50 text-amber-400 hover:bg-amber-900/30"
+                  className="flex-1 border-amber-400 dark:border-amber-600/50 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30"
                 >
                   <Stethoscope className="w-4 h-4 me-2" />
                   {language === 'he' ? 'בדוק סטטוס' : 'Check Status'}
                 </Button>
               </div>
             </div>
-            <p className="text-amber-200 text-sm md:text-base">
+            <p className="text-amber-600/80 dark:text-amber-200 text-sm md:text-base">
               {t('business.subtitle')}
             </p>
           </div>
           {/* Decorative elements */}
-          <div className="absolute top-0 end-0 w-32 h-32 bg-amber-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 start-0 w-24 h-24 bg-amber-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 end-0 w-32 h-32 bg-amber-500/10 dark:bg-amber-700/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 start-0 w-24 h-24 bg-amber-500/10 dark:bg-amber-700/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         </motion.div>
 
         {/* Business Tools Grid - FIRST (Action-oriented) */}
