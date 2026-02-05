@@ -13,7 +13,6 @@ import {
   LifeAnalysisChart,
   TodaysHabitsCard,
   PlanProgressCard,
-  QuickActionsBar,
 } from './v2';
 
 interface UnifiedDashboardViewProps {
@@ -78,12 +77,6 @@ export function UnifiedDashboardView({
         <TodaysHabitsCard />
         <PlanProgressCard />
       </div>
-
-      {/* Zone 5: Quick Actions Bar */}
-      <QuickActionsBar
-        onOpenChat={onOpenChat}
-        onOpenHypnosis={onOpenHypnosis}
-      />
     </div>
   );
 }
