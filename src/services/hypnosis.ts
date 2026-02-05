@@ -283,7 +283,14 @@ export async function cacheScriptAudio(
   fullScript: string,
   language: 'he' | 'en' = 'he'
 ): Promise<void> {
+  if (!fullScript?.trim()) {
+    console.warn('No script provided for audio caching');
+    return;
+  }
+  
   try {
+    console.log('Triggering audio caching:', { userId, cacheKey, scriptLength: fullScript.length });
+    
     // Fire and forget - don't wait for completion
     supabase.functions.invoke('cache-hypnosis-audio', {
       body: {
