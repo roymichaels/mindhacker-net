@@ -55,14 +55,14 @@ interface GrowthModalProps {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto bg-gradient-to-b from-gray-950 to-gray-900 border-amber-800/50">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto bg-gradient-to-b from-background to-muted dark:from-gray-950 dark:to-gray-900 border-border dark:border-green-800/50">
         <DialogHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <DialogTitle className="flex items-center gap-2 text-green-400">
+          <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <TrendingUp className="h-5 w-5" />
              {t('businessHub.modals.growth.title')}
           </DialogTitle>
