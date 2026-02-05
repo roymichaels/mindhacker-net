@@ -63,7 +63,7 @@ const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 const Aurora = lazy(() => import("./pages/Aurora"));
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
-const HypnosisSession = lazy(() => import("./pages/HypnosisSession"));
+
 const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const LifePlan = lazy(() => import("./pages/LifePlan"));
@@ -315,14 +315,6 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <HypnosisLibrary />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/hypnosis/session"
-                          element={
-                            <ProtectedRoute>
-                              <HypnosisSession />
                             </ProtectedRoute>
                           }
                         />
