@@ -33,8 +33,8 @@ const LearningStyleStep = ({ data, onUpdate, language }: LearningStyleStepProps)
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-600/20 mb-4">
-          <Brain className="w-8 h-8 text-indigo-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 mb-4">
+          <Brain className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'סגנון הלמידה שלך' : 'Your Learning Style'}
@@ -48,15 +48,15 @@ const LearningStyleStep = ({ data, onUpdate, language }: LearningStyleStepProps)
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Brain className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Brain className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'סגנון למידה מועדף' : 'Preferred Learning Style'}
           </Label>
           <Select
             value={(data.preferred_style as string) || ''}
             onValueChange={(value) => handleChange('preferred_style', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר סגנון' : 'Select style'} />
             </SelectTrigger>
             <SelectContent>
@@ -70,15 +70,15 @@ const LearningStyleStep = ({ data, onUpdate, language }: LearningStyleStepProps)
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'הזמן הטוב ביותר ללמידה' : 'Best Time to Learn'}
           </Label>
           <Select
             value={(data.best_time as string) || ''}
             onValueChange={(value) => handleChange('best_time', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר זמן' : 'Select time'} />
             </SelectTrigger>
             <SelectContent>
@@ -92,8 +92,8 @@ const LearningStyleStep = ({ data, onUpdate, language }: LearningStyleStepProps)
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Lightbulb className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'סביבת למידה אידיאלית' : 'Ideal Learning Environment'}
           </Label>
           <Textarea
@@ -102,7 +102,7 @@ const LearningStyleStep = ({ data, onUpdate, language }: LearningStyleStepProps)
               : 'I learn best when...'}
             value={(data.learning_environment as string) || ''}
             onChange={(e) => handleChange('learning_environment', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-indigo-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-indigo-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>

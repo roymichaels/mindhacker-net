@@ -25,8 +25,8 @@ const ReadingStep = ({ data, onUpdate, language }: ReadingStepProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-600/20 mb-4">
-          <BookOpen className="w-8 h-8 text-indigo-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 mb-4">
+          <BookOpen className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
         </div>
         <h2 className="text-xl font-bold text-foreground">
           {language === 'he' ? 'קריאה ולמידה' : 'Reading & Learning'}
@@ -40,15 +40,15 @@ const ReadingStep = ({ data, onUpdate, language }: ReadingStepProps) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'הרגלי קריאה' : 'Reading Habits'}
           </Label>
           <Select
             value={(data.reading_habit as string) || ''}
             onValueChange={(value) => handleChange('reading_habit', value)}
           >
-            <SelectTrigger className="bg-gray-800/50 border-gray-700">
+            <SelectTrigger className="bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 text-foreground">
               <SelectValue placeholder={language === 'he' ? 'בחר הרגל' : 'Select habit'} />
             </SelectTrigger>
             <SelectContent>
@@ -62,8 +62,8 @@ const ReadingStep = ({ data, onUpdate, language }: ReadingStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Library className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Library className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'נושאים מועדפים' : 'Favorite Topics'}
           </Label>
           <Textarea
@@ -72,13 +72,13 @@ const ReadingStep = ({ data, onUpdate, language }: ReadingStepProps) => {
               : 'I enjoy reading about...'}
             value={(data.favorite_topics as string) || ''}
             onChange={(e) => handleChange('favorite_topics', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-indigo-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-indigo-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-indigo-400" />
+          <Label className="flex items-center gap-2 text-foreground">
+            <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             {language === 'he' ? 'מטרות קריאה' : 'Reading Goals'}
           </Label>
           <Textarea
@@ -87,7 +87,7 @@ const ReadingStep = ({ data, onUpdate, language }: ReadingStepProps) => {
               : 'This year I want to read...'}
             value={(data.reading_goals as string) || ''}
             onChange={(e) => handleChange('reading_goals', e.target.value)}
-            className="min-h-[80px] bg-gray-800/50 border-gray-700 focus:border-indigo-500"
+            className="min-h-[80px] bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 focus:border-indigo-500 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
