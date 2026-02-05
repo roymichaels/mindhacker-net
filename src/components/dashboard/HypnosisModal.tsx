@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Loader2, Sparkles, Lock, Rocket, Calendar } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 // ScrollArea removed - using native scroll for ref support
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,10 @@ const SEGMENT_LABELS: Record<string, { he: string; en: string }> = {
 
 export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { t, isRTL, language } = useTranslation();
+  const isMobile = useIsMobile();
+  const orbSize = isMobile ? 150 : 200;
+  const orbSizeCompact = isMobile ? 140 : 180;
+
   const { user } = useAuth();
   const { gameState, recordSession } = useGameState();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
@@ -659,12 +664,14 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center p-6 space-y-6"
+                className="flex-1 flex flex-col items-center justify-center p-6 pt-10 space-y-6"
               >
-                <PersonalizedOrb 
-                  size={180} 
-                  state="listening"
-                />
+                <div className="overflow-visible">
+                  <PersonalizedOrb 
+                    size={orbSize} 
+                    state="listening"
+                  />
+                </div>
                 <div className="text-center space-y-4">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                   
@@ -698,9 +705,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
                 {/* Orb Area - Fixed height */}
-                <div className="flex-shrink-0 flex items-center justify-center p-4 sm:p-6 overflow-visible">
+                <div className="flex-shrink-0 flex items-center justify-center p-4 pt-8 sm:p-6 overflow-visible">
                   <PersonalizedOrb 
-                    size={180} 
+                    size={orbSizeCompact} 
                     state={state === 'playing' ? 'listening' : 'idle'}
                   />
                 </div>
