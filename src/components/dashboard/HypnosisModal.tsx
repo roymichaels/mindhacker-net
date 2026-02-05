@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Loader2, Calendar } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Loader2, Calendar, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -442,6 +442,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         <VisuallyHidden>
           <DialogTitle>{t('hypnosisSession.personalHypnosis')}</DialogTitle>
         </VisuallyHidden>
+        
+        {/* Exit Button - Always visible */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClose}
+          className="absolute top-4 end-4 z-50 h-10 w-10 rounded-full bg-background/80 hover:bg-destructive/20 border border-border/50"
+        >
+          <X className="h-5 w-5" />
+        </Button>
 
         <AnimatePresence mode="wait">
           {/* Setup State */}
