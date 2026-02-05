@@ -212,8 +212,7 @@ const DashboardSidebar = ({
           {/* Personalized Orb - Click to open profile */}
           <button
             onClick={() => {
-              navigate('/profile');
-              onNavigate?.();
+              onOpenProfile?.();
             }}
             className="mb-4 w-full flex justify-center group"
             title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
@@ -247,7 +246,7 @@ const DashboardSidebar = ({
         <>
           {/* Personalized Orb - Click to open profile */}
           <button
-            onClick={() => navigate('/profile')}
+            onClick={() => onOpenProfile?.()}
             className="mb-3 w-full flex justify-center group"
             title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
           >
