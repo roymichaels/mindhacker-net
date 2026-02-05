@@ -680,7 +680,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
-        className="max-w-2xl min-h-[60svh] max-h-[92svh] h-auto p-0 flex flex-col overflow-hidden bg-background"
+        className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col overflow-hidden bg-background"
         dir={isRTL ? 'rtl' : 'ltr'}
         onPointerDownOutside={(e) => {
           // Prevent closing when clicking outside during session
@@ -829,8 +829,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 exit={{ opacity: 0 }}
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
-                {/* Orb Area - Fixed height */}
-                <div className="flex-shrink-0 flex items-center justify-center p-2 pt-4 sm:p-6 overflow-visible">
+                {/* Orb Area - Explicit minimum height */}
+                <div className="flex-shrink-0 flex items-center justify-center min-h-[160px] sm:min-h-[200px] p-2 sm:p-4 overflow-visible">
                   <PersonalizedOrb 
                     size={orbSizeCompact} 
                     state={state === 'playing' ? 'listening' : 'idle'}
