@@ -215,7 +215,7 @@ const HealthPlan = () => {
   }
 
   return (
-    <DashboardLayout hideRightPanel>
+    <DashboardLayout>
       <div className="p-4 md:p-8 space-y-6 pb-24" dir={isRTL ? "rtl" : "ltr"}>
         {/* Header */}
         <motion.div

@@ -7,7 +7,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { useTranslation } from "@/hooks/useTranslation";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import CompactSessions from "@/components/dashboard/CompactSessions";
 import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HypnosisModal } from "@/components/dashboard/HypnosisModal";
@@ -84,15 +83,12 @@ const UserDashboard = () => {
       <PullToRefreshIndicator {...pullToRefresh} />
       <DashboardLayout>
         {/* Dashboard Content - Command Center */}
-        <div className="space-y-6 pb-10">
+        <div className="pb-10">
           {/* Unified Dashboard with all zones */}
           <UnifiedDashboardView 
             onOpenHypnosis={handleOpenHypnosis}
             onOpenChat={handleOpenChat}
           />
-
-          {/* Sessions - Compact View */}
-          <CompactSessions />
         </div>
       </DashboardLayout>
 

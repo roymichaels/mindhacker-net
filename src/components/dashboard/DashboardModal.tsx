@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { UnifiedDashboardView } from './UnifiedDashboardView';
 import { ProfileContent } from './ProfileContent';
-import CompactSessions from './CompactSessions';
 import { ArrowLeft, LayoutDashboard, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -65,15 +64,8 @@ export function DashboardModal({ open, onOpenChange, initialView = 'dashboard' }
         
         <ScrollArea className="flex-1">
           {currentView === 'dashboard' ? (
-            <div className="p-4 space-y-6">
-              
-              {/* Unified Life Model + Gamification Dashboard */}
+            <div className="p-4">
               <UnifiedDashboardView onOpenProfile={() => setCurrentView('profile')} />
-
-              {/* Sessions */}
-              <div className="grid gap-6">
-                <CompactSessions />
-              </div>
             </div>
           ) : (
             <ProfileContent onClose={() => onOpenChange(false)} />
