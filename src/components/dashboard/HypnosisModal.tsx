@@ -856,9 +856,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <KaraokeText 
+                  <KaraokeText 
                       text={script.fullScript}
-                      progress={audioProgress}
+                      progress={audioProgress * 0.5}
                       isRTL={isRTL}
                     />
                   </motion.div>
