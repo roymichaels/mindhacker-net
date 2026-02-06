@@ -262,7 +262,7 @@ const DashboardSidebar = ({
           <SidebarHeader className="p-2 flex flex-col items-center gap-2">
             {/* Logo */}
             <Link to="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
-              <AuroraOrbIcon className="w-8 h-8 text-black dark:text-white" size={32} />
+              <AuroraOrbIcon className="w-12 h-12 text-black dark:text-white" size={48} />
             </Link>
             {/* Menu toggle */}
             <Button
