@@ -44,7 +44,7 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
       label: language === 'he' ? 'תובנות' : 'Insights',
       color: 'text-amber-500 hover:text-amber-500',
       bgColor: 'hover:bg-amber-500/10',
-      onClick: () => navigate('/personality'),
+      onClick: () => navigate('/consciousness'),
     },
   ];
 

@@ -37,7 +37,7 @@ import { useOnboardingProgress } from "@/hooks/aurora/useOnboardingProgress";
 
 type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | null;
 
-const Personality = () => {
+const Consciousness = () => {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -60,12 +60,12 @@ const Personality = () => {
     description: language === 'he' 
       ? 'מרכז התודעה שלך - מפת תודעה, זהות, תכונות ותוכנית אישית'
       : 'Your consciousness hub - consciousness map, identity, traits and personal plan',
-    url: `${window.location.origin}/personality`,
+    url: `${window.location.origin}/consciousness`,
     type: "website",
     structuredData: [
       getBreadcrumbSchema([
         { name: language === 'he' ? 'דף הבית' : 'Home', url: window.location.origin },
-        { name: language === 'he' ? 'תודעה' : 'Consciousness', url: `${window.location.origin}/personality` },
+        { name: language === 'he' ? 'תודעה' : 'Consciousness', url: `${window.location.origin}/consciousness` },
       ]),
     ],
   });
@@ -403,4 +403,4 @@ const Personality = () => {
   );
 };
 
-export default Personality;
+export default Consciousness;
