@@ -1,235 +1,149 @@
 
+## Goal
+Fix the remaining voice fallback issues where:
+- Browser TTS says only “dash” and stops
+- Session completes ~30 seconds / ~1 minute without real voice
+- Karaoke starts even though voice effectively didn’t start (or only “dash” happened)
 
-## תוכנית לתיקון הקראוקי שמתחיל לפני הקול והסשן שמסתיים מהר מדי
-
-### סיכום הבעיות שזוהו
-
-בהתבסס על החקירה, זיהיתי שלוש בעיות נפרדות שגורמות להתנהגות הנוכחית:
-
----
-
-### בעיה 1: הקראוקי מתחיל לפני שהקול מתחיל
-
-**סיבת השורש:**
-ב-`synthesizeAndPlay()`, כש-ElevenLabs נכשל (402 quota exceeded), המערכת עוברת ל-Browser TTS. אבל יש בעיה בסדר הפעולות:
-
-1. `synthesizeSpeech()` מחזיר URL מיוחד: `browser-tts://...`
-2. `playAudioUrl()` מזהה את זה וקוראת ל-`speakWithBrowser()`
-3. `speakWithBrowser()` טוען קולות (voices) - זה יכול לקחת זמן
-4. **אבל** ב-`speakWithBrowser()`, ה-callback `onStart` נקראת רק כש-`utterance.onstart` נורה
-5. עד שזה קורה, הקראוקי כבר מתחיל להתקדם כי `voiceStarted` כבר הוגדר כ-`true`
-
-**הבעיה הספציפית:**
-ב-`playAudioUrl` עבור browser-tts, אין הבחנה בין "התחלנו לדבר" לבין "התחלנו את התהליך". ה-`onStart` נקראת מ-`speakWithBrowser` רק כשהדיבור עצמו מתחיל, אבל אם יש delay בטעינת הקולות, הקראוקי עדיין יכול להתקדם.
+This is happening because the fallback TTS path is still receiving text that begins with markdown/bullets/separators (e.g. “- …”, “---”), and some browsers literally speak the bullet dash (“dash”) and then silently fail/stop. When that happens, our current logic can still reach `onEnd()` and mark the session complete.
 
 ---
 
-### בעיה 2: הקול אומר "voing dash" ונעצר
+## What I found in the code (current behavior)
+### 1) We already normalize some dashes, but not bullet prefixes / markdown separators
+In `src/components/dashboard/HypnosisModal.tsx` `sanitizeScriptForTTS()`:
+- Replaces `–` and `—`, and replaces spaced ` - `.
+- Does **not** remove:
+  - bullet prefixes like `- ` at line start
+  - markdown horizontal rules like `---`
+  - “* ” bullets
+  - numbered list prefixes like `1. `
+So a script that contains markdown formatting can produce leading chunks like `-` or `---`.
 
-**סיבת השורש:**
-Browser TTS בעברית לא תמיד עובד טוב. הקוד הנוכחי מחפש `hebrewVoice`:
+In `src/services/voice.ts` `speakWithBrowser()`:
+- Also normalizes `–` and `—` and `\s-\s`.
+- But if the text contains bullet markers, the browser may speak “dash …” or even only “dash”.
 
-```typescript
-const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
-```
-
-אם לא נמצא קול עברי (או שהקול לא תומך בעברית טוב), הדפדפן עלול:
-- להקריא את התווים בצורה מוזרה
-- לקרוס באמצע המשפט הראשון
-- לסיים אחרי chunk אחד בלבד
-
-**הבעיה הנוספת:**
-גם אם יש שגיאה ב-chunk אחד, הקוד עובר ל-chunk הבא:
-
-```typescript
-utterance.onerror = (event) => {
-  currentChunk++;
-  if (currentChunk < chunks.length) {
-    speakChunk();
-  } else {
-    // מסיים את הסשן!
-    options.onEnd?.();
-  }
-};
-```
-
-אם כל ה-chunks נכשלים מהר, הסשן מסתיים תוך שניות.
+### 2) Session completes because browser TTS can “end” quickly but still counts as success
+Even with the “ended without starting” protections, the browser can:
+- Fire `onstart`, speak “dash”, then `onend` almost immediately
+- We treat that as a normal completion if chunks are done
+- That triggers `HypnosisModal`’s `onEnd()` → `handleSessionComplete()`
+So we need a “meaningful speech” check, not just “did onstart fire”.
 
 ---
 
-### בעיה 3: הסשן מסתיים אחרי דקה בערך
+## Implementation plan
 
-**סיבת השורש:**
-כשיש בעיות עם Browser TTS:
-1. ה-chunks נכשלים אחד אחרי השני
-2. הקוד עובר מ-chunk ל-chunk במהירות
-3. כש-`currentChunk >= chunks.length`, נקרא `onEnd()`
-4. זה מפעיל את `handleSessionComplete()`
+### A) Strengthen text sanitization before ANY TTS attempt (HypnosisModal)
+**File:** `src/components/dashboard/HypnosisModal.tsx`
 
-גם אם רק חלק קטן מהטקסט הוקרא (או בכלל לא), הסשן מסומן כ"הושלם".
+Update `sanitizeScriptForTTS()` to remove markdown/list formatting that often causes “dash”:
 
----
+1) Remove horizontal rules / separators:
+- Lines that are only dashes, underscores, or asterisks:
+  - `---`, `____`, `***`, etc.
 
-## התיקונים
+2) Remove bullet/list prefixes at line starts:
+- `- `, `– `, `— `, `• `, `* `
+- Also numbered lists: `1. `, `2) `, etc.
 
-### תיקון A: לוודא ש-`voiceStarted` מוגדר רק כשהקול באמת מתחיל
+3) Normalize remaining hyphen-minus characters more broadly:
+- Replace hyphen-minus `-` when used as punctuation (especially around spaces) into `, `
+- Remove repeated hyphens `--` or `---` inside lines
 
-**קובץ:** `src/services/voice.ts`
+4) Hard guard: if sanitized text becomes too short (e.g. < 50 chars or < 10 words), fall back to a less aggressive sanitization (so we don’t accidentally strip the script down to almost nothing).
 
-שינויים ב-`speakWithBrowser()`:
-- להוסיף flag `actualSpeechStarted` נפרד מ-`hasStarted`
-- לקרוא ל-`onStart` רק כש-utterance באמת מתחיל לדבר (לא רק כשהתהליך התחיל)
-- **הכי חשוב:** לא להתחיל את ה-progress interval עד שהדיבור באמת התחיל
-
-**קובץ:** `src/components/dashboard/HypnosisModal.tsx`
-
-שינויים:
-- להבטיח שהקראוקי לא מתקדם עד ש-`voiceStarted === true`
-- הקראוקי צריך להתקדם רק על בסיס `onTimeUpdate`, לא על בסיס זמן עצמאי
+**Outcome:** the text sent to OpenAI/Browser fallback starts with real words, not “-” or “---”.
 
 ---
 
-### תיקון B: טיפול טוב יותר בכשלון Browser TTS
+### B) Make browser TTS reject “dash-only” / non-meaningful speech (voice.ts)
+**File:** `src/services/voice.ts`
 
-**קובץ:** `src/services/voice.ts`
+Add additional reliability checks in `speakWithBrowser()`:
 
-שינויים ב-`speakWithBrowser()`:
-- להוסיף counter לשגיאות רצופות
-- אם יותר מ-3 chunks רצופים נכשלים, לעצור ולקרוא ל-`onError` במקום `onEnd`
-- להוסיף timeout: אם עברו 10 שניות ושום דבר לא התחיל לדבר, לדווח על שגיאה
+1) Pre-sanitize again (defensive), specifically stripping bullet prefixes and separators even if caller forgot:
+- This keeps behavior consistent across the app (not only HypnosisModal).
 
-**קובץ:** `src/components/dashboard/HypnosisModal.tsx`
+2) Detect “meaningless” chunks:
+- If the chunk text (after trimming) is:
+  - empty
+  - only punctuation
+  - or equals “dash” / “hyphen” (case-insensitive)
+  then skip it and move to the next chunk without speaking it.
 
-שינויים ב-`synthesizeAndPlay()`:
-- כשיש `onError` מ-Browser TTS, להציג הודעה למשתמש שהקול לא עובד
-- לא לסיים את הסשן אוטומטית - לתת למשתמש אפשרות להמשיך עם מצב מושתק
+3) Add a “minimum real speech time” heuristic:
+- Track `firstStartAt` and count `spokenCharacters` (sum of chunk lengths that actually started).
+- If the entire run ends with:
+  - `spokenCharacters < N` (e.g. < 80 chars), or
+  - total speaking time < 2 seconds,
+  then call `options.onError(...)` instead of `onEnd()`.
 
----
-
-### תיקון C: להוסיף מצב "Muted Fallback" אוטומטי
-
-אם Browser TTS נכשל, במקום לסגור את הסשן, המערכת תעבור אוטומטית למצב מושתק עם:
-- הודעת toast שמסבירה שהקול לא זמין
-- הקראוקי ממשיך להתקדם בקצב היפנוזה (85 WPM)
-- המשתמש יכול לקרוא את הטקסט בעצמו
-
----
-
-## פרטים טכניים של השינויים
-
-### 1. `src/services/voice.ts` - שיפור `speakWithBrowser()`
-
-```typescript
-// הוספת משתנים חדשים
-let consecutiveErrors = 0;
-const MAX_CONSECUTIVE_ERRORS = 3;
-let speechActuallyStarted = false;
-let speechStartTimeout: ReturnType<typeof setTimeout> | null = null;
-
-// Timeout לגילוי אם הדיבור לא התחיל
-speechStartTimeout = setTimeout(() => {
-  if (!speechActuallyStarted && !cancelled) {
-    console.warn('Browser TTS failed to start within timeout');
-    options.onError?.(new Error('Speech synthesis failed to start'));
-  }
-}, 10000);
-
-// בתוך speakChunk()
-utterance.onstart = () => {
-  if (!speechActuallyStarted) {
-    speechActuallyStarted = true;
-    if (speechStartTimeout) clearTimeout(speechStartTimeout);
-    // רק עכשיו קוראים ל-onStart
-    options.onStart?.();
-  }
-  consecutiveErrors = 0; // Reset on success
-};
-
-utterance.onerror = (event) => {
-  consecutiveErrors++;
-  if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-    // יותר מדי שגיאות רצופות - Browser TTS לא עובד
-    options.onError?.(new Error('Too many consecutive speech errors'));
-    return;
-  }
-  // המשך לנסות את ה-chunk הבא
-  currentChunk++;
-  speakChunk();
-};
-```
-
-### 2. `src/components/dashboard/HypnosisModal.tsx` - טיפול בכשלון TTS
-
-```typescript
-// בתוך synthesizeAndPlay(), ב-onError:
-onError: (err) => {
-  // ...existing code...
-  
-  // במקום לסגור, לעבור למצב מושתק
-  console.warn('Voice playback failed, switching to muted mode');
-  setIsMuted(true);
-  
-  // להציג הודעה
-  toast({
-    title: language === 'he' ? 'הקול לא זמין' : 'Voice unavailable',
-    description: language === 'he' 
-      ? 'ממשיכים במצב קריאה. עקוב אחרי הטקסט.' 
-      : 'Continuing in reading mode. Follow the text.',
-  });
-  
-  // להתחיל מצב מושתק מאותה נקודה
-  startMutedMode(text, onStart, onTimeUpdate, onEnd, currentSessionId);
-}
-```
-
-### 3. הוספת פונקציה `startMutedMode`
-
-```typescript
-const startMutedMode = (
-  text: string,
-  onStart: () => void,
-  onTimeUpdate: (currentTime: number, audioDuration: number) => void,
-  onEnd: () => void,
-  currentSessionId: number
-) => {
-  onStart(); // התחל מיד
-  
-  const wordsPerMinute = 85;
-  const words = text.split(/\s+/).length;
-  const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
-  
-  const startTime = Date.now();
-  const progressInterval = setInterval(() => {
-    if (sessionIdRef.current !== currentSessionId) {
-      clearInterval(progressInterval);
-      return;
-    }
-    
-    const elapsed = Date.now() - startTime;
-    onTimeUpdate(elapsed / 1000, readingTime / 1000);
-    
-    if (elapsed >= readingTime) {
-      clearInterval(progressInterval);
-      onEnd();
-    }
-  }, 100);
-};
-```
+**Outcome:** if the browser only says “dash” and stops, we will treat it as a failure, not a successful completion.
 
 ---
 
-## סיכום השינויים
+### C) Ensure HypnosisModal never completes the session on “voice failed” (already mostly done, but tighten)
+**File:** `src/components/dashboard/HypnosisModal.tsx`
 
-| קובץ | שינוי |
-|------|-------|
-| `src/services/voice.ts` | הוספת timeout לגילוי כשלון, ספירת שגיאות רצופות, `onStart` רק כשדיבור באמת התחיל |
-| `src/components/dashboard/HypnosisModal.tsx` | fallback אוטומטי למצב מושתק, הודעות טובות יותר למשתמש |
+Right now `onError` inside `playAudioUrl()` triggers `startMutedFallback()`, which is good. The problem is: if browser TTS ends quickly but does not error, we still complete.
+
+So we’ll:
+1) Add a guard in the `onEnd` passed to `playAudioUrl()` when the provider is `browser`:
+- If `elapsedTime < min(30s, estimatedDuration * 0.2)` or `audioProgress < 0.2`, treat it as suspicious end and trigger muted fallback instead of completing.
+
+2) Track “voice produced meaningful progress”:
+- Set a ref like `hadMeaningfulAudioRef` once we pass, say, 5 seconds or 10% progress.
+- If `onEnd` happens and `hadMeaningfulAudioRef` is false → `startMutedFallback()`.
+
+**Outcome:** even if the browser reports a clean “end” after saying “dash”, the session will not complete; it will switch to reading mode.
 
 ---
 
-## התוצאה הצפויה
+### D) Verify the ElevenLabs quota error doesn’t crash the app UI
+You reported:
+- “Runtime error / blank screen”
+- Edge function returned 402 with `{ fallback: true }`
 
-1. הקראוקי לא יתחיל עד שהקול באמת מתחיל לדבר
-2. אם Browser TTS נכשל, המשתמש יקבל הודעה והסשן ימשיך במצב קריאה
-3. הסשן לא יסתיים פתאום אחרי דקה - הוא ימשיך לפי משך הזמן המחושב
+We’ll confirm:
+- The client is not treating the 402 as a fatal error (it should just fall back).
+- If there’s any uncaught exception in the ElevenLabs edge function response parsing path (e.g., trying to parse audio as JSON), we’ll patch client error handling to always `.json().catch(() => ({}))` for non-ok responses (already done in `tryElevenLabsTTS`, but we’ll check any other call-sites).
+
+If needed, we’ll add a small UI-safe error boundary behavior (toast + fallback) so “quota exceeded” never produces a blank screen.
+
+---
+
+## How we’ll test (end-to-end)
+1) Trigger a hypnosis session with ElevenLabs quota exceeded (so it must fall back).
+2) Confirm browser TTS does not say “dash” first; it should start with real words.
+3) If browser TTS still fails on the device, confirm:
+   - It switches to “Reading mode” (muted fallback)
+   - The session does not complete early
+   - Karaoke progresses smoothly for the full estimated duration
+4) Repeat on:
+   - Desktop Chrome
+   - iOS Safari (common speechSynthesis quirks)
+   - Android Chrome (voice loading quirks)
+
+---
+
+## Files to change
+- `src/components/dashboard/HypnosisModal.tsx`
+  - stronger `sanitizeScriptForTTS`
+  - treat suspicious early browser-TTS end as failure → muted fallback
+  - track “meaningful audio started” before allowing completion
+- `src/services/voice.ts`
+  - strip bullets/separators defensively
+  - skip punctuation-only chunks
+  - treat “dash-only / too-short speech” as `onError` (not success)
+
+---
+
+## Notes / tradeoffs
+- This approach does not try to “make browser TTS Hebrew perfect” (that’s device-dependent).
+- It guarantees that when browser TTS is unreliable, the user experience remains stable:
+  - no early completion
+  - no karaoke racing
+  - reading mode continues the session at hypnosis pace
 
