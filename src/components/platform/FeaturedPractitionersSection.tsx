@@ -1,15 +1,15 @@
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Users } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { usePractitionersModal } from "@/contexts/PractitionersModalContext";
 import { usePractitioners } from "@/hooks/usePractitioners";
 import { FeaturedPractitioners } from "../practitioners";
 import { motion } from "framer-motion";
 
 const FeaturedPractitionersSection = () => {
-  const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { data: practitioners, isLoading } = usePractitioners({ featured: true });
+  const { openPractitioners } = usePractitionersModal();
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   // Don't show section if no featured practitioners
@@ -63,7 +63,7 @@ const FeaturedPractitionersSection = () => {
             variant="outline"
             size="lg" 
             className="font-bold"
-            onClick={() => navigate('/practitioners')}
+            onClick={() => openPractitioners()}
           >
             {t('platform.viewAllPractitioners')}
             <ArrowIcon className={`w-5 h-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />

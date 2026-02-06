@@ -2,14 +2,14 @@ import { motion } from 'framer-motion';
 import { Users, ArrowRight, Star, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { usePractitionersModal } from '@/contexts/PractitionersModalContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 export default function PractitionerShowcaseSection() {
   const { t, isRTL } = useTranslation();
-  const navigate = useNavigate();
+  const { openPractitioners } = usePractitionersModal();
 
   // Fetch featured practitioners
   const { data: practitioners } = useQuery({
@@ -27,7 +27,6 @@ export default function PractitionerShowcaseSection() {
     },
   });
 
-  // Don't render if no practitioners
   if (!practitioners?.length) return null;
 
   return (
@@ -89,9 +88,8 @@ export default function PractitionerShowcaseSection() {
                   "bg-card/60 border border-border/50 backdrop-blur-sm",
                   "hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10"
                 )}
-                onClick={() => navigate(`/practitioners/${practitioner.slug}`)}
+                onClick={() => openPractitioners(practitioner.id)}
               >
-                {/* Featured Badge */}
                 {practitioner.is_featured && (
                   <div className="absolute top-3 end-3 flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
                     <Sparkles className="h-3 w-3 text-amber-500" />
@@ -101,16 +99,13 @@ export default function PractitionerShowcaseSection() {
                   </div>
                 )}
 
-                {/* Avatar */}
                 <div className="flex flex-col items-center text-center mb-4">
                   <div className="w-20 h-20 rounded-full overflow-hidden bg-muted mb-3 ring-2 ring-primary/20">
                     {practitioner.avatar_url ? (
                       <img src={practitioner.avatar_url} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-violet-500/20">
-                        <span className="text-2xl font-bold text-primary">
-                          {name.charAt(0)}
-                        </span>
+                        <span className="text-2xl font-bold text-primary">{name.charAt(0)}</span>
                       </div>
                     )}
                   </div>
@@ -118,30 +113,21 @@ export default function PractitionerShowcaseSection() {
                   <h3 className="font-bold text-lg">{name}</h3>
                   <p className="text-sm text-muted-foreground">{title}</p>
                   
-                  {/* Rating */}
                   {practitioner.rating && (
                     <div className="flex items-center gap-1 mt-2">
                       <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span className="text-sm font-medium">{practitioner.rating}</span>
                       {practitioner.reviews_count && (
-                        <span className="text-xs text-muted-foreground">
-                          ({practitioner.reviews_count})
-                        </span>
+                        <span className="text-xs text-muted-foreground">({practitioner.reviews_count})</span>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Languages */}
                 {practitioner.languages && practitioner.languages.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-2 mt-3">
                     {practitioner.languages.slice(0, 3).map((lang, i) => (
-                      <span 
-                        key={i}
-                        className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
-                      >
-                        {lang}
-                      </span>
+                      <span key={i} className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">{lang}</span>
                     ))}
                   </div>
                 )}
@@ -161,7 +147,7 @@ export default function PractitionerShowcaseSection() {
           <Button 
             size="lg" 
             variant="outline"
-            onClick={() => navigate('/practitioners')}
+            onClick={() => openPractitioners()}
             className="group"
           >
             {isRTL ? 'לכל המאמנים' : 'View All Coaches'}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Users, Sparkles } from 'lucide-react';
+import { Search, Filter, Users, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,13 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
   });
 
   const handleBack = () => setSelectedPractitioner(null);
+  const ArrowIcon = isRTL ? ArrowRight : ArrowLeft;
+
+  const displayName = selectedPractitioner
+    ? (language === 'en' && selectedPractitioner.display_name_en
+        ? selectedPractitioner.display_name_en
+        : selectedPractitioner.display_name)
+    : '';
 
   return (
     <Dialog open={open} onOpenChange={(val) => {
@@ -55,50 +62,63 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
     }}>
       <DialogContent
         className={cn(
-          "max-w-3xl w-[95vw] max-h-[85vh] p-0 gap-0 overflow-hidden",
+          "max-w-4xl w-[95vw] max-h-[85vh] p-0 gap-0 overflow-hidden",
           "bg-background border-border"
         )}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Header - hide search/filters when viewing detail */}
-        {!selectedPractitioner && (
-          <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/50">
+        {/* Header */}
+        <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/50">
+          {selectedPractitioner ? (
+            /* Mini header with back + practitioner name */
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <div className="p-1.5 rounded-lg bg-amber-500/10">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-              </div>
-              {t('practitioners.directoryTitle')}
+              <button
+                onClick={handleBack}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors"
+              >
+                <ArrowIcon className="h-4 w-4" />
+              </button>
+              <span className="truncate">{displayName}</span>
             </DialogTitle>
+          ) : (
+            <>
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <div className="p-1.5 rounded-lg bg-amber-500/10">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                </div>
+                {t('practitioners.directoryTitle')}
+              </DialogTitle>
 
-            <div className="relative mt-3">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder={t('practitioners.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="ps-10 h-10"
-              />
-            </div>
+              <div className="relative mt-3">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder={t('practitioners.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="ps-10 h-10"
+                />
+              </div>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 no-scrollbar">
-              <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              {SPECIALTIES.map((specialty) => (
-                <Badge
-                  key={specialty.key}
-                  variant={selectedSpecialty === specialty.key ? 'default' : 'outline'}
-                  className="cursor-pointer whitespace-nowrap text-xs"
-                  onClick={() => setSelectedSpecialty(specialty.key)}
-                >
-                  {language === 'en' ? specialty.labelEn : specialty.labelHe}
-                </Badge>
-              ))}
-            </div>
-          </DialogHeader>
-        )}
+              <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 no-scrollbar">
+                <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                {SPECIALTIES.map((specialty) => (
+                  <Badge
+                    key={specialty.key}
+                    variant={selectedSpecialty === specialty.key ? 'default' : 'outline'}
+                    className="cursor-pointer whitespace-nowrap text-xs"
+                    onClick={() => setSelectedSpecialty(specialty.key)}
+                  >
+                    {language === 'en' ? specialty.labelEn : specialty.labelHe}
+                  </Badge>
+                ))}
+              </div>
+            </>
+          )}
+        </DialogHeader>
 
         {/* Content */}
-        <ScrollArea className="flex-1 max-h-[calc(85vh-180px)]">
+        <ScrollArea className="flex-1 max-h-[calc(85vh-140px)]">
           <div className="p-5">
             {selectedPractitioner ? (
               <PractitionerDetailView

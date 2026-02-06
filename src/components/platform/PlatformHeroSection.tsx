@@ -8,10 +8,12 @@ import { ArrowLeft, ArrowRight, Sparkles, Users, Bot, Gift } from "lucide-react"
 import { useTranslation } from "@/hooks/useTranslation";
 import { CSSOrb } from "../orb/CSSOrb";
 import { motion } from "framer-motion";
+import { usePractitionersModal } from "@/contexts/PractitionersModalContext";
 
 const PlatformHeroSection = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
+  const { openPractitioners } = usePractitionersModal();
   
   const wordsHe = ["התפתחות", "שינוי", "חופש", "עוצמה", "תודעה"];
   const wordsEn = ["Growth", "Change", "Freedom", "Power", "Consciousness"];
@@ -49,7 +51,7 @@ const PlatformHeroSection = () => {
       description: t('platform.findCoachCardDesc'),
       cta: t('platform.findCoachCardCta'),
       badge: t('platform.humanCoach'),
-      onClick: () => navigate('/practitioners'),
+      onClick: () => openPractitioners(),
       gradient: 'from-secondary/20 to-secondary/5',
       borderColor: 'border-secondary/40 hover:border-secondary/70',
       iconBg: 'bg-secondary/20 border-secondary',

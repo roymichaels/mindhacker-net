@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Star, MapPin, CheckCircle, Languages, Calendar, MessageCircle, Globe, Instagram, Play, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Star, MapPin, CheckCircle, Languages, Calendar, MessageCircle, Globe, Instagram, Play, ShoppingBag, Briefcase, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,8 +7,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { usePractitioner, type Practitioner } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import OfferCard from '@/components/courses/OfferCard';
+import PractitionerMiniOfferCard from './PractitionerMiniOfferCard';
+import PractitionerReviewSlider from './PractitionerReviewSlider';
 import type { Tables } from '@/integrations/supabase/types';
+import { cn } from '@/lib/utils';
 
 interface PractitionerDetailViewProps {
   practitioner: Practitioner;
@@ -52,41 +54,32 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
   });
 
   return (
-    <div className="space-y-6">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
-      >
-        <ArrowIcon className="h-4 w-4 me-1" />
-        {t('practitionerLanding.backToDirectory')}
-      </button>
-
+    <div className="space-y-5">
       {/* Hero section */}
       <div className="flex flex-col sm:flex-row items-center gap-5">
         <div className="relative">
-          <Avatar className="h-24 w-24 border-2 border-primary/30 shadow-lg">
+          <Avatar className="h-20 w-20 border-2 border-primary/30 shadow-lg">
             <AvatarImage src={basicPractitioner.avatar_url || undefined} alt={displayName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+            <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
           {basicPractitioner.is_verified && (
             <div className="absolute -bottom-1 -end-1 bg-primary text-primary-foreground rounded-full p-1 shadow">
-              <CheckCircle className="h-4 w-4" />
+              <CheckCircle className="h-3.5 w-3.5" />
             </div>
           )}
         </div>
 
         <div className="text-center sm:text-start flex-1">
-          <h2 className="text-xl font-bold">{displayName}</h2>
+          <h2 className="text-lg font-bold">{displayName}</h2>
           <p className="text-sm text-muted-foreground mb-2">{title}</p>
 
           {basicPractitioner.reviews_count > 0 && (
             <div className="flex items-center justify-center sm:justify-start gap-1.5 mb-2">
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className={`h-4 w-4 ${star <= Math.round(basicPractitioner.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+                  <Star key={star} className={cn("h-3.5 w-3.5", star <= Math.round(basicPractitioner.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30')} />
                 ))}
               </div>
               <span className="text-sm font-medium">{basicPractitioner.rating.toFixed(1)}</span>
@@ -153,28 +146,94 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
         )}
       </div>
 
+      {/* Specialties */}
+      {practitioner?.specialties && practitioner.specialties.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {practitioner.specialties.map((s) => (
+            <Badge key={s.id} variant="outline" className="text-xs bg-primary/5 border-primary/20">
+              {language === 'en' && s.specialty_label_en ? s.specialty_label_en : s.specialty_label}
+              {s.years_experience > 0 && (
+                <span className="ms-1 text-muted-foreground">
+                  ({s.years_experience}{language === 'he' ? ' שנים' : 'y'})
+                </span>
+              )}
+            </Badge>
+          ))}
+        </div>
+      )}
+
       {/* Bio */}
       {isLoading ? (
-        <Skeleton className="h-24 rounded-lg" />
+        <Skeleton className="h-20 rounded-lg" />
       ) : bio ? (
-        <div className="bg-muted/30 rounded-xl p-4 border border-border">
-          <h3 className="font-semibold mb-2">{t('practitionerLanding.aboutTitle')}</h3>
+        <div className="bg-muted/30 rounded-xl p-4 border border-border/50">
+          <h3 className="font-semibold text-sm mb-1.5">{t('practitionerLanding.aboutTitle')}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{bio}</p>
         </div>
       ) : null}
 
-      {/* Offers / Catalog */}
+      {/* Offers - horizontal scroll */}
       {offers && offers.length > 0 && (
         <div>
-          <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <h3 className="font-semibold text-sm mb-2.5 flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-primary" />
-            {language === 'he' ? 'הקורסים והמוצרים' : 'Courses & Products'}
+            {language === 'he' ? 'מוצרים וקורסים' : 'Products & Courses'}
           </h3>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
             {offers.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} />
+              <PractitionerMiniOfferCard key={offer.id} offer={offer} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Services - horizontal scroll */}
+      {practitioner?.services && practitioner.services.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-sm mb-2.5 flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-primary" />
+            {language === 'he' ? 'שירותים' : 'Services'}
+          </h3>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+            {practitioner.services.map((service) => {
+              const sTitle = language === 'en' && service.title_en ? service.title_en : service.title;
+              const sDesc = language === 'en' && service.description_en ? service.description_en : service.description;
+              return (
+                <div
+                  key={service.id}
+                  className={cn(
+                    "w-[200px] flex-shrink-0 rounded-xl p-3",
+                    "bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm",
+                    "border border-border/50"
+                  )}
+                >
+                  <h4 className="text-sm font-semibold line-clamp-1">{sTitle}</h4>
+                  {sDesc && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{sDesc}</p>}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm font-bold text-primary">
+                      {service.price > 0 ? `₪${service.price}` : (language === 'he' ? 'חינם' : 'Free')}
+                    </span>
+                    {service.duration_minutes && (
+                      <span className="text-xs text-muted-foreground">
+                        {service.duration_minutes} {language === 'he' ? 'דק׳' : 'min'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Reviews slider */}
+      {practitioner && (
+        <div>
+          <h3 className="font-semibold text-sm mb-2.5 flex items-center gap-2">
+            <MessageSquareText className="h-4 w-4 text-primary" />
+            {language === 'he' ? 'ביקורות' : 'Reviews'}
+          </h3>
+          <PractitionerReviewSlider reviews={practitioner.reviews || []} />
         </div>
       )}
     </div>
