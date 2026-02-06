@@ -2825,8 +2825,8 @@ export const he = {
     // Layers
     layerConsciousTitle: "שכבת התודעה — Aurora AI",
     layerConsciousDesc: "המדריכה היומית שלך. Aurora מבינה הקשר, זוכרת הכל, ומנהלת את כל המסע שלך.",
-    layerApplicationTitle: "שכבת האפליקציה — 7 תחומי חיים",
-    layerApplicationDesc: "אישיות, עסקים, בריאות, מערכות יחסים, פיננסים, למידה, ייעוד — הכל מחובר, הכל ממוטב.",
+    layerApplicationTitle: "שכבת האפליקציה — 8 תחומי חיים",
+    layerApplicationDesc: "אישיות, עסקים, בריאות, מערכות יחסים, פיננסים, למידה, ייעוד, תחביבים — הכל מחובר, הכל ממוטב.",
     layerSubconsciousTitle: "שכבת התת-מודע — מנוע ההיפנוזה",
     layerSubconsciousDesc: "תכנות עמוק שמשנה אמונות מגבילות ומתקין דפוסים מעצימים בזמן שאתה נרגע.",
     layerMotivationTitle: "מנוע המוטיבציה — גיימיפיקציה",
@@ -2851,7 +2851,7 @@ export const he = {
     
     phaseDeepWorkTitle: "עבודה עמוקה",
     phaseDeepWorkDesc: "הפעל את תוכנית 90 הימים עם משימות יומיות, מעקב הרגלים ותובנות שבועיות מ-Aurora.",
-    phaseDeepWorkFeature1: "משימות יומיות ב-7 תחומי חיים",
+    phaseDeepWorkFeature1: "משימות יומיות ב-8 תחומי חיים",
     phaseDeepWorkFeature2: "צבירת XP ועליית רמות",
     phaseDeepWorkFeature3: "זיהוי דפוסים ותובנות שבועיות",
     
@@ -2870,7 +2870,7 @@ export const he = {
     
     // NEW: Hero - Mind OS Focus
     mindOsTitle: "מערכת ההפעלה של התודעה",
-    mindOsSubtitle: "7 תחומי חיים. מוח אחד משולב. AI + היפנוזה + גיימיפיקציה עובדים יחד.",
+    mindOsSubtitle: "8 תחומי חיים. מוח אחד משולב. AI + היפנוזה + גיימיפיקציה עובדים יחד.",
   },
 
   practitionerLanding: {

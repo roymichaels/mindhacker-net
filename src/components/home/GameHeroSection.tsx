@@ -164,7 +164,7 @@ export default function GameHeroSection() {
               />
             </div>
             
-            {/* Orbiting 7 Pillars */}
+            {/* Orbiting 8 Pillars */}
             <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto">
               {/* Orbital Track */}
               <div className="absolute inset-0 rounded-full border border-border/30" />

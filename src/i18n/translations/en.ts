@@ -2771,8 +2771,8 @@ export const en: TranslationKeys = {
     // Layers
     layerConsciousTitle: "Conscious Layer — Aurora AI",
     layerConsciousDesc: "Your daily guide and coach. Aurora understands context, remembers everything, and orchestrates your entire journey.",
-    layerApplicationTitle: "Application Layer — 7 Life Domains",
-    layerApplicationDesc: "Personality, Business, Health, Relationships, Finances, Learning, Purpose — all connected, all optimized.",
+    layerApplicationTitle: "Application Layer — 8 Life Domains",
+    layerApplicationDesc: "Personality, Business, Health, Relationships, Finances, Learning, Purpose, Hobbies — all connected, all optimized.",
     layerSubconsciousTitle: "Subconscious Layer — Hypnosis Engine",
     layerSubconsciousDesc: "Deep programming that rewires limiting beliefs and installs empowering patterns while you relax.",
     layerMotivationTitle: "Motivation Engine — Gamification",
@@ -2797,7 +2797,7 @@ export const en: TranslationKeys = {
     
     phaseDeepWorkTitle: "Deep Work",
     phaseDeepWorkDesc: "Activate your 90-day plan with daily missions, habit tracking, and weekly insights from Aurora.",
-    phaseDeepWorkFeature1: "Daily missions across 7 life pillars",
+    phaseDeepWorkFeature1: "Daily missions across 8 life pillars",
     phaseDeepWorkFeature2: "XP accumulation & level progression",
     phaseDeepWorkFeature3: "Weekly pattern recognition & insights",
     
@@ -2816,7 +2816,7 @@ export const en: TranslationKeys = {
     
     // NEW: Hero - Mind OS Focus
     mindOsTitle: "Your Mind's Operating System",
-    mindOsSubtitle: "7 life domains. One integrated brain. AI + Hypnosis + Gamification working together.",
+    mindOsSubtitle: "8 life domains. One integrated brain. AI + Hypnosis + Gamification working together.",
   },
 
   practitionerLanding: {
