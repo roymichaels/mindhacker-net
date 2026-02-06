@@ -8,9 +8,9 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, Compass } from 'lucide-react';
+import { Menu, Compass, Users } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
@@ -57,6 +57,7 @@ const DesktopLayoutContent = ({
   setProfileOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
+  const navigate = useNavigate();
   const isExpanded = sidebar?.state === 'expanded';
   
   // Sidebar width: expanded = 16rem (w-64), collapsed = 3rem (w-12 for icons)
@@ -66,6 +67,15 @@ const DesktopLayoutContent = ({
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Fixed notification icons - always visible at top */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+          onClick={() => navigate('/practitioners')}
+          title={language === 'he' ? 'מאמנים' : 'Coaches'}
+        >
+          <Users className="h-5 w-5" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
@@ -127,6 +137,7 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const { language, isRTL } = useTranslation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
@@ -165,6 +176,15 @@ const DashboardLayout = ({
               
               {/* Right: Notification Icons */}
               <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+                  onClick={() => navigate('/practitioners')}
+                  title={language === 'he' ? 'מאמנים' : 'Coaches'}
+                >
+                  <Users className="h-5 w-5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
