@@ -8,7 +8,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, Compass, Users } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
@@ -16,6 +16,7 @@ import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { HypnosisModal } from './HypnosisModal';
 import { ProfileDrawer } from './ProfileDrawer';
+import { PractitionersModal } from '@/components/practitioners/PractitionersModal';
 interface DashboardLayoutProps {
   children: ReactNode;
   // Aurora-specific props for sidebar integration
@@ -39,6 +40,8 @@ interface DesktopLayoutContentProps {
   setHypnosisOpen: (open: boolean) => void;
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
+  practitionersOpen: boolean;
+  setPractitionersOpen: (open: boolean) => void;
 }
 
 const DesktopLayoutContent = ({
@@ -55,9 +58,10 @@ const DesktopLayoutContent = ({
   setHypnosisOpen,
   profileOpen,
   setProfileOpen,
+  practitionersOpen,
+  setPractitionersOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
-  const navigate = useNavigate();
   const isExpanded = sidebar?.state === 'expanded';
   
   // Sidebar width: expanded = 16rem (w-64), collapsed = 3rem (w-12 for icons)
@@ -71,7 +75,7 @@ const DesktopLayoutContent = ({
           variant="ghost"
           size="icon"
           className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-          onClick={() => navigate('/practitioners')}
+          onClick={() => setPractitionersOpen(true)}
           title={language === 'he' ? 'מאמנים' : 'Coaches'}
         >
           <Users className="h-5 w-5" />
@@ -125,6 +129,9 @@ const DesktopLayoutContent = ({
       
       {/* Profile Drawer */}
       <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
+      
+      {/* Practitioners Modal */}
+      <PractitionersModal open={practitionersOpen} onOpenChange={setPractitionersOpen} />
     </div>
   );
 };
@@ -137,11 +144,11 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const { language, isRTL } = useTranslation();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [practitionersOpen, setPractitionersOpen] = useState(false);
 
   const handleOpenSettings = () => {
     setLeftSheetOpen(false); // Close sidebar sheet on mobile
@@ -180,7 +187,7 @@ const DashboardLayout = ({
                   variant="ghost"
                   size="icon"
                   className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-                  onClick={() => navigate('/practitioners')}
+                  onClick={() => setPractitionersOpen(true)}
                   title={language === 'he' ? 'מאמנים' : 'Coaches'}
                 >
                   <Users className="h-5 w-5" />
@@ -224,6 +231,9 @@ const DashboardLayout = ({
           {/* Profile Drawer */}
           <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
+          {/* Practitioners Modal */}
+          <PractitionersModal open={practitionersOpen} onOpenChange={setPractitionersOpen} />
+
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 min-h-0 overflow-y-auto">
             <div className="flex-1 min-h-0 flex flex-col px-3 pt-3 pb-32 bg-sidebar backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
@@ -256,6 +266,8 @@ const DashboardLayout = ({
         setHypnosisOpen={setHypnosisOpen}
         profileOpen={profileOpen}
         setProfileOpen={setProfileOpen}
+        practitionersOpen={practitionersOpen}
+        setPractitionersOpen={setPractitionersOpen}
       >
         {children}
       </DesktopLayoutContent>
