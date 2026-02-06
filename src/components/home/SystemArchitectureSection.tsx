@@ -18,7 +18,8 @@ import {
   Users,
   Wallet,
   GraduationCap,
-  Compass
+  Compass,
+  Palette
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,7 @@ const layers = [
       { icon: Wallet, color: 'text-emerald-400' },
       { icon: GraduationCap, color: 'text-indigo-400' },
       { icon: Compass, color: 'text-purple-400' },
+      { icon: Palette, color: 'text-teal-400' },
     ],
   },
   {

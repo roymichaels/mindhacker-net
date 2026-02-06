@@ -25,6 +25,7 @@ const PILLARS = [
   { id: 'finances', name: 'Finances', nameHe: 'פיננסים', color: 'hsl(152 69% 45%)' },
   { id: 'learning', name: 'Learning', nameHe: 'למידה', color: 'hsl(239 84% 67%)' },
   { id: 'purpose', name: 'Purpose', nameHe: 'מטרה', color: 'hsl(270 76% 60%)' },
+  { id: 'hobbies', name: 'Hobbies', nameHe: 'תחביבים', color: 'hsl(174 60% 45%)' },
 ];
 
 // Map launchpad focus areas to pillars
