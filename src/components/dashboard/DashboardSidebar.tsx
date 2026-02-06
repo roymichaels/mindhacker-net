@@ -1,21 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard,
   Menu,
-  Search,
+  
   Briefcase,
   Compass,
   User,
   Heart,
-  MessageSquare,
+  
   Users,
   Wallet,
   GraduationCap,
@@ -29,8 +28,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
-import { format } from 'date-fns';
-import { he, enUS } from 'date-fns/locale';
 import { DashboardModal } from './DashboardModal';
 import { HypnosisModal } from './HypnosisModal';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
@@ -51,12 +48,6 @@ interface DashboardSidebarProps {
   onOpenProfile?: () => void;
 }
 
-interface MessageSearchResult {
-  id: string;
-  content: string;
-  conversation_id: string;
-  created_at: string;
-}
 
 const DashboardSidebar = ({ 
   onNavigate,
@@ -76,63 +67,6 @@ const DashboardSidebar = ({
   // Modal states
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Search Aurora messages
-  const { data: searchResults = [], isLoading: isSearching } = useQuery({
-    queryKey: ['aurora-message-search', user?.id, searchQuery],
-    queryFn: async () => {
-      if (!user?.id || !searchQuery.trim() || searchQuery.length < 2) return [];
-      
-      // Get user's AI conversations
-      const { data: conversations } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('participant_1', user.id)
-        .eq('type', 'ai');
-      
-      if (!conversations?.length) return [];
-      
-      const conversationIds = conversations.map(c => c.id);
-      
-      // Search messages in those conversations
-      const { data, error } = await supabase
-        .from('messages')
-        .select('id, content, conversation_id, created_at')
-        .in('conversation_id', conversationIds)
-        .ilike('content', `%${searchQuery}%`)
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (error) {
-        console.error('Failed to search messages:', error);
-        return [];
-      }
-      
-      return data as MessageSearchResult[];
-    },
-    enabled: !!user?.id && searchQuery.length >= 2,
-  });
-
-  // Show/hide search results dropdown
-  useEffect(() => {
-    if (searchQuery.length >= 2) {
-      setShowSearchResults(true);
-    } else {
-      setShowSearchResults(false);
-    }
-  }, [searchQuery]);
-
-  const handleSearchResultClick = (result: MessageSearchResult) => {
-    if (chatContext?.openChatAndScrollToMessage) {
-      chatContext.openChatAndScrollToMessage(result.conversation_id, result.id);
-    }
-    setSearchQuery('');
-    setShowSearchResults(false);
-    onNavigate?.();
-  };
 
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
@@ -146,45 +80,6 @@ const DashboardSidebar = ({
     { id: 'purpose', icon: Compass, customIcon: null, label: language === 'he' ? 'ייעוד' : 'Purpose', highlight: 'fuchsia' as const, path: '/purpose' },
     { id: 'hobbies', icon: Palette, customIcon: null, label: language === 'he' ? 'תחביבים' : 'Hobbies', highlight: 'teal' as const, path: '/hobbies' },
   ];
-
-  // Search results component
-  const SearchResultsDropdown = () => {
-    if (!showSearchResults || searchQuery.length < 2) return null;
-    
-    return (
-      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto">
-        {isSearching ? (
-          <div className="p-3 text-center text-sm text-muted-foreground">
-            {language === 'he' ? 'מחפש...' : 'Searching...'}
-          </div>
-        ) : searchResults.length === 0 ? (
-          <div className="p-3 text-center text-sm text-muted-foreground">
-            {language === 'he' ? 'לא נמצאו תוצאות' : 'No results found'}
-          </div>
-        ) : (
-          <div className="py-1">
-            {searchResults.map((result) => (
-              <button
-                key={result.id}
-                onClick={() => handleSearchResultClick(result)}
-                className="w-full text-start px-3 py-2 hover:bg-muted flex items-start gap-2 transition-colors"
-              >
-                <MessageSquare className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{result.content.slice(0, 60)}...</p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(result.created_at), 'dd/MM/yyyy', {
-                      locale: language === 'he' ? he : enUS,
-                    })}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // Shared content component for desktop sidebar
   const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
@@ -210,50 +105,8 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Mobile: Search bar - Full width (Orb moved to account dropdown) */}
-      {isMobile && (
-        <>
-          {/* Search bar */}
-          <div className="mb-4 relative w-full">
-            <div className="h-10 flex items-center gap-2 px-4 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg w-full">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-                placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-w-0"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              />
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            </div>
-            <SearchResultsDropdown />
-          </div>
-        </>
-      )}
 
-      {/* Desktop: Search bar above navigation (Orb moved to account dropdown) */}
-      {!isMobile && !isCollapsed && (
-        <>
-          {/* Search bar */}
-          <div className="px-3 mb-3 relative w-full min-w-0">
-            <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">
-              <input
-                type="text"
-                ref={searchInputRef}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-                placeholder={language === 'he' ? 'חיפוש בשיחות...' : 'Search chats...'}
-                className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              />
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            </div>
-            <SearchResultsDropdown />
-          </div>
-        </>
-      )}
+
 
       {/* Navigation Section - Full width */}
       <div className={cn("mb-4 w-full", isMobile ? "px-0" : "")}>
