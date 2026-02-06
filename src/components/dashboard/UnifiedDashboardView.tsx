@@ -13,6 +13,7 @@ import {
   LifeAnalysisChart,
   TodaysHabitsCard,
   PlanProgressCard,
+  QuickActionsBar,
 } from './v2';
 import { DashboardBannerSlider } from './DashboardBannerSlider';
 
@@ -68,6 +69,12 @@ export function UnifiedDashboardView({
       <NextActionBanner
         onOpenHypnosis={onOpenHypnosis}
         onOpenChat={onOpenChat}
+      />
+
+      {/* Zone 1.5: Quick Actions Bar */}
+      <QuickActionsBar
+        onOpenChat={onOpenChat}
+        onOpenHypnosis={onOpenHypnosis}
       />
 
       {/* Zone 2: Stats Grid - Level, Streak, Weekly XP, Tokens */}
