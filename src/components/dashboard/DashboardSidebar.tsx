@@ -68,18 +68,86 @@ const DashboardSidebar = ({
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
 
+  const highlightStyles: Record<string, { bg: string; text: string; icon: string; border: string; glow: string }> = {
+    purple: {
+      bg: 'from-purple-500/15 to-fuchsia-500/10 dark:from-purple-500/20 dark:to-fuchsia-500/10',
+      text: 'from-purple-600 to-fuchsia-500 dark:from-purple-400 dark:to-fuchsia-300',
+      icon: 'text-purple-600 dark:text-purple-400',
+      border: 'border-purple-500/20 dark:border-purple-500/30',
+      glow: 'hover:shadow-purple-500/15 dark:hover:shadow-purple-500/25',
+    },
+    blue: {
+      bg: 'from-blue-500/15 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/10',
+      text: 'from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300',
+      icon: 'text-blue-600 dark:text-cyan-400',
+      border: 'border-blue-500/20 dark:border-blue-500/30',
+      glow: 'hover:shadow-blue-500/15 dark:hover:shadow-blue-500/25',
+    },
+    gold: {
+      bg: 'from-amber-500/15 to-yellow-500/10 dark:from-amber-500/20 dark:to-yellow-500/10',
+      text: 'from-amber-600 to-yellow-500 dark:from-amber-400 dark:to-yellow-300',
+      icon: 'text-amber-600 dark:text-amber-400',
+      border: 'border-amber-500/20 dark:border-amber-500/30',
+      glow: 'hover:shadow-amber-500/15 dark:hover:shadow-amber-500/25',
+    },
+    red: {
+      bg: 'from-red-500/15 to-rose-500/10 dark:from-red-500/20 dark:to-rose-500/10',
+      text: 'from-red-600 to-rose-500 dark:from-red-400 dark:to-rose-300',
+      icon: 'text-red-600 dark:text-red-400',
+      border: 'border-red-500/20 dark:border-red-500/30',
+      glow: 'hover:shadow-red-500/15 dark:hover:shadow-red-500/25',
+    },
+    pink: {
+      bg: 'from-pink-500/15 to-rose-500/10 dark:from-pink-500/20 dark:to-rose-500/10',
+      text: 'from-pink-600 to-rose-500 dark:from-pink-400 dark:to-rose-300',
+      icon: 'text-pink-600 dark:text-pink-400',
+      border: 'border-pink-500/20 dark:border-pink-500/30',
+      glow: 'hover:shadow-pink-500/15 dark:hover:shadow-pink-500/25',
+    },
+    green: {
+      bg: 'from-emerald-500/15 to-green-500/10 dark:from-emerald-500/20 dark:to-green-500/10',
+      text: 'from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300',
+      icon: 'text-emerald-600 dark:text-emerald-400',
+      border: 'border-emerald-500/20 dark:border-emerald-500/30',
+      glow: 'hover:shadow-emerald-500/15 dark:hover:shadow-emerald-500/25',
+    },
+    indigo: {
+      bg: 'from-indigo-500/15 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/10',
+      text: 'from-indigo-600 to-violet-500 dark:from-indigo-400 dark:to-violet-300',
+      icon: 'text-indigo-600 dark:text-indigo-400',
+      border: 'border-indigo-500/20 dark:border-indigo-500/30',
+      glow: 'hover:shadow-indigo-500/15 dark:hover:shadow-indigo-500/25',
+    },
+    fuchsia: {
+      bg: 'from-fuchsia-500/15 to-purple-500/10 dark:from-fuchsia-500/20 dark:to-purple-500/10',
+      text: 'from-fuchsia-600 to-purple-500 dark:from-fuchsia-400 dark:to-purple-300',
+      icon: 'text-fuchsia-600 dark:text-fuchsia-400',
+      border: 'border-fuchsia-500/20 dark:border-fuchsia-500/30',
+      glow: 'hover:shadow-fuchsia-500/15 dark:hover:shadow-fuchsia-500/25',
+    },
+    teal: {
+      bg: 'from-teal-500/15 to-cyan-500/10 dark:from-teal-500/20 dark:to-cyan-500/10',
+      text: 'from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-300',
+      icon: 'text-teal-600 dark:text-teal-400',
+      border: 'border-teal-500/20 dark:border-teal-500/30',
+      glow: 'hover:shadow-teal-500/15 dark:hover:shadow-teal-500/25',
+    },
+  };
+
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, customIcon: null, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple' as const, path: '/dashboard' },
-    { id: 'consciousness', icon: User, customIcon: null, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue' as const, path: '/consciousness' },
-    { id: 'business', icon: Briefcase, customIcon: null, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold' as const, path: '/business' },
-    { id: 'health', icon: Heart, customIcon: null, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red' as const, path: '/health' },
-    { id: 'relationships', icon: Users, customIcon: null, label: language === 'he' ? 'קשרים' : 'Relationships', highlight: 'pink' as const, path: '/relationships' },
-    { id: 'finances', icon: Wallet, customIcon: null, label: language === 'he' ? 'פיננסים' : 'Finances', highlight: 'green' as const, path: '/finances' },
-    { id: 'learning', icon: GraduationCap, customIcon: null, label: language === 'he' ? 'למידה' : 'Learning', highlight: 'indigo' as const, path: '/learning' },
-    { id: 'purpose', icon: Compass, customIcon: null, label: language === 'he' ? 'ייעוד' : 'Purpose', highlight: 'fuchsia' as const, path: '/purpose' },
-    { id: 'hobbies', icon: Palette, customIcon: null, label: language === 'he' ? 'תחביבים' : 'Hobbies', highlight: 'teal' as const, path: '/hobbies' },
+    { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple', path: '/dashboard' },
+    { id: 'consciousness', icon: User, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue', path: '/consciousness' },
+    { id: 'business', icon: Briefcase, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold', path: '/business' },
+    { id: 'health', icon: Heart, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red', path: '/health' },
+    { id: 'relationships', icon: Users, label: language === 'he' ? 'קשרים' : 'Relationships', highlight: 'pink', path: '/relationships' },
+    { id: 'finances', icon: Wallet, label: language === 'he' ? 'פיננסים' : 'Finances', highlight: 'green', path: '/finances' },
+    { id: 'learning', icon: GraduationCap, label: language === 'he' ? 'למידה' : 'Learning', highlight: 'indigo', path: '/learning' },
+    { id: 'purpose', icon: Compass, label: language === 'he' ? 'ייעוד' : 'Purpose', highlight: 'fuchsia', path: '/purpose' },
+    { id: 'hobbies', icon: Palette, label: language === 'he' ? 'תחביבים' : 'Hobbies', highlight: 'teal', path: '/hobbies' },
   ];
+
+  const location = useLocation();
 
   // Shared content component for desktop sidebar
   const SidebarInnerContent = ({ isMobile = false }: { isMobile?: boolean }) => (
@@ -105,24 +173,14 @@ const DashboardSidebar = ({
         </div>
       )}
 
-
-
-
-      {/* Navigation Section - Full width */}
+      {/* Navigation Section */}
       <div className={cn("mb-4 w-full", isMobile ? "px-0" : "")}>
-        <div className="space-y-2 w-full overflow-hidden">
-        {navItems.map((item) => {
-            const highlightColor = item.highlight;
-            const isPurple = highlightColor === 'purple';
-            const isRed = highlightColor === 'red';
-            const isGold = highlightColor === 'gold';
-            const isBlue = highlightColor === 'blue';
-            const isPink = highlightColor === 'pink';
-            const isGreen = highlightColor === 'green';
-            const isIndigo = highlightColor === 'indigo';
-            const isFuchsia = highlightColor === 'fuchsia';
-            const isTeal = highlightColor === 'teal';
-              return (
+        <div className="space-y-1.5 w-full overflow-hidden">
+          {navItems.map((item) => {
+            const s = highlightStyles[item.highlight];
+            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+            const Icon = item.icon;
+            return (
               <button
                 key={item.id}
                 onClick={() => {
@@ -132,60 +190,17 @@ const DashboardSidebar = ({
                   }
                 }}
                 className={cn(
-                  "w-full min-w-0 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 overflow-hidden",
-                  isPurple && "bg-gradient-to-r from-purple-100 to-muted dark:from-purple-950 dark:to-gray-900 text-purple-700 dark:text-purple-300 hover:from-purple-200 hover:to-muted/80 dark:hover:from-purple-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 border border-purple-300 dark:border-purple-800/50",
-                  isBlue && "bg-gradient-to-r from-blue-100 to-muted dark:from-blue-950 dark:to-gray-900 text-blue-700 dark:text-cyan-300 hover:from-blue-200 hover:to-muted/80 dark:hover:from-blue-900 dark:hover:to-gray-800 font-bold shadow-sm hover:shadow-md hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 border border-blue-300 dark:border-blue-800/50",
-                  isGold && "bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950 dark:to-yellow-950 text-amber-700 dark:text-amber-300 hover:from-amber-200 hover:to-yellow-200 dark:hover:from-amber-900 dark:hover:to-yellow-900 font-bold shadow-sm hover:shadow-md hover:shadow-amber-500/20 dark:hover:shadow-amber-900/30 border border-amber-300 dark:border-amber-800/50",
-                  isRed && "bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-950 dark:to-rose-950 text-red-700 dark:text-red-300 hover:from-red-200 hover:to-rose-200 dark:hover:from-red-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-red-500/20 dark:hover:shadow-red-900/30 border border-red-300 dark:border-red-800/50",
-                  isPink && "bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-950 dark:to-rose-950 text-pink-700 dark:text-pink-300 hover:from-pink-200 hover:to-rose-200 dark:hover:from-pink-900 dark:hover:to-rose-900 font-bold shadow-sm hover:shadow-md hover:shadow-pink-500/20 dark:hover:shadow-pink-900/30 border border-pink-300 dark:border-pink-800/50",
-                  isGreen && "bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 text-emerald-700 dark:text-emerald-300 hover:from-emerald-200 hover:to-green-200 dark:hover:from-emerald-900 dark:hover:to-green-900 font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 dark:hover:shadow-emerald-900/30 border border-emerald-300 dark:border-emerald-800/50",
-                  isIndigo && "bg-gradient-to-r from-indigo-100 to-violet-100 dark:from-indigo-950 dark:to-violet-950 text-indigo-700 dark:text-indigo-300 hover:from-indigo-200 hover:to-violet-200 dark:hover:from-indigo-900 dark:hover:to-violet-900 font-bold shadow-sm hover:shadow-md hover:shadow-indigo-500/20 dark:hover:shadow-indigo-900/30 border border-indigo-300 dark:border-indigo-800/50",
-                  isFuchsia && "bg-gradient-to-r from-fuchsia-100 to-purple-100 dark:from-fuchsia-950 dark:to-purple-950 text-fuchsia-700 dark:text-fuchsia-300 hover:from-fuchsia-200 hover:to-purple-200 dark:hover:from-fuchsia-900 dark:hover:to-purple-900 font-bold shadow-sm hover:shadow-md hover:shadow-fuchsia-500/20 dark:hover:shadow-fuchsia-900/30 border border-fuchsia-300 dark:border-fuchsia-800/50",
-                  isTeal && "bg-gradient-to-r from-teal-100 to-cyan-100 dark:from-teal-950 dark:to-cyan-950 text-teal-700 dark:text-teal-300 hover:from-teal-200 hover:to-cyan-200 dark:hover:from-teal-900 dark:hover:to-cyan-900 font-bold shadow-sm hover:shadow-md hover:shadow-teal-500/20 dark:hover:shadow-teal-900/30 border border-teal-300 dark:border-teal-800/50",
+                  "group w-full min-w-0 flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 overflow-hidden border",
+                  `bg-gradient-to-r ${s.bg} ${s.border} ${s.glow}`,
+                  "hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
+                  isActive && "ring-1 ring-current/20 shadow-md scale-[1.01]",
                   isCollapsed && "justify-center px-2 py-2.5 rounded-lg"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
-                {item.customIcon ? (
-                  <item.customIcon className={cn(
-                    "h-4 w-4 shrink-0",
-                    isPurple && "text-purple-700 dark:text-purple-300",
-                    isBlue && "text-blue-700 dark:text-cyan-300",
-                    isGold && "text-amber-700 dark:text-amber-300",
-                    isRed && "text-red-700 dark:text-red-300",
-                    isPink && "text-pink-700 dark:text-pink-300",
-                    isGreen && "text-emerald-700 dark:text-emerald-300",
-                    isIndigo && "text-indigo-700 dark:text-indigo-300",
-                    isTeal && "text-teal-700 dark:text-teal-300",
-                    isFuchsia && "text-fuchsia-700 dark:text-fuchsia-300"
-                  )} size={16} />
-                ) : item.icon && (
-                  <item.icon className={cn(
-                    "h-4 w-4 shrink-0", 
-                    isPurple && "text-purple-700 dark:text-purple-300",
-                    isBlue && "text-blue-700 dark:text-cyan-300",
-                    isGold && "text-amber-700 dark:text-amber-300",
-                    isRed && "text-red-700 dark:text-red-300",
-                    isPink && "text-pink-700 dark:text-pink-300",
-                    isGreen && "text-emerald-700 dark:text-emerald-300",
-                    isTeal && "text-teal-700 dark:text-teal-300",
-                    isIndigo && "text-indigo-700 dark:text-indigo-300",
-                    isFuchsia && "text-fuchsia-700 dark:text-fuchsia-300"
-                  )} />
-                )}
+                <Icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110", s.icon)} />
                 {!isCollapsed && (
-                  <span className={cn(
-                    "bg-clip-text text-transparent",
-                    isPurple && "bg-gradient-to-r from-purple-500 via-fuchsia-400 to-purple-500 dark:from-purple-400 dark:via-fuchsia-300 dark:to-purple-400",
-                    isBlue && "bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 dark:from-blue-400 dark:via-cyan-300 dark:to-blue-400",
-                    isGold && "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 dark:from-amber-400 dark:via-yellow-300 dark:to-amber-400",
-                    isRed && "bg-gradient-to-r from-red-500 via-rose-400 to-red-500 dark:from-red-400 dark:via-rose-300 dark:to-red-400",
-                    isPink && "bg-gradient-to-r from-pink-500 via-rose-400 to-pink-500 dark:from-pink-400 dark:via-rose-300 dark:to-pink-400",
-                    isTeal && "bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400",
-                    isGreen && "bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-500 dark:from-emerald-400 dark:via-green-300 dark:to-emerald-400",
-                    isIndigo && "bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-500 dark:from-indigo-400 dark:via-violet-300 dark:to-indigo-400",
-                    isFuchsia && "bg-gradient-to-r from-fuchsia-500 via-purple-400 to-fuchsia-500 dark:from-fuchsia-400 dark:via-purple-300 dark:to-fuchsia-400"
-                  )}>
+                  <span className={cn("bg-clip-text text-transparent bg-gradient-to-r font-bold", s.text)}>
                     {item.label}
                   </span>
                 )}
