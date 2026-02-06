@@ -15,6 +15,7 @@ import {
   Wallet, 
   GraduationCap, 
   Compass,
+  Palette,
   Brain,
   AudioLines,
   Gamepad2
@@ -26,7 +27,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
-// 7 Life Pillars for orbital visualization
+// 8 Life Pillars for orbital visualization
 const lifePillars = [
   { icon: User, color: 'text-blue-400', bg: 'bg-blue-500/20', name: 'Personality' },
   { icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-500/20', name: 'Business' },
@@ -35,6 +36,7 @@ const lifePillars = [
   { icon: Wallet, color: 'text-emerald-400', bg: 'bg-emerald-500/20', name: 'Finances' },
   { icon: GraduationCap, color: 'text-indigo-400', bg: 'bg-indigo-500/20', name: 'Learning' },
   { icon: Compass, color: 'text-purple-400', bg: 'bg-purple-500/20', name: 'Purpose' },
+  { icon: Palette, color: 'text-teal-400', bg: 'bg-teal-500/20', name: 'Hobbies' },
 ];
 
 // System components (Aurora, Hypnosis, Gamification)
@@ -175,7 +177,7 @@ export default function GameHeroSection() {
               >
                 {lifePillars.map((pillar, index) => {
                   const Icon = pillar.icon;
-                  const angle = (index * (360 / 7)) * (Math.PI / 180);
+                  const angle = (index * (360 / lifePillars.length)) * (Math.PI / 180);
                   const radius = 140; // sm radius
                   const x = Math.cos(angle) * radius + 160;
                   const y = Math.sin(angle) * radius + 160;
