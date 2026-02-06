@@ -43,7 +43,6 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
     'more_than_8': { he: 'יותר מ-8', en: '8h+', score: 90 },
   };
 
-  // Activity/Exercise frequency map - using actual DB values
   const activityMap: Record<string, { he: string; en: string; score: number }> = {
     'daily': { he: 'יומית', en: 'Daily', score: 100 },
     '5-6/week': { he: '5-6 בשבוע', en: '5-6/week', score: 95 },
@@ -57,7 +56,6 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
     'none': { he: 'לא פעיל', en: 'None', score: 10 },
   };
 
-  // Hydration items map (for array values)
   const hydrationItemMap: Record<string, { he: string; en: string }> = {
     'water': { he: 'מים', en: 'Water' },
     'natural-juice': { he: 'מיץ טבעי', en: 'Natural Juice' },
@@ -74,54 +72,39 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
     'sports-drinks': { he: 'משקאות ספורט', en: 'Sports Drinks' },
   };
 
-  // Get raw values - note: exercise_frequency is the actual field name
   const energyLevel = (profileData.energy_level as string) || '';
   const sleepHours = (profileData.sleep_hours as string) || '';
   const exerciseFrequency = (profileData.exercise_frequency as string) || '';
   const hydrationRaw = profileData.hydration;
   
-  // Handle hydration as array or string
   const getHydrationDisplay = (): { display: string; score: number } => {
     if (!hydrationRaw) return { display: '', score: 0 };
-    
     const isHebrew = language === 'he';
     
     if (Array.isArray(hydrationRaw)) {
-      // Map each hydration item to its label
       const labels = hydrationRaw.map(item => {
         const mapped = hydrationItemMap[item as string];
         return mapped ? mapped[isHebrew ? 'he' : 'en'] : null;
       }).filter(Boolean);
       
       if (labels.length === 0) return { display: '', score: 0 };
-      
-      // Score based on water presence and variety
       const hasWater = hydrationRaw.includes('water');
       const score = hasWater ? 80 + Math.min(hydrationRaw.length * 5, 20) : 60;
-      
-      // Show first 2 items max
       const displayItems = labels.slice(0, 2);
       const display = displayItems.join(', ') + (labels.length > 2 ? '...' : '');
-      
       return { display, score };
     }
     
-    // Handle as string (legacy)
     const mapped = hydrationItemMap[hydrationRaw as string];
     if (mapped) {
-      return { 
-        display: mapped[isHebrew ? 'he' : 'en'], 
-        score: hydrationRaw === 'water' ? 80 : 60 
-      };
+      return { display: mapped[isHebrew ? 'he' : 'en'], score: hydrationRaw === 'water' ? 80 : 60 };
     }
-    
     return { display: '', score: 0 };
   };
 
   const hydrationData = getHydrationDisplay();
   const hasData = energyLevel || sleepHours || exerciseFrequency || hydrationData.display;
 
-  // Calculate overall health score
   const scores = [
     energyLevelMap[energyLevel]?.score || 0,
     sleepHoursMap[sleepHours]?.score || 0,
@@ -132,10 +115,10 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
   const overallScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-amber-500';
-    if (score >= 40) return 'text-orange-500';
-    return 'text-red-500';
+    if (score >= 80) return 'text-green-600 dark:text-green-400';
+    if (score >= 60) return 'text-amber-600 dark:text-amber-400';
+    if (score >= 40) return 'text-orange-600 dark:text-orange-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getProgressColor = (score: number) => {
@@ -147,7 +130,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
 
   if (isLoading) {
     return (
-      <Card className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border-red-800/30 animate-pulse">
+      <Card className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/60 border-red-200 dark:border-red-800/30 animate-pulse">
         <CardContent className="p-6 h-40" />
       </Card>
     );
@@ -155,60 +138,48 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
 
   const metrics = [
     {
-      key: 'energy',
-      value: energyLevel,
-      icon: Battery,
-      labelHe: 'אנרגיה',
-      labelEn: 'Energy',
+      key: 'energy', value: energyLevel, icon: Battery,
+      labelHe: 'אנרגיה', labelEn: 'Energy',
       displayValue: energyLevelMap[energyLevel]?.[language === 'he' ? 'he' : 'en'],
       score: energyLevelMap[energyLevel]?.score || 0,
-      color: 'text-amber-400',
+      color: 'text-amber-600 dark:text-amber-400',
       bgColor: 'from-amber-500/20 to-orange-400/10',
     },
     {
-      key: 'sleep',
-      value: sleepHours,
-      icon: Moon,
-      labelHe: 'שינה',
-      labelEn: 'Sleep',
+      key: 'sleep', value: sleepHours, icon: Moon,
+      labelHe: 'שינה', labelEn: 'Sleep',
       displayValue: sleepHoursMap[sleepHours]?.[language === 'he' ? 'he' : 'en'],
       score: sleepHoursMap[sleepHours]?.score || 0,
-      color: 'text-indigo-400',
+      color: 'text-indigo-600 dark:text-indigo-400',
       bgColor: 'from-indigo-500/20 to-purple-400/10',
     },
     {
-      key: 'activity',
-      value: exerciseFrequency,
-      icon: ActivityIcon,
-      labelHe: 'פעילות',
-      labelEn: 'Activity',
+      key: 'activity', value: exerciseFrequency, icon: ActivityIcon,
+      labelHe: 'פעילות', labelEn: 'Activity',
       displayValue: activityMap[exerciseFrequency]?.[language === 'he' ? 'he' : 'en'],
       score: activityMap[exerciseFrequency]?.score || 0,
-      color: 'text-green-400',
+      color: 'text-green-600 dark:text-green-400',
       bgColor: 'from-green-500/20 to-emerald-400/10',
     },
     {
-      key: 'hydration',
-      value: hydrationData.display,
-      icon: Droplets,
-      labelHe: 'הידרציה',
-      labelEn: 'Hydration',
+      key: 'hydration', value: hydrationData.display, icon: Droplets,
+      labelHe: 'הידרציה', labelEn: 'Hydration',
       displayValue: hydrationData.display,
       score: hydrationData.score,
-      color: 'text-blue-400',
+      color: 'text-blue-600 dark:text-blue-400',
       bgColor: 'from-blue-500/20 to-cyan-400/10',
     },
   ].filter(m => m.value && m.displayValue);
 
   return (
-    <Card className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border-red-800/30 overflow-hidden">
+    <Card className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/60 border-red-200 dark:border-red-800/30 overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-red-500/20 rounded-lg">
-              <Heart className="h-4 w-4 text-red-400 fill-red-400/50" />
+              <Heart className="h-4 w-4 text-red-600 dark:text-red-400 fill-red-600/50 dark:fill-red-400/50" />
             </div>
-            <CardTitle className="text-base text-red-400">
+            <CardTitle className="text-base text-red-700 dark:text-red-400">
               {language === 'he' ? 'סטטוס בריאות' : 'Health Status'}
             </CardTitle>
           </div>
@@ -224,10 +195,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
         </div>
         {hasData && overallScore > 0 && (
           <div className="mt-2">
-            <Progress 
-              value={overallScore} 
-              className="h-1.5 bg-gray-800"
-            />
+            <Progress value={overallScore} className="h-1.5 bg-muted" />
           </div>
         )}
       </CardHeader>
@@ -237,7 +205,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
             {metrics.map((metric) => (
               <div 
                 key={metric.key}
-                className={`p-3 rounded-xl bg-gradient-to-br ${metric.bgColor} border border-white/5 backdrop-blur-sm`}
+                className={`p-3 rounded-xl bg-gradient-to-br ${metric.bgColor} border border-border/50 backdrop-blur-sm`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <metric.icon className={`h-4 w-4 ${metric.color}`} />
@@ -248,7 +216,7 @@ const HealthStatusCard = ({ language }: HealthStatusCardProps) => {
                 <p className={`font-semibold text-sm ${metric.color}`}>
                   {metric.displayValue}
                 </p>
-                <div className="mt-2 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${getProgressColor(metric.score)} transition-all`}
                     style={{ width: `${metric.score}%` }}
