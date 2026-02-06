@@ -58,7 +58,7 @@ export const BugReportWidget = () => {
       {/* Floating Button Container - positioned bottom-right, below Aurora chat z-index */}
       <div
         id="bug-report-widget"
-        className="fixed end-4 bottom-[120px] sm:bottom-[64px] z-30"
+        className="fixed end-4 bottom-[180px] sm:bottom-[124px] z-30"
       >
         <div className="relative flex flex-col items-end gap-2">
           {/* Prompt Bubble */}
