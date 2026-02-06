@@ -47,9 +47,9 @@ export function LifeAnalysisChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col lg:flex-row items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
           {/* Pie Chart */}
-          <div className="relative h-[180px] w-[180px] flex-shrink-0">
+          <div className="relative h-[150px] w-[150px] sm:h-[180px] sm:w-[180px] flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
