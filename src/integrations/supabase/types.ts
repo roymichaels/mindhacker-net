@@ -4537,6 +4537,60 @@ export type Database = {
           },
         ]
       }
+      purpose_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_values: Json | null
+          step_3_meaning: Json | null
+          step_4_mission: Json | null
+          step_5_strengths: Json | null
+          step_6_contribution: Json | null
+          step_7_legacy: Json | null
+          step_8_action_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_values?: Json | null
+          step_3_meaning?: Json | null
+          step_4_mission?: Json | null
+          step_5_strengths?: Json | null
+          step_6_contribution?: Json | null
+          step_7_legacy?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_values?: Json | null
+          step_3_meaning?: Json | null
+          step_4_mission?: Json | null
+          step_5_strengths?: Json | null
+          step_6_contribution?: Json | null
+          step_7_legacy?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string
