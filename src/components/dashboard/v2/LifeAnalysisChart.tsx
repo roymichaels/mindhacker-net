@@ -98,7 +98,7 @@ export function LifeAnalysisChart() {
 
           {/* Legend */}
           <div 
-            className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1.5 w-full"
+            className="flex-1 grid grid-cols-2 gap-x-6 gap-y-1.5 max-w-xs"
             dir={isRTL ? 'rtl' : 'ltr'}
           >
             {chartData.map((slice, index) => (
@@ -116,7 +116,7 @@ export function LifeAnalysisChart() {
                 <span className="text-xs text-muted-foreground truncate">
                   {language === 'he' ? slice.nameHe : slice.name}
                 </span>
-                <span className="text-xs font-medium text-foreground ms-auto">
+                <span className="text-xs font-medium text-foreground whitespace-nowrap">
                   {slice.value}%
                 </span>
               </motion.div>
