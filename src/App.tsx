@@ -183,10 +183,10 @@ const App = () => (
         <BackgroundEffect />
         <div className="relative z-10">
             <AuthProvider>
-              <PractitionersModalProvider>
               <AuroraChatProvider>
               <GameStateProvider>
               <LanguageProvider>
+                <PractitionersModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -689,10 +689,10 @@ const App = () => (
                   </AnalyticsProvider>
                 </BrowserRouter>
                 </TooltipProvider>
+                </PractitionersModalProvider>
               </LanguageProvider>
             </GameStateProvider>
             </AuroraChatProvider>
-              </PractitionersModalProvider>
           </AuthProvider>
         </div>
       </ThemeProvider>
