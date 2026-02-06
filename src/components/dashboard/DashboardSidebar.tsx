@@ -18,7 +18,8 @@ import {
   MessageSquare,
   Users,
   Wallet,
-  GraduationCap
+  GraduationCap,
+  Palette
 } from 'lucide-react';
 import {
   Sidebar,
@@ -143,6 +144,7 @@ const DashboardSidebar = ({
     { id: 'finances', icon: Wallet, customIcon: null, label: language === 'he' ? 'פיננסים' : 'Finances', highlight: 'green' as const, path: '/finances' },
     { id: 'learning', icon: GraduationCap, customIcon: null, label: language === 'he' ? 'למידה' : 'Learning', highlight: 'indigo' as const, path: '/learning' },
     { id: 'purpose', icon: Compass, customIcon: null, label: language === 'he' ? 'ייעוד' : 'Purpose', highlight: 'fuchsia' as const, path: '/purpose' },
+    { id: 'hobbies', icon: Palette, customIcon: null, label: language === 'he' ? 'תחביבים' : 'Hobbies', highlight: 'teal' as const, path: '/hobbies' },
   ];
 
   // Search results component
@@ -266,6 +268,7 @@ const DashboardSidebar = ({
             const isGreen = highlightColor === 'green';
             const isIndigo = highlightColor === 'indigo';
             const isFuchsia = highlightColor === 'fuchsia';
+            const isTeal = highlightColor === 'teal';
               return (
               <button
                 key={item.id}
@@ -285,6 +288,7 @@ const DashboardSidebar = ({
                   isGreen && "bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-950 dark:to-green-950 text-emerald-700 dark:text-emerald-300 hover:from-emerald-200 hover:to-green-200 dark:hover:from-emerald-900 dark:hover:to-green-900 font-bold shadow-sm hover:shadow-md hover:shadow-emerald-500/20 dark:hover:shadow-emerald-900/30 border border-emerald-300 dark:border-emerald-800/50",
                   isIndigo && "bg-gradient-to-r from-indigo-100 to-violet-100 dark:from-indigo-950 dark:to-violet-950 text-indigo-700 dark:text-indigo-300 hover:from-indigo-200 hover:to-violet-200 dark:hover:from-indigo-900 dark:hover:to-violet-900 font-bold shadow-sm hover:shadow-md hover:shadow-indigo-500/20 dark:hover:shadow-indigo-900/30 border border-indigo-300 dark:border-indigo-800/50",
                   isFuchsia && "bg-gradient-to-r from-fuchsia-100 to-purple-100 dark:from-fuchsia-950 dark:to-purple-950 text-fuchsia-700 dark:text-fuchsia-300 hover:from-fuchsia-200 hover:to-purple-200 dark:hover:from-fuchsia-900 dark:hover:to-purple-900 font-bold shadow-sm hover:shadow-md hover:shadow-fuchsia-500/20 dark:hover:shadow-fuchsia-900/30 border border-fuchsia-300 dark:border-fuchsia-800/50",
+                  isTeal && "bg-gradient-to-r from-teal-100 to-cyan-100 dark:from-teal-950 dark:to-cyan-950 text-teal-700 dark:text-teal-300 hover:from-teal-200 hover:to-cyan-200 dark:hover:from-teal-900 dark:hover:to-cyan-900 font-bold shadow-sm hover:shadow-md hover:shadow-teal-500/20 dark:hover:shadow-teal-900/30 border border-teal-300 dark:border-teal-800/50",
                   isCollapsed && "justify-center px-2 py-2.5 rounded-lg"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -299,6 +303,7 @@ const DashboardSidebar = ({
                     isPink && "text-pink-700 dark:text-pink-300",
                     isGreen && "text-emerald-700 dark:text-emerald-300",
                     isIndigo && "text-indigo-700 dark:text-indigo-300",
+                    isTeal && "text-teal-700 dark:text-teal-300",
                     isFuchsia && "text-fuchsia-700 dark:text-fuchsia-300"
                   )} size={16} />
                 ) : item.icon && (
@@ -310,6 +315,7 @@ const DashboardSidebar = ({
                     isRed && "text-red-700 dark:text-red-300",
                     isPink && "text-pink-700 dark:text-pink-300",
                     isGreen && "text-emerald-700 dark:text-emerald-300",
+                    isTeal && "text-teal-700 dark:text-teal-300",
                     isIndigo && "text-indigo-700 dark:text-indigo-300",
                     isFuchsia && "text-fuchsia-700 dark:text-fuchsia-300"
                   )} />
@@ -322,6 +328,7 @@ const DashboardSidebar = ({
                     isGold && "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 dark:from-amber-400 dark:via-yellow-300 dark:to-amber-400",
                     isRed && "bg-gradient-to-r from-red-500 via-rose-400 to-red-500 dark:from-red-400 dark:via-rose-300 dark:to-red-400",
                     isPink && "bg-gradient-to-r from-pink-500 via-rose-400 to-pink-500 dark:from-pink-400 dark:via-rose-300 dark:to-pink-400",
+                    isTeal && "bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400",
                     isGreen && "bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-500 dark:from-emerald-400 dark:via-green-300 dark:to-emerald-400",
                     isIndigo && "bg-gradient-to-r from-indigo-500 via-violet-400 to-indigo-500 dark:from-indigo-400 dark:via-violet-300 dark:to-indigo-400",
                     isFuchsia && "bg-gradient-to-r from-fuchsia-500 via-purple-400 to-fuchsia-500 dark:from-fuchsia-400 dark:via-purple-300 dark:to-fuchsia-400"

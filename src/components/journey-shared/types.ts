@@ -4,7 +4,7 @@
  */
 import type { LucideIcon } from 'lucide-react';
 
-export type JourneyTheme = 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning';
+export type JourneyTheme = 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning' | 'hobbies';
 
 export interface Phase {
   id: number;

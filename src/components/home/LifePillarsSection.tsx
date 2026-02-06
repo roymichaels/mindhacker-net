@@ -15,7 +15,8 @@ import {
   Wallet, 
   GraduationCap, 
   Compass,
-  Sparkles
+  Sparkles,
+  Palette
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PersonalizedOrb from "@/components/orb/PersonalizedOrb";
@@ -43,7 +44,7 @@ const pillars = [
     gradient: 'from-amber-500 to-yellow-400',
     borderColor: 'border-amber-500/40',
     textColor: 'text-amber-400',
-    angle: 51.4,
+    angle: 45,
   },
   {
     id: 'health',
@@ -55,7 +56,7 @@ const pillars = [
     gradient: 'from-red-500 to-rose-400',
     borderColor: 'border-red-500/40',
     textColor: 'text-red-400',
-    angle: 102.8,
+    angle: 90,
   },
   {
     id: 'relationships',
@@ -67,7 +68,7 @@ const pillars = [
     gradient: 'from-pink-500 to-rose-400',
     borderColor: 'border-pink-500/40',
     textColor: 'text-pink-400',
-    angle: 154.3,
+    angle: 135,
   },
   {
     id: 'finances',
@@ -79,7 +80,7 @@ const pillars = [
     gradient: 'from-emerald-500 to-green-400',
     borderColor: 'border-emerald-500/40',
     textColor: 'text-emerald-400',
-    angle: 205.7,
+    angle: 180,
   },
   {
     id: 'learning',
@@ -91,7 +92,7 @@ const pillars = [
     gradient: 'from-indigo-500 to-violet-400',
     borderColor: 'border-indigo-500/40',
     textColor: 'text-indigo-400',
-    angle: 257.1,
+    angle: 225,
   },
   {
     id: 'purpose',
@@ -103,7 +104,19 @@ const pillars = [
     gradient: 'from-purple-500 to-fuchsia-400',
     borderColor: 'border-purple-500/40',
     textColor: 'text-purple-400',
-    angle: 308.6,
+    angle: 270,
+  },
+  {
+    id: 'hobbies',
+    icon: Palette,
+    titleHe: 'תחביבים',
+    titleEn: 'Hobbies',
+    descriptionHe: 'יצירתיות, פנאי, משחקים',
+    descriptionEn: 'Creativity, leisure, games',
+    gradient: 'from-teal-500 to-cyan-400',
+    borderColor: 'border-teal-500/40',
+    textColor: 'text-teal-400',
+    angle: 315,
   },
 ];
 
@@ -135,13 +148,13 @@ const LifePillarsSection = () => {
           >
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-primary font-semibold text-sm">
-              {isRTL ? '7 תחומי החיים' : '7 Life Domains'}
+              {isRTL ? '8 תחומי החיים' : '8 Life Domains'}
             </span>
           </motion.div>
           
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-              {isRTL ? 'מערכת אחת. שבעה תחומים. שליטה מלאה.' : 'One System. Seven Domains. Complete Mastery.'}
+              {isRTL ? 'מערכת אחת. שמונה תחומים. שליטה מלאה.' : 'One System. Eight Domains. Complete Mastery.'}
             </span>
           </h2>
           
@@ -328,7 +341,7 @@ const LifePillarsSection = () => {
                     "border-2",
                     pillar.borderColor,
                     "hover:scale-105 transition-transform cursor-pointer",
-                    index === 6 ? "col-span-2 sm:col-span-1" : ""
+                    index === 7 ? "col-span-2 sm:col-span-1" : ""
                   )}
                 >
                   <div className={cn(
