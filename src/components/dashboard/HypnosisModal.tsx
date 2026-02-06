@@ -255,14 +255,34 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     }
   };
 
+  // Helper to clamp a value between 0 and 1
+  const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+  // Helper to sanitize script text before TTS (remove time markers, metadata)
+  const sanitizeScriptForTTS = (text: string): string => {
+    return text
+      // Remove leading timecodes like "04:00" or "4:00"
+      .replace(/^\s*\d{1,2}:\d{2}\s*/gm, '')
+      // Remove inline time markers with brackets like [04:00] or (04:00)
+      .replace(/[\(\[]?\d{1,2}:\d{2}[\)\]]?/g, '')
+      // Remove metadata lines (CURRENT TIME:, DAY:, etc.)
+      .replace(/^(CURRENT TIME|DAY|DATE|TIME|שעה נוכחית|יום|תאריך)[:\s].*/gim, '')
+      // Clean up any double spaces or empty lines
+      .replace(/\n\s*\n/g, '\n')
+      .trim();
+  };
+
+  // Track if cached audio was detected as bad
+  const badCachedAudioRef = useRef(false);
+
   const playScript = async (activeScript: HypnosisScript, cachedUrl?: string) => {
     const currentSessionId = sessionIdRef.current;
     
     if (!playingRef.current || !activeScript.fullScript) return;
 
-    // Calculate duration based on word count (130 words per minute for slow hypnosis speech)
+    // Calculate duration based on word count (85 WPM for slow hypnosis speech)
     const wordCount = activeScript.fullScript.split(/\s+/).length;
-    const calculatedDuration = (wordCount / 130) * 60; // in seconds
+    const calculatedDuration = (wordCount / 85) * 60; // in seconds at hypnosis pace
     setEstimatedDuration(calculatedDuration);
 
     const markVoiceStarted = () => {
@@ -272,13 +292,36 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       }
     };
 
+    // Duration sanity check thresholds
+    const MIN_VALID_DURATION = 30; // At least 30 seconds for any real session
+    const DURATION_LOWER_BOUND = calculatedDuration * 0.3;
+    const DURATION_UPPER_BOUND = calculatedDuration * 2.5;
+
+    const isDurationSane = (audioDuration: number): boolean => {
+      return (
+        Number.isFinite(audioDuration) &&
+        audioDuration >= MIN_VALID_DURATION &&
+        audioDuration >= DURATION_LOWER_BOUND &&
+        audioDuration <= DURATION_UPPER_BOUND
+      );
+    };
+
     const handleTimeUpdate = (currentTime: number, audioDuration: number) => {
-      if (audioDuration > 0) {
-        setAudioProgress(currentTime / audioDuration);
-        // Update estimated duration if we get actual audio duration
-        if (audioDuration !== calculatedDuration) {
-          setEstimatedDuration(audioDuration);
-        }
+      // Guard against invalid duration values
+      if (!Number.isFinite(audioDuration) || audioDuration <= 0) {
+        // Use calculated duration for progress, don't update estimatedDuration
+        const progress = clamp(currentTime / calculatedDuration, 0, 1);
+        setAudioProgress(progress);
+        return;
+      }
+
+      // Clamp progress to 0-1 range to prevent karaoke from racing ahead
+      const progress = clamp(currentTime / audioDuration, 0, 1);
+      setAudioProgress(progress);
+      
+      // Only update estimated duration if audio duration passes sanity check
+      if (isDurationSane(audioDuration) && audioDuration !== estimatedDuration) {
+        setEstimatedDuration(audioDuration);
       }
     };
 
@@ -287,17 +330,46 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       handleSessionComplete();
     };
 
-    // Try cached audio first
-    if (cachedUrl) {
+    // Try cached audio first (unless previously marked as bad)
+    if (cachedUrl && !badCachedAudioRef.current) {
       try {
         const signedUrl = await getCachedAudioUrl(cachedUrl);
         if (sessionIdRef.current !== currentSessionId) return;
         
         if (signedUrl) {
+          let audioStartTime = 0;
+          let detectedBadAudio = false;
+
           await playAudioUrl(signedUrl, {
-            onTimeUpdate: handleTimeUpdate,
-            onStart: markVoiceStarted,
-            onEnd: onComplete,
+            onTimeUpdate: (currentTime, audioDuration) => {
+              // Detect bad cached audio early
+              if (!detectedBadAudio && audioStartTime > 0) {
+                const elapsed = (Date.now() - audioStartTime) / 1000;
+                
+                // If within first 2 seconds and we see suspicious duration
+                if (elapsed < 2) {
+                  if (audioDuration < MIN_VALID_DURATION || audioDuration < DURATION_LOWER_BOUND) {
+                    console.warn(`Bad cached audio detected: duration=${audioDuration}s, expected>=${DURATION_LOWER_BOUND}s`);
+                    detectedBadAudio = true;
+                    badCachedAudioRef.current = true;
+                    stopCurrentAudio();
+                    // Fallback to synthesis
+                    synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, handleTimeUpdate, onComplete, currentSessionId);
+                    return;
+                  }
+                }
+              }
+              
+              handleTimeUpdate(currentTime, audioDuration);
+            },
+            onStart: () => {
+              audioStartTime = Date.now();
+              markVoiceStarted();
+            },
+            onEnd: () => {
+              if (detectedBadAudio) return; // Don't complete if we detected bad audio
+              onComplete();
+            },
             onError: () => {
               if (sessionIdRef.current !== currentSessionId) return;
               // Fallback to synthesis
@@ -322,11 +394,15 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     onEnd: () => void,
     currentSessionId: number
   ) => {
+    // Sanitize the script to remove time markers before TTS
+    const sanitizedText = sanitizeScriptForTTS(text);
+    console.log('[TTS] Script first 200 chars:', sanitizedText.substring(0, 200));
+    
     if (isMuted) {
       onStart();
-      // Calculate reading time based on words and simulate progress
-      const wordsPerMinute = 130;
-      const words = text.split(/\s+/).length;
+      // Calculate reading time based on words at 85 WPM (hypnosis pace)
+      const wordsPerMinute = 85;
+      const words = sanitizedText.split(/\s+/).length;
       const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
       
       // Simulate progress for muted mode
@@ -351,7 +427,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     }
 
     try {
-      const result = await synthesizeSpeech(text, {
+      const result = await synthesizeSpeech(sanitizedText, {
         provider: voiceProvider,
         voice: 'sarah',
         speed: 0.9,

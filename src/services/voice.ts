@@ -209,6 +209,7 @@ async function tryBrowserFallback(
 /**
  * Play text using browser's speech synthesis directly
  * Handles long text by chunking into sentences
+ * Uses global time-based progress for smooth karaoke sync
  */
 export function speakWithBrowser(
   text: string,
@@ -236,16 +237,13 @@ export function speakWithBrowser(
   let currentChunk = 0;
   let hasStarted = false;
   let cancelled = false;
-  let progressInterval: ReturnType<typeof setInterval> | null = null;
+  let globalProgressInterval: ReturnType<typeof setInterval> | null = null;
   
-  // Track word-level progress for smooth karaoke
-  // Using 85 WPM for hypnosis pace (slow, calming speech)
+  // Global time-based progress tracking (independent of chunk boundaries)
   const HYPNOSIS_WPM = 85;
   const totalWords = text.split(/\s+/).length;
-  let wordsSpoken = 0;
-  
-  // Calculate words per chunk for progress tracking
-  const wordsPerChunk = chunks.map(c => c.split(/\s+/).length);
+  const totalEstimatedDurationMs = (totalWords / HYPNOSIS_WPM) * 60 * 1000 / (options.rate || 0.85);
+  let sessionStartTime = 0;
 
   // Preload voices first
   const loadVoicesAndSpeak = () => {
@@ -255,8 +253,11 @@ export function speakWithBrowser(
     
     const speakChunk = () => {
       if (cancelled || currentChunk >= chunks.length) {
-        if (progressInterval) clearInterval(progressInterval);
-        if (!cancelled) options.onEnd?.();
+        if (globalProgressInterval) clearInterval(globalProgressInterval);
+        if (!cancelled) {
+          options.onProgress?.(1); // Final progress
+          options.onEnd?.();
+        }
         return;
       }
 
@@ -271,12 +272,6 @@ export function speakWithBrowser(
       );
       
       utterance.voice = hebrewVoice || englishFemaleVoice || voices[0] || null;
-
-      // Estimate chunk duration for smooth progress interpolation
-      const chunkWords = wordsPerChunk[currentChunk];
-      // Use HYPNOSIS_WPM (85) for accurate slow-paced progress, adjusted for speech rate
-      const chunkDurationMs = (chunkWords / HYPNOSIS_WPM) * 60 * 1000 / (options.rate || 0.85);
-      let chunkStartTime = 0;
       
       utterance.onstart = () => {
         if (cancelled) {
@@ -284,39 +279,29 @@ export function speakWithBrowser(
           return;
         }
         
-        chunkStartTime = Date.now();
-        
         if (!hasStarted) {
           hasStarted = true;
+          sessionStartTime = Date.now();
           options.onStart?.();
           
-          // Start smooth progress interpolation
-          progressInterval = setInterval(() => {
+          // Start global time-based progress interpolation
+          globalProgressInterval = setInterval(() => {
             if (cancelled) {
-              if (progressInterval) clearInterval(progressInterval);
+              if (globalProgressInterval) clearInterval(globalProgressInterval);
               return;
             }
             
-            // Calculate interpolated progress within current chunk
-            const chunkElapsed = Date.now() - chunkStartTime;
-            const chunkProgress = Math.min(chunkElapsed / chunkDurationMs, 1);
-            const chunkWordsSpoken = chunkProgress * chunkWords;
-            
-            const totalProgress = (wordsSpoken + chunkWordsSpoken) / totalWords;
-            options.onProgress?.(Math.min(totalProgress, 0.99)); // Never hit 1.0 until truly done
+            // Calculate global progress based on elapsed time vs total estimated duration
+            const elapsed = Date.now() - sessionStartTime;
+            const globalProgress = Math.min(elapsed / totalEstimatedDurationMs, 0.99);
+            options.onProgress?.(globalProgress);
           }, 100);
         }
       };
 
       utterance.onend = () => {
         if (cancelled) return;
-        
-        // Update words spoken count
-        wordsSpoken += wordsPerChunk[currentChunk];
         currentChunk++;
-        
-        // Report progress
-        options.onProgress?.(wordsSpoken / totalWords);
         speakChunk();
       };
       
@@ -325,12 +310,12 @@ export function speakWithBrowser(
         
         // Skip to next chunk on error
         console.warn('Browser TTS chunk error:', event.error);
-        wordsSpoken += wordsPerChunk[currentChunk];
         currentChunk++;
         if (currentChunk < chunks.length) {
           speakChunk();
         } else {
-          if (progressInterval) clearInterval(progressInterval);
+          if (globalProgressInterval) clearInterval(globalProgressInterval);
+          options.onProgress?.(1);
           options.onEnd?.();
         }
       };
@@ -370,7 +355,7 @@ export function speakWithBrowser(
   return {
     cancel: () => {
       cancelled = true;
-      if (progressInterval) clearInterval(progressInterval);
+      if (globalProgressInterval) clearInterval(globalProgressInterval);
       speechSynthesis.cancel();
     }
   };
