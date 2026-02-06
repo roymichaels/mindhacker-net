@@ -115,7 +115,7 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
         className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 py-1"
       >
         {reviews.map((review) => {
-          const name = review.profiles?.full_name || (language === 'he' ? 'משתמש/ת' : 'User');
+          const name = review.reviewer_name || review.profiles?.full_name || (language === 'he' ? 'משתמש/ת' : 'User');
           const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
 
           return (
@@ -129,7 +129,7 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
             >
               <div className="flex items-center gap-2 mb-2">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={review.profiles?.avatar_url || undefined} />
+                  <AvatarImage src={review.reviewer_avatar_url || undefined} />
                   <AvatarFallback className="text-xs bg-primary/10 text-primary">
                     {initials}
                   </AvatarFallback>

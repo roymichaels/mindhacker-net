@@ -69,11 +69,12 @@ export interface PractitionerReview {
   user_id: string;
   rating: number;
   review_text: string | null;
+  reviewer_name: string | null;
+  reviewer_avatar_url: string | null;
   is_approved: boolean;
   created_at: string;
   profiles?: {
     full_name: string | null;
-    avatar_url: string | null;
   };
 }
 
@@ -144,24 +145,13 @@ export const usePractitioner = (slug: string | undefined) => {
           .order('created_at', { ascending: false }),
       ]);
 
-      // Fetch profile info for reviews separately
-      const reviews = reviewsRes.data || [];
-      const reviewsWithProfiles = await Promise.all(
-        reviews.map(async (review: any) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
-            .eq('id', review.user_id)
-            .single();
-          return { ...review, profiles: profile };
-        })
-      );
+      const reviews = (reviewsRes.data || []) as PractitionerReview[];
 
       return {
         ...practitioner,
         specialties: specialtiesRes.data || [],
         services: servicesRes.data || [],
-        reviews: reviewsWithProfiles,
+        reviews,
       } as PractitionerWithDetails;
     },
     enabled: !!slug,
