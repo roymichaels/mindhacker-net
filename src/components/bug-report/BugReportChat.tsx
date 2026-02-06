@@ -321,17 +321,16 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
         )}
       </AnimatePresence>
 
-      {/* Input */}
-      <div className="p-4 border-t border-border/50">
-        <div className="flex items-end gap-2">
+      {/* Input - matching GlobalChatInput style */}
+      <div className="shrink-0 w-full pt-3 pb-3 px-4">
+        <div className="relative flex items-end gap-2">
           {/* Image Upload Button */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading || isSubmitting || step >= 4}
             className={cn(
-              "h-10 w-10 flex items-center justify-center rounded-lg",
-              "bg-muted/50 hover:bg-muted transition-colors",
+              "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-all shrink-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
@@ -345,8 +344,8 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
             className="hidden"
           />
 
-          {/* Text Input */}
-          <div className="flex-1 relative">
+          {/* Input Container */}
+          <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
             <textarea
               ref={textareaRef}
               value={input}
@@ -360,13 +359,14 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
               }
               rows={1}
               className={cn(
-                "w-full bg-muted/50 border border-border/50 rounded-lg px-4 py-2.5 text-sm",
+                "w-full h-9 bg-transparent px-3 py-2 text-sm leading-tight",
                 "resize-none overflow-hidden",
-                "focus:outline-none focus:ring-2 focus:ring-primary/50",
+                "focus:outline-none",
                 "disabled:opacity-50",
                 "placeholder:text-muted-foreground"
               )}
               dir={isRTL ? 'rtl' : 'ltr'}
+              style={{ maxHeight: '36px' }}
             />
           </div>
 
@@ -376,16 +376,14 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
             onClick={handleSubmit}
             disabled={(!input.trim() && !selectedImage && step !== 1 && step !== 3) || isSubmitting || isUploading || step >= 4}
             className={cn(
-              "h-10 w-10 flex items-center justify-center rounded-lg",
-              "bg-primary text-primary-foreground",
-              "hover:bg-primary/90 transition-colors",
+              "h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
             {isSubmitting || isUploading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             ) : (
-              <Send className={cn("w-5 h-5", isRTL && "rotate-180")} />
+              <Send className={cn("w-4 h-4 text-muted-foreground", isRTL && "rotate-180")} />
             )}
           </button>
         </div>
