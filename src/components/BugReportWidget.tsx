@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Bug, X } from 'lucide-react';
+import { Bug, X, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useBugReport } from '@/hooks/useBugReport';
-import { BugReportForm } from '@/components/bug-report/BugReportForm';
+import BugReportChat from '@/components/bug-report/BugReportChat';
 import { cn } from '@/lib/utils';
 
 const PROMPT_DISMISSED_KEY = 'bug-report-prompt-dismissed-v2';
@@ -12,18 +12,16 @@ const PROMPT_DISMISSED_KEY = 'bug-report-prompt-dismissed-v2';
 export const BugReportWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { captureContext } = useBugReport();
+
   // Show the prompt after a delay if not dismissed
   useEffect(() => {
     const wasDismissed = localStorage.getItem(PROMPT_DISMISSED_KEY);
-    console.log('[BugWidget] Checking prompt - dismissed:', wasDismissed);
     if (!wasDismissed) {
-      console.log('[BugWidget] Will show prompt in 3 seconds...');
       const timer = setTimeout(() => {
-        console.log('[BugWidget] Showing prompt now');
         setShowPrompt(true);
-      }, 3000); // Show after 3 seconds (reduced for better UX)
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -57,34 +55,34 @@ export const BugReportWidget = () => {
 
   return (
     <>
-      {/* Floating Button Container - positioned on start, above bottom dock */}
+      {/* Floating Button Container - positioned bottom-right for visibility */}
       <div
         id="bug-report-widget"
-        className="fixed start-4 bottom-20 z-40 pointer-events-none"
+        className="fixed end-4 bottom-20 sm:bottom-6 z-50"
       >
-        <div className="relative flex items-center gap-2">
+        <div className="relative flex flex-col items-end gap-2">
           {/* Prompt Bubble */}
           <AnimatePresence>
             {showPrompt && (
               <motion.div
-                initial={{ opacity: 0, x: -20, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -20, scale: 0.9 }}
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.9 }}
                 className={cn(
-                  "pointer-events-auto absolute top-1/2 -translate-y-1/2 flex items-center gap-2",
-                  "bg-background/90 backdrop-blur-xl",
+                  "flex items-center gap-2",
+                  "bg-background/95 backdrop-blur-xl",
                   "border border-border rounded-lg px-3 py-2",
-                  "shadow-md",
-                  "left-14 max-w-[70vw]"
+                  "shadow-lg",
+                  "max-w-[200px]"
                 )}
               >
-                <p className="text-xs text-foreground leading-tight whitespace-normal">
-                  {t('bugReport.promptCta')}
+                <p className="text-xs text-foreground leading-tight">
+                  {language === 'he' ? 'נתקלת בבאג? ספר לי!' : 'Found a bug? Tell me!'}
                 </p>
                 <button
                   type="button"
                   onClick={dismissPrompt}
-                  className="p-0.5 rounded-full hover:bg-muted transition-colors"
+                  className="p-0.5 rounded-full hover:bg-muted transition-colors shrink-0"
                   aria-label={t('common.close')}
                 >
                   <X className="h-3 w-3 text-muted-foreground" />
@@ -93,68 +91,66 @@ export const BugReportWidget = () => {
             )}
           </AnimatePresence>
 
-          {/* Bug Button */}
+          {/* Bug Button - more prominent with chat icon */}
           <motion.button
             onClick={handleOpen}
             className={cn(
-              "pointer-events-auto relative p-3 rounded-full",
-              "bg-gradient-to-br from-card to-muted",
-              "border border-border",
-              "shadow-md hover:shadow-lg",
-              "transition-shadow duration-300",
+              "relative p-3.5 rounded-full",
+              "bg-gradient-to-br from-primary to-primary/80",
+              "text-primary-foreground",
+              "shadow-lg hover:shadow-xl",
+              "transition-all duration-300",
               "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
             )}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.3 }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
             title={t('bugReport.buttonTooltip')}
           >
-            {/* Subtle animated glow */}
+            {/* Pulse animation */}
             <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/30 via-primary/15 to-primary/30 opacity-40 blur-md"
-              animate={{ rotate: [0, 360] }}
+              className="absolute inset-0 rounded-full bg-primary/50"
+              animate={{ 
+                scale: [1, 1.3, 1],
+                opacity: [0.5, 0, 0.5],
+              }}
               transition={{
-                duration: 10,
+                duration: 2,
                 repeat: Infinity,
-                ease: 'linear',
+                ease: 'easeInOut',
               }}
             />
-            <div className="relative z-10 text-primary">
+            <div className="relative z-10 flex items-center gap-1.5">
               <Bug className="h-5 w-5" />
             </div>
           </motion.button>
         </div>
       </div>
 
-      {/* Dialog */}
+      {/* Dialog with Chat */}
       <AnimatePresence>
         {isOpen && (
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent 
-              className="max-w-md h-[85svh] max-h-[85svh] flex flex-col overflow-hidden"
+              className="max-w-md h-[85svh] max-h-[600px] flex flex-col overflow-hidden p-0"
               hideCloseButton
             >
               <DialogHeader 
-                title={t('bugReport.title')} 
-                icon={<Bug className="h-5 w-5" />}
+                title={language === 'he' ? 'דיווח על באג' : 'Report a Bug'}
+                icon={<MessageCircle className="h-5 w-5" />}
                 showBackArrow={false}
-                className="flex-shrink-0"
+                className="flex-shrink-0 p-4 pb-2"
               />
-              <DialogDescription className="text-center text-muted-foreground -mt-2 flex-shrink-0">
-                {t('bugReport.subtitle')}
-              </DialogDescription>
               
-              <div className="flex-1 overflow-y-auto min-h-0 pb-4">
-                <BugReportForm
-                  onSuccess={handleClose}
-                  contextInfo={{
-                    pagePath: context.pagePath,
-                    deviceInfo,
-                  }}
-                />
-              </div>
+              <BugReportChat
+                onSuccess={handleClose}
+                contextInfo={{
+                  pagePath: context.pagePath,
+                  deviceInfo,
+                }}
+              />
             </DialogContent>
           </Dialog>
         )}
