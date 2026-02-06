@@ -47,7 +47,7 @@ export const BugReportWidget = () => {
   const deviceInfo = `${context.browser} / ${context.os} / ${context.deviceType}`;
 
   return (
-    <div className="fixed end-4 bottom-[80px] sm:bottom-[124px] z-30 flex flex-col items-end">
+    <div className="fixed end-4 bottom-[80px] lg:bottom-[164px] z-30 flex flex-col items-end">
       {/* Chat Panel */}
       <AnimatePresence>
         {isOpen && (
