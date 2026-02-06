@@ -153,8 +153,8 @@ const AuroraAccountDropdown = ({
             onClick={() => setProfileModalOpen(true)}
           >
             {/* Gamified background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-card to-accent/20" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white/60 dark:from-black/40 to-transparent" />
             
             {/* Content */}
             <div className="relative z-10 p-4 flex flex-col items-center text-center">
