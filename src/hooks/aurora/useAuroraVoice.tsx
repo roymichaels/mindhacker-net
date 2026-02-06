@@ -135,13 +135,30 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
         }
       );
 
+      // Handle error responses gracefully (including 402 quota exceeded)
       if (!response.ok) {
-        throw new Error('TTS failed');
+        // Try to parse error response for logging
+        const errorData = await response.json().catch(() => ({}));
+        console.warn('TTS request failed:', response.status, errorData);
+        
+        // If it's a fallback signal, just silently fail (don't crash)
+        if (errorData.fallback) {
+          console.log('ElevenLabs quota exceeded, TTS unavailable');
+        }
+        
+        // Reset state without crashing
+        setIsPlaying(false);
+        setActiveMessageId(null);
+        return;
       }
 
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('audio')) {
-        throw new Error('Invalid audio response');
+        // Not audio response - probably error JSON, fail gracefully
+        console.warn('TTS response was not audio:', contentType);
+        setIsPlaying(false);
+        setActiveMessageId(null);
+        return;
       }
 
       const audioBlob = await response.blob();
