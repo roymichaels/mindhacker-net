@@ -258,17 +258,26 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   // Helper to clamp a value between 0 and 1
   const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-  // Helper to sanitize script text before TTS (remove time markers, metadata)
+  // Helper to sanitize script text before TTS (remove time markers, metadata, and problematic punctuation)
   const sanitizeScriptForTTS = (text: string): string => {
     return text
+      // Normalize dash variants (some voices literally say "dash")
+      .replace(/[–—]/g, ', ')
+      .replace(/\s-\s/g, ', ')
       // Remove leading timecodes like "04:00" or "4:00"
       .replace(/^\s*\d{1,2}:\d{2}\s*/gm, '')
       // Remove inline time markers with brackets like [04:00] or (04:00)
       .replace(/[\(\[]?\d{1,2}:\d{2}[\)\]]?/g, '')
       // Remove metadata lines (CURRENT TIME:, DAY:, etc.)
       .replace(/^(CURRENT TIME|DAY|DATE|TIME|שעה נוכחית|יום|תאריך)[:\s].*/gim, '')
+      // Remove lines that are only punctuation (e.g. "-" or "—")
+      .replace(/^\s*[-—–]+\s*$/gm, '')
+      // Remove leading/trailing dashes/spaces globally
+      .trim()
+      .replace(/^[-—–\s]+|[-—–\s]+$/g, '')
       // Clean up any double spaces or empty lines
       .replace(/\n\s*\n/g, '\n')
+      .replace(/\s{2,}/g, ' ')
       .trim();
   };
 
