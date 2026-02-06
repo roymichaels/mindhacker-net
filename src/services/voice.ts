@@ -229,10 +229,17 @@ export function speakWithBrowser(
   // Cancel any ongoing speech
   speechSynthesis.cancel();
 
+  // Normalize punctuation for browser TTS (prevents reading "dash" / odd pauses)
+  const normalizedText = text
+    .replace(/[–—]/g, ', ')
+    .replace(/\s-\s/g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   // For long texts, chunk into sentences for better reliability
-  const chunks = text.length > 500 
-    ? text.split(/(?<=[.!?])\s+/).filter(c => c.trim())
-    : [text];
+  const chunks = normalizedText.length > 500
+    ? normalizedText.split(/(?<=[.!?])\s+/).filter(c => c.trim())
+    : [normalizedText];
   
   let currentChunk = 0;
   let cancelled = false;
@@ -247,7 +254,7 @@ export function speakWithBrowser(
   
   // Global time-based progress tracking (independent of chunk boundaries)
   const HYPNOSIS_WPM = 85;
-  const totalWords = text.split(/\s+/).length;
+  const totalWords = normalizedText.split(/\s+/).length;
   const totalEstimatedDurationMs = (totalWords / HYPNOSIS_WPM) * 60 * 1000 / (options.rate || 0.85);
   let sessionStartTime = 0;
 
@@ -283,6 +290,13 @@ export function speakWithBrowser(
     const speakChunk = () => {
       if (cancelled || currentChunk >= chunks.length) {
         cleanup();
+
+        // If we never actually started speaking, do NOT treat as successful completion.
+        if (!cancelled && !speechActuallyStarted) {
+          options.onError?.(new Error('Speech synthesis ended without starting'));
+          return;
+        }
+
         if (!cancelled) {
           options.onProgress?.(1); // Final progress
           options.onEnd?.();
@@ -343,6 +357,20 @@ export function speakWithBrowser(
 
       utterance.onend = () => {
         if (cancelled) return;
+
+        // Some browsers can fire 'end' without ever firing 'start' (silent failure).
+        if (!speechActuallyStarted) {
+          consecutiveErrors++;
+          console.warn(`Browser TTS ended without start (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS})`);
+
+          if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            cleanup();
+            speechSynthesis.cancel();
+            options.onError?.(new Error('Speech synthesis ended without starting'));
+            return;
+          }
+        }
+
         currentChunk++;
         speakChunk();
       };
@@ -367,6 +395,13 @@ export function speakWithBrowser(
           speakChunk();
         } else {
           cleanup();
+
+          // If we never actually started speaking, fail instead of completing.
+          if (!speechActuallyStarted) {
+            options.onError?.(new Error('Speech synthesis ended without starting'));
+            return;
+          }
+
           options.onProgress?.(1);
           options.onEnd?.();
         }
