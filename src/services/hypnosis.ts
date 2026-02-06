@@ -177,13 +177,15 @@ export function generateCacheKey(options: {
   else if (israelHour >= 17 && israelHour < 21) timeBucket = 'evening';
   else timeBucket = 'night';
   
-  // Create a simple hash of the goal for the cache key
-  const goalHash = options.goal
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .substring(0, 30);
+  // Create a SAFE hash of the goal using only ASCII characters
+  // This prevents storage errors with Hebrew/special characters
+  const goalBytes = new TextEncoder().encode(options.goal);
+  const goalHash = btoa(String.fromCharCode(...goalBytes.slice(0, 12)))
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .substring(0, 16);
   
   // Include date and time bucket for daily/time-appropriate freshness
+  // All components are now ASCII-safe
   return `${options.egoState}_${goalHash}_${options.durationMinutes}_${options.language}_${israelDate}_${timeBucket}`;
 }
 

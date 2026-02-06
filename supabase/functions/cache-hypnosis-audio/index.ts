@@ -77,7 +77,15 @@ serve(async (req) => {
 
     // Get audio as buffer
     const audioBuffer = await ttsResponse.arrayBuffer();
-    const audioPath = `${userId}/${cacheKey}/full_session.mp3`;
+    
+    // Sanitize the cache key for storage path (remove special chars, Hebrew, etc.)
+    const safeCacheKey = cacheKey
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .substring(0, 100);
+    
+    const audioPath = `${userId}/${safeCacheKey}/full_session.mp3`;
+    
+    console.log(`Saving audio to path: ${audioPath} (${audioBuffer.byteLength} bytes)`);
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage

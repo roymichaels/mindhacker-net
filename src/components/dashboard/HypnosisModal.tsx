@@ -390,6 +390,28 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         if (sessionIdRef.current !== currentSessionId) return;
         
         if (signedUrl) {
+          // FIRST: Verify cached audio exists and has meaningful content via HEAD request
+          try {
+            const headCheck = await fetch(signedUrl, { method: 'HEAD' });
+            const contentLength = headCheck.headers.get('content-length');
+            const contentLengthNum = contentLength ? parseInt(contentLength, 10) : 0;
+            
+            if (!headCheck.ok || contentLengthNum < 1000) {
+              console.warn(`Cached audio invalid or empty: status=${headCheck.status}, size=${contentLengthNum} bytes`);
+              badCachedAudioRef.current = true;
+              // Fall through to synthesis below
+              await synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, handleTimeUpdate, onComplete, currentSessionId);
+              return;
+            }
+            
+            console.log(`Cached audio verified: ${contentLengthNum} bytes`);
+          } catch (headError) {
+            console.warn('HEAD check failed for cached audio:', headError);
+            badCachedAudioRef.current = true;
+            await synthesizeAndPlay(activeScript.fullScript, markVoiceStarted, handleTimeUpdate, onComplete, currentSessionId);
+            return;
+          }
+          
           let audioStartTime = 0;
           let detectedBadAudio = false;
 

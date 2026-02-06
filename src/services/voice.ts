@@ -651,8 +651,15 @@ export async function playAudioUrl(
       }
     };
     
+    // Track if we've received meaningful audio data
+    let audioStarted = false;
+    let startTime = 0;
+    const MINIMUM_AUDIO_DURATION = 10; // At least 10 seconds for a real session
+    
     // Trigger onStart when audio actually starts playing
     audio.onplaying = () => {
+      audioStarted = true;
+      startTime = Date.now();
       options.onStart?.();
     };
     
@@ -660,8 +667,30 @@ export async function playAudioUrl(
       options.onTimeUpdate?.(audio.currentTime, audio.duration);
     };
     
+    // Check for silent/empty audio by validating duration when metadata loads
+    audio.onloadedmetadata = () => {
+      if (audio.duration < MINIMUM_AUDIO_DURATION) {
+        console.warn(`Audio too short: ${audio.duration}s (expected at least ${MINIMUM_AUDIO_DURATION}s)`);
+        cleanup();
+        const error = new Error(`Audio too short: ${audio.duration}s`);
+        options.onError?.(error);
+        reject(error);
+      }
+    };
+    
     audio.onended = () => {
       cleanup();
+      
+      // Guard against instant completion (silent audio)
+      const elapsedMs = startTime > 0 ? Date.now() - startTime : 0;
+      if (audioStarted && elapsedMs < 3000) {
+        console.warn(`Audio ended too quickly: ${elapsedMs}ms - likely silent/corrupt`);
+        const error = new Error('Audio ended too quickly - likely silent');
+        options.onError?.(error);
+        reject(error);
+        return;
+      }
+      
       options.onEnd?.();
       resolve();
     };
