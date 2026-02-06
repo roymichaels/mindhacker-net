@@ -1,149 +1,142 @@
 
-## Goal
-Fix the remaining voice fallback issues where:
-- Browser TTS says only “dash” and stops
-- Session completes ~30 seconds / ~1 minute without real voice
-- Karaoke starts even though voice effectively didn’t start (or only “dash” happened)
+## תוכנית ליצירת מרכז ייעוד ומסע ייעוד
 
-This is happening because the fallback TTS path is still receiving text that begins with markdown/bullets/separators (e.g. “- …”, “---”), and some browsers literally speak the bullet dash (“dash”) and then silently fail/stop. When that happens, our current logic can still reach `onEnd()` and mark the session complete.
+### סקירה כללית
+
+הייעוד (Purpose) הוא העמוד השביעי והאחרון במערכת 7 היבטי החיים שמוצגת בעמוד הבית. זהו ההיבט שמחבר את כל שאר התחומים יחדיו - הוא עוסק במשמעות, ערכים, חזון, וכיוון החיים. המסע הזה ישלים את המעגל ויאפשר למשתמשים לחבר את כל מה שלמדו על עצמם לתמונה אחת קוהרנטית.
 
 ---
 
-## What I found in the code (current behavior)
-### 1) We already normalize some dashes, but not bullet prefixes / markdown separators
-In `src/components/dashboard/HypnosisModal.tsx` `sanitizeScriptForTTS()`:
-- Replaces `–` and `—`, and replaces spaced ` - `.
-- Does **not** remove:
-  - bullet prefixes like `- ` at line start
-  - markdown horizontal rules like `---`
-  - “* ” bullets
-  - numbered list prefixes like `1. `
-So a script that contains markdown formatting can produce leading chunks like `-` or `---`.
+### מה ייווצר
 
-In `src/services/voice.ts` `speakWithBrowser()`:
-- Also normalizes `–` and `—` and `\s-\s`.
-- But if the text contains bullet markers, the browser may speak “dash …” or even only “dash”.
+#### 1. עמוד מרכז ייעוד (`/purpose`)
+עמוד hub בסגנון סגול/פוקסיה עם:
+- כותרת וכרטיס ראשי עם כפתור "התחל מסע"
+- רשת כלים (6 כלים): ערכים, חזון, משמעות, שליחות, מורשת, יישור
+- כרטיס סטטוס מדד היישור האישי
 
-### 2) Session completes because browser TTS can “end” quickly but still counts as success
-Even with the “ended without starting” protections, the browser can:
-- Fire `onstart`, speak “dash”, then `onend` almost immediately
-- We treat that as a normal completion if chunks are done
-- That triggers `HypnosisModal`’s `onEnd()` → `handleSessionComplete()`
-So we need a “meaningful speech” check, not just “did onstart fire”.
+#### 2. עמוד מסע ייעוד (`/purpose/journey`)
+מסע בן 8 שלבים:
+1. **חזון ייעודי** - מה הייעוד שלך בחיים?
+2. **ערכי ליבה** - מה הערכים המנחים אותך?
+3. **משמעות** - מה נותן לך תחושת משמעות?
+4. **שליחות** - מה השליחות שלך בעולם?
+5. **חוזקות ייחודיות** - מה הכוחות הייחודיים שלך?
+6. **תרומה לעולם** - איך אתה רוצה לתרום?
+7. **מורשת** - מה המורשת שתשאיר?
+8. **תוכנית פעולה** - צעדים מעשיים ליישום
 
----
+#### 3. טבלת מסד נתונים (`purpose_journeys`)
+מבנה זהה ליתר המסעות עם 8 עמודות step + שדות מטא
 
-## Implementation plan
-
-### A) Strengthen text sanitization before ANY TTS attempt (HypnosisModal)
-**File:** `src/components/dashboard/HypnosisModal.tsx`
-
-Update `sanitizeScriptForTTS()` to remove markdown/list formatting that often causes “dash”:
-
-1) Remove horizontal rules / separators:
-- Lines that are only dashes, underscores, or asterisks:
-  - `---`, `____`, `***`, etc.
-
-2) Remove bullet/list prefixes at line starts:
-- `- `, `– `, `— `, `• `, `* `
-- Also numbered lists: `1. `, `2) `, etc.
-
-3) Normalize remaining hyphen-minus characters more broadly:
-- Replace hyphen-minus `-` when used as punctuation (especially around spaces) into `, `
-- Remove repeated hyphens `--` or `---` inside lines
-
-4) Hard guard: if sanitized text becomes too short (e.g. < 50 chars or < 10 words), fall back to a less aggressive sanitization (so we don’t accidentally strip the script down to almost nothing).
-
-**Outcome:** the text sent to OpenAI/Browser fallback starts with real words, not “-” or “---”.
+#### 4. ניווט בסיידבר
+הוספת קישור לייעוד עם צבע סגול/פוקסיה
 
 ---
 
-### B) Make browser TTS reject “dash-only” / non-meaningful speech (voice.ts)
-**File:** `src/services/voice.ts`
+### פרטים טכניים
 
-Add additional reliability checks in `speakWithBrowser()`:
+#### קבצים חדשים
 
-1) Pre-sanitize again (defensive), specifically stripping bullet prefixes and separators even if caller forgot:
-- This keeps behavior consistent across the app (not only HypnosisModal).
+```
+src/pages/Purpose.tsx                           - עמוד Hub
+src/pages/PurposeJourney.tsx                    - עמוד wrapper למסע
+src/components/purpose-journey/
+  ├── PurposeJourneyFlow.tsx                    - רכיב המסע הראשי
+  ├── index.ts                                  - exports
+  └── steps/
+      ├── VisionStep.tsx                        - שלב 1: חזון ייעודי
+      ├── ValuesStep.tsx                        - שלב 2: ערכי ליבה
+      ├── MeaningStep.tsx                       - שלב 3: משמעות
+      ├── MissionStep.tsx                       - שלב 4: שליחות
+      ├── StrengthsStep.tsx                     - שלב 5: חוזקות ייחודיות
+      ├── ContributionStep.tsx                  - שלב 6: תרומה לעולם
+      ├── LegacyStep.tsx                        - שלב 7: מורשת
+      └── ActionPlanStep.tsx                    - שלב 8: תוכנית פעולה
+src/hooks/usePurposeJourney.ts                  - hook לניהול המסע
+```
 
-2) Detect “meaningless” chunks:
-- If the chunk text (after trimming) is:
-  - empty
-  - only punctuation
-  - or equals “dash” / “hyphen” (case-insensitive)
-  then skip it and move to the next chunk without speaking it.
+#### קבצים לעדכון
 
-3) Add a “minimum real speech time” heuristic:
-- Track `firstStartAt` and count `spokenCharacters` (sum of chunk lengths that actually started).
-- If the entire run ends with:
-  - `spokenCharacters < N` (e.g. < 80 chars), or
-  - total speaking time < 2 seconds,
-  then call `options.onError(...)` instead of `onEnd()`.
+```
+src/App.tsx                                     - הוספת routes
+src/components/dashboard/DashboardSidebar.tsx   - הוספת לינק בניווט
+```
 
-**Outcome:** if the browser only says “dash” and stops, we will treat it as a failure, not a successful completion.
+#### מיגרציית מסד נתונים
 
----
-
-### C) Ensure HypnosisModal never completes the session on “voice failed” (already mostly done, but tighten)
-**File:** `src/components/dashboard/HypnosisModal.tsx`
-
-Right now `onError` inside `playAudioUrl()` triggers `startMutedFallback()`, which is good. The problem is: if browser TTS ends quickly but does not error, we still complete.
-
-So we’ll:
-1) Add a guard in the `onEnd` passed to `playAudioUrl()` when the provider is `browser`:
-- If `elapsedTime < min(30s, estimatedDuration * 0.2)` or `audioProgress < 0.2`, treat it as suspicious end and trigger muted fallback instead of completing.
-
-2) Track “voice produced meaningful progress”:
-- Set a ref like `hadMeaningfulAudioRef` once we pass, say, 5 seconds or 10% progress.
-- If `onEnd` happens and `hadMeaningfulAudioRef` is false → `startMutedFallback()`.
-
-**Outcome:** even if the browser reports a clean “end” after saying “dash”, the session will not complete; it will switch to reading mode.
+יצירת טבלה `purpose_journeys` עם:
+- `id`, `user_id`, `current_step`, `journey_complete`
+- `step_1_vision` עד `step_8_action_plan` (JSONB)
+- `ai_summary`, `created_at`, `updated_at`
+- RLS policies למשתמש מאומת
 
 ---
 
-### D) Verify the ElevenLabs quota error doesn’t crash the app UI
-You reported:
-- “Runtime error / blank screen”
-- Edge function returned 402 with `{ fallback: true }`
+### עיצוב
 
-We’ll confirm:
-- The client is not treating the 402 as a fatal error (it should just fall back).
-- If there’s any uncaught exception in the ElevenLabs edge function response parsing path (e.g., trying to parse audio as JSON), we’ll patch client error handling to always `.json().catch(() => ({}))` for non-ok responses (already done in `tryElevenLabsTTS`, but we’ll check any other call-sites).
+#### ערכת צבעים (סגול/פוקסיה)
+- Primary gradient: `from-purple-500 to-fuchsia-400`
+- Background: `from-purple-100 to-background` (light) / `from-purple-950/50 to-background` (dark)
+- Border: `border-purple-200` (light) / `border-purple-800/30` (dark)
+- Icon/Text: `text-purple-600` (light) / `text-purple-400` (dark)
 
-If needed, we’ll add a small UI-safe error boundary behavior (toast + fallback) so “quota exceeded” never produces a blank screen.
-
----
-
-## How we’ll test (end-to-end)
-1) Trigger a hypnosis session with ElevenLabs quota exceeded (so it must fall back).
-2) Confirm browser TTS does not say “dash” first; it should start with real words.
-3) If browser TTS still fails on the device, confirm:
-   - It switches to “Reading mode” (muted fallback)
-   - The session does not complete early
-   - Karaoke progresses smoothly for the full estimated duration
-4) Repeat on:
-   - Desktop Chrome
-   - iOS Safari (common speechSynthesis quirks)
-   - Android Chrome (voice loading quirks)
+#### סגנון הסיידבר
+```typescript
+{ 
+  id: 'purpose', 
+  icon: Compass, 
+  label: language === 'he' ? 'ייעוד' : 'Purpose', 
+  highlight: 'purple' as const, 
+  path: '/purpose' 
+}
+```
 
 ---
 
-## Files to change
-- `src/components/dashboard/HypnosisModal.tsx`
-  - stronger `sanitizeScriptForTTS`
-  - treat suspicious early browser-TTS end as failure → muted fallback
-  - track “meaningful audio started” before allowing completion
-- `src/services/voice.ts`
-  - strip bullets/separators defensively
-  - skip punctuation-only chunks
-  - treat “dash-only / too-short speech” as `onError` (not success)
+### מבנה כל שלב במסע
+
+כל שלב יכלול:
+- אייקון מרכזי עם רקע סגול
+- כותרת ותיאור קצר
+- 3-4 שדות טקסט עם placeholder-ים מנחים
+- עיצוב theme-aware (light/dark mode)
+
+#### דוגמה - שלב ערכי ליבה (Values Step)
+
+```typescript
+// שאלות:
+// 1. מהם 5 הערכים הכי חשובים לך בחיים?
+// 2. כיצד הערכים האלה מתבטאים בפועל ביום-יום?
+// 3. איזה ערך אתה מרגיש שאתה לא חי לפיו מספיק?
+// 4. מה קורה כשאתה פועל נגד הערכים שלך?
+```
 
 ---
 
-## Notes / tradeoffs
-- This approach does not try to “make browser TTS Hebrew perfect” (that’s device-dependent).
-- It guarantees that when browser TTS is unreliable, the user experience remains stable:
-  - no early completion
-  - no karaoke racing
-  - reading mode continues the session at hypnosis pace
+### תפקיד הייעוד במערכת
 
+הייעוד הוא ההיבט המאחד - הוא שואב מכל 6 ההיבטים האחרים:
+- **תודעה** → מי אתה באמת
+- **עסקים** → איך אתה מביא ערך לעולם
+- **בריאות** → האנרגיה לממש את הייעוד
+- **קשרים** → האנשים שתומכים במסע
+- **פיננסים** → המשאבים לממש
+- **למידה** → הידע והכישורים הנדרשים
+
+זה הופך את הייעוד ל"השלמה" של התמונה הכוללת.
+
+---
+
+### סיכום השלבים
+
+| # | שם שלב | key | תיאור |
+|---|--------|-----|-------|
+| 1 | חזון ייעודי | vision | מה התמונה הגדולה של החיים שלך? |
+| 2 | ערכי ליבה | values | מה הערכים המנחים אותך? |
+| 3 | משמעות | meaning | מה נותן לך תחושת משמעות? |
+| 4 | שליחות | mission | מה השליחות שלך בעולם? |
+| 5 | חוזקות | strengths | מה הכוחות הייחודיים שלך? |
+| 6 | תרומה | contribution | איך תתרום לאחרים? |
+| 7 | מורשת | legacy | מה תשאיר אחריך? |
+| 8 | תוכנית פעולה | action_plan | צעדים ראשונים |
