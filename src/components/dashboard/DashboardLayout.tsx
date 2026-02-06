@@ -100,7 +100,7 @@ const DesktopLayoutContent = ({
         />
 
         {/* Main Content - pt-14 base padding to clear top notification icons */}
-        <main className="flex-1 min-w-0 min-h-0 overflow-hidden p-4 lg:p-6 !pt-14 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto p-4 lg:p-6 !pt-14 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
           {children}
         </main>
       </div>
@@ -225,8 +225,8 @@ const DashboardLayout = ({
           <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
           {/* Main Content - edge-to-edge on mobile for stretched feel */}
-          <main className="flex-1 flex flex-col px-0 min-h-0 overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-hidden flex flex-col px-3 pt-3 bg-sidebar backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
+          <main className="flex-1 flex flex-col px-0 min-h-0 overflow-y-auto">
+            <div className="flex-1 min-h-0 flex flex-col px-3 pt-3 pb-32 bg-sidebar backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
               {children}
             </div>
           </main>
