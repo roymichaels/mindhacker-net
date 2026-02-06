@@ -44,6 +44,7 @@ const AuroraAccountDropdown = ({
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
@@ -92,6 +93,7 @@ const AuroraAccountDropdown = ({
   };
 
   const handleSettingsClick = () => {
+    setDropdownOpen(false);
     if (onOpenSettings) {
       onOpenSettings();
     }
@@ -101,7 +103,7 @@ const AuroraAccountDropdown = ({
     <>
       <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
       
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -150,7 +152,10 @@ const AuroraAccountDropdown = ({
           {/* Unified Orb + HUD as one gamified unit */}
           <div 
             className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
-            onClick={() => setProfileModalOpen(true)}
+            onClick={() => {
+              setDropdownOpen(false);
+              setProfileModalOpen(true);
+            }}
           >
             {/* Gamified background */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-muted to-accent/10 dark:from-primary/20 dark:via-card dark:to-accent/20" />
