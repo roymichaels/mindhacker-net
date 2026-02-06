@@ -1,140 +1,235 @@
 
-## What’s happening (root causes)
 
-Based on the current code and your screenshot (showing **elapsed 11:43** but **total 0:02**), there are two separate failures that combine into the “karaoke finishes instantly + TTS only says 0400” behavior:
+## תוכנית לתיקון הקראוקי שמתחיל לפני הקול והסשן שמסתיים מהר מדי
 
-1) **Bad / corrupted audio duration is being treated as truth**
-- In `HypnosisModal.tsx`, karaoke progress (`audioProgress`) is computed as:
-  - `audioProgress = currentTime / audioDuration`
-- If `audioDuration` is **wrongly tiny** (like ~2 seconds), then `currentTime / audioDuration` becomes huge almost immediately, and karaoke highlights the entire script in ~1 second.
+### סיכום הבעיות שזוהו
 
-2) **Cached audio can be “valid enough to play” but still wrong**
-- The flow tries cached audio first (`cachedUrl → signedUrl → playAudioUrl()`).
-- If the cached MP3 is malformed/too short (or is not actually an MP3 even if it has the extension), the browser may still “play” it and report a tiny duration, and it ends quickly without triggering an error.
-- That produces:
-  - “session completes quickly”
-  - karaoke jumps to the end
-  - you hear only the first thing that exists in that short audio (in your case it’s “0400”)
-
-3) **WPM mismatch still exists in the modal**
-- `src/services/voice.ts` was adjusted to 85 WPM, but `HypnosisModal.tsx` still calculates `calculatedDuration` using **130 WPM** in `playScript()`.
-- This isn’t the main cause of “1-second over 100 words”, but it does cause instability and inconsistent timing.
-
-4) “0400” is very likely a time token in the text or cached audio
-- Even if the visible script looks fine, it only takes a hidden token like `04:00` (or a cached audio generated from a script version that included it) to produce the voice “0400”.
-- The more important issue is that audio ends after that, which points strongly to “cached audio is short/invalid”, not just pronunciation.
+בהתבסס על החקירה, זיהיתי שלוש בעיות נפרדות שגורמות להתנהגות הנוכחית:
 
 ---
 
-## The fix (high-confidence approach)
+### בעיה 1: הקראוקי מתחיל לפני שהקול מתחיל
 
-### A) Make karaoke progress robust (never allow bad duration to blow it up)
-In `src/components/dashboard/HypnosisModal.tsx`:
+**סיבת השורש:**
+ב-`synthesizeAndPlay()`, כש-ElevenLabs נכשל (402 quota exceeded), המערכת עוברת ל-Browser TTS. אבל יש בעיה בסדר הפעולות:
 
-1. **Clamp** karaoke progress:
-   - `setAudioProgress(clamp(currentTime / audioDuration, 0, 1))`
+1. `synthesizeSpeech()` מחזיר URL מיוחד: `browser-tts://...`
+2. `playAudioUrl()` מזהה את זה וקוראת ל-`speakWithBrowser()`
+3. `speakWithBrowser()` טוען קולות (voices) - זה יכול לקחת זמן
+4. **אבל** ב-`speakWithBrowser()`, ה-callback `onStart` נקראת רק כש-`utterance.onstart` נורה
+5. עד שזה קורה, הקראוקי כבר מתחיל להתקדם כי `voiceStarted` כבר הוגדר כ-`true`
 
-2. **Ignore suspicious duration updates**
-   Add guards so we only accept `audioDuration` if it’s sane:
-   - must be `Number.isFinite(audioDuration)`
-   - must be `audioDuration >= 30` seconds (or another threshold like 20s)
-   - must not be wildly smaller than the word-count estimate (e.g. `< estimated * 0.3`)
-   - must not be wildly larger (e.g. `> estimated * 2.5`)
-
-3. **Do not overwrite `estimatedDuration` from audioDuration unless it passes the sanity check**
-   - Right now, `handleTimeUpdate()` can replace `estimatedDuration` with whatever it gets.
-   - We’ll only update it when the duration looks real.
-
-Result: even if the audio element reports `0:02`, karaoke won’t instantly finish.
+**הבעיה הספציפית:**
+ב-`playAudioUrl` עבור browser-tts, אין הבחנה בין "התחלנו לדבר" לבין "התחלנו את התהליך". ה-`onStart` נקראת מ-`speakWithBrowser` רק כשהדיבור עצמו מתחיל, אבל אם יש delay בטעינת הקולות, הקראוקי עדיין יכול להתקדם.
 
 ---
 
-### B) Detect and bypass bad cached audio automatically
-Still in `HypnosisModal.tsx`, when using cached audio:
+### בעיה 2: הקול אומר "voing dash" ונעצר
 
-1. Call `playAudioUrl(signedUrl, ...)` but track the first “real duration” we see.
-2. If within the first ~1–2 seconds we observe:
-   - `duration < 30s` (or `< estimatedDuration * 0.3`)
-   - OR progress jumps near 1 immediately
-   - OR playback ends too early
-   Then:
-   - Stop playback
-   - Immediately fallback to `synthesizeAndPlay()` (browser TTS or provider)
-   - Optionally mark the cached audio as “bad” for this session so we don’t retry it again.
+**סיבת השורש:**
+Browser TTS בעברית לא תמיד עובד טוב. הקוד הנוכחי מחפש `hebrewVoice`:
 
-This prevents old broken cache entries from poisoning the experience.
+```typescript
+const hebrewVoice = voices.find(v => v.lang.startsWith('he'));
+```
 
----
+אם לא נמצא קול עברי (או שהקול לא תומך בעברית טוב), הדפדפן עלול:
+- להקריא את התווים בצורה מוזרה
+- לקרוס באמצע המשפט הראשון
+- לסיים אחרי chunk אחד בלבד
 
-### C) Align WPM everywhere to the hypnosis pace (85 WPM)
-In `HypnosisModal.tsx`:
+**הבעיה הנוספת:**
+גם אם יש שגיאה ב-chunk אחד, הקוד עובר ל-chunk הבא:
 
-- Change:
-  - `calculatedDuration = (wordCount / 130) * 60`
-  to:
-  - `calculatedDuration = (wordCount / 85) * 60`
+```typescript
+utterance.onerror = (event) => {
+  currentChunk++;
+  if (currentChunk < chunks.length) {
+    speakChunk();
+  } else {
+    // מסיים את הסשן!
+    options.onEnd?.();
+  }
+};
+```
 
-Also fix muted simulation:
-- Change `wordsPerMinute = 130` to `85` so muted mode timing matches.
-
----
-
-### D) Sanitize the script before sending to TTS (prevents “04:00” being spoken)
-Before calling `synthesizeSpeech(text, ...)`, normalize the script:
-
-- Remove leading timecodes and inline time markers:
-  - beginning of script: `^\s*\d{1,2}:\d{2}\s*`
-  - bracketed: `[\(\[]?\d{1,2}:\d{2}[\)\]]?`
-- Remove “metadata-ish” lines if any slip in (defensive):
-  - lines starting with `CURRENT TIME:` / `DAY:` / etc. (English/Hebrew variants if needed)
-
-This is a defensive fix; even if the current visible script looks OK, it ensures time tokens don’t cause weird speech output.
+אם כל ה-chunks נכשלים מהר, הסשן מסתיים תוך שניות.
 
 ---
 
-### E) Make browser TTS progress calculation independent of chunk boundaries (optional but recommended)
-In `src/services/voice.ts` (`speakWithBrowser`):
+### בעיה 3: הסשן מסתיים אחרי דקה בערך
 
-Current behavior uses a chunk-based interval that starts once and does not restart cleanly per chunk, which can cause inaccurate progress behavior in long texts.
+**סיבת השורש:**
+כשיש בעיות עם Browser TTS:
+1. ה-chunks נכשלים אחד אחרי השני
+2. הקוד עובר מ-chunk ל-chunk במהירות
+3. כש-`currentChunk >= chunks.length`, נקרא `onEnd()`
+4. זה מפעיל את `handleSessionComplete()`
 
-We’ll adjust it to:
-- Track an overall `sessionStartTime`
-- Compute progress by overall elapsed vs overall estimated total duration
-- Still speak by chunks, but progress is time-based globally, not per chunk
-
-This makes karaoke progress stable and predictable when using browser TTS.
-
----
-
-## How we’ll verify (fast, concrete checks)
-
-1. Open hypnosis modal and start a session.
-2. Confirm the **total duration** shown at bottom-right is no longer “0:02”.
-3. Confirm karaoke does not race ahead (100+ words should take well over a minute at hypnosis pace).
-4. Force cached audio path:
-   - If a cached file is bad, we should see fallback to synthesis automatically (and not “complete in seconds”).
-5. Confirm “0400” no longer happens:
-   - If it still happens, we’ll log the *first 200 characters* of the exact text sent to TTS (in dev console) to confirm whether `04:00` exists in the payload.
+גם אם רק חלק קטן מהטקסט הוקרא (או בכלל לא), הסשן מסומן כ"הושלם".
 
 ---
 
-## Files we will change
+## התיקונים
 
-1. `src/components/dashboard/HypnosisModal.tsx`
-   - Fix WPM (130 → 85)
-   - Add duration sanity checks
-   - Clamp karaoke progress
-   - Auto-bypass bad cached audio
-   - Sanitize text before TTS
+### תיקון A: לוודא ש-`voiceStarted` מוגדר רק כשהקול באמת מתחיל
 
-2. `src/services/voice.ts`
-   - Improve browser TTS progress algorithm to be global/time-based (more reliable)
-   - (Keep existing 85 WPM baseline)
+**קובץ:** `src/services/voice.ts`
+
+שינויים ב-`speakWithBrowser()`:
+- להוסיף flag `actualSpeechStarted` נפרד מ-`hasStarted`
+- לקרוא ל-`onStart` רק כש-utterance באמת מתחיל לדבר (לא רק כשהתהליך התחיל)
+- **הכי חשוב:** לא להתחיל את ה-progress interval עד שהדיבור באמת התחיל
+
+**קובץ:** `src/components/dashboard/HypnosisModal.tsx`
+
+שינויים:
+- להבטיח שהקראוקי לא מתקדם עד ש-`voiceStarted === true`
+- הקראוקי צריך להתקדם רק על בסיס `onTimeUpdate`, לא על בסיס זמן עצמאי
 
 ---
 
-## Notes / expected outcome
+### תיקון B: טיפול טוב יותר בכשלון Browser TTS
 
-- Even if ElevenLabs quota is exceeded and we’re using Browser TTS, karaoke will remain smooth and correctly paced.
-- Even if there is a corrupted cached MP3 in storage, the app will detect it and fall back automatically instead of “highlighting everything instantly”.
+**קובץ:** `src/services/voice.ts`
+
+שינויים ב-`speakWithBrowser()`:
+- להוסיף counter לשגיאות רצופות
+- אם יותר מ-3 chunks רצופים נכשלים, לעצור ולקרוא ל-`onError` במקום `onEnd`
+- להוסיף timeout: אם עברו 10 שניות ושום דבר לא התחיל לדבר, לדווח על שגיאה
+
+**קובץ:** `src/components/dashboard/HypnosisModal.tsx`
+
+שינויים ב-`synthesizeAndPlay()`:
+- כשיש `onError` מ-Browser TTS, להציג הודעה למשתמש שהקול לא עובד
+- לא לסיים את הסשן אוטומטית - לתת למשתמש אפשרות להמשיך עם מצב מושתק
+
+---
+
+### תיקון C: להוסיף מצב "Muted Fallback" אוטומטי
+
+אם Browser TTS נכשל, במקום לסגור את הסשן, המערכת תעבור אוטומטית למצב מושתק עם:
+- הודעת toast שמסבירה שהקול לא זמין
+- הקראוקי ממשיך להתקדם בקצב היפנוזה (85 WPM)
+- המשתמש יכול לקרוא את הטקסט בעצמו
+
+---
+
+## פרטים טכניים של השינויים
+
+### 1. `src/services/voice.ts` - שיפור `speakWithBrowser()`
+
+```typescript
+// הוספת משתנים חדשים
+let consecutiveErrors = 0;
+const MAX_CONSECUTIVE_ERRORS = 3;
+let speechActuallyStarted = false;
+let speechStartTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// Timeout לגילוי אם הדיבור לא התחיל
+speechStartTimeout = setTimeout(() => {
+  if (!speechActuallyStarted && !cancelled) {
+    console.warn('Browser TTS failed to start within timeout');
+    options.onError?.(new Error('Speech synthesis failed to start'));
+  }
+}, 10000);
+
+// בתוך speakChunk()
+utterance.onstart = () => {
+  if (!speechActuallyStarted) {
+    speechActuallyStarted = true;
+    if (speechStartTimeout) clearTimeout(speechStartTimeout);
+    // רק עכשיו קוראים ל-onStart
+    options.onStart?.();
+  }
+  consecutiveErrors = 0; // Reset on success
+};
+
+utterance.onerror = (event) => {
+  consecutiveErrors++;
+  if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+    // יותר מדי שגיאות רצופות - Browser TTS לא עובד
+    options.onError?.(new Error('Too many consecutive speech errors'));
+    return;
+  }
+  // המשך לנסות את ה-chunk הבא
+  currentChunk++;
+  speakChunk();
+};
+```
+
+### 2. `src/components/dashboard/HypnosisModal.tsx` - טיפול בכשלון TTS
+
+```typescript
+// בתוך synthesizeAndPlay(), ב-onError:
+onError: (err) => {
+  // ...existing code...
+  
+  // במקום לסגור, לעבור למצב מושתק
+  console.warn('Voice playback failed, switching to muted mode');
+  setIsMuted(true);
+  
+  // להציג הודעה
+  toast({
+    title: language === 'he' ? 'הקול לא זמין' : 'Voice unavailable',
+    description: language === 'he' 
+      ? 'ממשיכים במצב קריאה. עקוב אחרי הטקסט.' 
+      : 'Continuing in reading mode. Follow the text.',
+  });
+  
+  // להתחיל מצב מושתק מאותה נקודה
+  startMutedMode(text, onStart, onTimeUpdate, onEnd, currentSessionId);
+}
+```
+
+### 3. הוספת פונקציה `startMutedMode`
+
+```typescript
+const startMutedMode = (
+  text: string,
+  onStart: () => void,
+  onTimeUpdate: (currentTime: number, audioDuration: number) => void,
+  onEnd: () => void,
+  currentSessionId: number
+) => {
+  onStart(); // התחל מיד
+  
+  const wordsPerMinute = 85;
+  const words = text.split(/\s+/).length;
+  const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
+  
+  const startTime = Date.now();
+  const progressInterval = setInterval(() => {
+    if (sessionIdRef.current !== currentSessionId) {
+      clearInterval(progressInterval);
+      return;
+    }
+    
+    const elapsed = Date.now() - startTime;
+    onTimeUpdate(elapsed / 1000, readingTime / 1000);
+    
+    if (elapsed >= readingTime) {
+      clearInterval(progressInterval);
+      onEnd();
+    }
+  }, 100);
+};
+```
+
+---
+
+## סיכום השינויים
+
+| קובץ | שינוי |
+|------|-------|
+| `src/services/voice.ts` | הוספת timeout לגילוי כשלון, ספירת שגיאות רצופות, `onStart` רק כשדיבור באמת התחיל |
+| `src/components/dashboard/HypnosisModal.tsx` | fallback אוטומטי למצב מושתק, הודעות טובות יותר למשתמש |
+
+---
+
+## התוצאה הצפויה
+
+1. הקראוקי לא יתחיל עד שהקול באמת מתחיל לדבר
+2. אם Browser TTS נכשל, המשתמש יקבל הודעה והסשן ימשיך במצב קריאה
+3. הסשן לא יסתיים פתאום אחרי דקה - הוא ימשיך לפי משך הזמן המחושב
 
