@@ -14,6 +14,7 @@ import {
   TodaysHabitsCard,
   PlanProgressCard,
 } from './v2';
+import { DashboardBannerSlider } from './DashboardBannerSlider';
 
 interface UnifiedDashboardViewProps {
   className?: string;
@@ -59,6 +60,9 @@ export function UnifiedDashboardView({
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
+
+      {/* Zone 0: Auto-sliding in-game banners */}
+      <DashboardBannerSlider />
 
       {/* Zone 1: Next Action Banner - Priority-based single action */}
       <NextActionBanner

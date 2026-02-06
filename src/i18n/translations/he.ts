@@ -202,6 +202,18 @@ export const he = {
       items: "פריטים",
       week: "שבוע",
     },
+    banners: {
+      levelUpTitle: "שדרג את החיים שלך",
+      levelUpSubtitle: "כל פעולה מרוויחה XP — עלה רמה וגלה יכולות חדשות",
+      streakTitle: "בונוס רצף יומי",
+      streakSubtitle: "אל תשבור את הרצף! שמור על המומנטום היומי שלך",
+      potentialTitle: "שחרר את הפוטנציאל",
+      potentialSubtitle: "המסע שלך לגרסה הטובה ביותר שלך מתחיל כאן",
+      auroraTitle: "אורורה — מאמנת AI",
+      auroraSubtitle: "שוחח עם המאמנת האישית שלך בכל רגע",
+      transformTitle: "טרנספורמציה ב-90 יום",
+      transformSubtitle: "תוכנית מובנית שמשנה חיים — שבוע אחרי שבוע",
+    },
   },
   footer: {
     copyright: "© 2025 MindOS. כל הזכויות שמורות.",

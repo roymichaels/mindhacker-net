@@ -204,6 +204,18 @@ export const en: TranslationKeys = {
       items: "items",
       week: "Week",
     },
+    banners: {
+      levelUpTitle: "Level Up Your Life",
+      levelUpSubtitle: "Every action earns XP — level up and unlock new abilities",
+      streakTitle: "Daily Streak Bonus",
+      streakSubtitle: "Don't break the chain! Keep your daily momentum going",
+      potentialTitle: "Unlock Your Potential",
+      potentialSubtitle: "Your journey to the best version of yourself starts here",
+      auroraTitle: "Aurora AI Coach",
+      auroraSubtitle: "Chat with your personal coach anytime, anywhere",
+      transformTitle: "90-Day Transformation",
+      transformSubtitle: "A structured plan that changes lives — week by week",
+    },
   },
   footer: {
     copyright: "© 2025 MindOS. All rights reserved.",
