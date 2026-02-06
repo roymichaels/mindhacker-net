@@ -58,10 +58,9 @@ export const BugReportWidget = () => {
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className={cn(
               "mb-3 w-[340px] sm:w-[380px] rounded-2xl overflow-hidden",
-              "bg-background border border-border",
+              "bg-gray-50 dark:bg-gray-950 border border-border",
               "shadow-2xl shadow-black/20 dark:shadow-black/40",
               "flex flex-col",
-              // On mobile, take more height; on desktop, fixed
               "h-[min(480px,70svh)]"
             )}
           >
