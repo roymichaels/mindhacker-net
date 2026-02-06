@@ -4151,6 +4151,8 @@ export type Database = {
           practitioner_id: string
           rating: number
           review_text: string | null
+          reviewer_avatar_url: string | null
+          reviewer_name: string | null
           updated_at: string | null
           user_id: string
         }
@@ -4161,6 +4163,8 @@ export type Database = {
           practitioner_id: string
           rating: number
           review_text?: string | null
+          reviewer_avatar_url?: string | null
+          reviewer_name?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -4171,6 +4175,8 @@ export type Database = {
           practitioner_id?: string
           rating?: number
           review_text?: string | null
+          reviewer_avatar_url?: string | null
+          reviewer_name?: string | null
           updated_at?: string | null
           user_id?: string
         }

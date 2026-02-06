@@ -234,9 +234,9 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
       {isLoading ? (
         <Skeleton className="h-20 rounded-lg" />
       ) : bio ? (
-        <div className="bg-muted/30 rounded-xl p-4 border border-border/50">
+        <div className="bg-muted/30 rounded-xl p-4 border border-border/50 overflow-hidden">
           <h3 className="font-semibold text-sm mb-1.5">{t('practitionerLanding.aboutTitle')}</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words">{bio}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words" style={{ overflowWrap: 'anywhere' }}>{bio}</p>
         </div>
       ) : null}
 
