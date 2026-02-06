@@ -156,7 +156,7 @@ const DashboardSidebar = ({
       {!isMobile && !isCollapsed && (
         <div className="flex items-center justify-between px-3 py-4 mb-2 border-b border-border">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white" size={40} />
+            <AuroraOrbIcon className="w-[60px] h-[60px] text-black dark:text-white" size={60} />
             <span className="font-bold text-base text-foreground">
               {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
             </span>
@@ -175,7 +175,7 @@ const DashboardSidebar = ({
 
       {/* Navigation Section */}
       <div className={cn("mb-4 w-full pb-2", isMobile ? "px-0" : "")}>
-        <div className="space-y-1.5 w-full overflow-hidden">
+        <div className="space-y-1.5 w-full">
           {navItems.map((item) => {
             const s = highlightStyles[item.highlight];
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
@@ -223,7 +223,7 @@ const DashboardSidebar = ({
           {/* Mobile: Logo and Brand Name Header - Full width */}
           <div className="flex items-center gap-3 px-4 py-4 border-b border-border w-full">
             <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-1" onClick={onNavigate}>
-              <AuroraOrbIcon className="w-10 h-10 text-black dark:text-white flex-shrink-0" size={40} />
+              <AuroraOrbIcon className="w-[60px] h-[60px] text-black dark:text-white flex-shrink-0" size={60} />
               <span className="font-bold text-lg text-foreground">
                 {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
               </span>
