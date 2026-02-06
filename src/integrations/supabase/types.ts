@@ -2656,6 +2656,60 @@ export type Database = {
           },
         ]
       }
+      hobbies_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_discovery: Json | null
+          step_2_passion: Json | null
+          step_3_time: Json | null
+          step_4_creativity: Json | null
+          step_5_social: Json | null
+          step_6_growth: Json | null
+          step_7_balance: Json | null
+          step_8_action_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_discovery?: Json | null
+          step_2_passion?: Json | null
+          step_3_time?: Json | null
+          step_4_creativity?: Json | null
+          step_5_social?: Json | null
+          step_6_growth?: Json | null
+          step_7_balance?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_discovery?: Json | null
+          step_2_passion?: Json | null
+          step_3_time?: Json | null
+          step_4_creativity?: Json | null
+          step_5_social?: Json | null
+          step_6_growth?: Json | null
+          step_7_balance?: Json | null
+          step_8_action_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       homepage_sections: {
         Row: {
           content_en: string | null

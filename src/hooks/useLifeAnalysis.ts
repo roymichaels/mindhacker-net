@@ -71,6 +71,17 @@ const FOCUS_AREA_MAPPING: Record<string, string> = {
   meaning: 'purpose',
   impact: 'purpose',
   contribution: 'purpose',
+  
+  // Hobbies-related
+  hobbies: 'hobbies',
+  hobby: 'hobbies',
+  leisure: 'hobbies',
+  recreation: 'hobbies',
+  creative: 'hobbies',
+  creativity: 'hobbies',
+  games: 'hobbies',
+  sports: 'hobbies',
+  arts: 'hobbies',
 };
 
 export function useLifeAnalysis() {
@@ -91,12 +102,13 @@ export function useLifeAnalysis() {
         .maybeSingle();
 
       // Fetch journey completion status
-      const [businessJourney, healthJourney, relationshipsJourney, financeJourney, learningJourney] = await Promise.all([
+      const [businessJourney, healthJourney, relationshipsJourney, financeJourney, learningJourney, hobbiesJourney] = await Promise.all([
         supabase.from('business_journeys').select('journey_complete').eq('user_id', user.id).maybeSingle(),
         supabase.from('health_journeys').select('is_completed').eq('user_id', user.id).maybeSingle(),
         supabase.from('relationships_journeys').select('journey_complete').eq('user_id', user.id).maybeSingle(),
         supabase.from('finance_journeys').select('journey_complete').eq('user_id', user.id).maybeSingle(),
         supabase.from('learning_journeys').select('journey_complete').eq('user_id', user.id).maybeSingle(),
+        supabase.from('hobbies_journeys').select('journey_complete').eq('user_id', user.id).maybeSingle(),
       ]);
 
       // Initialize scores
@@ -138,6 +150,10 @@ export function useLifeAnalysis() {
       }
       if (learningJourney.data?.journey_complete) {
         scores.learning += 25;
+        hasAnyData = true;
+      }
+      if (hobbiesJourney.data?.journey_complete) {
+        scores.hobbies += 25;
         hasAnyData = true;
       }
 

@@ -1,7 +1,7 @@
 /**
  * Theme configurations for all journey types
  */
-import { Sparkles, Briefcase, Heart, Users, Wallet, GraduationCap } from 'lucide-react';
+import { Sparkles, Briefcase, Heart, Users, Wallet, GraduationCap, Palette } from 'lucide-react';
 import type { JourneyTheme, JourneyThemeConfig } from './types';
 
 export const JOURNEY_THEMES: Record<JourneyTheme, JourneyThemeConfig> = {
@@ -88,6 +88,20 @@ export const JOURNEY_THEMES: Record<JourneyTheme, JourneyThemeConfig> = {
     },
     icon: GraduationCap,
     title: { he: 'מסע הלמידה', en: 'Learning Journey' },
+  },
+  hobbies: {
+    id: 'hobbies',
+    colors: {
+      primary: 'teal-500',
+      secondary: 'cyan-400',
+      background: 'from-teal-950 to-gray-900',
+      border: 'border-teal-800/30',
+      text: 'text-teal-400',
+      glow: 'shadow-teal-500/30',
+      progressBg: 'bg-teal-500/10',
+    },
+    icon: Palette,
+    title: { he: 'מסע התחביבים', en: 'Hobbies Journey' },
   },
 };
 
