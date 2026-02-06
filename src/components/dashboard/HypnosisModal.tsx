@@ -438,16 +438,19 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
     if (user?.id) {
       try {
+        // Ensure duration is an integer (database expects integer type)
+        const durationSecondsInt = Math.round(estimatedDuration);
+        
         await saveSession(user.id, {
           egoState: 'personalized',
-          durationSeconds: estimatedDuration,
+          durationSeconds: durationSecondsInt,
           experienceGained: xpEarned,
         });
         
         await awardXp(user.id, xpEarned, 'hypnosis');
         recordSession?.({
           egoState: 'personalized',
-          durationSeconds: estimatedDuration,
+          durationSeconds: durationSecondsInt,
           experienceGained: xpEarned,
         });
       } catch (error) {
