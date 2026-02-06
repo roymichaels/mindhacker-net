@@ -1,15 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
+import { jsonResponse, badRequestResponse, errorResponse } from "../_shared/responses.ts";
+import { logError } from "../_shared/errorHandling.ts";
 
 serve(async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (isCorsPreFlight(req)) {
+    return handleCorsPreFlight();
   }
 
   try {
@@ -20,13 +17,10 @@ serve(async (req: Request): Promise<Response> => {
     const { token } = await req.json();
 
     if (!token) {
-      return new Response(
-        JSON.stringify({ valid: false, error: "Missing token" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ valid: false, error: "Missing token" }, 400);
     }
 
-    console.log(`Validating consciousness leap token`);
+    console.log("[validate-token] Validating consciousness leap token");
 
     // Find lead by application token
     const { data: lead, error } = await supabase
@@ -36,16 +30,13 @@ serve(async (req: Request): Promise<Response> => {
       .maybeSingle();
 
     if (error) {
-      console.error("Error finding lead:", error);
+      logError("validate-consciousness-leap-token", error);
       throw error;
     }
 
     if (!lead) {
-      console.log("Token not found");
-      return new Response(
-        JSON.stringify({ valid: false, error: "Token not found" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      console.log("[validate-token] Token not found");
+      return jsonResponse({ valid: false, error: "Token not found" });
     }
 
     // Check if application already exists for this lead
@@ -56,29 +47,20 @@ serve(async (req: Request): Promise<Response> => {
       .maybeSingle();
 
     if (existingApplication) {
-      console.log("Application already submitted for this token");
-      return new Response(
-        JSON.stringify({ valid: false, error: "Application already submitted" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      console.log("[validate-token] Application already submitted for this token");
+      return jsonResponse({ valid: false, error: "Application already submitted" });
     }
 
-    console.log(`Token valid for lead: ${lead.id}`);
+    console.log(`[validate-token] Token valid for lead: ${lead.id}`);
 
-    return new Response(
-      JSON.stringify({ 
-        valid: true, 
-        leadId: lead.id,
-        name: lead.name
-      }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    return jsonResponse({ 
+      valid: true, 
+      leadId: lead.id,
+      name: lead.name
+    });
 
   } catch (error: any) {
-    console.error("Error in validate-consciousness-leap-token:", error);
-    return new Response(
-      JSON.stringify({ valid: false, error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    logError("validate-consciousness-leap-token", error);
+    return jsonResponse({ valid: false, error: error.message }, 500);
   }
 });

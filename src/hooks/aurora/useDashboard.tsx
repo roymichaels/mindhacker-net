@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { debug } from '@/lib/debug';
 
 interface IdentityElement {
   id: string;
@@ -36,17 +38,19 @@ export const useDashboard = () => {
 
   // Identity Elements
   const { data: identityElements = [], refetch: refetchIdentity } = useQuery({
-    queryKey: ['aurora-identity-elements', user?.id],
+    queryKey: QUERY_KEYS.aurora.identityElements(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
         .from('aurora_identity_elements')
         .select('*')
         .eq('user_id', user.id)
-        // Ensure newest identity title/job is preferred when multiple exist
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useDashboard] Identity elements fetch error:', error);
+        throw error;
+      }
       return data as IdentityElement[];
     },
     enabled: !!user?.id,
@@ -54,7 +58,7 @@ export const useDashboard = () => {
 
   // Life Visions
   const { data: lifeVisions = [], refetch: refetchVisions } = useQuery({
-    queryKey: ['aurora-life-visions', user?.id],
+    queryKey: QUERY_KEYS.aurora.lifeVisions(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -62,7 +66,10 @@ export const useDashboard = () => {
         .select('*')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useDashboard] Life visions fetch error:', error);
+        throw error;
+      }
       return data as LifeVision[];
     },
     enabled: !!user?.id,
@@ -70,7 +77,7 @@ export const useDashboard = () => {
 
   // Commitments
   const { data: commitments = [], refetch: refetchCommitments } = useQuery({
-    queryKey: ['aurora-commitments', user?.id],
+    queryKey: QUERY_KEYS.aurora.commitments(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -78,7 +85,10 @@ export const useDashboard = () => {
         .select('*')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useDashboard] Commitments fetch error:', error);
+        throw error;
+      }
       return data as Commitment[];
     },
     enabled: !!user?.id,

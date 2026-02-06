@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { debug } from '@/lib/debug';
 
 interface LifeDirection {
   id: string;
@@ -54,7 +56,7 @@ export const useLifeModel = () => {
 
   // Life Direction
   const { data: lifeDirection, refetch: refetchDirection } = useQuery({
-    queryKey: ['aurora-life-direction', user?.id],
+    queryKey: QUERY_KEYS.aurora.lifeDirection(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
@@ -65,7 +67,10 @@ export const useLifeModel = () => {
         .limit(1)
         .single();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        debug.warn('[useLifeModel] Life direction fetch error:', error);
+        throw error;
+      }
       return data as LifeDirection | null;
     },
     enabled: !!user?.id,
@@ -73,7 +78,7 @@ export const useLifeModel = () => {
 
   // Energy Patterns
   const { data: energyPatterns = [], refetch: refetchEnergy } = useQuery({
-    queryKey: ['aurora-energy-patterns', user?.id],
+    queryKey: QUERY_KEYS.aurora.energyPatterns(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -81,7 +86,10 @@ export const useLifeModel = () => {
         .select('*')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useLifeModel] Energy patterns fetch error:', error);
+        throw error;
+      }
       return data as EnergyPattern[];
     },
     enabled: !!user?.id,
@@ -89,7 +97,7 @@ export const useLifeModel = () => {
 
   // Behavioral Patterns
   const { data: behavioralPatterns = [], refetch: refetchBehavioral } = useQuery({
-    queryKey: ['aurora-behavioral-patterns', user?.id],
+    queryKey: QUERY_KEYS.aurora.behavioralPatterns(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -97,7 +105,10 @@ export const useLifeModel = () => {
         .select('*')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useLifeModel] Behavioral patterns fetch error:', error);
+        throw error;
+      }
       return data as BehavioralPattern[];
     },
     enabled: !!user?.id,
@@ -105,7 +116,7 @@ export const useLifeModel = () => {
 
   // Focus Plans
   const { data: focusPlans = [], refetch: refetchFocus } = useQuery({
-    queryKey: ['aurora-focus-plans', user?.id],
+    queryKey: QUERY_KEYS.aurora.focusPlans(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -114,7 +125,10 @@ export const useLifeModel = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useLifeModel] Focus plans fetch error:', error);
+        throw error;
+      }
       return data as FocusPlan[];
     },
     enabled: !!user?.id,
@@ -122,7 +136,7 @@ export const useLifeModel = () => {
 
   // Daily Minimums
   const { data: dailyMinimums = [], refetch: refetchMinimums } = useQuery({
-    queryKey: ['aurora-daily-minimums', user?.id],
+    queryKey: QUERY_KEYS.aurora.dailyMinimums(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
@@ -131,7 +145,10 @@ export const useLifeModel = () => {
         .eq('user_id', user.id)
         .eq('is_active', true);
       
-      if (error) throw error;
+      if (error) {
+        debug.warn('[useLifeModel] Daily minimums fetch error:', error);
+        throw error;
+      }
       return data as DailyMinimum[];
     },
     enabled: !!user?.id,

@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { debug } from '@/lib/debug';
 
 interface OnboardingProgress {
   id: string;
@@ -17,7 +19,7 @@ export const useOnboardingProgress = () => {
   const { user } = useAuth();
 
   const { data: onboarding, refetch } = useQuery({
-    queryKey: ['aurora-onboarding-progress', user?.id],
+    queryKey: QUERY_KEYS.aurora.onboardingProgress(user?.id ?? ''),
     queryFn: async () => {
       if (!user?.id) return null;
       
@@ -27,7 +29,10 @@ export const useOnboardingProgress = () => {
         .eq('user_id', user.id)
         .single();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        debug.warn('[useOnboardingProgress] Fetch error:', error);
+        throw error;
+      }
       
       // If no record exists, create one
       if (!data) {
@@ -43,7 +48,10 @@ export const useOnboardingProgress = () => {
           .select()
           .single();
         
-        if (insertError) throw insertError;
+        if (insertError) {
+          debug.warn('[useOnboardingProgress] Insert error:', insertError);
+          throw insertError;
+        }
         return newData as OnboardingProgress;
       }
       

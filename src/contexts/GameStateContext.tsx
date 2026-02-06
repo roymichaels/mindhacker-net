@@ -6,6 +6,8 @@ import {
   ACHIEVEMENTS, 
   type Achievement 
 } from '@/lib/achievements';
+import { debug } from '@/lib/debug';
+import { showLevelUp, showTokensEarned } from '@/lib/feedback';
 
 export interface UserGameState {
   level: number;
@@ -133,7 +135,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       }
 
     } catch (err) {
-      console.error('Error loading game state:', err);
+      debug.warn('[GameState] Error loading game state:', err);
       setError('Failed to load game state');
     } finally {
       setLoading(false);
@@ -179,12 +181,13 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
 
       // Show level up toast if applicable
       if (result.levels_gained > 0) {
-        toast.success(`🎉 Level Up! You're now level ${result.new_level}`, {
-          description: `You earned ${result.tokens_awarded} bonus tokens!`,
-        });
+        showLevelUp(result.new_level);
+        if (result.tokens_awarded > 0) {
+          showTokensEarned(result.tokens_awarded);
+        }
       }
     } catch (err) {
-      console.error('Error adding experience:', err);
+      debug.warn('[GameState] Error adding experience:', err);
     }
   }, [user?.id, gameState]);
 
@@ -206,7 +209,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       setGameState(prev => prev ? { ...prev, tokens: prev.tokens - amount } : null);
       return true;
     } catch (err) {
-      console.error('Error spending tokens:', err);
+      debug.warn('[GameState] Error spending tokens:', err);
       return false;
     }
   }, [user?.id, gameState]);
@@ -224,9 +227,9 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       if (error) throw error;
 
       setGameState(prev => prev ? { ...prev, tokens: prev.tokens + amount } : null);
-      toast.success(`+${amount} tokens!`, { icon: '🪙' });
+      showTokensEarned(amount);
     } catch (err) {
-      console.error('Error adding tokens:', err);
+      debug.warn('[GameState] Error adding tokens:', err);
     }
   }, [user?.id, gameState]);
 
@@ -244,7 +247,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
 
       setGameState(prev => prev ? { ...prev, activeEgoState: egoState } : null);
     } catch (err) {
-      console.error('Error setting ego state:', err);
+      debug.warn('[GameState] Error setting ego state:', err);
     }
   }, [user?.id]);
 
@@ -305,7 +308,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
             });
           }
         } catch (err) {
-          console.error('Error unlocking achievement:', err);
+          debug.warn('[GameState] Error unlocking achievement:', err);
         }
       }
     }
@@ -350,7 +353,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
         icon: '✨',
       });
     } catch (err) {
-      console.error('Error recording session:', err);
+      debug.warn('[GameState] Error recording session:', err);
     }
   }, [user?.id, refreshGameState, checkAndAwardAchievements]);
 

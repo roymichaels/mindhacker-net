@@ -1,16 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
+import { jsonResponse, unauthorizedResponse, forbiddenResponse, badRequestResponse, errorResponse } from "../_shared/responses.ts";
+import { logError, safeParseJson } from "../_shared/errorHandling.ts";
 
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  if (isCorsPreFlight(req)) {
+    return handleCorsPreFlight();
   }
 
   try {
@@ -28,10 +25,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return unauthorizedResponse();
     }
 
     // Check if user has admin role
@@ -43,10 +37,7 @@ serve(async (req) => {
       .single();
 
     if (!roleData) {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden - Admin access required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return forbiddenResponse('Admin access required');
     }
 
     // Get the user ID to fetch from request body with validation
@@ -54,25 +45,18 @@ serve(async (req) => {
       userId: z.string().uuid('Invalid user ID format')
     });
 
-    let body;
-    try {
-      body = await req.json();
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const { data: body, error: parseError } = await safeParseJson<{ userId: string }>(req);
+    
+    if (parseError) {
+      return badRequestResponse(parseError);
     }
 
     const result = requestSchema.safeParse(body);
     if (!result.success) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid request data',
-          details: result.error.issues.map(issue => issue.message)
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ 
+        error: 'Invalid request data',
+        details: result.error.issues.map(issue => issue.message)
+      }, 400);
     }
 
     const { userId } = result.data;
@@ -87,23 +71,14 @@ serve(async (req) => {
     const { data: userData, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(userId);
 
     if (fetchError) {
-      console.error('Error fetching user:', fetchError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch user data' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logError('get-user-data', fetchError);
+      return errorResponse('Failed to fetch user data');
     }
 
-    return new Response(
-      JSON.stringify({ user: userData.user }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ user: userData.user });
 
   } catch (error) {
-    console.error('Edge function error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logError('get-user-data', error);
+    return errorResponse('Internal server error');
   }
 });
