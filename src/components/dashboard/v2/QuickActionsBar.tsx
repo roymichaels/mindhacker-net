@@ -58,7 +58,7 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
 
   return (
     <div 
-      className="grid grid-cols-5 gap-2"
+      className="flex gap-2 overflow-x-auto no-scrollbar"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {actions.map((action) => {
@@ -68,7 +68,7 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
             key={action.id}
             variant="ghost"
             className={cn(
-              "h-auto py-3 flex-col gap-1.5",
+              "h-auto py-3 flex-col gap-1.5 min-w-[70px] flex-1",
               "border border-border/50 rounded-xl",
               "transition-all duration-200",
               action.bgColor
