@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Users, Sparkles, X } from 'lucide-react';
+import { Search, Filter, Users, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +11,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
-import { usePractitioners } from '@/hooks/usePractitioners';
+import { usePractitioners, type Practitioner } from '@/hooks/usePractitioners';
 import PractitionerCard from './PractitionerCard';
+import PractitionerDetailView from './PractitionerDetailView';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -34,6 +35,7 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
   const { data: practitioners, isLoading } = usePractitioners();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
+  const [selectedPractitioner, setSelectedPractitioner] = useState<Practitioner | null>(null);
 
   const filteredPractitioners = practitioners?.filter((p) => {
     const matchesSearch =
@@ -44,8 +46,13 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
     return matchesSearch;
   });
 
+  const handleBack = () => setSelectedPractitioner(null);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(val) => {
+      if (!val) setSelectedPractitioner(null);
+      onOpenChange(val);
+    }}>
       <DialogContent
         className={cn(
           "max-w-3xl w-[95vw] max-h-[85vh] p-0 gap-0 overflow-hidden",
@@ -53,47 +60,52 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
         )}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        {/* Header */}
-        <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/50">
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="p-1.5 rounded-lg bg-amber-500/10">
-              <Sparkles className="h-4 w-4 text-amber-500" />
+        {/* Header - hide search/filters when viewing detail */}
+        {!selectedPractitioner && (
+          <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/50">
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <div className="p-1.5 rounded-lg bg-amber-500/10">
+                <Sparkles className="h-4 w-4 text-amber-500" />
+              </div>
+              {t('practitioners.directoryTitle')}
+            </DialogTitle>
+
+            <div className="relative mt-3">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={t('practitioners.searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="ps-10 h-10"
+              />
             </div>
-            {t('practitioners.directoryTitle')}
-          </DialogTitle>
 
-          {/* Search */}
-          <div className="relative mt-3">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={t('practitioners.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-10 h-10"
-            />
-          </div>
-
-          {/* Filters */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 no-scrollbar">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-            {SPECIALTIES.map((specialty) => (
-              <Badge
-                key={specialty.key}
-                variant={selectedSpecialty === specialty.key ? 'default' : 'outline'}
-                className="cursor-pointer whitespace-nowrap text-xs"
-                onClick={() => setSelectedSpecialty(specialty.key)}
-              >
-                {language === 'en' ? specialty.labelEn : specialty.labelHe}
-              </Badge>
-            ))}
-          </div>
-        </DialogHeader>
+            <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 no-scrollbar">
+              <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              {SPECIALTIES.map((specialty) => (
+                <Badge
+                  key={specialty.key}
+                  variant={selectedSpecialty === specialty.key ? 'default' : 'outline'}
+                  className="cursor-pointer whitespace-nowrap text-xs"
+                  onClick={() => setSelectedSpecialty(specialty.key)}
+                >
+                  {language === 'en' ? specialty.labelEn : specialty.labelHe}
+                </Badge>
+              ))}
+            </div>
+          </DialogHeader>
+        )}
 
         {/* Content */}
         <ScrollArea className="flex-1 max-h-[calc(85vh-180px)]">
           <div className="p-5">
-            {isLoading ? (
+            {selectedPractitioner ? (
+              <PractitionerDetailView
+                practitioner={selectedPractitioner}
+                onBack={handleBack}
+              />
+            ) : isLoading ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
                   <Skeleton key={i} className="h-36 rounded-lg" />
@@ -106,7 +118,11 @@ export function PractitionersModal({ open, onOpenChange }: PractitionersModalPro
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {filteredPractitioners.map((practitioner) => (
-                    <PractitionerCard key={practitioner.id} practitioner={practitioner} />
+                    <PractitionerCard
+                      key={practitioner.id}
+                      practitioner={practitioner}
+                      onSelect={setSelectedPractitioner}
+                    />
                   ))}
                 </div>
               </>
