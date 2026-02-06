@@ -1,14 +1,15 @@
-import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePractitioners } from '@/hooks/usePractitioners';
+import { usePractitionersModal } from '@/contexts/PractitionersModalContext';
 import PractitionerCard from './PractitionerCard';
 
 const FeaturedPractitioners = () => {
   const { t, isRTL } = useTranslation();
   const { data: practitioners, isLoading } = usePractitioners({ featured: true });
+  const { openPractitioners } = usePractitionersModal();
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
@@ -25,11 +26,9 @@ const FeaturedPractitioners = () => {
             <h2 className="text-3xl font-bold">{t('practitioners.featuredTitle')}</h2>
             <p className="text-muted-foreground mt-2">{t('practitioners.featuredSubtitle')}</p>
           </div>
-          <Button variant="outline" asChild className="hidden sm:flex">
-            <Link to="/practitioners">
-              {t('practitioners.viewAll')}
-              <ArrowIcon className="h-4 w-4 ms-2" />
-            </Link>
+          <Button variant="outline" className="hidden sm:flex" onClick={() => openPractitioners()}>
+            {t('practitioners.viewAll')}
+            <ArrowIcon className="h-4 w-4 ms-2" />
           </Button>
         </div>
 
@@ -43,7 +42,7 @@ const FeaturedPractitioners = () => {
         ) : practitioners && practitioners.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {practitioners.slice(0, 6).map((practitioner) => (
-              <PractitionerCard key={practitioner.id} practitioner={practitioner} />
+              <PractitionerCard key={practitioner.id} practitioner={practitioner} onSelect={() => openPractitioners(practitioner.id)} />
             ))}
           </div>
         ) : (
@@ -55,11 +54,9 @@ const FeaturedPractitioners = () => {
 
         {/* Mobile CTA */}
         <div className="mt-8 text-center sm:hidden">
-          <Button variant="outline" asChild>
-            <Link to="/practitioners">
-              {t('practitioners.viewAll')}
-              <ArrowIcon className="h-4 w-4 ms-2" />
-            </Link>
+          <Button variant="outline" onClick={() => openPractitioners()}>
+            {t('practitioners.viewAll')}
+            <ArrowIcon className="h-4 w-4 ms-2" />
           </Button>
         </div>
       </div>

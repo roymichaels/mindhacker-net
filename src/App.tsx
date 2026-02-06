@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PractitionersModalProvider } from "@/contexts/PractitionersModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
@@ -181,9 +182,10 @@ const App = () => (
       <ThemeProvider>
         <BackgroundEffect />
         <div className="relative z-10">
-          <AuthProvider>
-            <AuroraChatProvider>
-            <GameStateProvider>
+            <AuthProvider>
+              <PractitionersModalProvider>
+              <AuroraChatProvider>
+              <GameStateProvider>
               <LanguageProvider>
                 <TooltipProvider>
                   <Toaster />
@@ -690,6 +692,7 @@ const App = () => (
               </LanguageProvider>
             </GameStateProvider>
             </AuroraChatProvider>
+              </PractitionersModalProvider>
           </AuthProvider>
         </div>
       </ThemeProvider>

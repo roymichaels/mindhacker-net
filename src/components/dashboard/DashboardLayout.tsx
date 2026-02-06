@@ -16,16 +16,15 @@ import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { HypnosisModal } from './HypnosisModal';
 import { ProfileDrawer } from './ProfileDrawer';
-import { PractitionersModal } from '@/components/practitioners/PractitionersModal';
+import { usePractitionersModal } from '@/contexts/PractitionersModalContext';
+
 interface DashboardLayoutProps {
   children: ReactNode;
-  // Aurora-specific props for sidebar integration
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
 }
 
-// Separate component for desktop layout to access sidebar context
 interface DesktopLayoutContentProps {
   children: ReactNode;
   isRTL: boolean;
@@ -40,8 +39,6 @@ interface DesktopLayoutContentProps {
   setHypnosisOpen: (open: boolean) => void;
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
-  practitionersOpen: boolean;
-  setPractitionersOpen: (open: boolean) => void;
 }
 
 const DesktopLayoutContent = ({
@@ -58,24 +55,21 @@ const DesktopLayoutContent = ({
   setHypnosisOpen,
   profileOpen,
   setProfileOpen,
-  practitionersOpen,
-  setPractitionersOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
+  const { openPractitioners } = usePractitionersModal();
   const isExpanded = sidebar?.state === 'expanded';
-  
-  // Sidebar width: expanded = 16rem (w-64), collapsed = 3rem (w-12 for icons)
   const sidebarWidth = isExpanded ? '16rem' : '3rem';
 
   return (
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Fixed notification icons - always visible at top */}
+      {/* Fixed notification icons */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
         <Button
           variant="ghost"
           size="icon"
           className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-          onClick={() => setPractitionersOpen(true)}
+          onClick={() => openPractitioners()}
           title={language === 'he' ? 'מאמנים' : 'Coaches'}
         >
           <Users className="h-5 w-5" />
@@ -94,7 +88,6 @@ const DesktopLayoutContent = ({
       </div>
 
       <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
-        {/* Left Sidebar - Aurora style */}
         <DashboardSidebar 
           currentConversationId={currentConversationId}
           onNewChat={onNewChat}
@@ -103,13 +96,11 @@ const DesktopLayoutContent = ({
           onOpenProfile={() => setProfileOpen(true)}
         />
 
-        {/* Main Content - pt-14 base padding to clear top notification icons */}
         <main className="flex-1 min-w-0 min-h-0 overflow-y-auto p-4 lg:p-6 !pt-14 pb-32 flex flex-col bg-sidebar backdrop-blur-sm">
           {children}
         </main>
       </div>
 
-      {/* Global Chat Input - fixed at bottom, adjusts for sidebar */}
       <div 
         className="fixed bottom-0 right-0 z-40 transition-all duration-200 flex flex-col items-center"
         style={{ 
@@ -121,17 +112,9 @@ const DesktopLayoutContent = ({
         <GlobalChatInput />
       </div>
 
-      {/* Settings Modal */}
       <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-      
-      {/* Hypnosis Modal */}
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
-      
-      {/* Profile Drawer */}
       <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
-      
-      {/* Practitioners Modal */}
-      <PractitionersModal open={practitionersOpen} onOpenChange={setPractitionersOpen} />
     </div>
   );
 };
@@ -148,15 +131,15 @@ const DashboardLayout = ({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [practitionersOpen, setPractitionersOpen] = useState(false);
+  const { openPractitioners } = usePractitionersModal();
 
   const handleOpenSettings = () => {
-    setLeftSheetOpen(false); // Close sidebar sheet on mobile
+    setLeftSheetOpen(false);
     setSettingsOpen(true);
   };
 
   const handleOpenProfile = () => {
-    setLeftSheetOpen(false); // Close sidebar sheet on mobile
+    setLeftSheetOpen(false);
     setProfileOpen(true);
   };
 
@@ -167,10 +150,8 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Mobile Header with menu and notification icons */}
           <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
             <div className="flex h-14 items-center justify-between px-4">
-              {/* Left: Menu Button */}
               <Button 
                 variant="ghost" 
                 size="icon"
@@ -181,13 +162,12 @@ const DashboardLayout = ({
                 <Menu className="h-5 w-5" />
               </Button>
               
-              {/* Right: Notification Icons */}
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-                  onClick={() => setPractitionersOpen(true)}
+                  onClick={() => openPractitioners()}
                   title={language === 'he' ? 'מאמנים' : 'Coaches'}
                 >
                   <Users className="h-5 w-5" />
@@ -207,7 +187,6 @@ const DashboardLayout = ({
             </div>
           </header>
           
-          {/* Left Sidebar Sheet - render content directly without nested Sidebar */}
           <Sheet open={leftSheetOpen} onOpenChange={setLeftSheetOpen}>
             <SheetContent side={isRTL ? "right" : "left"} className="w-80 p-0 bg-background border-border overflow-visible" hideClose>
               <DashboardSidebar 
@@ -222,26 +201,16 @@ const DashboardLayout = ({
             </SheetContent>
           </Sheet>
 
-          {/* Settings Modal */}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-
-          {/* Hypnosis Modal */}
           <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
-
-          {/* Profile Drawer */}
           <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />
 
-          {/* Practitioners Modal */}
-          <PractitionersModal open={practitionersOpen} onOpenChange={setPractitionersOpen} />
-
-          {/* Main Content - edge-to-edge on mobile for stretched feel */}
           <main className="flex-1 flex flex-col px-0 min-h-0 overflow-y-auto">
             <div className="flex-1 min-h-0 flex flex-col px-3 pt-3 pb-32 bg-sidebar backdrop-blur-sm rounded-t-2xl mt-2 mx-1">
               {children}
             </div>
           </main>
 
-          {/* Global Chat Input - fixed at bottom */}
           <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center px-4">
             <AuroraChatBubbles />
             <GlobalChatInput />
@@ -266,8 +235,6 @@ const DashboardLayout = ({
         setHypnosisOpen={setHypnosisOpen}
         profileOpen={profileOpen}
         setProfileOpen={setProfileOpen}
-        practitionersOpen={practitionersOpen}
-        setPractitionersOpen={setPractitionersOpen}
       >
         {children}
       </DesktopLayoutContent>
