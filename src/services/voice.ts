@@ -229,28 +229,67 @@ export function speakWithBrowser(
   // Cancel any ongoing speech
   speechSynthesis.cancel();
 
-  // Normalize punctuation for browser TTS (prevents reading "dash" / odd pauses)
+  // Aggressive text sanitization for browser TTS (prevents reading "dash" / odd pauses)
   const normalizedText = text
+    // Remove horizontal rules / separators
+    .replace(/^\s*[-—–_*]{2,}\s*$/gm, '')
+    // Remove bullet/list prefixes at line starts
+    .replace(/^\s*[-–—•*]\s+/gm, '')
+    .replace(/^\s*\d+[.)]\s+/gm, '')
+    // Normalize dash variants
     .replace(/[–—]/g, ', ')
     .replace(/\s-\s/g, ', ')
+    .replace(/--+/g, ', ')
+    // Remove lines that are only punctuation
+    .replace(/^\s*[-—–.,;:!?…]+\s*$/gm, '')
+    // Clean up whitespace
     .replace(/\s+/g, ' ')
     .trim();
 
+  // Helper to check if a chunk is "meaningless" (punctuation-only, empty, or literally "dash")
+  const isMeaninglessChunk = (chunk: string): boolean => {
+    const trimmed = chunk.trim();
+    if (!trimmed) return true;
+    // Only punctuation
+    if (/^[-—–.,;:!?…\s]+$/.test(trimmed)) return true;
+    // Literally says "dash" or "hyphen" (case-insensitive)
+    if (/^(dash|hyphen|מקף)$/i.test(trimmed)) return true;
+    // Very short (< 3 characters that aren't real words)
+    if (trimmed.length < 3 && !/^[א-תa-zA-Z]+$/.test(trimmed)) return true;
+    return false;
+  };
+
   // For long texts, chunk into sentences for better reliability
-  const chunks = normalizedText.length > 500
+  const rawChunks = normalizedText.length > 500
     ? normalizedText.split(/(?<=[.!?])\s+/).filter(c => c.trim())
     : [normalizedText];
+  
+  // Filter out meaningless chunks
+  const chunks = rawChunks.filter(c => !isMeaninglessChunk(c));
+  
+  // If all chunks are meaningless, fail immediately
+  if (chunks.length === 0) {
+    console.warn('Browser TTS: All chunks are meaningless, failing');
+    options.onError?.(new Error('No meaningful text to speak'));
+    return null;
+  }
   
   let currentChunk = 0;
   let cancelled = false;
   let globalProgressInterval: ReturnType<typeof setInterval> | null = null;
   
-  // NEW: Track if speech has actually started (not just process started)
+  // Track if speech has actually started (not just process started)
   let speechActuallyStarted = false;
   let speechStartTimeout: ReturnType<typeof setTimeout> | null = null;
   let consecutiveErrors = 0;
   const MAX_CONSECUTIVE_ERRORS = 3;
   const SPEECH_START_TIMEOUT_MS = 10000; // 10 seconds to detect if speech fails to start
+  
+  // Track meaningful speech metrics
+  let spokenCharacters = 0;
+  let firstStartTime = 0;
+  const MIN_MEANINGFUL_CHARS = 80;
+  const MIN_MEANINGFUL_DURATION_MS = 2000; // 2 seconds
   
   // Global time-based progress tracking (independent of chunk boundaries)
   const HYPNOSIS_WPM = 85;
@@ -297,14 +336,24 @@ export function speakWithBrowser(
           return;
         }
 
+        // Check if we had meaningful speech (enough characters + enough time)
         if (!cancelled) {
+          const elapsedMs = firstStartTime > 0 ? Date.now() - firstStartTime : 0;
+          
+          if (spokenCharacters < MIN_MEANINGFUL_CHARS || elapsedMs < MIN_MEANINGFUL_DURATION_MS) {
+            console.warn(`Browser TTS: Not enough meaningful speech (${spokenCharacters} chars, ${elapsedMs}ms) - treating as failure`);
+            options.onError?.(new Error(`Speech too short: ${spokenCharacters} chars in ${elapsedMs}ms`));
+            return;
+          }
+          
           options.onProgress?.(1); // Final progress
           options.onEnd?.();
         }
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+      const currentChunkText = chunks[currentChunk];
+      const utterance = new SpeechSynthesisUtterance(currentChunkText);
       utterance.rate = options.rate || 0.85;
       utterance.pitch = 1;
 
@@ -326,8 +375,12 @@ export function speakWithBrowser(
         // Reset consecutive errors on successful start
         consecutiveErrors = 0;
         
+        // Track spoken characters for this chunk
+        spokenCharacters += currentChunkText.length;
+        
         if (!speechActuallyStarted) {
           speechActuallyStarted = true;
+          firstStartTime = Date.now();
           
           // Clear the start timeout since speech has started
           if (speechStartTimeout) {

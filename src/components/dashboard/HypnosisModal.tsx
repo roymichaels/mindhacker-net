@@ -146,6 +146,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setVoiceStarted(false);
       setCachedAudioUrl(null);
       setAudioProgress(0);
+      // Reset meaningful audio tracking
+      badCachedAudioRef.current = false;
     }
   }, [open, fullCleanup]);
 
@@ -177,6 +179,10 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     playingRef.current = true;
     setState('generating');
     hapticPattern('selection');
+    
+    // Reset meaningful audio tracking for new session
+    hadMeaningfulAudioRef.current = false;
+    badCachedAudioRef.current = false;
     
     abortControllerRef.current = new AbortController();
     const currentSessionId = sessionIdRef.current;
@@ -260,29 +266,57 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   // Helper to sanitize script text before TTS (remove time markers, metadata, and problematic punctuation)
   const sanitizeScriptForTTS = (text: string): string => {
-    return text
+    // First, perform aggressive sanitization
+    let sanitized = text
+      // Remove horizontal rules / separators (lines that are only dashes, underscores, asterisks)
+      .replace(/^\s*[-—–_*]{2,}\s*$/gm, '')
+      // Remove bullet/list prefixes at line starts (-, –, —, •, *, numbered lists)
+      .replace(/^\s*[-–—•*]\s+/gm, '')
+      .replace(/^\s*\d+[.)]\s+/gm, '')
       // Normalize dash variants (some voices literally say "dash")
       .replace(/[–—]/g, ', ')
       .replace(/\s-\s/g, ', ')
+      // Remove repeated hyphens inside lines
+      .replace(/--+/g, ', ')
       // Remove leading timecodes like "04:00" or "4:00"
       .replace(/^\s*\d{1,2}:\d{2}\s*/gm, '')
       // Remove inline time markers with brackets like [04:00] or (04:00)
       .replace(/[\(\[]?\d{1,2}:\d{2}[\)\]]?/g, '')
       // Remove metadata lines (CURRENT TIME:, DAY:, etc.)
       .replace(/^(CURRENT TIME|DAY|DATE|TIME|שעה נוכחית|יום|תאריך)[:\s].*/gim, '')
-      // Remove lines that are only punctuation (e.g. "-" or "—")
-      .replace(/^\s*[-—–]+\s*$/gm, '')
+      // Remove lines that are only punctuation (e.g. "-" or "—" or "...")
+      .replace(/^\s*[-—–.,;:!?…]+\s*$/gm, '')
       // Remove leading/trailing dashes/spaces globally
       .trim()
-      .replace(/^[-—–\s]+|[-—–\s]+$/g, '')
+      .replace(/^[-—–\s.,;:!?]+|[-—–\s.,;:!?]+$/g, '')
       // Clean up any double spaces or empty lines
       .replace(/\n\s*\n/g, '\n')
       .replace(/\s{2,}/g, ' ')
       .trim();
+    
+    // Hard guard: if sanitized text becomes too short, use less aggressive cleaning
+    const wordCount = sanitized.split(/\s+/).filter(w => w.length > 0).length;
+    if (wordCount < 10 || sanitized.length < 50) {
+      // Fall back to minimal sanitization
+      sanitized = text
+        .replace(/[–—]/g, ', ')
+        .replace(/\s-\s/g, ', ')
+        .replace(/--+/g, ', ')
+        .replace(/^\s*[-—–]+\s*$/gm, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+    
+    return sanitized;
   };
 
   // Track if cached audio was detected as bad
   const badCachedAudioRef = useRef(false);
+  
+  // Track if meaningful audio progress has been made (for early completion guard)
+  const hadMeaningfulAudioRef = useRef(false);
+  const MEANINGFUL_PROGRESS_THRESHOLD = 0.1; // 10% progress
+  const MEANINGFUL_TIME_THRESHOLD = 5000; // 5 seconds
 
   const playScript = async (activeScript: HypnosisScript, cachedUrl?: string) => {
     const currentSessionId = sessionIdRef.current;
@@ -321,12 +355,22 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         // Use calculated duration for progress, don't update estimatedDuration
         const progress = clamp(currentTime / calculatedDuration, 0, 1);
         setAudioProgress(progress);
+        
+        // Check if we've passed meaningful progress threshold
+        if (currentTime >= MEANINGFUL_TIME_THRESHOLD / 1000 || progress >= MEANINGFUL_PROGRESS_THRESHOLD) {
+          hadMeaningfulAudioRef.current = true;
+        }
         return;
       }
 
       // Clamp progress to 0-1 range to prevent karaoke from racing ahead
       const progress = clamp(currentTime / audioDuration, 0, 1);
       setAudioProgress(progress);
+      
+      // Check if we've passed meaningful progress threshold
+      if (currentTime >= MEANINGFUL_TIME_THRESHOLD / 1000 || progress >= MEANINGFUL_PROGRESS_THRESHOLD) {
+        hadMeaningfulAudioRef.current = true;
+      }
       
       // Only update estimated duration if audio duration passes sanity check
       if (isDurationSane(audioDuration) && audioDuration !== estimatedDuration) {
