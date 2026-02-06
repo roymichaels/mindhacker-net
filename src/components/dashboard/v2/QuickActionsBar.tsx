@@ -1,4 +1,4 @@
-import { MessageCircle, Brain, CheckSquare, BarChart3 } from 'lucide-react';
+import { MessageCircle, Brain, Users, CheckSquare, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,14 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
       onClick: onOpenHypnosis,
     },
     {
+      id: 'practitioners',
+      icon: Users,
+      label: language === 'he' ? 'מאמנים' : 'Coaches',
+      color: 'text-rose-500 hover:text-rose-500',
+      bgColor: 'hover:bg-rose-500/10',
+      onClick: () => navigate('/practitioners'),
+    },
+    {
       id: 'missions',
       icon: CheckSquare,
       label: language === 'he' ? 'משימות' : 'Missions',
@@ -50,7 +58,7 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
 
   return (
     <div 
-      className="grid grid-cols-4 gap-2"
+      className="grid grid-cols-5 gap-2"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {actions.map((action) => {
