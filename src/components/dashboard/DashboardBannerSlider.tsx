@@ -159,9 +159,9 @@ export function DashboardBannerSlider() {
             return (
               <div key={banner.id} className="flex-[0_0_100%] min-w-0">
                 <div className={cn(
-                  "relative overflow-hidden rounded-xl p-5 sm:p-7",
+                  "relative overflow-hidden rounded-xl p-4 sm:p-5",
                   "bg-gradient-to-br", banner.gradient,
-                  "text-white min-h-[120px] sm:min-h-[140px]"
+                  "text-white"
                 )}>
                   {/* Decorative shapes */}
                   {banner.shapes}
