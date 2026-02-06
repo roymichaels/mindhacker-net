@@ -755,6 +755,63 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          booking_date: string
+          client_user_id: string
+          created_at: string | null
+          end_time: string
+          id: string
+          notes: string | null
+          practitioner_id: string | null
+          service_id: string | null
+          start_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          client_user_id: string
+          created_at?: string | null
+          end_time: string
+          id?: string
+          notes?: string | null
+          practitioner_id?: string | null
+          service_id?: string | null
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          client_user_id?: string
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          notes?: string | null
+          practitioner_id?: string | null
+          service_id?: string | null
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "practitioner_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bug_reports: {
         Row: {
           admin_notes: string | null
@@ -3943,6 +4000,44 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      practitioner_availability: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean | null
+          practitioner_id: string | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          practitioner_id?: string | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          practitioner_id?: string | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_availability_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       practitioner_client_profiles: {
         Row: {
