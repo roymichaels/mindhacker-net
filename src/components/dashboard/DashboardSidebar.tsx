@@ -229,7 +229,7 @@ const DashboardSidebar = ({
               </span>
             </Link>
           </div>
-          <div className="px-4 py-3 flex flex-col flex-1 w-full">
+          <div className="px-3 py-3 flex flex-col flex-1 w-full overflow-y-auto overflow-x-visible">
             <SidebarInnerContent isMobile={true} />
           </div>
           <div className="px-4 py-3 border-t border-border w-full">
