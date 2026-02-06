@@ -34,8 +34,8 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
       id: 'practitioners',
       icon: Users,
       label: language === 'he' ? 'מאמנים' : 'Coaches',
-      color: 'text-rose-500 hover:text-rose-500',
-      bgColor: 'hover:bg-rose-500/10',
+      color: 'text-amber-500 hover:text-amber-500',
+      bgColor: 'hover:bg-amber-500/10',
       onClick: () => navigate('/practitioners'),
     },
     {
