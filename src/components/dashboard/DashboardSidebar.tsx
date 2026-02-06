@@ -208,22 +208,9 @@ const DashboardSidebar = ({
         </div>
       )}
 
-      {/* Mobile: Orb + Search bar - Full width */}
+      {/* Mobile: Search bar - Full width (Orb moved to account dropdown) */}
       {isMobile && (
         <>
-          {/* Personalized Orb - Click to open profile */}
-          <button
-            onClick={() => {
-              onOpenProfile?.();
-            }}
-            className="mb-4 w-full flex justify-center group"
-            title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
-          >
-            <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
-              <PersonalizedOrb size={80} />
-            </div>
-          </button>
-          
           {/* Search bar */}
           <div className="mb-4 relative w-full">
             <div className="h-10 flex items-center gap-2 px-4 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg w-full">
@@ -243,20 +230,9 @@ const DashboardSidebar = ({
         </>
       )}
 
-      {/* Desktop: Orb + Search bar above navigation */}
+      {/* Desktop: Search bar above navigation (Orb moved to account dropdown) */}
       {!isMobile && !isCollapsed && (
         <>
-          {/* Personalized Orb - Click to open profile */}
-          <button
-            onClick={() => onOpenProfile?.()}
-            className="mb-3 w-full flex justify-center group"
-            title={language === 'he' ? 'הפרופיל שלי' : 'My Profile'}
-          >
-            <div className="relative w-16 h-16 group-hover:scale-105 transition-transform duration-300">
-              <PersonalizedOrb size={64} />
-            </div>
-          </button>
-          
           {/* Search bar */}
           <div className="px-3 mb-3 relative w-full min-w-0">
             <div className="h-9 flex items-center gap-2 px-3 bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg overflow-hidden">

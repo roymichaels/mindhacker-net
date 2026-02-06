@@ -150,53 +150,66 @@ const AuroraAccountDropdown = ({
         side="top"
          className="w-64 bg-popover border border-border shadow-xl z-[100]"
       >
-           {/* Character Stats HUD - at top of dropdown */}
+           {/* Personalized Orb - at top of dropdown */}
+           <div className="flex flex-col items-center py-4 border-b border-border">
+             <div className="relative group cursor-pointer">
+               {/* Radial gradient glow backdrop */}
+               <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/15 to-transparent blur-lg pointer-events-none" />
+               <div className="relative z-10 group-hover:scale-105 transition-transform duration-300">
+                 <PersonalizedOrb size={72} state="idle" />
+               </div>
+             </div>
+             <p className="mt-2 text-sm font-medium text-foreground">{displayName}</p>
+             <p className="text-xs text-muted-foreground">{user?.email}</p>
+           </div>
+
+           {/* Character Stats HUD - below orb */}
            {!dashboard.isLoading && (
-             <>
-               <DropdownMenuLabel className="pb-2">
-                 <div className="space-y-2">
-                   {/* Identity Title */}
-                   {dashboard.identityTitle && (
-                     <div className="flex items-center gap-1.5">
-                       <span className="text-sm">{dashboard.identityTitle.icon}</span>
-                       <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                         {dashboard.identityTitle.title}
-                       </span>
-                     </div>
-                   )}
-                   
-                   {/* XP Bar */}
-                   <div className="space-y-1">
-                     <div className="flex justify-between text-[10px] text-muted-foreground">
-                       <span>XP</span>
-                       <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
-                     </div>
-                     <Progress 
-                       value={dashboard.xpProgress.percentage} 
-                       className="h-1.5 bg-muted/50"
-                     />
-                   </div>
-                   
-                   {/* Stats Row */}
-                   <div className="flex items-center justify-between pt-1">
-                     <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs">
-                       <Star className="h-3 w-3" />
-                       <span className="font-bold">Lv.{dashboard.level}</span>
-                     </div>
-                     <div className="flex items-center gap-1 text-yellow-500 text-xs">
-                       <Gem className="h-3 w-3" />
-                       <span className="font-semibold">{dashboard.tokens}</span>
-                     </div>
-                     <div className="flex items-center gap-1 text-orange-500 text-xs">
-                       <Flame className="h-3 w-3" />
-                       <span className="font-semibold">{dashboard.streak}</span>
-                     </div>
-                   </div>
-                 </div>
-               </DropdownMenuLabel>
-               <DropdownMenuSeparator />
-             </>
-           )}
+              <>
+                <DropdownMenuLabel className="pb-2">
+                  <div className="space-y-2">
+                    {/* Identity Title */}
+                    {dashboard.identityTitle && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{dashboard.identityTitle.icon}</span>
+                        <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                          {dashboard.identityTitle.title}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* XP Bar */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-muted-foreground">
+                        <span>XP</span>
+                        <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
+                      </div>
+                      <Progress 
+                        value={dashboard.xpProgress.percentage} 
+                        className="h-1.5 bg-muted/50"
+                      />
+                    </div>
+                    
+                    {/* Stats Row */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs">
+                        <Star className="h-3 w-3" />
+                        <span className="font-bold">Lv.{dashboard.level}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                        <Gem className="h-3 w-3" />
+                        <span className="font-semibold">{dashboard.tokens}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-orange-500 text-xs">
+                        <Flame className="h-3 w-3" />
+                        <span className="font-semibold">{dashboard.streak}</span>
+                      </div>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+              </>
+            )}
  
           {/* Back to Aurora - shown when in panel areas */}
           {(showBackToAurora || isInPanel) && (
