@@ -55,7 +55,7 @@ export function UnifiedDashboardView({
   // All components handle empty/zero data gracefully - no special empty state needed
   return (
     <div 
-      className={cn("space-y-5 pt-2", className)}
+      className={cn("space-y-5 pt-6", className)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {!onOpenProfile && <ProfileDrawer open={profileOpen} onOpenChange={setProfileOpen} />}
