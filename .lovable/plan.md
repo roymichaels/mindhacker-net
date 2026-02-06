@@ -1,38 +1,41 @@
 
-# New Crystal Logo Integration
+# Auto-Sliding In-Game Banners for Dashboard
 
 ## Overview
-Replace the current wireframe orb logo with the new aurora crystal SVG across the entire application. The new logo uses gradient strokes (no fill), works beautifully on both light and dark backgrounds, and includes a soft glow filter.
+Add a professional auto-sliding banner carousel at the top of the dashboard, above the Next Action Banner. Each banner will be crafted entirely from UI components and typography -- no images needed -- styled to look as polished as graphic banners.
 
-## Changes
+## Banner Designs (5 rotating banners)
 
-### 1. Update SVG Files
-- **`public/aurora-icon.svg`** -- Replace contents with the new crystal SVG (used for PWA icons, favicon references, etc.)
-- **`src/components/icons/AuroraOrbIcon.tsx`** -- Rewrite the SVG markup to match the new crystal design. Keep `currentColor` stroke approach but add the aurora gradient as an option. The component should support both `currentColor` mode (for monochrome contexts) and gradient mode.
+1. **"Level Up Your Life"** -- Deep purple-to-indigo gradient with a geometric pattern overlay, large bold headline, XP sparkle accents
+2. **"Daily Streak Bonus"** -- Warm amber-to-orange gradient with flame iconography, streak counter styling, urgency text
+3. **"Unlock Your Potential"** -- Emerald-to-cyan gradient with DNA helix pattern (CSS), motivational copy, glowing CTA
+4. **"Aurora AI Coach"** -- Rose-to-pink gradient (brand primary), chat bubble motifs, sparkle animations
+5. **"90-Day Transformation"** -- Dark gradient with timeline dots, progress bar visual, countdown feel
 
-### 2. Add Hover Effect
-Add a CSS class in `src/App.css` (or `index.css`) for the logo hover animation:
-```css
-.logo-crystal {
-  transition: transform 1.2s ease, filter 1.2s ease;
-}
-.logo-crystal:hover {
-  transform: scale(1.06) rotate(1deg);
-  filter: drop-shadow(0 0 18px rgba(180,140,255,0.35));
-}
-```
+## Technical Details
 
-### 3. Usage Guidelines (applied per-context)
-- **Header / Sidebar brand logos** (`DashboardSidebar`, `AdminSidebar`, `CoachSidebar`, `AffiliateSidebar`, `CoachPanel`): Small size, `opacity-85`, no animation -- just the crystal icon.
-- **Chat avatars** (`AuroraChatMessage`, `AuroraChatBubbles`, `ChatMessage`): Keep small (20-24px), gradient mode.
-- **Hero / Landing page**: Larger scale with subtle pulse or rotate animation if desired.
+### New Component
+- **`src/components/dashboard/DashboardBannerSlider.tsx`**
+  - Uses Embla Carousel (already installed) with autoplay plugin (also installed)
+  - Auto-advances every 5 seconds with smooth transitions
+  - Dot indicators at the bottom for manual navigation
+  - Pause on hover/touch
+  - Each banner is a styled Card with:
+    - Full-width gradient background with decorative CSS shapes/patterns
+    - Large display typography (font-space for headlines)
+    - Subtle animated accents (shimmer, pulse)
+    - Responsive: taller on desktop, compact on mobile
+    - Light/dark theme support using `dark:` prefix classes
+  - RTL-aware using `useTranslation` hook
+  - Hebrew + English text for all banners
 
-### 4. Files to Modify
-| File | Change |
-|------|--------|
-| `public/aurora-icon.svg` | Replace with new crystal SVG |
-| `src/components/icons/AuroraOrbIcon.tsx` | New crystal SVG markup with gradient |
-| `src/App.css` | Add `.logo-crystal` hover class |
-| `src/components/chat/ChatMessage.tsx` | Update `defaultLogo` path if needed |
+### Integration
+- **`src/components/dashboard/UnifiedDashboardView.tsx`**
+  - Import and render `DashboardBannerSlider` as the first element, before `NextActionBanner`
 
-No structural or architectural changes -- this is a pure visual asset swap. All existing component references to `AuroraOrbIcon` will automatically pick up the new design.
+### Styling Approach
+- Glassmorphism overlays with `backdrop-blur`
+- Decorative abstract shapes using `absolute` positioned divs with gradients and rounded corners
+- Typography hierarchy: large bold headline + smaller subtitle + optional badge/tag
+- Dot indicators styled to match the active banner's color scheme
+- Framer Motion for entrance animation of the container
