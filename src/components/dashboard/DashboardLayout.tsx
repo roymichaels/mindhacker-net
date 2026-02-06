@@ -93,7 +93,7 @@ const DesktopLayoutContent = ({
         <UserNotificationBell />
       </div>
 
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
         {/* Left Sidebar - Aurora style */}
         <DashboardSidebar 
           currentConversationId={currentConversationId}
