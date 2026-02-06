@@ -1,18 +1,22 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Copy, Volume2, Square } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
+import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
 
 const AuroraChatBubbles = () => {
   const { user } = useAuth();
-  const { language, isRTL } = useTranslation();
+  const { language, isRTL, t } = useTranslation();
+  const { isPlaying, activeMessageId, playMessage, stopPlayback } = useAuroraVoice();
   const { 
     activeConversationId, 
     isChatExpanded, 
@@ -33,6 +37,19 @@ const AuroraChatBubbles = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const handleCopy = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast.success(t('messages.copied'));
+  };
+
+  const handleVoice = (messageId: string, content: string) => {
+    if (isPlaying && activeMessageId === messageId) {
+      stopPlayback();
+    } else {
+      playMessage(messageId, content);
+    }
+  };
 
   // Register send message function for global access
   useEffect(() => {
@@ -149,43 +166,77 @@ const AuroraChatBubbles = () => {
                   </div>
                 )}
 
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    ref={(el) => {
-                      if (el) messageRefs.current.set(message.id, el);
-                    }}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={cn(
-                      "flex gap-3 transition-all duration-300 rounded-lg",
-                      message.is_ai_message ? "justify-start" : "justify-end"
-                    )}
-                  >
-                    {message.is_ai_message && (
-                      <div className="shrink-0">
-                        <AuroraOrbIcon className="w-6 h-6 text-primary" size={24} />
-                      </div>
-                    )}
-                    <div
+                {messages.map((message) => {
+                  const isPlayingThis = isPlaying && activeMessageId === message.id;
+                  
+                  return (
+                    <motion.div
+                      key={message.id}
+                      ref={(el) => {
+                        if (el) messageRefs.current.set(message.id, el);
+                      }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       className={cn(
-                        "max-w-[80%] rounded-xl px-4 py-2 text-sm",
-                        message.is_ai_message
-                          ? "bg-muted/50 text-foreground"
-                          : "bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/40 text-foreground"
+                        "group flex gap-3 transition-all duration-300 rounded-lg",
+                        message.is_ai_message ? "justify-start" : "justify-end"
                       )}
-                      dir={isRTL ? 'rtl' : 'ltr'}
                     >
-                      {message.is_ai_message ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                      {message.is_ai_message && (
+                        <div className="shrink-0">
+                          <AuroraOrbIcon className="w-6 h-6 text-primary" size={24} />
                         </div>
-                      ) : (
-                        <p>{message.content}</p>
                       )}
-                    </div>
-                  </motion.div>
-                ))}
+                      <div className="space-y-1.5 max-w-[80%]">
+                        <div
+                          className={cn(
+                            "rounded-xl px-4 py-2 text-sm",
+                            message.is_ai_message
+                              ? "bg-muted/50 text-foreground"
+                              : "bg-gradient-to-r from-primary/20 to-accent/10 border border-primary/40 text-foreground"
+                          )}
+                          dir={isRTL ? 'rtl' : 'ltr'}
+                        >
+                          {message.is_ai_message ? (
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <p>{message.content}</p>
+                          )}
+                        </div>
+                        
+                        {/* Action buttons for AI messages */}
+                        {message.is_ai_message && (
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleCopy(message.content)}
+                              title={t('messages.copy')}
+                            >
+                              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleVoice(message.id, message.content)}
+                              title={isPlayingThis ? t('messages.stopReading') : t('messages.readAloud')}
+                            >
+                              {isPlayingThis ? (
+                                <Square className="h-3 w-3 text-muted-foreground fill-current" />
+                              ) : (
+                                <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
 
                 {/* Streaming content */}
                 {streamingContent && (
