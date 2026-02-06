@@ -190,10 +190,10 @@ const DashboardSidebar = ({
                   }
                 }}
                 className={cn(
-                  "group w-full min-w-0 flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 overflow-hidden border",
+                  "group w-full min-w-0 flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border",
                   `bg-gradient-to-r ${s.bg} ${s.border} ${s.glow}`,
-                  "hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
-                  isActive && "ring-1 ring-current/20 shadow-md scale-[1.01]",
+                  "hover:shadow-md hover:brightness-110",
+                  isActive && "ring-1 ring-current/20 shadow-md brightness-110",
                   isCollapsed && "justify-center px-2 py-2.5 rounded-lg"
                 )}
                 title={isCollapsed ? item.label : undefined}
@@ -277,7 +277,7 @@ const DashboardSidebar = ({
           </SidebarHeader>
         )}
 
-        <SidebarContent className="p-2 flex flex-col h-full">
+        <SidebarContent className="p-2 flex flex-col h-full overflow-y-auto overflow-x-visible">
           <SidebarInnerContent />
         </SidebarContent>
 
