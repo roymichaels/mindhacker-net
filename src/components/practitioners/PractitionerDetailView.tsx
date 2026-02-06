@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, Star, MapPin, CheckCircle, Languages, Calendar, MessageCircle, Globe, Instagram, Play, ShoppingBag, Briefcase, MessageSquareText } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ArrowLeft, ArrowRight, Star, MapPin, CheckCircle, Languages, Calendar, MessageCircle, Globe, Instagram, Play, Package, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,8 +8,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { usePractitioner, type Practitioner } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import PractitionerMiniOfferCard from './PractitionerMiniOfferCard';
+import PractitionerMiniItemCard, { type MiniItemCardData } from './PractitionerMiniItemCard';
 import PractitionerReviewSlider from './PractitionerReviewSlider';
+import PractitionerBookingView from './PractitionerBookingView';
 import type { Tables } from '@/integrations/supabase/types';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +22,8 @@ interface PractitionerDetailViewProps {
 const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: PractitionerDetailViewProps) => {
   const { t, isRTL, language } = useTranslation();
   const { data: practitioner, isLoading } = usePractitioner(basicPractitioner.slug);
+  const [showBooking, setShowBooking] = useState(false);
+  const [preSelectedServiceId, setPreSelectedServiceId] = useState<string | undefined>();
   const ArrowIcon = isRTL ? ArrowRight : ArrowLeft;
 
   const displayName = language === 'en' && basicPractitioner.display_name_en
@@ -52,6 +56,77 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
     },
     enabled: !!basicPractitioner.id,
   });
+
+  // Unified items: offers + services
+  const unifiedItems = useMemo(() => {
+    const items: MiniItemCardData[] = [];
+
+    // Map offers
+    if (offers) {
+      for (const offer of offers) {
+        const offerTitle = language === 'en' && offer.title_en ? offer.title_en : offer.title;
+        const offerSubtitle = language === 'en' && offer.subtitle_en ? offer.subtitle_en : offer.subtitle;
+        items.push({
+          id: `offer-${offer.id}`,
+          title: offerTitle,
+          subtitle: offerSubtitle || undefined,
+          price: offer.price || undefined,
+          isFree: offer.is_free || false,
+          accentColor: offer.brand_color || undefined,
+          type: 'offer',
+        });
+      }
+    }
+
+    // Map services
+    if (practitioner?.services) {
+      for (const service of practitioner.services) {
+        const sTitle = language === 'en' && service.title_en ? service.title_en : service.title;
+        const duration = service.duration_minutes
+          ? `${service.duration_minutes} ${language === 'he' ? 'דק׳' : 'min'}`
+          : undefined;
+        items.push({
+          id: `service-${service.id}`,
+          title: sTitle,
+          subtitle: duration,
+          price: service.price || undefined,
+          isFree: service.price === 0,
+          type: 'service',
+        });
+      }
+    }
+
+    return items;
+  }, [offers, practitioner?.services, language]);
+
+  const handleItemClick = (item: MiniItemCardData) => {
+    if (item.type === 'offer') {
+      const offerId = item.id.replace('offer-', '');
+      const offer = offers?.find(o => o.id === offerId);
+      if (offer) {
+        const route = offer.landing_page_route || `/offer/${offer.slug}`;
+        window.open(route, '_blank');
+      }
+    } else {
+      // Service clicked -> open booking
+      const serviceId = item.id.replace('service-', '');
+      setPreSelectedServiceId(serviceId);
+      setShowBooking(true);
+    }
+  };
+
+  // Show booking view
+  if (showBooking && practitioner?.services) {
+    return (
+      <PractitionerBookingView
+        practitionerId={basicPractitioner.id}
+        services={practitioner.services}
+        practitionerName={displayName}
+        onBack={() => { setShowBooking(false); setPreSelectedServiceId(undefined); }}
+        preSelectedServiceId={preSelectedServiceId}
+      />
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -106,12 +181,10 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
 
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2">
-        {basicPractitioner.calendly_url && (
-          <Button size="sm" asChild>
-            <a href={basicPractitioner.calendly_url} target="_blank" rel="noopener noreferrer">
-              <Calendar className="h-4 w-4 me-1.5" />
-              {t('practitionerLanding.bookNow')}
-            </a>
+        {practitioner?.services && practitioner.services.length > 0 && (
+          <Button size="sm" onClick={() => setShowBooking(true)}>
+            <Calendar className="h-4 w-4 me-1.5" />
+            {language === 'he' ? 'קביעת פגישה' : 'Book a Session'}
           </Button>
         )}
         {basicPractitioner.whatsapp && (
@@ -172,56 +245,21 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
         </div>
       ) : null}
 
-      {/* Offers - horizontal scroll */}
-      {offers && offers.length > 0 && (
+      {/* Unified Products & Services */}
+      {unifiedItems.length > 0 && (
         <div>
           <h3 className="font-semibold text-sm mb-2.5 flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-primary" />
-            {language === 'he' ? 'מוצרים וקורסים' : 'Products & Courses'}
+            <Package className="h-4 w-4 text-primary" />
+            {language === 'he' ? 'מוצרים ושירותים' : 'Products & Services'}
           </h3>
           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-            {offers.map((offer) => (
-              <PractitionerMiniOfferCard key={offer.id} offer={offer} />
+            {unifiedItems.map((item) => (
+              <PractitionerMiniItemCard
+                key={item.id}
+                item={item}
+                onClick={() => handleItemClick(item)}
+              />
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Services - horizontal scroll */}
-      {practitioner?.services && practitioner.services.length > 0 && (
-        <div>
-          <h3 className="font-semibold text-sm mb-2.5 flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-primary" />
-            {language === 'he' ? 'שירותים' : 'Services'}
-          </h3>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-            {practitioner.services.map((service) => {
-              const sTitle = language === 'en' && service.title_en ? service.title_en : service.title;
-              const sDesc = language === 'en' && service.description_en ? service.description_en : service.description;
-              return (
-                <div
-                  key={service.id}
-                  className={cn(
-                    "w-[200px] flex-shrink-0 rounded-xl p-3",
-                    "bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm",
-                    "border border-border/50"
-                  )}
-                >
-                  <h4 className="text-sm font-semibold line-clamp-1">{sTitle}</h4>
-                  {sDesc && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{sDesc}</p>}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm font-bold text-primary">
-                      {service.price > 0 ? `₪${service.price}` : (language === 'he' ? 'חינם' : 'Free')}
-                    </span>
-                    {service.duration_minutes && (
-                      <span className="text-xs text-muted-foreground">
-                        {service.duration_minutes} {language === 'he' ? 'דק׳' : 'min'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       )}
