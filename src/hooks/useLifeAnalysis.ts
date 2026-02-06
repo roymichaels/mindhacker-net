@@ -18,7 +18,7 @@ export interface LifeAnalysisData {
 
 // Pillar definitions with colors matching the Life OS theme
 const PILLARS = [
-  { id: 'personality', name: 'Consciousness', nameHe: 'תודעה', color: 'hsl(221 83% 53%)' },
+  { id: 'consciousness', name: 'Consciousness', nameHe: 'תודעה', color: 'hsl(221 83% 53%)' },
   { id: 'business', name: 'Business', nameHe: 'עסקים', color: 'hsl(38 92% 50%)' },
   { id: 'health', name: 'Health', nameHe: 'בריאות', color: 'hsl(0 84% 60%)' },
   { id: 'relationships', name: 'Relationships', nameHe: 'קשרים', color: 'hsl(330 80% 60%)' },
@@ -29,12 +29,12 @@ const PILLARS = [
 
 // Map launchpad focus areas to pillars
 const FOCUS_AREA_MAPPING: Record<string, string> = {
-  // Personality-related
-  identity: 'personality',
-  confidence: 'personality',
-  mindset: 'personality',
-  emotions: 'personality',
-  spirituality: 'personality',
+  // Consciousness-related
+  identity: 'consciousness',
+  confidence: 'consciousness',
+  mindset: 'consciousness',
+  emotions: 'consciousness',
+  spirituality: 'consciousness',
   
   // Business-related
   career: 'business',
@@ -117,7 +117,7 @@ export function useLifeAnalysis() {
 
       // 2. Journey completion status (25% weight)
       if (launchpad?.launchpad_complete) {
-        scores.personality += 25;
+        scores.consciousness += 25;
         hasAnyData = true;
       }
       if (businessJourney.data?.journey_complete) {
@@ -146,7 +146,7 @@ export function useLifeAnalysis() {
       if (profileData) {
         const filledFields = Object.values(profileData).filter(v => v && v !== '').length;
         const depthBonus = Math.min(filledFields * 2, 20);
-        scores.personality += depthBonus;
+        scores.consciousness += depthBonus;
         if (depthBonus > 0) hasAnyData = true;
       }
 

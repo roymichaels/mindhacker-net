@@ -48,12 +48,12 @@ export function QuickAccessGrid({
       onClick: onOpenTasks,
     },
     {
-      id: 'personality',
+      id: 'consciousness',
       icon: User,
       label: 'Consciousness',
       labelHe: 'תודעה',
       gradient: 'from-blue-500/20 to-cyan-500/20',
-      onClick: () => navigate('/personality'),
+      onClick: () => navigate('/consciousness'),
     },
     {
       id: 'business',

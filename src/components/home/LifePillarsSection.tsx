@@ -22,7 +22,7 @@ import PersonalizedOrb from "@/components/orb/PersonalizedOrb";
 
 const pillars = [
   {
-    id: 'personality',
+    id: 'consciousness',
     icon: User,
     titleHe: 'תודעה',
     titleEn: 'Consciousness',

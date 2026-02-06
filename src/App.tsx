@@ -70,7 +70,7 @@ const LifePlan = lazy(() => import("./pages/LifePlan"));
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
-const Personality = lazy(() => import("./pages/Personality"));
+const Consciousness = lazy(() => import("./pages/Consciousness"));
 const Health = lazy(() => import("./pages/Health"));
 const HealthJourney = lazy(() => import("./pages/HealthJourney"));
 const HealthPlan = lazy(() => import("./pages/HealthPlan"));
@@ -416,10 +416,10 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/personality"
+                          path="/consciousness"
                           element={
                             <ProtectedRoute>
-                              <Personality />
+                              <Consciousness />
                             </ProtectedRoute>
                           }
                         />
