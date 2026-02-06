@@ -1,38 +1,114 @@
 
-## תיקון מערכת ה-TTS לסשן ההיפנוזה
+## תיקון באגים קריטיים במערכת ההיפנוזה
 
-### מה מצאתי
+### הבעיות שזיהיתי
 
-בדקתי ומצאתי שהבעיה היא **לא ב-ElevenLabs עצמו** - ה-API עובד (הרצתי בדיקה ישירה וקיבלתי 56KB אודיו). הבעיה היא ב**מערכת ה-caching**:
+**1. 10 קולות מנגנים במקביל**
+הלוגים מראים ש-`[TTS] Script first 200 chars:` הודפס 4 פעמים - מה שאומר ש-`synthesizeAndPlay` נקרא מספר פעמים. כל לחיצה על pause/start יוצרת instance חדש של TTS בלי לעצור את הקודמים.
 
-1. מפתח ה-cache מכיל תווים עבריים ונקודותיים (`שבוע_1:_ניקוי_רעלים...`)
-2. זה גורם לשגיאת Storage: `Invalid key` - הקובץ לא נשמר בכלל
-3. המערכת מנסה לנגן מ-cache שלא קיים או פגום
-4. התוצאה: "השמעה שקטה" - ה-UI מראה שמנגן אבל אין קול
+**2. התחלה איטית**
+ElevenLabs לוקח זמן לסנתז טקסטים ארוכים בעברית. אין אינדיקציה ויזואלית שמחכים ל-TTS, אז המשתמש לוחץ שוב ושוב.
+
+**3. חוסר נעילה (mutex)**
+אין מנגנון שמונע קריאות מקבילות ל-synthesis.
+
+---
 
 ### הפתרון
 
-#### שלב 1: תיקון מפתח ה-cache (hypnosis.ts)
-נקי את מפתח ה-cache מתווים בעייתיים:
-- הסרת נקודותיים (:) 
-- המרת תווים עבריים ל-hash קצר (Base64 של UTF8)
-- שמירה על מבנה קריא אך בטוח לאחסון
+#### שלב 1: נעילת סינתזה (Synthesis Lock)
 
-```text
-לפני: personalized_שבוע_1:_ניקוי_רעלים_0_he_2026-02-06_morning
-אחרי: personalized_YzljZjA4_0_he_2026-02-06_morning
+הוספת ref שמונע קריאות מקבילות:
+
+```typescript
+const isSynthesizingRef = useRef(false);
+
+const synthesizeAndPlay = async (...) => {
+  // Block duplicate calls
+  if (isSynthesizingRef.current) {
+    console.log('[TTS] Synthesis already in progress, ignoring duplicate call');
+    return;
+  }
+  isSynthesizingRef.current = true;
+  
+  try {
+    // ... existing synthesis logic
+  } finally {
+    isSynthesizingRef.current = false;
+  }
+};
 ```
 
-#### שלב 2: שיפור זיהוי cache פגום (HypnosisModal.tsx)
-אם ה-cache לא עובד:
-- לא לנסות לשמוע ממנו
-- לעבור ישר לסינתזה חיה
-- לוג ברור מה קרה
+#### שלב 2: עצירה מלאה לפני הפעלה מחדש
 
-#### שלב 3: הוספת fallback חכם יותר (voice.ts)
-אם ה-audio נטען אבל "שקט" (0 bytes או לא מתנגן):
-- לזהות את זה בזמן
-- לעבור לסינתזה חדשה במקום להמשיך בשקט
+ב-`togglePlayPause`, נוסיף עצירה מלאה לפני שמתחילים מחדש:
+
+```typescript
+const togglePlayPause = () => {
+  if (state === 'playing') {
+    // Pause - stop everything
+    setState('paused');
+    playingRef.current = false;
+    stopCurrentAudio();
+    stopBrowserSpeech();
+  } else if (state === 'paused') {
+    // Resume - FIRST cleanup any lingering audio, THEN restart
+    stopCurrentAudio();
+    stopBrowserSpeech();
+    
+    setState('playing');
+    playingRef.current = true;
+    if (script) {
+      playScript(script, cachedAudioUrl || undefined);
+    }
+  }
+};
+```
+
+#### שלב 3: אינדיקציית "מכין קול" (Synthesizing State)
+
+הוספת מצב חדש שמראה למשתמש שמחכים ל-TTS:
+
+```typescript
+type SessionState = 'generating' | 'synthesizing' | 'playing' | 'paused' | 'complete';
+
+// In synthesizeAndPlay, before calling ElevenLabs:
+setState('synthesizing');
+
+// UI shows "מכין את הקול..." with spinner
+```
+
+#### שלב 4: שיפור ה-Karaoke Scroll
+
+וידוא שה-scroll container מוגדר נכון עם `data-scroll-container`:
+
+```typescript
+<ScrollArea data-scroll-container className="flex-1 px-4 sm:px-6">
+  <KaraokeText 
+    text={sanitizeScriptForTTS(script.fullScript)}
+    progress={audioProgress}
+    isRTL={isRTL}
+  />
+</ScrollArea>
+```
+
+#### שלב 5: ניקוי מלא ב-fullCleanup
+
+הוספת reset של ה-synthesis lock:
+
+```typescript
+const fullCleanup = useCallback(() => {
+  playingRef.current = false;
+  isSynthesizingRef.current = false; // Reset synthesis lock
+  clearAllTimeouts();
+  stopCurrentAudio();
+  stopBrowserSpeech();
+  if (abortControllerRef.current) {
+    abortControllerRef.current.abort();
+    abortControllerRef.current = null;
+  }
+}, [clearAllTimeouts]);
+```
 
 ---
 
@@ -40,68 +116,27 @@
 
 | קובץ | שינוי |
 |------|-------|
-| `src/services/hypnosis.ts` | ניקוי `generateCacheKey()` מתווים בעייתיים |
-| `supabase/functions/cache-hypnosis-audio/index.ts` | ניקוי נתיב הקובץ מתווים בעייתיים |
-| `src/components/dashboard/HypnosisModal.tsx` | שיפור זיהוי cache פגום + fallback ישיר |
-| `src/services/voice.ts` | בדיקת audio size לפני ניסיון השמעה |
+| `src/components/dashboard/HypnosisModal.tsx` | הוספת synthesis lock, מצב synthesizing, תיקון togglePlayPause, שיפור scroll |
 
 ---
 
 ### פרטים טכניים
 
-#### generateCacheKey - לפני
-```typescript
-const goalHash = options.goal
-  .toLowerCase()
-  .replace(/\s+/g, '_')
-  .substring(0, 30);
-```
+**בעיית השורש:** ב-`togglePlayPause` (שורה 643-657), כשחוזרים מ-pause ל-play, נקראת `playScript()` שמפעילה TTS חדש. אם המשתמש לחץ 4 פעמים על pause/start בזמן שה-TTS עדיין לא הספיק להתחיל, נוצרו 4 instances במקביל.
 
-#### generateCacheKey - אחרי
-```typescript
-// Create a safe hash using only ASCII characters
-const goalBytes = new TextEncoder().encode(options.goal);
-const goalHash = btoa(String.fromCharCode(...goalBytes.slice(0, 12)))
-  .replace(/[^a-zA-Z0-9]/g, '')
-  .substring(0, 16);
-```
+**הפתרון המרכזי:**
+1. `isSynthesizingRef` - מונע קריאות כפולות
+2. `stopCurrentAudio()` לפני כל השמעה חדשה
+3. מצב `synthesizing` עם spinner - מונע לחיצות כפולות כי הכפתור יושבת
 
-#### cache-hypnosis-audio - ניקוי נתיב
-```typescript
-// Sanitize the cache key for storage path
-const safeCacheKey = cacheKey
-  .replace(/[^a-zA-Z0-9_-]/g, '_')
-  .substring(0, 100);
-
-const audioPath = `${userId}/${safeCacheKey}/full_session.mp3`;
-```
-
-#### HypnosisModal - בדיקת cache
-```typescript
-// When trying cached audio
-if (cachedUrl && !badCachedAudioRef.current) {
-  const signedUrl = await getCachedAudioUrl(cachedUrl);
-  
-  // Quick HEAD request to verify audio exists and has content
-  try {
-    const headCheck = await fetch(signedUrl, { method: 'HEAD' });
-    const contentLength = headCheck.headers.get('content-length');
-    if (!headCheck.ok || !contentLength || parseInt(contentLength) < 1000) {
-      console.warn('Cached audio invalid or empty, falling back to synthesis');
-      badCachedAudioRef.current = true;
-      // Continue to synthesize below
-    }
-  } catch {
-    badCachedAudioRef.current = true;
-  }
-}
-```
+**זמן השינוי:** קצר - שינויים ממוקדים בקובץ אחד
 
 ---
 
 ### סיכום
 
-השינויים האלה יבטיחו ש:
-1. מפתחות cache יהיו תמיד בטוחים לאחסון (ללא תווים מיוחדים)
-2. אם ה-cache פגום או ריק - המערכת תזהה ותעבור לסינתזה חיה
-3. אודיו ElevenLabs v3 ינוגן כמצופה עם הקול "Sarah"
+התיקון יבטיח ש:
+1. רק instance אחד של TTS פעיל בכל רגע
+2. המשתמש רואה "מכין קול" במקום להרגיש שזה תקוע
+3. לחיצות כפולות על pause/start לא יוצרות קולות מרובים
+4. הטקסט גולל אוטומטית עם הקול (hands-free karaoke)
