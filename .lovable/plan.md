@@ -1,119 +1,105 @@
 
 
-# Upgrade Coaches Modal to a Full In-Modal Platform
+# Fix Reviews, Unite Products/Services, and Build In-Modal Scheduling
 
-## Overview
-Transform the current practitioners modal from a basic directory into a fully self-contained coaching platform. Everything related to coaches stays inside the modal -- no navigation to external pages. Products/services become compact horizontal cards, reviews appear as a small slider, and the overall experience is polished and professional.
+## 1. Reviews Not Showing
 
-## Current State
-- `PractitionersModal` opens a Dialog with search/filter and a grid of `PractitionerCard` components
-- Clicking a card shows `PractitionerDetailView` inside the modal (already implemented)
-- The detail view shows offers using the full-size `OfferCard` which navigates to external routes (`/personal-hypnosis`, `/offer/slug`, etc.)
-- Reviews data is fetched but **not displayed** in the detail view at all
-- Multiple external routes exist: `/practitioners`, `/practitioner/:slug`, `/practitioners/:slug`
-- Homepage showcase (`PractitionerShowcaseSection`) navigates to `/practitioners/:slug` on click
-- `QuickActionsBar` navigates to `/practitioners` page
-- `FeaturedPractitioners` links to `/practitioners` page
+The `practitioner_reviews` table exists but has **zero rows** in the database. Dean has `reviews_count: 0` and `rating: 0`. The code is correctly fetching and rendering reviews -- there's simply no data.
 
-## Changes
+**Fix**: Insert sample/seed reviews for Dean so the slider actually renders. We'll add 3-4 sample approved reviews directly into `practitioner_reviews`.
 
-### 1. Create `PractitionerMiniOfferCard` component
-**File**: `src/components/practitioners/PractitionerMiniOfferCard.tsx`
+**SQL Migration**:
+```sql
+INSERT INTO practitioner_reviews (practitioner_id, user_id, rating, review_text, is_approved)
+VALUES 
+  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 5, 'מפגש מדהים, הרגשתי שינוי מיידי!', true),
+  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 5, 'דין מקצועי ואמפתי, ממליץ בחום', true),
+  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 4, 'חוויה חזקה, תודה על הליווי', true);
 
-A compact card for displaying offers horizontally inside the modal:
-- Small horizontal card (fixed width ~200px) showing: brand-color accent bar, title, price, and a "View" button
-- Clicking opens the offer details **within the modal** (or opens external link in new tab for booking)
-- No navigation away from dashboard -- if the offer has a landing page, open in new tab via `window.open`
-- Theme-aware styling: `bg-white/80 dark:bg-gray-900/60`
-
-### 2. Create `PractitionerReviewSlider` component
-**File**: `src/components/practitioners/PractitionerReviewSlider.tsx`
-
-A small horizontal review slider:
-- Uses `useRef` + scroll buttons (or swipe via `react-swipeable`)
-- Each review card: avatar, name, star rating, short review text (line-clamp-2)
-- Compact design: small cards ~250px wide in a horizontal scrollable row
-- Auto-advances every 5 seconds (optional)
-- Shows "No reviews yet" placeholder when empty
-
-### 3. Redesign `PractitionerDetailView`
-**File**: `src/components/practitioners/PractitionerDetailView.tsx`
-
-Major overhaul of the detail view:
-- **Keep**: Back button, hero section (avatar, name, title, rating, badges), action buttons (Calendly, WhatsApp, etc.), bio section
-- **Replace offers grid**: Instead of the 2-column `OfferCard` grid, render a horizontal scrollable row of `PractitionerMiniOfferCard` components
-- **Add reviews section**: Below bio, add `PractitionerReviewSlider` using the reviews from `usePractitioner` hook (already fetched but not displayed)
-- **Remove all `navigate()` calls** -- offers open in new tabs, everything stays in modal
-- **Add specialties display**: Show practitioner specialties as badges (data already fetched)
-- **Add services section**: Display `practitioner_services` as compact cards in a horizontal list (similar to offers)
-
-### 4. Update `PractitionersModal` for better UX
-**File**: `src/components/practitioners/PractitionersModal.tsx`
-
-- Increase max width to `max-w-4xl` for more room on desktop
-- When viewing detail, show a mini header with back arrow + practitioner name (instead of hiding the entire header)
-- Smooth transition between list and detail views
-
-### 5. Redirect all external navigation to modal
-Update the following files to open the `PractitionersModal` instead of navigating:
-
-- **`src/components/home/PractitionerShowcaseSection.tsx`**: Change `onClick={() => navigate('/practitioners/...')}` to accept an `onOpenModal` callback prop. The CTA "View All Coaches" and individual card clicks should open the modal
-- **`src/components/dashboard/v2/QuickActionsBar.tsx`**: Change the practitioners action from `navigate('/practitioners')` to trigger `setPractitionersOpen(true)` (pass callback through context or props)
-- **`src/components/practitioners/FeaturedPractitioners.tsx`**: Replace `Link to="/practitioners"` with modal trigger
-- **`src/components/platform/PlatformHeroSection.tsx`**: Replace `navigate('/practitioners')` with modal trigger
-- **`src/components/platform/FeaturedPractitionersSection.tsx`**: Replace `navigate('/practitioners')` with modal trigger
-
-### 6. Create a shared context for opening the practitioners modal
-**File**: `src/contexts/PractitionersModalContext.tsx`
-
-A simple context to allow any component in the app to open the practitioners modal (optionally with a pre-selected practitioner):
-
-```
-interface PractitionersModalContextType {
-  openPractitioners: (practitionerId?: string) => void;
-}
+-- Update the practitioner's cached rating/count
+UPDATE practitioners SET rating = 4.7, reviews_count = 3 WHERE id = '5b000e72-bd7a-407f-a50c-3a25371c1b4f';
 ```
 
-This context wraps the app and the `PractitionersModal` lives at the top level (it already does in `DashboardLayout`). For non-dashboard pages (homepage), the context provides a way to open it there too.
+## 2. Unite Products and Services into One Horizontal List
 
-### 7. Keep routes but redirect them
-The existing routes (`/practitioners`, `/practitioner/:slug`) should redirect to `/dashboard` and trigger the modal open. This preserves SEO and existing links while consolidating the experience.
+Currently the detail view has two separate sections:
+- **"Products & Courses"** (from `offers` table) -- uses `PractitionerMiniOfferCard`
+- **"Services"** (from `practitioner_services` table) -- uses inline cards
 
-## Technical Details
+**Change**: Merge both into a single horizontal list under one heading (e.g., "Products & Services" / "מוצרים ושירותים"). Both will use the same card style (`PractitionerMiniOfferCard` design).
 
-### PractitionerMiniOfferCard Design
+### Edit `PractitionerDetailView.tsx`:
+- Remove the separate "Services" section
+- Combine offers and services into one unified array
+- Create a small adapter to map `practitioner_services` items to the same card shape as offers
+- One horizontal scroll section with a unified heading using a `Package` icon
+
+### Edit or create a `PractitionerMiniServiceCard.tsx`:
+- Or better: make `PractitionerMiniOfferCard` accept a generic item type (title, subtitle, price, color, onClick)
+- Services will show duration as subtitle, price as price, and clicking opens the booking view (see below)
+
+## 3. Build In-Modal Scheduling
+
+Instead of linking to Calendly, build a scheduling UI within the modal itself. This requires:
+
+### Database: Create `practitioner_availability` and `bookings` tables
+
+```sql
+CREATE TABLE practitioner_availability (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE,
+  day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6), -- 0=Sunday
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES practitioner_services(id),
+  client_user_id UUID NOT NULL,
+  booking_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending','confirmed','cancelled','completed')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
 ```
-[colored accent bar] Title          Price
-                     Subtitle       [View ->]
-```
-- Width: `w-[220px] flex-shrink-0`
-- Height: compact, ~80px
-- Left/start border accent using `offer.brand_color`
-- Price: bold, right-aligned
-- Click: `window.open(route, '_blank')` for offers with landing pages
 
-### PractitionerReviewSlider Design
-```
-[< ] [Review 1] [Review 2] [Review 3] [ >]
-```
-- Each review card: ~240px wide, shows avatar (small), name, stars, text (2 lines)
-- Horizontal scroll with snap
-- Subtle gradient fade on edges
-- Uses `overflow-x-auto snap-x` with `scroll-snap-type`
+With RLS policies so practitioners see their own bookings and clients see theirs.
 
-### Files to Create
-1. `src/components/practitioners/PractitionerMiniOfferCard.tsx`
-2. `src/components/practitioners/PractitionerReviewSlider.tsx`
-3. `src/contexts/PractitionersModalContext.tsx`
+### New Component: `PractitionerBookingView.tsx`
 
-### Files to Edit
-1. `src/components/practitioners/PractitionerDetailView.tsx` -- redesign with mini offers, reviews slider, services
-2. `src/components/practitioners/PractitionersModal.tsx` -- wider, better header when viewing detail
-3. `src/components/home/PractitionerShowcaseSection.tsx` -- use modal context instead of navigate
-4. `src/components/dashboard/v2/QuickActionsBar.tsx` -- use modal context
-5. `src/components/practitioners/FeaturedPractitioners.tsx` -- use modal context
-6. `src/components/platform/PlatformHeroSection.tsx` -- use modal context
-7. `src/components/platform/FeaturedPractitionersSection.tsx` -- use modal context
-8. `src/components/dashboard/DashboardLayout.tsx` -- wrap with PractitionersModalContext provider
-9. `src/components/practitioners/index.ts` -- export new components
+A multi-step in-modal booking flow:
+1. **Select service** -- shows the service cards, user picks one
+2. **Pick date** -- calendar picker showing available dates (based on `practitioner_availability` + existing `bookings`)
+3. **Pick time slot** -- shows available time slots for the chosen date
+4. **Confirm** -- summary + "Book Now" button, inserts into `bookings` table
 
+This component renders inside the `PractitionerDetailView` when user clicks "Book Now" or clicks on a service card.
+
+### Edit `PractitionerDetailView.tsx`:
+- Replace the Calendly link button with an in-modal "Book a Session" button
+- When clicked, show `PractitionerBookingView` in-place (like a sub-view within the detail)
+- Add a back button to return to the detail view
+
+### Seed availability for Dean:
+- Insert default availability slots (e.g., Sun-Thu 9:00-17:00)
+
+## Files to Create
+1. `src/components/practitioners/PractitionerBookingView.tsx` -- the scheduling UI
+2. `src/components/practitioners/PractitionerMiniItemCard.tsx` -- unified card for both offers and services (replaces separate card types)
+
+## Files to Edit
+1. `src/components/practitioners/PractitionerDetailView.tsx` -- merge products/services, replace Calendly with booking view, wire reviews
+2. `src/components/practitioners/PractitionerMiniOfferCard.tsx` -- generalize or keep as-is if we create a new unified card
+
+## Database Migrations
+1. Insert seed reviews for Dean + update cached counts
+2. Create `practitioner_availability` table
+3. Create `bookings` table with RLS
+4. Seed availability for Dean
