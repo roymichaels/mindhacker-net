@@ -65,7 +65,7 @@ const Finances = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-24 pt-9" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="space-y-6 pb-24 sm:pt-9" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
