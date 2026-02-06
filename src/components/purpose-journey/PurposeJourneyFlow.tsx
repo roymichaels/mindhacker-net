@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Compass, CheckCircle2, X } from "lucide-react";
 import { usePurposeJourney } from "@/hooks/usePurposeJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Import all step components
 import VisionStep from "./steps/VisionStep";
@@ -282,6 +283,7 @@ const PurposeJourneyFlow = () => {
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };

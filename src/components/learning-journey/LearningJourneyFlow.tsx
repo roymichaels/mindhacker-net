@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, GraduationCap, CheckCircle2, X } from "lucide-react";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Step components
 import VisionStep from "./steps/VisionStep";
@@ -276,6 +277,7 @@ const LearningJourneyFlow = ({ journeyId, onComplete, onClose }: LearningJourney
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };

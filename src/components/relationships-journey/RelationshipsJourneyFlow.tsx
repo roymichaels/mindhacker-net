@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Heart, CheckCircle2, X } from "lucide-react";
 import { useRelationshipsJourney } from "@/hooks/useRelationshipsJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Step components
 import VisionStep from "./steps/VisionStep";
@@ -276,6 +277,7 @@ const RelationshipsJourneyFlow = ({ journeyId, onComplete, onClose }: Relationsh
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, DollarSign, CheckCircle2, X } from "lucide-react";
 import { useFinancesJourney } from "@/hooks/useFinancesJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Step components
 import VisionStep from "./steps/VisionStep";
@@ -276,6 +277,7 @@ const FinancesJourneyFlow = ({ journeyId, onComplete, onClose }: FinancesJourney
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };

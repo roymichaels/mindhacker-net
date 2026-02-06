@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Heart, CheckCircle2, X } from "lucide-react";
 import { useHealthJourney } from "@/hooks/useHealthJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Import all step components
 import HealthVisionStep from "./steps/HealthVisionStep";
@@ -278,6 +279,7 @@ const HealthJourneyContainer = () => {
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };

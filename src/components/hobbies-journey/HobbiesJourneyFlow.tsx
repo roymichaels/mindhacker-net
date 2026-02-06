@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Palette, CheckCircle2, X } from "lucide-react";
 import { useHobbiesJourney } from "@/hooks/useHobbiesJourney";
 import { Skeleton } from "@/components/ui/skeleton";
+import JourneyChatDock from '@/components/aurora/JourneyChatDock';
 
 // Import all step components
 import DiscoveryStep from "./steps/DiscoveryStep";
@@ -282,6 +283,7 @@ const HobbiesJourneyFlow = () => {
           </Button>
         </motion.div>
       </div>
+      <JourneyChatDock />
     </div>
   );
 };
