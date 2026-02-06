@@ -235,9 +235,15 @@ export function speakWithBrowser(
     : [text];
   
   let currentChunk = 0;
-  let hasStarted = false;
   let cancelled = false;
   let globalProgressInterval: ReturnType<typeof setInterval> | null = null;
+  
+  // NEW: Track if speech has actually started (not just process started)
+  let speechActuallyStarted = false;
+  let speechStartTimeout: ReturnType<typeof setTimeout> | null = null;
+  let consecutiveErrors = 0;
+  const MAX_CONSECUTIVE_ERRORS = 3;
+  const SPEECH_START_TIMEOUT_MS = 10000; // 10 seconds to detect if speech fails to start
   
   // Global time-based progress tracking (independent of chunk boundaries)
   const HYPNOSIS_WPM = 85;
@@ -245,15 +251,38 @@ export function speakWithBrowser(
   const totalEstimatedDurationMs = (totalWords / HYPNOSIS_WPM) * 60 * 1000 / (options.rate || 0.85);
   let sessionStartTime = 0;
 
+  const cleanup = () => {
+    if (globalProgressInterval) {
+      clearInterval(globalProgressInterval);
+      globalProgressInterval = null;
+    }
+    if (speechStartTimeout) {
+      clearTimeout(speechStartTimeout);
+      speechStartTimeout = null;
+    }
+  };
+
+  // Set timeout to detect if speech fails to start
+  speechStartTimeout = setTimeout(() => {
+    if (!speechActuallyStarted && !cancelled) {
+      console.warn('Browser TTS failed to start within timeout');
+      cleanup();
+      options.onError?.(new Error('Speech synthesis failed to start'));
+    }
+  }, SPEECH_START_TIMEOUT_MS);
+
   // Preload voices first
   const loadVoicesAndSpeak = () => {
-    if (cancelled) return;
+    if (cancelled) {
+      cleanup();
+      return;
+    }
     
     const voices = speechSynthesis.getVoices();
     
     const speakChunk = () => {
       if (cancelled || currentChunk >= chunks.length) {
-        if (globalProgressInterval) clearInterval(globalProgressInterval);
+        cleanup();
         if (!cancelled) {
           options.onProgress?.(1); // Final progress
           options.onEnd?.();
@@ -276,18 +305,31 @@ export function speakWithBrowser(
       utterance.onstart = () => {
         if (cancelled) {
           speechSynthesis.cancel();
+          cleanup();
           return;
         }
         
-        if (!hasStarted) {
-          hasStarted = true;
+        // Reset consecutive errors on successful start
+        consecutiveErrors = 0;
+        
+        if (!speechActuallyStarted) {
+          speechActuallyStarted = true;
+          
+          // Clear the start timeout since speech has started
+          if (speechStartTimeout) {
+            clearTimeout(speechStartTimeout);
+            speechStartTimeout = null;
+          }
+          
           sessionStartTime = Date.now();
+          
+          // ONLY call onStart when speech actually starts (not when process starts)
           options.onStart?.();
           
           // Start global time-based progress interpolation
           globalProgressInterval = setInterval(() => {
             if (cancelled) {
-              if (globalProgressInterval) clearInterval(globalProgressInterval);
+              cleanup();
               return;
             }
             
@@ -308,13 +350,23 @@ export function speakWithBrowser(
       utterance.onerror = (event) => {
         if (cancelled) return;
         
-        // Skip to next chunk on error
-        console.warn('Browser TTS chunk error:', event.error);
+        consecutiveErrors++;
+        console.warn(`Browser TTS chunk error (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}):`, event.error);
+        
+        // Too many consecutive errors - browser TTS is not working
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          cleanup();
+          speechSynthesis.cancel();
+          options.onError?.(new Error('Too many consecutive speech errors'));
+          return;
+        }
+        
+        // Skip to next chunk on single error
         currentChunk++;
         if (currentChunk < chunks.length) {
           speakChunk();
         } else {
-          if (globalProgressInterval) clearInterval(globalProgressInterval);
+          cleanup();
           options.onProgress?.(1);
           options.onEnd?.();
         }
@@ -340,12 +392,13 @@ export function speakWithBrowser(
     
     // Fallback timeout - if no voices load, report error
     setTimeout(() => {
-      if (!hasStarted && !cancelled) {
+      if (!speechActuallyStarted && !cancelled) {
         speechSynthesis.onvoiceschanged = null;
         // Try anyway with empty voices
         if (speechSynthesis.getVoices().length > 0) {
           loadVoicesAndSpeak();
         } else {
+          cleanup();
           options.onError?.(new Error('No speech synthesis voices available'));
         }
       }
@@ -355,7 +408,7 @@ export function speakWithBrowser(
   return {
     cancel: () => {
       cancelled = true;
-      if (globalProgressInterval) clearInterval(globalProgressInterval);
+      cleanup();
       speechSynthesis.cancel();
     }
   };

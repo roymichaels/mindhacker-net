@@ -426,6 +426,43 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       return;
     }
 
+    // Helper function to start muted fallback mode
+    const startMutedFallback = () => {
+      console.log('[HypnosisModal] Starting muted fallback mode');
+      setIsMuted(true);
+      
+      toast({
+        title: language === 'he' ? 'הקול לא זמין' : 'Voice unavailable',
+        description: language === 'he' 
+          ? 'ממשיכים במצב קריאה. עקוב אחרי הטקסט המודגש.' 
+          : 'Continuing in reading mode. Follow the highlighted text.',
+      });
+      
+      // Start the session with muted mode timing
+      onStart();
+      
+      const wordsPerMinute = 85;
+      const words = sanitizedText.split(/\s+/).length;
+      const readingTime = Math.max((words / wordsPerMinute) * 60 * 1000, 60000);
+      
+      const startTime = Date.now();
+      const progressInterval = setInterval(() => {
+        if (sessionIdRef.current !== currentSessionId || !playingRef.current) {
+          clearInterval(progressInterval);
+          return;
+        }
+        
+        const elapsed = Date.now() - startTime;
+        const simulatedProgress = Math.min(elapsed / readingTime, 1);
+        onTimeUpdate(elapsed / 1000, readingTime / 1000);
+        
+        if (simulatedProgress >= 1) {
+          clearInterval(progressInterval);
+          onEnd();
+        }
+      }, 100);
+    };
+    
     try {
       const result = await synthesizeSpeech(sanitizedText, {
         provider: voiceProvider,
@@ -460,16 +497,9 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               return;
             }
 
-            // Voice failed - show error and don't auto-complete
-            console.error('Voice playback failed:', err);
-            toast({
-              title: language === 'he' ? 'שגיאה בהפעלת הקול' : 'Voice playback error',
-              description: language === 'he' 
-                ? 'לא הצלחנו להפעיל את הקול. נסה שוב.' 
-                : 'Could not play voice. Please try again.',
-              variant: 'destructive',
-            });
-            handleClose();
+            // Voice failed - instead of closing, switch to muted fallback mode
+            console.warn('Voice playback failed, switching to muted fallback:', err);
+            startMutedFallback();
           },
         });
       } else {
