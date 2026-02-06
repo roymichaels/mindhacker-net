@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+.logo-crystal {
+  transition: transform 1.2s ease, filter 1.2s ease;
+}
+.logo-crystal:hover {
+  transform: scale(1.06) rotate(1deg);
+  filter: drop-shadow(0 0 18px rgba(180,140,255,0.35));
+}
