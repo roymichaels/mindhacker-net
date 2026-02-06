@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import { ChevronUp, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
- import { Flame, Gem, Star } from 'lucide-react';
+import { Flame, Gem, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
- import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -20,7 +20,8 @@ import { useTheme } from 'next-themes';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
- import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { ProfileModal } from '@/components/dashboard/ProfileModal';
 
 interface AuroraAccountDropdownProps {
   isCollapsed?: boolean;
@@ -41,18 +42,17 @@ const AuroraAccountDropdown = ({
   const { hasRole } = useUserRoles();
   const navigate = useNavigate();
   const location = useLocation();
-   const dashboard = useUnifiedDashboard();
+  const dashboard = useUnifiedDashboard();
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const isAdmin = hasRole('admin');
   const isPractitioner = hasRole('practitioner');
   const isAffiliate = hasRole('affiliate');
   
-  // Check if we're in the panel area
   const isInPanel = location.pathname.startsWith('/panel') || 
                     location.pathname.startsWith('/coach') || 
                     location.pathname.startsWith('/affiliate');
 
-  // Fetch profile data
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
@@ -67,13 +67,11 @@ const AuroraAccountDropdown = ({
     enabled: !!user?.id,
   });
 
-  // If full_name is just the email, show the username part instead
   const fullName = profile?.full_name;
   const isNameEmail = fullName && fullName.includes('@');
   const displayName = isNameEmail 
     ? fullName.split('@')[0] 
     : (fullName || user?.email?.split('@')[0] || 'User');
-  const initials = displayName.slice(0, 2).toUpperCase();
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'he' ? 'en' : 'he');
@@ -86,11 +84,9 @@ const AuroraAccountDropdown = ({
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
-      // Force a full page reload to clear all state and redirect
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Fallback: force reload anyway
       window.location.href = '/';
     }
   };
@@ -99,119 +95,131 @@ const AuroraAccountDropdown = ({
     if (onOpenSettings) {
       onOpenSettings();
     }
-    // If no callback provided, do nothing (avoid navigation crash)
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
-            "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
-            "border border-border dark:border-primary/30 rounded-xl shadow-lg dark:shadow-xl",
-            "hover:border-primary/40 dark:hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300",
-            isCollapsed && "justify-center px-2"
-          )}
-        >
-          {/* Glow overlay - same as Identity Card */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-primary/20 via-transparent to-accent/10 dark:to-accent/20 pointer-events-none rounded-xl" />
-          
-          {/* Avatar - MultiThreadOrb matching Dashboard HUD */}
-          <div className={cn(
-            "shrink-0 relative flex items-center justify-center z-10",
-            isCollapsed ? "h-10 w-10" : "h-11 w-11"
-          )}>
-            {/* Radial gradient glow backdrop */}
-            <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
-            <div className="relative z-10">
-              <PersonalizedOrb 
-                size={isCollapsed ? 38 : 44}
-                state="idle"
-              />
-            </div>
-          </div>
-          
-          {!isCollapsed && (
-            <>
-              <div className="flex-1 text-start min-w-0 z-10">
-                <p className="text-sm font-medium truncate text-foreground">{displayName}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              </div>
-              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 z-10" />
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+    <>
+      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
       
-      <DropdownMenuContent
-        align={isRTL ? "end" : "start"}
-        side="top"
-         className="w-64 bg-popover border border-border shadow-xl z-[100]"
-      >
-           {/* Personalized Orb - at top of dropdown */}
-           <div className="flex flex-col items-center py-4 border-b border-border">
-             <div className="relative group cursor-pointer">
-               {/* Radial gradient glow backdrop */}
-               <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/15 to-transparent blur-lg pointer-events-none" />
-               <div className="relative z-10 group-hover:scale-105 transition-transform duration-300">
-                 <PersonalizedOrb size={72} state="idle" />
-               </div>
-             </div>
-             <p className="mt-2 text-sm font-medium text-foreground">{displayName}</p>
-             <p className="text-xs text-muted-foreground">{user?.email}</p>
-           </div>
-
-           {/* Character Stats HUD - below orb */}
-           {!dashboard.isLoading && (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-3 h-auto py-3 px-3 relative overflow-hidden",
+              "backdrop-blur-xl bg-gradient-to-br from-muted via-background to-muted dark:from-gray-950 dark:via-gray-900 dark:to-gray-950",
+              "border border-border dark:border-primary/30 rounded-xl shadow-lg dark:shadow-xl",
+              "hover:border-primary/40 dark:hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 transition-all duration-300",
+              isCollapsed && "justify-center px-2"
+            )}
+          >
+            {/* Glow overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-primary/20 via-transparent to-accent/10 dark:to-accent/20 pointer-events-none rounded-xl" />
+            
+            {/* Avatar */}
+            <div className={cn(
+              "shrink-0 relative flex items-center justify-center z-10",
+              isCollapsed ? "h-10 w-10" : "h-11 w-11"
+            )}>
+              <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-md pointer-events-none" />
+              <div className="relative z-10">
+                <PersonalizedOrb 
+                  size={isCollapsed ? 38 : 44}
+                  state="idle"
+                />
+              </div>
+            </div>
+            
+            {!isCollapsed && (
               <>
-                <DropdownMenuLabel className="pb-2">
-                  <div className="space-y-2">
-                    {/* Identity Title */}
-                    {dashboard.identityTitle && (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm">{dashboard.identityTitle.icon}</span>
-                        <span className="text-xs font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                          {dashboard.identityTitle.title}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* XP Bar */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] text-muted-foreground">
-                        <span>XP</span>
-                        <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
-                      </div>
-                      <Progress 
-                        value={dashboard.xpProgress.percentage} 
-                        className="h-1.5 bg-muted/50"
-                      />
-                    </div>
-                    
-                    {/* Stats Row */}
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs">
-                        <Star className="h-3 w-3" />
-                        <span className="font-bold">Lv.{dashboard.level}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-yellow-500 text-xs">
-                        <Gem className="h-3 w-3" />
-                        <span className="font-semibold">{dashboard.tokens}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-orange-500 text-xs">
-                        <Flame className="h-3 w-3" />
-                        <span className="font-semibold">{dashboard.streak}</span>
-                      </div>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <div className="flex-1 text-start min-w-0 z-10">
+                  <p className="text-sm font-medium truncate text-foreground">{displayName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 z-10" />
               </>
             )}
- 
-          {/* Back to Aurora - shown when in panel areas */}
+          </Button>
+        </DropdownMenuTrigger>
+        
+        <DropdownMenuContent
+          align={isRTL ? "end" : "start"}
+          side="top"
+          className="w-72 bg-popover border border-border shadow-xl z-[100]"
+        >
+          {/* Unified Orb + HUD as one gamified unit */}
+          <div 
+            className="relative overflow-hidden rounded-lg m-2 cursor-pointer group"
+            onClick={() => setProfileModalOpen(true)}
+          >
+            {/* Gamified background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-card to-accent/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            
+            {/* Content */}
+            <div className="relative z-10 p-4 flex flex-col items-center text-center">
+              {/* Orb with glow */}
+              <div className="relative mb-3 group-hover:scale-105 transition-transform duration-300">
+                <div className="absolute inset-[-40%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-xl pointer-events-none" />
+                <div className="relative z-10">
+                  <PersonalizedOrb size={80} state="idle" />
+                </div>
+              </div>
+
+              {/* Identity Title */}
+              {dashboard.identityTitle && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-base">{dashboard.identityTitle.icon}</span>
+                  <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {dashboard.identityTitle.title}
+                  </span>
+                </div>
+              )}
+              
+              {/* XP Bar */}
+              {!dashboard.isLoading && (
+                <div className="w-full space-y-1 mb-3">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>XP</span>
+                    <span>{dashboard.xpProgress.current}/{dashboard.xpProgress.required}</span>
+                  </div>
+                  <Progress 
+                    value={dashboard.xpProgress.percentage} 
+                    className="h-2 bg-muted/50"
+                  />
+                </div>
+              )}
+              
+              {/* Stats Row */}
+              {!dashboard.isLoading && (
+                <div className="flex items-center justify-center gap-3 w-full">
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs">
+                    <Star className="h-3 w-3" />
+                    <span className="font-bold">Lv.{dashboard.level}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                    <Gem className="h-3 w-3" />
+                    <span className="font-semibold">{dashboard.tokens}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-orange-500 text-xs">
+                    <Flame className="h-3 w-3" />
+                    <span className="font-semibold">{dashboard.streak}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Hover hint */}
+            <div className="absolute bottom-1 left-0 right-0 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] text-muted-foreground">
+                {language === 'he' ? 'לחץ לפרופיל מלא' : 'Click for full profile'}
+              </span>
+            </div>
+          </div>
+
+          <DropdownMenuSeparator />
+
+          {/* Back to Aurora */}
           {(showBackToAurora || isInPanel) && (
             <>
               <DropdownMenuItem onClick={() => navigate('/aurora')}>
@@ -222,7 +230,7 @@ const AuroraAccountDropdown = ({
             </>
           )}
 
-          {/* Panel Links - Role-based (only show when NOT in panel) */}
+          {/* Panel Links */}
           {!isInPanel && (
             <>
               {isAdmin && (
@@ -250,7 +258,7 @@ const AuroraAccountDropdown = ({
             </>
           )}
           
-          {/* Settings - only show if callback provided */}
+          {/* Settings */}
           {onOpenSettings && (
             <>
               <DropdownMenuItem onClick={handleSettingsClick}>
@@ -286,8 +294,9 @@ const AuroraAccountDropdown = ({
             <LogOut className="h-4 w-4 me-2" />
             {t('aurora.account.signOut')}
           </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 };
 
