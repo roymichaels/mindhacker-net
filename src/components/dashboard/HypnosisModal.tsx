@@ -35,7 +35,7 @@ interface HypnosisModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type SessionState = 'generating' | 'playing' | 'paused' | 'complete';
+type SessionState = 'generating' | 'synthesizing' | 'playing' | 'paused' | 'complete';
 
 export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { t, isRTL, language } = useTranslation();
@@ -67,6 +67,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const timeoutRefs = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isSynthesizingRef = useRef<boolean>(false); // Synthesis lock to prevent duplicate TTS calls
 
   // Rotating generating messages
   const [generatingMessageIndex, setGeneratingMessageIndex] = useState(0);
@@ -101,6 +102,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
   const fullCleanup = useCallback(() => {
     playingRef.current = false;
+    isSynthesizingRef.current = false; // Reset synthesis lock
     clearAllTimeouts();
     stopCurrentAudio();
     stopBrowserSpeech();
@@ -469,6 +471,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     onEnd: () => void,
     currentSessionId: number
   ) => {
+    // Block duplicate calls - synthesis lock
+    if (isSynthesizingRef.current) {
+      console.log('[TTS] Synthesis already in progress, ignoring duplicate call');
+      return;
+    }
+    isSynthesizingRef.current = true;
+    
+    // Show synthesizing state to the user
+    setState('synthesizing');
+    
     // Sanitize the script to remove time markers before TTS
     const sanitizedText = sanitizeScriptForTTS(text);
     console.log('[TTS] Script first 200 chars:', sanitizedText.substring(0, 200));
@@ -545,10 +557,16 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         speed: 0.9,
       });
 
-      if (sessionIdRef.current !== currentSessionId) return;
+      if (sessionIdRef.current !== currentSessionId) {
+        isSynthesizingRef.current = false;
+        return;
+      }
 
       if (result) {
         setVoiceProvider(result.provider);
+        // Synthesis done, switch to playing state
+        setState('playing');
+        isSynthesizingRef.current = false;
         
         // For browser TTS, the progress is handled inside playAudioUrl via speakWithBrowser
         // which now has smooth word-level interpolation
@@ -580,6 +598,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       } else {
         // ALL TTS providers failed - show error instead of simulating progress
         console.error('All TTS providers failed');
+        isSynthesizingRef.current = false;
         toast({
           title: language === 'he' ? 'שגיאה בסינתזת הקול' : 'Voice synthesis failed',
           description: language === 'he' 
@@ -591,6 +610,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       }
     } catch (error) {
       console.error('TTS failed:', error);
+      isSynthesizingRef.current = false;
       if (sessionIdRef.current === currentSessionId && playingRef.current) {
         toast({
           title: language === 'he' ? 'שגיאה' : 'Error',
@@ -641,12 +661,21 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   }, [user?.id, estimatedDuration, impact, hapticPattern, recordSession, clearAllTimeouts]);
 
   const togglePlayPause = () => {
+    // Don't allow toggle while synthesizing
+    if (state === 'synthesizing') return;
+    
     if (state === 'playing') {
+      // Pause - stop everything
       setState('paused');
       playingRef.current = false;
       stopCurrentAudio();
+      stopBrowserSpeech();
       hapticPattern('selection');
     } else if (state === 'paused') {
+      // Resume - FIRST cleanup any lingering audio, THEN restart
+      stopCurrentAudio();
+      stopBrowserSpeech();
+      
       setState('playing');
       playingRef.current = true;
       if (script) {
@@ -684,12 +713,12 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       <DialogContent 
         className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col bg-background overflow-visible"
         onPointerDownOutside={(e) => {
-          if (state === 'generating' || state === 'playing' || state === 'paused') {
+          if (state === 'generating' || state === 'synthesizing' || state === 'playing' || state === 'paused') {
             e.preventDefault();
           }
         }}
         onEscapeKeyDown={(e) => {
-          if (state === 'generating' || state === 'playing' || state === 'paused') {
+          if (state === 'generating' || state === 'synthesizing' || state === 'playing' || state === 'paused') {
             e.preventDefault();
           }
         }}
@@ -752,6 +781,45 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
                 
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                   {t('hypnosisSession.generatingDisclaimer')}
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Synthesizing State - Preparing voice */}
+          {state === 'synthesizing' && (
+            <motion.div
+              key="synthesizing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 space-y-6 sm:space-y-8"
+              style={{ overflow: 'visible' }}
+            >
+              <div 
+                className="relative flex items-center justify-center"
+                style={{ 
+                  width: orbSize + 100, 
+                  height: orbSize + 100,
+                  minWidth: orbSize + 100,
+                  minHeight: orbSize + 100,
+                }}
+              >
+                <PersonalizedOrb 
+                  size={orbSize} 
+                  state="listening"
+                  showGlow={true}
+                />
+              </div>
+              <div className="text-center space-y-4">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+                <p className="text-lg font-medium">
+                  {language === 'he' ? 'מכין את הקול...' : 'Preparing voice...'}
+                </p>
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                  {language === 'he' 
+                    ? 'הסינתזה של טקסט ארוך לוקחת מספר שניות' 
+                    : 'Synthesizing long text takes a few seconds'}
                 </p>
               </div>
             </motion.div>
