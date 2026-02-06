@@ -174,7 +174,7 @@ const DashboardSidebar = ({
       )}
 
       {/* Navigation Section */}
-      <div className={cn("mb-4 w-full", isMobile ? "px-0" : "")}>
+      <div className={cn("mb-4 w-full pb-2", isMobile ? "px-0" : "")}>
         <div className="space-y-1.5 w-full overflow-hidden">
           {navItems.map((item) => {
             const s = highlightStyles[item.highlight];
