@@ -239,6 +239,8 @@ export function speakWithBrowser(
   let progressInterval: ReturnType<typeof setInterval> | null = null;
   
   // Track word-level progress for smooth karaoke
+  // Using 85 WPM for hypnosis pace (slow, calming speech)
+  const HYPNOSIS_WPM = 85;
   const totalWords = text.split(/\s+/).length;
   let wordsSpoken = 0;
   
@@ -272,7 +274,8 @@ export function speakWithBrowser(
 
       // Estimate chunk duration for smooth progress interpolation
       const chunkWords = wordsPerChunk[currentChunk];
-      const chunkDurationMs = (chunkWords / 130) * 60 * 1000 / (options.rate || 0.85);
+      // Use HYPNOSIS_WPM (85) for accurate slow-paced progress, adjusted for speech rate
+      const chunkDurationMs = (chunkWords / HYPNOSIS_WPM) * 60 * 1000 / (options.rate || 0.85);
       let chunkStartTime = 0;
       
       utterance.onstart = () => {
@@ -475,9 +478,9 @@ export async function playAudioUrl(
     if (audioUrl.startsWith('browser-tts://')) {
       const text = decodeURIComponent(audioUrl.replace('browser-tts://', ''));
       
-      // Calculate estimated duration based on word count (130 words per minute for slow hypnosis)
+      // Calculate estimated duration based on word count (85 WPM for slow hypnosis pace)
       const wordCount = text.split(/\s+/).length;
-      const estimatedDuration = (wordCount / 130) * 60; // seconds
+      const estimatedDuration = (wordCount / 85) * 60; // seconds at 85 WPM for hypnosis
       
       const browserTTS = speakWithBrowser(text, {
         rate: 0.85,
