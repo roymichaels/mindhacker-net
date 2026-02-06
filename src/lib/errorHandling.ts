@@ -1,6 +1,7 @@
 import { toast } from "@/hooks/use-toast";
+import { debug } from "./debug";
 
-// Generate unique error ID for tracking
+// Re-export generateErrorId for backwards compatibility
 export const generateErrorId = (): string => {
   return `ERR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
@@ -17,18 +18,12 @@ export const handleError = (
   userMessage: string,
   context?: string,
   title?: string
-) => {
-  const errorId = generateErrorId();
-  
-  // Log only error ID to console (not full error in production)
-  if (import.meta.env.DEV) {
-    console.error(`Error ${errorId}${context ? ` in ${context}` : ''}:`, error);
-  } else {
-    console.error(`Error ${errorId}${context ? ` in ${context}` : ''}`);
-  }
-  
-  // In production, you would send this to a logging service
-  // await logToServer({ errorId, message: error.message, stack: error.stack, context });
+): string => {
+  // Use the centralized debug.error which returns an error ID
+  const errorId = debug.error(
+    `Error${context ? ` in ${context}` : ''}:`,
+    error
+  );
   
   // Show user-friendly message with translated title
   toast({

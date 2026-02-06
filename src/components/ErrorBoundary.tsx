@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { debug } from '@/lib/debug';
 
 interface Props {
   children: ReactNode;
@@ -10,28 +11,28 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorId: string | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorId: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error for debugging (only error ID in production)
-    const errorId = `ERR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    console.error(`React Error Boundary caught error ${errorId}:`, error.message);
+    // Log error using centralized debug utility
+    const errorId = debug.error(
+      'React Error Boundary caught error:',
+      error.message,
+      { componentStack: errorInfo.componentStack }
+    );
     
-    // In production, you would send this to a logging service
-    if (import.meta.env.DEV) {
-      console.error('Error details:', error);
-      console.error('Component stack:', errorInfo.componentStack);
-    }
+    this.setState({ errorId });
   }
 
   handleReload = () => {
@@ -64,6 +65,11 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-muted-foreground">
                 אירעה שגיאה בלתי צפויה. אנא נסה לרענן את הדף או לחזור לדף הבית.
               </p>
+              {this.state.errorId && (
+                <p className="text-xs text-muted-foreground/60 font-mono">
+                  {this.state.errorId}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

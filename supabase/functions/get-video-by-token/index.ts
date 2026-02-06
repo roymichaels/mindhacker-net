@@ -1,25 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
+import { jsonResponse, badRequestResponse, errorResponse, notFoundResponse, forbiddenResponse } from "../_shared/responses.ts";
+import { logError } from "../_shared/errorHandling.ts";
 
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (isCorsPreFlight(req)) {
+    return handleCorsPreFlight();
   }
 
   try {
     const { token } = await req.json();
 
     if (!token) {
-      return new Response(
-        JSON.stringify({ error: "קישור לא תקין" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return badRequestResponse("קישור לא תקין");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -46,42 +40,27 @@ serve(async (req) => {
       .maybeSingle();
 
     if (accessError) {
-      console.error("Error fetching access record:", accessError);
-      return new Response(
-        JSON.stringify({ error: "שגיאה בטעינת הסרטון" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      logError("get-video-by-token", accessError);
+      return errorResponse("שגיאה בטעינת הסרטון");
     }
 
     if (!accessRecord) {
-      return new Response(
-        JSON.stringify({ error: "קישור לא תקין או שפג תוקפו" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return notFoundResponse("קישור לא תקין או שפג תוקפו");
     }
 
     // Check if access is active
     if (!accessRecord.is_active) {
-      return new Response(
-        JSON.stringify({ error: "הגישה לסרטון הושבתה" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return forbiddenResponse("הגישה לסרטון הושבתה");
     }
 
     // Check if access has expired
     if (accessRecord.expires_at && new Date(accessRecord.expires_at) < new Date()) {
-      return new Response(
-        JSON.stringify({ error: "הגישה לסרטון פגה" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return forbiddenResponse("הגישה לסרטון פגה");
     }
 
     const video = accessRecord.hypnosis_videos as any;
     if (!video) {
-      return new Response(
-        JSON.stringify({ error: "הסרטון לא נמצא" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return notFoundResponse("הסרטון לא נמצא");
     }
 
     // Generate a signed URL for the video file
@@ -90,27 +69,18 @@ serve(async (req) => {
       .createSignedUrl(video.file_path, 7200); // 2 hour expiry
 
     if (signedUrlError) {
-      console.error("Error creating signed URL:", signedUrlError);
-      return new Response(
-        JSON.stringify({ error: "שגיאה בטעינת הסרטון" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      logError("get-video-by-token", signedUrlError, { context: "signed URL creation" });
+      return errorResponse("שגיאה בטעינת הסרטון");
     }
 
-    return new Response(
-      JSON.stringify({
-        title: video.title,
-        description: video.description,
-        duration_seconds: video.duration_seconds,
-        video_url: signedUrlData.signedUrl,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      title: video.title,
+      description: video.description,
+      duration_seconds: video.duration_seconds,
+      video_url: signedUrlData.signedUrl,
+    });
   } catch (err) {
-    console.error("Unexpected error:", err);
-    return new Response(
-      JSON.stringify({ error: "שגיאה לא צפויה" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logError("get-video-by-token", err);
+    return errorResponse("שגיאה לא צפויה");
   }
 });

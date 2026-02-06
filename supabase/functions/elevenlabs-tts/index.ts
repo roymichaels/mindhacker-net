@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
+import { jsonResponse, badRequestResponse, audioResponse } from "../_shared/responses.ts";
+import { logError } from "../_shared/errorHandling.ts";
 
 interface ElevenLabsTTSRequest {
   text: string;
@@ -28,8 +26,8 @@ const VOICE_MAP: Record<string, string> = {
 };
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  if (isCorsPreFlight(req)) {
+    return handleCorsPreFlight();
   }
 
   try {
@@ -45,22 +43,16 @@ serve(async (req) => {
     } = body;
 
     if (!text || text.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Text is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return badRequestResponse('Text is required');
     }
 
     const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
     if (!ELEVENLABS_API_KEY) {
-      console.error('ELEVENLABS_API_KEY is not configured');
-      return new Response(JSON.stringify({ 
+      console.error('[ElevenLabs] API key not configured');
+      return jsonResponse({ 
         error: 'ElevenLabs not configured',
         fallback: true,
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      }, 500);
     }
 
     // Resolve voice ID from name or use as-is
@@ -70,7 +62,7 @@ serve(async (req) => {
     const maxLength = 5000;
     const truncatedText = text.length > maxLength ? text.substring(0, maxLength) : text;
 
-    console.log('ElevenLabs TTS request:', { 
+    console.log('[ElevenLabs] TTS request:', { 
       textLength: truncatedText.length, 
       voice: resolvedVoiceId,
       model: modelId,
@@ -101,14 +93,14 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('ElevenLabs TTS error:', response.status, errorText);
+      console.error('[ElevenLabs] TTS error:', response.status, errorText);
 
       // Try to parse ElevenLabs error payload (often JSON)
       let parsed: any = null;
       try {
         parsed = JSON.parse(errorText);
       } catch {
-        // ignore
+        // ignore parse errors
       }
 
       const detailStatus = parsed?.detail?.status;
@@ -116,80 +108,48 @@ serve(async (req) => {
 
       // ElevenLabs may return 401 for quota issues in some cases.
       if (detailStatus === 'quota_exceeded') {
-        return new Response(
-          JSON.stringify({
-            error: 'Quota exceeded',
-            message: detailMessage || 'Your ElevenLabs quota is exceeded.',
-            fallback: true,
-          }),
-          {
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
+        return jsonResponse({
+          error: 'Quota exceeded',
+          message: detailMessage || 'Your ElevenLabs quota is exceeded.',
+          fallback: true,
+        }, 402);
       }
 
       if (response.status === 401) {
-        return new Response(
-          JSON.stringify({
-            error: 'Unauthorized',
-            message: 'ElevenLabs rejected the request (check API key permissions).',
-            fallback: true,
-          }),
-          {
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
+        return jsonResponse({
+          error: 'Unauthorized',
+          message: 'ElevenLabs rejected the request (check API key permissions).',
+          fallback: true,
+        }, 401);
       }
 
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({
-            error: 'Rate limit exceeded',
-            fallback: true,
-          }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
+        return jsonResponse({
+          error: 'Rate limit exceeded',
+          fallback: true,
+        }, 429);
       }
 
-      return new Response(
-        JSON.stringify({
-          error: `ElevenLabs TTS failed: ${response.status}`,
-          message: detailMessage || errorText,
-          fallback: true,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return jsonResponse({
+        error: `ElevenLabs TTS failed: ${response.status}`,
+        message: detailMessage || errorText,
+        fallback: true,
+      }, 500);
     }
 
     // Return the audio directly
     const audioBuffer = await response.arrayBuffer();
     
-    console.log('ElevenLabs TTS success:', { audioSize: audioBuffer.byteLength });
+    console.log('[ElevenLabs] TTS success:', { audioSize: audioBuffer.byteLength });
 
-    return new Response(audioBuffer, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': audioBuffer.byteLength.toString(),
-      },
-    });
+    return audioResponse(audioBuffer);
 
   } catch (error) {
-    console.error('ElevenLabs TTS error:', error);
-    return new Response(JSON.stringify({ 
+    const errorId = logError('elevenlabs-tts', error);
+    return jsonResponse({ 
       error: error instanceof Error ? error.message : 'Unknown error',
       fallback: true,
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      errorId,
+    }, 500);
   }
 });
