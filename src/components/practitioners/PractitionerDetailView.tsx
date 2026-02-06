@@ -225,11 +225,6 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
           {practitioner.specialties.map((s) => (
             <Badge key={s.id} variant="outline" className="text-xs bg-primary/5 border-primary/20">
               {language === 'en' && s.specialty_label_en ? s.specialty_label_en : s.specialty_label}
-              {s.years_experience > 0 && (
-                <span className="ms-1 text-muted-foreground">
-                  ({s.years_experience}{language === 'he' ? ' שנים' : 'y'})
-                </span>
-              )}
             </Badge>
           ))}
         </div>
@@ -241,7 +236,7 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
       ) : bio ? (
         <div className="bg-muted/30 rounded-xl p-4 border border-border/50">
           <h3 className="font-semibold text-sm mb-1.5">{t('practitionerLanding.aboutTitle')}</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{bio}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words">{bio}</p>
         </div>
       ) : null}
 
