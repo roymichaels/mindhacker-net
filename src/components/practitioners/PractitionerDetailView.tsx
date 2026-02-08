@@ -40,6 +40,20 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
     ? (language === 'en' && practitioner.bio_en ? practitioner.bio_en : practitioner.bio)
     : null;
 
+  // Fetch testimonials from the testimonials table
+  const { data: testimonials } = useQuery({
+    queryKey: ['testimonials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Fetch offers
   const { data: offers } = useQuery({
     queryKey: ['practitioner-offers', basicPractitioner.id],
@@ -266,7 +280,7 @@ const PractitionerDetailView = ({ practitioner: basicPractitioner, onBack }: Pra
             <MessageSquareText className="h-4 w-4 text-primary" />
             {language === 'he' ? 'ביקורות' : 'Reviews'}
           </h3>
-          <PractitionerReviewSlider reviews={practitioner.reviews || []} />
+          <PractitionerReviewSlider reviews={practitioner.reviews || []} testimonials={testimonials || []} />
         </div>
       )}
     </div>

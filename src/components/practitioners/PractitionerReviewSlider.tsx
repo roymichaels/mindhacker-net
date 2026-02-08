@@ -6,11 +6,24 @@ import { useTranslation } from '@/hooks/useTranslation';
 import type { PractitionerReview } from '@/hooks/usePractitioners';
 import { cn } from '@/lib/utils';
 
-interface PractitionerReviewSliderProps {
-  reviews: PractitionerReview[];
+interface Testimonial {
+  id: string;
+  name: string;
+  name_en: string | null;
+  quote: string;
+  quote_en: string | null;
+  role: string | null;
+  role_en: string | null;
+  avatar_url: string | null;
+  initials: string | null;
 }
 
-const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) => {
+interface PractitionerReviewSliderProps {
+  reviews: PractitionerReview[];
+  testimonials?: Testimonial[];
+}
+
+const PractitionerReviewSlider = ({ reviews, testimonials = [] }: PractitionerReviewSliderProps) => {
   const { isRTL, language } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollStart, setCanScrollStart] = useState(false);
@@ -28,12 +41,54 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
     }
   };
 
+  // Build unified cards: testimonials first, then practitioner_reviews
+  const cards = (() => {
+    const items: Array<{
+      id: string;
+      name: string;
+      initials: string;
+      avatarUrl?: string;
+      rating: number;
+      text: string | null;
+      role?: string;
+    }> = [];
+
+    for (const t of testimonials) {
+      const name = language === 'en' && t.name_en ? t.name_en : t.name;
+      const text = language === 'en' && t.quote_en ? t.quote_en : t.quote;
+      const role = language === 'en' && t.role_en ? t.role_en : t.role;
+      items.push({
+        id: `t-${t.id}`,
+        name,
+        initials: t.initials || name.split(' ').map(n => n[0]).join('').slice(0, 2),
+        avatarUrl: t.avatar_url || undefined,
+        rating: 5,
+        text,
+        role: role || undefined,
+      });
+    }
+
+    for (const review of reviews) {
+      const name = review.reviewer_name || review.profiles?.full_name || (language === 'he' ? 'משתמש/ת' : 'User');
+      items.push({
+        id: `r-${review.id}`,
+        name,
+        initials: name.split(' ').map(n => n[0]).join('').slice(0, 2),
+        avatarUrl: review.reviewer_avatar_url || undefined,
+        rating: review.rating,
+        text: review.review_text,
+      });
+    }
+
+    return items;
+  })();
+
   useEffect(() => {
     checkScroll();
     const el = scrollRef.current;
     if (el) el.addEventListener('scroll', checkScroll);
     return () => el?.removeEventListener('scroll', checkScroll);
-  }, [reviews]);
+  }, [cards.length]);
 
   const scroll = (direction: 'start' | 'end') => {
     const el = scrollRef.current;
@@ -45,7 +100,7 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
 
   // Auto-advance every 5s
   useEffect(() => {
-    if (reviews.length <= 1) return;
+    if (cards.length <= 1) return;
     const interval = setInterval(() => {
       const el = scrollRef.current;
       if (!el) return;
@@ -59,9 +114,9 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [reviews.length, isRTL]);
+  }, [cards.length, isRTL]);
 
-  if (!reviews.length) {
+  if (!cards.length) {
     return (
       <div className="text-center py-6 text-muted-foreground text-sm">
         <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-40" />
@@ -72,7 +127,6 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
 
   return (
     <div className="relative group/slider">
-      {/* Scroll buttons */}
       {canScrollStart && (
         <Button
           variant="ghost"
@@ -94,7 +148,6 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
         </Button>
       )}
 
-      {/* Edge fades */}
       {canScrollStart && (
         <div className={cn(
           "absolute top-0 bottom-0 w-8 z-[5] pointer-events-none",
@@ -114,49 +167,47 @@ const PractitionerReviewSlider = ({ reviews }: PractitionerReviewSliderProps) =>
         ref={scrollRef}
         className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 py-1"
       >
-        {reviews.map((review) => {
-          const name = review.reviewer_name || review.profiles?.full_name || (language === 'he' ? 'משתמש/ת' : 'User');
-          const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
-
-          return (
-            <div
-              key={review.id}
-              className={cn(
-                "w-[240px] flex-shrink-0 snap-start rounded-xl p-3",
-                "bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm",
-                "border border-border/50"
-              )}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Avatar className="h-7 w-7">
-                  <AvatarImage src={review.reviewer_avatar_url || undefined} />
-                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{name}</p>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        className={cn(
-                          "h-3 w-3",
-                          s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"
-                        )}
-                      />
-                    ))}
-                  </div>
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className={cn(
+              "w-[240px] flex-shrink-0 snap-start rounded-xl p-3",
+              "bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm",
+              "border border-border/50"
+            )}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={card.avatarUrl} />
+                <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                  {card.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{card.name}</p>
+                {card.role && (
+                  <p className="text-[10px] text-muted-foreground truncate">{card.role}</p>
+                )}
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={cn(
+                        "h-3 w-3",
+                        s <= card.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"
+                      )}
+                    />
+                  ))}
                 </div>
               </div>
-              {review.review_text && (
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                  {review.review_text}
-                </p>
-              )}
             </div>
-          );
-        })}
+            {card.text && (
+              <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                {card.text}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
