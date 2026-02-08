@@ -1,105 +1,73 @@
 
 
-# Fix Reviews, Unite Products/Services, and Build In-Modal Scheduling
+# Project Cleanup: Remove Redundancies and Unused Files
 
-## 1. Reviews Not Showing
+## Overview
+After thorough analysis of the codebase, here are the unused and redundant items identified, organized by category.
 
-The `practitioner_reviews` table exists but has **zero rows** in the database. Dean has `reviews_count: 0` and `rating: 0`. The code is correctly fetching and rendering reviews -- there's simply no data.
+---
 
-**Fix**: Insert sample/seed reviews for Dean so the slider actually renders. We'll add 3-4 sample approved reviews directly into `practitioner_reviews`.
+## 1. Unused Components (Safe to Delete)
 
-**SQL Migration**:
-```sql
-INSERT INTO practitioner_reviews (practitioner_id, user_id, rating, review_text, is_approved)
-VALUES 
-  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 5, 'מפגש מדהים, הרגשתי שינוי מיידי!', true),
-  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 5, 'דין מקצועי ואמפתי, ממליץ בחום', true),
-  ('5b000e72-bd7a-407f-a50c-3a25371c1b4f', (SELECT id FROM auth.users LIMIT 1), 4, 'חוויה חזקה, תודה על הליווי', true);
+### `src/components/chat/` (entire directory)
+- `ChatPanel.tsx`, `ChatInput.tsx`, `ChatMessage.tsx`
+- **Reason**: Not imported anywhere in the app. The chat system has been fully replaced by the Aurora chat components (`src/components/aurora/`).
 
--- Update the practitioner's cached rating/count
-UPDATE practitioners SET rating = 4.7, reviews_count = 3 WHERE id = '5b000e72-bd7a-407f-a50c-3a25371c1b4f';
-```
+### `src/components/platform/` (entire directory)
+- `PlatformHeroSection.tsx`, `AuroraPromoSection.tsx`, `HowItWorksSection.tsx`, `FeaturedPractitionersSection.tsx`, `index.ts`
+- **Reason**: Zero imports anywhere in the project. Completely unused.
 
-## 2. Unite Products and Services into One Horizontal List
+### `src/components/HeroSection.tsx` (root-level)
+- **Reason**: Not imported anywhere. The homepage uses `GameHeroSection` from `components/home/`. This root-level file is a legacy duplicate.
 
-Currently the detail view has two separate sections:
-- **"Products & Courses"** (from `offers` table) -- uses `PractitionerMiniOfferCard`
-- **"Services"** (from `practitioner_services` table) -- uses inline cards
+### `src/components/practitioners/PractitionerMiniOfferCard.tsx`
+- **Reason**: Only exported from the index barrel file but never actually imported/used by any component. It was replaced by `PractitionerMiniItemCard.tsx`.
 
-**Change**: Merge both into a single horizontal list under one heading (e.g., "Products & Services" / "מוצרים ושירותים"). Both will use the same card style (`PractitionerMiniOfferCard` design).
+### Legacy home sections (4 files)
+- `src/components/home/WhatIsThisSection.tsx`
+- `src/components/home/GamificationFeaturesSection.tsx`
+- `src/components/home/JobShowcaseSection.tsx`
+- `src/components/home/PractitionerShowcaseSection.tsx`
+- **Reason**: Marked as "Legacy sections (kept for potential future use)" in `index.ts` -- no imports anywhere.
 
-### Edit `PractitionerDetailView.tsx`:
-- Remove the separate "Services" section
-- Combine offers and services into one unified array
-- Create a small adapter to map `practitioner_services` items to the same card shape as offers
-- One horizontal scroll section with a unified heading using a `Package` icon
+### Simplified home sections (4 files)
+- `src/components/home/HeroSection.tsx`
+- `src/components/home/FeaturesSection.tsx`
+- `src/components/home/HowItWorksSection.tsx`
+- `src/components/home/CTASection.tsx`
+- **Reason**: Marked as "Simplified components (kept for potential future use)" in `index.ts` -- no imports anywhere.
 
-### Edit or create a `PractitionerMiniServiceCard.tsx`:
-- Or better: make `PractitionerMiniOfferCard` accept a generic item type (title, subtitle, price, color, onClick)
-- Services will show duration as subtitle, price as price, and clicking opens the booking view (see below)
+---
 
-## 3. Build In-Modal Scheduling
+## 2. Deprecated Edge Function
 
-Instead of linking to Calendly, build a scheduling UI within the modal itself. This requires:
+### `supabase/functions/chat-assistant/`
+- **Reason**: File header explicitly says `@deprecated - Use aurora-chat with mode='widget' instead`. It just proxies to `aurora-chat`. Only one reference remains in `MessageThread.tsx` which should be updated to call `aurora-chat` directly.
 
-### Database: Create `practitioner_availability` and `bookings` tables
+---
 
-```sql
-CREATE TABLE practitioner_availability (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE,
-  day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6), -- 0=Sunday
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+## 3. Code Fixes for Remaining References
 
-CREATE TABLE bookings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  practitioner_id UUID REFERENCES practitioners(id) ON DELETE CASCADE,
-  service_id UUID REFERENCES practitioner_services(id),
-  client_user_id UUID NOT NULL,
-  booking_date DATE NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending','confirmed','cancelled','completed')),
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
+### `src/pages/MessageThread.tsx`
+- Update the `chat-assistant` function URL to use `aurora-chat` directly (with `mode: 'widget'`), then the deprecated edge function can be deleted.
 
-With RLS policies so practitioners see their own bookings and clients see theirs.
+### `src/components/home/index.ts`
+- Remove all 8 legacy/simplified exports that reference deleted files.
 
-### New Component: `PractitionerBookingView.tsx`
+### `src/components/practitioners/index.ts`
+- Remove the `PractitionerMiniOfferCard` export line.
 
-A multi-step in-modal booking flow:
-1. **Select service** -- shows the service cards, user picks one
-2. **Pick date** -- calendar picker showing available dates (based on `practitioner_availability` + existing `bookings`)
-3. **Pick time slot** -- shows available time slots for the chosen date
-4. **Confirm** -- summary + "Book Now" button, inserts into `bookings` table
+---
 
-This component renders inside the `PractitionerDetailView` when user clicks "Book Now" or clicks on a service card.
+## 4. Summary
 
-### Edit `PractitionerDetailView.tsx`:
-- Replace the Calendly link button with an in-modal "Book a Session" button
-- When clicked, show `PractitionerBookingView` in-place (like a sub-view within the detail)
-- Add a back button to return to the detail view
+| Category | Files Removed | 
+|----------|--------------|
+| Unused components | 14 files |
+| Deprecated edge function | 1 directory |
+| Index barrel cleanups | 2 files edited |
+| Reference fix | 1 file edited |
+| **Total files deleted** | **~15** |
 
-### Seed availability for Dean:
-- Insert default availability slots (e.g., Sun-Thu 9:00-17:00)
+All deletions are verified as safe -- no imports reference these files anywhere in the active codebase.
 
-## Files to Create
-1. `src/components/practitioners/PractitionerBookingView.tsx` -- the scheduling UI
-2. `src/components/practitioners/PractitionerMiniItemCard.tsx` -- unified card for both offers and services (replaces separate card types)
-
-## Files to Edit
-1. `src/components/practitioners/PractitionerDetailView.tsx` -- merge products/services, replace Calendly with booking view, wire reviews
-2. `src/components/practitioners/PractitionerMiniOfferCard.tsx` -- generalize or keep as-is if we create a new unified card
-
-## Database Migrations
-1. Insert seed reviews for Dean + update cached counts
-2. Create `practitioner_availability` table
-3. Create `bookings` table with RLS
-4. Seed availability for Dean
