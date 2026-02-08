@@ -33,10 +33,8 @@ export const LanguagePrompt = () => {
             : 'Choose your preferred language for viewing the site'}
         </DialogDescription>
         <div className="flex flex-col items-center gap-6 py-4">
-          {/* Logo - using AuroraOrbIcon */}
-          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center">
-            <AuroraOrbIcon size={64} className="text-primary" />
-          </div>
+          {/* Logo */}
+          <AuroraOrbIcon size={112} className="text-primary" />
 
           {/* Title */}
           <div className="text-center space-y-2">
