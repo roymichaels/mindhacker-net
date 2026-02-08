@@ -10,4 +10,4 @@ Disallow: /login
 Disallow: /signup
 
 # Sitemap location
-Sitemap: https://mind-hacker.net/sitemap.xml
+Sitemap: https://mindos.app/sitemap.xml

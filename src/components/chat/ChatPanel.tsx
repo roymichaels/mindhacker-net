@@ -18,7 +18,7 @@ interface ChatPanelProps {
   fullscreen?: boolean;
 }
 
-const STORAGE_KEY = "mind-hacker-chat-history";
+const STORAGE_KEY = "mind-os-chat-history";
 // Use unified aurora-chat with widget mode instead of deprecated chat-assistant
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
 

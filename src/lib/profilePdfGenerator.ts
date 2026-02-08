@@ -194,7 +194,7 @@ export const generateProfilePDF = async (data: ProfilePDFData) => {
   
   // Brand
   doc.setFontSize(10);
-  addText(doc, 'MindHacker.net', pageWidth / 2, pageHeight - 20, { align: 'center' });
+  addText(doc, 'MindOS.app', pageWidth / 2, pageHeight - 20, { align: 'center' });
 
   // =====================
   // PAGE 2: Scores

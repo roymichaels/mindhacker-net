@@ -38,7 +38,7 @@ const AI_MODELS = [
   { value: "openai/gpt-5", label: "GPT-5 (Premium)" },
 ];
 
-const DEFAULT_SYSTEM_PROMPT = `אתה עוזר AI של Mind Hacker - פלטפורמת התפתחות אישית מבוססת בינה מלאכותית.
+const DEFAULT_SYSTEM_PROMPT = `אתה עוזר AI של Mind OS - פלטפורמת התפתחות אישית מבוססת בינה מלאכותית.
 
 ## תפקידך
 - לעזור למבקרים להבין את הפלטפורמה והשירותים
@@ -339,7 +339,7 @@ const ChatAssistant = () => {
                 <Textarea
                   value={greetingHe}
                   onChange={(e) => setGreetingHe(e.target.value)}
-                  placeholder="היי! אני העוזר של Mind Hacker..."
+                  placeholder="היי! אני העוזר של Mind OS..."
                   dir="rtl"
                 />
               </div>
@@ -348,7 +348,7 @@ const ChatAssistant = () => {
                 <Textarea
                   value={greetingEn}
                   onChange={(e) => setGreetingEn(e.target.value)}
-                  placeholder="Hi! I'm the Mind Hacker assistant..."
+                  placeholder="Hi! I'm the Mind OS assistant..."
                   dir="ltr"
                 />
               </div>

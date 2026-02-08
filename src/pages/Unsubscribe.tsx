@@ -17,7 +17,7 @@ const Unsubscribe = () => {
 
   useSEO({
     title: isRTL ? "הסרה מרשימת התפוצה" : "Unsubscribe",
-    description: isRTL ? "הסרה מניוזלטר Mind Hacker" : "Unsubscribe from Mind Hacker newsletter",
+    description: isRTL ? "הסרה מניוזלטר Mind OS" : "Unsubscribe from Mind OS newsletter",
     url: `${window.location.origin}/unsubscribe`,
   });
 

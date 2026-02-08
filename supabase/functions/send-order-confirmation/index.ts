@@ -129,7 +129,7 @@ serve(async (req: Request): Promise<Response> => {
         <p style="margin: 0; color: #f59e0b;"><strong>שים לב:</strong> ההזמנה תישמר ל-7 ימים. אם לא התקבל תשלום, ההזמנה תבוטל אוטומטית.</p>
       </div>
       
-      <p style="margin-top: 30px;">מחכים לשמוע ממך,<br/><strong style="color: #00f0ff;">צוות Mind Hacker</strong></p>
+      <p style="margin-top: 30px;">מחכים לשמוע ממך,<br/><strong style="color: #00f0ff;">צוות Mind OS</strong></p>
     `;
 
     // English content
@@ -188,7 +188,7 @@ serve(async (req: Request): Promise<Response> => {
         <p style="margin: 0; color: #f59e0b;"><strong>Note:</strong> Your order will be held for 7 days. If payment is not received, it will be automatically cancelled.</p>
       </div>
       
-      <p style="margin-top: 30px;">Looking forward to hearing from you,<br/><strong style="color: #00f0ff;">Mind Hacker Team</strong></p>
+      <p style="margin-top: 30px;">Looking forward to hearing from you,<br/><strong style="color: #00f0ff;">Mind OS Team</strong></p>
     `;
 
     const emailContent = isRTL ? hebrewContent : englishContent;
@@ -210,11 +210,11 @@ serve(async (req: Request): Promise<Response> => {
             <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00f0ff, #8b5cf6); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
               <span style="font-size: 28px;">✅</span>
             </div>
-            <h2 style="color: #00f0ff; margin: 0;">Mind Hacker</h2>
+            <h2 style="color: #00f0ff; margin: 0;">Mind OS</h2>
           </div>
           <div class="content">${emailContent}</div>
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind Hacker - פלטפורמת התפתחות אישית' : 'Mind Hacker - Personal Development Platform'}</p>
+            <p style="color: #6b7280; font-size: 14px;">${isRTL ? 'Mind OS - פלטפורמת התפתחות אישית' : 'Mind OS - Personal Development Platform'}</p>
             <p style="color: #6b7280; font-size: 12px;">
               <a href="${siteUrl}/dashboard" style="color: #00f0ff;">${isRTL ? 'צפה בהזמנות שלי' : 'View My Orders'}</a>
             </p>
@@ -226,7 +226,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "Mind Hacker <onboarding@resend.dev>",
+      from: "Mind OS <onboarding@resend.dev>",
       to: [userEmail],
       subject,
       html: emailHtml,

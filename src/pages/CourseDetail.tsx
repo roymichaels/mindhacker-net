@@ -125,7 +125,7 @@ const CourseDetail = () => {
 
   // Update SEO when course data is loaded
   useSEO({
-    title: course ? `${course.title} | ${language === 'en' ? 'Mind-Hacker' : 'מיינד-האקר'}` : (language === 'en' ? "Digital Product | Mind-Hacker" : "מוצר דיגיטלי | מיינד-האקר"),
+    title: course ? `${course.title} | ${language === 'en' ? 'Mind OS' : 'מיינד OS'}` : (language === 'en' ? "Digital Product | Mind OS" : "מוצר דיגיטלי | מיינד OS"),
     description: course?.description || (language === 'en' ? "Discover quality digital products in consciousness training and personal development" : "גלה מוצר דיגיטלי איכותי בתחום אימון התודעה והפיתוח האישי"),
     keywords: course ? `${course.title}, ${language === 'en' ? 'online course' : 'קורס אונליין'}, ${course.category}, ${course.difficulty_level}` : undefined,
     image: course?.thumbnail_url,
@@ -135,7 +135,7 @@ const CourseDetail = () => {
       getCourseSchema({
         name: course.title,
         description: course.description || "",
-        provider: "Mind Hacker",
+        provider: "Mind OS",
         image: course.thumbnail_url || undefined,
         price: course.price || undefined,
         currency: getCurrencyCode(language),
