@@ -79,7 +79,7 @@ export const usePractitioner = () => {
 /**
  * Detects practitioner context from:
  * 1. Custom domain (e.g., coach-dana.com)
- * 2. Subdomain (e.g., dana.mindhacker.net)
+ * 2. Subdomain (e.g., dana.mindos.app)
  * 3. Path-based routing (e.g., /p/dana/*)
  */
 const detectPractitionerFromEnvironment = (): { 
@@ -95,7 +95,7 @@ const detectPractitionerFromEnvironment = (): {
     return { type: 'path', value: pathMatch[1] };
   }
   
-  // Check for subdomain (e.g., dean.mindhacker.net or dean.lovable.app)
+  // Check for subdomain (e.g., dean.mindos.app or dean.lovable.app)
   const parts = hostname.split('.');
   if (parts.length >= 2) {
     const subdomain = parts[0];
@@ -104,14 +104,15 @@ const detectPractitionerFromEnvironment = (): {
     if (!excludedSubdomains.includes(subdomain) && subdomain !== 'mindhacker-net') {
       // Check if it's a known platform domain
       const baseDomain = parts.slice(1).join('.');
-      if (baseDomain.includes('mindhacker') || baseDomain.includes('lovable.app')) {
+      if (baseDomain.includes('mindos') || baseDomain.includes('mindhacker') || baseDomain.includes('lovable.app')) {
         return { type: 'subdomain', value: subdomain };
       }
     }
   }
   
-  // Check for custom domain (not mindhacker or lovable)
-  if (!hostname.includes('mindhacker') && 
+  // Check for custom domain (not mindos/mindhacker or lovable)
+  if (!hostname.includes('mindos') && 
+      !hostname.includes('mindhacker') && 
       !hostname.includes('lovable') && 
       !hostname.includes('localhost')) {
     return { type: 'domain', value: hostname };

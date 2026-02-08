@@ -165,7 +165,7 @@ const AffiliateSignup = () => {
                   maxLength={20}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {t('affiliate.codeHint')} mind-hacker.net?ref={affiliateCode || 'yourcode'}
+                  {t('affiliate.codeHint')} mindos.app?ref={affiliateCode || 'yourcode'}
                 </p>
               </div>
 

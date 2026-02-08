@@ -68,8 +68,8 @@ export const generateFormPDF = async (
   brandSettings?: BrandSettings
 ): Promise<void> => {
   // Use brand settings or fallback to defaults
-  const brandName = brandSettings?.brandName || "MIND HACKER";
-  const brandNameEn = brandSettings?.brandNameEn || "Mind Hacker";
+  const brandName = brandSettings?.brandName || "MIND OS";
+  const brandNameEn = brandSettings?.brandNameEn || "Mind OS";
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",

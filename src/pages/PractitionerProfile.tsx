@@ -29,7 +29,7 @@ const PractitionerProfile = () => {
     : '';
 
   useSEO({
-    title: practitioner ? `${displayName} | Mind Hacker` : t('practitioners.loading'),
+    title: practitioner ? `${displayName} | Mind OS` : t('practitioners.loading'),
     description: practitioner?.bio || '',
   });
 

@@ -30,12 +30,12 @@ const MyLinks = () => {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
             <code className="flex-1 text-sm break-all">
-              https://mindhacker.net/?ref=YOUR_CODE
+              https://mindos.app/?ref=YOUR_CODE
             </code>
             <Button 
               size="sm" 
               variant="outline"
-              onClick={() => copyToClipboard('https://mindhacker.net/?ref=YOUR_CODE')}
+              onClick={() => copyToClipboard('https://mindos.app/?ref=YOUR_CODE')}
             >
               <Copy className="h-4 w-4" />
             </Button>

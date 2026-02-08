@@ -721,7 +721,7 @@ const Theme = () => {
                   <Input
                     value={localTheme.company_legal_name}
                     onChange={(e) => handleChange('company_legal_name', e.target.value)}
-                    placeholder="Mind Hacker OÜ"
+                    placeholder="MindOS OÜ"
                   />
                 </div>
                 <div className="space-y-2">

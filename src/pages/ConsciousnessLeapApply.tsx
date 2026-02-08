@@ -28,7 +28,7 @@ const ConsciousnessLeapApply = () => {
   const [opennessToProcess, setOpennessToProcess] = useState("");
 
   useSEO({
-    title: "טופס בקשה - קפיצה לתודעה חדשה | מיינד-האקר",
+    title: "טופס בקשה - קפיצה לתודעה חדשה | מיינד OS",
     description: "טופס בקשה להצטרפות לתהליך קפיצה לתודעה חדשה",
     url: `${window.location.origin}/consciousness-leap/apply/${token}`,
   });

@@ -241,7 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
 <body>
   <div class="container">
     <div class="header">
-      <h1>📊 Mind Hacker Daily Report</h1>
+      <h1>📊 Mind OS Daily Report</h1>
       <p>${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
     </div>
     
@@ -324,12 +324,12 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
 
       <div style="text-align: center; margin-top: 24px;">
-        <a href="https://mind-hacker.net/admin/analytics" class="cta">View Full Dashboard →</a>
+        <a href="https://mindos.app/admin/analytics" class="cta">View Full Dashboard →</a>
       </div>
     </div>
     
     <div class="footer">
-      <p>Mind Hacker OÜ • Automated Daily Analytics Report</p>
+      <p>MindOS OÜ • Automated Daily Analytics Report</p>
       <p>To disable these reports, update settings in your admin panel.</p>
     </div>
   </div>
@@ -341,7 +341,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
       await resend.emails.send({
-        from: "Mind Hacker <reports@mind-hacker.net>",
+        from: "Mind OS <reports@mindos.app>",
         to: [settingsMap.daily_report_email],
         subject: `📊 Daily Analytics Report - ${reportDate}`,
         html: emailHtml,

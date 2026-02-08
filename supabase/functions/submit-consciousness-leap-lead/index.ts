@@ -101,14 +101,14 @@ serve(async (req: Request): Promise<Response> => {
         </p>
         
         <p style="color: #555; font-size: 16px; margin-top: 30px;">
-          צוות Mind Hacker
+          צוות Mind OS
         </p>
       </div>
     `;
 
     try {
       const emailResponse = await resend.emails.send({
-        from: "מיינד-האקר <onboarding@resend.dev>",
+        from: "מיינד OS <onboarding@resend.dev>",
         to: [email],
         subject: "הצעד הבא - קפיצה לתודעה חדשה",
         html: emailHtml,

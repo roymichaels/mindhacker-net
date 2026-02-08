@@ -61,7 +61,7 @@ serve(async (req: Request): Promise<Response> => {
       .eq("setting_key", "email")
       .maybeSingle();
 
-    const adminEmail = emailSetting?.setting_value || "dean@mind-hacker.net";
+    const adminEmail = emailSetting?.setting_value || "dean@mindos.app";
     const siteUrl = Deno.env.get("SITE_URL") || "https://tsvfsbluyuaajqmkpzdv.lovable.app";
     const orderDate = new Date().toLocaleString("he-IL", { 
       timeZone: "Asia/Jerusalem",
@@ -127,12 +127,12 @@ serve(async (req: Request): Promise<Response> => {
             </center>
             
             <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
-              This is an automated notification from Mind Hacker order system.
+              This is an automated notification from Mind OS order system.
             </p>
           </div>
           
           <div class="footer">
-            <p style="color: #6b7280; font-size: 14px;">Mind Hacker - Personal Development Platform</p>
+            <p style="color: #6b7280; font-size: 14px;">Mind OS - Personal Development Platform</p>
           </div>
         </div>
       </body>
@@ -143,7 +143,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "Mind Hacker <onboarding@resend.dev>",
+      from: "Mind OS <onboarding@resend.dev>",
       to: [adminEmail],
       subject,
       html: emailHtml,

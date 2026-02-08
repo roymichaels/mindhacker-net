@@ -82,7 +82,7 @@ export default function FreeTransformationJourney() {
   const { profile: orbProfile } = useOrbProfile();
 
   useSEO({
-    title: isRTL ? 'מסע טרנספורמציה חינמי | MindHacker' : 'Free Transformation Journey | MindHacker',
+    title: isRTL ? 'מסע טרנספורמציה חינמי | Mind OS' : 'Free Transformation Journey | Mind OS',
     description: isRTL 
       ? 'קבל ניתוח תודעה מבוסס AI, תוכנית טרנספורמציה ל-90 יום ופרופיל זהות אישי - הכל בחינם!'
       : 'Get AI-powered consciousness analysis, 90-day transformation plan and personal identity profile - all for free!',

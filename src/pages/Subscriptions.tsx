@@ -14,7 +14,7 @@ const Subscriptions = () => {
   const { language } = useTranslation();
   // SEO Configuration
   useSEO({
-    title: "מנויים | מיינד-האקר",
+    title: "מנויים | מיינד OS",
     description: "בחר את תוכנית המנוי המתאימה לך. גישה בלתי מוגבלת למוצרים דיגיטליים, קורסים, וסדנאות בתחום אימון התודעה והפיתוח האישי.",
     keywords: "מנוי חודשי, תוכנית מנוי, גישה בלתי מוגבלת, קורסים אונליין, מנוי דיגיטלי",
     url: `${window.location.origin}/subscriptions`,
