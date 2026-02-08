@@ -188,7 +188,7 @@ const MessageThread = () => {
     setIsStreaming(true);
     setStreamingContent('');
 
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
+    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aurora-chat`;
     
     try {
       // Build message history for AI
@@ -204,7 +204,7 @@ const MessageThread = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history, mode: 'widget' }),
       });
 
       if (!response.ok || !response.body) {
