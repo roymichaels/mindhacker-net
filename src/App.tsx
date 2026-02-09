@@ -660,6 +660,17 @@ const App = () => (
                           <Route path="storefront" element={<StorefrontSettingsPanel />} />
                           <Route path="profile" element={<Settings />} />
                           <Route path="theme" element={<CoachTheme />} />
+                          {/* Synced from admin panel */}
+                          <Route path="testimonials" element={<Testimonials />} />
+                          <Route path="videos" element={<Videos />} />
+                          <Route path="recordings" element={<Recordings />} />
+                          <Route path="forms" element={<Forms />} />
+                          <Route path="leads" element={<Leads />} />
+                          <Route path="newsletter" element={<Newsletter />} />
+                          <Route path="offers" element={<AdminOffers />} />
+                          <Route path="purchases" element={<Purchases />} />
+                          <Route path="manage-products" element={<AdminProducts />} />
+                          <Route path="manage-content" element={<Content />} />
                         </Route>
 
                         {/* Affiliate Panel routes */}
