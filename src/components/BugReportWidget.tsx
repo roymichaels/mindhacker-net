@@ -3,6 +3,7 @@ import { Bug, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useBugReport } from '@/hooks/useBugReport';
+import { useAuth } from '@/contexts/AuthContext';
 import BugReportChat from '@/components/bug-report/BugReportChat';
 import { cn } from '@/lib/utils';
 
@@ -13,14 +14,16 @@ export const BugReportWidget = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const { t, language } = useTranslation();
   const { captureContext } = useBugReport();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
+    if (!isAdmin) return;
     const wasDismissed = localStorage.getItem(PROMPT_DISMISSED_KEY);
     if (!wasDismissed) {
       const timer = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     if (showPrompt) {
@@ -42,6 +45,9 @@ export const BugReportWidget = () => {
     setShowPrompt(false);
     localStorage.setItem(PROMPT_DISMISSED_KEY, 'true');
   }, []);
+
+  // Only render for admin users
+  if (!isAdmin) return null;
 
   const context = captureContext();
   const deviceInfo = `${context.browser} / ${context.os} / ${context.deviceType}`;
@@ -143,13 +149,6 @@ export const BugReportWidget = () => {
         transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
         title={t('bugReport.buttonTooltip')}
       >
-        {!isOpen && (
-          <motion.div
-            className="absolute inset-0 rounded-full bg-primary/50"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        )}
         <div className="relative z-10">
           {isOpen ? (
             <X className="h-5 w-5" />

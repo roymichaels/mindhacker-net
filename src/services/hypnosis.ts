@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { debug } from '@/lib/debug';
 
 export interface HypnosisScript {
   title: string;
@@ -291,7 +292,7 @@ export async function cacheScriptAudio(
   }
   
   try {
-    console.log('Triggering audio caching:', { userId, cacheKey, scriptLength: fullScript.length });
+    debug.log('Triggering audio caching:', { userId, cacheKey, scriptLength: fullScript.length });
     
     // Fire and forget - don't wait for completion
     supabase.functions.invoke('cache-hypnosis-audio', {
@@ -305,7 +306,7 @@ export async function cacheScriptAudio(
       if (error) {
         console.error('Background audio caching failed:', error);
       } else {
-        console.log('Audio caching completed in background');
+        debug.log('Audio caching completed in background');
       }
     });
   } catch (error) {

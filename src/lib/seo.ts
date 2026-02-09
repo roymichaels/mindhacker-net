@@ -41,7 +41,7 @@ export const updateMetaTags = (config: SEOConfig) => {
     title,
     description,
     keywords,
-    image = 'https://lovable.dev/opengraph-image-p98pqg.png',
+    image = 'https://mindos.app/og-image.png',
     url = window.location.href,
     type = 'website',
     author,
@@ -133,7 +133,7 @@ export const getOrganizationSchema = (brand?: BrandSettings): StructuredData => 
   name: brand?.brandName || 'מיינד OS',
   alternateName: brand?.brandNameEn || 'Mind OS',
   url: brand?.siteUrl || window.location.origin,
-  logo: brand?.ogImageUrl || 'https://lovable.dev/opengraph-image-p98pqg.png',
+  logo: brand?.ogImageUrl || 'https://mindos.app/og-image.png',
   description: 'פלטפורמת התפתחות אישית מבוססת AI - אימון תודעתי, היפנוזה מותאמת וגיימיפיקציה',
   founder: brand?.founderName ? {
     '@type': 'Person',

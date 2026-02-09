@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { debug } from '@/lib/debug';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -119,7 +120,7 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards, savedForm
         
         // Priority 1: If we have a saved form submission ID from launchpad_progress, load it directly
         if (savedFormSubmissionId) {
-          console.log('[IntrospectionStep] Loading from savedFormSubmissionId:', savedFormSubmissionId);
+          debug.log('[IntrospectionStep] Loading from savedFormSubmissionId:', savedFormSubmissionId);
           const { data: submission } = await supabase
             .from('form_submissions')
             .select('*, form_analyses(*)')
@@ -184,9 +185,9 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards, savedForm
               });
             }
             
-            console.log('[IntrospectionStep] Raw responses:', submission.responses);
-            console.log('[IntrospectionStep] Loaded answers:', loadedAnswers);
-            console.log('[IntrospectionStep] Answer count:', Object.keys(loadedAnswers).length);
+            debug.log('[IntrospectionStep] Raw responses:', submission.responses);
+            debug.log('[IntrospectionStep] Loaded answers:', loadedAnswers);
+            debug.log('[IntrospectionStep] Answer count:', Object.keys(loadedAnswers).length);
             setAnswers(loadedAnswers);
           }
 

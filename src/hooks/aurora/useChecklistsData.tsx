@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { debug } from '@/lib/debug';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -140,7 +141,7 @@ export const useChecklistsData = (user: User | null) => {
         }
       }
 
-      console.log(`Synced week ${currentWeek} tasks for user ${userId}`);
+      debug.log(`Synced week ${currentWeek} tasks for user ${userId}`);
     } catch (error) {
       console.error('Error syncing weekly tasks:', error);
     }

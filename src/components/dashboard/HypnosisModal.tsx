@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { debug } from '@/lib/debug';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Loader2, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -406,7 +407,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
               return;
             }
             
-            console.log(`Cached audio verified: ${contentLengthNum} bytes`);
+            debug.log(`Cached audio verified: ${contentLengthNum} bytes`);
           } catch (headError) {
             console.warn('HEAD check failed for cached audio:', headError);
             badCachedAudioRef.current = true;
@@ -473,7 +474,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   ) => {
     // Block duplicate calls - synthesis lock
     if (isSynthesizingRef.current) {
-      console.log('[TTS] Synthesis already in progress, ignoring duplicate call');
+      debug.log('[TTS] Synthesis already in progress, ignoring duplicate call');
       return;
     }
     isSynthesizingRef.current = true;
@@ -483,7 +484,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
     
     // Sanitize the script to remove time markers before TTS
     const sanitizedText = sanitizeScriptForTTS(text);
-    console.log('[TTS] Script first 200 chars:', sanitizedText.substring(0, 200));
+    debug.log('[TTS] Script first 200 chars:', sanitizedText.substring(0, 200));
     
     if (isMuted) {
       onStart();
@@ -515,7 +516,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
 
     // Helper function to start muted fallback mode
     const startMutedFallback = () => {
-      console.log('[HypnosisModal] Starting muted fallback mode');
+      debug.log('[HypnosisModal] Starting muted fallback mode');
       setIsMuted(true);
       
       toast({
