@@ -10,12 +10,15 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HypnosisModal } from "@/components/dashboard/HypnosisModal";
+import { useLaunchpadProgress } from "@/hooks/useLaunchpadProgress";
+import { toast } from "sonner";
 
 const UserDashboard = () => {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
+  const { isLaunchpadComplete } = useLaunchpadProgress();
   
   // SEO Configuration
   useSEO({
@@ -61,6 +64,15 @@ const UserDashboard = () => {
   };
 
   const handleOpenHypnosis = () => {
+    if (!isLaunchpadComplete) {
+      toast(language === 'he' ? 'יש להשלים את מסע התודעה לפני שימוש בהיפנוזה' : 'Complete the Consciousness Journey before using Hypnosis', {
+        action: {
+          label: language === 'he' ? 'התחל מסע' : 'Start Journey',
+          onClick: () => navigate('/launchpad'),
+        },
+      });
+      return;
+    }
     setHypnosisOpen(true);
   };
 
