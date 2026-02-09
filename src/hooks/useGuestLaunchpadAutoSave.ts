@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
+import { debug } from '@/lib/debug';
 
 const STORAGE_PREFIX = 'guest_launchpad_';
 
@@ -37,7 +38,7 @@ export function useGuestLaunchpadAutoSave({ stepKey, debounceMs = 500 }: AutoSav
       try {
         localStorage.setItem(storageKey, serialized);
         lastSavedRef.current = serialized;
-        console.log(`[GuestAutoSave] Saved ${stepKey}`);
+        debug.log(`[GuestAutoSave] Saved ${stepKey}`);
       } catch (e) {
         console.error(`[GuestAutoSave] Failed to save ${stepKey}:`, e);
       }

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { debug } from '@/lib/debug';
 
 export type VoiceProvider = 'openai' | 'elevenlabs' | 'browser';
 export type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
@@ -194,7 +195,7 @@ async function tryBrowserFallback(
     return null;
   }
 
-  console.log('Using browser TTS fallback for', text.length, 'characters');
+  debug.log('Using browser TTS fallback for', text.length, 'characters');
   
   // Browser TTS doesn't give us an audio URL
   // Return a special marker that the player should use speechSynthesis

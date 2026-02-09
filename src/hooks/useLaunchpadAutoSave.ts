@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
+import { debug } from '@/lib/debug';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLaunchpadData } from './useLaunchpadData';
@@ -141,7 +142,7 @@ export function useLaunchpadAutoSave() {
     // This prevents the race condition where a component initializes with empty state
     // and immediately overwrites the existing database data
     if (isLoading) {
-      console.log(`[AutoSave] Skipping DB save for step ${step} - still loading`);
+      debug.log(`[AutoSave] Skipping DB save for step ${step} - still loading`);
       return;
     }
 
@@ -170,7 +171,7 @@ export function useLaunchpadAutoSave() {
     if (isLoading) {
       const localData = loadFromLocalStorage(step);
       if (localData) {
-        console.log(`[getSavedData] Loading in progress, using localStorage for step ${step}`);
+        debug.log(`[getSavedData] Loading in progress, using localStorage for step ${step}`);
       }
       return localData;
     }

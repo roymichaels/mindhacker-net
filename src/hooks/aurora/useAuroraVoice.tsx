@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { debug } from '@/lib/debug';
 
 interface UseAuroraVoiceOptions {
   onTranscription?: (text: string) => void;
@@ -143,7 +144,7 @@ export const useAuroraVoice = (options?: UseAuroraVoiceOptions) => {
         
         // If it's a fallback signal, just silently fail (don't crash)
         if (errorData.fallback) {
-          console.log('ElevenLabs quota exceeded, TTS unavailable');
+          debug.log('ElevenLabs quota exceeded, TTS unavailable');
         }
         
         // Reset state without crashing

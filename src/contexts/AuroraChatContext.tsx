@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { debug } from '@/lib/debug';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -139,7 +140,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
 
   // Command execution system
   const executeCommand = useCallback((command: AuroraCommand) => {
-    console.log('Aurora executing command:', command);
+    debug.log('Aurora executing command:', command);
     
     if (commandHandlerRef.current) {
       commandHandlerRef.current(command);

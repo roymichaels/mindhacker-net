@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { debug } from '@/lib/debug';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Gift, Rocket, Check, Loader2 } from 'lucide-react';
@@ -60,7 +61,7 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
           variant: 'destructive',
         });
       } else {
-        console.log('Summary generated:', data);
+        debug.log('Summary generated:', data);
         setGenerationComplete(true);
         toast({
           title: language === 'he' ? '🎉 הסיכום נוצר!' : '🎉 Summary generated!',

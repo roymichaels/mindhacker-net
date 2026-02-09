@@ -25,7 +25,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error using centralized debug utility
     const errorId = debug.error(
       'React Error Boundary caught error:',
       error.message,
@@ -43,11 +42,23 @@ class ErrorBoundary extends Component<Props, State> {
     window.location.href = '/';
   };
 
+  private getLanguage(): 'he' | 'en' {
+    try {
+      const lang = document.documentElement.lang;
+      return lang === 'he' ? 'he' : 'en';
+    } catch {
+      return 'he';
+    }
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
+
+      const lang = this.getLanguage();
+      const isHe = lang === 'he';
 
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background">
@@ -60,10 +71,12 @@ class ErrorBoundary extends Component<Props, State> {
             
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-foreground">
-                משהו השתבש
+                {isHe ? 'משהו השתבש' : 'Something went wrong'}
               </h1>
               <p className="text-muted-foreground">
-                אירעה שגיאה בלתי צפויה. אנא נסה לרענן את הדף או לחזור לדף הבית.
+                {isHe 
+                  ? 'אירעה שגיאה בלתי צפויה. אנא נסה לרענן את הדף או לחזור לדף הבית.'
+                  : 'An unexpected error occurred. Please try refreshing the page or going back to the home page.'}
               </p>
               {this.state.errorId && (
                 <p className="text-xs text-muted-foreground/60 font-mono">
@@ -78,13 +91,13 @@ class ErrorBoundary extends Component<Props, State> {
                 className="gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                רענן עמוד
+                {isHe ? 'רענן עמוד' : 'Refresh page'}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={this.handleGoHome}
               >
-                חזור לדף הבית
+                {isHe ? 'חזור לדף הבית' : 'Go to home page'}
               </Button>
             </div>
           </div>

@@ -5641,10 +5641,20 @@ export type Database = {
       }
     }
     Functions: {
-      aurora_award_xp: {
-        Args: { p_amount: number; p_reason: string; p_user_id: string }
-        Returns: undefined
-      }
+      aurora_award_xp:
+        | {
+            Args: { p_amount: number; p_reason: string; p_user_id: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_description?: string
+              p_source: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
       award_unified_xp: {
         Args: {
           p_amount: number
@@ -5655,10 +5665,12 @@ export type Database = {
         Returns: Json
       }
       check_expiring_access: { Args: never; Returns: undefined }
-      complete_launchpad_step: {
-        Args: { p_data?: Json; p_step: number; p_user_id: string }
-        Returns: Json
-      }
+      complete_launchpad_step:
+        | {
+            Args: { p_data?: Json; p_step: number; p_user_id: string }
+            Returns: Json
+          }
+        | { Args: { p_step: string; p_user_id: string }; Returns: undefined }
       create_admin_notification: {
         Args: {
           p_link?: string
@@ -5726,6 +5738,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      notify_journey_completion: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       queue_proactive_message: {
         Args: {

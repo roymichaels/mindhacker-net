@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { debug } from '@/lib/debug';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
@@ -412,7 +413,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity
         const matchResult = findMatchingChecklists(title);
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous checklist match for "${title}", skipping auto-creation`);
+          debug.log(`Ambiguous checklist match for "${title}", skipping auto-creation`);
           continue;
         }
         
@@ -452,7 +453,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity before completing
         const matchResult = findMatchingItems(itemContent, { checklistTitle });
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
+          debug.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
           continue;
         }
         
@@ -469,7 +470,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity
         const matchResult = findMatchingChecklists(checklistTitle);
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous checklist match for archive: "${checklistTitle}"`);
+          debug.log(`Ambiguous checklist match for archive: "${checklistTitle}"`);
           continue;
         }
         
@@ -490,7 +491,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity
         const matchResult = findMatchingChecklists(oldTitle);
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous checklist match for rename: "${oldTitle}"`);
+          debug.log(`Ambiguous checklist match for rename: "${oldTitle}"`);
           continue;
         }
         
@@ -511,7 +512,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity before completing
         const matchResult = findMatchingItems(itemContent, { checklistTitle });
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
+          debug.log(`Ambiguous task match for "${itemContent}" in "${checklistTitle}", skipping`);
           continue;
         }
         
@@ -529,7 +530,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity
         const matchResult = findMatchingItems(itemContent, { checklistTitle });
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous task match for delete: "${itemContent}"`);
+          debug.log(`Ambiguous task match for delete: "${itemContent}"`);
           continue;
         }
         
@@ -551,7 +552,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         // Check for ambiguity
         const matchResult = findMatchingItems(itemContent, { checklistTitle });
         if (matchResult.isAmbiguous) {
-          console.log(`Ambiguous task match for reschedule: "${itemContent}"`);
+          debug.log(`Ambiguous task match for reschedule: "${itemContent}"`);
           continue;
         }
         
@@ -582,7 +583,7 @@ export const useAuroraChat = (conversationId: string | null) => {
         );
         
         if (matchingHabits.length > 1) {
-          console.log(`Ambiguous habit match for "${habitName}", found ${matchingHabits.length} habits`);
+          debug.log(`Ambiguous habit match for "${habitName}", found ${matchingHabits.length} habits`);
           continue;
         }
         
@@ -977,7 +978,7 @@ export const useAuroraChat = (conversationId: string | null) => {
       }
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
-        console.log('Request aborted');
+        debug.log('Request aborted');
       } else {
         console.error('Aurora chat error:', err);
         setError('Failed to get response from Aurora');

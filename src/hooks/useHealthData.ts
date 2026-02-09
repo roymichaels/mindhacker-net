@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { debug } from '@/lib/debug';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,7 +77,7 @@ export function useHealthData() {
           lastHealthHypnosisDate = hypnosisData[0].created_at;
         }
       } catch (e) {
-        console.log('Could not fetch hypnosis sessions');
+        debug.log('Could not fetch hypnosis sessions');
       }
 
       // Fetch habit logs
