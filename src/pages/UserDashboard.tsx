@@ -20,6 +20,7 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   const { isLaunchpadComplete } = useLaunchpadProgress();
+  useGuestDataMigration();
   
   // SEO Configuration
   useSEO({
