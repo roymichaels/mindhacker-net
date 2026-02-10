@@ -187,12 +187,26 @@ async function migrateAISummary(userId: string, summary: Record<string, unknown>
         consciousness_analysis: summary.consciousness_analysis,
       });
 
-      await supabase.from('aurora_life_direction').upsert({
-        user_id: userId,
-        content: directionContent,
-        clarity_score: 5,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
+      // Check if record exists first (no unique constraint on user_id)
+      const { data: existing } = await supabase
+        .from('aurora_life_direction')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase.from('aurora_life_direction').update({
+          content: directionContent,
+          clarity_score: 5,
+          updated_at: new Date().toISOString(),
+        }).eq('user_id', userId);
+      } else {
+        await supabase.from('aurora_life_direction').insert({
+          user_id: userId,
+          content: directionContent,
+          clarity_score: 5,
+        });
+      }
     }
   } catch (error) {
     console.error('AI summary migration failed:', error);
