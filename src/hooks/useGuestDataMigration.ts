@@ -35,7 +35,7 @@ export function useGuestDataMigration() {
   }, [user?.id, queryClient]);
 }
 
-async function migrateGuestData(userId: string) {
+async function migrateGuestData(userId: string): Promise<boolean> {
   try {
     // Read guest progress from localStorage
     const stored = localStorage.getItem(`${STORAGE_PREFIX}progress`);
