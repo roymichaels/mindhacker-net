@@ -11,6 +11,7 @@ import { UnifiedDashboardView } from "@/components/dashboard/UnifiedDashboardVie
 import { Skeleton } from "@/components/ui/skeleton";
 import { HypnosisModal } from "@/components/dashboard/HypnosisModal";
 import { useLaunchpadProgress } from "@/hooks/useLaunchpadProgress";
+import { useGuestDataMigration } from "@/hooks/useGuestDataMigration";
 import { toast } from "sonner";
 
 const UserDashboard = () => {
