@@ -14,6 +14,7 @@ const MIGRATE_FLAG = 'migrate_guest_launchpad';
  */
 export function useGuestDataMigration() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const migrationAttempted = useRef(false);
 
   useEffect(() => {
@@ -23,8 +24,15 @@ export function useGuestDataMigration() {
     if (!shouldMigrate) return;
 
     migrationAttempted.current = true;
-    migrateGuestData(user.id);
-  }, [user?.id]);
+    migrateGuestData(user.id).then((success) => {
+      if (success) {
+        // Invalidate all launchpad queries so UI picks up migrated data
+        queryClient.invalidateQueries({ queryKey: ['launchpad-progress'] });
+        queryClient.invalidateQueries({ queryKey: ['launchpad-data'] });
+        queryClient.invalidateQueries({ queryKey: ['game-state'] });
+      }
+    });
+  }, [user?.id, queryClient]);
 }
 
 async function migrateGuestData(userId: string) {
