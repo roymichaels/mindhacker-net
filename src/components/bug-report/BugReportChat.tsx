@@ -215,6 +215,7 @@ export const BugReportChat = ({ onSuccess, contextInfo }: BugReportChatProps) =>
       category: collectedData.category || 'other',
       priority: collectedData.priority || 'medium',
       contactEmail: collectedData.contactEmail,
+      screenshotUrl: collectedData.screenshotUrl,
     };
 
     const success = await submitReport(finalData);
