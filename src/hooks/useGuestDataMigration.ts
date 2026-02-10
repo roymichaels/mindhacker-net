@@ -145,7 +145,7 @@ async function migrateGuestData(userId: string): Promise<boolean> {
 
     if (upsertError) {
       console.error('Guest migration upsert failed:', upsertError);
-      return;
+      return false;
     }
 
     // Also migrate the AI summary result if it exists
