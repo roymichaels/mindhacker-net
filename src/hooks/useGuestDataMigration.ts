@@ -47,7 +47,7 @@ async function migrateGuestData(userId: string): Promise<boolean> {
     const guestProgress = JSON.parse(stored);
     if (!guestProgress || guestProgress.current_step <= 1) {
       localStorage.removeItem(MIGRATE_FLAG);
-      return;
+      return false;
     }
 
     // Build the update payload from guest data
