@@ -153,23 +153,6 @@ async function migrateGuestData(userId: string) {
       }
     }
 
-    // Also migrate auto-save data for each step
-    for (let step = 1; step <= 11; step++) {
-      const stepData = localStorage.getItem(`${STORAGE_PREFIX}step_${step}`);
-      if (stepData) {
-        try {
-          await supabase.from('launchpad_autosave').upsert({
-            user_id: userId,
-            step_number: step,
-            data: JSON.parse(stepData) as Json,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'user_id,step_number' });
-        } catch {
-          // Non-critical
-        }
-      }
-    }
-
     // Clean up localStorage
     cleanupGuestData();
 
