@@ -169,10 +169,11 @@ async function migrateGuestData(userId: string): Promise<boolean> {
       description: 'כל ההתקדמות שלך הועברה לחשבון החדש',
     });
 
+    return true;
   } catch (error) {
     console.error('Guest data migration failed:', error);
-    // Don't block the user - clear the flag so it doesn't retry infinitely
     localStorage.removeItem(MIGRATE_FLAG);
+    return false;
   }
 }
 
