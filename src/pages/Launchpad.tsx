@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { LaunchpadFlow } from '@/components/launchpad';
+import { useGuestDataMigration } from '@/hooks/useGuestDataMigration';
 
 const Launchpad = () => {
   const navigate = useNavigate();
+  useGuestDataMigration();
 
   const handleComplete = () => {
     navigate('/launchpad/complete');
