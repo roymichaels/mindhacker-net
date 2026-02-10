@@ -119,10 +119,10 @@ export const useBugReport = () => {
     const context = captureContext();
 
     try {
-      let screenshotUrl: string | null = null;
+      let screenshotUrl: string | null = data.screenshotUrl || null;
 
-      // Upload screenshot if present
-      if (screenshotBlob) {
+      // Upload screenshot if present (from html2canvas capture)
+      if (!screenshotUrl && screenshotBlob) {
         const fileName = `bug-report-${Date.now()}.png`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('bug-screenshots')
