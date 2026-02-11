@@ -5665,12 +5665,10 @@ export type Database = {
         Returns: Json
       }
       check_expiring_access: { Args: never; Returns: undefined }
-      complete_launchpad_step:
-        | {
-            Args: { p_data?: Json; p_step: number; p_user_id: string }
-            Returns: Json
-          }
-        | { Args: { p_step: string; p_user_id: string }; Returns: undefined }
+      complete_launchpad_step: {
+        Args: { p_data?: Json; p_step: number; p_user_id: string }
+        Returns: Json
+      }
       create_admin_notification: {
         Args: {
           p_link?: string

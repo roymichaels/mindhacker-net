@@ -3,6 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { debug } from '@/lib/debug';
 
+// pushManager is part of the Push API but not always in TS ServiceWorkerRegistration type
+type PushServiceWorkerRegistration = ServiceWorkerRegistration & {
+  pushManager: PushManager;
+};
+
 const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
@@ -97,7 +102,7 @@ export const usePushNotifications = () => {
       if (!isSupported || !user) return;
 
       try {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await navigator.serviceWorker.ready as PushServiceWorkerRegistration;
         const subscription = await registration.pushManager.getSubscription();
         
         if (subscription) {
@@ -196,7 +201,7 @@ export const usePushNotifications = () => {
       const keyArray = urlBase64ToUint8Array(vapidKey);
       debug.log('[Push] Attempting pushManager.subscribe with keyArray length:', keyArray.length);
       
-      const subscription = await registration.pushManager.subscribe({
+      const subscription = await (registration as PushServiceWorkerRegistration).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: keyArray as BufferSource
       });
@@ -247,7 +252,7 @@ export const usePushNotifications = () => {
     setIsLoading(true);
 
     try {
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready as PushServiceWorkerRegistration;
       const subscription = await registration.pushManager.getSubscription();
 
       if (subscription) {

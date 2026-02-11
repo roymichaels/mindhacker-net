@@ -105,7 +105,7 @@ serve(async (req) => {
       supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
       supabase.from('aurora_behavioral_patterns').select('pattern_type, description').eq('user_id', user.id),
       supabase.from('aurora_focus_plans').select('title, description').eq('user_id', user.id).eq('status', 'active').limit(1),
-      supabase.from('launchpad_summaries').select('summary_data').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
+      supabase.from('launchpad_summaries').select('summary_data').eq('user_id', user.id).order('generated_at', { ascending: false }).limit(1),
       supabase.from('launchpad_progress').select('step_2_profile_data, step_3_lifestyle_data, step_5_blockers_data, step_10_final_notes').eq('user_id', user.id).single(),
       supabase.from('life_plans').select('id, title').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1),
       supabase.from('aurora_commitments').select('title, description').eq('user_id', user.id).eq('status', 'active'),
