@@ -10,8 +10,10 @@ import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, Compass, Users, ListChecks, Target } from 'lucide-react';
+import { Menu, Compass, Users } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { TasksPopover } from './TasksPopover';
+import { GoalsPopover } from './GoalsPopover';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { HypnosisModal } from './HypnosisModal';
 import { ProfileDrawer } from './ProfileDrawer';
@@ -65,24 +67,8 @@ const DesktopLayoutContent = ({
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Fixed notification icons */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500"
-          onClick={() => navigate('/dashboard#tasks')}
-          title={language === 'he' ? 'משימות' : 'Tasks'}
-        >
-          <ListChecks className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-          onClick={() => navigate('/dashboard#goals')}
-          title={language === 'he' ? 'יעדים' : 'Goals'}
-        >
-          <Target className="h-5 w-5" />
-        </Button>
+        <TasksPopover />
+        <GoalsPopover />
         <Button
           variant="ghost"
           size="icon"
@@ -181,24 +167,8 @@ const DashboardLayout = ({
               </Button>
               
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500"
-                  onClick={() => navigate('/dashboard#tasks')}
-                  title={language === 'he' ? 'משימות' : 'Tasks'}
-                >
-                  <ListChecks className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-                  onClick={() => navigate('/dashboard#goals')}
-                  title={language === 'he' ? 'יעדים' : 'Goals'}
-                >
-                  <Target className="h-5 w-5" />
-                </Button>
+                <TasksPopover />
+                <GoalsPopover />
                 <Button
                   variant="ghost"
                   size="icon"
