@@ -3,265 +3,293 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
-
-interface ProactiveItem {
-  id: string;
-  user_id: string;
-  trigger_type: string;
-  trigger_data: Record<string, unknown>;
-  priority: number;
-  scheduled_for: string;
-}
 
 interface UserContext {
   overdue_tasks: number;
+  overdue_task_names: string[];
+  today_total: number;
+  today_completed: number;
   incomplete_habits: number;
-  upcoming_reminders: number;
   streak_days: number;
   last_active: string | null;
   energy_level: string;
+  current_week: number;
+  milestone_title: string;
+  milestone_progress: number;
 }
 
-// Generate proactive message based on context
-const generateProactiveMessage = (
-  triggerType: string,
-  data: Record<string, unknown>,
-  isHebrew: boolean
-): { title: string; body: string; action?: string } => {
-  const messages: Record<string, { he: { title: string; body: string }; en: { title: string; body: string }; action?: string }> = {
-    overdue_task: {
-      he: {
-        title: '📋 יש לך משימות שמחכות',
-        body: `יש לך ${data.count || 1} משימות שעבר הזמן שלהן. רוצה שאעזור לתזמן אותן מחדש?`,
-      },
-      en: {
-        title: '📋 Tasks Need Attention',
-        body: `You have ${data.count || 1} overdue tasks. Want me to help reschedule them?`,
-      },
-      action: 'open_tasks',
-    },
-    habit_reminder: {
-      he: {
-        title: '💪 זמן לפעולה יומית',
-        body: data.habitName ? `עדיין לא סימנת "${data.habitName}" היום` : 'יש הרגלים יומיים שמחכים לך',
-      },
-      en: {
-        title: '💪 Daily Action Time',
-        body: data.habitName ? `You haven't logged "${data.habitName}" yet today` : 'You have daily habits waiting',
-      },
-      action: 'open_habits',
-    },
-    milestone_ending: {
-      he: {
-        title: '🎯 מילסטון מתקרב לסיום',
-        body: `שבוע ${data.week || '?'} מסתיים מחר - את/ה ב-${data.progress || 0}% השלמה!`,
-      },
-      en: {
-        title: '🎯 Milestone Ending Soon',
-        body: `Week ${data.week || '?'} ends tomorrow - you're at ${data.progress || 0}% completion!`,
-      },
-      action: 'open_life_plan',
-    },
-    streak_risk: {
-      he: {
-        title: '🔥 הסטריק שלך בסכנה!',
-        body: `יש לך ${data.streakDays || 0} ימים רצופים. אל תפספס את היום!`,
-      },
-      en: {
-        title: '🔥 Your Streak is at Risk!',
-        body: `You have a ${data.streakDays || 0}-day streak. Don't miss today!`,
-      },
-      action: 'open_dashboard',
-    },
-    daily_checkin: {
-      he: {
-        title: '☀️ בוקר טוב!',
-        body: data.message as string || 'מה בתוכנית להיום?',
-      },
-      en: {
-        title: '☀️ Good Morning!',
-        body: data.message as string || 'What\'s on the agenda today?',
-      },
-      action: 'open_aurora',
-    },
-    pattern_alert: {
-      he: {
-        title: '💡 זיהיתי משהו',
-        body: data.insight as string || 'יש לי תובנה לשתף איתך',
-      },
-      en: {
-        title: '💡 I Noticed Something',
-        body: data.insight as string || 'I have an insight to share with you',
-      },
-      action: 'open_aurora',
-    },
-    evening_reflection: {
-      he: {
-        title: '🌙 זמן לסיכום יום',
-        body: 'איך עבר היום? בוא נעשה רפלקציה קצרה',
-      },
-      en: {
-        title: '🌙 Time for Daily Reflection',
-        body: 'How was your day? Let\'s do a quick reflection',
-      },
-      action: 'open_aurora',
-    },
-  };
-
-  const msg = messages[triggerType] || messages.daily_checkin;
-  const localized = isHebrew ? msg.he : msg.en;
-  
-  return {
-    title: localized.title,
-    body: localized.body,
-    action: msg.action,
-  };
-};
-
-// Get user context for proactive analysis
-// deno-lint-ignore no-explicit-any
 const getUserContext = async (
   supabase: SupabaseClient<any, any, any>,
   userId: string
 ): Promise<UserContext> => {
   const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const todayStr = now.toISOString().split('T')[0];
 
-  // Get overdue tasks
+  // Overdue tasks
   const { data: overdueTasks } = await supabase
     .from('aurora_checklist_items')
-    .select('id')
+    .select('id, content, checklist_id')
     .eq('is_completed', false)
-    .lt('due_date', todayStart);
+    .lt('due_date', todayStr);
 
-  // Get incomplete daily habits for today
-  const { data: checklists } = await supabase
+  // Filter to user's checklists
+  const { data: userChecklists } = await supabase
+    .from('aurora_checklists')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('status', 'active');
+
+  const userChecklistIds = new Set((userChecklists || []).map((c: any) => c.id));
+  const userOverdue = (overdueTasks || []).filter((t: any) => userChecklistIds.has(t.checklist_id));
+
+  // Today's tasks
+  const { data: todayTasks } = await supabase
+    .from('aurora_checklist_items')
+    .select('id, is_completed, checklist_id')
+    .eq('due_date', todayStr);
+
+  const userTodayTasks = (todayTasks || []).filter((t: any) => userChecklistIds.has(t.checklist_id));
+  const todayCompleted = userTodayTasks.filter((t: any) => t.is_completed).length;
+
+  // Incomplete daily habits
+  const { data: dailyChecklists } = await supabase
     .from('aurora_checklists')
     .select('id')
     .eq('user_id', userId)
     .eq('time_scope', 'daily');
 
-  const checklistIds = (checklists as { id: string }[] | null)?.map(c => c.id) || [];
-  
+  const dailyIds = (dailyChecklists || []).map((c: any) => c.id);
   let incompleteHabits = 0;
-  if (checklistIds.length > 0) {
+  if (dailyIds.length > 0) {
     const { count } = await supabase
       .from('aurora_checklist_items')
       .select('*', { count: 'exact', head: true })
-      .in('checklist_id', checklistIds)
+      .in('checklist_id', dailyIds)
       .eq('is_completed', false);
     incompleteHabits = count || 0;
   }
 
-  // Get upcoming reminders (next 2 hours)
-  const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString();
-  const { count: upcomingReminders } = await supabase
-    .from('aurora_reminders')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('is_delivered', false)
-    .lte('reminder_date', twoHoursLater)
-    .gte('reminder_date', now.toISOString());
-
-  // Get user's last active time and energy level
+  // User progress
   const { data: progress } = await supabase
     .from('aurora_onboarding_progress')
     .select('last_active_at, energy_level')
     .eq('user_id', userId)
     .single();
 
-  const progressData = progress as { last_active_at?: string; energy_level?: string } | null;
-
-  // Calculate streak (simplified - days with completed habits)
-  const { count: streakDays } = await supabase
-    .from('daily_habit_logs')
-    .select('*', { count: 'exact', head: true })
+  // Current milestone
+  const { data: lifePlan } = await supabase
+    .from('life_plans')
+    .select('id, start_date')
     .eq('user_id', userId)
-    .eq('is_completed', true)
-    .gte('track_date', new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  let currentWeek = 1;
+  let milestoneTitle = '';
+  let milestoneProgress = 0;
+
+  if (lifePlan) {
+    const startDate = new Date(lifePlan.start_date);
+    const diffDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    currentWeek = Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
+
+    const { data: milestone } = await supabase
+      .from('life_plan_milestones')
+      .select('title, is_completed')
+      .eq('plan_id', lifePlan.id)
+      .eq('week_number', currentWeek)
+      .single();
+
+    if (milestone) {
+      milestoneTitle = (milestone as any).title;
+      milestoneProgress = (milestone as any).is_completed ? 100 : 0;
+    }
+  }
+
+  // Streak (consecutive days with at least 1 completed task)
+  let streakDays = 0;
+  for (let i = 1; i <= 30; i++) {
+    const checkDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const { count } = await supabase
+      .from('aurora_checklist_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('due_date', checkDate)
+      .not('completed_at', 'is', null);
+    if ((count || 0) > 0) streakDays++;
+    else break;
+  }
 
   return {
-    overdue_tasks: (overdueTasks as { id: string }[] | null)?.length || 0,
+    overdue_tasks: userOverdue.length,
+    overdue_task_names: userOverdue.slice(0, 3).map((t: any) => t.content),
+    today_total: userTodayTasks.length,
+    today_completed: todayCompleted,
     incomplete_habits: incompleteHabits,
-    upcoming_reminders: upcomingReminders || 0,
-    streak_days: streakDays || 0,
-    last_active: progressData?.last_active_at || null,
-    energy_level: progressData?.energy_level || 'medium',
+    streak_days: streakDays,
+    last_active: (progress as any)?.last_active_at || null,
+    energy_level: (progress as any)?.energy_level || 'medium',
+    current_week: currentWeek,
+    milestone_title: milestoneTitle,
+    milestone_progress: milestoneProgress,
   };
 };
 
-// Queue proactive items based on user context
-// deno-lint-ignore no-explicit-any
-const analyzeAndQueueProactive = async (
+const generateAICoachingMessage = async (
+  context: UserContext,
+  triggerType: string
+): Promise<{ title: string; body: string }> => {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    return generateFallbackMessage(context, triggerType);
+  }
+
+  try {
+    const prompt = `אתה אורורה, מאמנת חיים אישית בעברית. צרי הודעת מוטיבציה קצרה ואישית למשתמש.
+
+סוג ההודעה: ${triggerType}
+נתוני משתמש:
+- משימות באיחור: ${context.overdue_tasks} ${context.overdue_task_names.length > 0 ? `(${context.overdue_task_names.join(', ')})` : ''}
+- משימות היום: ${context.today_completed}/${context.today_total} הושלמו
+- הרגלים לא מושלמים: ${context.incomplete_habits}
+- רצף ימים: ${context.streak_days}
+- שבוע נוכחי בתוכנית: ${context.current_week}/12
+- אבן דרך: ${context.milestone_title}
+- רמת אנרגיה: ${context.energy_level}
+
+כתבי תגובה בפורמט JSON בלבד:
+{"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite",
+        messages: [{ role: "user", content: prompt }],
+        tools: [{
+          type: "function",
+          function: {
+            name: "coaching_message",
+            description: "Return a coaching message",
+            parameters: {
+              type: "object",
+              properties: {
+                title: { type: "string", description: "Short title with emoji" },
+                body: { type: "string", description: "1-2 sentence motivational message in Hebrew" }
+              },
+              required: ["title", "body"],
+              additionalProperties: false
+            }
+          }
+        }],
+        tool_choice: { type: "function", function: { name: "coaching_message" } },
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("AI gateway error:", response.status);
+      return generateFallbackMessage(context, triggerType);
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      const args = JSON.parse(toolCall.function.arguments);
+      return { title: args.title, body: args.body };
+    }
+
+    return generateFallbackMessage(context, triggerType);
+  } catch (e) {
+    console.error("AI coaching error:", e);
+    return generateFallbackMessage(context, triggerType);
+  }
+};
+
+const generateFallbackMessage = (context: UserContext, triggerType: string): { title: string; body: string } => {
+  const messages: Record<string, { title: string; body: string }> = {
+    morning_briefing: {
+      title: '☀️ בוקר טוב!',
+      body: context.today_total > 0
+        ? `יש לך ${context.today_total} משימות היום. בואי נתחיל!`
+        : 'יום חדש, הזדמנויות חדשות! מה בתוכנית?',
+    },
+    progress_check: {
+      title: '📊 עדכון התקדמות',
+      body: `השלמת ${context.today_completed}/${context.today_total} משימות היום. ${context.today_completed === context.today_total ? 'מדהים! 🎉' : 'המשיכי ככה!'}`,
+    },
+    missed_task_nudge: {
+      title: '📋 יש משימות שמחכות',
+      body: `${context.overdue_tasks} משימות באיחור. ${context.overdue_task_names[0] ? `למשל: "${context.overdue_task_names[0]}"` : ''} רוצה לטפל בזה?`,
+    },
+    streak_celebration: {
+      title: '🔥 רצף מרשים!',
+      body: `${context.streak_days} ימים רצופים! אתה לגמרי על הכיוון הנכון.`,
+    },
+    task_suggestion: {
+      title: '💡 רעיון לשיפור',
+      body: `בהתבסס על ההתקדמות שלך בשבוע ${context.current_week}, יש לי כמה הצעות לשפר את המסלול.`,
+    },
+    weekly_review: {
+      title: '📝 סיכום שבועי',
+      body: `שבוע ${context.current_week} מסתיים. בואי נסכם ונתכנן את הבא!`,
+    },
+  };
+
+  return messages[triggerType] || messages.morning_briefing;
+};
+
+const analyzeAndQueue = async (
   supabase: SupabaseClient<any, any, any>,
   userId: string,
   context: UserContext
 ): Promise<void> => {
   const now = new Date();
   const hour = now.getHours();
-  
-  const itemsToQueue: Array<{
+
+  interface QueueItem {
     trigger_type: string;
-    trigger_data: Record<string, unknown>;
     priority: number;
-    scheduled_for: Date;
-  }> = [];
+  }
 
-  // Check for overdue tasks (high priority)
+  const items: QueueItem[] = [];
+
+  // Morning briefing (7-10am)
+  if (hour >= 7 && hour <= 10) {
+    items.push({ trigger_type: 'morning_briefing', priority: 7 });
+  }
+
+  // Overdue tasks (any time, high priority)
   if (context.overdue_tasks > 0) {
-    itemsToQueue.push({
-      trigger_type: 'overdue_task',
-      trigger_data: { count: context.overdue_tasks },
-      priority: 8,
-      scheduled_for: now,
-    });
+    items.push({ trigger_type: 'missed_task_nudge', priority: 8 });
   }
 
-  // Morning check-in (if it's morning and user hasn't been active today)
-  if (hour >= 7 && hour <= 10 && !context.last_active) {
-    itemsToQueue.push({
-      trigger_type: 'daily_checkin',
-      trigger_data: {},
-      priority: 6,
-      scheduled_for: now,
-    });
+  // Progress check (2-6pm)
+  if (hour >= 14 && hour <= 18 && context.today_total > 0) {
+    items.push({ trigger_type: 'progress_check', priority: 5 });
   }
 
-  // Habit reminder (if it's afternoon and habits incomplete)
-  if (hour >= 14 && hour <= 18 && context.incomplete_habits > 2) {
-    itemsToQueue.push({
-      trigger_type: 'habit_reminder',
-      trigger_data: { count: context.incomplete_habits },
-      priority: 5,
-      scheduled_for: now,
-    });
+  // Streak celebration
+  if (context.streak_days >= 3 && context.streak_days % 3 === 0) {
+    items.push({ trigger_type: 'streak_celebration', priority: 6 });
   }
 
-  // Streak risk warning (if user has a streak and might lose it)
-  if (context.streak_days >= 3 && context.incomplete_habits > 0 && hour >= 20) {
-    itemsToQueue.push({
-      trigger_type: 'streak_risk',
-      trigger_data: { streakDays: context.streak_days },
-      priority: 9,
-      scheduled_for: now,
-    });
+  // Weekly review (Friday evening)
+  if (now.getDay() === 5 && hour >= 16) {
+    items.push({ trigger_type: 'weekly_review', priority: 7 });
   }
 
-  // Evening reflection (if it's late evening)
-  if (hour >= 21 && hour <= 23) {
-    itemsToQueue.push({
-      trigger_type: 'evening_reflection',
-      trigger_data: {},
-      priority: 4,
-      scheduled_for: now,
-    });
+  // Task suggestions (Sunday morning)
+  if (now.getDay() === 0 && hour >= 8 && hour <= 12) {
+    items.push({ trigger_type: 'task_suggestion', priority: 4 });
   }
 
-  // Insert queued items (avoid duplicates)
-  for (const item of itemsToQueue) {
-    // Check if similar item already exists in last 4 hours
+  for (const item of items) {
     const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString();
     const { data: existing } = await supabase
       .from('aurora_proactive_queue')
@@ -271,15 +299,17 @@ const analyzeAndQueueProactive = async (
       .gte('created_at', fourHoursAgo)
       .limit(1);
 
-    const existingItems = existing as { id: string }[] | null;
-    if (!existingItems || existingItems.length === 0) {
-      // deno-lint-ignore no-explicit-any
+    if (!existing || existing.length === 0) {
+      const msg = await generateAICoachingMessage(context, item.trigger_type);
+
       await (supabase as any).from('aurora_proactive_queue').insert({
         user_id: userId,
         trigger_type: item.trigger_type,
-        trigger_data: item.trigger_data,
+        trigger_data: { context },
         priority: item.priority,
-        scheduled_for: item.scheduled_for.toISOString(),
+        scheduled_for: now.toISOString(),
+        title: msg.title,
+        body: msg.body,
       });
       console.log(`Queued ${item.trigger_type} for user ${userId}`);
     }
@@ -299,135 +329,74 @@ serve(async (req) => {
     const body = await req.json();
     const { action, user_id, item_id } = body;
 
-    // Action: analyze - Analyze user context and queue proactive messages
     if (action === 'analyze') {
-      if (!user_id) {
-        return new Response(
-          JSON.stringify({ error: 'user_id required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
+      if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       const context = await getUserContext(supabase, user_id);
-      await analyzeAndQueueProactive(supabase, user_id, context);
-
-      return new Response(
-        JSON.stringify({ success: true, context }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      await analyzeAndQueue(supabase, user_id, context);
+      return new Response(JSON.stringify({ success: true, context }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Action: get_pending - Get pending proactive items for a user
     if (action === 'get_pending') {
-      if (!user_id) {
-        return new Response(
-          JSON.stringify({ error: 'user_id required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-      const { data: items } = await supabase.rpc('get_pending_proactive_items', {
-        p_user_id: user_id,
-      });
-
-      // Generate messages for each item
-      const messages = ((items as ProactiveItem[] | null) || []).map((item: ProactiveItem) => {
-        const message = generateProactiveMessage(item.trigger_type, item.trigger_data, true);
-        return {
-          id: item.id,
-          ...message,
-          priority: item.priority,
-          scheduled_for: item.scheduled_for,
-        };
-      });
-
-      return new Response(
-        JSON.stringify({ items: messages }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Action: mark_sent - Mark item as sent
-    if (action === 'mark_sent') {
-      if (!item_id) {
-        return new Response(
-          JSON.stringify({ error: 'item_id required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      await supabase
+      const { data: items } = await supabase
         .from('aurora_proactive_queue')
-        .update({ sent_at: new Date().toISOString() })
-        .eq('id', item_id);
+        .select('*')
+        .eq('user_id', user_id)
+        .is('dismissed_at', null)
+        .lte('scheduled_for', new Date().toISOString())
+        .order('priority', { ascending: false })
+        .limit(5);
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      const messages = (items || []).map((item: any) => ({
+        id: item.id,
+        title: item.title || '💡 הודעה מאורורה',
+        body: item.body || 'יש לי משהו לשתף איתך',
+        action: item.trigger_type,
+        priority: item.priority,
+        scheduled_for: item.scheduled_for,
+      }));
+
+      return new Response(JSON.stringify({ items: messages }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Action: dismiss - Dismiss an item
     if (action === 'dismiss') {
-      if (!item_id) {
-        return new Response(
-          JSON.stringify({ error: 'item_id required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      await supabase
-        .from('aurora_proactive_queue')
-        .update({ dismissed_at: new Date().toISOString() })
-        .eq('id', item_id);
-
-      return new Response(
-        JSON.stringify({ success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      await supabase.from('aurora_proactive_queue').update({ dismissed_at: new Date().toISOString() }).eq('id', item_id);
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Action: batch_analyze - Analyze all active users (for cron job)
+    if (action === 'mark_sent') {
+      if (!item_id) return new Response(JSON.stringify({ error: 'item_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      await supabase.from('aurora_proactive_queue').update({ sent_at: new Date().toISOString() }).eq('id', item_id);
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     if (action === 'batch_analyze') {
-      // Get users active in last 7 days with proactive enabled
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      
       const { data: activeUsers } = await supabase
         .from('aurora_onboarding_progress')
         .select('user_id')
         .eq('proactive_enabled', true)
         .gte('last_active_at', sevenDaysAgo);
 
-      const usersList = activeUsers as { user_id: string }[] | null;
-      const processedUsers: string[] = [];
-      
-      for (const user of usersList || []) {
+      let processed = 0;
+      for (const user of (activeUsers || []) as { user_id: string }[]) {
         try {
           const context = await getUserContext(supabase, user.user_id);
-          await analyzeAndQueueProactive(supabase, user.user_id, context);
-          processedUsers.push(user.user_id);
+          await analyzeAndQueue(supabase, user.user_id, context);
+          processed++;
         } catch (err) {
-          console.error(`Error processing user ${user.user_id}:`, err);
+          console.error(`Error processing ${user.user_id}:`, err);
         }
       }
 
-      return new Response(
-        JSON.stringify({ success: true, processed: processedUsers.length }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, processed }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    return new Response(
-      JSON.stringify({ error: 'Unknown action' }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error) {
     console.error('Aurora Proactive error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });
