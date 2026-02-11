@@ -137,8 +137,6 @@ const LifePillarsSection = () => {
   const handlePillarClick = (pillarId: string) => {
     if (pillarId === 'hobbies') {
       setShowHobbiesModal(true);
-    } else {
-      navigate(`/${pillarId}`);
     }
   };
 
