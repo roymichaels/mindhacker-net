@@ -96,7 +96,7 @@ export function GoalsPopover() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-96 p-0 bg-popover border shadow-lg z-[100]"
+        className="w-96 p-0 bg-popover border shadow-lg z-[100] max-h-[80vh] overflow-hidden"
         align={isRTL ? 'start' : 'end'}
         sideOffset={8}
       >
@@ -136,7 +136,7 @@ export function GoalsPopover() {
               </p>
             </div>
           ) : (
-            <ScrollArea className="max-h-[350px]">
+            <ScrollArea className="max-h-[60vh]">
               <div className="divide-y">
                 {[1, 2, 3].map(month => {
                   const goals = byMonth[month] || [];
