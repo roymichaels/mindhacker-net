@@ -48,6 +48,8 @@ export function GoalsCard() {
         .select('id')
         .eq('user_id', user.id)
         .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (!plan) return [];
