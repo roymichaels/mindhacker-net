@@ -132,12 +132,11 @@ const pillars = [
 const LifePillarsSection = () => {
   const { isRTL } = useTranslation();
   const navigate = useNavigate();
-  const [showHobbiesModal, setShowHobbiesModal] = useState(false);
+  const [activePillar, setActivePillar] = useState<typeof pillars[0] | null>(null);
 
   const handlePillarClick = (pillarId: string) => {
-    if (pillarId === 'hobbies') {
-      setShowHobbiesModal(true);
-    }
+    const pillar = pillars.find(p => p.id === pillarId);
+    if (pillar) setActivePillar(pillar);
   };
 
   return (
@@ -417,39 +416,66 @@ const LifePillarsSection = () => {
           </p>
         </motion.div>
       </div>
-      {/* Hobbies Journey Modal */}
-      <Dialog open={showHobbiesModal} onOpenChange={setShowHobbiesModal}>
+      {/* Pillar Journey Modal */}
+      <Dialog open={!!activePillar} onOpenChange={(open) => !open && setActivePillar(null)}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center shadow-lg">
-                <Palette className="w-8 h-8 text-white" />
-              </div>
-            </div>
-            <DialogTitle className="text-center text-xl">
-              {isRTL ? 'מסע התחביבים' : 'Hobbies Journey'}
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              {isRTL 
-                ? 'גלה את התחביבים שלך - יצירתיות, פנאי ופעילויות שמביאות לך שמחה ומאזנות את חייך'
-                : 'Discover your hobbies - creativity, leisure and activities that bring you joy and balance your life'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 mt-4">
-            <Button 
-              onClick={() => { setShowHobbiesModal(false); navigate('/hobbies/journey'); }}
-              className="w-full bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-600 hover:to-cyan-500 text-white"
-            >
-              {isRTL ? 'התחל את המסע' : 'Start the Journey'}
-              <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => { setShowHobbiesModal(false); navigate('/hobbies'); }}
-            >
-              {isRTL ? 'צפה בכלי התחביבים' : 'View Hobby Tools'}
-            </Button>
-          </div>
+          {activePillar && (() => {
+            const Icon = activePillar.icon;
+            const journeyNames: Record<string, { he: string; en: string }> = {
+              consciousness: { he: 'מסע התודעה', en: 'Consciousness Journey' },
+              business: { he: 'מסע העסקים', en: 'Business Journey' },
+              health: { he: 'מסע הבריאות', en: 'Health Journey' },
+              relationships: { he: 'מסע מערכות היחסים', en: 'Relationships Journey' },
+              finances: { he: 'מסע הפיננסים', en: 'Finances Journey' },
+              learning: { he: 'מסע הלמידה', en: 'Learning Journey' },
+              purpose: { he: 'מסע הייעוד', en: 'Purpose Journey' },
+              hobbies: { he: 'מסע התחביבים', en: 'Hobbies Journey' },
+            };
+            const toolNames: Record<string, { he: string; en: string }> = {
+              consciousness: { he: 'צפה בכלי התודעה', en: 'View Consciousness Tools' },
+              business: { he: 'צפה בכלי העסקים', en: 'View Business Tools' },
+              health: { he: 'צפה בכלי הבריאות', en: 'View Health Tools' },
+              relationships: { he: 'צפה בכלי מערכות היחסים', en: 'View Relationship Tools' },
+              finances: { he: 'צפה בכלי הפיננסים', en: 'View Finance Tools' },
+              learning: { he: 'צפה בכלי הלמידה', en: 'View Learning Tools' },
+              purpose: { he: 'צפה בכלי הייעוד', en: 'View Purpose Tools' },
+              hobbies: { he: 'צפה בכלי התחביבים', en: 'View Hobby Tools' },
+            };
+            const name = journeyNames[activePillar.id] || { he: 'מסע', en: 'Journey' };
+            const tools = toolNames[activePillar.id] || { he: 'צפה בכלים', en: 'View Tools' };
+            return (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className={cn("w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg", activePillar.gradient)}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                  <DialogTitle className="text-center text-xl">
+                    {isRTL ? name.he : name.en}
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    {isRTL ? activePillar.descriptionHe : activePillar.descriptionEn}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-3 mt-4">
+                  <Button 
+                    onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}/journey`); }}
+                    className={cn("w-full bg-gradient-to-r text-white", activePillar.gradient)}
+                  >
+                    {isRTL ? 'התחל את המסע' : 'Start the Journey'}
+                    <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => { setActivePillar(null); navigate(`/${activePillar.id}`); }}
+                  >
+                    {isRTL ? tools.he : tools.en}
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </section>
