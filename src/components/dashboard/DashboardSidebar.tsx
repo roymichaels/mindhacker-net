@@ -18,7 +18,9 @@ import {
   Users,
   Wallet,
   GraduationCap,
-  Palette
+  Palette,
+  ListChecks,
+  Target,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -137,6 +139,8 @@ const DashboardSidebar = ({
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple', path: '/dashboard' },
+    { id: 'tasks', icon: ListChecks, label: language === 'he' ? 'משימות' : 'Tasks', highlight: 'green', path: '/dashboard', hash: '#tasks' },
+    { id: 'goals', icon: Target, label: language === 'he' ? 'יעדים' : 'Goals', highlight: 'gold', path: '/dashboard', hash: '#goals' },
     { id: 'consciousness', icon: User, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue', path: '/consciousness' },
     { id: 'business', icon: Briefcase, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold', path: '/business' },
     { id: 'health', icon: Heart, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red', path: '/health' },
@@ -178,14 +182,17 @@ const DashboardSidebar = ({
         <div className="space-y-1.5 w-full">
           {navItems.map((item) => {
             const s = highlightStyles[item.highlight];
-            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+            const itemHash = (item as any).hash as string | undefined;
+            const isActive = itemHash
+              ? location.pathname === item.path && location.hash === itemHash
+              : (location.pathname === item.path || location.pathname.startsWith(item.path + '/')) && !itemHash;
             const Icon = item.icon;
             return (
               <button
                 key={item.id}
                 onClick={() => {
                   if (item.path) {
-                    navigate(item.path);
+                    navigate(item.path + (itemHash || ''));
                     onNavigate?.();
                   }
                 }}

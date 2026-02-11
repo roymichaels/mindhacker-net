@@ -150,7 +150,7 @@ const DashboardLayout = ({
     return (
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-sidebar w-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-sidebar">
+          <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-sidebar">
             <div className="flex h-14 items-center justify-between px-4">
               <Button 
                 variant="ghost" 
