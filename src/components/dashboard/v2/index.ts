@@ -4,3 +4,4 @@ export { LifeAnalysisChart } from './LifeAnalysisChart';
 export { TodaysHabitsCard } from './TodaysHabitsCard';
 export { PlanProgressCard } from './PlanProgressCard';
 export { QuickActionsBar } from './QuickActionsBar';
+export { GoalsCard } from './GoalsCard';

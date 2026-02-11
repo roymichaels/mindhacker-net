@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { LifePlanExpanded } from './LifePlanExpanded';
-import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard } from './unified';
-import { MissionsRoadmap } from './missions';
+import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard, ChecklistsCard } from './unified';
+import { GoalsCard } from './v2/GoalsCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus, Map } from 'lucide-react';
@@ -47,10 +47,13 @@ export function ChecklistsModal({ open, onOpenChange, language }: DashboardModal
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader 
-          title={language === 'he' ? 'מפת המשימות' : 'Missions Roadmap'}
-          icon={<Map className="h-5 w-5" />}
+          title={language === 'he' ? 'משימות ויעדים' : 'Tasks & Goals'}
+          icon={<ListChecks className="h-5 w-5" />}
         />
-        <MissionsRoadmap />
+        <div className="space-y-4">
+          <ChecklistsCard />
+          <GoalsCard />
+        </div>
       </DialogContent>
     </Dialog>
   );
