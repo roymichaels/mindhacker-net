@@ -94,7 +94,7 @@ export function TasksPopover() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500"
+          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
           title={language === 'he' ? 'משימות היום' : "Today's Tasks"}
         >
           <ListChecks className="h-5 w-5" />

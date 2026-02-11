@@ -89,7 +89,7 @@ export function GoalsPopover() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
           title={language === 'he' ? 'יעדים' : 'Goals'}
         >
           <Target className="h-5 w-5" />
