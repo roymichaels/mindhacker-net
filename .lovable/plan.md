@@ -1,160 +1,58 @@
 
 
-# Mission System & 90-Day Plan Overhaul + Aurora Coaching Engine
+# Split "Missions" into "Tasks" and "Goals"
 
-## Overview
-Transform the current missions dropdown from a simple categorized checklist into a **calendar-driven 90-day timeline** with daily task views, and build an **Aurora proactive coaching engine** that holds users accountable by checking in on task progress and motivating action.
+## What Changes
 
----
+The current "Missions Roadmap" combines everything into one view. We'll split it into two clear sections on the dashboard:
 
-## Part 1: Calendar-Based Mission Timeline
+1. **Tasks (משימות)** -- Daily/weekly actionable checklist items from `aurora_checklists` + `aurora_checklist_items`. This is the existing `ChecklistsCard` component, already built and working.
 
-### Current Problems
-- Missions are grouped by category (personal/business/health) with no date visibility
-- No calendar or day-by-day view despite `due_date` existing on checklist items
-- Milestones have `start_date`/`end_date` but aren't shown as timeline segments
-- Users can't see "what do I need to do today/tomorrow/this week"
+2. **Goals (יעדים)** -- High-level goals from the 90-day life plan milestones (e.g., "Stop smoking", "Build a body", "Career action plan complete"). These come from `life_plan_milestones.goal` field.
 
-### New Design: 90-Day Calendar View
+## Dashboard Layout Change
 
-Replace the current tabs (daily/weekly/monthly) with a **timeline-first layout**:
-
-1. **Today's Focus Panel** (top section)
-   - Shows all tasks due today with checkboxes
-   - Overdue tasks highlighted in red
-   - Quick progress bar for the day
-
-2. **Weekly Calendar Strip** (scrollable week view)
-   - 7 columns showing each day of the current week
-   - Each day shows task count and completion status (dot indicators)
-   - Tap a day to expand and see its tasks
-   - Current day highlighted
-
-3. **90-Day Timeline** (collapsible month sections)
-   - Month 1 / Month 2 / Month 3 accordion sections
-   - Inside each month: 4 weekly milestone cards
-   - Each week shows its milestone title, tasks, and completion %
-   - Expandable to show day-by-day breakdown within the week
-   - Current week auto-expanded with highlight
-
-4. **Task Distribution Logic**
-   - Query `life_plan_milestones` for each week's tasks
-   - Distribute milestone tasks across the week's days using `aurora_checklist_items.due_date`
-   - Recurring items (where `is_recurring = true`) show on every applicable day
-
-### Files to Create/Modify
-- **New**: `src/components/dashboard/missions/TodayFocus.tsx` - Today's task panel
-- **New**: `src/components/dashboard/missions/WeekCalendarStrip.tsx` - Scrollable week view
-- **New**: `src/components/dashboard/missions/MonthTimeline.tsx` - 90-day accordion
-- **New**: `src/components/dashboard/missions/DayTaskList.tsx` - Expanded day view
-- **Modify**: `src/components/dashboard/missions/MissionsRoadmap.tsx` - Replace current layout with new calendar-driven structure
-- **Modify**: `src/hooks/useMissionsRoadmap.ts` - Add date-based querying, group tasks by date
-
----
-
-## Part 2: Aurora Proactive Coaching Engine
-
-### What It Does
-Aurora periodically checks the user's task progress and sends proactive messages:
-
-- **Morning kick-off**: "Good morning! You have 5 tasks today. Let's start with..."
-- **Mid-day check-in**: "You've completed 2/5 tasks. Keep going!"
-- **Missed tasks nudge**: "I noticed you didn't complete X yesterday. Want to reschedule it?"
-- **Streak motivation**: "3 days in a row completing all tasks! Amazing!"
-- **Suggestion engine**: "Based on your progress in Health, I suggest adding..."
-
-### Implementation
-
-#### A. Edge Function: `aurora-proactive`
-- **New**: `supabase/functions/aurora-proactive/index.ts`
-- Accepts actions: `analyze`, `get_pending`, `dismiss`
-- `analyze` action:
-  - Queries user's tasks for today, overdue items, completion streaks
-  - Uses Lovable AI (gemini-3-flash-preview) to generate personalized coaching messages in Hebrew
-  - Inserts results into `aurora_proactive_queue` with appropriate scheduling
-- `get_pending` action: Returns unsent/undismissed items
-- `dismiss` action: Marks items as dismissed
-
-#### B. Proactive Message Types (new column on `aurora_proactive_queue`)
-Add `trigger_type` categories:
-- `morning_briefing` - Daily morning task overview
-- `progress_check` - Mid-day progress update  
-- `missed_task_nudge` - Reminder for overdue tasks
-- `streak_celebration` - Completion streak recognition
-- `task_suggestion` - AI-suggested new tasks/improvements
-- `weekly_review` - End-of-week summary
-
-#### C. Frontend Integration
-- **Modify**: `src/hooks/aurora/useProactiveAurora.tsx` - Connect to the new edge function
-- Aurora chat will display proactive messages as coaching bubbles
-- Include action buttons: "Do it now", "Reschedule", "Skip"
-
-#### D. Database Migration
-- Add `title` and `body` text columns to `aurora_proactive_queue` (for storing the AI-generated message content)
-- Add index on `(user_id, scheduled_for)` for efficient polling
-
----
-
-## Part 3: Task Suggestion & Auto-Generation
-
-### Aurora Suggests More Tasks
-When a user completes a milestone or shows consistent progress, Aurora proactively suggests:
-- New tasks related to their life pillars
-- Intensified challenges ("You mastered morning routine - try adding cold showers")
-- Tasks from other life domains they're neglecting
-
-This uses the existing `aurora_checklists` + `aurora_checklist_items` tables with `origin: 'aurora'`.
-
----
-
-## Technical Details
-
-### Database Migration
-```sql
--- Add columns to aurora_proactive_queue if missing
-ALTER TABLE aurora_proactive_queue 
-  ADD COLUMN IF NOT EXISTS title text,
-  ADD COLUMN IF NOT EXISTS body text;
-
--- Index for efficient polling
-CREATE INDEX IF NOT EXISTS idx_proactive_queue_user_scheduled 
-  ON aurora_proactive_queue(user_id, scheduled_for) 
-  WHERE dismissed_at IS NULL AND sent_at IS NULL;
-```
-
-### Edge Function Flow
+Currently Zone 4 shows:
 ```text
-User opens app
-  --> useProactiveAurora polls every 5 min
-  --> Edge function checks:
-      1. Overdue tasks count
-      2. Today's completion rate
-      3. Streak data
-      4. Last message sent (avoid spam)
-  --> Generates coaching message via Lovable AI
-  --> Returns to frontend as Aurora bubble
+[ Today's Habits ] [ Plan Progress ]
 ```
 
-### New Component Hierarchy
+New Zone 4 will show:
 ```text
-MissionsRoadmap (refactored)
-  +-- TodayFocus (today's tasks + overdue)
-  +-- WeekCalendarStrip (7-day strip, tap to expand)
-  |     +-- DayTaskList (tasks for selected day)
-  +-- MonthTimeline (3 months accordion)
-        +-- WeekMilestoneCard (per-week milestone + tasks)
-              +-- DayTaskList (expandable days within week)
+[ Tasks (ChecklistsCard) ]
+[ Goals (new GoalsCard)  ]
+[ Today's Habits ] [ Plan Progress ]
 ```
 
-### Config Update
-- Add `aurora-proactive` to `supabase/config.toml` with `verify_jwt = false`
+## Technical Steps
 
----
+### 1. Create `GoalsCard` component
+**New file**: `src/components/dashboard/v2/GoalsCard.tsx`
 
-## Implementation Order
-1. Database migration (add columns to proactive queue)
-2. Refactor `useMissionsRoadmap` hook for date-based grouping
-3. Build new calendar UI components (TodayFocus, WeekCalendarStrip, MonthTimeline, DayTaskList)
-4. Replace MissionsRoadmap layout
-5. Create `aurora-proactive` edge function
-6. Connect proactive system to Aurora chat
+- Fetch all milestones from `life_plan_milestones` via the active `life_plans`
+- Display each milestone's `goal` field as a goal card with its `title` as context
+- Show completion status (checkbox-style) based on `is_completed`
+- Group by month (Month 1, 2, 3) using `month_number`
+- Collapsible sections, current month expanded by default
+- Visual progress indicator per month
+
+### 2. Add `ChecklistsCard` to the dashboard
+The existing `ChecklistsCard` from `src/components/dashboard/unified/ChecklistsCard.tsx` already shows all aurora checklists with items, toggle completion, XP awards, etc. We'll add it directly to the dashboard layout.
+
+### 3. Update `UnifiedDashboardView.tsx`
+- Import `ChecklistsCard` and the new `GoalsCard`
+- Add them as Zone 4a and 4b above the existing habits/plan row
+- Rename the `ChecklistsModal` dialog header from "Missions Roadmap" to "Tasks & Goals"
+
+### 4. Update `DashboardModals.tsx`
+- Replace `MissionsRoadmap` in `ChecklistsModal` with the two separate components (Tasks + Goals)
+- Update title/icon
+
+### 5. Clean up references
+- Update `NextActionBanner` and `QuickActionsBar` references from "missions" to reflect the new split
+- Keep the `useMissionsRoadmap` hook intact as it's used by other components, but the dashboard will use the simpler data sources directly
+
+### Data Sources (no DB changes needed)
+- **Tasks**: `aurora_checklists` + `aurora_checklist_items` (already used by `useChecklistsData`)
+- **Goals**: `life_plan_milestones.goal` (already used by `PlanProgressCard`)
+
