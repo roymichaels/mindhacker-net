@@ -66,10 +66,10 @@ const navGroups: NavGroup[] = [
     labelHe: 'הפרקטיקה שלי',
     icon: Briefcase,
     items: [
-      { to: '/coach/clients', icon: Users, label: 'My Clients', labelHe: 'הלקוחות שלי' },
-      { to: '/coach/services', icon: Package, label: 'My Services', labelHe: 'השירותים שלי' },
-      { to: '/coach/calendar', icon: Calendar, label: 'My Calendar', labelHe: 'היומן שלי' },
-      { to: '/coach/earnings', icon: DollarSign, label: 'My Earnings', labelHe: 'ההכנסות שלי' },
+      { to: '/coach/clients', icon: Users, label: 'Clients', labelHe: 'לקוחות' },
+      { to: '/coach/services', icon: Package, label: 'Services', labelHe: 'שירותים' },
+      { to: '/coach/calendar', icon: Calendar, label: 'Calendar', labelHe: 'יומן' },
+      { to: '/coach/earnings', icon: DollarSign, label: 'Earnings', labelHe: 'הכנסות' },
     ],
   },
   {
@@ -78,10 +78,8 @@ const navGroups: NavGroup[] = [
     labelHe: 'תוכן ומוצרים',
     icon: BookOpen,
     items: [
-      { to: '/coach/content', icon: BookOpen, label: 'My Content', labelHe: 'התכנים שלי' },
-      { to: '/coach/manage-content', icon: BookOpen, label: 'Manage Content', labelHe: 'ניהול תוכן' },
-      { to: '/coach/products', icon: ShoppingBag, label: 'My Products', labelHe: 'המוצרים שלי' },
-      { to: '/coach/manage-products', icon: ShoppingBag, label: 'Manage Products', labelHe: 'ניהול מוצרים' },
+      { to: '/coach/manage-content', icon: BookOpen, label: 'Content', labelHe: 'תוכן' },
+      { to: '/coach/manage-products', icon: ShoppingBag, label: 'Products', labelHe: 'מוצרים' },
       { to: '/coach/videos', icon: Video, label: 'Videos', labelHe: 'סרטונים' },
       { to: '/coach/recordings', icon: Mic, label: 'Recordings', labelHe: 'הקלטות' },
       { to: '/coach/forms', icon: FileText, label: 'Forms', labelHe: 'טפסים' },
@@ -102,21 +100,13 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    id: 'storefront',
-    label: 'My Storefront',
-    labelHe: 'החנות שלי',
-    icon: Store,
-    items: [
-      { to: '/coach/storefront', icon: Globe, label: 'Storefront Settings', labelHe: 'הגדרות חנות' },
-    ],
-  },
-  {
     id: 'settings',
     label: 'Settings',
     labelHe: 'הגדרות',
     icon: User,
     items: [
-      { to: '/coach/profile', icon: User, label: 'My Profile', labelHe: 'הפרופיל שלי' },
+      { to: '/coach/profile', icon: User, label: 'Profile', labelHe: 'פרופיל' },
+      { to: '/coach/storefront', icon: Globe, label: 'Storefront', labelHe: 'חנות' },
       { to: '/coach/theme', icon: Palette, label: 'Theme', labelHe: 'ערכת נושא' },
     ],
   },
