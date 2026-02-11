@@ -54,7 +54,7 @@ export const useChecklistsData = (user: User | null) => {
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!lifePlan) return;
 
@@ -71,32 +71,44 @@ export const useChecklistsData = (user: User | null) => {
         .select('id, week_number, title, tasks, goal, is_completed')
         .eq('plan_id', lifePlan.id)
         .eq('week_number', currentWeek)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
-      // Early return if no milestone found
       if (!milestone) return;
 
-      // Cast tasks to string array
       const tasks = Array.isArray(milestone.tasks) ? milestone.tasks as string[] : [];
       if (!tasks.length) return;
 
-      // Check if weekly checklist already exists and is up to date
-      const weeklyTitle = `📅 שבוע ${currentWeek} - ${milestone.title}`;
-      
-      const { data: existingChecklist } = await supabase
+      // Clean title - avoid double "שבוע X" prefix
+      const cleanTitle = milestone.title.startsWith(`שבוע ${currentWeek}`)
+        ? `📅 ${milestone.title}`
+        : `📅 שבוע ${currentWeek} - ${milestone.title}`;
+
+      // Check if ANY weekly checklist for current week already exists (use limit instead of single)
+      const { data: existingChecklists } = await supabase
         .from('aurora_checklists')
         .select('id, title')
         .eq('user_id', userId)
         .eq('status', 'active')
         .like('title', `📅 שבוע ${currentWeek}%`)
-        .single();
+        .limit(10);
 
-      // If checklist for current week already exists with same tasks, skip
-      if (existingChecklist) {
+      // If we have duplicates, archive all but the first
+      if (existingChecklists && existingChecklists.length > 1) {
+        const idsToArchive = existingChecklists.slice(1).map(c => c.id);
+        await supabase
+          .from('aurora_checklists')
+          .update({ status: 'archived' })
+          .in('id', idsToArchive);
+      }
+
+      // If at least one exists, check if it has the right tasks
+      if (existingChecklists && existingChecklists.length > 0) {
+        const existing = existingChecklists[0];
         const { data: existingItems } = await supabase
           .from('aurora_checklist_items')
           .select('content')
-          .eq('checklist_id', existingChecklist.id);
+          .eq('checklist_id', existing.id);
 
         const existingContents = existingItems?.map(i => i.content) || [];
         const allTasksExist = tasks.every((task: string) => 
@@ -112,15 +124,15 @@ export const useChecklistsData = (user: User | null) => {
         .update({ status: 'archived' })
         .eq('user_id', userId)
         .like('title', '📅 שבוע %')
-        .neq('title', weeklyTitle);
+        .neq('title', cleanTitle);
 
-      // Create or update current week's checklist
-      if (!existingChecklist) {
+      // Only create if none exist for current week
+      if (!existingChecklists || existingChecklists.length === 0) {
         const { data: newChecklist } = await supabase
           .from('aurora_checklists')
           .insert({
             user_id: userId,
-            title: weeklyTitle,
+            title: cleanTitle,
             origin: 'aurora',
             context: `שבוע ${currentWeek} מתוך תוכנית 90 הימים | יעד: ${milestone.goal}`,
             status: 'active',
@@ -129,7 +141,6 @@ export const useChecklistsData = (user: User | null) => {
           .single();
 
         if (newChecklist) {
-          // Add tasks as items (use the already-cast tasks variable)
           const items = tasks.map((task: string, index: number) => ({
             checklist_id: newChecklist.id,
             content: task,
@@ -147,7 +158,27 @@ export const useChecklistsData = (user: User | null) => {
     }
   }, []);
 
-  // Fetch checklists
+  // Fetch checklists (without sync - fast)
+  const fetchChecklists = useCallback(async () => {
+    if (!user?.id) return;
+
+    const { data, error } = await supabase
+      .from('aurora_checklists')
+      .select('*, aurora_checklist_items(*)')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch checklists:', error);
+      return;
+    }
+
+    setChecklists((data as Checklist[]) || []);
+    setLoading(false);
+  }, [user?.id]);
+
+  // Initial load: fetch immediately, then sync in background
   useEffect(() => {
     if (!user?.id) {
       setChecklists([]);
@@ -155,29 +186,13 @@ export const useChecklistsData = (user: User | null) => {
       return;
     }
 
-    const fetchChecklists = async () => {
-      // First sync current week's tasks
-      await syncWeeklyTasks(user.id);
-
-      const { data, error } = await supabase
-        .from('aurora_checklists')
-        .select('*, aurora_checklist_items(*)')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Failed to fetch checklists:', error);
-        return;
-      }
-
-      setChecklists((data as Checklist[]) || []);
-      setLoading(false);
-    };
-
+    // Fast: fetch existing data first
     fetchChecklists();
 
-    // Subscribe to changes
+    // Background: sync weekly tasks, then refetch
+    syncWeeklyTasks(user.id).then(() => fetchChecklists());
+
+    // Subscribe to changes (only refetch, don't re-sync)
     const checklistChannel = supabase
       .channel('aurora-checklists')
       .on(
@@ -209,7 +224,7 @@ export const useChecklistsData = (user: User | null) => {
       supabase.removeChannel(checklistChannel);
       supabase.removeChannel(itemsChannel);
     };
-  }, [user?.id, syncWeeklyTasks]);
+  }, [user?.id, syncWeeklyTasks, fetchChecklists]);
 
   // Create checklist
   const createChecklist = useCallback(async (title: string, origin: 'manual' | 'aurora' = 'manual', context?: string) => {
