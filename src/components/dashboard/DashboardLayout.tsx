@@ -72,7 +72,7 @@ const DesktopLayoutContent = ({
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
           onClick={() => openPractitioners()}
           title={language === 'he' ? 'מאמנים' : 'Coaches'}
         >
@@ -81,7 +81,7 @@ const DesktopLayoutContent = ({
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 bg-[#1d9bf0]/10 hover:bg-[#1d9bf0]/20 text-[#1d9bf0]"
+          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
           onClick={() => setHypnosisOpen(true)}
           title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
         >
@@ -172,7 +172,7 @@ const DashboardLayout = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+                  className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
                   onClick={() => openPractitioners()}
                   title={language === 'he' ? 'מאמנים' : 'Coaches'}
                 >
@@ -181,7 +181,7 @@ const DashboardLayout = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 bg-[#1d9bf0]/10 hover:bg-[#1d9bf0]/20 text-[#1d9bf0]"
+                  className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
                   onClick={() => setHypnosisOpen(true)}
                   title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
                 >
