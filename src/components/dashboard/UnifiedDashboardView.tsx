@@ -13,7 +13,9 @@ import {
   LifeAnalysisChart,
   TodaysHabitsCard,
   PlanProgressCard,
+  GoalsCard,
 } from './v2';
+import { ChecklistsCard } from './unified';
 import { DashboardBannerSlider } from './DashboardBannerSlider';
 
 interface UnifiedDashboardViewProps {
@@ -77,7 +79,13 @@ export function UnifiedDashboardView({
       {/* Zone 3: Life Analysis Chart */}
       <LifeAnalysisChart />
 
-      {/* Zone 4: Habits + Plan Progress (2 columns on desktop) */}
+      {/* Zone 4: Tasks & Goals */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <ChecklistsCard />
+        <GoalsCard />
+      </div>
+
+      {/* Zone 5: Habits + Plan Progress (2 columns on desktop) */}
       <div className="grid gap-4 md:grid-cols-2">
         <TodaysHabitsCard />
         <PlanProgressCard />

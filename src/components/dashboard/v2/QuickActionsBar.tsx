@@ -39,9 +39,9 @@ export function QuickActionsBar({ onOpenChat, onOpenHypnosis }: QuickActionsBarP
       onClick: () => navigate('/practitioners'),
     },
     {
-      id: 'missions',
+      id: 'tasks',
       icon: CheckSquare,
-      label: language === 'he' ? 'משימות' : 'Missions',
+      label: language === 'he' ? 'משימות' : 'Tasks',
       color: 'text-emerald-500 hover:text-emerald-500',
       bgColor: 'hover:bg-emerald-500/10',
       onClick: () => navigate('/missions'),
