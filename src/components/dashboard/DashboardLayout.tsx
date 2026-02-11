@@ -8,9 +8,9 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { SettingsModal } from '@/components/settings';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, Compass, Users } from 'lucide-react';
+import { Menu, Compass, Users, ListChecks, Target } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
@@ -57,6 +57,7 @@ const DesktopLayoutContent = ({
   setProfileOpen,
 }: DesktopLayoutContentProps) => {
   const sidebar = useSidebar();
+  const navigate = useNavigate();
   const { openPractitioners } = usePractitionersModal();
   const isExpanded = sidebar?.state === 'expanded';
   const sidebarWidth = isExpanded ? '16rem' : '3rem';
@@ -65,6 +66,24 @@ const DesktopLayoutContent = ({
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Fixed notification icons */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500"
+          onClick={() => navigate('/dashboard#tasks')}
+          title={language === 'he' ? 'משימות' : 'Tasks'}
+        >
+          <ListChecks className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+          onClick={() => navigate('/dashboard#goals')}
+          title={language === 'he' ? 'יעדים' : 'Goals'}
+        >
+          <Target className="h-5 w-5" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
@@ -127,6 +146,7 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const { language, isRTL } = useTranslation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [leftSheetOpen, setLeftSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
@@ -163,6 +183,24 @@ const DashboardLayout = ({
               </Button>
               
               <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500"
+                  onClick={() => navigate('/dashboard#tasks')}
+                  title={language === 'he' ? 'משימות' : 'Tasks'}
+                >
+                  <ListChecks className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
+                  onClick={() => navigate('/dashboard#goals')}
+                  title={language === 'he' ? 'יעדים' : 'Goals'}
+                >
+                  <Target className="h-5 w-5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
