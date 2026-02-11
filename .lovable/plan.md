@@ -1,97 +1,160 @@
 
-# Launch Readiness Plan: Mind OS Production Deployment
 
-## Current State Assessment
-The app is feature-rich with 35+ edge functions, 8 life pillars, AI coaching (Aurora), hypnosis, gamification, PWA support, multi-tenant coach storefronts, and a comprehensive admin/coach panel. However, several areas need hardening before a public launch.
+# Mission System & 90-Day Plan Overhaul + Aurora Coaching Engine
 
-## Phase 1: Security Hardening (Critical)
+## Overview
+Transform the current missions dropdown from a simple categorized checklist into a **calendar-driven 90-day timeline** with daily task views, and build an **Aurora proactive coaching engine** that holds users accountable by checking in on task progress and motivating action.
 
-### 1.1 Fix Overly Permissive RLS Policies
-The database linter found **18 tables with `USING (true)` or `WITH CHECK (true)`** on INSERT/UPDATE/DELETE operations. This is the most critical issue.
+---
 
-**Action:** Run a security scan to identify exactly which tables are affected, then tighten RLS policies to scope write operations to authenticated users or row owners. Some tables (like `leads`) intentionally allow anonymous INSERT -- those will be left as-is per existing design decisions.
+## Part 1: Calendar-Based Mission Timeline
 
-### 1.2 Fix Function Search Path Vulnerability
-3 database functions have mutable search paths, which could allow SQL injection via search_path manipulation.
+### Current Problems
+- Missions are grouped by category (personal/business/health) with no date visibility
+- No calendar or day-by-day view despite `due_date` existing on checklist items
+- Milestones have `start_date`/`end_date` but aren't shown as timeline segments
+- Users can't see "what do I need to do today/tomorrow/this week"
 
-**Action:** Add `SET search_path = public` to all affected functions.
+### New Design: 90-Day Calendar View
 
-### 1.3 Enable Leaked Password Protection
-Currently disabled. This should be enabled to prevent users from registering with known-compromised passwords.
+Replace the current tabs (daily/weekly/monthly) with a **timeline-first layout**:
 
-### 1.4 Remove Debug Console Logs
-Found **171 `console.log()` calls across 14 files**. These leak internal state information in production.
+1. **Today's Focus Panel** (top section)
+   - Shows all tasks due today with checkboxes
+   - Overdue tasks highlighted in red
+   - Quick progress bar for the day
 
-**Action:** Replace debug-level `console.log` calls with the existing `debug.log()` utility (which only logs in development), or remove them entirely. Keep `console.error` for genuine error reporting.
+2. **Weekly Calendar Strip** (scrollable week view)
+   - 7 columns showing each day of the current week
+   - Each day shows task count and completion status (dot indicators)
+   - Tap a day to expand and see its tasks
+   - Current day highlighted
 
-## Phase 2: Branding Consistency Fixes
+3. **90-Day Timeline** (collapsible month sections)
+   - Month 1 / Month 2 / Month 3 accordion sections
+   - Inside each month: 4 weekly milestone cards
+   - Each week shows its milestone title, tasks, and completion %
+   - Expandable to show day-by-day breakdown within the week
+   - Current week auto-expanded with highlight
 
-### 2.1 Fix Stale Branding in index.html
-- `apple-mobile-web-app-title` still says "מיינד האקר" (old brand) -- should be "Mind OS"
-- `application-name` still says "מיינד האקר" -- should be "Mind OS"
-- OG image still points to the default Lovable placeholder image (`lovable.dev/opengraph-image-p98pqg.png`) -- should use the actual Mind OS branded image
+4. **Task Distribution Logic**
+   - Query `life_plan_milestones` for each week's tasks
+   - Distribute milestone tasks across the week's days using `aurora_checklist_items.due_date`
+   - Recurring items (where `is_recurring = true`) show on every applicable day
 
-### 2.2 Fix sitemap.xml Domain
-Sitemap references `mind-hacker.net` instead of `mindos.app`.
+### Files to Create/Modify
+- **New**: `src/components/dashboard/missions/TodayFocus.tsx` - Today's task panel
+- **New**: `src/components/dashboard/missions/WeekCalendarStrip.tsx` - Scrollable week view
+- **New**: `src/components/dashboard/missions/MonthTimeline.tsx` - 90-day accordion
+- **New**: `src/components/dashboard/missions/DayTaskList.tsx` - Expanded day view
+- **Modify**: `src/components/dashboard/missions/MissionsRoadmap.tsx` - Replace current layout with new calendar-driven structure
+- **Modify**: `src/hooks/useMissionsRoadmap.ts` - Add date-based querying, group tasks by date
 
-### 2.3 Fix robots.txt Sitemap URL
-Already correct (`mindos.app`), but verify consistency.
+---
 
-## Phase 3: Production Polish
+## Part 2: Aurora Proactive Coaching Engine
 
-### 3.1 Remove Bug Report Widget for Production
-The bug report FAB widget with its pulsing animation is great for beta testing but distracting for a consumer launch. Either:
-- Hide it behind a feature flag / admin-only visibility
-- Move it to a Settings page link instead
+### What It Does
+Aurora periodically checks the user's task progress and sends proactive messages:
 
-### 3.2 Error Boundary - Add Bilingual Support
-The ErrorBoundary currently only shows Hebrew text. Add English support using the language context or a simple detection.
+- **Morning kick-off**: "Good morning! You have 5 tasks today. Let's start with..."
+- **Mid-day check-in**: "You've completed 2/5 tasks. Keep going!"
+- **Missed tasks nudge**: "I noticed you didn't complete X yesterday. Want to reschedule it?"
+- **Streak motivation**: "3 days in a row completing all tasks! Amazing!"
+- **Suggestion engine**: "Based on your progress in Health, I suggest adding..."
 
-### 3.3 Custom OG Image
-Replace the default Lovable OG image with a branded Mind OS social sharing image for better social media presence when links are shared.
+### Implementation
 
-## Phase 4: Performance & SEO
+#### A. Edge Function: `aurora-proactive`
+- **New**: `supabase/functions/aurora-proactive/index.ts`
+- Accepts actions: `analyze`, `get_pending`, `dismiss`
+- `analyze` action:
+  - Queries user's tasks for today, overdue items, completion streaks
+  - Uses Lovable AI (gemini-3-flash-preview) to generate personalized coaching messages in Hebrew
+  - Inserts results into `aurora_proactive_queue` with appropriate scheduling
+- `get_pending` action: Returns unsent/undismissed items
+- `dismiss` action: Marks items as dismissed
 
-### 4.1 Code Splitting Verification
-Already using lazy loading for all pages -- good. Verify the vendor chunk split is optimal.
+#### B. Proactive Message Types (new column on `aurora_proactive_queue`)
+Add `trigger_type` categories:
+- `morning_briefing` - Daily morning task overview
+- `progress_check` - Mid-day progress update  
+- `missed_task_nudge` - Reminder for overdue tasks
+- `streak_celebration` - Completion streak recognition
+- `task_suggestion` - AI-suggested new tasks/improvements
+- `weekly_review` - End-of-week summary
 
-### 4.2 Sitemap Update
-Update sitemap.xml with:
-- Correct domain (`mindos.app`)
-- All public routes (free journey, practitioners, subscriptions, courses, etc.)
-- Current dates
+#### C. Frontend Integration
+- **Modify**: `src/hooks/aurora/useProactiveAurora.tsx` - Connect to the new edge function
+- Aurora chat will display proactive messages as coaching bubbles
+- Include action buttons: "Do it now", "Reschedule", "Skip"
 
-### 4.3 Service Worker / PWA Verification
-PWA manifest and service worker are configured. Verify icons exist and the install flow works on iOS and Android.
+#### D. Database Migration
+- Add `title` and `body` text columns to `aurora_proactive_queue` (for storing the AI-generated message content)
+- Add index on `(user_id, scheduled_for)` for efficient polling
 
-## Implementation Priority
+---
 
-| Priority | Task | Impact |
-|---|---|---|
-| P0 | Security scan + fix permissive RLS policies | Data protection |
-| P0 | Fix function search paths | SQL injection prevention |
-| P1 | Remove/gate console.log calls | Information leak prevention |
-| P1 | Fix stale branding (index.html, sitemap) | Brand consistency |
-| P1 | Custom OG image replacement | Social sharing quality |
-| P2 | Bug report widget production mode | UX polish |
-| P2 | Bilingual error boundary | Accessibility |
-| P2 | Update sitemap with all routes | SEO |
+## Part 3: Task Suggestion & Auto-Generation
+
+### Aurora Suggests More Tasks
+When a user completes a milestone or shows consistent progress, Aurora proactively suggests:
+- New tasks related to their life pillars
+- Intensified challenges ("You mastered morning routine - try adding cold showers")
+- Tasks from other life domains they're neglecting
+
+This uses the existing `aurora_checklists` + `aurora_checklist_items` tables with `origin: 'aurora'`.
+
+---
 
 ## Technical Details
 
-### Files to Edit
-1. **`index.html`** -- Fix apple-mobile-web-app-title, application-name, OG image references
-2. **`public/sitemap.xml`** -- Update domain to mindos.app, add all public routes
-3. **`src/components/BugReportWidget.tsx`** -- Add production mode gate (show only for admins or hide)
-4. **`src/components/ErrorBoundary.tsx`** -- Add bilingual support
-5. **Multiple files (14)** -- Replace `console.log` with `debug.log` or remove
-6. **Database migration** -- Fix RLS policies and function search paths
-7. **`src/lib/seo.ts`** -- Update default OG image fallback URL
+### Database Migration
+```sql
+-- Add columns to aurora_proactive_queue if missing
+ALTER TABLE aurora_proactive_queue 
+  ADD COLUMN IF NOT EXISTS title text,
+  ADD COLUMN IF NOT EXISTS body text;
 
-### Database Changes Required
-- SQL migration to fix 3 function search paths
-- SQL migration to tighten ~18 overly permissive RLS policies (after identifying which are intentional vs. accidental)
-- Enable leaked password protection
+-- Index for efficient polling
+CREATE INDEX IF NOT EXISTS idx_proactive_queue_user_scheduled 
+  ON aurora_proactive_queue(user_id, scheduled_for) 
+  WHERE dismissed_at IS NULL AND sent_at IS NULL;
+```
 
-### No New Dependencies Required
-All changes use existing infrastructure and patterns.
+### Edge Function Flow
+```text
+User opens app
+  --> useProactiveAurora polls every 5 min
+  --> Edge function checks:
+      1. Overdue tasks count
+      2. Today's completion rate
+      3. Streak data
+      4. Last message sent (avoid spam)
+  --> Generates coaching message via Lovable AI
+  --> Returns to frontend as Aurora bubble
+```
+
+### New Component Hierarchy
+```text
+MissionsRoadmap (refactored)
+  +-- TodayFocus (today's tasks + overdue)
+  +-- WeekCalendarStrip (7-day strip, tap to expand)
+  |     +-- DayTaskList (tasks for selected day)
+  +-- MonthTimeline (3 months accordion)
+        +-- WeekMilestoneCard (per-week milestone + tasks)
+              +-- DayTaskList (expandable days within week)
+```
+
+### Config Update
+- Add `aurora-proactive` to `supabase/config.toml` with `verify_jwt = false`
+
+---
+
+## Implementation Order
+1. Database migration (add columns to proactive queue)
+2. Refactor `useMissionsRoadmap` hook for date-based grouping
+3. Build new calendar UI components (TodayFocus, WeekCalendarStrip, MonthTimeline, DayTaskList)
+4. Replace MissionsRoadmap layout
+5. Create `aurora-proactive` edge function
+6. Connect proactive system to Aurora chat
