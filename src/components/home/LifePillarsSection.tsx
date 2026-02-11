@@ -135,6 +135,10 @@ const LifePillarsSection = () => {
   const [activePillar, setActivePillar] = useState<typeof pillars[0] | null>(null);
 
   const handlePillarClick = (pillarId: string) => {
+    if (pillarId === 'consciousness') {
+      navigate('/free-journey');
+      return;
+    }
     const pillar = pillars.find(p => p.id === pillarId);
     if (pillar) setActivePillar(pillar);
   };
