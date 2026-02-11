@@ -12,7 +12,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, Compass, Users, ListChecks, Target } from 'lucide-react';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
-import AuroraChatQuickActions from '@/components/aurora/AuroraChatQuickActions';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { HypnosisModal } from './HypnosisModal';
 import { ProfileDrawer } from './ProfileDrawer';
@@ -102,7 +101,6 @@ const DesktopLayoutContent = ({
         >
           <Compass className="h-5 w-5" />
         </Button>
-        <AuroraChatQuickActions />
         <UserNotificationBell />
       </div>
 
@@ -219,7 +217,6 @@ const DashboardLayout = ({
                 >
                   <Compass className="h-5 w-5" />
                 </Button>
-                <AuroraChatQuickActions />
                 <UserNotificationBell />
               </div>
             </div>
