@@ -682,6 +682,7 @@ export type Database = {
       }
       aurora_proactive_queue: {
         Row: {
+          body: string | null
           clicked_at: string | null
           created_at: string | null
           dismissed_at: string | null
@@ -689,11 +690,13 @@ export type Database = {
           priority: number | null
           scheduled_for: string
           sent_at: string | null
+          title: string | null
           trigger_data: Json | null
           trigger_type: string
           user_id: string
         }
         Insert: {
+          body?: string | null
           clicked_at?: string | null
           created_at?: string | null
           dismissed_at?: string | null
@@ -701,11 +704,13 @@ export type Database = {
           priority?: number | null
           scheduled_for: string
           sent_at?: string | null
+          title?: string | null
           trigger_data?: Json | null
           trigger_type: string
           user_id: string
         }
         Update: {
+          body?: string | null
           clicked_at?: string | null
           created_at?: string | null
           dismissed_at?: string | null
@@ -713,6 +718,7 @@ export type Database = {
           priority?: number | null
           scheduled_for?: string
           sent_at?: string | null
+          title?: string | null
           trigger_data?: Json | null
           trigger_type?: string
           user_id?: string
@@ -5699,6 +5705,7 @@ export type Database = {
       get_pending_proactive_items: {
         Args: { p_user_id: string }
         Returns: {
+          body: string | null
           clicked_at: string | null
           created_at: string | null
           dismissed_at: string | null
@@ -5706,6 +5713,7 @@ export type Database = {
           priority: number | null
           scheduled_for: string
           sent_at: string | null
+          title: string | null
           trigger_data: Json | null
           trigger_type: string
           user_id: string
