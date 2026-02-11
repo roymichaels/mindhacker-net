@@ -42,7 +42,7 @@ export function GoalsPopover() {
     queryKey: ['goals-popover', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const { data: plan } = await supabase
+      const { data: plan, error: planError } = await supabase
         .from('life_plans')
         .select('id')
         .eq('user_id', user.id)
@@ -50,12 +50,14 @@ export function GoalsPopover() {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+      console.log('[GoalsPopover] plan query result:', { plan, planError, userId: user.id });
       if (!plan) return [];
-      const { data } = await supabase
+      const { data, error: milestonesError } = await supabase
         .from('life_plan_milestones')
         .select('id, title, goal, focus_area, week_number, month_number, is_completed')
         .eq('plan_id', plan.id)
         .order('week_number', { ascending: true });
+      console.log('[GoalsPopover] milestones query result:', { count: data?.length, milestonesError });
       return (data || []) as Milestone[];
     },
     enabled: !!user?.id && open,
