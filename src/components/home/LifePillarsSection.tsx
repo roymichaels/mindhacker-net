@@ -3,6 +3,7 @@
  * 7 Life Domains arranged around your digital identity
  */
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,18 @@ import {
   GraduationCap, 
   Compass,
   Sparkles,
-  Palette
+  Palette,
+  ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PersonalizedOrb from "@/components/orb/PersonalizedOrb";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const pillars = [
   {
@@ -123,6 +132,15 @@ const pillars = [
 const LifePillarsSection = () => {
   const { isRTL } = useTranslation();
   const navigate = useNavigate();
+  const [showHobbiesModal, setShowHobbiesModal] = useState(false);
+
+  const handlePillarClick = (pillarId: string) => {
+    if (pillarId === 'hobbies') {
+      setShowHobbiesModal(true);
+    } else {
+      navigate(`/${pillarId}`);
+    }
+  };
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
@@ -256,6 +274,7 @@ const LifePillarsSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
                 className="absolute group cursor-pointer"
+                onClick={() => handlePillarClick(pillar.id)}
                 style={{ 
                   left: x - 60, 
                   top: y - 40,
@@ -341,8 +360,8 @@ const LifePillarsSection = () => {
                     "border-2",
                     pillar.borderColor,
                     "hover:scale-105 transition-transform cursor-pointer",
-                    index === 7 ? "col-span-2 sm:col-span-1" : ""
                   )}
+                  onClick={() => handlePillarClick(pillar.id)}
                 >
                   <div className={cn(
                     "w-12 h-12 rounded-xl mx-auto mb-2",
@@ -400,6 +419,41 @@ const LifePillarsSection = () => {
           </p>
         </motion.div>
       </div>
+      {/* Hobbies Journey Modal */}
+      <Dialog open={showHobbiesModal} onOpenChange={setShowHobbiesModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center shadow-lg">
+                <Palette className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-xl">
+              {isRTL ? 'מסע התחביבים' : 'Hobbies Journey'}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {isRTL 
+                ? 'גלה את התחביבים שלך - יצירתיות, פנאי ופעילויות שמביאות לך שמחה ומאזנות את חייך'
+                : 'Discover your hobbies - creativity, leisure and activities that bring you joy and balance your life'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 mt-4">
+            <Button 
+              onClick={() => { setShowHobbiesModal(false); navigate('/hobbies/journey'); }}
+              className="w-full bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-600 hover:to-cyan-500 text-white"
+            >
+              {isRTL ? 'התחל את המסע' : 'Start the Journey'}
+              <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => { setShowHobbiesModal(false); navigate('/hobbies'); }}
+            >
+              {isRTL ? 'צפה בכלי התחביבים' : 'View Hobby Tools'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
