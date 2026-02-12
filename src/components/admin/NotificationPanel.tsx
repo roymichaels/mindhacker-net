@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { AdminNotification } from "@/hooks/useAdminNotifications";
-import { Bell, CheckCheck, ExternalLink } from "lucide-react";
+import { Bell, CheckCheck, ExternalLink, UserPlus, FileText, Megaphone, Brain, Headphones, Trophy, ShoppingCart, Star, CreditCard, BookOpen, AlertTriangle } from "lucide-react";
 
 interface NotificationPanelProps {
   notifications: AdminNotification[];
@@ -32,6 +32,71 @@ const getPriorityLabel = (priority: string) => {
   }
 };
 
+const getNotificationIcon = (type: string) => {
+  switch (type) {
+    case 'new_user': return UserPlus;
+    case 'new_form_submission': return FileText;
+    case 'new_lead': return Megaphone;
+    case 'new_consciousness_leap_application': return Brain;
+    case 'new_personal_hypnosis_order': return Headphones;
+    case 'journey_completion':
+    case 'user_milestone': return Trophy;
+    case 'new_purchase':
+    case 'high_value_purchase': return ShoppingCart;
+    case 'new_review': return Star;
+    case 'new_enrollment':
+    case 'course_completed': return BookOpen;
+    case 'content_uploaded': return FileText;
+    case 'new_subscription':
+    case 'subscription_cancelled': return CreditCard;
+    case 'payment_failed': return AlertTriangle;
+    default: return Bell;
+  }
+};
+
+const resolveNotificationLink = (notification: AdminNotification): string | null => {
+  const meta = notification.metadata || {};
+  const userId = meta.user_id as string | undefined;
+
+  switch (notification.type) {
+    case 'new_user':
+      return userId ? `/panel/users/${userId}` : '/panel/users';
+    case 'new_form_submission':
+      return '/panel/forms';
+    case 'new_lead':
+      return '/panel/leads';
+    case 'new_consciousness_leap_application':
+      return '/panel/consciousness-leap';
+    case 'new_personal_hypnosis_order':
+      return userId ? `/panel/users/${userId}` : '/panel/recordings';
+    case 'journey_completion':
+    case 'user_milestone':
+      return userId ? `/panel/users/${userId}/dashboard` : '/panel/users';
+    case 'new_purchase':
+    case 'high_value_purchase':
+    case 'payment_failed':
+      return userId ? `/panel/users/${userId}` : '/panel/purchases';
+    case 'new_enrollment':
+    case 'course_completed':
+      return userId ? `/panel/users/${userId}` : '/panel/content';
+    case 'new_subscription':
+    case 'subscription_cancelled':
+      return userId ? `/panel/users/${userId}` : '/panel/users';
+    case 'content_uploaded':
+      return '/panel/content';
+    case 'new_review':
+      return '/panel/content';
+    default: {
+      // Fallback: replace /admin/ with /panel/ in stored link
+      const link = notification.link;
+      if (link && link.startsWith('/admin/')) {
+        return link.replace('/admin/', '/panel/');
+      }
+      return link;
+    }
+  }
+};
+
 export const NotificationPanel = ({
   notifications,
   onMarkAsRead,
@@ -44,8 +109,9 @@ export const NotificationPanel = ({
     if (!notification.is_read) {
       onMarkAsRead(notification.id);
     }
-    if (notification.link) {
-      navigate(notification.link);
+    const deepLink = resolveNotificationLink(notification);
+    if (deepLink) {
+      navigate(deepLink);
       onClose();
     }
   };
@@ -96,10 +162,17 @@ export const NotificationPanel = ({
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  {/* Priority Indicator */}
-                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                    !notification.is_read ? getPriorityColor(notification.priority) : 'bg-muted'
-                  }`} />
+                  {/* Type Icon */}
+                  {(() => {
+                    const Icon = getNotificationIcon(notification.type);
+                    return (
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        !notification.is_read ? getPriorityColor(notification.priority) : 'bg-muted text-muted-foreground'
+                      }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex-1 min-w-0">
                     {/* Title and Priority Badge */}
@@ -130,7 +203,7 @@ export const NotificationPanel = ({
                           locale: he,
                         })}
                       </span>
-                      {notification.link && (
+                      {resolveNotificationLink(notification) && (
                         <ExternalLink className="h-3 w-3 text-muted-foreground" />
                       )}
                     </div>
