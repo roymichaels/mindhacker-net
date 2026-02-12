@@ -1,65 +1,82 @@
 
 
-# Fix Admin Notification Links and Deep Integration
+# Project Cleanup and Integration Hardening Plan
 
-## Problem
-When clicking notifications in the admin panel, they navigate to generic list pages (e.g., `/admin/users`) instead of the specific resource (e.g., the user's profile). The notification metadata already contains the needed IDs (`user_id`, `form_id`, etc.) but they aren't used for routing.
+## 1. Dead Files to Remove
 
-## Solution
+The following files have **zero imports** anywhere in the codebase and are safe to delete:
 
-### 1. Update NotificationPanel to build smart deep links
+### Components
+| File | Reason |
+|---|---|
+| `src/components/HeroPortraitEffect.tsx` | Not imported anywhere |
+| `src/components/HeroVideo.tsx` | Not imported anywhere |
+| `src/components/TrustBadges.tsx` | Not imported anywhere |
+| `src/components/DecryptText.tsx` | Not imported anywhere |
+| `src/components/dashboard/CommandCenterGrid.tsx` | Not imported anywhere |
+| `src/components/dashboard/QuickAccessGrid.tsx` | Not imported anywhere |
+| `src/components/dashboard/ProgressSection.tsx` | Not imported anywhere |
+| `src/components/dashboard/TodaysFocusCard.tsx` | Not imported anywhere |
+| `src/components/dashboard/SmartSuggestionsRow.tsx` | Not imported anywhere |
+| `src/components/dashboard/MyRecordings.tsx` | Not imported anywhere |
+| `src/components/business/BusinessDashboardModals.tsx` | Not imported anywhere |
+| `src/components/orb/MultiThreadOrb.tsx` | Not imported by any component (only referenced by lib types) |
 
-Modify `src/components/admin/NotificationPanel.tsx` to resolve the correct link based on notification `type` and `metadata`:
+### Lib/Utils
+| File | Reason |
+|---|---|
+| `src/lib/orbVisualSystem.ts` | Not imported anywhere |
+| `src/utils/profileTranslations.ts` | Not imported anywhere |
 
-| Notification Type | Current Link | New Link |
-|---|---|---|
-| `new_user` | `/admin/users` | `/panel/users/{user_id}` |
-| `new_form_submission` | `/admin/forms` | `/panel/forms/{form_id}/submissions/{submission_id}` (or `/panel/forms` if no specific submission route exists) |
-| `new_lead` | `/admin/leads` | `/panel/leads` (with optional query param or scroll-to) |
-| `new_consciousness_leap_application` | `/admin/consciousness-leap` | `/panel/consciousness-leap` |
-| `new_personal_hypnosis_order` | `/admin/recordings` | `/panel/users/{user_id}` |
-| `journey_completion` | Already correct | `/panel/users/{user_id}/dashboard` |
+**Total: ~14 dead files**
 
-A `resolveNotificationLink` helper function will be created that takes the notification type, stored link, and metadata, then returns the best deep link.
+---
 
-### 2. Update database trigger functions for future notifications
+## 2. Architectural Weaknesses Found
 
-Create a migration to update these trigger functions so they store the correct `/panel/...` links going forward:
+### A. Duplicate Profile Components (3 versions doing the same thing)
+- `ProfileModal.tsx` -- used only in AuroraAccountDropdown
+- `ProfileDrawer.tsx` -- used in DashboardLayout
+- `ProfileContent.tsx` -- used in ProfileDrawer
 
-- `notify_new_user()` -- change link from `/admin/users` to `/panel/users/{user_id}`
-- `notify_new_form_submission()` -- change to `/panel/forms` (keeping form context)
-- `notify_new_lead()` -- change to `/panel/leads`
-- `notify_consciousness_leap_application()` -- change to `/panel/consciousness-leap`
-- `notify_consciousness_leap_lead()` -- change to `/panel/consciousness-leap`
-- `notify_personal_hypnosis_order()` -- change to `/panel/users/{user_id}` (to see the ordering user)
+These share nearly identical code (same imports, same Orb rendering, same profile data fetching). They should be consolidated so `ProfileDrawer` and `ProfileModal` both render the shared `ProfileContent`.
 
-### 3. Fix existing notification links in the database
+### B. DashboardModals.tsx is an orphan bridge
+`DashboardModals.tsx` imports `LifePlanExpanded` and many unified cards, but is **not imported by any page or component**. It appears to be a legacy wrapper that was superseded by `UnifiedDashboardView`. Safe to remove.
 
-Run an UPDATE to fix the links on existing notifications that have `/admin/...` paths, converting them to the correct `/panel/...` paths using the metadata.
+### C. ChatAssistant admin page references deleted edge function
+Per the architecture memory, the `chat-assistant` edge function was deleted. However:
+- `src/pages/admin/ChatAssistant.tsx` still exists and is routed at `/panel/chat-assistant`
+- It manages settings for a non-existent backend function
+- Should be either removed or repurposed to configure Aurora settings
 
-### 4. Add notification type icons
+### D. AdminLogin.tsx is likely dead
+With the `/admin` -> `/panel` redirect and `RoleRoute` protecting `/panel`, the standalone `AdminLogin.tsx` page may be unreachable. Needs verification, but likely safe to remove.
 
-Enhance the `NotificationPanel` to show contextual icons per notification type (user icon for new users, file icon for forms, etc.) instead of just a priority dot.
+### E. Inconsistent auth pattern in UserDashboard
+`UserDashboard.tsx` manually calls `supabase.auth.getUser()` instead of using the existing `useAuth()` context from `AuthContext.tsx`. This is redundant since the route is already wrapped in `<ProtectedRoute>` which handles auth checking. The manual check should be removed.
 
-## Technical Details
+---
 
-### Files to modify:
-- `src/components/admin/NotificationPanel.tsx` -- add `resolveNotificationLink()` helper and type-specific icons
-- New migration SQL -- update trigger functions and fix existing data
+## 3. Integration Improvements
 
-### resolveNotificationLink logic:
-```text
-function resolveNotificationLink(notification):
-  switch notification.type:
-    'new_user':
-      return /panel/users/{metadata.user_id}
-    'new_form_submission':
-      return /panel/forms
-    'new_personal_hypnosis_order':
-      return /panel/users/{metadata.user_id}
-    'journey_completion':
-      return stored link (already correct)
-    default:
-      return stored link with /admin/ replaced by /panel/
-```
+### A. Remove manual auth check from UserDashboard
+Since the route is protected by `<ProtectedRoute>`, the `checkAuth` + loading state in `UserDashboard.tsx` is redundant. Remove it to simplify the component and eliminate a flash of skeleton on every dashboard load.
 
+### B. Consolidate Profile rendering
+Make `ProfileModal` and `ProfileDrawer` both render `ProfileContent` internally instead of duplicating hundreds of lines of identical profile UI code.
+
+### C. Clean up ChatAssistant or repurpose for Aurora config
+Either remove the dead admin page or rewire it to configure Aurora's system prompt, knowledge base, and greeting messages (which are the settings it already manages -- just need to ensure they connect to `aurora-chat` instead of the deleted `chat-assistant` function).
+
+---
+
+## Technical Implementation Steps
+
+1. **Delete 14+ dead files** listed in Section 1, plus `DashboardModals.tsx`
+2. **Simplify UserDashboard.tsx**: Remove `checkAuth`, `loading` state, and skeleton fallback since `ProtectedRoute` already handles auth
+3. **Consolidate Profile components**: Have `ProfileModal` and `ProfileDrawer` both render `ProfileContent` as their body, removing duplicate code
+4. **Verify ChatAssistant**: Check if its DB writes (to `site_settings`) are consumed by `aurora-chat` -- if yes, keep and rename; if not, remove
+5. **Verify AdminLogin.tsx**: Check if any link points to it -- if dead, remove
+
+Estimated scope: ~15 file deletions, 3 file edits, no database changes needed.
