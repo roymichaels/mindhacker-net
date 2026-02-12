@@ -66,6 +66,7 @@ const DesktopLayoutContent = ({
   return (
     <div className="min-h-screen flex bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Fixed notification icons */}
+      {/* Header action icons */}
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
         <TasksPopover />
         <GoalsPopover />
