@@ -1,58 +1,65 @@
 
 
-# Split "Missions" into "Tasks" and "Goals"
+# Fix Admin Notification Links and Deep Integration
 
-## What Changes
+## Problem
+When clicking notifications in the admin panel, they navigate to generic list pages (e.g., `/admin/users`) instead of the specific resource (e.g., the user's profile). The notification metadata already contains the needed IDs (`user_id`, `form_id`, etc.) but they aren't used for routing.
 
-The current "Missions Roadmap" combines everything into one view. We'll split it into two clear sections on the dashboard:
+## Solution
 
-1. **Tasks (משימות)** -- Daily/weekly actionable checklist items from `aurora_checklists` + `aurora_checklist_items`. This is the existing `ChecklistsCard` component, already built and working.
+### 1. Update NotificationPanel to build smart deep links
 
-2. **Goals (יעדים)** -- High-level goals from the 90-day life plan milestones (e.g., "Stop smoking", "Build a body", "Career action plan complete"). These come from `life_plan_milestones.goal` field.
+Modify `src/components/admin/NotificationPanel.tsx` to resolve the correct link based on notification `type` and `metadata`:
 
-## Dashboard Layout Change
+| Notification Type | Current Link | New Link |
+|---|---|---|
+| `new_user` | `/admin/users` | `/panel/users/{user_id}` |
+| `new_form_submission` | `/admin/forms` | `/panel/forms/{form_id}/submissions/{submission_id}` (or `/panel/forms` if no specific submission route exists) |
+| `new_lead` | `/admin/leads` | `/panel/leads` (with optional query param or scroll-to) |
+| `new_consciousness_leap_application` | `/admin/consciousness-leap` | `/panel/consciousness-leap` |
+| `new_personal_hypnosis_order` | `/admin/recordings` | `/panel/users/{user_id}` |
+| `journey_completion` | Already correct | `/panel/users/{user_id}/dashboard` |
 
-Currently Zone 4 shows:
+A `resolveNotificationLink` helper function will be created that takes the notification type, stored link, and metadata, then returns the best deep link.
+
+### 2. Update database trigger functions for future notifications
+
+Create a migration to update these trigger functions so they store the correct `/panel/...` links going forward:
+
+- `notify_new_user()` -- change link from `/admin/users` to `/panel/users/{user_id}`
+- `notify_new_form_submission()` -- change to `/panel/forms` (keeping form context)
+- `notify_new_lead()` -- change to `/panel/leads`
+- `notify_consciousness_leap_application()` -- change to `/panel/consciousness-leap`
+- `notify_consciousness_leap_lead()` -- change to `/panel/consciousness-leap`
+- `notify_personal_hypnosis_order()` -- change to `/panel/users/{user_id}` (to see the ordering user)
+
+### 3. Fix existing notification links in the database
+
+Run an UPDATE to fix the links on existing notifications that have `/admin/...` paths, converting them to the correct `/panel/...` paths using the metadata.
+
+### 4. Add notification type icons
+
+Enhance the `NotificationPanel` to show contextual icons per notification type (user icon for new users, file icon for forms, etc.) instead of just a priority dot.
+
+## Technical Details
+
+### Files to modify:
+- `src/components/admin/NotificationPanel.tsx` -- add `resolveNotificationLink()` helper and type-specific icons
+- New migration SQL -- update trigger functions and fix existing data
+
+### resolveNotificationLink logic:
 ```text
-[ Today's Habits ] [ Plan Progress ]
+function resolveNotificationLink(notification):
+  switch notification.type:
+    'new_user':
+      return /panel/users/{metadata.user_id}
+    'new_form_submission':
+      return /panel/forms
+    'new_personal_hypnosis_order':
+      return /panel/users/{metadata.user_id}
+    'journey_completion':
+      return stored link (already correct)
+    default:
+      return stored link with /admin/ replaced by /panel/
 ```
-
-New Zone 4 will show:
-```text
-[ Tasks (ChecklistsCard) ]
-[ Goals (new GoalsCard)  ]
-[ Today's Habits ] [ Plan Progress ]
-```
-
-## Technical Steps
-
-### 1. Create `GoalsCard` component
-**New file**: `src/components/dashboard/v2/GoalsCard.tsx`
-
-- Fetch all milestones from `life_plan_milestones` via the active `life_plans`
-- Display each milestone's `goal` field as a goal card with its `title` as context
-- Show completion status (checkbox-style) based on `is_completed`
-- Group by month (Month 1, 2, 3) using `month_number`
-- Collapsible sections, current month expanded by default
-- Visual progress indicator per month
-
-### 2. Add `ChecklistsCard` to the dashboard
-The existing `ChecklistsCard` from `src/components/dashboard/unified/ChecklistsCard.tsx` already shows all aurora checklists with items, toggle completion, XP awards, etc. We'll add it directly to the dashboard layout.
-
-### 3. Update `UnifiedDashboardView.tsx`
-- Import `ChecklistsCard` and the new `GoalsCard`
-- Add them as Zone 4a and 4b above the existing habits/plan row
-- Rename the `ChecklistsModal` dialog header from "Missions Roadmap" to "Tasks & Goals"
-
-### 4. Update `DashboardModals.tsx`
-- Replace `MissionsRoadmap` in `ChecklistsModal` with the two separate components (Tasks + Goals)
-- Update title/icon
-
-### 5. Clean up references
-- Update `NextActionBanner` and `QuickActionsBar` references from "missions" to reflect the new split
-- Keep the `useMissionsRoadmap` hook intact as it's used by other components, but the dashboard will use the simpler data sources directly
-
-### Data Sources (no DB changes needed)
-- **Tasks**: `aurora_checklists` + `aurora_checklist_items` (already used by `useChecklistsData`)
-- **Goals**: `life_plan_milestones.goal` (already used by `PlanProgressCard`)
 
