@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | '
 
 const Consciousness = () => {
   const { language } = useTranslation();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const dashboard = useUnifiedDashboard();
@@ -38,13 +39,12 @@ const Consciousness = () => {
     onboarding?.identity_understanding !== 'shallow';
 
   useEffect(() => {
-    fetchIdentityData();
-  }, []);
+    if (user) fetchIdentityData();
+  }, [user]);
 
   const fetchIdentityData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
+      if (!user) return;
 
       const { data: identityElements } = await supabase
         .from('aurora_identity_elements')
