@@ -33,7 +33,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CourseWatch = lazy(() => import("./pages/CourseWatch"));
