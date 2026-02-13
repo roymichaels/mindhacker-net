@@ -86,6 +86,7 @@ const Purpose = lazy(() => import("./pages/Purpose"));
 const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
 const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
+const Projects = lazy(() => import("./pages/Projects"));
 // Free guest journey
 const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
 const GuestLaunchpad = lazy(() => import("./pages/GuestLaunchpad"));
@@ -360,6 +361,15 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <UserDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Projects */}
+                        <Route
+                          path="/projects"
+                          element={
+                            <ProtectedRoute>
+                              <Projects />
                             </ProtectedRoute>
                           }
                         />

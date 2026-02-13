@@ -18,7 +18,9 @@ import {
   Users,
   Wallet,
   GraduationCap,
-  Palette
+  Palette,
+  FolderKanban,
+  Crown,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -69,6 +71,13 @@ const DashboardSidebar = ({
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
 
   const highlightStyles: Record<string, { bg: string; text: string; icon: string; border: string; glow: string }> = {
+    premium: {
+      bg: 'from-amber-400/20 via-yellow-500/15 to-amber-600/10 dark:from-amber-400/25 dark:via-yellow-500/15 dark:to-amber-600/10',
+      text: 'from-amber-500 via-yellow-500 to-amber-600 dark:from-amber-300 dark:via-yellow-400 dark:to-amber-500',
+      icon: 'text-amber-500 dark:text-amber-400',
+      border: 'border-amber-400/40 dark:border-amber-400/50',
+      glow: 'hover:shadow-amber-400/25 dark:hover:shadow-amber-400/35',
+    },
     purple: {
       bg: 'from-purple-500/15 to-fuchsia-500/10 dark:from-purple-500/20 dark:to-fuchsia-500/10',
       text: 'from-purple-600 to-fuchsia-500 dark:from-purple-400 dark:to-fuchsia-300',
@@ -137,6 +146,7 @@ const DashboardSidebar = ({
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple', path: '/dashboard' },
+    { id: 'projects', icon: FolderKanban, label: language === 'he' ? 'פרויקטים' : 'Projects', highlight: 'premium', path: '/projects', isPremium: true },
     { id: 'consciousness', icon: User, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue', path: '/consciousness' },
     { id: 'business', icon: Briefcase, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold', path: '/business' },
     { id: 'health', icon: Heart, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red', path: '/health' },
@@ -180,6 +190,7 @@ const DashboardSidebar = ({
             const s = highlightStyles[item.highlight];
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             const Icon = item.icon;
+            const isPremium = (item as any).isPremium;
             return (
               <button
                 key={item.id}
@@ -194,15 +205,23 @@ const DashboardSidebar = ({
                   `bg-gradient-to-r ${s.bg} ${s.border} ${s.glow}`,
                   "hover:shadow-md hover:brightness-110",
                   isActive && "ring-1 ring-current/20 shadow-md brightness-110",
+                  isPremium && "relative overflow-hidden",
                   isCollapsed && "justify-center px-2 py-2.5 rounded-lg"
                 )}
                 title={isCollapsed ? item.label : undefined}
               >
+                {/* Premium shimmer effect */}
+                {isPremium && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/10 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
+                )}
                 <Icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110", s.icon)} />
                 {!isCollapsed && (
                   <span className={cn("bg-clip-text text-transparent bg-gradient-to-r font-bold", s.text)}>
                     {item.label}
                   </span>
+                )}
+                {!isCollapsed && isPremium && (
+                  <Crown className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400 ms-auto shrink-0 animate-pulse" />
                 )}
               </button>
             );

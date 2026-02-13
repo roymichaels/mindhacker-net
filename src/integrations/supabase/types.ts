@@ -5370,6 +5370,90 @@ export type Database = {
           },
         ]
       }
+      user_projects: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          cover_color: string | null
+          created_at: string
+          description: string | null
+          desired_outcome: string | null
+          id: string
+          key_milestones: Json | null
+          linked_checklist_ids: string[] | null
+          linked_goal_ids: string[] | null
+          linked_life_areas: string[] | null
+          potential_blockers: string | null
+          priority: string | null
+          progress_percentage: number | null
+          resources_needed: string | null
+          started_at: string | null
+          status: string | null
+          tags: string[] | null
+          target_date: string | null
+          timeline: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          vision: string | null
+          why_it_matters: string | null
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          cover_color?: string | null
+          created_at?: string
+          description?: string | null
+          desired_outcome?: string | null
+          id?: string
+          key_milestones?: Json | null
+          linked_checklist_ids?: string[] | null
+          linked_goal_ids?: string[] | null
+          linked_life_areas?: string[] | null
+          potential_blockers?: string | null
+          priority?: string | null
+          progress_percentage?: number | null
+          resources_needed?: string | null
+          started_at?: string | null
+          status?: string | null
+          tags?: string[] | null
+          target_date?: string | null
+          timeline?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          vision?: string | null
+          why_it_matters?: string | null
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          cover_color?: string | null
+          created_at?: string
+          description?: string | null
+          desired_outcome?: string | null
+          id?: string
+          key_milestones?: Json | null
+          linked_checklist_ids?: string[] | null
+          linked_goal_ids?: string[] | null
+          linked_life_areas?: string[] | null
+          potential_blockers?: string | null
+          priority?: string | null
+          progress_percentage?: number | null
+          resources_needed?: string | null
+          started_at?: string | null
+          status?: string | null
+          tags?: string[] | null
+          target_date?: string | null
+          timeline?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          vision?: string | null
+          why_it_matters?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
