@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight, Rocket } from 'lucide-react';
+import { AlertCircle, Sparkles, Target, CheckCircle2, Brain, ArrowRight, Rocket, MessageCircle, FolderKanban, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useProactiveAurora } from '@/hooks/aurora/useProactiveAurora';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +26,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete, completionPercentage } = useLaunchpadProgress();
   const { habits, completedCount, totalCount } = useTodaysHabits();
+  const { currentItem, hasPendingItems, dismissItem, markItemClicked } = useProactiveAurora();
   
   const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -60,6 +62,23 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
     enabled: !!user?.id,
   });
 
+  // Check stalled projects (no update in 7+ days)
+  const { data: stalledProjects = 0 } = useQuery({
+    queryKey: ['stalled-projects', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from('user_projects')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .lt('updated_at', sevenDaysAgo);
+      return count || 0;
+    },
+    enabled: !!user?.id,
+  });
+
   // Priority-based action determination
   const getNextAction = () => {
     // Priority 0: Consciousness journey not complete (required base)
@@ -81,7 +100,27 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
       };
     }
 
-    // Priority 1: Overdue tasks
+    // Priority 1: Aurora has a proactive coaching message
+    if (hasPendingItems && currentItem) {
+      return {
+        id: 'proactive_coaching',
+        icon: MessageCircle,
+        iconColor: 'text-primary',
+        bgGradient: 'from-primary/20 via-primary/10 to-transparent',
+        borderColor: 'border-primary/30',
+        title: currentItem.title,
+        subtitle: currentItem.body,
+        action: () => {
+          markItemClicked(currentItem.id);
+          navigate('/aurora');
+        },
+        actionLabel: language === 'he' ? 'פתח את אורורה' : 'Open Aurora',
+        dismissable: true,
+        onDismiss: () => dismissItem(currentItem.id),
+      };
+    }
+
+    // Priority 2: Overdue tasks
     if (overdueTasks > 0) {
       return {
         id: 'overdue',
@@ -100,7 +139,26 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
       };
     }
 
-    // Priority 2: Incomplete habits
+    // Priority 3: Stalled projects
+    if (stalledProjects > 0) {
+      return {
+        id: 'stalled_project',
+        icon: FolderKanban,
+        iconColor: 'text-amber-500',
+        bgGradient: 'from-amber-500/20 via-amber-500/10 to-transparent',
+        borderColor: 'border-amber-500/30',
+        title: language === 'he'
+          ? `${stalledProjects} פרויקטים לא עודכנו מעל שבוע`
+          : `${stalledProjects} projects stalled for 7+ days`,
+        subtitle: language === 'he'
+          ? 'עדכן את ההתקדמות שלך כדי להישאר על המסלול'
+          : 'Update your progress to stay on track',
+        action: () => navigate('/projects'),
+        actionLabel: language === 'he' ? 'עדכן פרויקטים' : 'Update Projects',
+      };
+    }
+
+    // Priority 4: Incomplete habits
     if (totalCount > 0 && completedCount < totalCount) {
       return {
         id: 'habits',
@@ -232,15 +290,27 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
               </div>
             </div>
             
-            {/* Action Button - Full width on mobile, auto on desktop */}
-            <Button 
-              onClick={handleClick}
-              size="sm"
-              className="w-full sm:w-auto flex-shrink-0 gap-1.5"
-            >
-              {nextAction.actionLabel}
-              <ArrowRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-2 w-full sm:w-auto">
+              {(nextAction as any).dismissable && (nextAction as any).onDismiss && (
+                <Button
+                  onClick={(e) => { e.stopPropagation(); (nextAction as any).onDismiss(); }}
+                  size="sm"
+                  variant="ghost"
+                  className="flex-shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              <Button 
+                onClick={handleClick}
+                size="sm"
+                className="flex-1 sm:flex-initial flex-shrink-0 gap-1.5"
+              >
+                {nextAction.actionLabel}
+                <ArrowRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -547,7 +547,8 @@ const buildUserContext = async (
     launchpadSummaryRes,
     conversationMemoryRes,
     remindersRes,
-    recentInsightsRes
+    recentInsightsRes,
+    projectsRes
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -612,7 +613,13 @@ const buildUserContext = async (
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(10)
+      .limit(10),
+    // User projects
+    supabase.from("user_projects")
+      .select("*")
+      .eq("user_id", userId)
+      .in("status", ["active", "paused"])
+      .order("updated_at", { ascending: false })
   ]);
 
   const profile = profileRes.data;
@@ -635,6 +642,7 @@ const buildUserContext = async (
   const conversationMemories = conversationMemoryRes.data || [];
   const pendingReminders = remindersRes.data || [];
   const recentInsights = recentInsightsRes.data || [];
+  const userProjects = projectsRes.data || [];
 
   // Get today's habit logs for the daily habits
   let habitLogs: any[] = [];
@@ -858,6 +866,19 @@ ${focus ? `${focus.title} (${focus.duration_days} ימים)` : 'לא מוגדר'
 ## מינימום יומי
 ${minimums.map((m: any) => `- ${m.title}`).join('\n') || 'לא הוגדרו'}
 
+## 📂 פרויקטים פעילים
+${userProjects.length > 0 ? userProjects.map((p: any) => {
+  const daysSinceUpdate = Math.floor((new Date().getTime() - new Date(p.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+  return `- "${p.name}" (${p.category || 'כללי'}, ${p.progress_percentage || 0}% הושלם${p.target_date ? `, יעד: ${p.target_date}` : ''})
+  חזון: ${p.vision || 'לא הוגדר'}
+  תוצאה רצויה: ${p.desired_outcome || 'לא הוגדר'}
+  עדיפות: ${p.priority || 'medium'}
+  ${daysSinceUpdate >= 7 ? `⚠️ לא עודכן ${daysSinceUpdate} ימים!` : ''}`;
+}).join('\n') : 'אין פרויקטים פעילים'}
+
+כשמשתמש מדבר על פרויקט, עזור לו לעדכן, לתכנן, ולפרק למשימות קטנות.
+אם פרויקט תקוע - שאל בעדינות מה חוסם ועזור למצוא פתרון.
+
 ## סטטוס התקדמות
 - בהירות כיוון: ${onboarding?.direction_clarity || 'incomplete'}
 - הבנת זהות: ${onboarding?.identity_understanding || 'shallow'}
@@ -931,7 +952,17 @@ ${checklists.map((c: any) => {
   const items = c.aurora_checklist_items || [];
   const completed = items.filter((i: any) => i.is_completed).length;
   return `- ${c.title} (${completed}/${items.length} completed)`;
-}).join('\n') || 'No active checklists'}`;
+}).join('\n') || 'No active checklists'}
+
+## 📂 Active Projects
+${userProjects.length > 0 ? userProjects.map((p: any) => {
+  const daysSinceUpdate = Math.floor((new Date().getTime() - new Date(p.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+  return `- "${p.name}" (${p.category || 'General'}, ${p.progress_percentage || 0}% complete${p.target_date ? `, target: ${p.target_date}` : ''})
+  Vision: ${p.vision || 'Not defined'}
+  Desired outcome: ${p.desired_outcome || 'Not defined'}
+  Priority: ${p.priority || 'medium'}
+  ${daysSinceUpdate >= 7 ? `⚠️ Not updated in ${daysSinceUpdate} days!` : ''}`;
+}).join('\n') : 'No active projects'}`;
 
   return { context, openerContext };
 };

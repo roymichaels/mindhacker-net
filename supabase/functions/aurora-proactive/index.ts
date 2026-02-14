@@ -18,6 +18,10 @@ interface UserContext {
   current_week: number;
   milestone_title: string;
   milestone_progress: number;
+  // Project context
+  stalled_projects: { name: string; days_stalled: number }[];
+  approaching_deadlines: { name: string; days_left: number }[];
+  projects_without_milestones: string[];
 }
 
 const getUserContext = async (
@@ -123,6 +127,34 @@ const getUserContext = async (
     else break;
   }
 
+  // === Project Analysis ===
+  const { data: activeProjects } = await supabase
+    .from('user_projects')
+    .select('id, name, status, progress_percentage, target_date, updated_at, created_at')
+    .eq('user_id', userId)
+    .eq('status', 'active');
+
+  const projects = activeProjects || [];
+  const stalledProjects: { name: string; days_stalled: number }[] = [];
+  const approachingDeadlines: { name: string; days_left: number }[] = [];
+  const projectsWithoutMilestones: string[] = [];
+
+  for (const p of projects) {
+    const daysSinceUpdate = Math.floor((now.getTime() - new Date(p.updated_at || p.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (daysSinceUpdate >= 7) {
+      stalledProjects.push({ name: p.name, days_stalled: daysSinceUpdate });
+    }
+    if (p.target_date) {
+      const daysLeft = Math.floor((new Date(p.target_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysLeft >= 0 && daysLeft <= 14) {
+        approachingDeadlines.push({ name: p.name, days_left: daysLeft });
+      }
+    }
+    if ((p.progress_percentage || 0) === 0) {
+      projectsWithoutMilestones.push(p.name);
+    }
+  }
+
   return {
     overdue_tasks: userOverdue.length,
     overdue_task_names: userOverdue.slice(0, 3).map((t: any) => t.content),
@@ -135,6 +167,9 @@ const getUserContext = async (
     current_week: currentWeek,
     milestone_title: milestoneTitle,
     milestone_progress: milestoneProgress,
+    stalled_projects: stalledProjects,
+    approaching_deadlines: approachingDeadlines,
+    projects_without_milestones: projectsWithoutMilestones,
   };
 };
 
@@ -159,6 +194,8 @@ const generateAICoachingMessage = async (
 - שבוע נוכחי בתוכנית: ${context.current_week}/12
 - אבן דרך: ${context.milestone_title}
 - רמת אנרגיה: ${context.energy_level}
+${context.stalled_projects.length > 0 ? `- פרויקטים תקועים: ${context.stalled_projects.map(p => `${p.name} (${p.days_stalled} ימים)`).join(', ')}` : ''}
+${context.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים: ${context.approaching_deadlines.map(p => `${p.name} (${p.days_left} ימים)`).join(', ')}` : ''}
 
 כתבי תגובה בפורמט JSON בלבד:
 {"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
@@ -239,6 +276,24 @@ const generateFallbackMessage = (context: UserContext, triggerType: string): { t
       title: '📝 סיכום שבועי',
       body: `שבוע ${context.current_week} מסתיים. בואי נסכם ונתכנן את הבא!`,
     },
+    project_stalled: {
+      title: '📂 פרויקט מחכה לך',
+      body: context.stalled_projects.length > 0
+        ? `"${context.stalled_projects[0].name}" לא עודכן ${context.stalled_projects[0].days_stalled} ימים. מה המצב?`
+        : 'יש פרויקט שלא עודכן הרבה זמן. בואי נבדוק!',
+    },
+    project_deadline: {
+      title: '⏳ דדליין מתקרב!',
+      body: context.approaching_deadlines.length > 0
+        ? `"${context.approaching_deadlines[0].name}" מסתיים בעוד ${context.approaching_deadlines[0].days_left} ימים!`
+        : 'יש פרויקט עם דדליין קרוב.',
+    },
+    project_setup: {
+      title: '🚀 התחל עם הפרויקט',
+      body: context.projects_without_milestones.length > 0
+        ? `"${context.projects_without_milestones[0]}" עדיין ב-0%. בואי נתחיל לתכנן!`
+        : 'יש פרויקט חדש שמחכה לתכנון.',
+    },
   };
 
   return messages[triggerType] || messages.morning_briefing;
@@ -287,6 +342,21 @@ const analyzeAndQueue = async (
   // Task suggestions (Sunday morning)
   if (now.getDay() === 0 && hour >= 8 && hour <= 12) {
     items.push({ trigger_type: 'task_suggestion', priority: 4 });
+  }
+
+  // Project: stalled (7+ days no update)
+  if (context.stalled_projects.length > 0) {
+    items.push({ trigger_type: 'project_stalled', priority: 7 });
+  }
+
+  // Project: deadline approaching (14 days)
+  if (context.approaching_deadlines.length > 0) {
+    items.push({ trigger_type: 'project_deadline', priority: 8 });
+  }
+
+  // Project: new project with no progress
+  if (context.projects_without_milestones.length > 0) {
+    items.push({ trigger_type: 'project_setup', priority: 5 });
   }
 
   for (const item of items) {
