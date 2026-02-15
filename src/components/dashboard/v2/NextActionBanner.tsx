@@ -10,6 +10,7 @@ import { useProactiveAurora } from '@/hooks/aurora/useProactiveAurora';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -27,7 +28,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
   const { isLaunchpadComplete, completionPercentage } = useLaunchpadProgress();
   const { habits, completedCount, totalCount } = useTodaysHabits();
   const { currentItem, hasPendingItems, dismissItem, markItemClicked } = useProactiveAurora();
-  
+  const auroraContext = useAuroraChatContextSafe();
   const today = format(new Date(), 'yyyy-MM-dd');
 
   // Check if user did hypnosis today
@@ -112,6 +113,9 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: currentItem.body,
         action: () => {
           markItemClicked(currentItem.id);
+          // Set proactive message so Aurora auto-sends it as a coaching prompt
+          const coachingPrompt = `${currentItem.title}\n\n${currentItem.body}`;
+          auroraContext?.setPendingProactiveMessage(coachingPrompt);
           navigate('/aurora');
         },
         actionLabel: language === 'he' ? 'פתח את אורורה' : 'Open Aurora',
