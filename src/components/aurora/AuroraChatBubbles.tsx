@@ -25,7 +25,9 @@ const AuroraChatBubbles = () => {
     isStreaming,
     setIsStreaming,
     scrollToMessageId,
-    setScrollToMessageId
+    setScrollToMessageId,
+    pendingProactiveMessage,
+    setPendingProactiveMessage
   } = useAuroraChatContext();
   
   const { 
@@ -36,6 +38,7 @@ const AuroraChatBubbles = () => {
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const proactiveHandled = useRef(false);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const handleCopy = (content: string) => {
@@ -62,6 +65,21 @@ const AuroraChatBubbles = () => {
       }
     });
   }, [registerSendMessage, sendMessage, setIsStreaming]);
+
+  // Auto-send pending proactive message in chat bubbles
+  useEffect(() => {
+    if (pendingProactiveMessage && !proactiveHandled.current && activeConversationId && isChatExpanded && !isStreaming) {
+      proactiveHandled.current = true;
+      const msg = pendingProactiveMessage;
+      setPendingProactiveMessage(null);
+      setIsStreaming(true);
+      sendMessage(msg).finally(() => setIsStreaming(false));
+    }
+  }, [pendingProactiveMessage, activeConversationId, isChatExpanded, isStreaming, sendMessage, setPendingProactiveMessage, setIsStreaming]);
+
+  useEffect(() => {
+    if (!pendingProactiveMessage) proactiveHandled.current = false;
+  }, [pendingProactiveMessage]);
 
   // Auto-scroll to bottom when new messages arrive (only if not searching)
   useEffect(() => {

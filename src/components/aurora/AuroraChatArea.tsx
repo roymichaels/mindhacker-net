@@ -16,7 +16,8 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   const { user } = useAuth();
   const { t, isRTL } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { registerSendMessage, setIsStreaming } = useAuroraChatContext();
+  const { registerSendMessage, setIsStreaming, pendingProactiveMessage, setPendingProactiveMessage } = useAuroraChatContext();
+  const proactiveHandled = useRef(false);
 
   const {
     messages,
@@ -30,6 +31,24 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   useEffect(() => {
     registerSendMessage(sendMessage);
   }, [registerSendMessage, sendMessage]);
+
+  // Auto-send pending proactive message when Aurora opens
+  useEffect(() => {
+    if (pendingProactiveMessage && !proactiveHandled.current && conversationId && !isStreaming) {
+      proactiveHandled.current = true;
+      const msg = pendingProactiveMessage;
+      setPendingProactiveMessage(null);
+      // Send as a user prompt so Aurora responds with coaching
+      sendMessage(msg);
+    }
+  }, [pendingProactiveMessage, conversationId, isStreaming, sendMessage, setPendingProactiveMessage]);
+
+  // Reset flag when proactive message changes
+  useEffect(() => {
+    if (!pendingProactiveMessage) {
+      proactiveHandled.current = false;
+    }
+  }, [pendingProactiveMessage]);
 
   // Sync streaming state with context
   useEffect(() => {
