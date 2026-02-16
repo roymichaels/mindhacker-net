@@ -214,7 +214,12 @@ const DashboardSidebar = ({
                 {isPremium && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/10 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
                 )}
-                <Icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110", s.icon)} />
+                <div className={cn(
+                  "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110",
+                  `bg-gradient-to-br ${s.bg}`
+                )}>
+                  <Icon className={cn("h-4.5 w-4.5", s.icon)} />
+                </div>
                 {!isCollapsed && (
                   <span className={cn("bg-clip-text text-transparent bg-gradient-to-r font-bold", s.text)}>
                     {item.label}

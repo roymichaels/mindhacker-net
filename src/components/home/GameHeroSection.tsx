@@ -122,11 +122,11 @@ export default function GameHeroSection() {
               <Sparkles className="h-4 w-4 text-primary" />
             </motion.div>
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'מערכת הפעלה לחיים' : 'Life Operating System'}
+              {isRTL ? 'סטארטאפ מאמן חיים AI' : 'AI Life Coach Startup'}
             </span>
           </motion.div>
 
-          {/* Main Title - Mind OS */}
+          {/* Main Title */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -134,19 +134,44 @@ export default function GameHeroSection() {
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]"
           >
             <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-              {t('home.mindOsTitle')}
+              {isRTL ? 'מאמן החיים החכם שלך' : 'Your AI-Powered Life Coach'}
             </span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Clear value proposition subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto"
+            className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            {t('home.mindOsSubtitle')}
+            {isRTL 
+              ? 'Mind OS משלב מאמן AI אישי, היפנוטרפיה מודרכת וגיימיפיקציה כדי לעזור לך לשלוט בכל תחום בחיים — קריירה, בריאות, מערכות יחסים, כלכלה ועוד.'
+              : 'Mind OS combines an AI coach, guided hypnotherapy, and gamification to help you master every area of your life — career, health, relationships, finances, and more.'
+            }
           </motion.p>
+
+          {/* Trust Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-3"
+          >
+            {[
+              { emoji: '✨', label: isRTL ? 'חינם להתחלה' : 'Free to Start' },
+              { emoji: '🤖', label: isRTL ? 'מונע AI' : 'AI-Powered' },
+              { emoji: '🎯', label: isRTL ? 'תוכנית 90 יום' : '90-Day Transformation' },
+            ].map((badge) => (
+              <span
+                key={badge.label}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold
+                  bg-card/80 backdrop-blur-sm border border-border/60 text-foreground shadow-sm"
+              >
+                {badge.emoji} {badge.label}
+              </span>
+            ))}
+          </motion.div>
 
           {/* Central Orb with Orbiting Pillars */}
           <motion.div
