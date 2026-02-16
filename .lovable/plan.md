@@ -1,134 +1,160 @@
 
 
-# Unified Data Model: "ActionItem" as the Single Source of Truth
+# Make Aurora Reliable: 3-Layer Architecture Split
 
-## The Problem Today
+## The Problem
 
-Your data is scattered across 6+ tables, each with its own schema, its own queries, and its own UI components:
+`aurora-chat/index.ts` is a 1,178-line monolith that does everything in one function:
+- **Lines 520-968**: `buildUserContext()` -- 21 parallel DB queries, streak calculations, date math, habit logs, project analysis, string formatting. All deterministic. Untestable because it's entangled with the LLM call.
+- **Lines 14-451**: `buildSystemPrompt()` -- 450 lines of prompt engineering across 3 modes (full/lite/widget) in 2 languages. Unversioned. Impossible to A/B test.
+- **Lines 1008-1178**: The actual serve handler -- validation, routing, model selection, and the LLM call all mixed together.
+
+`aurora-proactive/index.ts` (472 lines) duplicates much of the same context-building logic with its own `getUserContext()`.
+
+**The result**: You can't test context building without LLM randomness, can't retry model calls safely, can't cache context, and can't version prompts. Every bug is a mystery because there's no trace of what context + prompt produced what response.
+
+## The Solution: 3 Hard-Boundary Layers
+
+Split into 3 separate modules with clear contracts between them.
 
 ```
-aurora_checklists (11,374) + aurora_checklist_items (47,631) -- Tasks
-aurora_daily_minimums (15) + daily_habit_logs (0) -- Habits
-life_plan_milestones (360) -- Goals
-hypnosis_sessions (64) -- Sessions
-aurora_reminders (0) + aurora_proactive_queue (15) -- Nudges
-xp_events (146) -- Rewards
+Layer 1: Context Builder (deterministic)
+   reads DB -> returns structured JSON
+   no LLM calls, fully testable
+
+Layer 2: Orchestrator (policy + routing)
+   chooses mode, builds prompt, applies safety checks
+   returns {messages, model, config}
+
+Layer 3: Model Call (LLM only)
+   takes prepared payload -> streams response
+   logs prompt_version + context_hash
 ```
-
-29 files across the frontend query these tables independently. Every new feature means touching multiple tables and writing new query logic.
-
-## The Solution: One Table to Rule Them All
-
-Create a single `action_items` table that unifies all actionable things in the system. Everything becomes a view/filter over ActionItems.
-
-### New Table: `action_items`
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Owner |
-| **type** | text | `task`, `habit`, `session`, `milestone`, `reflection` |
-| **source** | text | `plan`, `user`, `aurora`, `coach`, `system` |
-| **status** | text | `todo`, `doing`, `done`, `skipped` |
-| title | text | Display title |
-| description | text | Optional details |
-| **due_at** | timestamptz | When it's due (nullable for habits) |
-| **recurrence_rule** | text | `daily`, `weekly`, `monthly`, or null (one-time) |
-| **pillar** | text | `consciousness`, `business`, `health`, `relationships`, `finances`, `learning`, `purpose`, `hobbies`, or null |
-| project_id | uuid | FK to user_projects (nullable) |
-| plan_id | uuid | FK to life_plans (nullable) |
-| milestone_id | uuid | FK to life_plan_milestones (nullable) |
-| parent_id | uuid | Self-reference for checklist grouping (nullable) |
-| ego_state | text | Associated ego state (nullable) |
-| tags | text[] | Flexible tagging |
-| xp_reward | integer | XP awarded on completion (default 10) |
-| token_reward | integer | Tokens awarded on completion (default 0) |
-| order_index | integer | Sort order within parent |
-| metadata | jsonb | Flexible extra data (duration_seconds for sessions, script_data, etc.) |
-| completed_at | timestamptz | When completed |
-| created_at | timestamptz | Creation time |
-| updated_at | timestamptz | Last update |
-
-### How Every Feature Becomes a Filter
-
-| Feature | Filter |
-|---------|--------|
-| Dashboard "Today" | `type IN ('task','habit') AND (due_at = today OR recurrence_rule IS NOT NULL) AND status != 'done'` |
-| Habits page | `type = 'habit'` |
-| Checklist card | `parent_id = [checklist_action_item_id]` |
-| Goals/Milestones | `type = 'milestone'` |
-| Power-Up (Hypnosis) | `type = 'session' AND status = 'done' AND DATE(completed_at) = today` |
-| Proactive coaching | Aurora creates ActionItems with `source = 'aurora'` |
-| Gamification | `xp_reward` + `token_reward` columns, awarded on status -> 'done' |
-| Plan progress | `plan_id = [active_plan] AND status = 'done'` / total |
-| Weekly review | `completed_at BETWEEN week_start AND week_end` |
-
-### Migration Strategy (Zero Downtime)
-
-This is a large structural change. We do it in 3 phases to avoid breaking anything:
-
-**Phase 1: Create + Populate (this implementation)**
-1. Create `action_items` table with RLS policies
-2. Create a migration function that copies existing data:
-   - Each `aurora_checklist_items` row becomes a `type='task'` ActionItem, with `parent_id` pointing to a `type='task'` ActionItem created from its parent `aurora_checklists` row
-   - Each `aurora_daily_minimums` row becomes a `type='habit'` ActionItem with `recurrence_rule='daily'`
-   - Each `life_plan_milestones` row becomes a `type='milestone'` ActionItem
-   - Each `hypnosis_sessions` row becomes a `type='session'` ActionItem with session data in `metadata`
-3. Create database trigger that auto-awards XP when status changes to 'done'
-4. Create helper views: `v_today_actions`, `v_habits`, `v_milestones`
-
-**Phase 2: Dual-Write Adapter Layer (this implementation)**
-1. Create `src/services/actionItems.ts` -- a single service with typed queries:
-   - `getTodayActions(userId)` -- today's tasks + habits
-   - `getHabits(userId)` -- all habits
-   - `getMilestones(userId, planId)` -- plan milestones
-   - `completeAction(id)` -- mark done + award XP
-   - `createAction(data)` -- create any type
-   - `getByParent(parentId)` -- checklist items
-2. Create `src/hooks/useActionItems.ts` -- React Query hook wrapping the service
-3. Update `UnifiedDashboardView` to use the new hook instead of separate queries
-
-**Phase 3: Migrate All Consumers (follow-up)**
-- Gradually replace the 29 files querying old tables with `useActionItems` filters
-- Update edge functions (`aurora-chat`, `aurora-proactive`, `generate-hypnosis-script`) to read/write `action_items`
-- Once all consumers migrated, old tables become read-only archives
-
-### Files to Create
-1. **Database migration** -- `action_items` table, RLS, data migration function, XP trigger, views
-2. **`src/services/actionItems.ts`** -- Typed query service (single source for all action item operations)
-3. **`src/hooks/useActionItems.ts`** -- React Query hooks with filter presets
-
-### Files to Modify
-1. **`src/components/dashboard/UnifiedDashboardView.tsx`** -- Wire up PlanProgressHero + StatsGrid to use action_items counts
-2. **`src/components/dashboard/v2/NextActionBanner.tsx`** -- Query `action_items` instead of separate tables
-3. **`src/components/dashboard/unified/ChecklistsCard.tsx`** -- Read from `action_items WHERE parent_id IS NOT NULL`
-4. **`src/components/dashboard/v2/GoalsCard.tsx`** -- Read from `action_items WHERE type='milestone'`
-5. **`src/components/dashboard/v2/TodaysHabitsCard.tsx`** -- Read from `action_items WHERE type='habit'`
-6. **`src/services/unifiedContext.ts`** -- Add action_items summary to AI context
-
-### RLS Policies
-- `SELECT`: Users can only read their own action_items
-- `INSERT`: Users can only create action_items for themselves
-- `UPDATE`: Users can only update their own action_items
-- `DELETE`: Users can only delete their own action_items
-
-### XP Auto-Award Trigger
-```
-When action_items.status changes to 'done':
-  1. Set completed_at = now()
-  2. Call award_unified_xp(user_id, xp_reward, 'action_item', title)
-  3. If token_reward > 0, add tokens
-```
-
-### Data Volume Estimate
-- ~47,631 task items + ~11,374 task parents + ~15 habits + ~360 milestones + ~64 sessions = ~59,444 rows migrated
-- All with proper indexing on (user_id, type, status, due_at)
 
 ### What This Enables
-- **One query** to get everything a user needs to do today
-- **One mutation** to complete anything and get rewarded
-- Aurora AI creates/suggests ActionItems instead of writing to 3 different tables
-- Plan progress is just `COUNT(*) WHERE plan_id = X AND status = 'done'` / total
-- Weekly reviews are just `WHERE completed_at BETWEEN dates`
-- The entire gamification engine is a single trigger, not scattered across hooks
+- **Test context building** without AI randomness (pure DB -> JSON)
+- **Retry model calls safely** (Layer 3 is stateless, just takes a payload)
+- **Cache context** (hash the JSON, skip DB queries if hash matches within TTL)
+- **Version prompts cleanly** (prompt_version stored per response)
+- **Debug any AI response** (look up context_hash + prompt_version to reproduce)
 
+---
+
+## Technical Details
+
+### New File: `supabase/functions/aurora-chat/contextBuilder.ts`
+
+Extract `buildUserContext()` (lines 520-968) into a pure module:
+
+```text
+Input:  (supabaseClient, userId, language)
+Output: AuroraContext (typed JSON object)
+```
+
+- All 21 parallel DB queries stay here
+- Streak calculation stays here
+- Habit log joining stays here
+- Project analysis stays here
+- NOW reads from `action_items` instead of legacy tables
+- Returns a typed `AuroraContext` object (not a string)
+- Includes `context_hash` (MD5 of the JSON) for caching/debugging
+- Deterministic: same DB state always produces same output
+
+Key change from current code: instead of returning a formatted string, returns structured JSON. The string formatting moves to Layer 2.
+
+### New File: `supabase/functions/aurora-chat/orchestrator.ts`
+
+Extract prompt building + mode routing:
+
+```text
+Input:  (mode, context: AuroraContext, language, knowledgeBase?)
+Output: { systemPrompt, model, maxTokens, temperature, promptVersion }
+```
+
+- `buildSystemPrompt()` (lines 14-451) moves here
+- Mode routing (full/lite/widget) moves here
+- Model selection logic moves here
+- Each prompt template gets a `PROMPT_VERSION` constant (e.g., `"full-v1.0"`, `"widget-v1.0"`)
+- `formatContextForPrompt(context)` -- converts structured JSON to the markdown string the LLM consumes
+- `generateOpenerContext()` (lines 454-518) moves here
+- Safety checks (message validation, length limits) move here
+
+### Refactored File: `supabase/functions/aurora-chat/index.ts`
+
+Becomes a thin ~80-line handler:
+
+```text
+1. Parse request (mode, userId, messages, language)
+2. Call contextBuilder.buildContext(supabase, userId, language)
+3. Call orchestrator.prepare(mode, context, language)
+4. Call LLM gateway with prepared payload
+5. Log { prompt_version, context_hash, model, mode }
+6. Stream response back
+```
+
+### Database: Add tracing columns
+
+Add `prompt_version` and `context_hash` to `aurora_conversations` or a new `ai_response_logs` table:
+
+```text
+ai_response_logs:
+  id UUID PK
+  user_id UUID
+  conversation_id UUID (nullable)
+  prompt_version TEXT (e.g., "full-v1.2")
+  context_hash TEXT (MD5 of context JSON)
+  model TEXT (e.g., "google/gemini-2.5-flash")
+  mode TEXT (full/lite/widget)
+  token_count INTEGER
+  created_at TIMESTAMPTZ
+```
+
+This makes every AI response debuggable: given a bug report, look up the context_hash and prompt_version to reproduce exactly what the LLM saw.
+
+### Refactored File: `supabase/functions/aurora-proactive/index.ts`
+
+Replace the duplicate `getUserContext()` (lines 27-174) with an import from the shared context builder. The proactive function becomes:
+
+```text
+1. Get list of active users
+2. For each user: contextBuilder.buildContext(supabase, userId, 'he')
+3. analyzeAndQueue(context) -- policy logic stays here
+4. generateAICoachingMessage(context) -- uses a simplified orchestrator call
+```
+
+### Files to Create
+1. `supabase/functions/aurora-chat/contextBuilder.ts` -- Pure context assembly from DB
+2. `supabase/functions/aurora-chat/orchestrator.ts` -- Prompt building, mode routing, versioning
+3. Database migration: `ai_response_logs` table with RLS
+
+### Files to Modify
+1. `supabase/functions/aurora-chat/index.ts` -- Slim down from 1,178 to ~80 lines
+2. `supabase/functions/aurora-proactive/index.ts` -- Replace duplicate getUserContext with import
+
+### Migration from Legacy Tables
+
+The context builder will read from the new `action_items` table instead of querying `aurora_checklists`, `aurora_checklist_items`, `aurora_daily_minimums`, and `life_plan_milestones` separately. This means:
+- 21 parallel queries reduce to ~12 (action_items replaces 4-5 legacy table queries)
+- Overdue tasks: `action_items WHERE type='task' AND status IN ('todo','doing') AND due_at < today`
+- Today's tasks: `action_items WHERE due_at::date = today`
+- Daily habits: `action_items WHERE type='habit'`
+- Milestones: `action_items WHERE type='milestone' AND plan_id = active_plan`
+
+### No Breaking Changes
+
+- The API contract (request/response format) stays identical
+- The frontend code (`useAuroraChat.tsx`, `MessageThread.tsx`) needs zero changes
+- Streaming behavior is unchanged
+- The split is purely internal to the edge function
+
+### Prompt Versioning Scheme
+
+```text
+Format: "{mode}-v{major}.{minor}"
+Examples: "full-v1.0", "lite-v1.0", "widget-v1.0"
+
+Bump minor for wording changes (e.g., "full-v1.1")
+Bump major for structural changes (e.g., "full-v2.0")
+```
+
+The version string is logged with every response, so you can correlate user complaints ("Aurora said something weird yesterday") with exactly which prompt version was active.
