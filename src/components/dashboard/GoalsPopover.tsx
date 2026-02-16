@@ -86,14 +86,12 @@ export function GoalsPopover() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+        <button
+          className="relative h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center hover:scale-110 transition-transform"
           title={language === 'he' ? 'יעדים' : 'Goals'}
         >
-          <Target className="h-5 w-5" />
-        </Button>
+          <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        </button>
       </PopoverTrigger>
       <PopoverContent
         className="w-96 p-0 bg-popover border shadow-lg z-[100] max-h-[80vh] overflow-hidden"

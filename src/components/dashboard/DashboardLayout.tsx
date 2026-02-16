@@ -70,24 +70,20 @@ const DesktopLayoutContent = ({
       <div className={`fixed top-4 z-50 flex items-center gap-1 ${isRTL ? 'left-4' : 'right-4'}`}>
         <TasksPopover />
         <GoalsPopover />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+        <button
+          className="h-10 w-10 rounded-full bg-pink-100 dark:bg-pink-900/40 flex items-center justify-center hover:scale-110 transition-transform"
           onClick={() => openPractitioners()}
           title={language === 'he' ? 'מאמנים' : 'Coaches'}
         >
-          <Users className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+          <Users className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+        </button>
+        <button
+          className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center hover:scale-110 transition-transform"
           onClick={() => setHypnosisOpen(true)}
           title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
         >
-          <Compass className="h-5 w-5" />
-        </Button>
+          <Compass className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+        </button>
         <UserNotificationBell />
       </div>
 
@@ -170,24 +166,20 @@ const DashboardLayout = ({
               <div className="flex items-center gap-1">
                 <TasksPopover />
                 <GoalsPopover />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+                <button
+                  className="h-10 w-10 rounded-full bg-pink-100 dark:bg-pink-900/40 flex items-center justify-center hover:scale-110 transition-transform"
                   onClick={() => openPractitioners()}
                   title={language === 'he' ? 'מאמנים' : 'Coaches'}
                 >
-                  <Users className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+                  <Users className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                </button>
+                <button
+                  className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center hover:scale-110 transition-transform"
                   onClick={() => setHypnosisOpen(true)}
                   title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
                 >
-                  <Compass className="h-5 w-5" />
-                </Button>
+                  <Compass className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                </button>
                 <UserNotificationBell />
               </div>
             </div>

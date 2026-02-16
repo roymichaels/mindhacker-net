@@ -91,14 +91,12 @@ export function TasksPopover() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60"
+        <button
+          className="relative h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center hover:scale-110 transition-transform"
           title={language === 'he' ? 'משימות היום' : "Today's Tasks"}
         >
-          <ListChecks className="h-5 w-5" />
-        </Button>
+          <ListChecks className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        </button>
       </PopoverTrigger>
       <PopoverContent
         className="w-96 p-0 bg-popover border shadow-lg z-[100] max-h-[80vh] overflow-hidden"
