@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2, Rocket, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -33,10 +35,21 @@ export function UnifiedDashboardView({
   onOpenChat,
 }: UnifiedDashboardViewProps) {
   const { isRTL, t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const dashboard = useUnifiedDashboard();
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // Update last_active_at so cron job keeps generating nudges
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase
+      .from('aurora_onboarding_progress')
+      .update({ last_active_at: new Date().toISOString() })
+      .eq('user_id', user.id)
+      .then(() => {});
+  }, [user?.id]);
 
   const handleOpenProfile = () => {
     if (onOpenProfile) {
