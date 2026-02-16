@@ -1,125 +1,62 @@
 
-# Deep Integration: Aurora Proactive Coaching + Projects + Notifications
+# Fix: Aurora Proactive Nudges Not Reaching You
 
-## Problem
+## Root Causes Found
 
-The proactive coaching system is completely disconnected:
-- `useProactiveAurora` hook exists but is **never used by any component**
-- No scheduled cron job exists (`pg_cron` not enabled) so `batch_analyze` never runs
-- Projects (`user_projects`) are invisible to Aurora's AI brain
-- Proactive queue items never become user notifications (two separate tables, no bridge)
-- NextActionBanner has no awareness of projects
-- No daily digest or accountability notifications
+1. **Your user has no `aurora_onboarding_progress` row** -- The cron job (`batch_analyze`) queries `aurora_onboarding_progress WHERE proactive_enabled = true AND last_active_at >= 7 days ago`. Your user ID (`bc1c0b6e-...`) has zero rows in this table, so the cron completely skips you. Other users (4 of them) DO get nudges because they have this row.
 
-## Solution: 5-Part Integration
+2. **No auto-creation of onboarding progress** -- When a user signs up or logs in, no trigger or code ensures an `aurora_onboarding_progress` row is created with `proactive_enabled = true`. Only users who went through a specific onboarding flow have it.
 
-### Part 1: Wire Up Proactive Aurora to the Dashboard
+3. **Frontend fetch uses wrong auth header** -- `useProactiveAurora` sends the anon key as `Authorization: Bearer`, not the user's session JWT. This causes "Failed to fetch" errors and means even the on-demand polling never successfully retrieves pending items.
 
-Connect `useProactiveAurora` to the `NextActionBanner` and `UnifiedDashboardView` so proactive coaching messages actually appear in the UI.
+## Fix Plan
 
-- Import and use `useProactiveAurora` in `NextActionBanner`
-- Show proactive coaching messages as a high-priority banner action (e.g., "Aurora has a message for you")
-- Clicking it opens Aurora chat with the proactive message pre-loaded
-- Add dismiss capability directly on the banner
+### Part 1: Auto-create onboarding progress for all users (Database)
 
-### Part 2: Bridge Proactive Queue to User Notifications
+Create a trigger on `auth.users` (or better, on `profiles`) that automatically inserts an `aurora_onboarding_progress` row with `proactive_enabled = true` when a new profile is created. Also, backfill all existing users who are missing this row.
 
-Create a database trigger so that every new `aurora_proactive_queue` item automatically creates a corresponding `user_notification`. This means:
+**Migration SQL:**
+- INSERT into `aurora_onboarding_progress` for all existing `profiles` users who don't have a row yet, with `proactive_enabled = true` and `last_active_at = now()`
+- Create a trigger function on `profiles` table (AFTER INSERT) that auto-creates the onboarding progress row
 
-- Proactive coaching messages appear in the notification bell
-- Push notifications fire automatically (existing trigger on `user_notifications` handles this)
-- Users who don't open the dashboard still get nudged
+### Part 2: Fix `useProactiveAurora` auth header (Frontend)
 
-**New trigger function:**
-```text
-ON INSERT to aurora_proactive_queue
-  -> INSERT into user_notifications (user_id, type='aurora_coaching', title, message, link='/aurora')
+Update `useProactiveAurora.tsx` to use the user's actual session JWT token instead of the static anon key:
+
+```
+const { data: { session } } = await supabase.auth.getSession();
+const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Use token in Authorization header
+Authorization: `Bearer ${token}`
 ```
 
-### Part 3: Add Projects to Aurora's Brain
+This ensures the fetch calls actually succeed and don't throw "Failed to fetch" errors.
 
-Update the `aurora-chat` edge function's system prompt to include project context:
+### Part 3: Update `last_active_at` on user activity (Frontend)
 
-- Fetch user's active projects from `user_projects` and inject them into the AI prompt
-- Add project-specific action tags (e.g., `[project:update:ProjectName]`)
-- Aurora can now discuss, track, and nudge about specific projects
+The cron filters by `last_active_at >= 7 days ago`, meaning inactive users stop getting nudges. Add a lightweight update to `last_active_at` whenever the user visits the dashboard or Aurora page, so the cron continues to generate coaching messages.
 
-Update the `aurora-proactive` edge function to also analyze projects:
-
-- Check for stalled projects (no progress change in 7+ days)
-- Check for projects approaching target dates
-- Generate project-specific coaching nudges
-
-### Part 4: Scheduled Daily Analysis (Cron Job)
-
-Enable `pg_cron` and `pg_net` extensions and set up a scheduled job to call `aurora-proactive` with `batch_analyze` every 3 hours. This ensures:
-
-- Morning briefings are queued (7-10am)
-- Mid-day progress checks (2-6pm)
-- Overdue task nudges throughout the day
-- Project deadline reminders
-- Weekly reviews (Friday evening)
-
-### Part 5: Project Awareness in Dashboard
-
-Update the `NextActionBanner` priority system to include project-related actions:
-
-| Priority | Condition | Action |
-|---|---|---|
-| 0 | Consciousness journey incomplete | Continue journey |
-| 1 | Aurora has a proactive message | Show coaching nudge |
-| 2 | Overdue tasks | View tasks |
-| 3 | Stalled project (7+ days no progress) | Update project |
-| 4 | Incomplete daily habits | Complete habits |
-| 5 | No hypnosis today | Start hypnosis |
-| 6 | Active milestone | View plan |
-| 7 | All clear | Chat with Aurora |
-
----
+This can be done via a simple `useEffect` in `UnifiedDashboardView` or `AuroraLayout` that calls:
+```
+supabase.from('aurora_onboarding_progress')
+  .update({ last_active_at: new Date().toISOString() })
+  .eq('user_id', user.id)
+```
 
 ## Technical Details
 
-### Files to create:
-- `supabase/migrations/[timestamp].sql` -- pg_cron setup, bridge trigger, project analysis helpers
-
 ### Files to modify:
-- `src/components/dashboard/v2/NextActionBanner.tsx` -- add proactive message priority + project stall detection
-- `src/components/dashboard/UnifiedDashboardView.tsx` -- wire `useProactiveAurora`
-- `supabase/functions/aurora-proactive/index.ts` -- add project context analysis (stalled projects, approaching deadlines)
-- `supabase/functions/aurora-chat/index.ts` -- inject `user_projects` into system prompt context
+- `src/hooks/aurora/useProactiveAurora.tsx` -- Fix auth header to use session JWT
+- `src/components/dashboard/UnifiedDashboardView.tsx` -- Add `last_active_at` ping on mount
 
-### Database changes:
-1. Enable `pg_cron` and `pg_net` extensions
-2. Create trigger: `aurora_proactive_queue` INSERT -> `user_notifications` INSERT
-3. Create cron job: call `aurora-proactive` `batch_analyze` every 3 hours
-4. Update `user_notifications` insert policy to allow trigger-based inserts (SECURITY DEFINER function)
+### Database migration:
+- Backfill `aurora_onboarding_progress` for all existing users missing rows
+- Create trigger on `profiles` AFTER INSERT to auto-create the row
+- Both with `proactive_enabled = true`
 
-### Proactive-to-Notification bridge trigger:
-```text
-CREATE FUNCTION bridge_proactive_to_notification()
-  ON INSERT aurora_proactive_queue
-  -> INSERT user_notifications(
-       user_id,
-       type: 'aurora_coaching',
-       title: NEW.title,
-       message: NEW.body,
-       link: '/aurora'
-     )
-```
-
-### Aurora-chat project context injection:
-The edge function will query `user_projects` for the current user and append a section to the system prompt:
-```text
-## Active Projects
-- "My Startup" (Business, 45% complete, target: March 2026)
-  Vision: Build a SaaS platform...
-  Blockers: Need funding
-- "Learn Guitar" (Personal, 20% complete)
-```
-
-### Aurora-proactive project analysis additions:
-```text
-- Stalled project (no update in 7+ days) -> trigger_type: 'project_stalled', priority: 7
-- Project deadline in 14 days -> trigger_type: 'project_deadline', priority: 8
-- New project with no milestones -> trigger_type: 'project_setup', priority: 5
-```
+### Expected result after fix:
+- All users (including you) will have `aurora_onboarding_progress` rows
+- The cron job (every 3 hours) will pick up all active users and generate nudges
+- The frontend hook will successfully fetch pending items using the correct auth token
+- Dashboard visits will keep `last_active_at` fresh so the cron never skips you
