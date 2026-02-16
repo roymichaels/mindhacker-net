@@ -1,143 +1,134 @@
 
-# Strategic Refocus: "90-Day Transformation OS" as the Spine
 
-## The Problem
-The app currently presents 6+ loosely connected products (AI coach, 8 life pillars, hypnosis, gamification, community, marketplace, admin panels) sharing one login. Every feature competes for attention and nothing has a clear "daily loop" that drives retention and revenue.
+# Unified Data Model: "ActionItem" as the Single Source of Truth
 
-## The Strategy
-Restructure the entire UX around ONE question: **"Does this help the user complete today's next action in their 90-day plan?"**
+## The Problem Today
 
-Everything stays in the codebase but gets repositioned:
-- The **90-Day Plan** becomes the spine (always visible, always directing)
-- **AI Coaching** becomes the guide that helps you execute your plan
-- **Hypnosis** becomes a "power-up session" inside the plan
-- **Gamification** becomes reinforcement (XP for plan actions, not a product)
-- **Life Pillars** become the scoring dimensions of your plan, not standalone destinations
-- **Community/Marketplace** become future upsells (deprioritized in nav)
-
----
-
-## Part 1: Landing Page -- Sell the 90-Day Transformation
-
-**File: `src/components/home/GameHeroSection.tsx`**
-
-Rewrite the hero to sell the transformation loop, not the feature list:
-- **Headline**: "Transform Your Life in 90 Days" / "שנה את חייך ב-90 ימים"
-- **Subtitle**: "Get a personalized AI coach, a daily action plan, and weekly hypnosis power-ups -- all working together to transform 8 areas of your life."
-- **Trust Badges**: Replace current generic badges with outcome-driven ones: "12-Week Plan", "Daily AI Coaching", "Measurable Progress"
-- **Primary CTA**: "Start Your 90-Day Transformation (Free)" instead of "Start Free Journey"
-- **Visual**: Keep the orb but add a subtle 90-day progress arc around it (3 segments for Month 1/2/3)
-
-**File: `src/pages/Index.tsx`**
-
-Reorder sections to tell the transformation story:
-1. Hero (90-Day Transformation pitch)
-2. TransformationJourneySection (the 3-phase timeline -- already exists, promote to #2)
-3. AuroraCoachSection (AI as your daily guide)
-4. WhyChooseUsSection (value props reframed around outcomes)
-5. TransformationProofSection (social proof)
-6. FinalCTASection
-
-Remove or merge: SystemArchitectureSection (too technical), LifePillarsSection (merge into journey), HandsFreeSection (minor feature), FearOfMissingOutSection (feels pushy), FreeJourneyBannerSection (redundant with hero CTA).
-
-## Part 2: Dashboard -- Plan-Centric Command Center
-
-**File: `src/components/dashboard/UnifiedDashboardView.tsx`**
-
-Restructure the dashboard zones to make the 90-day plan the center of gravity:
+Your data is scattered across 6+ tables, each with its own schema, its own queries, and its own UI components:
 
 ```
-Zone 0: DashboardBannerSlider (keep)
-Zone 1: NextActionBanner (keep -- already priority-based)
-Zone 2: NEW "Plan Progress Hero" -- Large card showing:
-  - Current week (e.g., "Week 4 of 12")
-  - Overall progress bar
-  - This week's milestone title
-  - "View Full Plan" button
-Zone 3: StatsGrid (keep -- Level, Streak, Weekly XP, Tokens)
-Zone 4: Two columns:
-  - Left: TodaysHabitsCard (daily actions FROM the plan)
-  - Right: ChecklistsCard (tasks FROM the plan)
-Zone 5: Two columns:
-  - Left: GoalsCard (monthly milestones FROM the plan)
-  - Right: "Power-Up" card (daily hypnosis prompt, positioned as plan accelerator)
-Zone 6: LifeAnalysisChart (keep but relabel as "Your 8 Dimensions")
+aurora_checklists (11,374) + aurora_checklist_items (47,631) -- Tasks
+aurora_daily_minimums (15) + daily_habit_logs (0) -- Habits
+life_plan_milestones (360) -- Goals
+hypnosis_sessions (64) -- Sessions
+aurora_reminders (0) + aurora_proactive_queue (15) -- Nudges
+xp_events (146) -- Rewards
 ```
 
-Create a new **PlanProgressHero** component in `src/components/dashboard/v2/PlanProgressHero.tsx` that fetches the active life plan and displays the current week prominently.
+29 files across the frontend query these tables independently. Every new feature means touching multiple tables and writing new query logic.
 
-## Part 3: Sidebar -- Simplify Navigation
+## The Solution: One Table to Rule Them All
 
-**File: `src/components/dashboard/DashboardSidebar.tsx`**
+Create a single `action_items` table that unifies all actionable things in the system. Everything becomes a view/filter over ActionItems.
 
-Reduce the sidebar from 10 items to 5 focused items:
+### New Table: `action_items`
 
-```
-1. Dashboard (home base)
-2. My Plan (90-day plan -- /life-plan, promoted to #2)
-3. Aurora Coach (/aurora -- your AI guide)
-4. Projects (/projects -- active work)
-5. Progress (/consciousness -- life analysis, renamed)
-```
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | Owner |
+| **type** | text | `task`, `habit`, `session`, `milestone`, `reflection` |
+| **source** | text | `plan`, `user`, `aurora`, `coach`, `system` |
+| **status** | text | `todo`, `doing`, `done`, `skipped` |
+| title | text | Display title |
+| description | text | Optional details |
+| **due_at** | timestamptz | When it's due (nullable for habits) |
+| **recurrence_rule** | text | `daily`, `weekly`, `monthly`, or null (one-time) |
+| **pillar** | text | `consciousness`, `business`, `health`, `relationships`, `finances`, `learning`, `purpose`, `hobbies`, or null |
+| project_id | uuid | FK to user_projects (nullable) |
+| plan_id | uuid | FK to life_plans (nullable) |
+| milestone_id | uuid | FK to life_plan_milestones (nullable) |
+| parent_id | uuid | Self-reference for checklist grouping (nullable) |
+| ego_state | text | Associated ego state (nullable) |
+| tags | text[] | Flexible tagging |
+| xp_reward | integer | XP awarded on completion (default 10) |
+| token_reward | integer | Tokens awarded on completion (default 0) |
+| order_index | integer | Sort order within parent |
+| metadata | jsonb | Flexible extra data (duration_seconds for sessions, script_data, etc.) |
+| completed_at | timestamptz | When completed |
+| created_at | timestamptz | Creation time |
+| updated_at | timestamptz | Last update |
 
-The 7 individual pillar pages (Business, Health, Relationships, etc.) move to a "Life Areas" submenu or become accessible only from the Life Analysis chart on the dashboard. They are NOT removed from the router -- just deprioritized in navigation.
+### How Every Feature Becomes a Filter
 
-## Part 4: Header Icons -- Reframe as Plan Tools
+| Feature | Filter |
+|---------|--------|
+| Dashboard "Today" | `type IN ('task','habit') AND (due_at = today OR recurrence_rule IS NOT NULL) AND status != 'done'` |
+| Habits page | `type = 'habit'` |
+| Checklist card | `parent_id = [checklist_action_item_id]` |
+| Goals/Milestones | `type = 'milestone'` |
+| Power-Up (Hypnosis) | `type = 'session' AND status = 'done' AND DATE(completed_at) = today` |
+| Proactive coaching | Aurora creates ActionItems with `source = 'aurora'` |
+| Gamification | `xp_reward` + `token_reward` columns, awarded on status -> 'done' |
+| Plan progress | `plan_id = [active_plan] AND status = 'done'` / total |
+| Weekly review | `completed_at BETWEEN week_start AND week_end` |
 
-**File: `src/components/dashboard/DashboardLayout.tsx`**
+### Migration Strategy (Zero Downtime)
 
-Reframe the 5 header action icons as plan-serving tools:
-1. **Tasks** (green) -- "Today's Plan Tasks" 
-2. **Goals** (blue) -- "Monthly Milestones"
-3. **Power-Up** (violet) -- Hypnosis, rebranded as plan accelerator
-4. **Coach** (pink) -- Quick access to Aurora
-5. **Alerts** (amber) -- Notifications/nudges about plan progress
+This is a large structural change. We do it in 3 phases to avoid breaking anything:
 
-## Part 5: Hypnosis Rebranding
+**Phase 1: Create + Populate (this implementation)**
+1. Create `action_items` table with RLS policies
+2. Create a migration function that copies existing data:
+   - Each `aurora_checklist_items` row becomes a `type='task'` ActionItem, with `parent_id` pointing to a `type='task'` ActionItem created from its parent `aurora_checklists` row
+   - Each `aurora_daily_minimums` row becomes a `type='habit'` ActionItem with `recurrence_rule='daily'`
+   - Each `life_plan_milestones` row becomes a `type='milestone'` ActionItem
+   - Each `hypnosis_sessions` row becomes a `type='session'` ActionItem with session data in `metadata`
+3. Create database trigger that auto-awards XP when status changes to 'done'
+4. Create helper views: `v_today_actions`, `v_habits`, `v_milestones`
 
-**File: `src/components/dashboard/DashboardLayout.tsx`** and **`src/components/dashboard/v2/NextActionBanner.tsx`**
+**Phase 2: Dual-Write Adapter Layer (this implementation)**
+1. Create `src/services/actionItems.ts` -- a single service with typed queries:
+   - `getTodayActions(userId)` -- today's tasks + habits
+   - `getHabits(userId)` -- all habits
+   - `getMilestones(userId, planId)` -- plan milestones
+   - `completeAction(id)` -- mark done + award XP
+   - `createAction(data)` -- create any type
+   - `getByParent(parentId)` -- checklist items
+2. Create `src/hooks/useActionItems.ts` -- React Query hook wrapping the service
+3. Update `UnifiedDashboardView` to use the new hook instead of separate queries
 
-Rename "Hypnosis" to "Power-Up Session" or "Mind Power-Up" across the UI:
-- Header icon tooltip: "Power-Up" instead of "Hypnosis"
-- NextActionBanner: "Your daily power-up awaits" instead of "Your daily hypnosis awaits"
-- The HypnosisModal itself stays the same internally
+**Phase 3: Migrate All Consumers (follow-up)**
+- Gradually replace the 29 files querying old tables with `useActionItems` filters
+- Update edge functions (`aurora-chat`, `aurora-proactive`, `generate-hypnosis-script`) to read/write `action_items`
+- Once all consumers migrated, old tables become read-only archives
 
-## Part 6: NextActionBanner Priority Realignment
-
-**File: `src/components/dashboard/v2/NextActionBanner.tsx`**
-
-Adjust priorities to be plan-centric:
-1. No active plan? -> "Create Your 90-Day Plan" (start launchpad)
-2. Proactive coaching nudge (plan-related)
-3. Overdue plan tasks
-4. Incomplete daily habits (from plan)
-5. Weekly milestone review due
-6. Daily power-up (hypnosis) not done
-7. Chat with Aurora about your plan
-
----
-
-## Technical Details
-
-### New Component
-- `src/components/dashboard/v2/PlanProgressHero.tsx` -- Fetches active `life_plans` + current week milestone, displays progress arc
+### Files to Create
+1. **Database migration** -- `action_items` table, RLS, data migration function, XP trigger, views
+2. **`src/services/actionItems.ts`** -- Typed query service (single source for all action item operations)
+3. **`src/hooks/useActionItems.ts`** -- React Query hooks with filter presets
 
 ### Files to Modify
-1. `src/components/home/GameHeroSection.tsx` -- Transformation-focused messaging
-2. `src/pages/Index.tsx` -- Reorder/trim landing page sections
-3. `src/components/dashboard/UnifiedDashboardView.tsx` -- Add PlanProgressHero, restructure zones
-4. `src/components/dashboard/DashboardSidebar.tsx` -- Reduce to 5 nav items
-5. `src/components/dashboard/DashboardLayout.tsx` -- Reframe header icon labels
-6. `src/components/dashboard/v2/NextActionBanner.tsx` -- Adjust priority hierarchy
+1. **`src/components/dashboard/UnifiedDashboardView.tsx`** -- Wire up PlanProgressHero + StatsGrid to use action_items counts
+2. **`src/components/dashboard/v2/NextActionBanner.tsx`** -- Query `action_items` instead of separate tables
+3. **`src/components/dashboard/unified/ChecklistsCard.tsx`** -- Read from `action_items WHERE parent_id IS NOT NULL`
+4. **`src/components/dashboard/v2/GoalsCard.tsx`** -- Read from `action_items WHERE type='milestone'`
+5. **`src/components/dashboard/v2/TodaysHabitsCard.tsx`** -- Read from `action_items WHERE type='habit'`
+6. **`src/services/unifiedContext.ts`** -- Add action_items summary to AI context
 
-### No Database Changes Needed
-All data structures (life_plans, life_plan_milestones, checklists, habits) already exist and support this refocus.
+### RLS Policies
+- `SELECT`: Users can only read their own action_items
+- `INSERT`: Users can only create action_items for themselves
+- `UPDATE`: Users can only update their own action_items
+- `DELETE`: Users can only delete their own action_items
 
-### No Routes Removed
-All pillar pages remain accessible via direct URL. They are only deprioritized in navigation.
+### XP Auto-Award Trigger
+```
+When action_items.status changes to 'done':
+  1. Set completed_at = now()
+  2. Call award_unified_xp(user_id, xp_reward, 'action_item', title)
+  3. If token_reward > 0, add tokens
+```
 
-### Estimated Scope
-- 1 new component (PlanProgressHero)
-- 6 files modified
-- 0 database migrations
-- 0 edge function changes
+### Data Volume Estimate
+- ~47,631 task items + ~11,374 task parents + ~15 habits + ~360 milestones + ~64 sessions = ~59,444 rows migrated
+- All with proper indexing on (user_id, type, status, due_at)
+
+### What This Enables
+- **One query** to get everything a user needs to do today
+- **One mutation** to complete anything and get rewarded
+- Aurora AI creates/suggests ActionItems instead of writing to 3 different tables
+- Plan progress is just `COUNT(*) WHERE plan_id = X AND status = 'done'` / total
+- Weekly reviews are just `WHERE completed_at BETWEEN dates`
+- The entire gamification engine is a single trigger, not scattered across hooks
+
