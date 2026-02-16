@@ -7,6 +7,7 @@ import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useProactiveAurora } from '@/hooks/aurora/useProactiveAurora';
+import { useOverdueCount, useSessionsToday } from '@/hooks/useActionItems';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,39 +30,11 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
   const { habits, completedCount, totalCount } = useTodaysHabits();
   const { currentItem, hasPendingItems, dismissItem, markItemClicked } = useProactiveAurora();
   const auroraContext = useAuroraChatContextSafe();
-  const today = format(new Date(), 'yyyy-MM-dd');
 
-  // Check if user did hypnosis today
-  const { data: didHypnosisToday } = useQuery({
-    queryKey: ['hypnosis-today', user?.id, today],
-    queryFn: async () => {
-      if (!user?.id) return false;
-      const { count } = await supabase
-        .from('hypnosis_sessions')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .gte('created_at', `${today}T00:00:00`)
-        .lt('created_at', `${today}T23:59:59`);
-      return (count || 0) > 0;
-    },
-    enabled: !!user?.id,
-  });
-
-  // Check overdue tasks
-  const { data: overdueTasks = 0 } = useQuery({
-    queryKey: ['overdue-tasks', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const { count } = await supabase
-        .from('aurora_checklist_items')
-        .select('id, aurora_checklists!inner(user_id)', { count: 'exact', head: true })
-        .eq('aurora_checklists.user_id', user.id)
-        .eq('is_completed', false)
-        .lt('due_date', today);
-      return count || 0;
-    },
-    enabled: !!user?.id,
-  });
+  // Use action_items for overdue count and session check
+  const { data: overdueTasks = 0 } = useOverdueCount();
+  const { data: sessionsToday = 0 } = useSessionsToday();
+  const didHypnosisToday = sessionsToday > 0;
 
   // Check stalled projects (no update in 7+ days)
   const { data: stalledProjects = 0 } = useQuery({
@@ -79,6 +52,8 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
     },
     enabled: !!user?.id,
   });
+
+
 
   // Priority-based action determination
   const getNextAction = () => {

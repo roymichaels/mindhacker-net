@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import type { ActionItem } from '@/services/actionItems';
 
 export interface TodayHabit {
   id: string;
@@ -17,35 +18,37 @@ export function useTodaysHabits() {
   const today = format(new Date(), 'yyyy-MM-dd');
 
   const query = useQuery({
-    queryKey: ['todays-habits', user?.id, today],
+    queryKey: ['action-items', 'habits', user?.id, today],
     queryFn: async (): Promise<TodayHabit[]> => {
       if (!user?.id) return [];
 
-      // Fetch daily minimums (habits)
+      // Fetch habits from action_items
       const { data: habits } = await supabase
-        .from('aurora_daily_minimums')
-        .select('id, title, category')
+        .from('action_items')
+        .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', true)
+        .eq('type', 'habit')
         .order('created_at', { ascending: true });
 
       if (!habits || habits.length === 0) return [];
 
-      // Fetch today's logs
+      // Fetch today's logs from daily_habit_logs (still used for daily tracking)
       const { data: logs } = await supabase
         .from('daily_habit_logs')
         .select('id, habit_item_id, is_completed')
         .eq('user_id', user.id)
         .eq('track_date', today);
 
+      // Also check action_items metadata for legacy habit IDs
       const logsMap = new Map(logs?.map(l => [l.habit_item_id, l]) || []);
 
       return habits.map(habit => {
-        const log = logsMap.get(habit.id);
+        const legacyId = (habit as any).metadata?.legacy_id;
+        const log = logsMap.get(legacyId) || logsMap.get(habit.id);
         return {
           id: habit.id,
-          title: habit.title,
-          category: habit.category,
+          title: (habit as any).title,
+          category: (habit as any).pillar,
           isCompleted: log?.is_completed || false,
           logId: log?.id || null,
         };
@@ -61,7 +64,6 @@ export function useTodaysHabits() {
       const existing = query.data?.find(h => h.id === habitId);
 
       if (existing?.logId) {
-        // Update existing log
         await supabase
           .from('daily_habit_logs')
           .update({ 
@@ -70,12 +72,20 @@ export function useTodaysHabits() {
           })
           .eq('id', existing.logId);
       } else {
-        // Create new log
+        // Use the legacy_id from metadata if available, otherwise the action_item id
+        const { data: actionItem } = await supabase
+          .from('action_items')
+          .select('metadata')
+          .eq('id', habitId)
+          .single();
+        
+        const habitItemId = (actionItem as any)?.metadata?.legacy_id || habitId;
+
         await supabase
           .from('daily_habit_logs')
           .insert({
             user_id: user.id,
-            habit_item_id: habitId,
+            habit_item_id: habitItemId,
             track_date: today,
             is_completed: completed,
             completed_at: completed ? new Date().toISOString() : null,
@@ -83,10 +93,10 @@ export function useTodaysHabits() {
       }
     },
     onMutate: async ({ habitId, completed }) => {
-      await queryClient.cancelQueries({ queryKey: ['todays-habits', user?.id, today] });
-      const previousData = queryClient.getQueryData(['todays-habits', user?.id, today]);
+      await queryClient.cancelQueries({ queryKey: ['action-items', 'habits', user?.id, today] });
+      const previousData = queryClient.getQueryData(['action-items', 'habits', user?.id, today]);
       
-      queryClient.setQueryData(['todays-habits', user?.id, today], (old: TodayHabit[] | undefined) => 
+      queryClient.setQueryData(['action-items', 'habits', user?.id, today], (old: TodayHabit[] | undefined) => 
         old?.map(h => h.id === habitId ? { ...h, isCompleted: completed } : h)
       );
       
@@ -94,11 +104,11 @@ export function useTodaysHabits() {
     },
     onError: (err, variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['todays-habits', user?.id, today], context.previousData);
+        queryClient.setQueryData(['action-items', 'habits', user?.id, today], context.previousData);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['todays-habits'] });
+      queryClient.invalidateQueries({ queryKey: ['action-items', 'habits'] });
       queryClient.invalidateQueries({ queryKey: ['weekly-activity'] });
     },
   });
