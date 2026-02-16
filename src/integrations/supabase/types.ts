@@ -14,6 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_items: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_at: string | null
+          ego_state: string | null
+          id: string
+          metadata: Json | null
+          milestone_id: string | null
+          order_index: number
+          parent_id: string | null
+          pillar: string | null
+          plan_id: string | null
+          project_id: string | null
+          recurrence_rule: string | null
+          source: string
+          status: string
+          tags: string[] | null
+          title: string
+          token_reward: number
+          type: string
+          updated_at: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          token_reward?: number
+          type: string
+          updated_at?: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          token_reward?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_notifications: {
         Row: {
           created_at: string | null
@@ -5711,6 +5839,390 @@ export type Database = {
       }
     }
     Views: {
+      v_habits: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_at: string | null
+          ego_state: string | null
+          id: string | null
+          metadata: Json | null
+          milestone_id: string | null
+          order_index: number | null
+          parent_id: string | null
+          pillar: string | null
+          plan_id: string | null
+          project_id: string | null
+          recurrence_rule: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          title: string | null
+          token_reward: number | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_at: string | null
+          ego_state: string | null
+          id: string | null
+          metadata: Json | null
+          milestone_id: string | null
+          order_index: number | null
+          parent_id: string | null
+          pillar: string | null
+          plan_id: string | null
+          project_id: string | null
+          recurrence_rule: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          title: string | null
+          token_reward: number | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_today_actions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_at: string | null
+          ego_state: string | null
+          id: string | null
+          metadata: Json | null
+          milestone_id: string | null
+          order_index: number | null
+          parent_id: string | null
+          pillar: string | null
+          plan_id: string | null
+          project_id: string | null
+          recurrence_rule: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          title: string | null
+          token_reward: number | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          ego_state?: string | null
+          id?: string | null
+          metadata?: Json | null
+          milestone_id?: string | null
+          order_index?: number | null
+          parent_id?: string | null
+          pillar?: string | null
+          plan_id?: string | null
+          project_id?: string | null
+          recurrence_rule?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          token_reward?: number | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_user_stats: {
         Row: {
           aurora_chats: number | null
@@ -5829,6 +6341,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      migrate_to_action_items: { Args: never; Returns: string }
       notify_journey_completion: {
         Args: { p_user_id: string }
         Returns: undefined
