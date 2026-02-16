@@ -182,22 +182,22 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
       };
     }
 
-    // Priority 3: No hypnosis today
+    // Priority 5: No power-up today
     if (!didHypnosisToday) {
       return {
-        id: 'hypnosis',
+        id: 'powerup',
         icon: Brain,
         iconColor: 'text-purple-500',
         bgGradient: 'from-purple-500/20 via-purple-500/10 to-transparent',
         borderColor: 'border-purple-500/30',
         title: language === 'he'
-          ? 'היפנוזה יומית ממתינה לך'
-          : 'Your daily hypnosis awaits',
+          ? 'מפגש הכוח-על היומי שלך ממתין'
+          : 'Your daily power-up awaits',
         subtitle: language === 'he'
-          ? 'שמור על הרצף ושפר את התת-מודע'
-          : 'Maintain your streak and improve your subconscious',
+          ? 'שמור על הרצף וחזק את התוכנית'
+          : 'Maintain your streak and accelerate your plan',
         action: onOpenHypnosis,
-        actionLabel: language === 'he' ? 'התחל היפנוזה' : 'Start Hypnosis',
+        actionLabel: language === 'he' ? 'התחל כוח-על' : 'Start Power-Up',
       };
     }
 

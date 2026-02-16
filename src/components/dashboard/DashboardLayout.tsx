@@ -80,7 +80,7 @@ const DesktopLayoutContent = ({
         <button
           className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center hover:scale-110 transition-transform"
           onClick={() => setHypnosisOpen(true)}
-          title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
+          title={language === 'he' ? 'כוח-על' : 'Power-Up'}
         >
           <Compass className="h-5 w-5 text-violet-600 dark:text-violet-400" />
         </button>
@@ -176,7 +176,7 @@ const DashboardLayout = ({
                 <button
                   className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center hover:scale-110 transition-transform"
                   onClick={() => setHypnosisOpen(true)}
-                  title={language === 'he' ? 'היפנוזה' : 'Hypnosis'}
+                  title={language === 'he' ? 'כוח-על' : 'Power-Up'}
                 >
                   <Compass className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </button>

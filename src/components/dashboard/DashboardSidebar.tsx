@@ -146,15 +146,10 @@ const DashboardSidebar = ({
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple', path: '/dashboard' },
-    { id: 'projects', icon: FolderKanban, label: language === 'he' ? 'פרויקטים' : 'Projects', highlight: 'premium', path: '/projects', isPremium: true },
-    { id: 'consciousness', icon: User, label: language === 'he' ? 'תודעה' : 'Consciousness', highlight: 'blue', path: '/consciousness' },
-    { id: 'business', icon: Briefcase, label: language === 'he' ? 'עסקים' : 'Business', highlight: 'gold', path: '/business' },
-    { id: 'health', icon: Heart, label: language === 'he' ? 'בריאות' : 'Health', highlight: 'red', path: '/health' },
-    { id: 'relationships', icon: Users, label: language === 'he' ? 'קשרים' : 'Relationships', highlight: 'pink', path: '/relationships' },
-    { id: 'finances', icon: Wallet, label: language === 'he' ? 'פיננסים' : 'Finances', highlight: 'green', path: '/finances' },
-    { id: 'learning', icon: GraduationCap, label: language === 'he' ? 'למידה' : 'Learning', highlight: 'indigo', path: '/learning' },
-    { id: 'purpose', icon: Compass, label: language === 'he' ? 'ייעוד' : 'Purpose', highlight: 'fuchsia', path: '/purpose' },
-    { id: 'hobbies', icon: Palette, label: language === 'he' ? 'תחביבים' : 'Hobbies', highlight: 'teal', path: '/hobbies' },
+    { id: 'life-plan', icon: Compass, label: language === 'he' ? 'התוכנית שלי' : 'My Plan', highlight: 'gold', path: '/life-plan', isPremium: true },
+    { id: 'aurora', icon: User, label: language === 'he' ? 'מאמן Aurora' : 'Aurora Coach', highlight: 'blue', path: '/aurora' },
+    { id: 'projects', icon: FolderKanban, label: language === 'he' ? 'פרויקטים' : 'Projects', highlight: 'premium', path: '/projects' },
+    { id: 'progress', icon: Heart, label: language === 'he' ? 'התקדמות' : 'Progress', highlight: 'pink', path: '/consciousness' },
   ];
 
   const location = useLocation();

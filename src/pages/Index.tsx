@@ -9,15 +9,10 @@ import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   GameHeroSection,
-  SystemArchitectureSection,
-  LifePillarsSection,
   AuroraCoachSection,
-  HandsFreeSection,
   TransformationJourneySection,
   WhyChooseUsSection,
   TransformationProofSection,
-  FreeJourneyBannerSection,
-  FearOfMissingOutSection,
   FinalCTASection,
 } from "@/components/home";
 
@@ -79,37 +74,22 @@ const Index = () => {
       <Header />
       
       <main className="relative z-10">
-        {/* Hero - Mind OS with orbiting pillars */}
+        {/* Hero - 90-Day Transformation pitch */}
         <GameHeroSection />
         
-        {/* System Architecture - How the layers work together */}
-        <SystemArchitectureSection />
-        
-        {/* Life Pillars - Radial 7 domains around central orb */}
-        <LifePillarsSection />
-        
-        {/* Aurora Coach - Cross-pillar intelligence with conversation preview */}
-        <AuroraCoachSection />
-        
-        {/* Hands-Free Experience - Voice & Chat centric control */}
-        <HandsFreeSection />
-        
-        {/* Transformation Journey - 90-day path timeline */}
+        {/* The 3-phase transformation timeline */}
         <TransformationJourneySection />
         
-        {/* Why Choose Us - 6 Value Props */}
+        {/* Aurora Coach - AI as your daily guide */}
+        <AuroraCoachSection />
+        
+        {/* Why Choose Us - value props reframed around outcomes */}
         <WhyChooseUsSection />
         
-        {/* Transformation Proof - Before/After */}
+        {/* Social proof */}
         <TransformationProofSection />
         
-        {/* Free Journey Banner - Gift Offer */}
-        <FreeJourneyBannerSection />
-        
-        {/* FOMO - Countdown Urgency */}
-        <FearOfMissingOutSection />
-        
-        {/* Final CTA - Ultimate Closer */}
+        {/* Final CTA */}
         <FinalCTASection />
       </main>
 
