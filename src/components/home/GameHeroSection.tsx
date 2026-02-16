@@ -1,6 +1,6 @@
 /**
- * GameHeroSection - Mind OS Hero with Unified System Visualization
- * "Your Mind's Operating System" with orbiting 7 pillars around central Orb
+ * GameHeroSection - 90-Day Transformation OS Hero
+ * Sells the transformation loop, not a feature list
  */
 
 import { motion } from 'framer-motion';
@@ -16,34 +16,27 @@ import {
   GraduationCap, 
   Compass,
   Palette,
+  CalendarCheck,
   Brain,
-  AudioLines,
-  Gamepad2
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 // 8 Life Pillars for orbital visualization
 const lifePillars = [
-  { icon: User, color: 'text-blue-400', bg: 'bg-blue-500/20', name: 'Personality' },
-  { icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-500/20', name: 'Business' },
-  { icon: Heart, color: 'text-red-400', bg: 'bg-red-500/20', name: 'Health' },
-  { icon: Users, color: 'text-pink-400', bg: 'bg-pink-500/20', name: 'Relationships' },
-  { icon: Wallet, color: 'text-emerald-400', bg: 'bg-emerald-500/20', name: 'Finances' },
-  { icon: GraduationCap, color: 'text-indigo-400', bg: 'bg-indigo-500/20', name: 'Learning' },
-  { icon: Compass, color: 'text-purple-400', bg: 'bg-purple-500/20', name: 'Purpose' },
-  { icon: Palette, color: 'text-teal-400', bg: 'bg-teal-500/20', name: 'Hobbies' },
-];
-
-// System components (Aurora, Hypnosis, Gamification)
-const systemComponents = [
-  { icon: Brain, label: 'AI Coach', color: 'text-violet-400' },
-  { icon: AudioLines, label: 'Hypnosis', color: 'text-teal-400' },
-  { icon: Gamepad2, label: 'Gamification', color: 'text-amber-400' },
+  { icon: User, color: 'text-blue-400', name: 'Personality', nameHe: 'אישיות' },
+  { icon: Briefcase, color: 'text-amber-400', name: 'Business', nameHe: 'עסקים' },
+  { icon: Heart, color: 'text-red-400', name: 'Health', nameHe: 'בריאות' },
+  { icon: Users, color: 'text-pink-400', name: 'Relationships', nameHe: 'יחסים' },
+  { icon: Wallet, color: 'text-emerald-400', name: 'Finances', nameHe: 'פיננסים' },
+  { icon: GraduationCap, color: 'text-indigo-400', name: 'Learning', nameHe: 'למידה' },
+  { icon: Compass, color: 'text-purple-400', name: 'Purpose', nameHe: 'ייעוד' },
+  { icon: Palette, color: 'text-teal-400', name: 'Hobbies', nameHe: 'תחביבים' },
 ];
 
 export default function GameHeroSection() {
@@ -52,7 +45,6 @@ export default function GameHeroSection() {
   const { user } = useAuth();
   const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
   
-  // Orb animation cycle
   useEffect(() => {
     const states: Array<'idle' | 'speaking' | 'thinking'> = ['idle', 'speaking', 'thinking'];
     let index = 0;
@@ -63,10 +55,15 @@ export default function GameHeroSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll indicator
   const scrollToContent = () => {
     window.scrollTo({ top: window.innerHeight - 100, behavior: 'smooth' });
   };
+
+  const trustBadges = [
+    { icon: CalendarCheck, label: isRTL ? 'תוכנית 12 שבועות' : '12-Week Plan' },
+    { icon: Brain, label: isRTL ? 'אימון AI יומי' : 'Daily AI Coaching' },
+    { icon: TrendingUp, label: isRTL ? 'התקדמות מדידה' : 'Measurable Progress' },
+  ];
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -76,7 +73,6 @@ export default function GameHeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-primary/5 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-accent/5 via-transparent to-primary/5" />
         
-        {/* Animated gradient overlay */}
         <motion.div
           className="absolute inset-0 opacity-30"
           animate={{
@@ -122,7 +118,7 @@ export default function GameHeroSection() {
               <Sparkles className="h-4 w-4 text-primary" />
             </motion.div>
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'סטארטאפ מאמן חיים AI' : 'AI Life Coach Startup'}
+              {isRTL ? 'מערכת הפעלה לחיים' : '90-Day Transformation OS'}
             </span>
           </motion.div>
 
@@ -134,7 +130,7 @@ export default function GameHeroSection() {
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]"
           >
             <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-              {isRTL ? 'מאמן החיים החכם שלך' : 'Your AI-Powered Life Coach'}
+              {isRTL ? 'שנה את חייך ב-90 ימים' : 'Transform Your Life in 90 Days'}
             </span>
           </motion.h1>
 
@@ -146,34 +142,34 @@ export default function GameHeroSection() {
             className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
             {isRTL 
-              ? 'Mind OS משלב מאמן AI אישי, היפנוטרפיה מודרכת וגיימיפיקציה כדי לעזור לך לשלוט בכל תחום בחיים — קריירה, בריאות, מערכות יחסים, כלכלה ועוד.'
-              : 'Mind OS combines an AI coach, guided hypnotherapy, and gamification to help you master every area of your life — career, health, relationships, finances, and more.'
+              ? 'קבל מאמן AI אישי, תוכנית פעולה יומית ומפגשי כוח שבועיים — הכל עובד יחד כדי לשנות 8 תחומים בחייך.'
+              : 'Get a personalized AI coach, a daily action plan, and weekly power-up sessions — all working together to transform 8 areas of your life.'
             }
           </motion.p>
 
-          {/* Trust Badges */}
+          {/* Trust Badges - outcome-driven */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             className="flex flex-wrap items-center justify-center gap-3"
           >
-            {[
-              { emoji: '✨', label: isRTL ? 'חינם להתחלה' : 'Free to Start' },
-              { emoji: '🤖', label: isRTL ? 'מונע AI' : 'AI-Powered' },
-              { emoji: '🎯', label: isRTL ? 'תוכנית 90 יום' : '90-Day Transformation' },
-            ].map((badge) => (
-              <span
-                key={badge.label}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold
-                  bg-card/80 backdrop-blur-sm border border-border/60 text-foreground shadow-sm"
-              >
-                {badge.emoji} {badge.label}
-              </span>
-            ))}
+            {trustBadges.map((badge) => {
+              const Icon = badge.icon;
+              return (
+                <span
+                  key={badge.label}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold
+                    bg-card/80 backdrop-blur-sm border border-border/60 text-foreground shadow-sm"
+                >
+                  <Icon className="h-4 w-4 text-primary" />
+                  {badge.label}
+                </span>
+              );
+            })}
           </motion.div>
 
-          {/* Central Orb with Orbiting Pillars */}
+          {/* Central Orb with Orbiting Pillars + 90-day arc */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -191,6 +187,49 @@ export default function GameHeroSection() {
             
             {/* Orbiting 8 Pillars */}
             <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto">
+              {/* 90-Day Progress Arc (3 segments) */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400">
+                {[0, 1, 2].map((segment) => {
+                  const startAngle = -90 + segment * 120;
+                  const endAngle = startAngle + 110;
+                  const radius = 185;
+                  const cx = 200, cy = 200;
+                  const start = {
+                    x: cx + radius * Math.cos(startAngle * Math.PI / 180),
+                    y: cy + radius * Math.sin(startAngle * Math.PI / 180)
+                  };
+                  const end = {
+                    x: cx + radius * Math.cos(endAngle * Math.PI / 180),
+                    y: cy + radius * Math.sin(endAngle * Math.PI / 180)
+                  };
+                  const colors = ['hsl(var(--primary))', 'hsl(var(--accent, var(--primary)))', 'hsl(var(--primary))'];
+                  return (
+                    <motion.path
+                      key={segment}
+                      d={`M ${start.x} ${start.y} A ${radius} ${radius} 0 0 1 ${end.x} ${end.y}`}
+                      fill="none"
+                      stroke={colors[segment]}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      opacity={0.3}
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 1.5, delay: 1 + segment * 0.3 }}
+                    />
+                  );
+                })}
+                {/* Month labels */}
+                {[
+                  { label: isRTL ? 'חודש 1' : 'Month 1', x: 200, y: 8 },
+                  { label: isRTL ? 'חודש 2' : 'Month 2', x: 370, y: 360 },
+                  { label: isRTL ? 'חודש 3' : 'Month 3', x: 30, y: 360 },
+                ].map((m) => (
+                  <text key={m.label} x={m.x} y={m.y} textAnchor="middle" className="fill-muted-foreground text-[11px] font-medium">
+                    {m.label}
+                  </text>
+                ))}
+              </svg>
+
               {/* Orbital Track */}
               <div className="absolute inset-0 rounded-full border border-border/30" />
               
@@ -201,11 +240,8 @@ export default function GameHeroSection() {
                 transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
               >
                 {lifePillars.map((pillar, index) => {
-                  const Icon = pillar.icon;
                   const angle = (index * (360 / lifePillars.length)) * (Math.PI / 180);
-                  const radius = 140; // sm radius
-                  const x = Math.cos(angle) * radius + 160;
-                  const y = Math.sin(angle) * radius + 160;
+                  const radius = 140;
                   
                   return (
                     <motion.div
@@ -214,19 +250,22 @@ export default function GameHeroSection() {
                         "absolute w-11 h-11 sm:w-12 sm:h-12 rounded-xl",
                         "flex items-center justify-center",
                         "bg-card/90 backdrop-blur-sm border border-border/50",
-                        "shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                        "shadow-lg hover:scale-110 transition-transform cursor-pointer group"
                       )}
                       style={{ 
                         left: `calc(50% + ${Math.cos(angle) * radius}px - 22px)`,
                         top: `calc(50% + ${Math.sin(angle) * radius}px - 22px)`,
                       }}
-                      // Counter-rotate to keep icons upright
                       animate={{ rotate: -360 }}
                       transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                       whileHover={{ scale: 1.2 }}
-                      title={pillar.name}
+                      title={isRTL ? pillar.nameHe : pillar.name}
                     >
-                      <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", pillar.color)} />
+                      <pillar.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", pillar.color)} />
+                      {/* Hover label */}
+                      <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        {isRTL ? pillar.nameHe : pillar.name}
+                      </span>
                     </motion.div>
                   );
                 })}
@@ -235,7 +274,6 @@ export default function GameHeroSection() {
               {/* Central Orb */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
-                  {/* Pulsing rings */}
                   {[1, 2].map((ring) => (
                     <motion.div
                       key={ring}
@@ -267,38 +305,6 @@ export default function GameHeroSection() {
                 </div>
               </div>
             </div>
-            
-            {/* System Components Labels - Below Orb */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="flex items-center justify-center gap-4 sm:gap-6 mt-8"
-            >
-              {systemComponents.map((comp, i) => {
-                const Icon = comp.icon;
-                return (
-                  <motion.div
-                    key={comp.label}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50"
-                    whileHover={{ scale: 1.05 }}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 + i * 0.1 }}
-                  >
-                    <Icon className={cn("h-4 w-4", comp.color)} />
-                    <span className="text-xs sm:text-sm font-medium text-foreground">
-                      {isRTL 
-                        ? comp.label === 'AI Coach' ? 'מאמן AI' 
-                          : comp.label === 'Hypnosis' ? 'היפנוזה' 
-                          : 'גיימיפיקציה'
-                        : comp.label
-                      }
-                    </span>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
           </motion.div>
 
           {/* CTA Buttons */}
@@ -308,7 +314,6 @@ export default function GameHeroSection() {
             transition={{ duration: 0.6, delay: 1.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
-            {/* Primary CTA - Free Journey */}
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
@@ -322,9 +327,8 @@ export default function GameHeroSection() {
                   border-0 transition-all duration-300"
               >
                 <Sparkles className={cn("h-6 w-6", isRTL ? "ml-3" : "mr-3")} />
-                {isRTL ? '🎁 התחל מסע חינם' : '🎁 Start Free Journey'}
+                {isRTL ? '🚀 התחל טרנספורמציה (חינם)' : '🚀 Start Your 90-Day Transformation (Free)'}
                 
-                {/* Shine effect */}
                 <motion.div
                   className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/25 to-white/0"
                   animate={{ x: ['-100%', '200%'] }}
@@ -333,7 +337,6 @@ export default function GameHeroSection() {
               </Button>
             </motion.div>
             
-            {/* Secondary CTA */}
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"

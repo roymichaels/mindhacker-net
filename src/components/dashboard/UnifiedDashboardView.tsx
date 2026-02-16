@@ -16,6 +16,7 @@ import {
   TodaysHabitsCard,
   PlanProgressCard,
   GoalsCard,
+  PlanProgressHero,
 } from './v2';
 import { ChecklistsCard } from './unified';
 import { DashboardBannerSlider } from './DashboardBannerSlider';
@@ -85,24 +86,26 @@ export function UnifiedDashboardView({
         onOpenChat={onOpenChat}
       />
 
+      {/* Zone 2: Plan Progress Hero - The spine */}
+      <PlanProgressHero />
 
-      {/* Zone 2: Stats Grid - Level, Streak, Weekly XP, Tokens */}
+      {/* Zone 3: Stats Grid - Level, Streak, Weekly XP, Tokens */}
       <StatsGrid />
 
-      {/* Zone 3: Life Analysis Chart */}
-      <LifeAnalysisChart />
-
-      {/* Zone 4: Tasks & Goals */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <ChecklistsCard />
-        <GoalsCard />
-      </div>
-
-      {/* Zone 5: Habits + Plan Progress (2 columns on desktop) */}
+      {/* Zone 4: Daily actions + Tasks (from the plan) */}
       <div className="grid gap-4 md:grid-cols-2">
         <TodaysHabitsCard />
+        <ChecklistsCard />
+      </div>
+
+      {/* Zone 5: Goals + Power-Up (plan milestones + hypnosis accelerator) */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <GoalsCard />
         <PlanProgressCard />
       </div>
+
+      {/* Zone 6: Life Analysis - Your 8 Dimensions */}
+      <LifeAnalysisChart />
     </div>
   );
 }
