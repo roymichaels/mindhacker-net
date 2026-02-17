@@ -368,7 +368,9 @@ const App = () => (
                           path="/projects"
                           element={
                             <ProtectedRoute>
-                              <Projects />
+                              <DashboardLayout>
+                                <Projects />
+                              </DashboardLayout>
                             </ProtectedRoute>
                           }
                         />
@@ -377,8 +379,10 @@ const App = () => (
                           path="/marketplace"
                           element={
                             <ProtectedRoute>
-                              <Marketplace />
-                              </ProtectedRoute>
+                              <DashboardLayout>
+                                <Marketplace />
+                              </DashboardLayout>
+                            </ProtectedRoute>
                           }
                         />
                         {/* Launchpad redirects to onboarding */}
