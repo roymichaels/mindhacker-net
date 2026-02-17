@@ -90,7 +90,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6" dir={isHe ? 'rtl' : 'ltr'}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -105,7 +105,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             transition={{ delay: 0.2 }}
           >
             <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-foreground">
               {isHe ? 'מסלול השדרוג האישי שלך מוכן' : 'Your Personalized Upgrade Path is Ready'}
             </h1>
           </motion.div>
@@ -113,28 +113,26 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
 
         {/* Reveal cards */}
         <div className="space-y-3">
-          {/* Focus area */}
           <motion.div
             initial={{ opacity: 0, x: isHe ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="rounded-2xl bg-white/5 border border-white/10 p-4 text-start"
+            className="rounded-2xl bg-muted/50 border border-border p-4 text-start"
           >
-            <p className="text-sm text-white/50 mb-1">{isHe ? 'תחום מיקוד' : 'Focus Area'}</p>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-sm text-muted-foreground mb-1">{isHe ? 'תחום מיקוד' : 'Focus Area'}</p>
+            <p className="text-lg font-semibold text-foreground">
               {pillarInfo.icon} {isHe ? pillarInfo.he : pillarInfo.en}
             </p>
           </motion.div>
 
-          {/* Friction type */}
           <motion.div
             initial={{ opacity: 0, x: isHe ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
-            className="rounded-2xl bg-white/5 border border-white/10 p-4 text-start"
+            className="rounded-2xl bg-muted/50 border border-border p-4 text-start"
           >
-            <p className="text-sm text-white/50 mb-1">{isHe ? 'חיכוך שזוהה' : 'Detected Friction'}</p>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-sm text-muted-foreground mb-1">{isHe ? 'חיכוך שזוהה' : 'Detected Friction'}</p>
+            <p className="text-lg font-semibold text-foreground">
               {(() => {
                 const tension = answers.specific_tension;
                 if (Array.isArray(tension)) return tension.map(t => String(t).replace(/_/g, ' ')).join(', ');
@@ -143,20 +141,18 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             </p>
           </motion.div>
 
-          {/* Commitment */}
           <motion.div
             initial={{ opacity: 0, x: isHe ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
-            className="rounded-2xl bg-white/5 border border-white/10 p-4 text-start"
+            className="rounded-2xl bg-muted/50 border border-border p-4 text-start"
           >
-            <p className="text-sm text-white/50 mb-1">{isHe ? 'רמת מחויבות' : 'Commitment Level'}</p>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-sm text-muted-foreground mb-1">{isHe ? 'רמת מחויבות' : 'Commitment Level'}</p>
+            <p className="text-lg font-semibold text-foreground">
               {isHe ? commitmentLabels[commitmentLevel]?.he : commitmentLabels[commitmentLevel]?.en}
             </p>
           </motion.div>
 
-          {/* Suggested quest + habit */}
           <motion.div
             initial={{ opacity: 0, x: isHe ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -164,10 +160,10 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             className="rounded-2xl bg-primary/10 border border-primary/30 p-4 text-start space-y-2"
           >
             <p className="text-sm text-primary/70 mb-1">{isHe ? 'מה מחכה לך' : 'What awaits you'}</p>
-            <p className="text-base font-semibold text-white">
+            <p className="text-base font-semibold text-foreground">
               🎯 {isHe ? suggestions.quest_he : suggestions.quest_en}
             </p>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-muted-foreground">
               ⚡ {isHe ? suggestions.habit_he : suggestions.habit_en}
             </p>
           </motion.div>
@@ -182,7 +178,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           <button
             onClick={handleEnterSystem}
             disabled={isLoading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
