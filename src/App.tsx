@@ -71,6 +71,7 @@ const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 
 const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
+const Start = lazy(() => import("./pages/Start"));
 // LifePlan route removed — consolidated into PlanTab
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
@@ -220,9 +221,11 @@ const App = () => (
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                        {/* Free journey redirects to launchpad (login required) */}
-                        <Route path="/free-journey" element={<Navigate to="/launchpad" replace />} />
-                        <Route path="/free-journey/start" element={<Navigate to="/launchpad" replace />} />
+                        {/* Unified activation flow */}
+                        <Route path="/start" element={<Start />} />
+                        {/* Legacy redirects */}
+                        <Route path="/free-journey" element={<Navigate to="/start" replace />} />
+                        <Route path="/free-journey/start" element={<Navigate to="/start" replace />} />
                         <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
                         {/* Practitioner directory (public) */}
                         <Route path="/practitioners" element={<Practitioners />} />
@@ -403,8 +406,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Launchpad is public — auth gating happens at step 11 */}
-                        <Route path="/launchpad" element={<Launchpad />} />
+                        {/* Launchpad redirects to unified /start */}
+                        <Route path="/launchpad" element={<Navigate to="/start" replace />} />
                         <Route
                           path="/launchpad/complete"
                           element={
@@ -413,15 +416,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Pillar Quests */}
-                        <Route
-                          path="/quests"
-                          element={
-                            <ProtectedRoute>
-                              <QuestsPage />
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Pillar Quests — redirect to /start */}
+                        <Route path="/quests" element={<Navigate to="/start" replace />} />
                         <Route
                           path="/quests/:pillar"
                           element={
