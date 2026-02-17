@@ -1,77 +1,110 @@
 
+# Ultra-Compact UI Pass v2
 
-# Compact UI Pass — Reduce Scrolling Across All Pages
+## Goal
+Dramatically reduce vertical space consumption across all 4 tab pages so most content fits on one screen without scrolling.
 
-## Problem
-The V2 upgrade over-inflated padding, gaps, and element sizes. Every page now requires excessive scrolling. The goal is to tighten everything so more content fits on screen without losing the visual hierarchy.
+## Strategy
+1. **Collapse vertical gaps** -- `space-y-4` to `space-y-2` everywhere
+2. **Shrink banners and heroes** -- reduce padding, font sizes, remove decorative elements
+3. **Use inline/horizontal layouts** instead of stacked vertical ones
+4. **Reduce card chrome** -- smaller headers, tighter padding
+5. **Compact the Profile page** -- smaller orb, inline stats, collapse cards
 
-## Changes
+## Changes by File
 
-### 1. Global Components (Aurora UI)
+### 1. Global: `PageShell.tsx`
+- Padding: `py-4 md:py-6 pb-14` stays but pass `space-y-2` as default gap
 
-**PageShell.tsx**
-- Padding: `py-8 md:py-10 pb-16` → `py-4 md:py-6 pb-14`
+### 2. Today Page: `TodayTab.tsx`
+- Root gap: `space-y-4` to `space-y-2`
+- Grid gap: `gap-4` to `gap-2`
 
-**HeroBanner.tsx**
-- Padding: `p-8 md:p-10` → `p-5 md:p-6`
-- Title: `text-2xl md:text-3xl` → `text-xl md:text-2xl`
-- Subtitle leading: `leading-7` → `leading-6`
+### 3. Banner Slider: `DashboardBannerSlider.tsx`
+- Banner padding: `p-4 sm:p-5` to `p-3 sm:p-4`
+- Icon container: `p-2.5 sm:p-3` to `p-2`; icon: `w-6 h-6 sm:w-7 sm:h-7` to `w-5 h-5`
+- Title: `text-lg sm:text-xl` to `text-base sm:text-lg`
+- Subtitle: `text-sm sm:text-base` to `text-xs sm:text-sm`
+- Dot indicators margin: `mt-3` to `mt-1.5`
 
-**SectionHeader.tsx**
-- Bottom margin: `mb-4` → `mb-2`
+### 4. NextActionBanner
+- CardContent padding: `p-4 sm:p-5` to `p-3`
+- Icon container: `p-2.5 sm:p-3` to `p-2`; icon: `h-5 w-5 sm:h-6 sm:w-6` to `h-4 w-4`
+- Remove the "Your Next Action" label line to save a row
+- Title: `text-sm sm:text-lg` to `text-sm`
+- Subtitle: keep `text-xs`
 
-**MetricCard.tsx**
-- Padding: `p-4 md:p-5` → `p-3 md:p-4`
-- Value text: `text-2xl` → `text-xl`
-- Icon container: `w-9 h-9 mb-1.5` → `w-7 h-7 mb-1`
+### 5. Habits Card: `TodaysHabitsCard.tsx`
+- CardHeader: `px-4 pt-4` to `px-3 pt-3`
+- CardContent: `px-4 pb-4` to `px-3 pb-3`
+- Title: `text-lg` to `text-sm`; icon `h-5 w-5` to `h-4 w-4`
+- Habit row padding: `p-3` to `py-2 px-2.5`
+- Progress bar height: `h-2.5` to `h-1.5`
 
-**GradientCTAButton.tsx**
-- Height: `h-14` → `h-11`
+### 6. Checklists Card: `ChecklistsCard.tsx`
+- Header padding: `p-4` to `p-3`
+- Title: `text-lg` to `text-sm`
+- Icon container: `p-2` to `p-1.5`; icon `w-5 h-5` to `w-4 h-4`
+- Checklist row padding: `p-3` to `py-2 px-3`
+- Item padding: `p-3` to `py-2 px-2.5`
+- XP reminder padding: `p-3` to `p-2`
 
-### 2. Today Page (TodayTab.tsx)
-- Root gap: `space-y-8` → `space-y-4`
-- Grid gap: `gap-6` → `gap-4`
+### 7. Plan Page: `PlanTab.tsx`
+- Root gap: `space-y-4` to `space-y-2`
+- Missions card padding: `p-4` to `p-3`
 
-### 3. Plan Page (PlanTab.tsx)
-- Root gap: `space-y-8` → `space-y-4`
-- Missions section: `space-y-4` → `space-y-2`
-- Missions card padding: `p-6` → `p-4`
+### 8. PlanProgressHero
+- CardContent padding: `p-5 sm:p-6` to `p-3 sm:p-4`
+- Week indicator: `w-20 h-20` to `w-16 h-16`; week number `text-2xl` to `text-xl`
+- Current milestone padding: `p-2.5` to `p-2`
 
-### 4. Sessions Page (HypnosisLibrary.tsx)
-- Root gap: `space-y-8` → `space-y-4`
-- Page header title: `text-3xl` → `text-2xl`
-- Daily Session Hero: `p-8 md:p-10` → `p-5 md:p-6`, title `text-2xl md:text-3xl` → `text-xl md:text-2xl`, reduce inner margins
-- Quick session cards: `p-6 min-h-[120px]` → `p-4 min-h-[88px]`
-- CTA button inside hero: `h-14` → `h-11`
+### 9. Life Analysis Chart: `LifeAnalysisChart.tsx`
+- Chart size: `h-[150px] w-[150px] sm:h-[180px] sm:w-[180px]` to `h-[120px] w-[120px] sm:h-[140px] sm:w-[140px]`
+- Inner/outer radius: `50/75` to `40/60`
 
-### 5. Me/Profile Page (ProfileContent.tsx)
-- Root gap: `space-y-8` → `space-y-4`
-- Identity hero: `p-8 md:p-10` → `p-5 md:p-6`, orb size 200 → 140, name `text-3xl` → `text-2xl`
-- Level/tokens chips: `px-4 py-2 text-base` → `px-3 py-1.5 text-sm`
-- AuroraCard header: `px-5 py-4` → `px-4 py-3`, title `text-base` → `text-sm`
-- AuroraCard body: `p-5` → `p-4`
-- Insights grid icons: `w-6 h-6` → `w-5 h-5`, button padding `p-4` → `p-3`
-- CTA section: `pt-4 pb-6` → `pt-2 pb-4`
+### 10. Sessions Page: `HypnosisLibrary.tsx`
+- Root gap: `space-y-4` to `space-y-2`
+- Page header: reduce `mt-1` gap, combine title + subtitle on one line or reduce subtitle
+- Daily Session Hero: `p-5 md:p-6` to `p-4`; title `text-xl md:text-2xl` to `text-lg`; remove `mb-4` on description, button height `h-11` to `h-9`
+- Quick session cards: `min-h-[88px]` to `min-h-0`; padding `p-4` to `p-3`; emoji `text-2xl` to `text-lg`; title `text-base` to `text-sm`; gap `mb-3` to `mb-1.5`
 
-### 6. Checklists Card (ChecklistsCard.tsx)
-- Header: `p-5` → `p-4`
-- Checklist row: `p-5` → `p-3`
-- Item: `p-4` → `p-3`
+### 11. Session Stats: `SessionStats.tsx`
+- Card padding: `p-3` to `p-2`
+- Value text: `text-lg` to `text-base`
 
-### 7. Habits Card (TodaysHabitsCard.tsx)
-- Header/content: `px-6 pt-6 pb-6` → `px-4 pt-4 pb-4`
-- Habit rows: `p-4` → `p-3`
+### 12. Profile Page: `ProfileContent.tsx`
+- Root gap: `space-y-4` to `space-y-2`
+- Hero padding: `p-5 md:p-6` to `p-4`
+- Orb size: `140` to `100`; margin `mb-4` to `mb-2`
+- Name: `text-2xl` to `text-xl`
+- Stats chips: `gap-4` to `gap-2`; `px-3 py-1.5` to `px-2 py-1`; text `text-sm` to `text-xs`
+- MetricCard grid gap: `gap-4` to `gap-2`
+- AuroraCard header: `px-4 py-3` to `px-3 py-2`
+- AuroraCard body: `p-4` to `p-3`
+- Insights grid: `gap-3` to `gap-2`; button `p-3` to `p-2`; icons `w-5 h-5` to `w-4 h-4`
+- CTA section: `pt-2 pb-4` to `pt-1 pb-2`; space-y `3` to `2`
 
-## Files Modified (11)
-- `src/components/aurora-ui/PageShell.tsx`
-- `src/components/aurora-ui/HeroBanner.tsx`
-- `src/components/aurora-ui/SectionHeader.tsx`
-- `src/components/aurora-ui/MetricCard.tsx`
-- `src/components/aurora-ui/GradientCTAButton.tsx`
-- `src/pages/TodayTab.tsx`
-- `src/pages/PlanTab.tsx`
-- `src/pages/HypnosisLibrary.tsx`
-- `src/components/dashboard/ProfileContent.tsx`
-- `src/components/dashboard/v2/TodaysHabitsCard.tsx`
-- `src/components/dashboard/unified/ChecklistsCard.tsx`
+### 13. Aurora UI Components
+- **MetricCard**: `p-3 md:p-4` to `p-2`; value `text-xl` to `text-lg`; icon `w-7 h-7` to `w-6 h-6`
+- **SectionHeader**: `mb-2` to `mb-1`
+- **GradientCTAButton**: `h-11` to `h-9`; text `text-sm` to `text-xs`
 
+## Technical Details
+
+### Files Modified (13)
+1. `src/pages/TodayTab.tsx`
+2. `src/pages/PlanTab.tsx`
+3. `src/pages/HypnosisLibrary.tsx`
+4. `src/components/dashboard/ProfileContent.tsx`
+5. `src/components/dashboard/DashboardBannerSlider.tsx`
+6. `src/components/dashboard/v2/NextActionBanner.tsx`
+7. `src/components/dashboard/v2/TodaysHabitsCard.tsx`
+8. `src/components/dashboard/unified/ChecklistsCard.tsx`
+9. `src/components/dashboard/v2/PlanProgressHero.tsx`
+10. `src/components/dashboard/v2/LifeAnalysisChart.tsx`
+11. `src/components/hypnosis/SessionStats.tsx`
+12. `src/components/aurora-ui/MetricCard.tsx`
+13. `src/components/aurora-ui/SectionHeader.tsx`
+14. `src/components/aurora-ui/GradientCTAButton.tsx`
+
+All changes are CSS class adjustments only -- no logic or structure changes.
