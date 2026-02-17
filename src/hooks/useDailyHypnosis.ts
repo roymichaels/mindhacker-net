@@ -76,7 +76,7 @@ export function useDailyHypnosis(): DailyHypnosisContext {
             .from('launchpad_summaries')
             .select('summary_data')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
+            .order('generated_at', { ascending: false })
             .limit(1)
             .single(),
           // Life plan
