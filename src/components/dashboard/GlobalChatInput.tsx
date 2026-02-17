@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,7 +27,7 @@ const GlobalChatInput = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  const { sendMessageRef, isStreaming, setIsChatExpanded } = useAuroraChatContext();
+  const { sendMessageRef, isStreaming, isChatExpanded, setIsChatExpanded } = useAuroraChatContext();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -199,6 +200,19 @@ const GlobalChatInput = () => {
             >
               <Plus className="w-5 h-5 text-muted-foreground transition-transform" />
             </button>
+
+          {/* Aurora branding button - expands chat */}
+          <button
+            type="button"
+            onClick={() => setIsChatExpanded(!isChatExpanded)}
+            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+          >
+            <AuroraOrbIcon className="w-4 h-4" size={16} />
+            <span className="text-xs font-medium text-muted-foreground">Aurora</span>
+            {isStreaming && (
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+            )}
+          </button>
 
             {/* Attach Menu Popover */}
             <AnimatePresence>
