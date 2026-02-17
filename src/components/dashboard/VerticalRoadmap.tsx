@@ -5,7 +5,8 @@
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { Check, MapPin } from 'lucide-react';
+import { Check, MapPin, Rocket } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 
@@ -35,8 +36,9 @@ interface MilestoneData {
 }
 
 export function VerticalRoadmap() {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { milestones, currentWeek, isLoading, hasLifePlan } = useLifePlanWithMilestones();
+  const navigate = useNavigate();
   const isHe = language === 'he';
   const isDesktop = useIsDesktop();
 
@@ -52,9 +54,16 @@ export function VerticalRoadmap() {
 
   if (!hasLifePlan || milestones.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        <MapPin className="w-6 h-6 mx-auto mb-2 text-amber-500/50" />
-        <p>{isHe ? 'אין עדיין תוכנית פעילה' : 'No active plan yet'}</p>
+      <div className="flex flex-col items-center justify-center text-center py-8 gap-3">
+        <MapPin className="w-6 h-6 text-muted-foreground/50" />
+        <p className="text-sm text-muted-foreground">{t('dashboard.progress.noPlan')}</p>
+        <button
+          onClick={() => navigate('/launchpad')}
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-rose-400 px-5 py-2.5 text-sm font-bold text-primary-foreground hover:brightness-110 active:brightness-90 transition-all shadow-sm"
+        >
+          <Rocket className="w-4 h-4" />
+          {t('dashboard.progress.startPlan')}
+        </button>
       </div>
     );
   }
