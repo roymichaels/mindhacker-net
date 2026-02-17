@@ -91,7 +91,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   return (
     <div className="space-y-3">
       {/* ===== 2-COL GRID: HUD + Plan ===== */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-stretch">
 
         {/* ===== COL 1 - HUD ===== */}
         <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full">
@@ -139,7 +139,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div className="space-y-2 flex flex-col">
+        <div className="flex flex-col gap-2 h-full">
           {/* Start Session button */}
           <button
             onClick={handleStartDailySession}
@@ -258,7 +258,7 @@ function CollapsiblePlanRow({
   icon, title, count, countSuffix, badge, badgeExtra, isOpen, onToggle, previewText, items, progressPercent,
 }: CollapsiblePlanRowProps) {
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-border bg-card overflow-hidden flex-1 flex flex-col">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent/5 transition-colors"
