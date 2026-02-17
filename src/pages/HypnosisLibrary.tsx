@@ -74,16 +74,13 @@ const HypnosisLibrary = () => {
   };
 
   return (
-    <PageShell className="space-y-4">
-
-
-
+    <PageShell className="space-y-2">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-xl font-semibold">
           {language === 'he' ? 'סשנים' : 'Sessions'}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground">
           {language === 'he' ? 'סשנים מותאמים אישית לפי הפרופיל שלך' : 'Sessions personalized to your profile'}
         </p>
       </div>
@@ -97,7 +94,7 @@ const HypnosisLibrary = () => {
         animate={{ opacity: 1, y: 0 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "relative overflow-hidden rounded-2xl p-5 md:p-6 cursor-pointer",
+          "relative overflow-hidden rounded-2xl p-4 cursor-pointer",
           "bg-gradient-to-br active:brightness-95 transition-all",
           "from-primary to-primary/80"
         )}
@@ -121,12 +118,12 @@ const HypnosisLibrary = () => {
             </div>
           </div>
           
-          <h3 className="text-xl md:text-2xl font-semibold mb-2">
+          <h3 className="text-lg font-semibold mb-1">
             {language === 'he' ? 'הסשן המותאם אישית שלך להיום' : 'Your Personalized Session for Today'}
           </h3>
           
           {currentMilestone && (
-            <div className="flex items-center gap-2 mb-3 text-sm opacity-90">
+            <div className="flex items-center gap-2 mb-2 text-sm opacity-90">
               <Target className="w-4 h-4" />
               <span>
                 {language === 'he' ? 'יעד השבוע:' : 'This week:'} {currentMilestone.title}
@@ -134,7 +131,7 @@ const HypnosisLibrary = () => {
             </div>
           )}
           
-          <p className="text-sm leading-6 opacity-90 mb-4 max-w-md">
+          <p className="text-xs leading-5 opacity-90 mb-3 max-w-md">
             {language === 'he' 
               ? 'סקריפט AI מותאם אישית על בסיס הפרופיל שלך, תוכנית ה-90 יום והמטרות השבועיות'
               : 'AI script personalized based on your profile, 90-day plan and weekly goals'
@@ -143,7 +140,7 @@ const HypnosisLibrary = () => {
           
           <Button
             size="sm"
-            className="gap-2 h-11 text-sm touch-manipulation bg-background/90 text-foreground hover:bg-background border border-border/50"
+            className="gap-2 h-9 text-xs touch-manipulation bg-background/90 text-foreground hover:bg-background border border-border/50"
           >
             <Play className="w-5 h-5" />
             {language === 'he' ? 'התחל סשן יומי' : 'Start Daily Session'}
@@ -161,7 +158,7 @@ const HypnosisLibrary = () => {
           icon={Zap}
           title={language === 'he' ? 'סשנים מהירים' : 'Quick Sessions'}
         />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {QUICK_SESSIONS.map((session, index) => (
             <motion.div
               key={session.id}
@@ -172,9 +169,9 @@ const HypnosisLibrary = () => {
             >
               <Card
                 className={cn(
-                  "relative overflow-hidden p-4 cursor-pointer",
+                  "relative overflow-hidden p-3 cursor-pointer",
                   "hover:shadow-lg transition-all active:scale-95",
-                  "touch-manipulation min-h-[88px]"
+                  "touch-manipulation"
                 )}
                 onClick={() => handleStartSession(session.id, session.duration)}
               >
@@ -185,14 +182,14 @@ const HypnosisLibrary = () => {
                   )}
                 />
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{session.icon}</span>
+                  <div className="flex items-start justify-between mb-1.5">
+                    <span className="text-lg">{session.icon}</span>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
                       {session.duration} {language === 'he' ? 'דק׳' : 'min'}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-base">
+                  <h3 className="font-semibold text-sm">
                     {language === 'he' ? session.titleHe : session.titleEn}
                   </h3>
                 </div>

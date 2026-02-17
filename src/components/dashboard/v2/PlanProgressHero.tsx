@@ -108,15 +108,15 @@ export function PlanProgressHero() {
       animate={{ opacity: 1, y: 0 }}
     >
       <Card className="overflow-hidden bg-gradient-to-br from-primary/5 via-transparent to-accent/5 border-primary/20">
-        <CardContent className="p-5 sm:p-6" dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <CardContent className="p-3 sm:p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {/* Week indicator */}
             <div className="flex-shrink-0 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center">
-                <span className="text-xs text-muted-foreground font-medium">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-muted-foreground font-medium">
                   {language === 'he' ? 'שבוע' : 'Week'}
                 </span>
-                <span className="text-2xl font-black text-primary">
+                <span className="text-xl font-black text-primary">
                   {planData.currentWeek}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
@@ -153,7 +153,7 @@ export function PlanProgressHero() {
 
               {/* Current milestone */}
               {planData.currentMilestone && (
-                <div className="p-2.5 rounded-lg bg-muted/50 border border-border/50">
+                <div className="p-2 rounded-lg bg-muted/50 border border-border/50">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-0.5">
                     {language === 'he' ? 'אבן הדרך הנוכחית' : 'Current Milestone'}
                   </p>

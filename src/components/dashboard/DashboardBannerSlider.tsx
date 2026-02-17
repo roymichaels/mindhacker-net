@@ -159,7 +159,7 @@ export function DashboardBannerSlider() {
             return (
               <div key={banner.id} className="flex-[0_0_100%] min-w-0">
                 <div className={cn(
-                  "relative overflow-hidden rounded-xl p-4 sm:p-5",
+                  "relative overflow-hidden rounded-xl p-3 sm:p-4",
                   "bg-gradient-to-br", banner.gradient,
                   "text-white"
                 )}>
@@ -170,15 +170,15 @@ export function DashboardBannerSlider() {
                   <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-[1px]" />
 
                   {/* Content */}
-                  <div className="relative z-10 flex items-center gap-3 sm:gap-4">
-                    <div className={cn("shrink-0 p-2.5 sm:p-3 rounded-xl", banner.accentColor, "backdrop-blur-sm")}>
-                      <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  <div className="relative z-10 flex items-center gap-3">
+                    <div className={cn("shrink-0 p-2 rounded-xl", banner.accentColor, "backdrop-blur-sm")}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg sm:text-xl font-bold tracking-tight leading-tight drop-shadow-sm">
+                      <h3 className="text-base sm:text-lg font-bold tracking-tight leading-tight drop-shadow-sm">
                         {t(banner.titleKey)}
                       </h3>
-                      <p className="text-sm sm:text-base text-white/75 mt-0.5 leading-snug">
+                      <p className="text-xs sm:text-sm text-white/75 mt-0.5 leading-snug">
                         {t(banner.subtitleKey)}
                       </p>
                     </div>
@@ -191,7 +191,7 @@ export function DashboardBannerSlider() {
       </div>
 
       {/* Dot indicators */}
-      <div className="flex justify-center gap-1.5 mt-3">
+      <div className="flex justify-center gap-1.5 mt-1.5">
         {banners.map((banner, index) => (
           <button
             key={banner.id}

@@ -110,9 +110,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   }
 
   return (
-    <div className="space-y-4">
-
-
+    <div className="space-y-2">
       {/* ===== HERO SECTION - Identity Card ===== */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -121,15 +119,15 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 backdrop-blur-xl border border-primary/30 shadow-xl"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-        <div className="relative z-10 p-5 md:p-6 flex flex-col items-center text-center">
-          <div className="relative mb-4">
+        <div className="relative z-10 p-4 flex flex-col items-center text-center">
+          <div className="relative mb-2">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-2xl scale-110" />
-            <PersonalizedOrb size={140} state="idle" />
+            <PersonalizedOrb size={100} state="idle" />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             {dashboardData.identityTitle ? (
               <>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent flex items-center justify-center gap-2">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent flex items-center justify-center gap-2">
                   <span>{dashboardData.identityTitle.icon}</span>
                   <span>{language === 'he' ? dashboardData.identityTitle.title : dashboardData.identityTitle.titleEn}</span>
                 </h2>
@@ -143,18 +141,18 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
               </h2>
             )}
           </div>
-          <div className="flex items-center justify-center gap-4 text-sm">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
-              <Star className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm font-semibold">Lv.{dashboardData.level}</span>
+          <div className="flex items-center justify-center gap-2 text-xs">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
+              <Star className="w-3.5 h-3.5 text-yellow-500" />
+              <span className="text-xs font-semibold">Lv.{dashboardData.level}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
-              <Gem className="w-4 h-4 text-purple-500" />
-              <span className="text-sm font-semibold">{dashboardData.tokens}</span>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
+              <Gem className="w-3.5 h-3.5 text-purple-500" />
+              <span className="text-xs font-semibold">{dashboardData.tokens}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-semibold">{dashboardData.streak}</span>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
+              <Flame className="w-3.5 h-3.5 text-orange-500" />
+              <span className="text-xs font-semibold">{dashboardData.streak}</span>
             </div>
           </div>
         </div>
@@ -165,7 +163,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-3 gap-4"
+        className="grid grid-cols-3 gap-2"
       >
         <MetricCard 
           icon={<Zap className="w-4 h-4" />}
@@ -325,21 +323,21 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           icon={<Brain className="w-4 h-4 text-primary" />}
           title={language === 'he' ? 'התובנות שלי' : 'My Insights'}
         >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-2">
             {([
-              { key: 'ai' as ModalType, icon: <Sparkles className="w-5 h-5" />, label: language === 'he' ? 'ניתוח AI' : 'AI Analysis' },
-              { key: 'plan' as ModalType, icon: <Calendar className="w-5 h-5" />, label: language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan' },
-              { key: 'consciousness' as ModalType, icon: <Brain className="w-5 h-5" />, label: language === 'he' ? 'מפת תודעה' : 'Consciousness' },
-              { key: 'identity' as ModalType, icon: <UserCircle className="w-5 h-5" />, label: language === 'he' ? 'כרטיס זהות' : 'Identity Card' },
-              { key: 'traits' as ModalType, icon: <Heart className="w-5 h-5" />, label: language === 'he' ? 'תכונות אופי' : 'Traits' },
-              { key: 'behavioral' as ModalType, icon: <Activity className="w-5 h-5" />, label: language === 'he' ? 'תובנות' : 'Insights' },
-              { key: 'commitments' as ModalType, icon: <Target className="w-5 h-5" />, label: language === 'he' ? 'התחייבויות' : 'Commitments' },
-              { key: 'anchors' as ModalType, icon: <Anchor className="w-5 h-5" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
+              { key: 'ai' as ModalType, icon: <Sparkles className="w-4 h-4" />, label: language === 'he' ? 'ניתוח AI' : 'AI Analysis' },
+              { key: 'plan' as ModalType, icon: <Calendar className="w-4 h-4" />, label: language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan' },
+              { key: 'consciousness' as ModalType, icon: <Brain className="w-4 h-4" />, label: language === 'he' ? 'מפת תודעה' : 'Consciousness' },
+              { key: 'identity' as ModalType, icon: <UserCircle className="w-4 h-4" />, label: language === 'he' ? 'כרטיס זהות' : 'Identity Card' },
+              { key: 'traits' as ModalType, icon: <Heart className="w-4 h-4" />, label: language === 'he' ? 'תכונות אופי' : 'Traits' },
+              { key: 'behavioral' as ModalType, icon: <Activity className="w-4 h-4" />, label: language === 'he' ? 'תובנות' : 'Insights' },
+              { key: 'commitments' as ModalType, icon: <Target className="w-4 h-4" />, label: language === 'he' ? 'התחייבויות' : 'Commitments' },
+              { key: 'anchors' as ModalType, icon: <Anchor className="w-4 h-4" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
             ]).map((tool) => (
               <button
                 key={tool.key}
                 onClick={() => setActiveModal(tool.key)}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[44px]"
+                className="flex flex-col items-center gap-1 p-2 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[44px]"
               >
                 <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
                 <span className="text-xs font-medium text-foreground leading-tight">{tool.label}</span>
@@ -354,7 +352,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className="space-y-3 pt-2 pb-4"
+        className="space-y-2 pt-1 pb-2"
       >
         <GradientCTAButton
           onClick={handleEditJourney}
@@ -405,11 +403,11 @@ interface AuroraCardProps {
 function AuroraCard({ icon, title, children }: AuroraCardProps) {
   return (
     <div className="rounded-2xl bg-card border border-border shadow-sm overflow-hidden">
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border/50 bg-muted/30">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/30">
         {icon}
-        <h3 className="font-semibold text-sm text-foreground">{title}</h3>
+        <h3 className="font-semibold text-xs text-foreground">{title}</h3>
       </div>
-      <div className="p-4">
+      <div className="p-3">
         {children}
       </div>
     </div>

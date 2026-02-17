@@ -50,9 +50,9 @@ export function SessionStats({ language, className }: SessionStatsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
         >
-          <Card className="p-3 text-center">
-            <stat.icon className={cn("w-4 h-4 mx-auto mb-1", stat.color)} />
-            <p className="text-lg font-bold tabular-nums">
+          <Card className="p-2 text-center">
+            <stat.icon className={cn("w-4 h-4 mx-auto mb-0.5", stat.color)} />
+            <p className="text-base font-bold tabular-nums">
               {stat.value.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground truncate">
