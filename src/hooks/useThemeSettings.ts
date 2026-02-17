@@ -120,7 +120,7 @@ const defaultTheme: ThemeSettings = {
   muted_l: "15%",
   font_family_primary: "Heebo",
   font_family_secondary: "inherit",
-  background_effect: "matrix_rain",
+  background_effect: "none",
   matrix_rain_enabled: true,
   matrix_rain_color: "#e879f9",
   matrix_rain_opacity: "0.15",
