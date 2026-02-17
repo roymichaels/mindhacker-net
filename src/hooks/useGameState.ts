@@ -58,18 +58,23 @@ export function useStreak() {
 }
 
 /**
- * Hook for token balance
+ * Hook for energy balance (formerly tokens)
  */
-export function useTokens() {
-  const { gameState, spendTokens, addTokens } = useGameStateContext();
+export function useEnergy() {
+  const { gameState, spendEnergy, addEnergy } = useGameStateContext();
   
   return {
     balance: gameState?.tokens ?? 0,
-    spend: spendTokens,
-    add: addTokens,
+    spend: spendEnergy,
+    add: addEnergy,
     canAfford: (amount: number) => (gameState?.tokens ?? 0) >= amount,
   };
 }
+
+/**
+ * @deprecated Use useEnergy() instead
+ */
+export const useTokens = useEnergy;
 
 /**
  * Hook for ego state management

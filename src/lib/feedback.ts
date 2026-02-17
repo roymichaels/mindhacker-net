@@ -35,7 +35,7 @@ export const FEEDBACK = {
     XP_EARNED: { he: '✨ קיבלת XP!', en: '✨ XP earned!' },
     LEVEL_UP: { he: '🎉 עלית רמה!', en: '🎉 Level up!' },
     ACHIEVEMENT_UNLOCKED: { he: '🏆 הישג נפתח!', en: '🏆 Achievement unlocked!' },
-    TOKENS_EARNED: { he: '🪙 קיבלת טוקנים!', en: '🪙 Tokens earned!' },
+    ENERGY_EARNED: { he: '⚡ קיבלת אנרגיה!', en: '⚡ Energy earned!' },
     
     // Sessions
     SESSION_COMPLETE: { he: '🧘 הסשן הושלם!', en: '🧘 Session complete!' },
@@ -62,7 +62,7 @@ export const FEEDBACK = {
     SAVE_FAILED: { he: 'השמירה נכשלה', en: 'Save failed' },
     LOAD_FAILED: { he: 'הטעינה נכשלה', en: 'Load failed' },
     DELETE_FAILED: { he: 'המחיקה נכשלה', en: 'Delete failed' },
-    NOT_ENOUGH_TOKENS: { he: 'אין מספיק טוקנים', en: 'Not enough tokens' },
+    NOT_ENOUGH_ENERGY: { he: 'אין מספיק אנרגיה', en: 'Not enough energy' },
     SESSION_EXPIRED: { he: 'החיבור פג תוקף', en: 'Session expired' },
     
     // Voice
@@ -85,7 +85,7 @@ export const FEEDBACK = {
   
   WARNING: {
     UNSAVED_CHANGES: { he: 'יש שינויים שלא נשמרו', en: 'You have unsaved changes' },
-    LOW_TOKENS: { he: 'נשארו מעט טוקנים', en: 'Low on tokens' },
+    LOW_ENERGY: { he: 'האנרגיה נמוכה', en: 'Low on energy' },
     RATE_LIMITED: { he: 'נא להמתין לפני ניסיון נוסף', en: 'Please wait before trying again' },
   },
 } as const;
@@ -176,13 +176,16 @@ export const showXpEarned = (amount: number): void => {
 };
 
 /**
- * Show tokens earned toast with amount
+ * Show energy earned toast with amount
  */
-export const showTokensEarned = (amount: number): void => {
+export const showEnergyEarned = (amount: number): void => {
   const lang = getCurrentLanguage();
-  const msg = lang === 'he' ? `🪙 +${amount} טוקנים!` : `🪙 +${amount} tokens!`;
+  const msg = lang === 'he' ? `⚡ +${amount} אנרגיה!` : `⚡ +${amount} Energy!`;
   toast.success(msg);
 };
+
+/** @deprecated Use showEnergyEarned */
+export const showTokensEarned = showEnergyEarned;
 
 /**
  * Show level up toast with new level
