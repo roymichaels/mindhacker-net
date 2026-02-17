@@ -1,12 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, Store } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Store, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
-  { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Marketplace', labelHe: 'מאמנים' },
+  { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
+  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים' },
 ];
 
 export function BottomTabBar() {
