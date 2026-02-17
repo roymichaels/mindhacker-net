@@ -87,13 +87,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
 
       {/* ===== COL 1 (RIGHT in RTL) - HUD ===== */}
-      <div className="rounded-2xl border border-border bg-card p-4 flex flex-col items-center gap-3 h-full">
+      <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full">
         <motion.div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center overflow-visible"
           animate={{ width: orbSize, height: orbSize }}
           transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
         >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl scale-150" />
           <div className="relative w-full h-full">
             <PersonalizedOrb size={orbSize} state="idle" />
           </div>
