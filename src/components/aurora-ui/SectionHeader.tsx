@@ -14,7 +14,7 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ icon: Icon, emoji, title, subtitle, action, actionLabel, className }: SectionHeaderProps) {
   return (
-    <div className={cn('flex items-center justify-between mb-4', className)}>
+    <div className={cn('flex items-center justify-between mb-2', className)}>
       <div className="flex items-center gap-2.5 min-w-0">
         {Icon && <Icon className="w-5 h-5 text-primary shrink-0" />}
         {emoji && <span className="text-lg shrink-0">{emoji}</span>}

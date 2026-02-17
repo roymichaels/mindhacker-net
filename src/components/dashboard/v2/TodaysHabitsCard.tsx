@@ -64,7 +64,7 @@ export function TodaysHabitsCard() {
           : "from-muted/30 to-transparent"
       )}
     >
-      <CardHeader className="pb-3 px-6 pt-6">
+      <CardHeader className="pb-2 px-4 pt-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Sparkles className={cn(
@@ -78,7 +78,7 @@ export function TodaysHabitsCard() {
           </span>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 px-6 pb-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      <CardContent className="space-y-3 px-4 pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Habit list */}
         <div className="space-y-2">
           <AnimatePresence mode="popLayout">
@@ -92,7 +92,7 @@ export function TodaysHabitsCard() {
                 onClick={() => toggleHabit(habit.id, !habit.isCompleted)}
                 disabled={isToggling}
                 className={cn(
-                  "w-full flex items-center gap-3 p-4 rounded-xl text-start",
+                  "w-full flex items-center gap-3 p-3 rounded-xl text-start",
                   "transition-all duration-200",
                   "hover:bg-muted/50",
                   habit.isCompleted 

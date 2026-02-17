@@ -164,7 +164,7 @@ export function ChecklistsCard() {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className="p-5 border-b bg-gradient-to-r from-primary/5 to-transparent">
+      <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10">
@@ -205,7 +205,7 @@ export function ChecklistsCard() {
               <button
                 onClick={() => toggleExpand(checklist.id)}
                 className={cn(
-                  "w-full p-5 flex items-center gap-3 hover:bg-muted/50 transition-colors",
+                  "w-full p-3 flex items-center gap-3 hover:bg-muted/50 transition-colors",
                   "text-start"
                 )}
               >
@@ -244,7 +244,7 @@ export function ChecklistsCard() {
                       colorClass
                     )}
                   >
-                    <div className="p-4 space-y-2">
+                    <div className="p-3 space-y-2">
                       {items
                         .sort((a, b) => a.order_index - b.order_index)
                         .map((item) => (
@@ -253,7 +253,7 @@ export function ChecklistsCard() {
                             initial={{ x: -10, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             className={cn(
-                              "flex items-center gap-3 p-4 rounded-xl bg-background/80 backdrop-blur-sm",
+                              "flex items-center gap-3 p-3 rounded-xl bg-background/80 backdrop-blur-sm",
                               "border border-border/50 transition-all cursor-pointer hover:border-primary/30",
                               item.is_completed && "opacity-60",
                               getDateStatus(item.due_date, item.is_completed) === 'overdue' && "border-destructive/50 bg-destructive/5"
