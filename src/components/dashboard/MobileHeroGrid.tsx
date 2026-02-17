@@ -37,7 +37,7 @@ interface MobileHeroGridProps {
 }
 
 export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const dashboard = useUnifiedDashboard();
@@ -179,13 +179,30 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
             >
               <span className="flex items-center gap-1 text-xs text-amber-950">
-                <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+                <Clock className="w-3.5 h-3.5" />15 {t('dashboard.minutesShort')}
               </span>
               <span className="flex items-center gap-2 text-sm font-bold text-amber-950">
                 <Play className="w-4 h-4 fill-amber-950" />
-                {language === 'he' ? 'התחל סשן' : 'Start Session'}
+                {t('dashboard.startSession')}
               </span>
             </button>
+            {/* Separator */}
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            {/* Identity / Direction / Insights */}
+            <div className="grid grid-cols-3 gap-2">
+              <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                <UserCircle className="w-4 h-4 text-rose-500" />
+                <span className="text-xs font-medium">{t('dashboard.identity')}</span>
+              </button>
+              <button onClick={() => setActiveModal('direction')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                <Compass className="w-4 h-4 text-blue-500" />
+                <span className="text-xs font-medium">{t('dashboard.direction')}</span>
+              </button>
+              <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                <Brain className="w-4 h-4 text-violet-500" />
+                <span className="text-xs font-medium">{t('dashboard.insights')}</span>
+              </button>
+            </div>
           </div>
 
           {/* Desktop: orb + stats below */}
@@ -255,13 +272,30 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
               >
                 <span className="flex items-center gap-1 text-xs text-amber-950">
-                  <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+                  <Clock className="w-3.5 h-3.5" />15 {t('dashboard.minutesShort')}
                 </span>
                 <span className="flex items-center gap-2 text-sm font-bold text-amber-950">
                   <Play className="w-4 h-4 fill-amber-950" />
-                  {language === 'he' ? 'התחל סשן' : 'Start Session'}
+                  {t('dashboard.startSession')}
                 </span>
               </button>
+              {/* Separator */}
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+              {/* Identity / Direction / Insights */}
+              <div className="grid grid-cols-3 gap-2">
+                <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                  <UserCircle className="w-4 h-4 text-rose-500" />
+                  <span className="text-xs font-medium">{t('dashboard.identity')}</span>
+                </button>
+                <button onClick={() => setActiveModal('direction')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                  <Compass className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-medium">{t('dashboard.direction')}</span>
+                </button>
+                <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
+                  <Brain className="w-4 h-4 text-violet-500" />
+                  <span className="text-xs font-medium">{t('dashboard.insights')}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -322,32 +356,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent my-1" />
-
-          {/* Row 1: Identity / Direction / Insights */}
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => setActiveModal('identity')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
-            >
-              <UserCircle className="w-4 h-4 text-rose-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('direction')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
-            >
-              <Compass className="w-4 h-4 text-blue-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('insights')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
-            >
-              <Brain className="w-4 h-4 text-violet-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
-            </button>
-          </div>
 
         </div>
 
