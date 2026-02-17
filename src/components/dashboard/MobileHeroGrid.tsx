@@ -162,52 +162,54 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             </button>
           </div>
 
-          {/* Desktop: orb centered in compact card */}
-          <div className="hidden md:flex md:items-center md:justify-center w-full aspect-square overflow-hidden">
-            <PersonalizedOrb size={260} state="idle" />
+          {/* Desktop: orb + stats below */}
+          <div className="hidden md:flex md:flex-col md:items-center md:gap-3 w-full">
+            <div className="flex items-center justify-center w-full aspect-square overflow-hidden">
+              <PersonalizedOrb size={260} state="idle" />
+            </div>
+            {/* Identity + badges */}
+            <div className="flex flex-col gap-2 w-full">
+              <div className="flex items-center justify-between">
+                {identityTitle && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">{identityTitle.icon}</span>
+                    <span className="text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
+                      {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                    <Star className="h-2.5 w-2.5" />Lv.{xp.level}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+                    <Gem className="h-2.5 w-2.5" />{tokens.balance}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                    <Flame className="h-2.5 w-2.5" />{streak.streak}
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
+                  { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
+                  { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-lg bg-background/60 border border-border/40 p-1.5 flex flex-col items-center gap-0.5">
+                    <m.icon className={cn("w-3.5 h-3.5", m.color)} />
+                    <span className="text-sm font-bold leading-none">{m.value}</span>
+                    <span className="text-[9px] text-muted-foreground">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none overflow-y-auto md:order-2 md:min-h-0 md:overflow-y-auto">
-          {/* Premium identity + stats card - desktop only */}
-          <div className="hidden md:flex flex-col gap-3 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-transparent p-4">
-            <div className="flex items-center justify-between">
-              {identityTitle && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-base">{identityTitle.icon}</span>
-                  <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
-                    {language === 'he' ? identityTitle.title : identityTitle.titleEn}
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
-                  <Star className="h-3 w-3" />Lv.{xp.level}
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                  <Gem className="h-3 w-3" />{tokens.balance}
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                  <Flame className="h-3 w-3" />{streak.streak}
-                </span>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
-                { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
-                { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
-              ].map((m) => (
-                <div key={m.label} className="rounded-xl bg-background/60 border border-border/40 p-2.5 flex flex-col items-center gap-1">
-                  <m.icon className={cn("w-4 h-4", m.color)} />
-                  <span className="text-lg font-bold leading-none">{m.value}</span>
-                  <span className="text-[10px] text-muted-foreground">{m.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Start Session button - desktop only in plan column */}
+          {/* Start Session button - desktop only */}
           <button
             onClick={handleStartDailySession}
             className="hidden md:flex w-full items-center justify-center gap-3 rounded-xl bg-background border border-border px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
