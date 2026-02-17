@@ -16,7 +16,6 @@ const Launchpad = () => {
 
   return (
     <LaunchpadFlow 
-      mode="authenticated"
       onComplete={handleComplete} 
       onClose={handleClose}
     />

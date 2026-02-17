@@ -91,10 +91,7 @@ const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
 const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
-// Free guest journey
-const FreeTransformationJourney = lazy(() => import("./pages/FreeTransformationJourney"));
-const GuestLaunchpad = lazy(() => import("./pages/GuestLaunchpad"));
-const FreeJourneyComplete = lazy(() => import("./pages/FreeJourneyComplete"));
+// Free journey redirects handled inline below
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
@@ -219,10 +216,10 @@ const App = () => (
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
-                        {/* Free Transformation Journey (public guest flow) */}
-                        <Route path="/free-journey" element={<FreeTransformationJourney />} />
-                        <Route path="/free-journey/start" element={<GuestLaunchpad />} />
-                        <Route path="/free-journey/complete" element={<FreeJourneyComplete />} />
+                        {/* Free journey redirects to launchpad (login required) */}
+                        <Route path="/free-journey" element={<Navigate to="/launchpad" replace />} />
+                        <Route path="/free-journey/start" element={<Navigate to="/launchpad" replace />} />
+                        <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
                         {/* Practitioner directory (public) */}
                         <Route path="/practitioners" element={<Practitioners />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
