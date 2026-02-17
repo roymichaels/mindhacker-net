@@ -139,7 +139,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div className="space-y-2">
+        <div className="space-y-2 h-full flex flex-col justify-between">
           {/* Start Session button */}
           <button
             onClick={handleStartDailySession}
