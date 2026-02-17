@@ -346,6 +346,42 @@ export type Database = {
           },
         ]
       }
+      ai_response_logs: {
+        Row: {
+          context_hash: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          mode: string
+          model: string
+          prompt_version: string
+          token_count: number | null
+          user_id: string
+        }
+        Insert: {
+          context_hash: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          mode: string
+          model: string
+          prompt_version: string
+          token_count?: number | null
+          user_id: string
+        }
+        Update: {
+          context_hash?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          mode?: string
+          model?: string
+          prompt_version?: string
+          token_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_reports: {
         Row: {
           created_at: string | null
