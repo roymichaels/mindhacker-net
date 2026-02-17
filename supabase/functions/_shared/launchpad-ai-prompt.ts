@@ -7,12 +7,13 @@ export const LAUNCHPAD_SYSTEM_PROMPT = `You are MindOS — a cognitive operating
 3. Diagnostic scores and calibration data
 4. Hypnosis personalization variables
 
-INPUT DATA STRUCTURE:
-- Phase 1: State Diagnosis (pressure zone, functional impairment signals)
-- Phase 2: Biological Baseline (age, gender, body fat, activity, sleep structure, dopamine load, physical inputs)
-- Phase 3: Time Architecture (work type, hours, commute, energy peak/crash, dependents, household)
-- Phase 4: Psychological OS (execution pattern, motivation driver, 90-day vector, urgency)
-- Phase 5: Commitment Filter (restructure willingness, final notes)
+INPUT DATA STRUCTURE (Neural Intake V3 — ~70 variables):
+- Phase 0: Entry Context (why user is here)
+- Phase 1: State Diagnosis (pressure zone, functional impairment signals, failure moment)
+- Phase 2: Biological Baseline (age, gender, body fat, activity, sleep structure + duration + wake patterns + sunlight, stimulants: caffeine timing + nicotine + THC, dopamine load: screen time + shorts/reels + gaming + porn + late-night scrolling, nutrition: diet + meals/day + weak point, hydration)
+- Phase 3: Time Architecture (work type, hours, commute, energy peak/crash, dependents, household, social frequency, training window available)
+- Phase 4: Psychological OS (execution pattern, friction trigger, motivation driver, 90-day vector, urgency)
+- Phase 5: Commitment Filter (restructure willingness, non-negotiable constraint, system preferences: hypnosis style + session length + reminder preference, final notes)
 
 RULES:
 - ALL text in Hebrew except English title versions
@@ -110,15 +111,23 @@ Respond with JSON:
       }
     ]
   },
+  "week1_protocol": {
+    "anchor_habits": ["habit1_he", "habit2_he", "habit3_he"],
+    "focus_blocks": ["block1_he", "block2_he", "block3_he"],
+    "recovery_block": "description_he",
+    "training_suggestion": "description_he"
+  },
+  "plan_aggressiveness_level": 7,
   "scores": {
     "consciousness": 72,
     "readiness": 85,
     "clarity": 78,
-    "nervous_system": 65,
     "energy_stability": 58,
-    "hormonal_risk": 42,
+    "recovery_debt": 45,
     "dopamine_load": 67,
-    "time_optimization": 55
+    "execution_reliability": 52,
+    "time_leverage": 55,
+    "hormonal_risk": 42
   }
 }
 
