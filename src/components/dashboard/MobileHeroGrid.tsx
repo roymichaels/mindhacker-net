@@ -116,7 +116,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-2 md:overflow-hidden" style={{ gridTemplateRows: '1fr' }}>
 
         {/* ===== COL 1 - HUD ===== */}
-        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:justify-end md:gap-2 md:overflow-hidden md:order-2 min-h-0">
+        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:justify-end md:gap-2 md:overflow-hidden md:order-2 md:min-h-0">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
@@ -179,7 +179,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Desktop: original vertical layout */}
           <div className="hidden md:flex md:flex-col md:items-center md:gap-2 md:flex-1 w-full">
-            <div className="relative flex items-center justify-center overflow-visible flex-1 min-h-[200px] w-full">
+            <div className="relative flex items-center justify-center overflow-hidden flex-1 min-h-0 w-full">
               <PersonalizedOrb size={orbSize} state="idle" />
             </div>
           </div>
