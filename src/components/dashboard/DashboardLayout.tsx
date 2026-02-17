@@ -6,6 +6,7 @@ import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
+import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { SettingsModal } from '@/components/settings';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -41,6 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
 
             <AuroraDock />
+            <BottomTabBar />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
           </div>
         </SidebarProvider>
