@@ -37,7 +37,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </div>
             </header>
 
-            <main className="flex-1 min-h-0 overflow-y-auto px-3 pt-2 pb-36 flex flex-col">
+            <main className="flex-1 min-h-0 overflow-hidden px-3 pt-2 pb-0 flex flex-col">
               {children}
             </main>
 
@@ -58,7 +58,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             onOpenSettings={() => setSettingsOpen(true)}
           />
 
-          <main className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-6 pb-36 w-full flex flex-col">
+          <main className="flex-1 min-h-0 overflow-hidden p-4 lg:p-6 pb-0 w-full flex flex-col">
             {children}
           </main>
 
