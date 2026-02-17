@@ -188,13 +188,6 @@ export function PlanRoadmap() {
 
   return (
     <div className="space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Section header */}
-      <div className="flex items-center gap-2">
-        <h2 className="text-base font-bold">
-          {language === 'he' ? '🗺️ מפת הדרכים ל-90 יום' : '🗺️ 90-Day Roadmap'}
-        </h2>
-      </div>
-
       {/* Month sections */}
       {[1, 2, 3].map(month => {
         const weeks = byMonth[month] || [];
