@@ -8,6 +8,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildContext, AuroraContext } from "../_shared/contextBuilder.ts";
+import { fetchWithRetry } from "../_shared/fetchWithRetry.ts";
+import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -93,7 +95,7 @@ ${snapshot.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים
 כתבי תגובה בפורמט JSON בלבד:
 {"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetchWithRetry("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -120,7 +122,7 @@ ${snapshot.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים
         }],
         tool_choice: { type: "function", function: { name: "coaching_message" } },
       }),
-    });
+    }, { timeoutMs: 30_000, maxRetries: 1 });
 
     if (!response.ok) {
       console.error("AI gateway error:", response.status);
@@ -218,13 +220,14 @@ const analyzeAndQueue = async (
   if (snapshot.projects_without_milestones.length > 0) items.push({ trigger_type: 'project_setup', priority: 5 });
 
   for (const item of items) {
-    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString();
+    // Generate deterministic idempotency key: user:trigger:date
+    const idempotencyKey = `proactive:${userId}:${item.trigger_type}:${now.toISOString().split("T")[0]}:${now.getHours()}`;
+
+    // Check by idempotency key first (replaces time-window dedup)
     const { data: existing } = await supabase
       .from('aurora_proactive_queue')
       .select('id')
-      .eq('user_id', userId)
-      .eq('trigger_type', item.trigger_type)
-      .gte('created_at', fourHoursAgo)
+      .eq('idempotency_key', idempotencyKey)
       .limit(1);
 
     if (!existing || existing.length === 0) {
@@ -237,6 +240,7 @@ const analyzeAndQueue = async (
         scheduled_for: now.toISOString(),
         title: msg.title,
         body: msg.body,
+        idempotency_key: idempotencyKey,
       });
       console.log(`Queued ${item.trigger_type} for user ${userId}`);
     }
@@ -328,6 +332,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error: any) {
     console.error('Aurora proactive error:', error);
+    logEdgeFunctionError({ functionName: "aurora-proactive", error, requestContext: { action: "unknown" } });
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

@@ -212,18 +212,27 @@ export async function buildContext(
 
   const habitsCompleted = habitsWithStatus.filter(h => h.completed_today).length;
 
-  // ── Compute checklist child counts ─────────────────────
-  const checklistsWithCounts = [];
-  for (const parent of parentTasks) {
-    const { count: totalCount } = await supabase
-      .from("action_items").select("id", { count: "exact", head: true })
-      .eq("parent_id", parent.id);
-    const { count: doneCount } = await supabase
-      .from("action_items").select("id", { count: "exact", head: true })
-      .eq("parent_id", parent.id).eq("status", "done");
-    checklistsWithCounts.push({
-      id: parent.id, title: parent.title,
-      children_total: totalCount || 0, children_done: doneCount || 0,
+  // ── Compute checklist child counts (single aggregation query) ──
+  let checklistsWithCounts: { id: string; title: string; children_total: number; children_done: number }[] = [];
+  if (parentTasks.length > 0) {
+    const parentIds = parentTasks.map((p: any) => p.id);
+    const { data: childCounts } = await supabase
+      .from("action_items")
+      .select("parent_id, status")
+      .in("parent_id", parentIds);
+    
+    // Aggregate in memory — one query replaces 2N queries
+    const countMap = new Map<string, { total: number; done: number }>();
+    for (const row of (childCounts || [])) {
+      const entry = countMap.get(row.parent_id) || { total: 0, done: 0 };
+      entry.total++;
+      if (row.status === "done") entry.done++;
+      countMap.set(row.parent_id, entry);
+    }
+    
+    checklistsWithCounts = parentTasks.map((p: any) => {
+      const counts = countMap.get(p.id) || { total: 0, done: 0 };
+      return { id: p.id, title: p.title, children_total: counts.total, children_done: counts.done };
     });
   }
 

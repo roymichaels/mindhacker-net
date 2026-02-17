@@ -10,6 +10,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildContext } from "./contextBuilder.ts";
 import { validateRequest, getWidgetSettings, getKnowledgeBase, prepare } from "./orchestrator.ts";
+import { fetchWithTimeout } from "../_shared/fetchWithRetry.ts";
+import { logEdgeFunctionError } from "../_shared/errorLogger.ts";
+import { buildFallbackStream } from "../_shared/fallbackResponse.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +23,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let userId: string | null = null;
+  let mode = "full";
 
   try {
     // 1. Parse & validate request
@@ -33,7 +39,9 @@ serve(async (req) => {
       });
     }
 
-    const { messages, customSystemPrompt, userId, language, mode } = parsed;
+    const { messages, customSystemPrompt, language } = parsed;
+    userId = parsed.userId;
+    mode = parsed.mode;
 
     // 2. Create Supabase client
     const supabase = createClient(
@@ -65,28 +73,65 @@ serve(async (req) => {
 
     console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
 
-    // 5. Call LLM (Layer 3 - model call)
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: orchestrated.systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-        max_tokens: orchestrated.maxTokens,
-        temperature: orchestrated.temperature,
-      }),
-    });
+    // 5. Call LLM with timeout (Layer 3 - model call)
+    let response: Response;
+    try {
+      response = await fetchWithTimeout(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: orchestrated.systemPrompt },
+              ...messages,
+            ],
+            stream: true,
+            max_tokens: orchestrated.maxTokens,
+            temperature: orchestrated.temperature,
+          }),
+        },
+        90_000 // 90s timeout
+      );
+    } catch (timeoutErr) {
+      // Circuit breaker: AI gateway timed out — return degraded response
+      console.error("AI Gateway timeout, returning fallback:", timeoutErr);
+      logEdgeFunctionError({ functionName: "aurora-chat", error: timeoutErr, userId, requestContext: { mode, trigger: "timeout" } });
+
+      const fallbackStream = buildFallbackStream(context, language);
+      return new Response(fallbackStream, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+          "X-Aurora-Degraded": "true",
+        },
+      });
+    }
 
     if (!response.ok) {
       const error = await response.text();
       console.error("AI Gateway error:", error);
+
+      // Circuit breaker: 5xx = return fallback
+      if (response.status >= 500) {
+        logEdgeFunctionError({ functionName: "aurora-chat", error: new Error(`AI Gateway ${response.status}`), userId, requestContext: { mode, trigger: "5xx" } });
+        const fallbackStream = buildFallbackStream(context, language);
+        return new Response(fallbackStream, {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Aurora-Degraded": "true",
+          },
+        });
+      }
 
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again shortly" }), {
@@ -123,6 +168,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Aurora chat error:", error);
+    logEdgeFunctionError({ functionName: "aurora-chat", error, userId, requestContext: { mode } });
     const message = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,

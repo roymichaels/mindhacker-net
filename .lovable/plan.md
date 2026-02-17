@@ -2,6 +2,8 @@
 
 # Robustness Checklist: Make It "Just Work"
 
+**STATUS: Parts A, B, C2 COMPLETE. C1 + C3 pending (dashboard snapshot RPC + channel consolidation).**
+
 This is the boring infrastructure that prevents paying users from seeing glitches, duplicate rewards, or slow loads. Three layers: edge function reliability, data integrity, and performance.
 
 ---
