@@ -91,6 +91,8 @@ const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
+const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
+const CoachClientPlans = lazy(() => import("./pages/panel/CoachClientPlans"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Free journey redirects handled inline below
@@ -413,6 +415,23 @@ const App = () => (
                           }
                         />
                         {/* /life-plan route removed — consolidated into PlanTab */}
+                        {/* Coaching Journey */}
+                        <Route
+                          path="/coaching/journey"
+                          element={
+                            <ProtectedRoute>
+                              <CoachingJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/coaching/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <CoachingJourney />
+                            </ProtectedRoute>
+                          }
+                        />
                         <Route
                           path="/business"
                           element={
@@ -697,6 +716,7 @@ const App = () => (
                           <Route path="purchases" element={<Purchases />} />
                           <Route path="manage-products" element={<AdminProducts />} />
                           <Route path="manage-content" element={<Content />} />
+                          <Route path="client-plans" element={<CoachClientPlans />} />
                         </Route>
 
                         {/* Affiliate Panel routes */}

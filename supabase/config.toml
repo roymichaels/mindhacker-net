@@ -105,3 +105,9 @@ verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.create-coach-checkout]
+verify_jwt = false
+
+[functions.generate-coach-plan]
+verify_jwt = false
