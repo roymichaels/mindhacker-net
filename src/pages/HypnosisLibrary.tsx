@@ -74,13 +74,13 @@ const HypnosisLibrary = () => {
   };
 
   return (
-    <PageShell className="space-y-8">
+    <PageShell className="space-y-4">
 
 
 
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-semibold">
+        <h1 className="text-2xl font-semibold">
           {language === 'he' ? 'סשנים' : 'Sessions'}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -97,7 +97,7 @@ const HypnosisLibrary = () => {
         animate={{ opacity: 1, y: 0 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "relative overflow-hidden rounded-2xl p-8 md:p-10 cursor-pointer",
+          "relative overflow-hidden rounded-2xl p-5 md:p-6 cursor-pointer",
           "bg-gradient-to-br active:brightness-95 transition-all",
           "from-primary to-primary/80"
         )}
@@ -113,7 +113,7 @@ const HypnosisLibrary = () => {
         </div>
         
         <div className="relative z-10 text-white">
-          <div className="flex items-center gap-2 mb-3 mt-6">
+          <div className="flex items-center gap-2 mb-2 mt-4">
             <span className="text-3xl">✨</span>
             <div className="flex items-center gap-1.5 text-sm opacity-80">
               <Clock className="w-4 h-4" />
@@ -121,7 +121,7 @@ const HypnosisLibrary = () => {
             </div>
           </div>
           
-          <h3 className="text-2xl md:text-3xl font-semibold mb-2">
+          <h3 className="text-xl md:text-2xl font-semibold mb-2">
             {language === 'he' ? 'הסשן המותאם אישית שלך להיום' : 'Your Personalized Session for Today'}
           </h3>
           
@@ -134,7 +134,7 @@ const HypnosisLibrary = () => {
             </div>
           )}
           
-          <p className="text-base leading-7 opacity-90 mb-5 max-w-md">
+          <p className="text-sm leading-6 opacity-90 mb-4 max-w-md">
             {language === 'he' 
               ? 'סקריפט AI מותאם אישית על בסיס הפרופיל שלך, תוכנית ה-90 יום והמטרות השבועיות'
               : 'AI script personalized based on your profile, 90-day plan and weekly goals'
@@ -142,8 +142,8 @@ const HypnosisLibrary = () => {
           </p>
           
           <Button
-            size="lg"
-            className="gap-2 h-14 text-base touch-manipulation bg-background/90 text-foreground hover:bg-background border border-border/50"
+            size="sm"
+            className="gap-2 h-11 text-sm touch-manipulation bg-background/90 text-foreground hover:bg-background border border-border/50"
           >
             <Play className="w-5 h-5" />
             {language === 'he' ? 'התחל סשן יומי' : 'Start Daily Session'}
@@ -172,9 +172,9 @@ const HypnosisLibrary = () => {
             >
               <Card
                 className={cn(
-                  "relative overflow-hidden p-6 cursor-pointer",
+                  "relative overflow-hidden p-4 cursor-pointer",
                   "hover:shadow-lg transition-all active:scale-95",
-                  "touch-manipulation min-h-[120px]"
+                  "touch-manipulation min-h-[88px]"
                 )}
                 onClick={() => handleStartSession(session.id, session.duration)}
               >

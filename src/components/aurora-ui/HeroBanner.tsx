@@ -16,7 +16,7 @@ interface HeroBannerProps {
 export function HeroBanner({ gradient = 'from-primary/10 to-accent/10', icon, title, subtitle, action, actionLabel, children, className }: HeroBannerProps) {
   return (
     <div className={cn(
-      'relative overflow-hidden rounded-2xl border border-border shadow-sm p-8 md:p-10',
+      'relative overflow-hidden rounded-2xl border border-border shadow-sm p-5 md:p-6',
       'bg-gradient-to-br',
       gradient,
       className
@@ -28,9 +28,9 @@ export function HeroBanner({ gradient = 'from-primary/10 to-accent/10', icon, ti
         <div className="space-y-2 min-w-0">
           <div className="flex items-center gap-3">
             {icon}
-            <h2 className="text-2xl md:text-3xl font-semibold">{title}</h2>
+            <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
           </div>
-          {subtitle && <p className="text-base leading-7 text-muted-foreground">{subtitle}</p>}
+          {subtitle && <p className="text-sm leading-6 text-muted-foreground">{subtitle}</p>}
         </div>
         {action && actionLabel && (
           <Button size="sm" onClick={action} className="shrink-0 bg-primary text-primary-foreground">

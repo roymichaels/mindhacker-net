@@ -36,7 +36,7 @@ const PlanTab = () => {
   }
 
   return (
-    <PageShell className="space-y-8">
+    <PageShell className="space-y-4">
 
 
 
@@ -44,12 +44,12 @@ const PlanTab = () => {
       <PlanProgressHero />
 
       {/* Today's Missions */}
-      <section className="space-y-4">
+      <section className="space-y-2">
         <SectionHeader
           icon={ListChecks}
           title={language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}
         />
-        <div className="rounded-2xl border border-border bg-card shadow-sm p-6">
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-4">
           <TasksPanel />
         </div>
       </section>
