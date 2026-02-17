@@ -349,17 +349,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4">
           {/* Daily Pulse - desktop, above diagnostics */}
           <DailyPulseCard />
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
-          <button
-            onClick={() => { setInsightsTab('diagnostics'); setActiveModal('insights'); }}
-            className="flex items-center gap-2 px-1 py-1 hover:bg-amber-500/10 rounded-lg transition-all cursor-pointer w-full"
-          >
-            <Activity className="w-4 h-4 text-amber-500" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              {language === 'he' ? 'אבחון' : 'Diagnostics'}
-            </h3>
-            <ChevronDown className="w-3 h-3 text-muted-foreground ml-auto -rotate-90" />
-          </button>
         </div>
       </div>
 
