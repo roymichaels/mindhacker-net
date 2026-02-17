@@ -176,7 +176,7 @@ export const useAdminUserView = (userId: string): UseAdminUserViewReturn => {
           .from('launchpad_summaries')
           .select('*')
           .eq('user_id', userId)
-          .order('created_at', { ascending: false })
+          .order('generated_at', { ascending: false })
           .limit(1)
           .single(),
       ]);
