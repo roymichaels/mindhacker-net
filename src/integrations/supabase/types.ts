@@ -2553,6 +2553,30 @@ export type Database = {
           },
         ]
       }
+      daily_message_counts: {
+        Row: {
+          count: number
+          created_at: string
+          message_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          message_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          message_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       edge_function_errors: {
         Row: {
           created_at: string
@@ -5716,6 +5740,8 @@ export type Database = {
           next_billing_date: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           tier_id: string
           trial_ends_at: string | null
           updated_at: string | null
@@ -5732,6 +5758,8 @@ export type Database = {
           next_billing_date?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tier_id: string
           trial_ends_at?: string | null
           updated_at?: string | null
@@ -5748,6 +5776,8 @@ export type Database = {
           next_billing_date?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tier_id?: string
           trial_ends_at?: string | null
           updated_at?: string | null
@@ -6441,6 +6471,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_daily_message_count: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       migrate_to_action_items: { Args: never; Returns: string }
       notify_journey_completion: {
