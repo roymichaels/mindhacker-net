@@ -2,17 +2,16 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const PRO_TIER_ID = "85d62654-8a60-4c75-bb74-2f559be31aef";
-const FREE_TIER_ID = "f319507f-6a45-453f-a959-c72f98f18956";
-const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: unknown) => {
-  console.log(`[STRIPE-WEBHOOK] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
+const PRO_TIER_ID = "85d62654-8a60-4c75-bb74-2f559be31aef";
+const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
+
+const log = (step: string, details?: unknown) => {
+  console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : "");
 };
 
 serve(async (req) => {
@@ -21,9 +20,7 @@ serve(async (req) => {
   }
 
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-  if (!stripeKey) {
-    return new Response("Server misconfigured", { status: 500 });
-  }
+  if (!stripeKey) return new Response("Server misconfigured", { status: 500 });
 
   const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -33,77 +30,111 @@ serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
-  // Stripe sends the raw body; we need it for signature verification
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
-
-  // If STRIPE_WEBHOOK_SECRET is set, verify signature
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-  let event: Stripe.Event;
 
+  let event: Stripe.Event;
   try {
     if (webhookSecret && sig) {
       event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-      logStep("Signature verified", { type: event.type });
+      log("Signature verified", { type: event.type });
     } else {
-      // Fallback: parse without signature (dev mode)
       event = JSON.parse(body) as Stripe.Event;
-      logStep("Parsed without signature verification", { type: event.type });
+      log("WARNING: No webhook secret, parsing raw body", { type: event.type });
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    logStep("Signature verification failed", { error: msg });
+    log("Signature verification failed", { error: msg });
     return new Response(`Webhook Error: ${msg}`, { status: 400 });
   }
 
-  // Helper: find user_id from Stripe customer email
-  const getUserIdByEmail = async (email: string): Promise<string | null> => {
-    const { data } = await supabase.auth.admin.listUsers({ perPage: 1, page: 1 });
-    // Search through users for matching email
-    const { data: users } = await supabase.auth.admin.listUsers();
-    const user = users?.users?.find((u) => u.email === email);
-    return user?.id ?? null;
-  };
+  // ── User Resolution ────────────────────────────────────────────
 
-  // Helper: find user_id from Stripe customer ID
-  const getUserIdByCustomer = async (customerId: string): Promise<string | null> => {
-    const customer = await stripe.customers.retrieve(customerId);
-    if (customer.deleted || !("email" in customer) || !customer.email) return null;
-    return getUserIdByEmail(customer.email);
-  };
+  async function resolveUserFromSession(
+    session: Stripe.Checkout.Session,
+    customerId: string | null
+  ): Promise<string | null> {
+    // 1. metadata.user_id
+    if (session.metadata?.user_id) {
+      log("Resolved via metadata.user_id", { userId: session.metadata.user_id });
+      return session.metadata.user_id;
+    }
+    // 2. client_reference_id
+    if (session.client_reference_id) {
+      log("Resolved via client_reference_id", { userId: session.client_reference_id });
+      return session.client_reference_id;
+    }
+    // 3. profiles.stripe_customer_id
+    if (customerId) {
+      const found = await resolveUserFromCustomerId(customerId);
+      if (found) return found;
+    }
+    // 4. Email fallback
+    const email = session.customer_email || session.customer_details?.email;
+    if (email) return await resolveUserByEmail(email);
+    return null;
+  }
 
-  // Helper: upsert user_subscriptions
-  const upsertSubscription = async (
-    userId: string,
-    sub: Stripe.Subscription,
-    customerId: string
-  ) => {
-    const productId = sub.items.data[0]?.price?.product;
-    const isPro = productId === PRO_PRODUCT_ID;
-    const tierId = isPro ? PRO_TIER_ID : FREE_TIER_ID;
+  async function resolveUserFromCustomerId(customerId: string): Promise<string | null> {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+    if (data?.id) {
+      log("Resolved via profiles.stripe_customer_id", { userId: data.id });
+      return data.id;
+    }
+    // Fallback: get email from Stripe customer, then look up auth
+    try {
+      const customer = await stripe.customers.retrieve(customerId);
+      if (!customer.deleted && "email" in customer && customer.email) {
+        return await resolveUserByEmail(customer.email);
+      }
+    } catch { /* ignore */ }
+    return null;
+  }
+
+  async function resolveUserByEmail(email: string): Promise<string | null> {
+    const { data } = await supabase.auth.admin.listUsers();
+    const user = data?.users?.find((u: { email?: string }) => u.email === email);
+    if (user) {
+      log("Resolved via email", { userId: user.id, email });
+      return user.id;
+    }
+    return null;
+  }
+
+  // ── Subscription Upsert ────────────────────────────────────────
+
+  function getTier(productId: string | null): string {
+    return productId === PRO_PRODUCT_ID ? "pro" : "free";
+  }
+
+  async function upsertSub(sub: Stripe.Subscription, userId: string) {
+    const item = sub.items.data[0];
+    const productId = typeof item?.price?.product === "string" ? item.price.product : null;
+    const priceId = item?.price?.id ?? null;
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+    const tier = getTier(productId);
+
+    const statusMap: Record<string, string> = {
+      active: "active",
+      trialing: "trialing",
+      past_due: "past_due",
+      canceled: "cancelled",
+      unpaid: "unpaid",
+      incomplete: "cancelled",
+      incomplete_expired: "cancelled",
+      paused: "paused",
+    };
+    const dbStatus = statusMap[sub.status] || "cancelled";
     const periodEnd = new Date(sub.current_period_end * 1000).toISOString();
     const trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
     const cancelledAt = sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null;
 
-    // Map Stripe status to our enum
-    let status: string;
-    switch (sub.status) {
-      case "active":
-      case "trialing":
-        status = "active";
-        break;
-      case "past_due":
-        status = "past_due";
-        break;
-      case "canceled":
-      case "unpaid":
-        status = "cancelled";
-        break;
-      default:
-        status = "cancelled";
-    }
-
-    // Check if subscription record exists
+    // Check if record exists
     const { data: existing } = await supabase
       .from("user_subscriptions")
       .select("id")
@@ -114,8 +145,11 @@ serve(async (req) => {
       await supabase
         .from("user_subscriptions")
         .update({
-          status,
-          tier_id: tierId,
+          status: dbStatus,
+          tier_id: PRO_TIER_ID,
+          price_id: priceId,
+          product_id: productId,
+          cancel_at_period_end: sub.cancel_at_period_end ?? false,
           end_date: periodEnd,
           trial_ends_at: trialEnd,
           cancelled_at: cancelledAt,
@@ -123,46 +157,60 @@ serve(async (req) => {
           updated_at: new Date().toISOString(),
         })
         .eq("id", existing.id);
-      logStep("Updated subscription record", { id: existing.id, status });
+      log("Updated subscription", { id: existing.id, status: dbStatus });
     } else {
       await supabase.from("user_subscriptions").insert({
         user_id: userId,
-        tier_id: tierId,
-        status,
+        tier_id: PRO_TIER_ID,
+        status: dbStatus,
         billing_cycle: "monthly",
+        price_id: priceId,
+        product_id: productId,
+        cancel_at_period_end: sub.cancel_at_period_end ?? false,
         start_date: new Date(sub.start_date * 1000).toISOString(),
         end_date: periodEnd,
         trial_ends_at: trialEnd,
         stripe_customer_id: customerId,
         stripe_subscription_id: sub.id,
       });
-      logStep("Created subscription record", { userId, status });
+      log("Created subscription", { userId, status: dbStatus });
     }
 
-    return { isPro, status };
-  };
+    // Sync profiles
+    await supabase
+      .from("profiles")
+      .update({
+        subscription_tier: ["active", "trialing"].includes(dbStatus) ? tier : "free",
+        stripe_customer_id: customerId,
+      })
+      .eq("id", userId);
+
+    log("Synced profiles", { userId, tier: ["active", "trialing"].includes(dbStatus) ? tier : "free" });
+  }
+
+  // ── Event Handlers ─────────────────────────────────────────────
 
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        logStep("checkout.session.completed", { sessionId: session.id, customerId: session.customer });
+        log("checkout.session.completed", { sessionId: session.id, mode: session.mode });
 
         if (session.mode !== "subscription" || !session.subscription || !session.customer) {
-          logStep("Not a subscription checkout, skipping");
+          log("Not a subscription checkout, skipping");
           break;
         }
 
         const customerId = typeof session.customer === "string" ? session.customer : session.customer.id;
-        const userId = await getUserIdByCustomer(customerId);
-        if (!userId) {
-          logStep("No user found for customer", { customerId });
-          break;
-        }
+        const userId = await resolveUserFromSession(session, customerId);
+        if (!userId) { log("User not resolved"); break; }
 
-        const sub = await stripe.subscriptions.retrieve(session.subscription as string);
-        await upsertSubscription(userId, sub, customerId);
-        logStep("Checkout processed", { userId });
+        // Store stripe_customer_id immediately
+        await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", userId);
+
+        const subId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+        const sub = await stripe.subscriptions.retrieve(subId);
+        await upsertSub(sub, userId);
         break;
       }
 
@@ -170,57 +218,87 @@ serve(async (req) => {
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-        logStep(event.type, { subId: sub.id, status: sub.status, customerId });
+        log(event.type, { subId: sub.id, status: sub.status });
 
-        const userId = await getUserIdByCustomer(customerId);
-        if (!userId) {
-          logStep("No user found for customer", { customerId });
-          break;
-        }
+        // Find user from existing record first
+        const { data: existingSub } = await supabase
+          .from("user_subscriptions")
+          .select("user_id")
+          .eq("stripe_subscription_id", sub.id)
+          .maybeSingle();
 
-        await upsertSubscription(userId, sub, customerId);
+        const userId = existingSub?.user_id || await resolveUserFromCustomerId(customerId);
+        if (!userId) { log("User not resolved", { customerId }); break; }
+
+        await upsertSub(sub, userId);
         break;
       }
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-        logStep("customer.subscription.deleted", { subId: sub.id, customerId });
+        log("customer.subscription.deleted", { subId: sub.id });
 
-        // Mark subscription as cancelled
-        await supabase
+        const { data: existingSub } = await supabase
           .from("user_subscriptions")
-          .update({
-            status: "cancelled",
-            cancelled_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("stripe_subscription_id", sub.id);
+          .select("user_id")
+          .eq("stripe_subscription_id", sub.id)
+          .maybeSingle();
 
-        logStep("Subscription cancelled in DB");
+        if (existingSub?.user_id) {
+          await supabase
+            .from("user_subscriptions")
+            .update({ status: "cancelled", cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq("stripe_subscription_id", sub.id);
+          await supabase
+            .from("profiles")
+            .update({ subscription_tier: "free" })
+            .eq("id", existingSub.user_id);
+          log("Subscription cancelled", { userId: existingSub.user_id });
+        }
+        break;
+      }
+
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subId = typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
+        if (!subId) break;
+        log("invoice.paid", { subId });
+
+        const { data } = await supabase
+          .from("user_subscriptions")
+          .select("user_id, product_id")
+          .eq("stripe_subscription_id", subId)
+          .maybeSingle();
+
+        if (data) {
+          await supabase
+            .from("user_subscriptions")
+            .update({ status: "active", updated_at: new Date().toISOString() })
+            .eq("stripe_subscription_id", subId);
+          await supabase
+            .from("profiles")
+            .update({ subscription_tier: getTier(data.product_id) })
+            .eq("id", data.user_id);
+          log("Reactivated via invoice.paid", { userId: data.user_id });
+        }
         break;
       }
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
-        const subId = invoice.subscription;
-        logStep("invoice.payment_failed", { invoiceId: invoice.id, subId });
+        const subId = typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
+        if (!subId) break;
+        log("invoice.payment_failed", { subId });
 
-        if (subId) {
-          await supabase
-            .from("user_subscriptions")
-            .update({
-              status: "past_due",
-              updated_at: new Date().toISOString(),
-            })
-            .eq("stripe_subscription_id", typeof subId === "string" ? subId : subId.id);
-          logStep("Marked subscription as past_due");
-        }
+        await supabase
+          .from("user_subscriptions")
+          .update({ status: "past_due", updated_at: new Date().toISOString() })
+          .eq("stripe_subscription_id", subId);
         break;
       }
 
       default:
-        logStep("Unhandled event type", { type: event.type });
+        log("Unhandled event", { type: event.type });
     }
 
     return new Response(JSON.stringify({ received: true }), {
@@ -228,7 +306,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    logStep("ERROR processing webhook", { error: msg });
+    log("ERROR", { error: msg });
     return new Response(JSON.stringify({ error: msg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
