@@ -1,7 +1,6 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 import { Loader2 } from 'lucide-react';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { LaunchpadFlow, LaunchpadIntro } from '@/components/launchpad';
@@ -34,7 +33,6 @@ const AuroraLayout = () => {
     );
   }
 
-  // Show Launchpad intro first if not complete
   if (!isLaunchpadComplete && showLaunchpad && showLaunchpadIntro) {
     return (
       <LaunchpadIntro 
@@ -44,7 +42,6 @@ const AuroraLayout = () => {
     );
   }
 
-  // Show Launchpad flow if not complete
   if (!isLaunchpadComplete && showLaunchpad) {
     return (
       <LaunchpadFlow 
@@ -55,18 +52,15 @@ const AuroraLayout = () => {
   }
 
   return (
-    <AuroraActionsProvider>
-      <DashboardLayout
-        currentConversationId={activeConversationId}
-        onNewChat={handleNewChat}
-        onSelectConversation={handleSelectConversation}
-      >
-        {/* Chat Area - takes full width and height */}
-        <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
-          <AuroraChatArea conversationId={activeConversationId} />
-        </div>
-      </DashboardLayout>
-    </AuroraActionsProvider>
+    <DashboardLayout
+      currentConversationId={activeConversationId}
+      onNewChat={handleNewChat}
+      onSelectConversation={handleSelectConversation}
+    >
+      <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
+        <AuroraChatArea conversationId={activeConversationId} />
+      </div>
+    </DashboardLayout>
   );
 };
 
