@@ -1,174 +1,111 @@
 
 
-# Phase 2: App Command Bus -- Make Aurora the Operator
+# Phase 3: UX Polish -- Consistent Header, Dedupe Dashboards, Aurora Dock States
 
-## Problem
+## Summary of Current State
 
-Aurora has two disconnected command systems and an unused trust/confirmation layer:
+**Duplicate dashboards:** `UnifiedDashboardView` (src/components/dashboard/UnifiedDashboardView.tsx) is a legacy superset -- it renders StatsGrid, PlanProgressHero, GoalsCard, etc. all in one view. It is only used inside `DashboardModal` (opened by Aurora's `openDashboard()` command). Meanwhile, the actual tabs (`TodayTab`, `PlanTab`, `MeTab`) are the real UI. Decision: **v2 components are the winners. UnifiedDashboardView is legacy.**
 
-1. **`useAuroraCommands`** handles navigation, settings, mode commands -- but is never imported anywhere.
-2. **`processActionTags`** (inside `useAuroraChat`, 300+ lines) handles task/habit/checklist/milestone mutations -- tightly coupled to the chat hook, no confirmation flow.
-3. **`useActionTrust`** + **`AuroraActionConfirmation`** exist but are not wired to anything.
+**QuickActionsBar:** Exported from v2/index.ts but imported by nobody. Dead code.
 
-Result: Aurora executes destructive actions (delete task, archive checklist) silently with no user confirmation, and navigation commands are dead code.
+**Aurora Dock:** Currently has 2 states: collapsed (just the input bar) and expanded (chat bubbles appear). There is no "minimized orb" state. The dock is always visible as a full-width input bar on non-Aurora tabs.
+
+**Header:** Mobile and desktop headers are embedded directly in `DashboardLayout.tsx` with inline icon buttons (Tasks, Goals, Coaches, Hypnosis, Notifications). No shared "primary action" concept.
 
 ---
 
-## Architecture
+## Changes
+
+### 1. Delete Dead Code
+
+| File | Action |
+|------|--------|
+| `src/components/dashboard/v2/QuickActionsBar.tsx` | Delete |
+| `src/components/dashboard/v2/index.ts` | Remove QuickActionsBar export |
+| `src/components/dashboard/UnifiedDashboardView.tsx` | Delete |
+| `src/components/dashboard/DashboardModal.tsx` | Simplify to just ProfileContent (no more dashboard view inside a modal inside the app) |
+| `src/contexts/AuroraActionsContext.tsx` | Remove `openDashboard`/`closeDashboard`/`dashboardModalOpen`/`dashboardInitialView` -- the dashboard IS the app now, not a modal |
+
+### 2. Aurora Dock: 3 States
+
+Refactor `GlobalChatInput` + `AuroraChatBubbles` interaction in `DashboardLayout` into a single `AuroraDock` component with 3 explicit states:
+
+| State | Trigger | UI |
+|-------|---------|-----|
+| **Minimized** (orb) | Default on page load, tap X on peek | Small floating orb button (bottom-right on desktop, bottom-center above tab bar on mobile). Shows unread indicator dot if Aurora has unsent nudges. |
+| **Peek** (input bar) | Tap orb, or type starts | Current GlobalChatInput appears. If there are recent messages, AuroraChatBubbles shows last 2-3 inline above input. |
+| **Full chat** | Tap "expand" icon on peek header, or navigate to /aurora tab | Navigate to /aurora tab (full AuroraChatArea). On /aurora tab, dock is hidden entirely. |
+
+State management lives in `AuroraChatContext` (already has `isChatExpanded`; add `dockState: 'orb' | 'peek' | 'full'`).
+
+New file: `src/components/aurora/AuroraDock.tsx` -- composes the orb, GlobalChatInput, and AuroraChatBubbles based on state.
+
+### 3. Consistent Header
+
+Create a shared `HeaderActions` component used by both mobile and desktop headers in DashboardLayout:
 
 ```text
-Aurora AI Response
-       |
-       v
-  Tag Parser (extract all [command:...] tags)
-       |
-       v
-  Command Bus (single dispatch point)
-       |
-       +---> Trust Check (useActionTrust)
-       |         |
-       |    auto_execute? -----> Execute immediately
-       |         |
-       |    always_ask? -------> Show AuroraActionConfirmation
-       |                              |
-       |                         User confirms --> Execute
-       |                         User denies  --> Skip
-       |
-       +---> Execute Command
-       |         |
-       |    Mutation commands --> DB write + invalidate queries
-       |    Navigation commands --> router.navigate()
-       |    Modal commands --> open modal via context
-       |    Setting commands --> setTheme, etc.
-       |
-       +---> Action Receipt + Toast
+src/components/navigation/HeaderActions.tsx
+
+Props: compact (boolean, for mobile sizing)
+
+Renders (in order):
+  - TasksPopover
+  - GoalsPopover  
+  - CoachesButton (pink circle, opens practitioners modal)
+  - PowerUpButton (violet circle, opens hypnosis modal)
+  - NotificationBell
+
+Mobile: Same icons, same order, compact sizing (h-8 w-8)
+Desktop: Same icons, same order, standard sizing (h-9 w-9)
 ```
+
+This replaces the duplicated inline icon buttons in both mobile header and TopNavBar's right section.
+
+### 4. Suggestion Tap Behavior
+
+In `AuroraWelcome.tsx` (and any smart suggestion chips), when user taps a suggestion:
+- Parse it through `parseAllTags` from the command bus
+- If it produces commands and all are `safe` risk: execute immediately via `dispatchCommands`, show receipt toast
+- If it produces `moderate`/`destructive` commands: send as chat message (current behavior, Aurora will respond with confirmation cards)
+- If no tags detected (plain text suggestion): send as chat message (current behavior)
+
+This leverages the Phase 2 command bus directly -- no new infrastructure needed.
 
 ---
 
-## Files to Create/Modify
+## Files Created
 
-### 1. NEW: `src/lib/commandBus.ts` -- Command Registry (pure TS, no React)
+| File | Purpose |
+|------|---------|
+| `src/components/aurora/AuroraDock.tsx` | Unified 3-state dock (orb/peek/full) |
+| `src/components/navigation/HeaderActions.tsx` | Shared header action icons |
 
-Defines the canonical command types and their payloads:
+## Files Modified
 
-```text
-Commands:
-  openTab(tabId: 'today' | 'plan' | 'aurora' | 'me')
-  openModal(modalId: 'hypnosis' | 'settings' | 'profile' | 'upgrade', payload?)
-  createActionItem(type, title, checklistTitle?)
-  completeActionItem(identifier)
-  deleteActionItem(identifier)
-  rescheduleActionItem(identifier, newDate)
-  createHabit(name)
-  completeHabit(name)
-  removeHabit(name)
-  createChecklist(title)
-  archiveChecklist(title)
-  renameChecklist(oldTitle, newTitle)
-  completeMilestone(weekNumber)
-  updatePlan(weekNumber, field, value)
-  addIdentity(elementType, content)
-  removeIdentity(elementType, content)
-  setReminder(message, date)
-  setFocus(title, days)
-  setTheme(value)
-  toggleTheme()
-  triggerAnalysis()
-```
+| File | Change |
+|------|--------|
+| `src/components/dashboard/DashboardLayout.tsx` | Replace inline header icons with HeaderActions; replace GlobalChatInput+AuroraChatBubbles with AuroraDock |
+| `src/components/navigation/TopNavBar.tsx` | Replace inline right-side icons with HeaderActions |
+| `src/contexts/AuroraChatContext.tsx` | Add `dockState` to context (orb/peek/full) |
+| `src/contexts/AuroraActionsContext.tsx` | Remove dashboard modal state (openDashboard, etc.) |
+| `src/components/dashboard/DashboardModal.tsx` | Remove UnifiedDashboardView, keep only profile view |
+| `src/components/dashboard/v2/index.ts` | Remove QuickActionsBar export |
+| `src/components/aurora/AuroraWelcome.tsx` | Add command bus integration for suggestion taps |
 
-Each command is a typed discriminated union:
-```typescript
-type AppCommand =
-  | { type: 'openTab'; tabId: string }
-  | { type: 'openModal'; modalId: string; payload?: Record<string, any> }
-  | { type: 'createActionItem'; title: string; checklistTitle?: string }
-  | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
-  // ... etc
-```
+## Files Deleted
 
-A `parseAllTags(content: string): AppCommand[]` function replaces the scattered regex parsing. It handles all tag formats from both `useAuroraCommands` and `processActionTags`.
-
-A `classifyRisk(command: AppCommand): 'safe' | 'moderate' | 'destructive'` function determines confirmation requirements:
-- **safe**: navigation, theme, analysis -- always auto-execute
-- **moderate**: create task, complete task, log habit -- respect trust preferences
-- **destructive**: delete task, archive checklist, remove habit -- always confirm unless trust is `auto_execute`
-
-### 2. NEW: `src/hooks/aurora/useCommandBus.tsx` -- React Hook
-
-The single dispatcher that:
-- Receives `AppCommand[]` from tag parsing
-- For each command, checks `useActionTrust.shouldAutoExecute(command.type)`
-- If auto-execute or safe: runs immediately, emits receipt + toast
-- If needs confirmation: queues command into a `pendingCommands` state
-- Exposes `confirmCommand(id)` and `rejectCommand(id)` for the confirmation UI
-- After execution, calls `useActionTrust.recordExecution(command.type)`
-- Returns `{ pendingCommands, confirmCommand, rejectCommand, lastReceipts }`
-
-Internally uses:
-- `useNavigate()` for tab/page navigation
-- `useAuroraActions()` for modal control (hypnosis, dashboard)
-- `useChecklistsData()` for task/checklist mutations
-- `useDailyHabits()` for habit mutations
-- Direct Supabase calls for milestones, identity, focus, reminders (moved from useAuroraChat)
-
-### 3. MODIFY: `src/hooks/aurora/useAuroraChat.tsx` -- Slim Down
-
-Remove the 300-line `processActionTags` function and all individual mutation functions (createDailyHabit, removeHabit, updateMilestone, addIdentityElement, etc.).
-
-Replace with:
-```typescript
-const { dispatchCommands, pendingCommands } = useCommandBus();
-
-// After streaming completes:
-const commands = parseAllTags(fullContent);
-const cleanedContent = stripAllTags(fullContent);
-await dispatchCommands(commands);
-```
-
-This reduces `useAuroraChat` from ~1037 lines to ~400 lines.
-
-### 4. MODIFY: `src/components/aurora/AuroraChatArea.tsx` -- Render Confirmations
-
-Import `useCommandBus` (or receive pending commands as props) and render `AuroraActionConfirmation` cards inline in the chat for any pending commands. When user confirms/rejects, call the bus methods.
-
-### 5. MODIFY: `src/contexts/AuroraActionsContext.tsx` -- Expand Modal Registry
-
-Add entries for all modals that Aurora can trigger:
-- `settingsModalOpen` + `openSettings()` / `closeSettings()`
-- `profileDrawerOpen` + `openProfile()` / `closeProfile()`
-- `upgradeModalOpen` + `openUpgrade()` / `closeUpgrade()`
-
-This makes `openModal('settings')` work through the context rather than ad-hoc navigation.
-
-### 6. MODIFY: `src/hooks/aurora/index.ts` -- Export new hook
-
-Add `export { useCommandBus } from './useCommandBus'`.
-
----
+| File | Reason |
+|------|--------|
+| `src/components/dashboard/v2/QuickActionsBar.tsx` | Dead code, never imported |
+| `src/components/dashboard/UnifiedDashboardView.tsx` | Legacy superset, replaced by tab pages |
 
 ## What Does NOT Change
 
-- `AuroraActionConfirmation.tsx` -- UI component is already built, used as-is
-- `useActionTrust.tsx` -- Trust system is already built, used as-is
-- `aurora_action_preferences` table -- Already exists with correct schema and RLS
-- Edge functions -- No backend changes
-- Database -- No migrations needed
+- `TodayTab.tsx`, `PlanTab.tsx`, `MeTab.tsx`, `Aurora.tsx` -- tab content unchanged
+- `BottomTabBar.tsx` -- 4-tab nav unchanged
+- `AuroraChatArea.tsx`, `AuroraChatBubbles.tsx`, `GlobalChatInput.tsx` -- internal logic unchanged, just composed differently by AuroraDock
+- Command bus (`commandBus.ts`, `useCommandBus.tsx`) -- used as-is
+- All v2 dashboard cards -- unchanged
+- Database / Edge functions -- no backend changes
 
-## Confirmation Flow (User Experience)
-
-1. Aurora responds with: "Done! I completed the task for you. [task:complete:Morning:Meditate]"
-2. Command bus parses the tag, checks trust for `completeActionItem`
-3. If user has never done this before (trust = `always_ask`):
-   - A small confirmation card appears in chat: "Complete Task: Meditate (in Morning checklist)? [Yes] [No] [Always Allow]"
-4. User taps "Yes" -- task completes, toast appears, receipt logged
-5. User taps "Always Allow" -- trust level saved to DB, future completions auto-execute
-6. After 5 auto-executions, system suggests promoting other similar actions
-
-## Risk Classification
-
-| Risk | Commands | Behavior |
-|------|----------|----------|
-| Safe | openTab, openModal, setTheme, toggleTheme, triggerAnalysis | Always auto-execute, no confirmation |
-| Moderate | createActionItem, completeActionItem, createHabit, completeHabit, completeMilestone, setReminder, setFocus, addIdentity | Respect trust preferences (default: auto for create/complete) |
-| Destructive | deleteActionItem, archiveChecklist, removeHabit, removeIdentity | Always confirm unless trust is `auto_execute` |
