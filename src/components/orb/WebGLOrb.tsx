@@ -742,8 +742,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       style={{
         width: size,
         height: size,
-        minWidth: size,
-        minHeight: size,
         background: 'transparent',
         overflow: 'visible',
       }}
