@@ -124,32 +124,35 @@ export function FlowRenderer({
         stepTitle={stepTitle}
       />
 
-      {/* Back button */}
-      {currentMiniIdx > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={goPrev}
-          className="gap-1"
-        >
-          {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          {language === 'he' ? 'חזרה' : 'Back'}
-        </Button>
-      )}
+      {/* Card container */}
+      <div className="rounded-2xl bg-card border border-border shadow-lg p-6 md:p-8 space-y-6">
+        {/* Back button */}
+        {currentMiniIdx > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goPrev}
+            className="gap-1"
+          >
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {language === 'he' ? 'חזרה' : 'Back'}
+          </Button>
+        )}
 
-      {/* Current question */}
-      <AnimatePresence mode="wait">
-        <QuestionCard
-          key={currentMini.id}
-          miniStep={currentMini}
-          value={answers[currentMini.id]}
-          onChange={handleChange}
-          onNext={goNext}
-          onSkip={handleSkip}
-          showSkip={!currentMini.validation.required}
-          autoAdvance={currentMini.inputType === 'single_select'}
-        />
-      </AnimatePresence>
+        {/* Current question */}
+        <AnimatePresence mode="wait">
+          <QuestionCard
+            key={currentMini.id}
+            miniStep={currentMini}
+            value={answers[currentMini.id]}
+            onChange={handleChange}
+            onNext={goNext}
+            onSkip={handleSkip}
+            showSkip={!currentMini.validation.required}
+            autoAdvance={currentMini.inputType === 'single_select'}
+          />
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
