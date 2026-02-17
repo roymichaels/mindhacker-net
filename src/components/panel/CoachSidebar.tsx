@@ -67,6 +67,7 @@ const navGroups: NavGroup[] = [
     icon: Briefcase,
     items: [
       { to: '/coach/clients', icon: Users, label: 'Clients', labelHe: 'לקוחות' },
+      { to: '/coach/client-plans', icon: FileText, label: 'Client Plans', labelHe: 'תוכניות לקוחות' },
       { to: '/coach/services', icon: Package, label: 'Services', labelHe: 'שירותים' },
       { to: '/coach/calendar', icon: Calendar, label: 'Calendar', labelHe: 'יומן' },
       { to: '/coach/earnings', icon: DollarSign, label: 'Earnings', labelHe: 'הכנסות' },

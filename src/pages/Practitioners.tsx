@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Users, Sparkles } from 'lucide-react';
+import { Search, Filter, Users, Sparkles, Rocket } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,9 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useTranslation } from '@/hooks/useTranslation';
-import { usePractitioners } from '@/hooks/usePractitioners';
+import { usePractitioners, useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useSEO } from '@/hooks/useSEO';
 import PractitionerCard from '@/components/practitioners/PractitionerCard';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SPECIALTIES = [
   { key: 'all', labelHe: 'הכל', labelEn: 'All' },
@@ -22,8 +24,12 @@ const SPECIALTIES = [
 const Practitioners = () => {
   const { t, isRTL, language } = useTranslation();
   const { data: practitioners, isLoading } = usePractitioners();
+  const { data: myProfile } = useMyPractitionerProfile();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
+  const isAlreadyCoach = !!myProfile;
 
   useSEO({
     title: t('practitioners.pageTitle'),
@@ -64,6 +70,20 @@ const Practitioners = () => {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {t('practitioners.directorySubtitle')}
             </p>
+
+            {/* Become a Coach CTA */}
+            {user && !isAlreadyCoach && (
+              <div className="mb-8">
+                <Button
+                  onClick={() => navigate('/coaching/journey')}
+                  className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
+                  size="lg"
+                >
+                  <Rocket className="h-5 w-5 me-2" />
+                  {language === 'en' ? 'Become a Coach' : 'הפוך למאמן'}
+                </Button>
+              </div>
+            )}
 
             {/* Search */}
             <div className="relative max-w-xl mx-auto">
