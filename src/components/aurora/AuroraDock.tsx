@@ -41,37 +41,18 @@ export function AuroraDock() {
             : "bottom-0"
         )}
       >
-        {/* Collapse/Expand toggle + Bug report */}
-        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
-          <button
-            onClick={() => setBugReportOpen(true)}
-            className={cn(
-              "p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground",
-              !isChatExpanded && "opacity-0 pointer-events-none"
-            )}
-            title={language === 'he' ? 'דווח על באג' : 'Report Bug'}
-          >
-            <Bug className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => setIsChatExpanded(!isChatExpanded)}
-            className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground flex items-center gap-1"
-          >
-            <AuroraOrbIcon className="w-4 h-4" size={16} />
-            {isChatExpanded ? (
-              <ChevronDown className="w-3.5 h-3.5" />
-            ) : (
-              <>
-                <span className="text-xs font-medium">Aurora</span>
-                <ChevronUp className="w-3.5 h-3.5" />
-                {isStreaming && (
-                  <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                )}
-              </>
-            )}
-          </button>
-        </div>
+        {/* Bug report button (visible only when expanded) */}
+        {isChatExpanded && (
+          <div className="w-full max-w-3xl mx-auto flex items-center justify-end px-3 pt-1.5 mb-0.5">
+            <button
+              onClick={() => setBugReportOpen(true)}
+              className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              title={language === 'he' ? 'דווח על באג' : 'Report Bug'}
+            >
+              <Bug className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Chat bubbles (expanded only) */}
         <AnimatePresence>
