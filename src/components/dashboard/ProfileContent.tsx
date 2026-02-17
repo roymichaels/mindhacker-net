@@ -131,28 +131,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         )}
       </div>
 
-      {/* ===== CTA ===== */}
-      <div className="flex gap-2">
-        <GradientCTAButton
-          onClick={handleEditJourney}
-          icon={<Sparkles className="w-4 h-4" />}
-          label={
-            isLaunchpadComplete
-              ? (hasCompletedAnyQuest ? t('launchpad.continueTransformationJourney') : t('launchpad.editTransformationJourney'))
-              : t('launchpad.startTransformationJourney')
-          }
-          className="flex-1"
-        />
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-11 w-11 shrink-0 border-primary/30"
-          onClick={handleRegenerate}
-          disabled={isRegenerating}
-        >
-          {isRegenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-        </Button>
-      </div>
 
       {/* ===== MERGED MODALS ===== */}
       <MergedIdentityModal
