@@ -167,7 +167,7 @@ export function OnboardingFlow() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-lg mx-auto w-full">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentStepIdx}-${currentMiniIdx}-${currentMini.id}`}
@@ -175,23 +175,24 @@ export function OnboardingFlow() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="w-full space-y-8"
+            className="w-full"
           >
-            {/* Question */}
-            <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold text-foreground leading-tight">
-                {isHe ? currentMini.title_he : currentMini.title_en}
-              </h1>
-              {isMultiSelect && (
-                <p className="text-sm text-muted-foreground">
-                  {isHe ? 'ניתן לבחור מספר תשובות' : 'You can select multiple answers'}
-                </p>
-              )}
-            </div>
+            <div className="bg-card border border-border rounded-2xl shadow-lg p-6 space-y-6">
+              {/* Question */}
+              <div className="text-center space-y-2">
+                <h1 className="text-2xl font-bold text-foreground leading-tight">
+                  {isHe ? currentMini.title_he : currentMini.title_en}
+                </h1>
+                {isMultiSelect && (
+                  <p className="text-sm text-muted-foreground">
+                    {isHe ? 'ניתן לבחור מספר תשובות' : 'You can select multiple answers'}
+                  </p>
+                )}
+              </div>
 
-            {/* Options */}
-            <div className="space-y-3">
-              {currentMini.options?.map((option: FlowOption) => {
+              {/* Options */}
+              <div className="grid grid-cols-2 gap-3">
+                {currentMini.options?.map((option: FlowOption) => {
                 const isSelected = isMultiSelect
                   ? currentMultiSelections.includes(option.value)
                   : (selectedValue === option.value || answers[currentMini.id] === option.value);
@@ -238,6 +239,7 @@ export function OnboardingFlow() {
                 )}
               </AnimatePresence>
             )}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
