@@ -22,6 +22,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
+import { LifePlanModal } from '@/components/dashboard/DashboardModals';
 
 interface MobileHeroGridProps {
   planData: {
@@ -66,7 +67,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
   const leftColRef = useRef<HTMLDivElement>(null);
-  type ModalType = 'identity' | 'direction' | 'insights' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | 'plan' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   const handleStartDailySession = () => {
@@ -326,7 +327,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               <span className="text-xs font-medium">{language === 'he' ? 'כרטיס זהות' : 'ID Card'}</span>
             </button>
             <button
-              onClick={() => navigate('/plan')}
+              onClick={() => setActiveModal('plan')}
               className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
             >
               <Map className="w-4 h-4 text-amber-500" />
@@ -362,6 +363,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       />
       <MergedInsightsModal
         open={activeModal === 'insights'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+      />
+      <LifePlanModal
+        open={activeModal === 'plan'}
         onOpenChange={(open) => !open && setActiveModal(null)}
         language={language}
       />
