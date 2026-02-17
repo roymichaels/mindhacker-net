@@ -3,15 +3,19 @@ import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import ProGateOverlay from '@/components/subscription/ProGateOverlay';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ListChecks, Target } from 'lucide-react';
 import {
   PlanProgressHero,
   GoalsCard,
   LifeAnalysisChart,
   PlanProgressCard,
 } from '@/components/dashboard/v2';
+import { TasksPanel } from '@/components/dashboard/plan/TasksPanel';
+import { GoalsPanel } from '@/components/dashboard/plan/GoalsPanel';
 
 const PlanTab = () => {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const { canAccessPlan, isLoading } = useSubscriptionGate();
 
   useSEO({
@@ -38,11 +42,32 @@ const PlanTab = () => {
   return (
     <div className="space-y-5 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <PlanProgressHero />
-      <div className="grid gap-4 md:grid-cols-2">
-        <GoalsCard />
-        <PlanProgressCard />
-      </div>
-      <LifeAnalysisChart />
+
+      <Tabs defaultValue="missions" className="w-full">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="missions" className="gap-2">
+            <ListChecks className="h-4 w-4" />
+            {language === 'he' ? 'משימות' : 'Missions'}
+          </TabsTrigger>
+          <TabsTrigger value="plan" className="gap-2">
+            <Target className="h-4 w-4" />
+            {language === 'he' ? 'תוכנית' : 'Plan'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="missions" className="mt-4">
+          <TasksPanel />
+        </TabsContent>
+
+        <TabsContent value="plan" className="mt-4 space-y-4">
+          <GoalsPanel />
+          <div className="grid gap-4 md:grid-cols-2">
+            <GoalsCard />
+            <PlanProgressCard />
+          </div>
+          <LifeAnalysisChart />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

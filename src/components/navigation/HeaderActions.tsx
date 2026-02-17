@@ -1,7 +1,5 @@
 import { Users, Compass } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { TasksPopover } from '@/components/dashboard/TasksPopover';
-import { GoalsPopover } from '@/components/dashboard/GoalsPopover';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { usePractitionersModal } from '@/contexts/PractitionersModalContext';
 import { cn } from '@/lib/utils';
@@ -20,8 +18,6 @@ export function HeaderActions({ compact, onOpenHypnosis }: HeaderActionsProps) {
 
   return (
     <div className="flex items-center gap-1">
-      <TasksPopover />
-      <GoalsPopover />
       <button
         className={cn(
           size,
