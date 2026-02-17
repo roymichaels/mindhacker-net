@@ -140,7 +140,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               </div>
             </div>
             {/* Separator */}
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Bottom: Stats row */}
             <div className="grid grid-cols-3 gap-1.5">
               {[
@@ -156,7 +156,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               ))}
             </div>
             {/* Separator */}
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Hypnosis session stats */}
             <div className="grid grid-cols-3 gap-1.5">
               {[
@@ -172,7 +172,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               ))}
             </div>
             {/* Separator */}
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Start Session button - mobile only, inside HUD */}
             <button
               onClick={handleStartDailySession}
@@ -215,7 +215,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               </span>
             </div>
             {/* Separator */}
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Stats grid */}
             <div className="flex flex-col gap-2 w-full">
               <div className="grid grid-cols-3 gap-1.5">
@@ -232,7 +232,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 ))}
               </div>
               {/* Separator */}
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
               {/* Hypnosis session stats - desktop */}
               <div className="grid grid-cols-3 gap-1.5">
                 {[
@@ -248,7 +248,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 ))}
               </div>
               {/* Separator */}
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
               {/* Start Session button - desktop, below hypnosis stats */}
               <button
                 onClick={handleStartDailySession}
@@ -273,10 +273,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Daily Pulse - top of COL 2, all screen sizes */}
           <DailyPulseCard />
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           <CollapsiblePlanRow
-            icon={<Sparkles className="w-4 h-4 text-amber-500" />}
+            icon={<Sparkles className="w-4 h-4 text-emerald-500" />}
             title={language === 'he' ? 'הרגלים' : 'Habits'}
             count={`${completedCount}/${totalCount}`}
             isOpen={expandedSection === 'habits'}
@@ -285,9 +285,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             items={habitMiniItems}
             onItemToggle={(id, done) => toggleHabit(id, done)}
           />
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <CollapsiblePlanRow
-            icon={<Calendar className="w-4 h-4 text-amber-500" />}
+            icon={<Calendar className="w-4 h-4 text-blue-500" />}
             title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
             count={`${planData?.progressPercent || 0}%`}
             badge={language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}
@@ -297,9 +297,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             previewText={planData?.currentMilestone?.title ? `→ ${planData.currentMilestone.title}` : undefined}
             progressPercent={planData?.progressPercent || 0}
           />
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <CollapsiblePlanRow
-            icon={<ListChecks className="w-4 h-4 text-amber-500" />}
+            icon={<ListChecks className="w-4 h-4 text-violet-500" />}
             title={language === 'he' ? 'משימות' : 'Tasks'}
             count={`${tasksCompleted}/${tasksTotal}`}
             countSuffix={`${tasksPercent}%`}
@@ -311,40 +311,40 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             onItemToggle={handleTaskToggle}
           />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Horizontal Roadmap - mobile/tablet only */}
           <div className="lg:hidden">
             <VerticalRoadmap />
           </div>
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent lg:hidden" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent lg:hidden" />
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent my-1" />
 
           {/* Row 1: Identity / Direction / Insights */}
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setActiveModal('identity')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
             >
-              <UserCircle className="w-4 h-4 text-amber-500" />
+              <UserCircle className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
             </button>
             <button
               onClick={() => setActiveModal('direction')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
             >
-              <Compass className="w-4 h-4 text-amber-500" />
+              <Compass className="w-4 h-4 text-blue-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
             </button>
             <button
               onClick={() => setActiveModal('insights')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all"
             >
-              <Brain className="w-4 h-4 text-amber-500" />
+              <Brain className="w-4 h-4 text-violet-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
             </button>
           </div>
@@ -417,7 +417,7 @@ function CollapsiblePlanRow({
         </div>
         <div className="flex items-center gap-2">
           {badge && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 dark:text-amber-400 font-semibold border border-amber-500/20">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold border border-primary/20">
               {badge}
             </span>
           )}
@@ -428,7 +428,7 @@ function CollapsiblePlanRow({
           )}
           <span className="text-xs font-bold text-muted-foreground">{count}</span>
           {countSuffix && (
-            <span className="text-[10px] font-medium text-amber-500 dark:text-amber-400">{countSuffix}</span>
+            <span className="text-[10px] font-medium text-primary">{countSuffix}</span>
           )}
           <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
         </div>
@@ -452,7 +452,7 @@ function CollapsiblePlanRow({
                   <div key={item.id} className="flex items-center gap-2">
                     <button
                       onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
-                      className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
+                      className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-primary hover:bg-primary/10 transition-colors"
                       aria-label="Complete item"
                     />
                     <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
@@ -465,7 +465,7 @@ function CollapsiblePlanRow({
           </div>
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
-              <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
             </div>
           )}
         </div>
@@ -485,7 +485,7 @@ function CollapsiblePlanRow({
                 <div key={item.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
                   <div className={cn(
                     "w-4 h-4 rounded-full border-2 flex-shrink-0",
-                    item.done ? "bg-amber-500 border-amber-500" : "border-muted-foreground/40"
+                    item.done ? "bg-primary border-primary" : "border-muted-foreground/40"
                   )} />
                   <span className={cn(
                     "text-xs flex-1 min-w-0 truncate",
@@ -508,7 +508,7 @@ function CollapsiblePlanRow({
           >
             <div className="px-3 pb-2">
               <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
               </div>
             </div>
           </motion.div>
