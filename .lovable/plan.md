@@ -1,135 +1,173 @@
 
-# Make the UI Feel Integrated: 4-Tab Navigation
 
-## The Problem Today
+# Monetization Simplification: Free + Pro + Upsell
 
-The app currently has a **feature museum** navigation:
-- **Sidebar (desktop)**: 5 gradient buttons (Dashboard, My Plan, Aurora Coach, Projects, Progress) plus header icons for Tasks, Goals, Coaches, Hypnosis, Notifications
-- **Mobile**: Hamburger menu opens the same sidebar as a sheet, same header icons crammed into the top bar
-- **Routes**: 30+ protected routes for 8 pillar hubs, their journeys, projects, hypnosis, community, messages, launchpad, life-plan, etc.
-- **No bottom tabs on mobile** -- users must always open the hamburger or tap header icons
+## Current State
 
-Users see a wall of options instead of a story. The fix: 4 tabs maximum, everything else becomes a secondary screen reachable from those.
+**What exists today:**
+- 3 subscription tiers in the database: "התחלה" (199 ILS/mo), "התמרה" (399 ILS/mo), "שינוי" (799 ILS/mo) -- confusing, unsold
+- A mock payment system (no real Stripe integration) -- `SubscriptionCheckoutDialog` literally says "this is a demo, no real payment"
+- No feature gating based on subscription status -- everyone gets everything
+- No Aurora message limits -- unlimited for all users
+- A 4-tier progression system (Clarity/Structure/Consistency/Mastery) that gates features by XP level, not payment
+- Existing `purchases` table for one-off products (hypnosis, coaching sessions)
+- Existing `offers` table for landing pages (Personal Hypnosis at 297 ILS, Consciousness Leap at 1,997 ILS)
+- The `/subscriptions` page shows a static 97 ILS/month card with a "coming soon" toast
 
-## The 4 Tabs
+**The problem:** Three confusing tiers, no real payments, no feature gating. Users get everything for free so there's no reason to pay.
 
-| Tab | Icon | Label (EN/HE) | What It Shows |
-|-----|------|----------------|---------------|
-| **Today** | LayoutDashboard | Today / היום | NextActionBanner + Habits + Checklists (the "1 clear action" screen) |
-| **Plan** | Target | Plan / תוכנית | LifePlan + PlanProgressHero + GoalsCard + LifeAnalysisChart + pillar hubs |
-| **Coach** | Sparkles | Aurora / אורורה | Full Aurora chat (existing AuroraChatArea) |
-| **Me** | User | Me / אני | StatsGrid + Profile + Progress + Settings |
+---
 
-## What Moves Where
-
-| Current Location | New Home |
-|-----------------|----------|
-| Dashboard (NextActionBanner, Habits, Checklists) | **Today** tab |
-| StatsGrid (Level, XP, Streak, Tokens) | **Me** tab |
-| LifeAnalysisChart + PlanProgressHero + GoalsCard | **Plan** tab |
-| PlanProgressCard (Power-Up / Hypnosis) | **Plan** tab (secondary action) |
-| Aurora chat (/aurora) | **Coach** tab |
-| Projects (/projects) | Accessible from **Plan** tab as secondary screen |
-| Pillar hubs (/consciousness, /health, etc.) | Accessible from **Plan** tab's Life Analysis chart |
-| Header icons (Tasks, Goals, Coaches, Hypnosis, Notifications) | Stay as popovers/modals -- accessible from any tab |
-| Sidebar navigation | **Replaced** by bottom tabs on mobile, condensed sidebar on desktop |
-
-## Technical Implementation
-
-### 1. Create `BottomTabBar` component
-New file: `src/components/navigation/BottomTabBar.tsx`
-
-- Fixed bottom bar (z-50) with 4 tab buttons
-- Active tab indicated by color + filled icon
-- Renders only on mobile (`useIsMobile()`)
-- Uses `useLocation()` to determine active tab
-- Tab routes: `/today`, `/plan`, `/aurora`, `/me`
-- Safe-area padding for iOS notch devices
-- GlobalChatInput moves **inside** the Coach tab only (not floating globally)
-
-### 2. Create `TopNavBar` component for desktop
-New file: `src/components/navigation/TopNavBar.tsx`
-
-- Horizontal top bar replacing the sidebar
-- 4 tab links on the left, action icons on the right (Tasks, Goals, Coaches, Hypnosis, Notifications, Account dropdown)
-- Slim height (h-14), sticky, with backdrop blur
-
-### 3. Create tab page components
-
-**`src/pages/TodayTab.tsx`** (new)
-- Renders: DashboardBannerSlider + NextActionBanner + TodaysHabitsCard + ChecklistsCard
-- Focused: "What do I do right now?"
-- GlobalChatInput pinned at bottom (Aurora is always accessible)
-
-**`src/pages/PlanTab.tsx`** (new)
-- Renders: PlanProgressHero + GoalsCard + LifeAnalysisChart + PlanProgressCard
-- Links to: /life-plan, /projects, and pillar hubs from the chart segments
-- This is the "big picture" view
-
-**`src/pages/MeTab.tsx`** (new)
-- Renders: StatsGrid (gamification), ProfileContent (consolidated profile), LifeAnalysisChart mini view
-- Links to: Settings, Community profile, Progress history
-
-### 4. Refactor `DashboardLayout`
-
-- **Mobile**: Remove hamburger sidebar entirely. Replace with `BottomTabBar`. Remove floating GlobalChatInput (it lives in Coach tab or stays pinned but slimmer).
-- **Desktop**: Replace sidebar with `TopNavBar`. Main content area becomes full-width. Keep header action icons (Tasks, Goals, etc.) in the top bar.
-- The layout becomes a simple shell: TopNavBar/BottomTabBar + content area
-
-### 5. Route changes
+## The New Model
 
 ```
-/dashboard -> redirect to /today
-/today     -> TodayTab (new default for logged-in users)
-/plan      -> PlanTab
-/aurora    -> Aurora (Coach tab, unchanged internally)
-/me        -> MeTab
-/life-plan -> secondary screen (back button returns to /plan)
-/projects  -> secondary screen (back button returns to /plan)
-/consciousness, /health, etc. -> secondary screens from /plan
+Free (default)
+  - Consciousness Journey (onboarding)
+  - Limited Aurora: 5 messages/day
+  - Today tab: see next action, habits (max 3)
+  - No 90-day plan engine
+  - No proactive nudges
+  - No hypnosis
+
+Pro (97 ILS / $27 per month - Stripe subscription)
+  - Unlimited Aurora messages
+  - Full 90-day plan engine
+  - Proactive coaching nudges
+  - Hypnosis library (weekly allowance: 3 sessions/week)
+  - Unlimited habits and checklists
+  - All pillar hubs unlocked
+
+Upsell (one-off purchases - keep existing offers)
+  - Personal Hypnosis Video (297 ILS) -- already exists
+  - Consciousness Leap 4-session package (1,997 ILS) -- already exists
+  - Coach session marketplace -- future
 ```
 
-### 6. Redirect logic
-- `ProtectedRoute` default redirect changes from `/dashboard` to `/today`
-- `/dashboard` route redirects to `/today` for backwards compat
+---
+
+## Implementation
+
+### Phase 1: Stripe Integration + Subscription Infrastructure
+
+**Enable Stripe** using the Lovable Stripe integration tool. This creates the real payment flow.
+
+**Database changes:**
+- Simplify `subscription_tiers` to 2 rows: "Free" (price 0) and "Pro" (price 97 ILS / 27 USD)
+- Deactivate the 3 existing tiers (199/399/799)
+- Add `aurora_daily_message_limit INTEGER DEFAULT 5` to the Free tier config
+- Add `stripe_customer_id TEXT` and `stripe_subscription_id TEXT` columns to `user_subscriptions`
+- Add a `subscription_status` computed field or view that combines Stripe status with local status
+
+**New edge function:** `stripe-webhook` to handle `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted` events. On successful payment, upsert `user_subscriptions` with `status = 'active'`.
+
+**New edge function:** `create-checkout-session` that creates a Stripe Checkout session for the Pro plan. Returns the Stripe URL for redirect.
+
+### Phase 2: Feature Gating Hook
+
+**New file:** `src/hooks/useSubscriptionGate.ts`
+
+This is the single source of truth for "can this user do X?"
+
+```
+useSubscriptionGate() returns:
+  - tier: 'free' | 'pro'
+  - isPro: boolean
+  - canSendMessage: boolean (checks daily count)
+  - messagesRemaining: number
+  - canAccessPlan: boolean
+  - canAccessHypnosis: boolean
+  - canAccessNudges: boolean
+  - maxHabits: number (3 for free, unlimited for pro)
+  - showUpgradePrompt: (feature: string) => void
+```
+
+**How it works:**
+- Queries `user_subscriptions` joined with `subscription_tiers` for the current user
+- If no active subscription or tier is Free: apply limits
+- Caches result in React Query with 5-minute stale time
+- Exposes a `showUpgradePrompt(feature)` that opens a modal pointing to the Pro plan
+
+**Daily message counting:**
+- Add a lightweight counter: query `aurora_conversations_messages` for today's user messages
+- Or add a `daily_message_counts` table (user_id, date, count) updated by the aurora-chat edge function
+- Free tier: 5 messages/day. Pro: unlimited.
+
+### Phase 3: Apply Gates to UI
+
+**Aurora chat (`useAuroraChat.tsx`):**
+- Before sending a message, check `canSendMessage` from `useSubscriptionGate`
+- If limit reached, show upgrade prompt instead of sending
+- Display remaining messages counter in the chat input area for free users
+
+**Today tab (`TodayTab.tsx`):**
+- Free: show max 3 habits in `TodaysHabitsCard`, with a "Unlock more with Pro" card after
+- Pro: show all habits
+
+**Plan tab (`PlanTab.tsx`):**
+- Free: show `PlanProgressHero` in a locked/blurred state with "Unlock your 90-day plan" CTA
+- Pro: full access
+
+**Hypnosis (`HypnosisModal`):**
+- Free: locked entirely, shows upgrade prompt
+- Pro: 3 sessions/week allowance
+
+**Proactive nudges (`aurora-proactive` edge function):**
+- Skip free users entirely (don't generate nudges for them)
+- Only process users with active Pro subscriptions
+
+### Phase 4: Upgrade Flow
+
+**Replace `/subscriptions` page** with a clean single-offer page:
+- Hero: "Unlock your full transformation" (outcome-focused, not feature-focused)
+- Single Pro card at 97 ILS/month ($27)
+- "Start 7-day free trial" button (Stripe trial period)
+- Social proof section
+- FAQ section (keep existing, update content)
+- Click CTA -> Stripe Checkout -> redirect back to `/today` on success
+
+**Upgrade prompt modal** (`UpgradePromptModal.tsx`):
+- Triggered by `showUpgradePrompt(feature)` from the gate hook
+- Shows: "You've used your 5 daily Aurora messages" or "90-day planning is a Pro feature"
+- Single CTA: "Upgrade to Pro" -> navigates to `/subscriptions` or opens Stripe Checkout directly
+
+### Phase 5: Existing Upsells (Keep As-Is)
+
+The existing offers system (Personal Hypnosis at 297 ILS, Consciousness Leap at 1,997 ILS) stays unchanged. These are already well-built landing pages with their own checkout flows. They complement Pro as upsells, not competitors.
+
+---
+
+## Technical Details
 
 ### Files to Create
-1. `src/components/navigation/BottomTabBar.tsx` -- Mobile bottom tab bar (4 tabs)
-2. `src/components/navigation/TopNavBar.tsx` -- Desktop horizontal top nav
-3. `src/pages/TodayTab.tsx` -- "What do I do now?" view
-4. `src/pages/PlanTab.tsx` -- "Big picture" view
-5. `src/pages/MeTab.tsx` -- Profile + stats + progress
+1. `src/hooks/useSubscriptionGate.ts` -- Central feature gating hook
+2. `src/components/subscription/UpgradePromptModal.tsx` -- Reusable upgrade modal
+3. `supabase/functions/create-checkout-session/index.ts` -- Stripe checkout session creator
+4. `supabase/functions/stripe-webhook/index.ts` -- Stripe webhook handler
 
 ### Files to Modify
-1. `src/components/dashboard/DashboardLayout.tsx` -- Replace sidebar with tab-based layout
-2. `src/components/dashboard/DashboardSidebar.tsx` -- Remove or reduce to desktop-only condensed version
-3. `src/App.tsx` -- Add new tab routes, redirect /dashboard to /today
-4. `src/pages/UserDashboard.tsx` -- Redirect to /today
-5. `src/components/dashboard/UnifiedDashboardView.tsx` -- Split into TodayTab and PlanTab content
-6. `src/components/ProtectedRoute.tsx` -- Change default redirect to /today
+1. `src/pages/Subscriptions.tsx` -- Rebuild as single Pro offer page with Stripe checkout
+2. `src/hooks/aurora/useAuroraChat.tsx` -- Add message limit check before sending
+3. `src/pages/TodayTab.tsx` -- Gate habits count for free users
+4. `src/pages/PlanTab.tsx` -- Lock plan engine for free users
+5. `src/components/dashboard/HypnosisModal.tsx` -- Gate behind Pro
+6. `supabase/functions/aurora-chat/index.ts` -- Track daily message count, enforce limit
+7. `supabase/functions/aurora-proactive/index.ts` -- Skip free users
+8. `src/components/checkout/SubscriptionCheckoutDialog.tsx` -- Replace mock with Stripe redirect
 
-### What Stays the Same
-- All pillar hub pages (/consciousness, /health, etc.) -- they become "drill-down" screens
-- Aurora chat internals (AuroraChatArea, hooks, edge functions) -- zero changes
-- Header popovers (Tasks, Goals, Notifications) -- move into TopNavBar/BottomTabBar overflow
-- Admin/Coach/Affiliate panels -- untouched
-- GlobalChatInput -- stays pinned at bottom on all tabs (Aurora is always one tap away)
+### Database Migrations
+1. Deactivate existing 3 tiers, insert "Free" and "Pro" tiers
+2. Add `stripe_customer_id`, `stripe_subscription_id` to `user_subscriptions`
+3. Create `daily_message_counts` table: `(user_id UUID, message_date DATE, count INTEGER, PRIMARY KEY(user_id, message_date))`
+4. RLS: users can read their own subscription and message counts
 
-### Mobile Experience Flow
+### Implementation Order
+1. Enable Stripe integration (requires user to provide Stripe secret key)
+2. Database migration (simplify tiers, add Stripe columns, message counts table)
+3. Stripe edge functions (checkout session + webhook)
+4. `useSubscriptionGate` hook
+5. `UpgradePromptModal` component
+6. Apply gates to Aurora chat (highest impact -- users hit this first)
+7. Apply gates to Plan, Hypnosis, Habits
+8. Rebuild `/subscriptions` page
+9. Update proactive function to skip free users
 
-```
-User opens app
-  -> /today loads
-  -> Sees: "Complete your daily habits (2/5)" with one big action button
-  -> Taps action -> habit toggles -> XP animation
-  -> Bottom bar: [Today*] [Plan] [Coach] [Me]
-  -> Taps "Plan" -> sees 90-day progress, life chart, goals
-  -> Taps a pie slice -> drills into /health hub
-  -> Back button -> /plan
-  -> Taps "Coach" -> full Aurora chat
-  -> Taps "Me" -> Level 7, 340 XP, 12-day streak, profile card
-```
-
-### Desktop Experience
-
-Same 4 sections but rendered as horizontal tabs in a top nav bar. The sidebar is eliminated. Content takes full width. Action icons (Tasks, Goals, Coaches, Hypnosis, Notifications) sit in the top-right of the nav bar, just like today's header icons.
