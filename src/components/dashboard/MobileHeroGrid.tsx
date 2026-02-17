@@ -112,41 +112,44 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         {/* ===== COL 1 - HUD ===== */}
         <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:gap-2 h-full md:order-2">
           {/* Mobile: 3-col compact grid */}
-          <div className="grid grid-cols-3 gap-2 items-center md:hidden">
-            {/* Col 1: Orb */}
-            <div className="relative flex items-center justify-center overflow-visible aspect-square">
-              <PersonalizedOrb size={120} state="idle" />
-            </div>
-            {/* Col 2: Identity + badges */}
-            <div className="flex flex-col items-center gap-1.5">
-              {identityTitle && (
-                <div className="flex items-center gap-1">
-                  <span className="text-sm">{identityTitle.icon}</span>
-                  <span className="text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent leading-tight text-center">
-                    {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+          <div className="flex flex-col gap-2 md:hidden">
+            {/* Top: Identity + Orb side by side */}
+            <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
+              {/* Identity + badges */}
+              <div className="flex flex-col gap-1.5">
+                {identityTitle && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm">{identityTitle.icon}</span>
+                    <span className="text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent leading-tight">
+                      {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                    <Star className="h-2.5 w-2.5" />Lv.{xp.level}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+                    <Gem className="h-2.5 w-2.5" />{tokens.balance}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                    <Flame className="h-2.5 w-2.5" />{streak.streak}
                   </span>
                 </div>
-              )}
-              <div className="flex flex-wrap items-center justify-center gap-1">
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
-                  <Star className="h-2.5 w-2.5" />Lv.{xp.level}
-                </span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                  <Gem className="h-2.5 w-2.5" />{tokens.balance}
-                </span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                  <Flame className="h-2.5 w-2.5" />{streak.streak}
-                </span>
+              </div>
+              {/* Orb */}
+              <div className="relative flex items-center justify-center overflow-visible w-[100px] h-[100px]">
+                <PersonalizedOrb size={100} state="idle" />
               </div>
             </div>
-            {/* Col 3: Stats */}
-            <div className="flex flex-col gap-1">
+            {/* Bottom: Stats row */}
+            <div className="grid grid-cols-3 gap-1.5">
               {[
                 { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
                 { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
                 { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
               ].map((m) => (
-                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1 flex items-center gap-1.5">
+                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1.5 flex items-center gap-1.5">
                   <m.icon className={cn("w-3 h-3 shrink-0", m.color)} />
                   <span className="text-xs font-bold leading-none">{m.value}</span>
                   <span className="text-[9px] text-muted-foreground truncate">{m.label}</span>
