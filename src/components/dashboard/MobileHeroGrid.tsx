@@ -16,6 +16,7 @@ import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, Trending
 import { useGameState } from '@/contexts/GameStateContext';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useHaptics } from '@/hooks/useHaptics';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -41,6 +42,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const tokens = useTokens();
   const { suggestedGoal } = useDailyHypnosis();
   const { impact } = useHaptics();
+  const { openHypnosis } = useAuroraActions();
   const { habits, completedCount, totalCount, toggleHabit } = useTodaysHabits();
   const { sessionStats } = useGameState();
 
@@ -69,11 +71,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
   const handleStartDailySession = () => {
     impact('medium');
-    const params = new URLSearchParams();
-    params.set('duration', '15');
-    params.set('goal', suggestedGoal);
-    params.set('daily', 'true');
-    navigate(`/hypnosis/session?${params.toString()}`);
+    openHypnosis();
   };
 
   const identityTitle = dashboard.identityTitle;

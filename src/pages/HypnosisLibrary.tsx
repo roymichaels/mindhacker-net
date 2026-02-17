@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { RecentSessions } from '@/components/hypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
+import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGameState } from '@/contexts/GameStateContext';
 import { PageShell } from '@/components/aurora-ui/PageShell';
@@ -26,6 +27,7 @@ const HypnosisLibrary = () => {
   const { currentMilestone, suggestedGoal, isLoading: isLoadingHypnosis } = useDailyHypnosis();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { sessionStats, gameState } = useGameState();
+  const { openHypnosis } = useAuroraActions();
 
   if (!isLoadingLaunchpad && !isLaunchpadComplete) {
     return (
@@ -54,19 +56,12 @@ const HypnosisLibrary = () => {
 
   const handleStartSession = (preset?: string, duration?: number) => {
     impact('medium');
-    const params = new URLSearchParams();
-    if (preset) params.set('preset', preset);
-    if (duration) params.set('duration', duration.toString());
-    navigate(`/hypnosis/session?${params.toString()}`);
+    openHypnosis();
   };
 
   const handleStartDailySession = () => {
     impact('medium');
-    const params = new URLSearchParams();
-    params.set('duration', '15');
-    params.set('goal', suggestedGoal);
-    params.set('daily', 'true');
-    navigate(`/hypnosis/session?${params.toString()}`);
+    openHypnosis();
   };
 
   return (
