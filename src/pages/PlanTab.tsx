@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
@@ -9,13 +9,13 @@ import { TasksPanel } from '@/components/dashboard/plan/TasksPanel';
 import { PlanRoadmap } from '@/components/dashboard/plan/PlanRoadmap';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { SectionHeader } from '@/components/aurora-ui/SectionHeader';
-import { ListChecks, Target, Calendar, Map, BarChart3 } from 'lucide-react';
+import { ListChecks, Target, Calendar, Map, BarChart3, ChevronDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const PlanTab = () => {
@@ -24,6 +24,9 @@ const PlanTab = () => {
   const { user } = useAuth();
   const roadmapRef = useRef<HTMLDivElement>(null);
   const analysisRef = useRef<HTMLDivElement>(null);
+  const [tasksOpen, setTasksOpen] = useState(true);
+  const [roadmapOpen, setRoadmapOpen] = useState(false);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
 
   const { data: planData } = useQuery({
     queryKey: ['plan-hero-grid', user?.id],
@@ -144,25 +147,91 @@ const PlanTab = () => {
         </div>
       </div>
 
-      {/* Today's Missions */}
-      <section className="space-y-2">
-        <SectionHeader
-          icon={ListChecks}
-          title={language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}
-        />
-        <div className="rounded-2xl border border-border bg-card shadow-sm p-4">
-          <TasksPanel />
-        </div>
+      {/* Today's Missions — Collapsible */}
+      <section className="space-y-0">
+        <button
+          onClick={() => setTasksOpen(!tasksOpen)}
+          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <ListChecks className="w-5 h-5 text-primary" />
+            <span className="text-base font-semibold">{language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}</span>
+          </div>
+          <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", tasksOpen && "rotate-180")} />
+        </button>
+        <AnimatePresence initial={false}>
+          {tasksOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="rounded-2xl border border-border border-t-0 rounded-t-none bg-card shadow-sm p-4">
+                <TasksPanel />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
-      {/* 90-Day Roadmap */}
-      <section ref={roadmapRef}>
-        <PlanRoadmap />
+      {/* 90-Day Roadmap — Collapsible */}
+      <section ref={roadmapRef} className="space-y-0">
+        <button
+          onClick={() => setRoadmapOpen(!roadmapOpen)}
+          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Map className="w-5 h-5 text-primary" />
+            <span className="text-base font-semibold">{language === 'he' ? '🗺️ מפת דרכים 90 יום' : '🗺️ 90-Day Roadmap'}</span>
+          </div>
+          <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", roadmapOpen && "rotate-180")} />
+        </button>
+        <AnimatePresence initial={false}>
+          {roadmapOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-2">
+                <PlanRoadmap />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
-      {/* Life Analysis */}
-      <section ref={analysisRef}>
-        <LifeAnalysisChart />
+      {/* Life Analysis — Collapsible */}
+      <section ref={analysisRef} className="space-y-0">
+        <button
+          onClick={() => setAnalysisOpen(!analysisOpen)}
+          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-accent" />
+            <span className="text-base font-semibold">{language === 'he' ? '📊 ניתוח חיים' : '📊 Life Analysis'}</span>
+          </div>
+          <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", analysisOpen && "rotate-180")} />
+        </button>
+        <AnimatePresence initial={false}>
+          {analysisOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-2">
+                <LifeAnalysisChart />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
     </PageShell>
   );
