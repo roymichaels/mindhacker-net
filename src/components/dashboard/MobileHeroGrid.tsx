@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard, Target, Headphones, Activity } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Target, Headphones, Activity } from 'lucide-react';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -24,8 +24,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
-import { LifePlanModal } from '@/components/dashboard/DashboardModals';
-import { DiagnosticsModal } from '@/components/dashboard/DiagnosticsModal';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 
 interface MobileHeroGridProps {
@@ -71,9 +69,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
   const leftColRef = useRef<HTMLDivElement>(null);
-  type ModalType = 'identity' | 'direction' | 'insights' | 'plan' | 'diagnostics' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [diagnosticTab, setDiagnosticTab] = useState<string | undefined>();
+  const [insightsTab, setInsightsTab] = useState<string | undefined>();
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const handleStartDailySession = () => {
@@ -345,31 +343,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             </button>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
-          {/* Row 2: Identity Card / 90-Day Plan / AI Analysis */}
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => navigate('/profile')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
-            >
-              <IdCard className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'כרטיס זהות' : 'ID Card'}</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('plan')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
-            >
-              <Map className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('insights')}
-              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
-            >
-              <ScanSearch className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-medium">{language === 'he' ? 'ניתוח AI' : 'AI Analysis'}</span>
-            </button>
-          </div>
         </div>
 
         {/* ===== COL 3 - Diagnostics (desktop only) ===== */}
@@ -391,7 +364,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           ].map((d) => (
             <button
               key={d.label}
-              onClick={() => { setDiagnosticTab(d.key); setActiveModal('diagnostics'); }}
+              onClick={() => { setInsightsTab(d.key); setActiveModal('insights'); }}
               className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer w-full text-start"
             >
               <d.icon className={cn("w-4 h-4 shrink-0", d.color)} />
@@ -420,19 +393,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       />
       <MergedInsightsModal
         open={activeModal === 'insights'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
+        onOpenChange={(open) => { if (!open) { setActiveModal(null); setInsightsTab(undefined); } }}
         language={language}
-      />
-      <LifePlanModal
-        open={activeModal === 'plan'}
-        onOpenChange={(open) => !open && setActiveModal(null)}
-        language={language}
-      />
-      <DiagnosticsModal
-        open={activeModal === 'diagnostics'}
-        onOpenChange={(open) => { if (!open) { setActiveModal(null); setDiagnosticTab(undefined); } }}
-        language={language}
-        initialTab={diagnosticTab}
+        initialTab={insightsTab}
       />
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
     </div>
