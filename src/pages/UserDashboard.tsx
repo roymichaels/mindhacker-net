@@ -94,9 +94,9 @@ const UserDashboard = () => {
   };
 
   return (
-    <PageShell className="space-y-6 flex-1 flex flex-col">
+    <PageShell className="flex-1 flex flex-col min-h-0 gap-4">
       <MobileHeroGrid planData={planData} />
-      <section>
+      <section className="md:hidden">
         <ProfileContent />
       </section>
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
