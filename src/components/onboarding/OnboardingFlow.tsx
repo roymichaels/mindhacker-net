@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { OnboardingReveal } from './OnboardingReveal';
@@ -18,6 +19,7 @@ import { cn } from '@/lib/utils';
 export function OnboardingFlow() {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isHe = language === 'he';
 
   const [answers, setAnswers] = useState<FlowAnswers>({});
@@ -138,21 +140,30 @@ export function OnboardingFlow() {
   const canGoBack = currentStepIdx > 0 || currentMiniIdx > 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* 5-segment progress bar */}
-      <div className="flex gap-1 px-6 pt-6">
-        {steps.map((_, idx) => (
-          <div key={idx} className="flex-1 h-1 rounded-full overflow-hidden bg-white/10">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              initial={false}
-              animate={{
-                width: idx < currentStepIdx ? '100%' : idx === currentStepIdx ? `${((currentMiniIdx + 1) / (visibleMiniSteps.length || 1)) * 100}%` : '0%',
-              }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        ))}
+    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Top bar: progress + exit */}
+      <div className="flex items-center gap-3 px-6 pt-6">
+        <div className="flex gap-1 flex-1">
+          {steps.map((_, idx) => (
+            <div key={idx} className="flex-1 h-1 rounded-full overflow-hidden bg-muted">
+              <motion.div
+                className="h-full bg-primary rounded-full"
+                initial={false}
+                animate={{
+                  width: idx < currentStepIdx ? '100%' : idx === currentStepIdx ? `${((currentMiniIdx + 1) / (visibleMiniSteps.length || 1)) * 100}%` : '0%',
+                }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => navigate(user ? '/today' : '/')}
+          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Exit"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Main content */}
@@ -168,11 +179,11 @@ export function OnboardingFlow() {
           >
             {/* Question */}
             <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold text-white leading-tight">
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
                 {isHe ? currentMini.title_he : currentMini.title_en}
               </h1>
               {isMultiSelect && (
-                <p className="text-sm text-white/40">
+                <p className="text-sm text-muted-foreground">
                   {isHe ? 'ניתן לבחור מספר תשובות' : 'You can select multiple answers'}
                 </p>
               )}
@@ -194,8 +205,8 @@ export function OnboardingFlow() {
                     className={cn(
                       'w-full min-h-[56px] rounded-2xl px-5 py-4 text-start flex items-center gap-3 transition-all duration-200 border',
                       isSelected
-                        ? 'bg-primary/20 border-primary/60 text-white'
-                        : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:border-white/20'
+                        ? 'bg-primary/20 border-primary/60 text-foreground'
+                        : 'bg-muted/50 border-border text-foreground/80 hover:bg-muted hover:border-border/80'
                     )}
                   >
                     {option.icon && <span className="text-xl shrink-0">{option.icon}</span>}
@@ -219,7 +230,7 @@ export function OnboardingFlow() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     onClick={handleContinue}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                   >
                     {isHe ? 'המשך' : 'Continue'}
                     {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
@@ -236,7 +247,7 @@ export function OnboardingFlow() {
         <div className="px-6 pb-8 flex justify-center">
           <button
             onClick={goBack}
-            className="flex items-center gap-1 text-sm text-white/30 hover:text-white/60 transition-colors"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             {isHe ? 'חזרה' : 'Back'}
