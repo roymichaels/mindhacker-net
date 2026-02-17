@@ -61,19 +61,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
-
-  // Track the left column height to sync the orb size
   const leftColRef = useRef<HTMLDivElement>(null);
-  const [leftColHeight, setLeftColHeight] = useState(0);
-
-  useEffect(() => {
-    if (!leftColRef.current) return;
-    const observer = new ResizeObserver(([entry]) => {
-      setLeftColHeight(entry.contentRect.height);
-    });
-    observer.observe(leftColRef.current);
-    return () => observer.disconnect();
-  }, []);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
@@ -104,11 +92,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
     queryClient.invalidateQueries({ queryKey: ['mobile-grid-tasks'] });
   };
 
-  // Orb: use left column height on desktop, fixed 280 on mobile/fallback
-  const hudNonOrbHeight = 200;
-  const orbSize = leftColHeight > hudNonOrbHeight
-    ? Math.max(200, leftColHeight - hudNonOrbHeight)
-    : 280;
+  // Orb: fixed size on mobile, constrained on desktop
+  const orbSize = 280;
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
