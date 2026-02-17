@@ -7,7 +7,7 @@ import {
   type Achievement 
 } from '@/lib/achievements';
 import { debug } from '@/lib/debug';
-import { showLevelUp, showEnergyEarned } from '@/lib/feedback';
+import { showLevelUp, showEnergyEarned, showWarning } from '@/lib/feedback';
 
 export interface UserGameState {
   level: number;
@@ -218,7 +218,15 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
         return false;
       }
 
-      setGameState(prev => prev ? { ...prev, tokens: result.new_balance ?? prev.tokens - amount } : null);
+      const newBalance = result.new_balance ?? ((gameState?.tokens ?? 0) - amount);
+      setGameState(prev => prev ? { ...prev, tokens: newBalance } : null);
+
+      // Low energy warning
+      if (newBalance > 0 && newBalance < 5) {
+        const lang = localStorage.getItem('language') === 'en' ? 'en' : 'he';
+        toast(lang === 'he' ? '⚡ האנרגיה נמוכה! השלם משימות כדי להרוויח עוד.' : '⚡ Energy running low! Complete tasks to earn more.');
+      }
+
       return true;
     } catch (err) {
       debug.warn('[GameState] Error spending energy:', err);

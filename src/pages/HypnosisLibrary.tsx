@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, Clock, Zap, Star, Target, Lock, Rocket } from 'lucide-react';
@@ -10,8 +11,12 @@ import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGameState } from '@/contexts/GameStateContext';
+import { useEnergy } from '@/hooks/useGameState';
 import { PageShell } from '@/components/aurora-ui/PageShell';
+import { ENERGY_COSTS } from '@/lib/energyCosts';
+import EnergySpendModal from '@/components/energy/EnergySpendModal';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const QUICK_SESSIONS = [
   { id: 'calm', duration: 5, icon: '🧘', titleHe: 'רגיעה', titleEn: 'Calm', gradient: 'from-blue-500 to-cyan-500' },
@@ -26,8 +31,10 @@ const HypnosisLibrary = () => {
   const { impact } = useHaptics();
   const { currentMilestone, suggestedGoal, isLoading: isLoadingHypnosis } = useDailyHypnosis();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
-  const { sessionStats, gameState } = useGameState();
+  const { sessionStats, gameState, spendEnergy } = useGameState();
   const { openHypnosis } = useAuroraActions();
+  const { canAfford } = useEnergy();
+  const [energyModalOpen, setEnergyModalOpen] = useState(false);
 
   if (!isLoadingLaunchpad && !isLaunchpadComplete) {
     return (
@@ -54,14 +61,25 @@ const HypnosisLibrary = () => {
     );
   }
 
-  const handleStartSession = (preset?: string, duration?: number) => {
+  const requestSession = () => {
     impact('medium');
-    openHypnosis();
+    setEnergyModalOpen(true);
+  };
+
+  const confirmSpendAndStart = async () => {
+    setEnergyModalOpen(false);
+    const ok = await spendEnergy(ENERGY_COSTS.HYPNOSIS_STANDARD, 'hypnosis', 'Standard session');
+    if (ok) {
+      openHypnosis();
+    }
+  };
+
+  const handleStartSession = (preset?: string, duration?: number) => {
+    requestSession();
   };
 
   const handleStartDailySession = () => {
-    impact('medium');
-    openHypnosis();
+    requestSession();
   };
 
   return (
@@ -128,6 +146,15 @@ const HypnosisLibrary = () => {
 
       {/* Recent Sessions */}
       <RecentSessions language={language as 'he' | 'en'} isRTL={isRTL} />
+
+      {/* Energy Spend Confirmation */}
+      <EnergySpendModal
+        open={energyModalOpen}
+        cost={ENERGY_COSTS.HYPNOSIS_STANDARD}
+        source="hypnosis"
+        onConfirm={confirmSpendAndStart}
+        onCancel={() => setEnergyModalOpen(false)}
+      />
     </PageShell>
   );
 };
