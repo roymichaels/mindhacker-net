@@ -14,6 +14,7 @@ import { LifestyleRoutineStep } from './steps/LifestyleRoutineStep';
 import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
 import { FlowRenderer } from '@/components/flow/FlowRenderer';
 import { coreLaunchpadSpec } from '@/flows/coreLaunchpadSpec';
+import type { FlowAnswers } from '@/lib/flow/types';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
 import { LifePlanStep } from './steps/LifePlanStep';
@@ -132,6 +133,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
   const [showingPhaseTransition, setShowingPhaseTransition] = useState(false);
   const [completedPhaseId, setCompletedPhaseId] = useState<number | null>(null);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [globalAnswers, setGlobalAnswers] = useState<FlowAnswers>({});
   
   const displayedStep = viewingStep ?? currentStep;
   const currentStepMeta = STEPS.find(s => s.id === displayedStep);
@@ -214,33 +216,63 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       undefined;
 
     switch (displayedStep) {
-      case 1:
+      case 1: {
+        const stepSpec = coreLaunchpadSpec.steps.find(s => s.id === 1)!;
         return (
-          <WelcomeStep 
+          <FlowRenderer
             key={`step-1-${viewingStep ?? 'current'}`}
-            {...stepProps} 
-            savedData={getSavedData(1) as Record<string, string | string[]> | undefined}
-            onAutoSave={(data) => handleAutoSave(1, data)}
+            step={stepSpec}
+            stepNumber={displayedStep}
+            totalSteps={totalSteps}
+            savedAnswers={getSavedData(1) as Record<string, unknown> | undefined}
+            allAnswers={globalAnswers}
+            onAutoSave={(data) => {
+              handleAutoSave(1, data);
+              setGlobalAnswers(prev => ({ ...prev, ...data } as FlowAnswers));
+            }}
+            onComplete={(data) => handleStepComplete(data)}
+            isCompleting={viewingStep === null ? isCompleting : false}
           />
         );
-      case 2:
+      }
+      case 2: {
+        const stepSpec = coreLaunchpadSpec.steps.find(s => s.id === 2)!;
         return (
-          <PersonalProfileStep 
+          <FlowRenderer
             key={`step-2-${viewingStep ?? 'current'}`}
-            {...stepProps} 
-            savedData={(getSavedData(2) as Record<string, unknown>) ?? undefined}
-            onAutoSave={(data) => handleAutoSave(2, data)}
+            step={stepSpec}
+            stepNumber={displayedStep}
+            totalSteps={totalSteps}
+            savedAnswers={getSavedData(2) as Record<string, unknown> | undefined}
+            allAnswers={globalAnswers}
+            onAutoSave={(data) => {
+              handleAutoSave(2, data);
+              setGlobalAnswers(prev => ({ ...prev, ...data } as FlowAnswers));
+            }}
+            onComplete={(data) => handleStepComplete(data)}
+            isCompleting={viewingStep === null ? isCompleting : false}
           />
         );
-      case 3:
+      }
+      case 3: {
+        const stepSpec = coreLaunchpadSpec.steps.find(s => s.id === 3)!;
         return (
-          <LifestyleRoutineStep 
+          <FlowRenderer
             key={`step-3-${viewingStep ?? 'current'}`}
-            {...stepProps} 
-            savedData={(getSavedData(3) as Record<string, unknown>) ?? undefined}
-            onAutoSave={(data) => handleAutoSave(3, data)}
+            step={stepSpec}
+            stepNumber={displayedStep}
+            totalSteps={totalSteps}
+            savedAnswers={getSavedData(3) as Record<string, unknown> | undefined}
+            allAnswers={globalAnswers}
+            onAutoSave={(data) => {
+              handleAutoSave(3, data);
+              setGlobalAnswers(prev => ({ ...prev, ...data } as FlowAnswers));
+            }}
+            onComplete={(data) => handleStepComplete(data)}
+            isCompleting={viewingStep === null ? isCompleting : false}
           />
         );
+      }
       case 4:
         return (
           <GrowthDeepDiveStep 
