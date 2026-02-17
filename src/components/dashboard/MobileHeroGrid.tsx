@@ -117,13 +117,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {identityTitle && (
             <div className="flex items-center gap-1.5">
               <span className="text-base">{identityTitle.icon}</span>
-              <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
                 {language === 'he' ? identityTitle.title : identityTitle.titleEn}
               </span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
+            <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
               <Star className="h-3 w-3" />Lv.{xp.level}
             </span>
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
@@ -135,7 +135,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </div>
           <div className="grid grid-cols-3 gap-2 w-full">
             {[
-              { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-purple-500' },
+              { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
               { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
               { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
             ].map((m) => (
@@ -158,14 +158,14 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
             </span>
-            <span className="flex items-center gap-2 text-sm font-bold text-primary">
-              <Play className="w-4 h-4 fill-primary" />
+            <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
+              <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
               {language === 'he' ? 'התחל סשן' : 'Start Session'}
             </span>
           </button>
 
           <CollapsiblePlanRow
-            icon={<Sparkles className="w-4 h-4 text-primary" />}
+            icon={<Sparkles className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'הרגלים' : 'Habits'}
             count={`${completedCount}/${totalCount}`}
             isOpen={expandedSection === 'habits'}
@@ -174,7 +174,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             items={habitMiniItems}
           />
           <CollapsiblePlanRow
-            icon={<Calendar className="w-4 h-4 text-primary" />}
+            icon={<Calendar className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
             count={`${planData?.progressPercent || 0}%`}
             badge={language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}
@@ -185,7 +185,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             progressPercent={planData?.progressPercent || 0}
           />
           <CollapsiblePlanRow
-            icon={<ListChecks className="w-4 h-4 text-primary" />}
+            icon={<ListChecks className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'משימות' : 'Tasks'}
             count={`${tasksCompleted}/${tasksTotal}`}
             countSuffix={`${tasksPercent}%`}
@@ -200,23 +200,23 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setActiveModal('identity')}
-              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
             >
-              <UserCircle className="w-4 h-4 text-violet-500" />
+              <UserCircle className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
             </button>
             <button
               onClick={() => setActiveModal('direction')}
-              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
             >
-              <Compass className="w-4 h-4 text-blue-500" />
+              <Compass className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
             </button>
             <button
               onClick={() => setActiveModal('insights')}
-              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
             >
-              <Brain className="w-4 h-4 text-primary" />
+              <Brain className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
             </button>
           </div>
@@ -279,7 +279,7 @@ function CollapsiblePlanRow({
         </div>
         <div className="flex items-center gap-2">
           {badge && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold border border-primary/20">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 dark:text-amber-400 font-semibold border border-amber-500/20">
               {badge}
             </span>
           )}
@@ -290,7 +290,7 @@ function CollapsiblePlanRow({
           )}
           <span className="text-xs font-bold text-muted-foreground">{count}</span>
           {countSuffix && (
-            <span className="text-[10px] font-medium text-primary">{countSuffix}</span>
+            <span className="text-[10px] font-medium text-amber-500 dark:text-amber-400">{countSuffix}</span>
           )}
           <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
         </div>
@@ -301,7 +301,7 @@ function CollapsiblePlanRow({
           <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
+              <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
             </div>
           )}
         </div>
@@ -321,7 +321,7 @@ function CollapsiblePlanRow({
                 <div key={item.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
                   <div className={cn(
                     "w-4 h-4 rounded-full border-2 flex-shrink-0",
-                    item.done ? "bg-primary border-primary" : "border-muted-foreground/40"
+                    item.done ? "bg-amber-500 border-amber-500" : "border-muted-foreground/40"
                   )} />
                   <span className={cn(
                     "text-xs flex-1 min-w-0 truncate",
@@ -344,7 +344,7 @@ function CollapsiblePlanRow({
           >
             <div className="px-3 pb-2">
               <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
+                <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
               </div>
             </div>
           </motion.div>

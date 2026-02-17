@@ -48,7 +48,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     active
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
