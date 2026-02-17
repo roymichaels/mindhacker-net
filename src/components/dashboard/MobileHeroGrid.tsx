@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -233,6 +233,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             items={habitMiniItems}
             onItemToggle={(id, done) => toggleHabit(id, done)}
           />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
           <CollapsiblePlanRow
             icon={<Calendar className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
@@ -244,6 +245,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             previewText={planData?.currentMilestone?.title ? `→ ${planData.currentMilestone.title}` : undefined}
             progressPercent={planData?.progressPercent || 0}
           />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
           <CollapsiblePlanRow
             icon={<ListChecks className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'משימות' : 'Tasks'}
@@ -257,7 +259,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             onItemToggle={handleTaskToggle}
           />
 
-          {/* 3 Action Buttons: Identity / Direction / Insights */}
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
+
+          {/* Row 1: Identity / Direction / Insights */}
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setActiveModal('identity')}
@@ -279,6 +283,31 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             >
               <Brain className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
+            </button>
+          </div>
+
+          {/* Row 2: Identity Card / 90-Day Plan / AI Analysis */}
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => navigate('/profile')}
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+            >
+              <IdCard className="w-4 h-4 text-amber-500" />
+              <span className="text-xs font-medium">{language === 'he' ? 'כרטיס זהות' : 'ID Card'}</span>
+            </button>
+            <button
+              onClick={() => navigate('/plan')}
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+            >
+              <Map className="w-4 h-4 text-amber-500" />
+              <span className="text-xs font-medium">{language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}</span>
+            </button>
+            <button
+              onClick={() => setActiveModal('insights')}
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+            >
+              <ScanSearch className="w-4 h-4 text-amber-500" />
+              <span className="text-xs font-medium">{language === 'he' ? 'ניתוח AI' : 'AI Analysis'}</span>
             </button>
           </div>
         </div>
