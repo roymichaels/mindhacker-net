@@ -3,16 +3,10 @@ import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import ProGateOverlay from '@/components/subscription/ProGateOverlay';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ListChecks, Target } from 'lucide-react';
-import {
-  PlanProgressHero,
-  GoalsCard,
-  LifeAnalysisChart,
-  PlanProgressCard,
-} from '@/components/dashboard/v2';
+import { PlanProgressHero, LifeAnalysisChart } from '@/components/dashboard/v2';
 import { TasksPanel } from '@/components/dashboard/plan/TasksPanel';
-import { GoalsPanel } from '@/components/dashboard/plan/GoalsPanel';
+import { PlanRoadmap } from '@/components/dashboard/plan/PlanRoadmap';
+import { ListChecks } from 'lucide-react';
 
 const PlanTab = () => {
   const { t, isRTL, language } = useTranslation();
@@ -40,34 +34,32 @@ const PlanTab = () => {
   }
 
   return (
-    <div className="space-y-5 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Hero progress summary */}
       <PlanProgressHero />
 
-      <Tabs defaultValue="missions" className="w-full">
-        <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="missions" className="gap-2">
-            <ListChecks className="h-4 w-4" />
-            {language === 'he' ? 'משימות' : 'Missions'}
-          </TabsTrigger>
-          <TabsTrigger value="plan" className="gap-2">
-            <Target className="h-4 w-4" />
-            {language === 'he' ? 'תוכנית' : 'Plan'}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="missions" className="mt-4">
+      {/* Today's Missions */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <ListChecks className="w-4 h-4 text-primary" />
+          <h2 className="text-base font-bold">
+            {language === 'he' ? '⚡ משימות היום' : '⚡ Today\'s Missions'}
+          </h2>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
           <TasksPanel />
-        </TabsContent>
+        </div>
+      </section>
 
-        <TabsContent value="plan" className="mt-4 space-y-4">
-          <GoalsPanel />
-          <div className="grid gap-4 md:grid-cols-2">
-            <GoalsCard />
-            <PlanProgressCard />
-          </div>
-          <LifeAnalysisChart />
-        </TabsContent>
-      </Tabs>
+      {/* 90-Day Roadmap */}
+      <section>
+        <PlanRoadmap />
+      </section>
+
+      {/* Life Analysis */}
+      <section>
+        <LifeAnalysisChart />
+      </section>
     </div>
   );
 };

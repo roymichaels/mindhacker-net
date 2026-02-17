@@ -95,7 +95,7 @@ interface BusinessToolsGridProps {
       icon: Calendar,
        title: t('businessHub.tools.plan90Day'),
        desc: t('businessHub.tools.plan90DayDesc'),
-      onClick: () => navigate('/life-plan'),
+      onClick: () => navigate('/plan'),
       gradient: 'from-orange-500/30 via-red-500/20 to-transparent dark:from-orange-500/20 dark:via-red-500/10 dark:to-transparent',
       iconBg: 'bg-orange-500/30 dark:bg-orange-500/20',
       iconColor: 'text-orange-600 dark:text-orange-400',

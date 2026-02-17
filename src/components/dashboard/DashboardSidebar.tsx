@@ -146,7 +146,7 @@ const DashboardSidebar = ({
   // Navigation items - Dashboard first as the main entry point
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: language === 'he' ? 'דאשבורד' : 'Dashboard', highlight: 'purple', path: '/dashboard' },
-    { id: 'life-plan', icon: Compass, label: language === 'he' ? 'התוכנית שלי' : 'My Plan', highlight: 'gold', path: '/life-plan', isPremium: true },
+    { id: 'life-plan', icon: Compass, label: language === 'he' ? 'התוכנית שלי' : 'My Plan', highlight: 'gold', path: '/plan', isPremium: true },
     { id: 'aurora', icon: User, label: language === 'he' ? 'מאמן Aurora' : 'Aurora Coach', highlight: 'blue', path: '/aurora' },
     { id: 'projects', icon: FolderKanban, label: language === 'he' ? 'פרויקטים' : 'Projects', highlight: 'premium', path: '/projects' },
     { id: 'progress', icon: Heart, label: language === 'he' ? 'התקדמות' : 'Progress', highlight: 'pink', path: '/consciousness' },
