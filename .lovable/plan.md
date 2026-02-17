@@ -1,34 +1,28 @@
 
-## Fix Grid Column Height Alignment
+
+## Fix: Remove Forced Equal-Height Columns
 
 ### Problem
-From the screenshots, the two-column grid on desktop and tablet has mismatched heights -- the orb/HUD column (left) is shorter than the plan column (right), leaving empty space. The columns need to stretch equally so both fill the available viewport height.
+The last change (`md:items-stretch` + `md:justify-center`) forces both grid columns to fill the entire viewport height. Since the plan column content is shorter than the viewport, it creates a large empty card area below the actual content. The orb also gets pushed to the vertical center instead of sitting at the top.
 
 ### Solution
 
 **File: `src/components/dashboard/MobileHeroGrid.tsx`**
 
-1. **Grid container**: Change from `md:auto-rows-min md:items-start` to `md:grid-rows-[1fr]` (single row that fills available height) and `md:items-stretch` so both columns stretch to the same height.
+Two class changes on existing elements:
 
-2. **HUD column (orb + stats)**: Remove `md:sticky md:top-0`. Add `md:overflow-y-auto` so if content exceeds the column height it scrolls internally. Use `md:flex md:flex-col md:justify-center` to vertically center the orb content within the full-height column.
+1. **Grid container (line 101)**: Replace `md:items-stretch` with `md:items-start` so columns size to their content, not the viewport.
 
-3. **Plan column**: Keep `md:overflow-y-auto` for internal scrolling. Both columns will now share the same height, determined by the grid row which fills the remaining viewport space.
-
-4. **Mobile**: No changes -- mobile remains a single-column stacked layout with natural scrolling.
+2. **HUD column (line 104)**: Remove `md:justify-center` so the orb sits at the top of its card naturally. Keep `md:overflow-y-auto` and `md:flex md:flex-col` for layout.
 
 ### Technical Details
 
 ```text
-Grid Container Changes:
-  REMOVE: md:auto-rows-min md:items-start
-  ADD:    md:grid-rows-[1fr] md:items-stretch
+Line 101 (grid wrapper):
+  CHANGE: md:items-stretch  -->  md:items-start
 
-HUD Column Changes:
-  REMOVE: md:sticky md:top-0
-  ADD:    md:overflow-y-auto md:justify-center
-
-Plan Column:
-  Keep existing md:overflow-y-auto (already has it)
+Line 104 (HUD column):
+  REMOVE: md:justify-center
 ```
 
-This ensures both columns always match the viewport-available height on desktop and tablet, with internal scrolling when content overflows.
+Both columns will now be independently sized to their content height, eliminating the empty space issue.
