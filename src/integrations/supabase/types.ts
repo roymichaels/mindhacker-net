@@ -380,7 +380,15 @@ export type Database = {
           token_count?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_response_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       analytics_reports: {
         Row: {
@@ -851,6 +859,7 @@ export type Database = {
           created_at: string | null
           dismissed_at: string | null
           id: string
+          idempotency_key: string | null
           priority: number | null
           scheduled_for: string
           sent_at: string | null
@@ -865,6 +874,7 @@ export type Database = {
           created_at?: string | null
           dismissed_at?: string | null
           id?: string
+          idempotency_key?: string | null
           priority?: number | null
           scheduled_for: string
           sent_at?: string | null
@@ -879,6 +889,7 @@ export type Database = {
           created_at?: string | null
           dismissed_at?: string | null
           id?: string
+          idempotency_key?: string | null
           priority?: number | null
           scheduled_for?: string
           sent_at?: string | null
@@ -2541,6 +2552,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      edge_function_errors: {
+        Row: {
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          function_name: string
+          id: string
+          request_context: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          function_name: string
+          id?: string
+          request_context?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          function_name?: string
+          id?: string
+          request_context?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       email_logs: {
         Row: {
@@ -5843,6 +5884,7 @@ export type Database = {
           amount: number
           created_at: string | null
           id: string
+          idempotency_key: string | null
           reason: string | null
           source: string
           user_id: string
@@ -5851,6 +5893,7 @@ export type Database = {
           amount: number
           created_at?: string | null
           id?: string
+          idempotency_key?: string | null
           reason?: string | null
           source: string
           user_id: string
@@ -5859,6 +5902,7 @@ export type Database = {
           amount?: number
           created_at?: string | null
           id?: string
+          idempotency_key?: string | null
           reason?: string | null
           source?: string
           user_id?: string
@@ -6293,16 +6337,36 @@ export type Database = {
             }
             Returns: undefined
           }
-      award_unified_xp: {
-        Args: {
-          p_amount: number
-          p_reason?: string
-          p_source: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      award_unified_xp:
+        | {
+            Args: {
+              p_amount: number
+              p_reason?: string
+              p_source: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_idempotency_key?: string
+              p_reason?: string
+              p_source: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       check_expiring_access: { Args: never; Returns: undefined }
+      check_xp_integrity: {
+        Args: never
+        Returns: {
+          actual_xp: number
+          drift: number
+          expected_xp: number
+          user_id: string
+        }[]
+      }
       complete_launchpad_step: {
         Args: { p_data?: Json; p_step: number; p_user_id: string }
         Returns: Json
@@ -6342,6 +6406,7 @@ export type Database = {
           created_at: string | null
           dismissed_at: string | null
           id: string
+          idempotency_key: string | null
           priority: number | null
           scheduled_for: string
           sent_at: string | null
@@ -6392,6 +6457,7 @@ export type Database = {
         }
         Returns: string
       }
+      reconcile_user_xp: { Args: { p_user_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user" | "practitioner" | "affiliate"
