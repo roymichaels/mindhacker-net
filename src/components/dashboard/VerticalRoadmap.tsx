@@ -103,8 +103,8 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
           {isHe ? 'מפת הדרך' : 'Roadmap'}
         </span>
         <div className="flex items-center gap-1.5">
-          <div className="w-8 h-8 rounded-full border-2 border-amber-500/40 flex items-center justify-center">
-            <span className="text-[9px] font-bold text-amber-500">{progressPercent}%</span>
+          <div className="w-8 h-8 rounded-full border-2 border-primary/40 flex items-center justify-center">
+            <span className="text-[9px] font-bold text-primary">{progressPercent}%</span>
           </div>
         </div>
       </div>
@@ -129,9 +129,9 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
               {/* Month divider pill */}
               {monthIdx > 0 && (
                 <div className="flex flex-col items-center justify-start pt-0 mx-1 snap-center" style={{ minWidth: '44px' }}>
-                  <div className="w-px h-6 bg-amber-500/30" />
-                  <div className="px-2 py-0.5 rounded-full bg-amber-500/10 backdrop-blur-md border border-amber-500/20">
-                    <span className="text-[9px] font-bold text-amber-500 whitespace-nowrap">
+                  <div className="w-px h-6 bg-border/50" />
+                  <div className="px-2 py-0.5 rounded-full bg-muted/50 backdrop-blur-md border border-border/30">
+                    <span className="text-[9px] font-bold text-muted-foreground whitespace-nowrap">
                       {isHe ? `ח׳${monthIdx + 1}` : `M${monthIdx + 1}`}
                     </span>
                   </div>
@@ -210,7 +210,7 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
 
                     {/* Current indicator */}
                     {isCurrent && (
-                      <span className="mt-1 text-[8px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30">
+                      <span className="mt-1 text-[8px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
                         {isHe ? 'כאן' : 'HERE'}
                       </span>
                     )}
@@ -234,8 +234,8 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
         <span className="text-xs font-bold text-foreground">
           {isHe ? 'מפת הדרך' : 'Roadmap'}
         </span>
-        <div className="w-7 h-7 rounded-full border-2 border-amber-500/40 flex items-center justify-center">
-          <span className="text-[8px] font-bold text-amber-500">{progressPercent}%</span>
+        <div className="w-7 h-7 rounded-full border-2 border-primary/40 flex items-center justify-center">
+          <span className="text-[8px] font-bold text-primary">{progressPercent}%</span>
         </div>
       </div>
 
@@ -245,11 +245,11 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
           <div key={monthIdx} className="relative">
             {/* Month label pill */}
             <div className="flex items-center justify-center mb-1.5">
-              <div className="px-2.5 py-0.5 rounded-full bg-amber-500/10 backdrop-blur-md border border-amber-500/20 flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider whitespace-nowrap">
+              <div className="px-2.5 py-0.5 rounded-full bg-muted/50 backdrop-blur-md border border-border/30 flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                   {isHe ? `חודש ${monthIdx + 1}` : `M${monthIdx + 1}`}
                 </span>
-                <span className="text-[9px] text-amber-500/60">·</span>
+                <span className="text-[9px] text-muted-foreground/60">·</span>
                 <span className="text-[9px] text-muted-foreground">{month.label}</span>
               </div>
             </div>
@@ -321,18 +321,18 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                     {/* Content card */}
                     <div className={cn(
                       "flex-1 min-w-0 rounded-lg px-3 py-2",
-                      isCurrent && "bg-amber-500/15 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+                      isCurrent && "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.15)]",
                       isCompleted && !isCurrent && "bg-muted/10 rounded-md px-2.5 py-1.5",
                     )}>
                       <div className="flex items-center gap-1.5">
                         <span className={cn(
                           "text-xs font-bold shrink-0",
-                          isCurrent ? "text-amber-500" : isCompleted ? "text-emerald-500" : "text-muted-foreground"
+                          isCurrent ? "text-primary" : isCompleted ? "text-emerald-500" : "text-muted-foreground"
                         )}>
                           {isHe ? `ש׳${milestone.week_number}` : `W${milestone.week_number}`}
                         </span>
                         {isCurrent && (
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0">
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 shrink-0">
                             {isHe ? 'כאן' : 'NOW'}
                           </span>
                         )}

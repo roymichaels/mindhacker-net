@@ -121,7 +121,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 {identityTitle && (
                   <div className="flex items-center gap-1.5">
                     <span className="text-base">{identityTitle.icon}</span>
-                    <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent leading-tight">
+                    <span className="text-sm font-bold bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-transparent leading-tight">
                       {language === 'he' ? identityTitle.title : identityTitle.titleEn}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {identityTitle && (
               <div className="flex items-center justify-center gap-1.5 w-full">
                 <span className="text-base">{identityTitle.icon}</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
+                <span className="text-sm font-bold bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-transparent">
                   {language === 'he' ? identityTitle.title : identityTitle.titleEn}
                 </span>
               </div>
