@@ -110,7 +110,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:items-stretch flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
 
         {/* ===== COL 1 - HUD ===== */}
-        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:gap-2 md:h-full md:overflow-hidden md:order-2 shrink-0 md:shrink">
+        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:justify-end md:gap-2 md:h-full md:overflow-hidden md:order-2 min-h-0">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
