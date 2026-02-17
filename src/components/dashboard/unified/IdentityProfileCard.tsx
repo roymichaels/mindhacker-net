@@ -44,7 +44,7 @@ export function IdentityProfileCard({
   const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0 || identityTitle;
   
   const handleEditJourney = () => {
-    navigate('/quests');
+    navigate('/onboarding');
   };
 
   const handleRegenerate = async () => {
