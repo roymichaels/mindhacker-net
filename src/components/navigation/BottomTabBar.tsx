@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Target, User } from 'lucide-react';
+import { LayoutDashboard, Target, Brain, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { id: 'today', path: '/today', icon: LayoutDashboard, labelEn: 'Today', labelHe: 'היום' },
   { id: 'plan', path: '/plan', icon: Target, labelEn: 'Plan', labelHe: 'תוכנית' },
+  { id: 'hypnosis', path: '/hypnosis', icon: Brain, labelEn: 'Sessions', labelHe: 'סשנים' },
   { id: 'me', path: '/me', icon: User, labelEn: 'Me', labelHe: 'אני' },
 ];
 
