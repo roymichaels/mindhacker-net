@@ -25,6 +25,7 @@ import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
+import { VerticalRoadmap } from '@/components/dashboard/VerticalRoadmap';
 
 interface MobileHeroGridProps {
   planData: {
@@ -270,6 +271,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* Spacer for desktop */}
           <div className="hidden lg:block pt-4" />
 
+          {/* Daily Pulse - top of COL 2, all screen sizes */}
+          <DailyPulseCard />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+
           <CollapsiblePlanRow
             icon={<Sparkles className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'הרגלים' : 'Habits'}
@@ -308,10 +313,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
-          {/* Daily Pulse Check-in - mobile only, desktop shows in COL 3 */}
-          <div className="lg:hidden">
-            <DailyPulseCard />
-          </div>
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
@@ -345,10 +346,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         </div>
 
-        {/* ===== COL 3 - Diagnostics (desktop only) ===== */}
+        {/* ===== COL 3 - Roadmap (desktop only) ===== */}
         <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4">
-          {/* Daily Pulse - desktop, above diagnostics */}
-          <DailyPulseCard />
+          <VerticalRoadmap />
         </div>
       </div>
 
