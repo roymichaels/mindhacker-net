@@ -94,7 +94,7 @@ const UserDashboard = () => {
   };
 
   return (
-    <PageShell className="flex-1 flex flex-col min-h-0 gap-4">
+    <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4">
       <MobileHeroGrid planData={planData} />
       <section className="md:hidden">
         <ProfileContent />
