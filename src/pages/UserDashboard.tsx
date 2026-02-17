@@ -99,9 +99,6 @@ const UserDashboard = () => {
       <section>
         <ProfileContent />
       </section>
-      <section>
-        <NextActionBanner onOpenHypnosis={handleOpenHypnosis} onOpenChat={handleOpenChat} />
-      </section>
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
     </PageShell>
   );
