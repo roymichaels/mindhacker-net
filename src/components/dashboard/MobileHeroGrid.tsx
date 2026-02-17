@@ -2,7 +2,7 @@
  * MobileHeroGrid - 3-column hero grid
  * RTL: Plan (left) | Daily Session (middle) | HUD (right)
  */
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -61,6 +61,19 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
+
+  // Track the left column height to sync the orb size
+  const leftColRef = useRef<HTMLDivElement>(null);
+  const [leftColHeight, setLeftColHeight] = useState(0);
+
+  useEffect(() => {
+    if (!leftColRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setLeftColHeight(entry.contentRect.height);
+    });
+    observer.observe(leftColRef.current);
+    return () => observer.disconnect();
+  }, []);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
@@ -85,8 +98,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextTask = taskItems.find(t => !t.done);
   const nextHabit = habits.find(h => !h.isCompleted);
 
-  // Orb size: small when collapsed, fills available space when expanded
-  const orbSize = expandedSection ? 320 : 320;
+  // Orb expands to fill available HUD space; HUD card has ~200px of non-orb content
+  const hudNonOrbHeight = 200;
+  const orbSize = leftColHeight > 0 ? Math.max(200, leftColHeight - hudNonOrbHeight) : 320;
 
   return (
     <div className="space-y-3">
@@ -139,7 +153,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div className="flex flex-col gap-2 h-full">
+        <div ref={leftColRef} className="flex flex-col gap-2 h-full">
           {/* Start Session button */}
           <button
             onClick={handleStartDailySession}
