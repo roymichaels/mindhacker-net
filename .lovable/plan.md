@@ -1,58 +1,25 @@
 
 
-# Merge "Me" Page with Profile Content
+# Fix Chat Dock Background & Settings Icon Position
 
-## What Changes
+## Changes
 
-The current `/me` page shows a stats grid and two buttons (Profile, Settings) that open separate modals/drawers. This feels disconnected. The redesign renders the **Profile Identity Card** directly inline as the page content, with a **Settings gear icon** to open the settings modal.
+### 1. Chat Dock - Solid Background (AuroraDock.tsx)
+The dock already has `bg-background` but it may appear transparent due to theme layering. Add explicit opacity and shadow to make it feel truly solid and grounded:
+- Change from `bg-background` to `bg-background/100` with a `shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.4)]` to give visual weight
+- Alternatively, ensure there's no `backdrop-blur` or transparency leaking from parent/child elements
 
-## New Layout
+### 2. Settings Icon - Better Position & Size (MeTab.tsx)
+Currently the gear icon sits at `absolute top-1 end-1` which overlaps the profile card hero. Improvements:
+- Move it to `top-3 sm:top-8 end-3 sm:end-4` for better spacing from edges
+- Increase size from `h-5 w-5` to `h-6 w-6` for better touch target
+- Add a subtle background circle (`bg-black/20 dark:bg-white/10 backdrop-blur-sm rounded-full`) so it's visible against the profile card gradient
+- Use `size="sm"` or keep `size="icon"` with explicit `h-10 w-10` for proper 44px touch target
 
-```text
-+------------------------------------------+
-|  [Settings gear icon - top corner]       |
-|                                          |
-|  HERO IDENTITY CARD (Orb + Title)        |
-|  Lv.117 | 925 tokens | 2 streak         |
-+------------------------------------------+
-|  Consciousness | Clarity | Readiness     |
-+------------------------------------------+
-|  My Values (tags)                        |
-+------------------------------------------+
-|  Dominant Traits (tags)                  |
-+------------------------------------------+
-|  Life Direction + clarity bar            |
-+------------------------------------------+
-|  Career Path                             |
-+------------------------------------------+
-|  Transformation (habits)                 |
-+------------------------------------------+
-|  [Edit Journey] [Regenerate AI]          |
-+------------------------------------------+
-|                                          |
-|  Settings Modal (opens on gear click)    |
-+------------------------------------------+
-```
+## Files to Edit
 
-## Technical Details
+| File | Change |
+|------|--------|
+| `src/components/aurora/AuroraDock.tsx` | Add shadow + ensure fully opaque bg |
+| `src/pages/MeTab.tsx` | Reposition settings icon, increase size, add contrast backdrop |
 
-### File: `src/pages/MeTab.tsx` (rewrite)
-- Remove `StatsGrid`, `ProfileDrawer`, and the two-button grid
-- Import and render `ProfileContent` directly inline (no modal/drawer wrapper)
-- Pass `onClose` as undefined since it's not in a modal
-- Add a floating/absolute Settings gear icon button at the top of the page
-- Keep `SettingsModal` as a modal triggered by the gear icon
-- Keep SEO logic as-is
-
-### File: `src/components/dashboard/ProfileContent.tsx` (minor edit)
-- Make `onClose` truly optional -- remove the close button reference if the hero section had one
-- The component already accepts `onClose?` so it works standalone without changes
-
-### Cleanup
-- `ProfileDrawer` and `ProfileModal` become unused from the Me tab (may still be used elsewhere, so keep files)
-- `StatsGrid` is removed from Me tab since ProfileContent already shows Level, Tokens, Streak in the hero card -- no data is lost
-
-### What stays the same
-- Settings modal with all 4 tabs (Profile, Aurora, Appearance, Account) -- unchanged
-- ProfileContent component internals -- unchanged
-- All data hooks and queries -- unchanged
