@@ -5,8 +5,12 @@ import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEnergy } from '@/hooks/useGameState';
+import { useGameState } from '@/contexts/GameStateContext';
 import { supabase } from '@/integrations/supabase/client';
+import { ENERGY_COSTS } from '@/lib/energyCosts';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
+import EnergySpendModal from '@/components/energy/EnergySpendModal';
 import VoiceRecordingButton from './VoiceRecordingButton';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +25,11 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [energyModalOpen, setEnergyModalOpen] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { canAfford } = useEnergy();
+  const { spendEnergy } = useGameState();
 
   const handleTranscription = (text: string) => {
     setIsTranscribing(false);
@@ -47,13 +55,24 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     e.preventDefault();
     if (!input.trim() || disabled) return;
 
-    // Subscription gate check
-    if (!canSendMessage) {
-      showUpgradePrompt('aurora_limit');
+    const message = input.trim();
+
+    // Subscription gate check: if free user out of messages, offer energy spend
+    if (!canSendMessage && !isPro) {
+      if (canAfford(ENERGY_COSTS.AURORA_MESSAGE)) {
+        setPendingMessage(message);
+        setEnergyModalOpen(true);
+      } else {
+        showUpgradePrompt('aurora_limit');
+      }
       return;
     }
     
-    onSend(input.trim());
+    sendMessage(message);
+  };
+
+  const sendMessage = (message: string) => {
+    onSend(message);
     setInput('');
 
     // Increment daily message count for free users
@@ -64,6 +83,15 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
+  };
+
+  const handleEnergyConfirm = async () => {
+    setEnergyModalOpen(false);
+    const ok = await spendEnergy(ENERGY_COSTS.AURORA_MESSAGE, 'aurora_message', 'Premium message');
+    if (ok && pendingMessage) {
+      sendMessage(pendingMessage);
+    }
+    setPendingMessage('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -155,6 +183,13 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
         </div>
       </form>
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
+      <EnergySpendModal
+        open={energyModalOpen}
+        cost={ENERGY_COSTS.AURORA_MESSAGE}
+        source="aurora_message"
+        onConfirm={handleEnergyConfirm}
+        onCancel={() => { setEnergyModalOpen(false); setPendingMessage(''); }}
+      />
     </div>
   );
 };
