@@ -102,20 +102,12 @@ export function IdentityProfileCard({
 
   return (
     <div className={cn("space-y-4", className)} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Identity Title with Orb - Prominent Display */}
+      {/* Identity Title */}
       {identityTitle && (
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 border border-primary/20 p-4 text-center">
-          {/* Decorative glow */}
           <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-2xl" />
           <div className="absolute bottom-0 left-0 w-12 h-12 bg-accent/10 rounded-full blur-xl" />
-          
           <div className="relative z-10">
-            {/* Digital Orb Avatar */}
-            <div className="relative mb-4 mx-auto w-fit">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-110" />
-              <PersonalizedOrb size={120} state="idle" />
-            </div>
-            
             <span className="text-2xl mb-1 block">{identityTitle.icon}</span>
             <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {displayTitle}
