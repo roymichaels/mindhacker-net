@@ -126,14 +126,14 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     </span>
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                <div className="flex items-center justify-evenly gap-2 w-full">
+                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
                     <Star className="h-3 w-3" />Lv.{xp.level}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
                     <Gem className="h-3 w-3" />{tokens.balance}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                     <Flame className="h-3 w-3" />{streak.streak}
                   </span>
                 </div>
@@ -142,32 +142,32 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Separator */}
             <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Bottom: Stats row */}
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
                 { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
                 { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
               ].map((m) => (
-                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1.5 flex items-center gap-1.5">
-                  <m.icon className={cn("w-3 h-3 shrink-0", m.color)} />
+                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-2 flex flex-col items-center gap-1 text-center">
+                  <m.icon className={cn("w-3.5 h-3.5 shrink-0", m.color)} />
                   <span className="text-xs font-bold leading-none">{m.value}</span>
-                  <span className="text-[9px] text-muted-foreground truncate">{m.label}</span>
+                  <span className="text-[9px] text-muted-foreground leading-tight">{m.label}</span>
                 </div>
               ))}
             </div>
             {/* Separator */}
             <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             {/* Hypnosis session stats */}
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
                 { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
                 { icon: Headphones, label: language === 'he' ? 'מועדף' : 'Favorite', value: sessionStats?.favoriteEgoState || '—', color: 'text-pink-500' },
               ].map((m) => (
-                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1.5 flex items-center gap-1.5">
-                  <m.icon className={cn("w-3 h-3 shrink-0", m.color)} />
+                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-2 flex flex-col items-center gap-1 text-center">
+                  <m.icon className={cn("w-3.5 h-3.5 shrink-0", m.color)} />
                   <span className="text-xs font-bold leading-none">{m.value}</span>
-                  <span className="text-[9px] text-muted-foreground truncate">{m.label}</span>
+                  <span className="text-[9px] text-muted-foreground leading-tight">{m.label}</span>
                 </div>
               ))}
             </div>
