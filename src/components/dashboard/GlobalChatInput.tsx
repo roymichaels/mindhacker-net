@@ -313,16 +313,16 @@ const GlobalChatInput = () => {
             )}
           </button>
 
-          {/* Aurora branding button - far right */}
+          {/* Toggle chat expand/collapse */}
           <button
             type="button"
             onClick={() => setIsChatExpanded(!isChatExpanded)}
-            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+            className="h-9 w-9 flex items-center justify-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
           >
-            <AuroraOrbIcon className="w-4 h-4" size={16} />
-            {!isMobile && <span className="text-xs font-medium text-muted-foreground">Aurora</span>}
-            {isStreaming && (
+            {isStreaming ? (
               <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
             )}
           </button>
         </div>
