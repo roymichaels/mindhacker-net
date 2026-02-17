@@ -188,7 +188,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he'
           ? `נותרו ${dashboard.activeFocusPlan.daysRemaining} ימים`
           : `${dashboard.activeFocusPlan.daysRemaining} days remaining`,
-        action: () => navigate('/life-plan'),
+        action: () => navigate('/plan'),
         actionLabel: language === 'he' ? 'צפה בתוכנית' : 'View Plan',
       };
     }

@@ -71,7 +71,7 @@ const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 
 const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
-const LifePlan = lazy(() => import("./pages/LifePlan"));
+// LifePlan route removed — consolidated into PlanTab
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
@@ -416,14 +416,7 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life-plan"
-                          element={
-                            <ProtectedRoute>
-                              <LifePlan />
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* /life-plan route removed — consolidated into PlanTab */}
                         <Route
                           path="/business"
                           element={

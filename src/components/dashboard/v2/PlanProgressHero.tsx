@@ -1,4 +1,4 @@
-import { Target, ChevronRight, Calendar, Rocket } from 'lucide-react';
+import { Target, Calendar, Rocket } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -164,18 +164,7 @@ export function PlanProgressHero() {
               )}
             </div>
 
-            {/* Action */}
-            <div className="flex-shrink-0">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-1 w-full sm:w-auto"
-                onClick={() => navigate('/life-plan')}
-              >
-                {language === 'he' ? 'צפה בתוכנית' : 'View Plan'}
-                <ChevronRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
-              </Button>
-            </div>
+            {/* Spacer for layout balance */}
           </div>
         </CardContent>
       </Card>

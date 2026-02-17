@@ -329,7 +329,7 @@ export default function LaunchpadComplete() {
         >
           <PlanPreview
             months={planData?.months || []}
-            onViewFullPlan={() => navigate('/life-plan')}
+            onViewFullPlan={() => navigate('/plan')}
           />
         </motion.div>
 

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
 import { LifePlanExpanded } from './LifePlanExpanded';
 import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard, ChecklistsCard } from './unified';
-import { GoalsCard } from './v2/GoalsCard';
+import { PlanRoadmap } from '../dashboard/plan/PlanRoadmap';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus, Map } from 'lucide-react';
@@ -52,7 +52,7 @@ export function ChecklistsModal({ open, onOpenChange, language }: DashboardModal
         />
         <div className="space-y-4">
           <ChecklistsCard />
-          <GoalsCard />
+          <PlanRoadmap />
         </div>
       </DialogContent>
     </Dialog>
