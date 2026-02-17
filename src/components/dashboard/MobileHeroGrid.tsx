@@ -252,7 +252,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:order-2 md:overflow-y-auto md:min-h-0">
-          {/* Start Session button moved to HUD column on desktop */}
+          {/* Spacer for desktop */}
+          <div className="hidden md:block pt-4" />
 
           <CollapsiblePlanRow
             icon={<Sparkles className="w-4 h-4 text-amber-500" />}
