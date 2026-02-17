@@ -1,43 +1,71 @@
 
+# Move Daily Pulse Above Habits + Add Vertical Roadmap to Left Column
 
-# Consolidate Dashboard Modals -- Remove Redundancy
+## What Changes
 
-## Problem
-The dashboard currently has **6 buttons in 2 rows** that open modals, but the second row is entirely redundant:
-- "ID Card" (כרטיס זהות) -- already inside the "Identity" (זהות) modal as a tab
-- "90-Day Plan" (תוכנית 90 יום) -- already inside the "Direction" (כיוון) modal as a tab
-- "AI Analysis" (ניתוח AI) -- already inside the "Insights" (תובנות) modal as a tab
+### 1. Move "Daily Pulse" (דופק יומי) above "Habits" (הרגלים) in COL 2
+Currently, the Daily Pulse card sits below Tasks in the middle column (mobile) and in COL 3 (desktop). It will be moved to the very top of COL 2 (the plan modules column), above the Habits collapsible row, on both mobile and desktop.
 
-Additionally, the Diagnostics modal (6 scores) lives separately but belongs inside Insights.
+### 2. Replace COL 3 with a Vertical Milestone Roadmap (Web3-style)
+The now-empty right column on desktop will be replaced with a beautiful vertical timeline roadmap showing the user's 12-week (90-day) journey. Inspired by Web3/crypto project roadmaps, it will feature:
 
-## Solution
+- A **vertical glowing line** running down the center-left of the column, with milestone nodes along it
+- Each milestone node is a **circle with a pulsing glow** for the current week, filled/checked for completed weeks, and dimmed/outlined for future weeks
+- The **current milestone** gets a larger node with an animated ring + golden accent
+- Each node connects to a small card showing: week number, milestone title, and completion status
+- Completed milestones show a checkmark with a green glow
+- Future milestones appear slightly transparent/muted
+- A subtle **progress gradient** fills the line from top down to the current position
+- Month labels ("Month 1: Foundations", "Month 2: Building", "Month 3: Momentum") divide the roadmap into 3 themed sections with separator lines
 
-### 1. Remove the redundant second row of buttons
-Delete the entire second `grid grid-cols-3` block (lines 349-372) from `MobileHeroGrid.tsx` -- the one with "כרטיס זהות", "תוכנית 90 יום", "ניתוח AI".
+## Technical Details
 
-### 2. Merge Diagnostics into the Insights modal
-Add a 4th tab "Diagnostics" (אבחון) to `MergedInsightsModal` in `MergedModals.tsx`. This tab will show the 6 diagnostic scores (Energy Stability, Recovery Debt, etc.) using the same data-fetching logic currently in `DiagnosticsModal.tsx`. The tab grid becomes `grid-cols-4`: AI Analysis | Consciousness | Diagnostics | Stats.
+### File: `src/components/dashboard/MobileHeroGrid.tsx`
+- Move `<DailyPulseCard />` from COL 3 and the `lg:hidden` mobile position to the top of COL 2 (before the Habits collapsible row)
+- Remove the duplicate `lg:hidden` wrapper -- show it in COL 2 on all screen sizes
+- Remove the COL 3 desktop-only `<DailyPulseCard />`
+- In COL 3, render the new `<VerticalRoadmap />` component instead, using `planData` prop + fetching milestones
 
-### 3. Wire diagnostic cards in COL 3 to the Insights modal
-Update the 6 diagnostic score buttons in the desktop right column to open the Insights modal with the Diagnostics tab pre-selected, instead of a standalone DiagnosticsModal. Add `initialTab` prop to `MergedInsightsModal`.
+### File: `src/components/dashboard/VerticalRoadmap.tsx` (New)
+- New component that fetches milestones from `life_plan_milestones` table via the active `life_plans` record
+- Renders a vertical timeline with:
+  - A continuous gradient line (`bg-gradient-to-b from-amber-500 to-amber-500/20`)
+  - Milestone nodes positioned along the line with connecting horizontal arms
+  - Current week node has a pulsing amber ring animation (CSS keyframes via framer-motion)
+  - Completed nodes: filled amber with checkmark icon
+  - Future nodes: border-only, muted opacity
+  - Month dividers with themed labels (Foundations/Building/Momentum)
+- Supports RTL layout
+- Shows "You are here" indicator at the current week
+- Compact design that fits the 240-280px column width
 
-### 4. Remove standalone DiagnosticsModal
-Remove the `DiagnosticsModal` import and instance from `MobileHeroGrid.tsx`. The `LifePlanModal` import/instance can also be removed since 90-Day Plan already lives inside the Direction modal.
+### File: `src/components/dashboard/MobileHeroGrid.tsx` (COL 3 update)
+- Import and render `<VerticalRoadmap />` in the desktop-only COL 3 container
+- On mobile, the roadmap remains accessible through the "90-Day Plan" collapsible row (no change there)
 
-### 5. Clean up unused modals in DashboardModals.tsx
-The standalone `LifePlanModal`, `AIAnalysisModal`, and other single-purpose modals in `DashboardModals.tsx` that are now fully covered by the merged modals can be marked for cleanup (they may still be used in ProfileContent's insights grid, so we verify references first).
+## Layout Result
 
-## Files Changed
+```text
+Desktop (3 columns):
++------------------+-------------------------+------------------+
+|   COL 1 (HUD)    |    COL 2 (Plan)         | COL 3 (Roadmap)  |
+|                   |                         |                  |
+|   [Orb]           |   [Daily Pulse]         |  Month 1         |
+|   Identity Title  |   [Habits]              |  o-- Week 1 Done |
+|   Badges          |   [90-Day Plan]         |  o-- Week 2 Done |
+|   Stats           |   [Tasks]               |  o-- Week 3 Done |
+|   Session Stats   |   [Recalibration]       |  *== Week 4 NOW  |
+|   [Start Session] |   [Identity/Dir/Ins]    |  Month 2         |
+|                   |                         |  o-- Week 5      |
+|                   |                         |  o-- Week 6      |
+|                   |                         |  ...              |
++------------------+-------------------------+------------------+
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/MergedModals.tsx` | Add Diagnostics tab to `MergedInsightsModal` (4th tab with 6 score cards + bars + interpretations). Add `initialTab` prop. |
-| `src/components/dashboard/MobileHeroGrid.tsx` | Remove second row of 3 buttons. Remove `DiagnosticsModal` and `LifePlanModal` imports/instances. Update diagnostic card clicks to open `insights` modal with `initialTab='diagnostics'`. Remove `diagnostics` and `plan` from `ModalType`. |
-| `src/components/dashboard/DiagnosticsModal.tsx` | No longer imported from dashboard (can be kept for other potential uses or deleted). |
-
-## Result
-- **3 buttons** instead of 6: Identity, Direction, Insights
-- Diagnostics scores accessible via Insights modal (4th tab) AND from the desktop right-column cards
-- Zero redundancy -- every piece of content has exactly one entry point
-- Cleaner, more premium feel
-
+Mobile (stacked):
+[Daily Pulse]
+[Habits]
+[90-Day Plan]
+[Tasks]
+[Recalibration]
+[Identity / Direction / Insights]
+```
