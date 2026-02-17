@@ -313,6 +313,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
+          {/* Horizontal Roadmap - mobile/tablet only */}
+          <div className="lg:hidden">
+            <VerticalRoadmap />
+          </div>
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent lg:hidden" />
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
