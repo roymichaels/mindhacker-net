@@ -1,141 +1,85 @@
 
+# Merge All 4 Tabs into One Dashboard Page
 
-# Unified Life Control Center — Merge 4 Tabs into 1
+## Overview
+Combine **Today**, **Plan**, **Sessions**, and **Me** into a single scrollable `/dashboard` page. Remove the bottom tab bar entirely — everything lives in one unified view.
 
-## What Changes
+## New `/dashboard` Page Structure (Top to Bottom)
 
-The current 4-tab system (Today, Plan, Sessions, Me) creates cognitive fragmentation. Users hop between tabs to see pieces of the same picture. We're merging Today + Plan into a single `/today` "Life Control Center" while keeping Sessions and Me as separate tabs (they serve distinct purposes).
+### 1. Profile Identity Card (from Me tab)
+- Personalized Orb + Identity Title
+- Level, Tokens, Streak pills
+- 3 metric cards: Readiness %, Clarity %, Consciousness score
+- 3 quick-access buttons: Direction, Traits, Values
+- Insights grid (8 tool buttons)
 
-**Why not merge ALL 4?** Sessions (hypnosis library) and Me (identity/profile) are genuinely different functions. Sessions is a media player/library. Me is identity management. Forcing them into the same page would create a 10-screen scroll. The real redundancy is between Today and Plan — both show tasks, missions, habits, and progress. That's the merge.
+### 2. Next Action Banner (from Today tab)
+- Priority-based action prompt (unchanged)
 
-## Current State vs New State
+### 3. Sessions Section (from Sessions/Hypnosis tab)
+- Daily Session hero card (Start Now CTA)
+- 4-column stats row (Level, XP, Minutes, Sessions)
+- 4 quick session cards (Calm, Focus, Energy, Sleep)
+- Recent sessions list
 
-**Current 4 tabs:**
-- Today: Banner slider, NextActionBanner, Habits card, Checklists card
-- Plan: Transformation Hero, Tasks (collapsible), 90-Day Roadmap (collapsible)
-- Sessions: Daily session hero, stats, quick sessions, recent sessions
-- Me: Profile/identity card
+### 4. Three Module Grid (from Today tab)
+- Today's Habits card
+- 90-Day Roadmap card (expandable)
+- Tasks/Checklists card
 
-**New 3 tabs:**
-- **Home** (`/today`): Unified command center with all execution + strategy in one scroll
-- **Sessions** (`/hypnosis`): Unchanged
-- **Me** (`/me`): Unchanged
-
-## New `/today` Page Structure (Top to Bottom)
-
-### Section 1 — Compact Identity Header
-A slim hero bar (not a huge card) showing:
-- User name / identity title
-- Level + XP progress bar (inline)
-- 3 micro-metrics: Focus Score, Energy Score, Momentum Score
-- No oversized padding. One line of identity, one line of metrics.
-
-### Section 2 — NextActionBanner
-Stays as-is. Already priority-based and excellent.
-
-### Section 3 — Three Module Cards
-A responsive grid (`md:grid-cols-3`, stacked on mobile):
-
-**Card 1 — Today (Execution Layer)**
-- Today's habits (max 5, toggle to complete)
-- Daily streak indicator
-- Small progress bar
-- Reuses existing `TodaysHabitsCard` component internals
-
-**Card 2 — 90-Day Roadmap (Strategy Layer)**
-- Current phase + week number
-- % completion + progress bar
-- Next milestone preview
-- "Expand" toggle to show full roadmap inline
-- Reuses data from PlanTab's `planData` query + `PlanRoadmap` component
-
-**Card 3 — Tasks & Systems (Foundation Layer)**
-- Active checklists (collapsed, expandable)
-- Overall completion %
-- Reuses existing `ChecklistsCard` component
-
-### Section 4 — Deep Insights Strip
-Horizontal tab strip below the grid:
-`[ Stats ] [ AI Analysis ] [ Identity ] [ Values ]`
-These render expandable panels inline (no navigation). Reuses existing modal components from ProfileContent (AIAnalysisModal, IdentityModal, TraitsModal, etc.) but rendered as inline expandable sections instead of modals.
+### 5. Deep Insights Strip (from Today tab)
+- Stats, AI Analysis, Identity, Values tab pills
 
 ## Navigation Changes
 
-### Bottom Tab Bar (3 tabs instead of 4)
-| Before | After |
-|--------|-------|
-| Today, Plan, Sessions, Me | Home, Sessions, Me |
+### Bottom Tab Bar
+**Deleted entirely.** No more tabs — single page.
 
-### Route Changes
-| Route | Before | After |
-|-------|--------|-------|
-| `/today` | TodayTab | **New unified Home page** |
-| `/plan` | PlanTab | Redirects to `/today` |
-| `/dashboard` | Redirects to `/today` | Same |
+### Routes
+| Route | Change |
+|-------|--------|
+| `/dashboard` | New unified page (no longer redirects) |
+| `/today` | Redirect to `/dashboard` |
+| `/plan` | Redirect to `/dashboard` |
+| `/hypnosis` | Redirect to `/dashboard` |
+| `/me` | Redirect to `/dashboard` |
 
 ## Technical Details
 
-### Files Modified (4)
+### Files Modified
 
-1. **`src/pages/TodayTab.tsx`** — Complete rewrite as unified control center
-   - Import and inline: TodaysHabitsCard, ChecklistsCard, PlanRoadmap, plan hero data query
-   - Add compact identity header (reuse `useUnifiedDashboard` hook)
-   - Add 3-card grid layout
-   - Add deep insights tab strip (reuse modal components as inline panels)
-   - Remove DashboardBannerSlider (replaced by compact identity header)
+1. **`src/pages/UserDashboard.tsx`** — Complete rewrite as the unified dashboard
+   - Merge content from TodayTab, HypnosisLibrary, MeTab, and PlanTab
+   - Import ProfileContent, TodaysHabitsCard, ChecklistsCard, PlanRoadmap, RecentSessions, NextActionBanner
+   - Single scrollable PageShell with all sections stacked vertically
+   - Keep all existing data hooks (useUnifiedDashboard, useGameState, useDailyHypnosis, etc.)
 
-2. **`src/components/navigation/BottomTabBar.tsx`** — Remove Plan tab
-   - Change from 4 tabs to 3: Home, Sessions, Me
-   - Rename "Today" label to "Home" / "בית"
+2. **`src/App.tsx`** — Route consolidation
+   - `/dashboard` renders DashboardLayout + new UserDashboard (no longer redirects to /today)
+   - `/today`, `/plan`, `/me` all redirect to `/dashboard`
+   - `/hypnosis` redirects to `/dashboard` (keep `/hypnosis/session` for the actual player)
 
-3. **`src/App.tsx`** — Route cleanup
-   - Change `/plan` from rendering PlanTab to `<Navigate to="/today" replace />`
-   - Keep all other routes unchanged
+3. **`src/components/navigation/BottomTabBar.tsx`** — Delete or empty out
+   - Remove all tab buttons since there's only one page now
 
-4. **`src/components/dashboard/v2/NextActionBanner.tsx`** — Minor fix
-   - Update any `navigate('/plan')` references to scroll-to behavior (since plan is now inline)
+4. **`src/components/dashboard/DashboardLayout.tsx`** — Remove BottomTabBar rendering
+   - Since there are no tabs, the layout no longer needs the bottom nav
 
-### Files NOT Modified
-- `PlanTab.tsx` — Stays in codebase but no longer routed to (available for Pro view later)
-- `HypnosisLibrary.tsx` — Unchanged
-- `MeTab.tsx` / `ProfileContent.tsx` — Unchanged
-- All hooks, data queries, existing card components — Reused as-is
+### Component Reuse
+- **ProfileContent** — rendered inline (not as a separate page)
+- **TodaysHabitsCard**, **ChecklistsCard**, **PlanRoadmap** — reused from Today tab
+- **NextActionBanner** — reused as-is
+- **RecentSessions** + Quick Sessions grid — pulled from HypnosisLibrary
+- **HypnosisModal** — kept for session launch
 
-### New Components (2, inside TodayTab)
+### What Gets Removed
+- Bottom tab bar (3 tabs gone)
+- Separate TodayTab, PlanTab, MeTab page components (kept in codebase but no longer routed)
+- HypnosisLibrary as a standalone page (content merged into dashboard)
 
-1. **Compact Identity Header** — Inline component (not a separate file)
-   - Uses `useUnifiedDashboard()` for level, xp, streak
-   - Compact: `py-3 px-4` with flex row layout
-   - 3 micro-metric pills in a row
-
-2. **Roadmap Summary Card** — Inline component
-   - Uses the same `planData` query from PlanTab
-   - Shows week circle (small, `w-12`), phase, progress
-   - Expand toggle renders `<PlanRoadmap />` below
-
-### Responsive Grid
-```
-Desktop (md+): grid-cols-3 — all 3 cards side by side
-Tablet (sm): grid-cols-2 — Today + Roadmap side by side, Tasks below  
-Mobile: grid-cols-1 — all stacked vertically
-```
-
-### Deep Insights Strip
-- Horizontal scrollable pill buttons
-- Clicking one expands a panel below the strip (AnimatePresence)
-- Content reuses existing dashboard modal components but rendered inline
-- Only one panel open at a time
-
-## What Gets Removed
-- Plan as a separate tab in bottom navigation
-- DashboardBannerSlider from Today page (replaced by compact identity header)
-- Duplicate task/habit displays across pages
-
-## What Stays Untouched
-- Sessions page (hypnosis library) — distinct media function
-- Me page (profile/identity) — distinct identity function  
-- All data hooks and queries — reused
-- All card components — reused with minor layout adjustments
-- Onboarding flow — unchanged
-- Aurora chat — unchanged
-
+### What Stays Untouched
+- `/hypnosis/session` route (actual session player)
+- All data hooks and queries
+- Aurora chat (globally docked)
+- Admin routes
+- All other routes
