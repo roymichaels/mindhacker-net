@@ -1,144 +1,126 @@
 
-
-# Energy Economy Implementation Plan
+# Become a Coach -- Full Platform Journey + Marketplace
 
 ## Overview
-Replace the current hollow "Tokens" system with a fully functional "Energy" economy. Energy is earned through gameplay and spent on premium features (Hypnosis, Onboarding Re-evaluation, Aurora messages beyond free quota).
+Build a complete "Become a Coach" system: a 10-step guided journey (modeled after the Business Journey), a dedicated Coaches Hub page, Stripe subscription at $99/month, client acquisition from the Coaches directory, and AI-powered custom plan generation for coachees based on each coach's unique methodology.
 
-## Phase 1: Rename + Foundation
+## What Gets Built
 
-### 1.1 Database Migration
-- Create `energy_events` ledger table (id, user_id, change, balance_after, source, reason, idempotency_key, created_at) with RLS policies
-- No new column needed -- reuse existing `profiles.tokens` as the energy balance (avoids data migration complexity)
-- Add unique constraint on `energy_events.idempotency_key`
+### 1. Coaching Journey (10-step guided flow)
+A new journey modeled exactly on the Business Journey pattern, with coaching-specific steps:
 
-### 1.2 Database RPCs
-- `spend_energy(p_user_id, p_amount, p_source, p_reason, p_idempotency_key)` -- atomic check-and-deduct, returns `{success, new_balance}` or fails if insufficient
-- `award_energy(p_user_id, p_amount, p_source, p_reason, p_idempotency_key)` -- adds energy, logs event, returns `{new_balance}`
-- Update `award_unified_xp` level-up bonus to call `award_energy` instead of raw UPDATE (maintains ledger trail)
+| Step | Title (HE/EN) | What It Collects |
+|------|---------------|-----------------|
+| 1 | Vision & Why / חזון ולמה | Why become a coach, personal motivation, coaching dream |
+| 2 | Coaching Niche / נישת אימון | Niche selection (fitness, business, mental, martial arts, spiritual, life, other), specialization |
+| 3 | Methodology / מתודולוגיה | Coaching approach, beliefs, frameworks, unique method |
+| 4 | Ideal Client / הלקוח האידיאלי | Target coachee profile, demographics, pain points |
+| 5 | Value Proposition / הצעת ערך | What makes them unique, transformation they deliver |
+| 6 | Experience & Credentials / ניסיון והסמכות | Certifications, experience, testimonials, background |
+| 7 | Services & Pricing / שירותים ותמחור | Session types, packages, pricing strategy |
+| 8 | Marketing / שיווק | How they'll attract clients, content strategy, platforms |
+| 9 | Operations / תפעול | Scheduling, tools, session delivery, follow-ups |
+| 10 | Action Plan & Launch / תוכנית פעולה | First actions, 30/90 day goals, commitment, launch the coaching profile |
 
-### 1.3 Frontend Rename (Tokens -> Energy)
-**Files to update:**
-- `src/hooks/useGameState.ts` -- rename `useTokens` export to `useEnergy`, keep `useTokens` as alias for backwards compat
-- `src/contexts/GameStateContext.tsx` -- rename `spendTokens`/`addTokens` to `spendEnergy`/`addEnergy`, update to call new RPCs
-- `src/lib/feedback.ts` -- rename `showTokensEarned` to `showEnergyEarned`, update toast text to "Energy" / "אנרגיה"
-- `src/components/gamification/TokenBalance.tsx` -- rename to `EnergyBalance.tsx`, swap Coins icon to Zap/Battery
-- `src/components/dashboard/MobileHeroGrid.tsx` -- update Gem icon to Zap, label from tokens to Energy
-- `src/components/dashboard/unified/CharacterHUD.tsx` -- same icon/label swap
-- `src/components/dashboard/unified/SidebarCharacterHUD.tsx` -- same
-- `src/components/gamification/GameStatsCard.tsx` -- update TokenBalance reference
-- `src/i18n/translations/en.ts` -- all `tokens` keys become `energy` ("Energy")
-- `src/i18n/translations/he.ts` -- all `טוקנים` become `אנרגיה`
-- `src/pages/LaunchpadComplete.tsx` -- update reward label
-- `src/lib/achievements.ts` -- rename `tokens` field to `energy` in achievement definitions
+**On completion**: The journey data auto-creates a `practitioners` entry (or updates existing), making the coach visible on the Coaches directory page.
 
-### 1.4 Tooltip
-- Add a small info tooltip next to the Energy badge in the HUD explaining: "Energy is used for Hypnosis sessions, Re-evaluations, and premium Aurora messages"
+### 2. Database Changes
 
----
+**New table: `coaching_journeys`**
+- Mirrors `business_journeys` structure: `id`, `user_id`, `current_step`, `journey_complete`, `step_1_vision` through `step_10_action_plan` (all JSONB), `coaching_niche`, `ai_summary`, timestamps
+- RLS: users can only read/update their own journeys
 
-## Phase 2: Spend Gates
+**New table: `coach_client_plans`**
+- `id`, `coach_id` (references practitioners), `client_id` (references practitioner_client_profiles), `plan_data` (JSONB -- AI-generated plan), `methodology` (JSONB -- coach's method snapshot), `status`, `created_at`, `updated_at`
+- RLS: coach can read/write their own plans, clients can read plans assigned to them
 
-### 2.1 Energy Cost Configuration
-Create a simple config object in `src/lib/energyCosts.ts`:
-```text
-HYPNOSIS_STANDARD = 5
-ONBOARDING_RERUN  = 15
-AURORA_MESSAGE     = 2
-```
+**New Stripe product**: "Coach Pro" at $99/month via Stripe tools
 
-### 2.2 Hypnosis Session Gate
-- Before starting a session in the hypnosis flow, check `canAfford(HYPNOSIS_STANDARD)`
-- If yes: show spend confirmation modal ("This session costs 5 Energy. Your balance: X. Proceed?")
-- If no: show "Not enough Energy" modal with earn tips
-- On confirm: call `spend_energy` RPC, then proceed to session
-- Log in `energy_events` with source `hypnosis`
+### 3. Coaches Hub Page (like Business Hub)
+A new hub page at the existing `/practitioners` route (or enhanced), visible to users who completed the coaching journey:
+- "My Coaching Practice" section showing active clients, upcoming sessions
+- Coaching Tools grid (similar to Business Tools): Client Plans, Methodology, Marketing, Calendar, Analytics
+- Status card showing subscription status, client count, rating
+- CTA to start the Coaching Journey for new users
 
-### 2.3 Onboarding Re-evaluation Gate
-- Add a "Re-evaluate" button in the appropriate settings/profile area
-- On click: check `canAfford(15)`, show confirmation, call `spend_energy`, then trigger re-evaluation flow
+### 4. Client Acquisition from Coaches Directory
+- On completing the journey, the user gets a `practitioners` record with `status: 'active'`
+- Their profile appears on the `/practitioners` (Coaches) page
+- Journey data (niche, bio, methodology, services) populates their coach profile automatically
+- Clients can book sessions and become `practitioner_client_profiles`
 
-### 2.4 Aurora Premium Message Gate
-- Modify `useSubscriptionGate` and chat input components
-- For free-tier users who exhaust daily free messages (currently 5): instead of blocking, offer to spend 2 Energy per message
-- Flow: "You've used your free messages. Spend 2 Energy to continue?" -> call `spend_energy` -> send message
-- Pro users: unlimited, no energy cost
+### 5. AI-Powered Custom Plans for Coachees
+**New edge function: `generate-coach-plan`**
+- Takes: coach's methodology (from journey data), client profile data, coaching niche
+- Uses Lovable AI (google/gemini-3-flash-preview) to generate a personalized coaching plan
+- The plan adapts to the coach's specific method, beliefs, and niche
+- Output stored in `coach_client_plans` table
+- Coach can view/edit/share the plan with their client
 
-### 2.5 Spend Confirmation Modal
-- Create reusable `EnergySpendModal` component
-- Props: `cost`, `source`, `onConfirm`, `onCancel`
-- Shows current balance, cost, remaining after spend
-- "Not enough" variant with earn suggestions
+### 6. Stripe Integration
+- Create a new Stripe product "Coach Pro" at $99/month
+- New edge function `create-coach-checkout` for the coaching subscription
+- Gate coaching features behind active subscription check
+- Integrate with existing `check-subscription` to detect Coach Pro tier
 
-### 2.6 Low Energy Toast
-- When balance drops below 5, show a subtle toast: "Energy running low! Complete tasks to earn more."
-
----
-
-## Phase 3: Earning Hooks
-
-### 3.1 Update Existing Award Points
-- `award_unified_xp` level-up: change raw `tokens` UPDATE to call `award_energy` RPC (maintains ledger)
-- Streak milestone bonuses: same -- route through `award_energy`
-- Action item completion trigger (`handle_action_item_completion`): route `token_reward` through `award_energy`
-- Achievement unlocks: route `tokens` awards through `addEnergy` frontend method
-
-### 3.2 Aurora Task Completion
-- When Aurora assigns a task and it's completed (action_items status -> done), award energy via the existing `token_reward` column (already in place)
-- Ensure Aurora-generated tasks have `token_reward` set (default 2-5 energy)
-
----
-
-## Phase 4: Polish
-
-### 4.1 Energy History
-- Add an "Energy History" section in profile/settings that queries `energy_events` and shows a timeline of earnings and spends
-
-### 4.2 Analytics Events
-- Track `energy_awarded` and `energy_spent` via the existing analytics system
-
-### 4.3 Safety Net
-- 1 free hypnosis session per week for free-tier users (configurable), tracked via a simple date check
-
----
+### 7. Coach Panel Integration
+- Add new sidebar items: "Client Plans" and "AI Plan Builder"
+- Client Plans page shows all generated plans for the coach's clients
+- AI Plan Builder lets the coach select a client and generate/customize a plan
 
 ## Technical Details
 
-### New DB Table: `energy_events`
+### New Files
+- `src/pages/CoachingJourney.tsx` -- page wrapper
+- `src/components/coaching-journey/CoachingJourneyFlow.tsx` -- main flow (mirrors BusinessJourneyFlow)
+- `src/components/coaching-journey/steps/` -- 10 step components
+- `src/hooks/useCoachingJourneyProgress.ts` -- journey state management
+- `src/hooks/useCoachingJourneys.ts` -- list coaching journeys
+- `src/components/coaching-hub/` -- hub components (tools grid, status card)
+- `src/components/coach-plans/CoachPlanBuilder.tsx` -- AI plan builder UI
+- `src/components/coach-plans/CoachPlanView.tsx` -- plan viewer
+- `supabase/functions/generate-coach-plan/index.ts` -- AI plan generation
+- `supabase/functions/create-coach-checkout/index.ts` -- Stripe checkout
+
+### Modified Files
+- `src/App.tsx` -- add coaching journey route, coach plan routes
+- `src/components/panel/CoachSidebar.tsx` -- add Client Plans and AI Plan Builder nav items
+- `src/pages/Practitioners.tsx` -- add "Become a Coach" CTA for non-coaches
+- `src/components/journey-shared/themes.ts` -- add 'coaching' theme (orange/warm gradient)
+- `src/components/hub-shared/pillarColors.ts` -- add 'coaching' color scheme
+- Translation files -- add all coaching-related strings
+
+### Database Migration
 ```text
-id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
-user_id       UUID NOT NULL REFERENCES profiles(id)
-change        INTEGER NOT NULL (positive = earn, negative = spend)
-balance_after INTEGER NOT NULL
-source        TEXT NOT NULL
-reason        TEXT
-idempotency_key TEXT UNIQUE
-created_at    TIMESTAMPTZ DEFAULT now()
+-- coaching_journeys table (mirrors business_journeys)
+-- coach_client_plans table (AI-generated plans)
+-- RLS policies for both tables
+-- Auto-create practitioner on journey completion (trigger)
 ```
-RLS: Users can only read their own events. Inserts only via RPC (security definer).
 
-### New RPCs
-- `spend_energy`: SELECT FOR UPDATE on profiles, check balance >= amount, deduct, insert into energy_events, return result
-- `award_energy`: UPDATE profiles, insert into energy_events, return result
-- Both use idempotency keys to prevent duplicates
+### Edge Functions
+1. `generate-coach-plan`: Takes coach methodology + client data, calls Lovable AI, returns structured plan
+2. `create-coach-checkout`: Creates Stripe checkout session for $99/mo Coach Pro
 
-### New Frontend Components
-- `src/lib/energyCosts.ts` -- cost constants
-- `src/components/energy/EnergySpendModal.tsx` -- reusable spend confirmation
-- `src/components/energy/EnergyBalance.tsx` -- renamed from TokenBalance
-- `src/hooks/useEnergy.ts` -- clean hook wrapping the context
+### Color Theme
+- Coaching theme: Orange/warm tone (distinct from business amber)
+- Gradient: `from-orange-600 to-amber-500`
+- Accent: orange-500
 
-### Files Modified (summary)
-- ~15 frontend files for rename (tokens -> energy)
-- 2 translation files
-- GameStateContext (core logic update to use RPCs)
-- 2-3 chat input components (Aurora message gate)
-- Hypnosis session start flow
-- feedback.ts (toast messages)
+## Implementation Order
+1. DB migration (coaching_journeys, coach_client_plans tables + RLS)
+2. Stripe product creation ($99/mo Coach Pro)
+3. Coaching Journey flow (10 steps + hook + page + routing)
+4. Journey completion -> auto-create practitioner profile
+5. Coaches Hub enhancements (CTA for non-coaches, status for coaches)
+6. Coach checkout edge function + subscription gate
+7. AI Plan Builder edge function + UI
+8. Coach Panel sidebar updates (Client Plans, AI Plan Builder)
+9. Translations (EN + HE)
 
-### Estimated Scope
-- Phase 1: DB migration + ~15 file renames
-- Phase 2: 1 new modal component + 3-4 gate integrations
-- Phase 3: Update 3-4 DB triggers/functions
-- Phase 4: 1 history component + analytics hooks
-
+## Estimated Scope
+- 2 new DB tables + RLS + 1 trigger
+- 1 new Stripe product
+- ~15 new frontend files (journey steps, hub, plan builder)
+- 2 new edge functions
+- ~8 modified files (routing, sidebar, translations, themes)
