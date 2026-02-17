@@ -7,7 +7,7 @@ import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { SettingsModal } from '@/components/settings';
-import { HypnosisModal } from './HypnosisModal';
+
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 
@@ -22,7 +22,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [hypnosisOpen, setHypnosisOpen] = useState(false);
+  
 
   if (isMobile) {
     return (
@@ -32,7 +32,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
               <div className="flex h-12 items-center justify-between px-3">
                 <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
-                <HeaderActions compact onOpenHypnosis={() => setHypnosisOpen(true)} />
+                <HeaderActions compact />
               </div>
             </header>
 
@@ -43,7 +43,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <AuroraDock />
             <BottomTabBar />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-            <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
           </div>
         </SidebarProvider>
       </AuroraActionsProvider>
@@ -55,7 +54,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <SidebarProvider>
         <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
           <TopNavBar
-            onOpenHypnosis={() => setHypnosisOpen(true)}
             onOpenSettings={() => setSettingsOpen(true)}
           />
 
@@ -66,7 +64,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <AuroraDock />
 
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-          <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+          
         </div>
       </SidebarProvider>
     </AuroraActionsProvider>
