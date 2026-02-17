@@ -31,9 +31,13 @@ const JourneyChatDock = () => {
   // Don't render for guests
   if (!user) return null;
   
-  // If already in a provider, just render the dock
+  // If already in a chat provider, just wrap with actions provider
   if (existingContext) {
-    return <JourneyChatDockInner />;
+    return (
+      <AuroraActionsProvider>
+        <JourneyChatDockInner />
+      </AuroraActionsProvider>
+    );
   }
   
   // Otherwise, wrap with provider
