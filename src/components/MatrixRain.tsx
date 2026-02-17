@@ -27,7 +27,7 @@ const MatrixRain = () => {
   const [mounted, setMounted] = useState(false);
 
   // Check if should render
-  const shouldRender = theme.matrix_rain_enabled;
+  const shouldRender = theme.matrix_rain_enabled && theme.background_effect === 'matrix_rain';
   const isLightMode = mounted && resolvedTheme === "light";
 
   useEffect(() => {
