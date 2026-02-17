@@ -204,6 +204,11 @@ export const en: TranslationKeys = {
       items: "items",
       week: "Week",
     },
+    identity: "Identity",
+    direction: "Direction",
+    insights: "Insights",
+    startSession: "Start Session",
+    minutesShort: "min",
     banners: {
       levelUpTitle: "Level Up Your Life",
       levelUpSubtitle: "Every action earns XP — level up and unlock new abilities",

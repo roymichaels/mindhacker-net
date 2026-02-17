@@ -202,6 +202,11 @@ export const he = {
       items: "פריטים",
       week: "שבוע",
     },
+    identity: "זהות",
+    direction: "כיוון",
+    insights: "תובנות",
+    startSession: "התחל סשן",
+    minutesShort: "דק׳",
     banners: {
       levelUpTitle: "שדרג את החיים שלך",
       levelUpSubtitle: "כל פעולה מרוויחה XP — עלה רמה וגלה יכולות חדשות",
