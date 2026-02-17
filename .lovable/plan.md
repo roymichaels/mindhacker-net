@@ -1,74 +1,59 @@
 
-# Fix Dashboard Color Confusion
 
-## Problem
-Nearly every dashboard element (badges, icons, separators, buttons, section headers) uses the same amber/gold tone. This creates a monotone, hard-to-read interface where nothing stands out -- especially in light mode where amber washes out against white.
+# More Color Diversification -- Phase 2
 
-## Solution
-Introduce a clear color hierarchy with distinct, purposeful colors per section type while keeping amber as the brand accent for the primary CTA only.
+## Remaining Issues (from screenshots)
 
-## Changes by Component
+1. **Daily Pulse summary card**: All 5 metric values (Energy, Sleep, Tasks, Screen, Mood) are plain white text with no color -- hard to scan
+2. **Identity title**: Still uses `from-amber-500 to-yellow-400` gradient -- should use the brand primary
+3. **Roadmap progress circle + month pills**: All amber -- the month dividers and % circle should use softer theme colors
+4. **Roadmap current-week content card**: The `bg-amber-500/15 border-amber-500/40` card background blends with the amber node -- needs more distinction
 
-### 1. MobileHeroGrid.tsx -- Stat Badges and Section Icons
+## Changes
 
-**Game badges** (Lv, Tokens, Streak): Keep amber -- these are the "gold" game elements.
+### 1. DailyPulseCard.tsx -- Color-coded summary metrics
+Give each of the 5 logged pulse metrics a distinct icon/value color:
+- Energy (Zap): `text-amber-500`
+- Sleep (Moon): `text-blue-500`
+- Tasks (Check): `text-emerald-500`
+- Screen (Smartphone): `text-violet-500`
+- Mood (Brain): `text-rose-500`
 
-**Diagnostics row** (Awareness, Clarity, Readiness): Already have distinct colors (amber, blue, green) -- keep as-is.
+Add the icon above or beside each value with its color for scannability.
 
-**Section icons** (Habits, 90-Day Plan, Tasks): Give each a unique color instead of all amber:
-- Habits: `text-emerald-500` (green = growth/habits)
-- 90-Day Plan: `text-blue-500` (blue = planning)
-- Tasks: `text-violet-500` (purple = productivity)
+### 2. MobileHeroGrid.tsx -- Identity title gradient
+Change the identity title from `from-amber-500 to-yellow-400` to `from-primary to-rose-400` (brand rose) on both mobile and desktop instances.
 
-**Golden separators**: Replace `via-amber-500/40` with `via-border` so they use the theme's native border color -- subtle, clean, not amber.
+### 3. VerticalRoadmap.tsx -- Month pills and progress circle
+- **Month divider pills**: Change from `bg-amber-500/10 text-amber-500 border-amber-500/20` to `bg-muted/50 text-muted-foreground border-border/30` (neutral, not amber)
+- **Progress % circle**: Change border from `border-amber-500/40` and text from `text-amber-500` to `border-primary/40` and `text-primary`
+- **Horizontal progress bar fill**: Keep the emerald-to-amber gradient (it semantically shows completed=green to current=amber)
+- **Current content card (desktop)**: Change from `bg-amber-500/15 border-amber-500/40` to `bg-primary/10 border-primary/30` so it doesn't blend with the amber node
 
-**Identity/Direction/Insights buttons**: Give unique icon colors:
-- Identity: `text-rose-500`
-- Direction: `text-blue-500`  
-- Insights: `text-violet-500`
-
-### 2. DailyPulseCard.tsx -- Pulse Card
-
-**Border**: Change from `border-amber-500/30` to `border-border/50` (theme-native).
-
-**Background gradient**: Change from amber-tinted to `from-primary/5 via-transparent to-transparent` (subtle brand tint).
-
-**Progress dots**: Change from `bg-amber-500` to `bg-primary` (brand color instead of amber).
-
-**Header icon**: Change Activity icon from `text-amber-500` to `text-primary`.
-
-### 3. CollapsiblePlanRow -- Plan Badges
-
-**Week badge**: Change from `bg-amber-500/10 text-amber-500 border-amber-500/20` to `bg-primary/10 text-primary border-primary/20` for the active badge.
-
-**Progress bars**: Change from `bg-amber-500` to `bg-primary`.
-
-**Count suffix**: Change from `text-amber-500` to `text-primary`.
-
-### 4. VerticalRoadmap.tsx -- Roadmap Colors
-
-Keep amber for the current-week node (it's the spotlight). No changes needed here -- the roadmap amber is intentional and distinctive since it only highlights the "you are here" marker.
+### 4. VerticalRoadmap.tsx -- Current week label
+Change the "HERE"/"NOW" badge from `bg-amber-500/20 text-amber-500 border-amber-500/30` to `bg-primary/20 text-primary border-primary/30`. The amber node itself stays amber as the spotlight marker.
 
 ## Technical Details
 
-### File: `src/components/dashboard/MobileHeroGrid.tsx`
-- Lines 279, 291, 302: Change section icon colors from `text-amber-500` to emerald/blue/violet
-- Lines 143, 159, 175, 218, 235, 251, 276, 288, 300, 314, 320, 325: Change separator `via-amber-500/40` to `via-border`
-- Lines 333, 340, 346: Change Identity/Direction/Insights icon colors
-- Lines 331, 338, 345: Change hover from `hover:bg-amber-500/10` to `hover:bg-accent/10`
-
 ### File: `src/components/dashboard/DailyPulseCard.tsx`
-- Line 208: Border and bg-gradient color changes
-- Lines 217-226: Progress dots from amber to primary
-- Line 49: Header icon color
+- Lines 54-66 (summary grid): Add distinct color classes to each metric's icon and value
+- Add the icon component rendering for each metric cell
 
-### File: `src/components/dashboard/MobileHeroGrid.tsx` (CollapsiblePlanRow)
-- Lines 420-421: Badge colors from amber to primary
-- Line 431: Count suffix color
-- Lines 467, 511: Progress bar color
+### File: `src/components/dashboard/MobileHeroGrid.tsx`
+- Line 124: Change `from-amber-500 to-yellow-400` to `from-primary to-rose-400`
+- Line 200: Same change for desktop identity title
+
+### File: `src/components/dashboard/VerticalRoadmap.tsx`
+- Lines 106-108 (mobile progress circle): Change amber to primary
+- Lines 131-138 (mobile month divider): Change amber to neutral muted
+- Lines 213-215 (mobile HERE badge): Change amber to primary
+- Lines 237-239 (desktop progress circle): Change amber to primary
+- Lines 248-254 (desktop month pill): Change amber to neutral muted
+- Lines 324 (desktop current card bg): Change amber to primary
+- Lines 335-337 (desktop NOW badge): Change amber to primary
 
 ## Result
-- Each section has a distinct color identity making the dashboard scannable at a glance
-- Light mode gets proper contrast since `text-primary` (rose) and varied colors stand out against white
-- Dark mode keeps its premium feel with richer color variety
-- Amber remains exclusive to game badges and the CTA button, making them feel special
+- Daily Pulse becomes a colorful at-a-glance readout instead of plain white numbers
+- Identity title uses the brand rose color instead of generic amber
+- Roadmap month labels become subtle/neutral, letting the actual milestone nodes be the focus
+- The "you are here" node stays amber (intentional spotlight) but surrounding UI elements use distinct colors
