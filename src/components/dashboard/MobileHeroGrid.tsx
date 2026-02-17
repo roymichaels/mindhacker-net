@@ -186,7 +186,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 overflow-y-auto md:order-1 min-h-0 md:overflow-y-auto">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none overflow-y-auto md:order-1 min-h-0 md:overflow-y-auto">
           {/* Premium identity + stats card - desktop only */}
           <div className="hidden md:flex flex-col gap-3 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-transparent p-4">
             <div className="flex items-center justify-between">
