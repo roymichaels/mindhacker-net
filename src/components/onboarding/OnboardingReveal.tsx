@@ -1,8 +1,7 @@
 /**
- * OnboardingReveal — Neural Diagnostics Screen
+ * OnboardingReveal — Neural Diagnostics + Week 1 Protocol + Daily Structure
  * 
- * Computes and displays diagnostic scores from the intake data,
- * then triggers AI summary generation and navigates to dashboard.
+ * Unified reveal screen: 6 diagnostic scores, Week 1 protocol, 8-8-8 daily structure preview.
  */
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Headphones } from 'lucide-react';
+import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Shield, Activity, Sun, Moon, Dumbbell, BookOpen, Coffee } from 'lucide-react';
 import { FRICTION_PILLAR_MAP, PILLAR_LABELS } from '@/flows/onboardingFlowSpec';
 import type { FlowAnswers } from '@/lib/flow/types';
 
@@ -21,130 +20,235 @@ interface OnboardingRevealProps {
 
 // ─── Score computation helpers ───
 
-function computeNervousSystemScore(answers: FlowAnswers): number {
-  let score = 70;
-  const zone = answers.pressure_zone as string;
-  if (zone === 'cognitive_overload') score -= 15;
-  if (zone === 'energy_instability') score -= 12;
-  if (zone === 'emotional_strain') score -= 10;
-
-  const signals = (answers.functional_signals as string[]) || [];
-  score -= signals.length * 4;
-
-  const sleepQ = answers.sleep_quality as number;
-  if (sleepQ && sleepQ <= 2) score -= 10;
-  if (sleepQ && sleepQ >= 4) score += 5;
-
-  return Math.max(10, Math.min(100, score));
-}
-
-function computeEnergyScore(answers: FlowAnswers): number {
+function computeEnergyStability(a: FlowAnswers): number {
   let score = 65;
-  const sleepQ = answers.sleep_quality as number;
+  const sleepQ = a.sleep_quality as number;
   if (sleepQ) score += (sleepQ - 3) * 5;
-
-  const screen = answers.screen_before_bed as string;
+  const screen = a.screen_before_bed as string;
   if (screen === 'yes') score -= 8;
-
-  const caffeine = answers.caffeine_intake as string;
-  if (caffeine === '4_plus') score -= 10;
+  const caffeine = a.caffeine_intake as string;
+  if (caffeine === '4_plus' || caffeine === '3_plus') score -= 10;
   if (caffeine === '0') score += 5;
-
-  const activity = answers.activity_level as string;
-  if (activity === 'daily') score += 10;
-  if (activity === 'sedentary') score -= 10;
-
-  const water = answers.water_intake as string;
+  const activity = a.activity_level as string;
+  if (activity === 'daily' || activity === '5x_plus' || activity === 'athlete') score += 10;
+  if (activity === 'sedentary' || activity === 'none') score -= 10;
+  const water = a.water_intake as string;
   if (water === 'under_1L') score -= 8;
   if (water === 'over_3L') score += 5;
-
-  const crash = answers.energy_crash_time as string;
-  if (crash === 'no_crash') score += 8;
-
+  const crash = a.energy_crash_time as string;
+  if (crash === 'no_crash' || crash === 'none_varies') score += 8;
+  const sunlight = a.sunlight_after_waking as string;
+  if (sunlight === 'yes') score += 5;
+  if (sunlight === 'no') score -= 5;
+  const sleepDur = a.sleep_duration_avg as string;
+  if (sleepDur === 'under_5h') score -= 12;
+  if (sleepDur === '5_6h') score -= 6;
+  if (sleepDur === '7_8h') score += 5;
+  if (sleepDur === '8_plus') score += 3;
   return Math.max(10, Math.min(100, score));
 }
 
-function computeHormonalRiskIndex(answers: FlowAnswers): number {
-  let risk = 30; // lower is better
-  const bodyFat = answers.body_fat_estimate as string;
-  if (bodyFat === 'high') risk += 15;
-
-  const activity = answers.activity_level as string;
-  if (activity === 'sedentary') risk += 15;
-  if (activity === 'daily') risk -= 10;
-
-  const sun = answers.sun_exposure as string;
-  if (sun === 'under_10m') risk += 10;
-  if (sun === 'over_30m') risk -= 5;
-
-  const cold = answers.cold_exposure as string;
-  if (cold === 'frequent') risk -= 8;
-  if (cold === 'never') risk += 5;
-
-  const sleepQ = answers.sleep_quality as number;
-  if (sleepQ && sleepQ <= 2) risk += 10;
-
-  const alcohol = answers.alcohol_frequency as string;
-  if (alcohol === 'daily') risk += 12;
-
-  return Math.max(5, Math.min(95, risk));
+function computeRecoveryDebt(a: FlowAnswers): number {
+  let debt = 25; // lower is better
+  const sleepQ = a.sleep_quality as number;
+  if (sleepQ && sleepQ <= 2) debt += 15;
+  if (sleepQ && sleepQ >= 4) debt -= 5;
+  const screen = a.screen_before_bed as string;
+  if (screen === 'yes') debt += 10;
+  const caffeine = a.caffeine_intake as string;
+  if (caffeine === '3_plus' || caffeine === '4_plus') debt += 10;
+  const alcohol = a.alcohol_frequency as string;
+  if (alcohol === '4x_plus' || alcohol === 'daily') debt += 15;
+  if (alcohol === '2_3x_week') debt += 8;
+  const wakeNight = a.wake_during_night as string;
+  if (wakeNight === '2x_plus' || wakeNight === 'often') debt += 12;
+  if (wakeNight === '1x') debt += 5;
+  const sleepDur = a.sleep_duration_avg as string;
+  if (sleepDur === 'under_5h') debt += 15;
+  if (sleepDur === '5_6h') debt += 8;
+  const lateScroll = a.late_night_scrolling as string;
+  if (lateScroll === 'often') debt += 10;
+  if (lateScroll === 'sometimes') debt += 5;
+  return Math.max(5, Math.min(95, debt));
 }
 
-function computeDopamineLoadIndex(answers: FlowAnswers): number {
-  let load = 20; // lower is better
-  const screen = answers.daily_screen_time as string;
-  if (screen === '6h_plus') load += 25;
-  if (screen === '4_6h') load += 15;
-  if (screen === '2_4h') load += 8;
-
-  const social = answers.social_media_frequency as string;
-  if (social === 'heavy') load += 20;
-  if (social === 'moderate') load += 8;
-
-  const caffeine = answers.caffeine_intake as string;
-  if (caffeine === '4_plus') load += 10;
-  if (caffeine === '2_3') load += 5;
-
-  const alcohol = answers.alcohol_frequency as string;
-  if (alcohol === 'daily') load += 15;
-  if (alcohol === 'weekly') load += 5;
-
+function computeDopamineLoad(a: FlowAnswers): number {
+  let load = 20;
+  const screen = a.daily_screen_time as string;
+  if (screen === '6h_plus' || screen === '4h_plus') load += 25;
+  if (screen === '4_6h' || screen === '2_4h') load += 12;
+  const social = a.social_media_frequency as string;
+  if (social === 'heavy' || social === '4h_plus') load += 15;
+  if (social === 'moderate' || social === '1_2h' || social === '2_4h') load += 8;
+  const shorts = a.shorts_reels as string;
+  if (shorts === 'heavy_daily') load += 15;
+  if (shorts === 'daily') load += 8;
+  const gaming = a.gaming as string;
+  if (gaming === 'daily') load += 10;
+  if (gaming === 'few_days') load += 5;
+  const porn = a.porn_frequency as string;
+  if (porn === 'daily') load += 12;
+  if (porn === '2_5x_week') load += 8;
+  const lateScroll = a.late_night_scrolling as string;
+  if (lateScroll === 'often') load += 8;
   return Math.max(5, Math.min(95, load));
 }
 
-function computeTimeOptimization(answers: FlowAnswers): number {
+function computeExecutionReliability(a: FlowAnswers): number {
+  let score = 60;
+  const pattern = a.execution_pattern as string;
+  const patternMap: Record<string, number> = {
+    start_strong_quit: -15, overplan_delay: -12, avoid_hard_tasks: -18,
+    burn_out_fast: -15, intense_inconsistent: -10, consistent_plateaued: 5,
+  };
+  if (pattern && patternMap[pattern] !== undefined) score += patternMap[pattern];
+  const friction = a.friction_trigger as string;
+  const frictionMap: Record<string, number> = {
+    too_tired: -8, too_distracted: -10, too_overwhelmed: -12,
+    too_perfectionist: -5, too_reactive: -8, no_clear_step: -10,
+  };
+  if (friction && frictionMap[friction] !== undefined) score += frictionMap[friction];
+  const commitment = a.restructure_willingness as number;
+  if (commitment) score += (commitment - 5) * 2;
+  const urgency = a.urgency_scale as number;
+  if (urgency && urgency >= 8) score += 5;
+  return Math.max(10, Math.min(100, score));
+}
+
+function computeTimeLeverage(a: FlowAnswers): number {
   let potential = 50;
-  const workHours = answers.daily_work_hours as number;
-  if (workHours && workHours <= 6) potential += 15;
-  if (workHours && workHours >= 10) potential -= 15;
-
-  const commute = answers.commute_duration as string;
-  if (commute === 'none') potential += 10;
-  if (commute === 'over_60m') potential -= 12;
-
-  const dependents = answers.dependents as string;
+  const workHours = a.daily_work_hours as string;
+  if (workHours === '0_4') potential += 15;
+  if (workHours === '10_plus') potential -= 15;
+  const commute = a.commute_duration as string;
+  if (commute === '0' || commute === 'none') potential += 10;
+  if (commute === '60_plus' || commute === 'over_60m') potential -= 12;
+  const dependents = a.dependents as string;
   if (dependents === 'none') potential += 8;
-  if (dependents === 'children') potential -= 10;
-
-  const household = answers.household_responsibility as string;
+  if (dependents === 'kids' || dependents === 'children') potential -= 10;
+  const household = a.household_responsibility as string;
   if (household === 'low') potential += 5;
   if (household === 'high') potential -= 8;
-
   return Math.max(10, Math.min(100, potential));
 }
 
-function getHypnosisTheme(answers: FlowAnswers): { he: string; en: string; icon: string } {
-  const zone = answers.pressure_zone as string;
-  const themes: Record<string, { he: string; en: string; icon: string }> = {
-    cognitive_overload: { he: 'שקט מנטלי ובהירות', en: 'Mental Stillness & Clarity', icon: '🧘' },
-    energy_instability: { he: 'טעינה אנרגטית עמוקה', en: 'Deep Energy Recharge', icon: '⚡' },
-    career_stagnation: { he: 'פריצת תקרה מקצועית', en: 'Career Breakthrough', icon: '🚀' },
-    financial_instability: { he: 'שליטה פיננסית', en: 'Financial Mastery', icon: '💰' },
-    emotional_strain: { he: 'ריפוי רגשי ואיזון', en: 'Emotional Healing & Balance', icon: '💜' },
-    direction_confusion: { he: 'בהירות כיוון', en: 'Direction Clarity', icon: '🧭' },
-    lack_structure: { he: 'בניית משמעת פנימית', en: 'Inner Discipline Building', icon: '🏗️' },
+function computeHormonalRisk(a: FlowAnswers): number {
+  let risk = 30;
+  const bodyFat = a.body_fat_estimate as string;
+  if (bodyFat === 'high' || bodyFat === 'very_high') risk += 15;
+  const activity = a.activity_level as string;
+  if (activity === 'sedentary' || activity === 'none') risk += 15;
+  if (activity === 'daily' || activity === '5x_plus' || activity === 'athlete') risk -= 10;
+  const sun = a.sun_exposure as string;
+  const sunlight = a.sunlight_after_waking as string;
+  if (sun === 'under_10m' || sunlight === 'no') risk += 10;
+  if (sun === 'over_30m' || sunlight === 'yes') risk -= 5;
+  const sleepQ = a.sleep_quality as number;
+  if (sleepQ && sleepQ <= 2) risk += 10;
+  const alcohol = a.alcohol_frequency as string;
+  if (alcohol === '4x_plus' || alcohol === 'daily') risk += 12;
+  const nicotine = a.nicotine as string;
+  if (nicotine === 'daily') risk += 8;
+  const weed = a.weed_thc as string;
+  if (weed === 'daily') risk += 6;
+  return Math.max(5, Math.min(95, risk));
+}
+
+// ─── Week 1 Protocol helpers ───
+
+function getAnchorHabits(a: FlowAnswers, isHe: boolean): string[] {
+  const habits: string[] = [];
+  const wake = a.wake_time as string;
+  if (wake) habits.push(isHe ? `השכמה ב-${wake}` : `Wake at ${wake}`);
+  const sleep = a.sleep_time as string;
+  if (sleep) habits.push(isHe ? `מסכים כבויים עד ${sleep}` : `Screens off by ${sleep}`);
+  const sunlight = a.sunlight_after_waking as string;
+  if (sunlight !== 'yes') {
+    habits.push(isHe ? '10 דק׳ אור שמש אחרי השכמה' : '10min sunlight after waking');
+  } else {
+    habits.push(isHe ? 'המשך חשיפה לאור בוקר' : 'Continue morning light exposure');
+  }
+  return habits.slice(0, 3);
+}
+
+function getFocusBlocks(a: FlowAnswers, isHe: boolean): string[] {
+  const peak = a.energy_peak_time as string;
+  const peakMap: Record<string, string> = {
+    early: '06:00–09:00', morning: '08:00–11:00', midday: '10:00–13:00',
+    afternoon: '13:00–16:00', evening: '17:00–20:00', late_night: '21:00–00:00',
   };
-  return themes[zone] || themes.cognitive_overload;
+  const window = peakMap[peak] || '09:00–12:00';
+  return [
+    isHe ? `עבודה עמוקה: ${window}` : `Deep work: ${window}`,
+    isHe ? 'בלוק אדמין: 60 דק׳ אחרי הצהריים' : 'Admin block: 60min after lunch',
+    isHe ? 'סשן למידה: 30 דק׳ ערב' : 'Learning session: 30min evening',
+  ];
+}
+
+function getRecoveryBlock(a: FlowAnswers, isHe: boolean): string {
+  const sleep = a.sleep_time as string || '23:00';
+  return isHe ? `החל מ-${sleep}: ללא מסכים, נשימות, קריאה` : `From ${sleep}: no screens, breathwork, reading`;
+}
+
+function getTrainingSuggestion(a: FlowAnswers, isHe: boolean): string {
+  const window = a.training_window_available as string;
+  const activity = a.activity_level as string;
+  const windowLabel: Record<string, string> = {
+    morning: isHe ? 'בוקר' : 'morning', midday: isHe ? 'צהריים' : 'midday',
+    evening: isHe ? 'ערב' : 'evening', none_consistent: isHe ? 'גמיש' : 'flexible',
+  };
+  if (activity === 'none' || activity === 'sedentary') {
+    return isHe ? `הליכה 20 דק׳ (${windowLabel[window] || 'בוקר'})` : `20min walk (${windowLabel[window] || 'morning'})`;
+  }
+  return isHe ? `אימון ${windowLabel[window] || 'בוקר'} — 45 דק׳` : `Training ${windowLabel[window] || 'morning'} — 45min`;
+}
+
+// ─── Daily Structure helper ───
+
+function getDailyStructure(a: FlowAnswers, isHe: boolean) {
+  const wake = a.wake_time as string || '07:00';
+  const sleep = a.sleep_time as string || '23:00';
+  const peak = a.energy_peak_time as string || 'morning';
+  const training = a.training_window_available as string || 'morning';
+
+  const peakWindows: Record<string, { start: string; end: string }> = {
+    early: { start: '06:00', end: '09:00' }, morning: { start: '08:00', end: '11:00' },
+    midday: { start: '10:00', end: '13:00' }, afternoon: { start: '13:00', end: '16:00' },
+    evening: { start: '17:00', end: '20:00' }, late_night: { start: '21:00', end: '00:00' },
+  };
+  const trainingWindows: Record<string, { start: string; end: string }> = {
+    morning: { start: '06:30', end: '07:30' }, midday: { start: '12:00', end: '13:00' },
+    evening: { start: '18:00', end: '19:00' }, none_consistent: { start: '17:00', end: '18:00' },
+  };
+
+  const deepWork = peakWindows[peak] || peakWindows.morning;
+  const trainingBlock = trainingWindows[training] || trainingWindows.morning;
+
+  return [
+    { icon: Moon, label: isHe ? 'שינה' : 'Sleep', time: `${sleep} – ${wake}`, color: 'text-indigo-400' },
+    { icon: Brain, label: isHe ? 'עבודה עמוקה' : 'Deep Work', time: `${deepWork.start} – ${deepWork.end}`, color: 'text-amber-500' },
+    { icon: Coffee, label: isHe ? 'אדמין' : 'Admin', time: isHe ? 'אחרי ארוחת צהריים' : 'After lunch', color: 'text-muted-foreground' },
+    { icon: Dumbbell, label: isHe ? 'אימון' : 'Training', time: `${trainingBlock.start} – ${trainingBlock.end}`, color: 'text-green-500' },
+    { icon: BookOpen, label: isHe ? 'פיתוח אישי' : 'Personal Dev', time: isHe ? '30 דק׳ ערב' : '30min evening', color: 'text-purple-500' },
+    { icon: Sun, label: isHe ? 'ריקברי' : 'Recovery', time: `${sleep}+`, color: 'text-cyan-500' },
+  ];
+}
+
+// ─── Score interpretation ───
+
+function getInterpretation(key: string, value: number, isHe: boolean, inverted = false): string {
+  const effective = inverted ? value : 100 - value;
+  // For inverted metrics (higher = worse), high value = bad
+  if (inverted) {
+    if (value >= 70) return isHe ? 'דורש טיפול מיידי' : 'Needs immediate attention';
+    if (value >= 50) return isHe ? 'בטווח אזהרה' : 'In warning range';
+    if (value >= 30) return isHe ? 'סביר — יש מקום לשיפור' : 'Moderate — room to improve';
+    return isHe ? 'מצוין' : 'Excellent';
+  }
+  if (value >= 70) return isHe ? 'מצוין' : 'Excellent';
+  if (value >= 50) return isHe ? 'סביר — יש מקום לשיפור' : 'Moderate — room to improve';
+  if (value >= 30) return isHe ? 'נמוך — עדיפות גבוהה' : 'Low — high priority';
+  return isHe ? 'דורש טיפול מיידי' : 'Needs immediate attention';
 }
 
 export function OnboardingReveal({ answers }: OnboardingRevealProps) {
@@ -156,31 +260,27 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
 
   const pressureZone = answers.pressure_zone as string;
   const pillar = FRICTION_PILLAR_MAP[pressureZone] || 'mind';
-  const pillarInfo = PILLAR_LABELS[pillar];
 
-  // Compute diagnostic scores
+  // Compute 6 diagnostic scores
   const diagnostics = useMemo(() => ({
-    nervousSystem: computeNervousSystemScore(answers),
-    energyStability: computeEnergyScore(answers),
-    hormonalRisk: computeHormonalRiskIndex(answers),
-    dopamineLoad: computeDopamineLoadIndex(answers),
-    timeOptimization: computeTimeOptimization(answers),
-    urgency: (answers.urgency_scale as number) || 5,
-    commitment: (answers.restructure_willingness as number) || 5,
-    hypnosisTheme: getHypnosisTheme(answers),
+    energyStability: computeEnergyStability(answers),
+    recoveryDebt: computeRecoveryDebt(answers),
+    dopamineLoad: computeDopamineLoad(answers),
+    executionReliability: computeExecutionReliability(answers),
+    timeLeverage: computeTimeLeverage(answers),
+    hormonalRisk: computeHormonalRisk(answers),
   }), [answers]);
 
-  const target90 = answers.target_90_days as string;
-  const targetLabels: Record<string, { he: string; en: string }> = {
-    body_composition: { he: 'שיפור הרכב גוף', en: 'Body Composition' },
-    stabilize_energy: { he: 'ייצוב אנרגיה', en: 'Energy Stabilization' },
-    increase_income: { he: 'הגדלת הכנסה', en: 'Income Growth' },
-    change_career: { he: 'שינוי קריירה', en: 'Career Change' },
-    build_discipline: { he: 'בניית משמעת', en: 'Discipline Building' },
-    improve_relationship: { he: 'שיפור מערכת יחסים', en: 'Relationship' },
-    build_business: { he: 'בניית עסק', en: 'Business Building' },
-    mental_clarity: { he: 'בהירות מנטלית', en: 'Mental Clarity' },
-  };
+  // Week 1 Protocol
+  const week1 = useMemo(() => ({
+    anchorHabits: getAnchorHabits(answers, isHe),
+    focusBlocks: getFocusBlocks(answers, isHe),
+    recoveryBlock: getRecoveryBlock(answers, isHe),
+    trainingSuggestion: getTrainingSuggestion(answers, isHe),
+  }), [answers, isHe]);
+
+  // Daily structure
+  const dailyStructure = useMemo(() => getDailyStructure(answers, isHe), [answers, isHe]);
 
   const handleEnterSystem = async () => {
     if (!user?.id) return;
@@ -190,27 +290,36 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
       const step1Data: Record<string, unknown> = {};
       const step2Data: Record<string, unknown> = {};
 
-      // Gather all step1 keys
-      ['pressure_zone', 'functional_signals', 'target_90_days', 'why_matters', 'urgency_scale', 'restructure_willingness', 'final_notes'].forEach(key => {
+      // STEP1 keys
+      ['pressure_zone', 'functional_signals', 'target_90_days', 'why_matters',
+       'urgency_scale', 'restructure_willingness', 'final_notes',
+       'entry_context', 'failure_moment', 'non_negotiable_constraint'].forEach(key => {
         if (answers[key] !== undefined) step1Data[key] = answers[key];
       });
       step1Data.selected_pillar = pillar;
       step1Data.diagnostic_scores = {
-        nervous_system: diagnostics.nervousSystem,
         energy_stability: diagnostics.energyStability,
-        hormonal_risk: diagnostics.hormonalRisk,
+        recovery_debt: diagnostics.recoveryDebt,
         dopamine_load: diagnostics.dopamineLoad,
-        time_optimization: diagnostics.timeOptimization,
+        execution_reliability: diagnostics.executionReliability,
+        time_leverage: diagnostics.timeLeverage,
+        hormonal_risk: diagnostics.hormonalRisk,
       };
 
-      // Gather all step2 keys
+      // STEP2 keys
       ['age_bracket', 'gender', 'body_fat_estimate', 'activity_level',
        'wake_time', 'sleep_time', 'sleep_quality', 'screen_before_bed',
+       'sleep_duration_avg', 'wake_during_night', 'sunlight_after_waking',
        'daily_screen_time', 'social_media_frequency', 'caffeine_intake', 'alcohol_frequency',
+       'first_caffeine_timing', 'nicotine', 'weed_thc',
+       'shorts_reels', 'gaming', 'porn_frequency', 'late_night_scrolling',
        'diet_type', 'protein_awareness', 'water_intake', 'sun_exposure', 'cold_exposure',
+       'meals_per_day', 'nutrition_weak_point',
        'work_type', 'daily_work_hours', 'commute_duration', 'energy_peak_time', 'energy_crash_time',
        'dependents', 'household_responsibility', 'social_life_frequency',
-       'execution_pattern', 'motivation_driver'].forEach(key => {
+       'training_window_available',
+       'execution_pattern', 'motivation_driver', 'friction_trigger',
+       'hypnosis_style', 'preferred_session_length', 'preferred_reminders'].forEach(key => {
         if (answers[key] !== undefined) step2Data[key] = answers[key];
       });
 
@@ -222,7 +331,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           step_2_profile_data: step2Data as any,
           launchpad_complete: true,
           step_7_dashboard_activated: true,
-          current_step: 13,
+          current_step: 17,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
 
@@ -242,8 +351,8 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
     }
   };
 
-  const ScoreBar = ({ value, inverted = false, color = 'bg-primary' }: { value: number; inverted?: boolean; color?: string }) => (
-    <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+  const ScoreBar = ({ value, color = 'bg-primary' }: { value: number; color?: string }) => (
+    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
       <motion.div
         className={`h-full rounded-full ${color}`}
         initial={{ width: 0 }}
@@ -253,160 +362,121 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
     </div>
   );
 
+  const scores = [
+    { key: 'energy', icon: Zap, label: isHe ? 'יציבות אנרגיה' : 'Energy Stability', value: diagnostics.energyStability, color: 'text-amber-500', barColor: 'bg-amber-500', inverted: false },
+    { key: 'recovery', icon: Heart, label: isHe ? 'חוב ריקברי' : 'Recovery Debt', value: diagnostics.recoveryDebt, color: 'text-red-500', barColor: 'bg-red-500', inverted: true },
+    { key: 'dopamine', icon: Zap, label: isHe ? 'עומס דופמין' : 'Dopamine Load', value: diagnostics.dopamineLoad, color: 'text-purple-500', barColor: 'bg-purple-500', inverted: true },
+    { key: 'execution', icon: Target, label: isHe ? 'אמינות ביצוע' : 'Execution Reliability', value: diagnostics.executionReliability, color: 'text-green-500', barColor: 'bg-green-500', inverted: false },
+    { key: 'time', icon: Clock, label: isHe ? 'מינוף זמן' : 'Time Leverage', value: diagnostics.timeLeverage, color: 'text-blue-500', barColor: 'bg-blue-500', inverted: false },
+    { key: 'hormonal', icon: Shield, label: isHe ? 'סיכון הורמונלי' : 'Hormonal Risk', value: diagnostics.hormonalRisk, color: 'text-orange-500', barColor: 'bg-orange-500', inverted: true },
+  ];
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background flex items-start justify-center p-4 sm:p-6 overflow-y-auto" dir={isHe ? 'rtl' : 'ltr'}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-5"
+        className="max-w-lg w-full space-y-6 py-6"
       >
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-center space-y-2"
-        >
+        {/* ─── Title ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-center space-y-2">
           <Brain className="w-10 h-10 text-primary mx-auto" />
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-            {isHe ? 'תוצאות כיול המערכת' : 'System Calibration Results'}
+            {isHe ? 'תוצאות כיול + פרוטוקול שבוע 1' : 'Calibration Results + Week 1 Protocol'}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isHe ? 'מבוסס על הנתונים שסיפקת' : 'Based on your intake data'}
+            {isHe ? 'מבוסס על 70+ משתנים התנהגותיים' : 'Based on 70+ behavioral variables'}
           </p>
         </motion.div>
 
-        {/* Diagnostic Scores */}
-        <div className="space-y-3">
-          {/* Nervous System */}
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-2xl bg-card border border-border p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">{isHe ? 'מצב מערכת עצבים' : 'Nervous System State'}</span>
+        {/* ─── Section 1: 6 Diagnostic Scores ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
+            {isHe ? 'אבחון מערכת' : 'System Diagnostics'}
+          </h2>
+          <div className="space-y-2">
+            {scores.map((s, i) => (
+              <motion.div
+                key={s.key}
+                initial={{ opacity: 0, x: isHe ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.08 }}
+                className="rounded-xl bg-card border border-border p-3 space-y-1.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <s.icon className={`w-4 h-4 ${s.color}`} />
+                    <span className="text-sm font-medium">{s.label}</span>
+                  </div>
+                  <span className={`text-sm font-bold ${s.color}`}>{s.value}%</span>
+                </div>
+                <ScoreBar value={s.value} color={s.barColor} />
+                <p className="text-[11px] text-muted-foreground">{getInterpretation(s.key, s.value, isHe, s.inverted)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ─── Section 2: Week 1 Protocol ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="space-y-3">
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
+            {isHe ? 'פרוטוקול שבוע 1' : 'Week 1 Protocol'}
+          </h2>
+
+          {/* Anchor Habits */}
+          <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 space-y-2">
+            <span className="text-xs font-bold text-primary">{isHe ? '⚓ הרגלי עוגן' : '⚓ Anchor Habits'}</span>
+            {week1.anchorHabits.map((h, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <span className="text-sm">{h}</span>
               </div>
-              <span className="text-sm font-bold text-primary">{diagnostics.nervousSystem}%</span>
-            </div>
-            <ScoreBar value={diagnostics.nervousSystem} />
-          </motion.div>
+            ))}
+          </div>
 
-          {/* Energy */}
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="rounded-2xl bg-card border border-border p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium">{isHe ? 'יציבות אנרגיה' : 'Energy Stability'}</span>
+          {/* Focus Blocks */}
+          <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-2">
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{isHe ? '🎯 בלוקי מיקוד' : '🎯 Focus Blocks'}</span>
+            {week1.focusBlocks.map((f, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span className="text-sm">{f}</span>
               </div>
-              <span className="text-sm font-bold text-amber-500">{diagnostics.energyStability}%</span>
-            </div>
-            <ScoreBar value={diagnostics.energyStability} color="bg-amber-500" />
-          </motion.div>
+            ))}
+          </div>
 
-          {/* Hormonal Risk */}
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-            className="rounded-2xl bg-card border border-border p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-medium">{isHe ? 'מדד סיכון הורמונלי' : 'Hormonal Risk Index'}</span>
+          {/* Recovery + Training */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-cyan-500/5 border border-cyan-500/20 p-3 space-y-1">
+              <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400">{isHe ? '🛡️ ריקברי' : '🛡️ Recovery'}</span>
+              <p className="text-xs text-muted-foreground">{week1.recoveryBlock}</p>
+            </div>
+            <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-3 space-y-1">
+              <span className="text-xs font-bold text-green-600 dark:text-green-400">{isHe ? '💪 אימון' : '💪 Training'}</span>
+              <p className="text-xs text-muted-foreground">{week1.trainingSuggestion}</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ─── Section 3: Daily Structure 8-8-8 ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }} className="space-y-3">
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
+            {isHe ? 'מבנה יום 8-8-8' : 'Daily Structure 8-8-8'}
+          </h2>
+          <div className="rounded-xl bg-card border border-border p-3 space-y-2">
+            {dailyStructure.map((block, i) => (
+              <div key={i} className="flex items-center gap-3 py-1">
+                <block.icon className={`w-4 h-4 ${block.color} shrink-0`} />
+                <span className="text-sm font-medium flex-1">{block.label}</span>
+                <span className="text-xs text-muted-foreground font-mono">{block.time}</span>
               </div>
-              <span className="text-sm font-bold text-red-500">{diagnostics.hormonalRisk}%</span>
-            </div>
-            <ScoreBar value={diagnostics.hormonalRisk} color="bg-red-500" inverted />
-          </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
-          {/* Dopamine Load */}
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-            className="rounded-2xl bg-card border border-border p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-medium">{isHe ? 'מדד עומס דופמין' : 'Dopamine Load Index'}</span>
-              </div>
-              <span className="text-sm font-bold text-purple-500">{diagnostics.dopamineLoad}%</span>
-            </div>
-            <ScoreBar value={diagnostics.dopamineLoad} color="bg-purple-500" inverted />
-          </motion.div>
-
-          {/* Time Optimization */}
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
-            className="rounded-2xl bg-card border border-border p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium">{isHe ? 'פוטנציאל אופטימיזציית זמן' : 'Time Optimization Potential'}</span>
-              </div>
-              <span className="text-sm font-bold text-blue-500">{diagnostics.timeOptimization}%</span>
-            </div>
-            <ScoreBar value={diagnostics.timeOptimization} color="bg-blue-500" />
-          </motion.div>
-        </div>
-
-        {/* 90-Day Target & Hypnosis Theme */}
-        <div className="space-y-3">
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8 }}
-            className="rounded-2xl bg-primary/10 border border-primary/30 p-4 space-y-1"
-          >
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary/70">{isHe ? 'יעד 90 יום' : '90-Day Target'}</span>
-            </div>
-            <p className="text-base font-semibold text-foreground">
-              {isHe ? targetLabels[target90]?.he : targetLabels[target90]?.en}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {isHe ? `דחיפות: ${diagnostics.urgency}/10 • מחויבות: ${diagnostics.commitment}/10` : `Urgency: ${diagnostics.urgency}/10 • Commitment: ${diagnostics.commitment}/10`}
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.9 }}
-            className="rounded-2xl bg-accent/10 border border-accent/30 p-4 space-y-1"
-          >
-            <div className="flex items-center gap-2">
-              <Headphones className="w-4 h-4 text-accent" />
-              <span className="text-sm text-accent/70">{isHe ? 'תוכנית היפנוזה אישית — שבוע 1' : 'Personalized Hypnosis Theme — Week 1'}</span>
-            </div>
-            <p className="text-base font-semibold text-foreground">
-              {diagnostics.hypnosisTheme.icon} {isHe ? diagnostics.hypnosisTheme.he : diagnostics.hypnosisTheme.en}
-            </p>
-          </motion.div>
-        </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0 }}
-        >
+        {/* ─── CTA ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
           <button
             onClick={handleEnterSystem}
             disabled={isLoading}
@@ -419,7 +489,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
               </>
             ) : (
               <>
-                {isHe ? 'הפעל את המערכת' : 'Activate My System'}
+                {isHe ? 'התחל היום' : 'Start Today'}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

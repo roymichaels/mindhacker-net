@@ -102,8 +102,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
   return (
     <div className="flex flex-col w-full">
-      {/* ===== 2-COL GRID: Plan (left on desktop) + HUD (right on desktop) ===== */}
-      <div className="flex flex-col gap-0 md:grid md:grid-cols-[300px_1fr] md:gap-2 md:items-start">
+      {/* ===== 3-COL GRID: HUD | Today+Week | Diagnostics ===== */}
+      <div className="flex flex-col gap-0 md:grid md:grid-cols-[280px_1fr_280px] md:gap-3 md:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
         <div className="p-4 pt-0 md:pt-0 md:-mt-10 lg:-mt-10 md:order-1 md:flex md:flex-col md:justify-center">
@@ -364,6 +364,45 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             >
               <ScanSearch className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'ניתוח AI' : 'AI Analysis'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ===== COL 3 - Diagnostics (desktop only) ===== */}
+        <div className="hidden md:flex md:flex-col md:gap-3 md:order-3 md:pt-4">
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+            {language === 'he' ? 'אבחון' : 'Diagnostics'}
+          </h3>
+          {/* 6 diagnostic score cards */}
+          {[
+            { icon: Zap, label: language === 'he' ? 'יציבות אנרגיה' : 'Energy Stability', color: 'text-amber-500' },
+            { icon: Activity, label: language === 'he' ? 'חוב ריקברי' : 'Recovery Debt', color: 'text-red-500' },
+            { icon: Brain, label: language === 'he' ? 'עומס דופמין' : 'Dopamine Load', color: 'text-purple-500' },
+            { icon: Target, label: language === 'he' ? 'אמינות ביצוע' : 'Execution Reliability', color: 'text-green-500' },
+            { icon: Clock, label: language === 'he' ? 'מינוף זמן' : 'Time Leverage', color: 'text-blue-500' },
+            { icon: Activity, label: language === 'he' ? 'סיכון הורמונלי' : 'Hormonal Risk', color: 'text-orange-500' },
+          ].map((d) => (
+            <div key={d.label} className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2">
+              <d.icon className={cn("w-4 h-4 shrink-0", d.color)} />
+              <span className="text-xs font-medium flex-1">{d.label}</span>
+            </div>
+          ))}
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+          {/* Quick links */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setActiveModal('identity')}
+              className="rounded-lg bg-card/30 backdrop-blur-sm p-2 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+            >
+              <UserCircle className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[10px] font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
+            </button>
+            <button
+              onClick={() => setActiveModal('direction')}
+              className="rounded-lg bg-card/30 backdrop-blur-sm p-2 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
+            >
+              <Compass className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[10px] font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
             </button>
           </div>
         </div>

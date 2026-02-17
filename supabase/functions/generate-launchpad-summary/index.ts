@@ -706,22 +706,36 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
     if (pp.body_fat_estimate) sections.push(`Body Fat: ${pp.body_fat_estimate}`);
     if (pp.activity_level) sections.push(`Activity Level: ${pp.activity_level}`);
     
-    // Sleep structure
+    // Sleep structure (V3 expanded)
     if (pp.wake_time) sections.push(`Wake Time: ${pp.wake_time}`);
     if (pp.sleep_time) sections.push(`Sleep Time: ${pp.sleep_time}`);
     if (pp.sleep_quality) sections.push(`Sleep Quality: ${pp.sleep_quality}/5`);
     if (pp.screen_before_bed) sections.push(`Screen Before Bed: ${pp.screen_before_bed}`);
+    if (pp.sleep_duration_avg) sections.push(`Sleep Duration Avg: ${pp.sleep_duration_avg}`);
+    if (pp.wake_during_night) sections.push(`Wake During Night: ${pp.wake_during_night}`);
+    if (pp.sunlight_after_waking) sections.push(`Sunlight After Waking: ${pp.sunlight_after_waking}`);
     
-    // Dopamine load
+    // Stimulants & Downers (V3 new)
+    if (pp.caffeine_intake) sections.push(`Caffeine: ${pp.caffeine_intake}`);
+    if (pp.first_caffeine_timing) sections.push(`First Caffeine Timing: ${pp.first_caffeine_timing}`);
+    if (pp.alcohol_frequency) sections.push(`Alcohol: ${pp.alcohol_frequency}`);
+    if (pp.nicotine) sections.push(`Nicotine: ${pp.nicotine}`);
+    if (pp.weed_thc) sections.push(`Weed/THC: ${pp.weed_thc}`);
+    
+    // Dopamine load (V3 expanded)
     if (pp.daily_screen_time) sections.push(`Screen Time (non-work): ${pp.daily_screen_time}`);
     if (pp.social_media_frequency) sections.push(`Social Media: ${pp.social_media_frequency}`);
-    if (pp.caffeine_intake) sections.push(`Caffeine: ${pp.caffeine_intake}`);
-    if (pp.alcohol_frequency) sections.push(`Alcohol: ${pp.alcohol_frequency}`);
+    if (pp.shorts_reels) sections.push(`Shorts/Reels/TikTok: ${pp.shorts_reels}`);
+    if (pp.gaming) sections.push(`Gaming: ${pp.gaming}`);
+    if (pp.porn_frequency) sections.push(`Porn: ${pp.porn_frequency}`);
+    if (pp.late_night_scrolling) sections.push(`Late-Night Scrolling: ${pp.late_night_scrolling}`);
     
-    // Physical inputs
+    // Nutrition (V3 expanded)
     if (pp.diet_type) sections.push(`Diet: ${pp.diet_type}`);
     if (pp.protein_awareness) sections.push(`Protein Awareness: ${pp.protein_awareness}`);
     if (pp.water_intake) sections.push(`Water: ${pp.water_intake}`);
+    if (pp.meals_per_day) sections.push(`Meals/Day: ${pp.meals_per_day}`);
+    if (pp.nutrition_weak_point) sections.push(`Nutrition Weak Point: ${pp.nutrition_weak_point}`);
     if (pp.sun_exposure) sections.push(`Sun Exposure: ${pp.sun_exposure}`);
     if (pp.cold_exposure) sections.push(`Cold Exposure: ${pp.cold_exposure}`);
   }
@@ -739,6 +753,7 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
     if (pp.dependents) sections.push(`Dependents: ${pp.dependents}`);
     if (pp.household_responsibility) sections.push(`Household Load: ${pp.household_responsibility}`);
     if (pp.social_life_frequency) sections.push(`Social Life: ${pp.social_life_frequency}`);
+    if (pp.training_window_available) sections.push(`Training Window: ${pp.training_window_available}`);
   }
 
   // Also include lifestyle routine data if available (from older launchpad)
@@ -751,6 +766,7 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
   sections.push('\n# PHASE 4 — PSYCHOLOGICAL OPERATING SYSTEM');
   if (pp) {
     if (pp.execution_pattern) sections.push(`Execution Pattern: ${pp.execution_pattern}`);
+    if (pp.friction_trigger) sections.push(`Friction Trigger: ${pp.friction_trigger}`);
     if (pp.motivation_driver) sections.push(`Motivation Driver: ${pp.motivation_driver}`);
   }
   const wq = data.welcomeQuiz as any;
@@ -764,6 +780,15 @@ function buildAnalysisPrompt(data: LaunchpadData): string {
   sections.push('\n# PHASE 5 — COMMITMENT FILTER');
   if (wq) {
     if (wq.restructure_willingness) sections.push(`Restructure Willingness: ${wq.restructure_willingness}/10`);
+    if (wq.non_negotiable_constraint) sections.push(`Non-Negotiable Constraint: ${wq.non_negotiable_constraint}`);
+    if (wq.entry_context) sections.push(`Entry Context: ${wq.entry_context}`);
+    if (wq.failure_moment) sections.push(`Failure Moment: ${wq.failure_moment}`);
+  }
+  // System preferences (V3 new)
+  if (pp) {
+    if (pp.hypnosis_style) sections.push(`Hypnosis Style Preference: ${pp.hypnosis_style}`);
+    if (pp.preferred_session_length) sections.push(`Preferred Session Length: ${pp.preferred_session_length} min`);
+    if (pp.preferred_reminders) sections.push(`Reminder Preference: ${pp.preferred_reminders}`);
     if (wq.final_notes) {
       sections.push('**User Final Notes:**');
       sections.push(wq.final_notes);
