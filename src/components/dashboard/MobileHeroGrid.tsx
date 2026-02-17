@@ -156,6 +156,19 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 </div>
               ))}
             </div>
+            {/* Start Session button - mobile only, inside HUD */}
+            <button
+              onClick={handleStartDailySession}
+              className="w-full flex items-center justify-center gap-3 rounded-xl bg-background border border-border px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+            >
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+              </span>
+              <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
+                <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
+                {language === 'he' ? 'התחל סשן' : 'Start Session'}
+              </span>
+            </button>
           </div>
 
           {/* Desktop: original vertical layout */}
@@ -200,10 +213,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 overflow-y-auto md:h-full md:order-1 min-h-0">
-          {/* Start Session button */}
+          {/* Start Session button - desktop only in plan column */}
           <button
             onClick={handleStartDailySession}
-            className="w-full flex items-center justify-center gap-3 rounded-xl bg-background border border-border px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+            className="hidden md:flex w-full items-center justify-center gap-3 rounded-xl bg-background border border-border px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
           >
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
