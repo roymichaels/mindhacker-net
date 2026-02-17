@@ -4,12 +4,10 @@ import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import ProGateOverlay from '@/components/subscription/ProGateOverlay';
-import { LifeAnalysisChart } from '@/components/dashboard/v2';
 import { TasksPanel } from '@/components/dashboard/plan/TasksPanel';
 import { PlanRoadmap } from '@/components/dashboard/plan/PlanRoadmap';
 import { PageShell } from '@/components/aurora-ui/PageShell';
-import { SectionHeader } from '@/components/aurora-ui/SectionHeader';
-import { ListChecks, Target, Calendar, Map, BarChart3, ChevronDown } from 'lucide-react';
+import { ListChecks, Calendar, Map, ChevronDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,10 +21,8 @@ const PlanTab = () => {
   const { canAccessPlan, isLoading } = useSubscriptionGate();
   const { user } = useAuth();
   const roadmapRef = useRef<HTMLDivElement>(null);
-  const analysisRef = useRef<HTMLDivElement>(null);
   const [tasksOpen, setTasksOpen] = useState(true);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
 
   const { data: planData } = useQuery({
     queryKey: ['plan-hero-grid', user?.id],
@@ -79,82 +75,66 @@ const PlanTab = () => {
   }
 
   return (
-    <PageShell className="space-y-3">
-      {/* ===== 3-COLUMN HERO GRID ===== */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Column 1: Dark card with week indicator */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-4 flex flex-col items-center justify-center text-center"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-          <div className="relative z-10 flex flex-col items-center gap-1.5">
-            <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/30 flex flex-col items-center justify-center">
-              <span className="text-[10px] text-white/60">{language === 'he' ? 'שבוע' : 'Wk'}</span>
-              <span className="text-2xl font-black text-white leading-none">{planData?.currentWeek || 1}</span>
+    <PageShell className="space-y-4">
+      {/* ===== FULL-WIDTH TRANSFORMATION HERO ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-5"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15" />
+        <div className="relative z-10">
+          {/* Top row: Week circle + Title + Month badge */}
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-primary/20 border-2 border-primary/40 flex flex-col items-center justify-center shrink-0">
+              <span className="text-xs text-white/60 leading-none">{language === 'he' ? 'שבוע' : 'Week'}</span>
+              <span className="text-3xl font-black text-white leading-none">{planData?.currentWeek || 1}</span>
             </div>
-            <h3 className="text-sm font-bold text-white/90 leading-tight">
-              {language === 'he' ? 'תוכנית טרנספורמציה' : 'Transformation Plan'}
-            </h3>
-            {planData && (
-              <Badge variant="secondary" className="text-xs h-5 px-2">
-                <Calendar className="h-3 w-3 mr-1" />M{planData.currentMonth}
-              </Badge>
-            )}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-white leading-tight">
+                {language === 'he' ? 'תוכנית טרנספורמציה' : 'Transformation Plan'}
+              </h2>
+              {planData && (
+                <Badge variant="secondary" className="mt-1.5 text-xs h-6 px-2.5">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {language === 'he' ? `חודש ${planData.currentMonth}` : `Month ${planData.currentMonth}`}
+                </Badge>
+              )}
+            </div>
           </div>
-        </motion.div>
 
-        {/* Column 2: Progress stats */}
-        <div className="flex flex-col gap-1.5">
-          <div className="rounded-xl bg-card border border-border p-3 flex items-center gap-2 flex-1">
-            <Target className="w-4 h-4 text-primary shrink-0" />
-            <div className="min-w-0">
-              <p className="text-lg font-bold leading-none">{planData?.completedCount || 0}/{planData?.totalCount || 0}</p>
-              <p className="text-xs text-muted-foreground">{language === 'he' ? 'הושלמו' : 'Done'}</p>
-            </div>
-          </div>
-          <div className="rounded-xl bg-card border border-border p-3 flex-1">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-muted-foreground">{language === 'he' ? 'התקדמות' : 'Progress'}</span>
+          {/* Progress section */}
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/70">
+                {planData?.completedCount || 0}/{planData?.totalCount || 0} {language === 'he' ? 'הושלמו' : 'completed'}
+              </span>
               <span className="font-bold text-primary">{planData?.progressPercent || 0}%</span>
             </div>
-            <Progress value={planData?.progressPercent || 0} className="h-2 [&>div]:bg-primary" />
+            <Progress value={planData?.progressPercent || 0} className="h-2.5 [&>div]:bg-primary" />
           </div>
+
+          {/* Current milestone */}
           {planData?.currentMilestone && (
-            <div className="rounded-xl bg-card border border-border p-3 flex-1">
-              <p className="text-xs text-muted-foreground truncate">→ {planData.currentMilestone.title}</p>
+            <div className="mt-3 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+              <p className="text-sm text-white/80 truncate">
+                → {planData.currentMilestone.title}
+              </p>
             </div>
           )}
         </div>
+      </motion.div>
 
-        {/* Column 3: Action buttons */}
-        <div className="flex flex-col gap-1.5">
-          <button
-            onClick={() => roadmapRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
-          >
-            <Map className="w-5 h-5 text-primary shrink-0" />
-            <span className="text-sm font-medium">{language === 'he' ? 'מפת דרכים' : 'Roadmap'}</span>
-          </button>
-          <button
-            onClick={() => analysisRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
-          >
-            <BarChart3 className="w-5 h-5 text-accent shrink-0" />
-            <span className="text-sm font-medium">{language === 'he' ? 'ניתוח חיים' : 'Life Analysis'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Today's Missions — Collapsible */}
+      {/* ===== TODAY'S MISSIONS — Collapsible ===== */}
       <section className="space-y-0">
         <button
           onClick={() => setTasksOpen(!tasksOpen)}
-          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
+          className="w-full flex items-center justify-between rounded-2xl bg-card border border-border px-4 py-3.5 hover:bg-accent/5 transition-colors"
         >
-          <div className="flex items-center gap-2">
-            <ListChecks className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ListChecks className="w-4.5 h-4.5 text-primary" />
+            </div>
             <span className="text-base font-semibold">{language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}</span>
           </div>
           <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", tasksOpen && "rotate-180")} />
@@ -176,14 +156,16 @@ const PlanTab = () => {
         </AnimatePresence>
       </section>
 
-      {/* 90-Day Roadmap — Collapsible */}
+      {/* ===== 90-DAY ROADMAP — Collapsible ===== */}
       <section ref={roadmapRef} className="space-y-0">
         <button
           onClick={() => setRoadmapOpen(!roadmapOpen)}
-          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
+          className="w-full flex items-center justify-between rounded-2xl bg-card border border-border px-4 py-3.5 hover:bg-accent/5 transition-colors"
         >
-          <div className="flex items-center gap-2">
-            <Map className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Map className="w-4.5 h-4.5 text-primary" />
+            </div>
             <span className="text-base font-semibold">{language === 'he' ? '🗺️ מפת דרכים 90 יום' : '🗺️ 90-Day Roadmap'}</span>
           </div>
           <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", roadmapOpen && "rotate-180")} />
@@ -197,37 +179,8 @@ const PlanTab = () => {
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <div className="pt-2">
+              <div className="pt-3">
                 <PlanRoadmap />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
-
-      {/* Life Analysis — Collapsible */}
-      <section ref={analysisRef} className="space-y-0">
-        <button
-          onClick={() => setAnalysisOpen(!analysisOpen)}
-          className="w-full flex items-center justify-between rounded-xl bg-card border border-border px-4 py-3 hover:bg-accent/5 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-accent" />
-            <span className="text-base font-semibold">{language === 'he' ? '📊 ניתוח חיים' : '📊 Life Analysis'}</span>
-          </div>
-          <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform duration-200", analysisOpen && "rotate-180")} />
-        </button>
-        <AnimatePresence initial={false}>
-          {analysisOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-2">
-                <LifeAnalysisChart />
               </div>
             </motion.div>
           )}

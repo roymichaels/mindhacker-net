@@ -37,7 +37,7 @@ const HypnosisLibrary = () => {
           <h1 className="text-lg font-bold mb-2">
             {language === 'he' ? 'סשנים מותאמים אישית' : 'Personalized Sessions'}
           </h1>
-          <p className="text-xs text-muted-foreground mb-4 max-w-md">
+          <p className="text-sm text-muted-foreground mb-4 max-w-md">
             {language === 'he' 
               ? 'השלם את מסע הטרנספורמציה תחילה.'
               : 'Complete the Transformation Journey first.'
@@ -70,70 +70,65 @@ const HypnosisLibrary = () => {
   };
 
   return (
-    <PageShell className="space-y-3">
-      {/* ===== 3-COLUMN HERO GRID ===== */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Column 1: Dark card with daily session */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileTap={{ scale: 0.98 }}
-          className="relative overflow-hidden rounded-xl p-4 cursor-pointer bg-gradient-to-br from-primary to-primary/80 active:brightness-95 transition-all flex flex-col items-center justify-center text-center"
-          onClick={handleStartDailySession}
-        >
-          <div className="absolute inset-0 bg-white/5" />
-          <div className="relative z-10 text-white flex flex-col items-center gap-1.5">
-            <span className="text-3xl">✨</span>
-            <h3 className="text-sm font-bold leading-tight">
-              {language === 'he' ? 'הסשן היומי' : 'Daily Session'}
-            </h3>
-            <span className="text-xs opacity-80 flex items-center gap-1">
-              <Clock className="w-3 h-3" />15 {language === 'he' ? 'דק׳' : 'min'}
-            </span>
-            <div className="mt-1 flex items-center gap-1.5 bg-background/90 text-foreground rounded-full px-3 py-1 text-sm font-medium">
-              <Play className="w-3.5 h-3.5" />
-              {language === 'he' ? 'התחל' : 'Start'}
-            </div>
+    <PageShell className="space-y-4">
+      {/* ===== FULL-WIDTH DAILY SESSION HERO ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileTap={{ scale: 0.98 }}
+        className="relative overflow-hidden rounded-2xl p-6 cursor-pointer bg-gradient-to-br from-primary to-primary/80 active:brightness-95 transition-all"
+        onClick={handleStartDailySession}
+      >
+        <div className="absolute inset-0 bg-white/5" />
+        <div className="relative z-10 text-white flex flex-col items-center text-center gap-2">
+          <span className="text-4xl">✨</span>
+          <h2 className="text-xl font-bold leading-tight">
+            {language === 'he' ? 'הסשן היומי שלך' : 'Your Daily Session'}
+          </h2>
+          <span className="text-sm opacity-80 flex items-center gap-1.5">
+            <Clock className="w-4 h-4" />15 {language === 'he' ? 'דקות' : 'minutes'}
+          </span>
+          <div className="mt-2 flex items-center gap-2 bg-background/90 text-foreground rounded-full px-5 py-2.5 text-sm font-semibold shadow-lg">
+            <Play className="w-4 h-4" />
+            {language === 'he' ? 'התחל עכשיו' : 'Start Now'}
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* Column 2: 4 vertical stats */}
-        <div className="flex flex-col gap-1.5">
-          {[
-            { icon: Target, value: sessionStats?.totalSessions || 0, label: language === 'he' ? 'סשנים' : 'Sessions', color: 'text-blue-500' },
-            { icon: Clock, value: sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0, label: language === 'he' ? 'דקות' : 'Min', color: 'text-green-500' },
-            { icon: Zap, value: gameState?.experience || 0, label: 'XP', color: 'text-amber-500' },
-            { icon: Star, value: gameState?.level || 1, label: language === 'he' ? 'רמה' : 'Lvl', color: 'text-purple-500' },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-xl bg-card border border-border p-3 flex items-center gap-2 flex-1">
-              <stat.icon className={cn("w-4 h-4 shrink-0", stat.color)} />
-              <div className="min-w-0">
-                <p className="text-lg font-bold leading-none">{stat.value.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </div>
+      {/* ===== STATS ROW ===== */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { icon: Target, value: sessionStats?.totalSessions || 0, label: language === 'he' ? 'סשנים' : 'Sessions', color: 'text-blue-500' },
+          { icon: Clock, value: sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0, label: language === 'he' ? 'דקות' : 'Min', color: 'text-green-500' },
+          { icon: Zap, value: gameState?.experience || 0, label: 'XP', color: 'text-amber-500' },
+          { icon: Star, value: gameState?.level || 1, label: language === 'he' ? 'רמה' : 'Lvl', color: 'text-purple-500' },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl bg-card border border-border p-3 flex flex-col items-center text-center">
+            <stat.icon className={cn("w-5 h-5 mb-1", stat.color)} />
+            <p className="text-lg font-bold leading-none">{stat.value.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ===== QUICK SESSIONS ROW ===== */}
+      <div className="grid grid-cols-4 gap-2">
+        {QUICK_SESSIONS.map((session) => (
+          <Card
+            key={session.id}
+            className="relative overflow-hidden p-3 cursor-pointer hover:shadow-md transition-all active:scale-95 touch-manipulation"
+            onClick={() => handleStartSession(session.id, session.duration)}
+          >
+            <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br", session.gradient)} />
+            <div className="relative z-10 text-center flex flex-col items-center gap-1">
+              <span className="text-2xl">{session.icon}</span>
+              <p className="text-xs font-semibold leading-tight">
+                {language === 'he' ? session.titleHe : session.titleEn}
+              </p>
+              <p className="text-[11px] text-muted-foreground">{session.duration}{language === 'he' ? 'דק׳' : 'm'}</p>
             </div>
-          ))}
-        </div>
-
-        {/* Column 3: 2x2 quick sessions */}
-        <div className="grid grid-cols-2 gap-1.5">
-          {QUICK_SESSIONS.map((session) => (
-            <Card
-              key={session.id}
-              className="relative overflow-hidden p-3 cursor-pointer hover:shadow-md transition-all active:scale-95 touch-manipulation"
-              onClick={() => handleStartSession(session.id, session.duration)}
-            >
-              <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br", session.gradient)} />
-              <div className="relative z-10 text-center">
-                <span className="text-xl">{session.icon}</span>
-                <p className="text-xs font-semibold leading-tight mt-0.5">
-                  {language === 'he' ? session.titleHe : session.titleEn}
-                </p>
-                <p className="text-[10px] text-muted-foreground">{session.duration}{language === 'he' ? 'דק׳' : 'm'}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
+          </Card>
+        ))}
       </div>
 
       {/* Recent Sessions */}

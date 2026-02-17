@@ -8,7 +8,6 @@ import { useLaunchpadSummary } from '@/hooks/useLifePlan';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { 
   RefreshCw, Loader2, Check, X, Sparkles, Star, Gem, Flame,
   Heart, Target, Compass, TrendingUp, Zap, Brain, Calendar,
@@ -93,85 +92,80 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {/* ===== 3-COLUMN HERO GRID ===== */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Column 1: Dark card with Orb + identity */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-4 flex flex-col items-center justify-center text-center"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-          <div className="relative z-10 flex flex-col items-center gap-1.5">
-            <PersonalizedOrb size={80} state="idle" />
-            {dashboardData.identityTitle ? (
-              <h2 className="text-sm font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-tight">
-                {dashboardData.identityTitle.icon} {language === 'he' ? dashboardData.identityTitle.title : dashboardData.identityTitle.titleEn}
-              </h2>
-            ) : (
-              <h2 className="text-sm font-medium text-muted-foreground">
-                {language === 'he' ? 'המסע מתחיל' : 'Journey Starts'}
-              </h2>
-            )}
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
-                <Star className="w-3.5 h-3.5 text-yellow-500" />Lv.{dashboardData.level}
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
-                <Gem className="w-3.5 h-3.5 text-purple-500" />{dashboardData.tokens}
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
-                <Flame className="w-3.5 h-3.5 text-orange-500" />{dashboardData.streak}
-              </span>
-            </div>
+    <div className="space-y-4">
+      {/* ===== FULL-WIDTH IDENTITY HERO ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-5"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15" />
+        <div className="relative z-10 flex flex-col items-center text-center gap-3">
+          <PersonalizedOrb size={100} state="idle" />
+          {dashboardData.identityTitle ? (
+            <h2 className="text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-tight">
+              {dashboardData.identityTitle.icon} {language === 'he' ? dashboardData.identityTitle.title : dashboardData.identityTitle.titleEn}
+            </h2>
+          ) : (
+            <h2 className="text-lg font-medium text-muted-foreground">
+              {language === 'he' ? 'המסע מתחיל' : 'Journey Starts'}
+            </h2>
+          )}
+          {/* Gamification chips */}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
+              <Star className="w-4 h-4 text-yellow-500" />Lv.{dashboardData.level}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
+              <Gem className="w-4 h-4 text-purple-500" />{dashboardData.tokens}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
+              <Flame className="w-4 h-4 text-orange-500" />{dashboardData.streak}
+            </span>
           </div>
-        </motion.div>
-
-        {/* Column 2: 3 vertical metrics */}
-        <div className="flex flex-col gap-1.5">
-          {[
-            { icon: <Zap className="w-4 h-4" />, label: language === 'he' ? 'תודעה' : 'Mind', value: consciousnessScore, color: 'text-yellow-500' },
-            { icon: <Compass className="w-4 h-4" />, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityScore}%`, color: 'text-blue-500' },
-            { icon: <TrendingUp className="w-4 h-4" />, label: language === 'he' ? 'מוכנות' : 'Ready', value: `${transformationReadiness}%`, color: 'text-green-500' },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl bg-card border border-border p-3 flex items-center gap-2 flex-1">
-              <div className={cn("shrink-0", s.color)}>{s.icon}</div>
-              <div className="min-w-0">
-                <p className="text-lg font-bold leading-none">{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+          {/* Metrics row */}
+          <div className="grid grid-cols-3 gap-2 w-full mt-1">
+            {[
+              { icon: <Zap className="w-4 h-4 text-yellow-500" />, label: language === 'he' ? 'תודעה' : 'Mind', value: consciousnessScore },
+              { icon: <Compass className="w-4 h-4 text-blue-400" />, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityScore}%` },
+              { icon: <TrendingUp className="w-4 h-4 text-green-400" />, label: language === 'he' ? 'מוכנות' : 'Ready', value: `${transformationReadiness}%` },
+            ].map((s) => (
+              <div key={s.label} className="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl bg-white/5 border border-white/10">
+                {s.icon}
+                <span className="text-lg font-bold text-white">{s.value}</span>
+                <span className="text-xs text-white/60">{s.label}</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      </motion.div>
 
-        {/* Column 3: 3 action buttons */}
-        <div className="flex flex-col gap-1.5">
-          <button
-            onClick={() => setActiveModal('identity')}
-            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
-          >
-            <Heart className="w-5 h-5 text-pink-500 shrink-0" />
-            <span className="text-sm font-medium">{language === 'he' ? 'הערכים שלי' : 'My Values'}</span>
-          </button>
-          <button
-            onClick={() => setActiveModal('traits')}
-            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
-          >
-            <Sparkles className="w-5 h-5 text-violet-500 shrink-0" />
-            <span className="text-sm font-medium">{language === 'he' ? 'תכונות דומיננטיות' : 'Key Traits'}</span>
-          </button>
-          <button
-            onClick={() => setActiveModal('behavioral')}
-            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
-          >
-            <Compass className="w-5 h-5 text-blue-500 shrink-0" />
-            <span className="text-sm font-medium">{language === 'he' ? 'כיוון החיים' : 'Life Direction'}</span>
-          </button>
-        </div>
+      {/* ===== 3 ACTION BUTTONS ROW ===== */}
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={() => setActiveModal('identity')}
+          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
+        >
+          <Heart className="w-5 h-5 text-pink-500" />
+          <span className="text-sm font-medium">{language === 'he' ? 'ערכים' : 'Values'}</span>
+        </button>
+        <button
+          onClick={() => setActiveModal('traits')}
+          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
+        >
+          <Sparkles className="w-5 h-5 text-violet-500" />
+          <span className="text-sm font-medium">{language === 'he' ? 'תכונות' : 'Traits'}</span>
+        </button>
+        <button
+          onClick={() => setActiveModal('behavioral')}
+          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
+        >
+          <Compass className="w-5 h-5 text-blue-500" />
+          <span className="text-sm font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
+        </button>
       </div>
 
-      {/* ===== CAREER + TRANSFORMATION - side by side ===== */}
+      {/* ===== CAREER + TRANSFORMATION ===== */}
       <div className="grid grid-cols-2 gap-3">
         {(launchpadData?.firstWeek?.career_status || launchpadData?.firstWeek?.career_goal) && (
           <CompactCard icon={<Target className="w-4 h-4 text-amber-500" />} title={language === 'he' ? 'קריירה' : 'Career'}>
@@ -209,7 +203,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
       {/* ===== INSIGHTS GRID ===== */}
       <CompactCard icon={<Brain className="w-4 h-4 text-primary" />} title={language === 'he' ? 'תובנות' : 'Insights'}>
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-2">
           {([
             { key: 'ai' as ModalType, icon: <Sparkles className="w-5 h-5" />, label: language === 'he' ? 'AI' : 'AI' },
             { key: 'plan' as ModalType, icon: <Calendar className="w-5 h-5" />, label: '90D' },
@@ -223,7 +217,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
             <button
               key={tool.key}
               onClick={() => setActiveModal(tool.key)}
-              className="flex flex-col items-center gap-1 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[48px]"
+              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[56px]"
             >
               <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
               <span className="text-xs font-medium text-foreground leading-none">{tool.label}</span>
@@ -271,12 +265,12 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 // ===== Compact Card sub-component =====
 function CompactCard({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl bg-card border border-border overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/50 bg-muted/30">
+    <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
         {icon}
         <h3 className="font-semibold text-sm text-foreground">{title}</h3>
       </div>
-      <div className="p-3">{children}</div>
+      <div className="p-4">{children}</div>
     </div>
   );
 }
