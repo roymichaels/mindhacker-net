@@ -195,24 +195,25 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 <Flame className="h-3 w-3" />{streak.streak}
               </span>
             </div>
-            <div className="grid grid-cols-3 gap-2 w-full">
-              {[
-                { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
-                { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
-                { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
-              ].map((m) => (
-                <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
-                  <m.icon className={cn("w-4 h-4", m.color)} />
-                  <span className="text-lg font-bold leading-none">{m.value}</span>
-                  <span className="text-[10px] text-muted-foreground">{m.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1 overflow-y-auto md:flex-none md:order-1 min-h-0 md:overflow-y-auto">
+          {/* Stats row - desktop only, above session button */}
+          <div className="hidden md:grid grid-cols-3 gap-2 w-full">
+            {[
+              { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
+              { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
+              { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+            ].map((m) => (
+              <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
+                <m.icon className={cn("w-4 h-4", m.color)} />
+                <span className="text-lg font-bold leading-none">{m.value}</span>
+                <span className="text-[10px] text-muted-foreground">{m.label}</span>
+              </div>
+            ))}
+          </div>
           {/* Start Session button - desktop only in plan column */}
           <button
             onClick={handleStartDailySession}
