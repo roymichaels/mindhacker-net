@@ -201,19 +201,6 @@ const GlobalChatInput = () => {
               <Plus className="w-5 h-5 text-muted-foreground transition-transform" />
             </button>
 
-          {/* Aurora branding button - expands chat */}
-          <button
-            type="button"
-            onClick={() => setIsChatExpanded(!isChatExpanded)}
-            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
-          >
-            <AuroraOrbIcon className="w-4 h-4" size={16} />
-            <span className="text-xs font-medium text-muted-foreground">Aurora</span>
-            {isStreaming && (
-              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            )}
-          </button>
-
             {/* Attach Menu Popover */}
             <AnimatePresence>
               {showAttachMenu && (
@@ -269,6 +256,19 @@ const GlobalChatInput = () => {
               className="hidden"
             />
           </div>
+
+          {/* Aurora branding button - expands chat */}
+          <button
+            type="button"
+            onClick={() => setIsChatExpanded(!isChatExpanded)}
+            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+          >
+            <AuroraOrbIcon className="w-4 h-4" size={16} />
+            <span className="text-xs font-medium text-muted-foreground">Aurora</span>
+            {isStreaming && (
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+            )}
+          </button>
 
           {/* Input Container */}
           <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
