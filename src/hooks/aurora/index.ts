@@ -8,3 +8,4 @@ export { useOnboardingProgress } from './useOnboardingProgress';
 export { useAuroraVoice } from './useAuroraVoice';
 export { useAuroraReminders } from './useAuroraReminders';
 export { useSmartSuggestions, type SuggestionAction, type SmartSuggestion } from './useSmartSuggestions';
+export { useCommandBus } from './useCommandBus';

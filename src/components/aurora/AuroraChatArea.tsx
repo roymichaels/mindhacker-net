@@ -3,10 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import { useCommandBus } from '@/hooks/aurora/useCommandBus';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AuroraChatMessage from './AuroraChatMessage';
 import AuroraTypingIndicator from './AuroraTypingIndicator';
 import AuroraWelcome from './AuroraWelcome';
+import AuroraActionConfirmation from './AuroraActionConfirmation';
+import { AnimatePresence } from 'framer-motion';
 
 interface AuroraChatAreaProps {
   conversationId: string | null;
@@ -27,6 +30,8 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
     regenerateLastResponse,
   } = useAuroraChat(conversationId);
 
+  const { pendingCommands, confirmCommand, rejectCommand } = useCommandBus();
+
   // Register sendMessage with the global context
   useEffect(() => {
     registerSendMessage(sendMessage);
@@ -38,7 +43,6 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
       proactiveHandled.current = true;
       const msg = pendingProactiveMessage;
       setPendingProactiveMessage(null);
-      // Send as a user prompt so Aurora responds with coaching
       sendMessage(msg);
     }
   }, [pendingProactiveMessage, conversationId, isStreaming, sendMessage, setPendingProactiveMessage]);
@@ -58,7 +62,7 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, pendingCommands]);
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage(suggestion);
@@ -100,6 +104,21 @@ const AuroraChatArea = ({ conversationId }: AuroraChatAreaProps) => {
               {isStreaming && !streamingContent && (
                 <AuroraTypingIndicator />
               )}
+
+              {/* Pending command confirmations */}
+              <AnimatePresence>
+                {pendingCommands.map((pending) => (
+                  <AuroraActionConfirmation
+                    key={pending.id}
+                    actionType={pending.actionType}
+                    actionDescription={pending.description}
+                    onConfirm={() => confirmCommand(pending.id)}
+                    onCancel={() => rejectCommand(pending.id)}
+                    onAlwaysAllow={() => confirmCommand(pending.id, true)}
+                    isRTL={isRTL}
+                  />
+                ))}
+              </AnimatePresence>
               
               <div ref={messagesEndRef} />
             </div>
