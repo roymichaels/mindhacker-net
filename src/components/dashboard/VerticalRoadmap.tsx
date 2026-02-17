@@ -331,7 +331,7 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                         {isHe ? `ש׳${milestone.week_number}` : `W${milestone.week_number}`}
                       </span>
                       <p className={cn(
-                        "text-sm leading-snug truncate",
+                        "text-[13px] leading-tight line-clamp-2",
                         isCurrent ? "text-foreground font-semibold" : "text-muted-foreground"
                       )}>
                         {milestone.title}
