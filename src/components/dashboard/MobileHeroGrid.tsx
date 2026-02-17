@@ -12,7 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard, Target, Headphones } from 'lucide-react';
+import { useGameState } from '@/contexts/GameStateContext';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -41,6 +42,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { suggestedGoal } = useDailyHypnosis();
   const { impact } = useHaptics();
   const { habits, completedCount, totalCount, toggleHabit } = useTodaysHabits();
+  const { sessionStats } = useGameState();
 
   const { data: taskItems = [] } = useQuery({
     queryKey: ['mobile-grid-tasks', user?.id],
@@ -139,6 +141,20 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
                 { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
                 { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+              ].map((m) => (
+                <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1.5 flex items-center gap-1.5">
+                  <m.icon className={cn("w-3 h-3 shrink-0", m.color)} />
+                  <span className="text-xs font-bold leading-none">{m.value}</span>
+                  <span className="text-[9px] text-muted-foreground truncate">{m.label}</span>
+                </div>
+              ))}
+            </div>
+            {/* Hypnosis session stats */}
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
+                { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
+                { icon: Headphones, label: language === 'he' ? 'מועדף' : 'Favorite', value: sessionStats?.favoriteEgoState || '—', color: 'text-pink-500' },
               ].map((m) => (
                 <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-1.5 flex items-center gap-1.5">
                   <m.icon className={cn("w-3 h-3 shrink-0", m.color)} />
