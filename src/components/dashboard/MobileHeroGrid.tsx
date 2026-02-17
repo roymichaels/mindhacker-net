@@ -350,27 +350,16 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* Daily Pulse - desktop, above diagnostics */}
           <DailyPulseCard />
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {language === 'he' ? 'אבחון' : 'Diagnostics'}
-          </h3>
-          {/* 6 diagnostic score cards */}
-          {[
-            { key: 'energy_stability', icon: Zap, label: language === 'he' ? 'יציבות אנרגיה' : 'Energy Stability', color: 'text-amber-500' },
-            { key: 'recovery_debt', icon: Activity, label: language === 'he' ? 'חוב ריקברי' : 'Recovery Debt', color: 'text-red-500' },
-            { key: 'dopamine_load', icon: Brain, label: language === 'he' ? 'עומס דופמין' : 'Dopamine Load', color: 'text-purple-500' },
-            { key: 'execution_reliability', icon: Target, label: language === 'he' ? 'אמינות ביצוע' : 'Execution Reliability', color: 'text-green-500' },
-            { key: 'time_leverage', icon: Clock, label: language === 'he' ? 'מינוף זמן' : 'Time Leverage', color: 'text-blue-500' },
-            { key: 'hormonal_risk', icon: Activity, label: language === 'he' ? 'סיכון הורמונלי' : 'Hormonal Risk', color: 'text-orange-500' },
-          ].map((d) => (
-            <button
-              key={d.label}
-              onClick={() => { setInsightsTab(d.key); setActiveModal('insights'); }}
-              className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer w-full text-start"
-            >
-              <d.icon className={cn("w-4 h-4 shrink-0", d.color)} />
-              <span className="text-xs font-medium flex-1">{d.label}</span>
-            </button>
-          ))}
+          <button
+            onClick={() => { setInsightsTab('diagnostics'); setActiveModal('insights'); }}
+            className="flex items-center gap-2 px-1 py-1 hover:bg-amber-500/10 rounded-lg transition-all cursor-pointer w-full"
+          >
+            <Activity className="w-4 h-4 text-amber-500" />
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              {language === 'he' ? 'אבחון' : 'Diagnostics'}
+            </h3>
+            <ChevronDown className="w-3 h-3 text-muted-foreground ml-auto -rotate-90" />
+          </button>
         </div>
       </div>
 
