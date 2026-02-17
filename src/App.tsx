@@ -90,6 +90,7 @@ const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
 const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Free journey redirects handled inline below
@@ -369,6 +370,15 @@ const App = () => (
                             <ProtectedRoute>
                               <Projects />
                             </ProtectedRoute>
+                          }
+                        />
+                        {/* Marketplace */}
+                        <Route
+                          path="/marketplace"
+                          element={
+                            <ProtectedRoute>
+                              <Marketplace />
+                              </ProtectedRoute>
                           }
                         />
                         {/* Launchpad redirects to onboarding */}
