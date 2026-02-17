@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+// PersonalizedOrb moved to MobileHeroGrid HUD
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -92,53 +92,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   return (
     <div className="space-y-4">
-      {/* ===== FULL-WIDTH IDENTITY HERO ===== */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-5"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15" />
-        <div className="relative z-10 flex flex-col items-center text-center gap-3">
-          <PersonalizedOrb size={100} state="idle" />
-          {dashboardData.identityTitle ? (
-            <h2 className="text-lg font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-tight">
-              {dashboardData.identityTitle.icon} {language === 'he' ? dashboardData.identityTitle.title : dashboardData.identityTitle.titleEn}
-            </h2>
-          ) : (
-            <h2 className="text-lg font-medium text-muted-foreground">
-              {language === 'he' ? 'המסע מתחיל' : 'Journey Starts'}
-            </h2>
-          )}
-          {/* Gamification chips */}
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
-              <Star className="w-4 h-4 text-yellow-500" />Lv.{dashboardData.level}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
-              <Gem className="w-4 h-4 text-purple-500" />{dashboardData.tokens}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/50 text-sm font-semibold border border-border/50">
-              <Flame className="w-4 h-4 text-orange-500" />{dashboardData.streak}
-            </span>
-          </div>
-          {/* Metrics row */}
-          <div className="grid grid-cols-3 gap-2 w-full mt-1">
-            {[
-              { icon: <Zap className="w-4 h-4 text-yellow-500" />, label: language === 'he' ? 'תודעה' : 'Mind', value: consciousnessScore },
-              { icon: <Compass className="w-4 h-4 text-blue-400" />, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityScore}%` },
-              { icon: <TrendingUp className="w-4 h-4 text-green-400" />, label: language === 'he' ? 'מוכנות' : 'Ready', value: `${transformationReadiness}%` },
-            ].map((s) => (
-              <div key={s.label} className="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl bg-white/5 border border-white/10">
-                {s.icon}
-                <span className="text-lg font-bold text-white">{s.value}</span>
-                <span className="text-xs text-white/60">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-
       {/* ===== 3 MERGED ACTION BUTTONS ===== */}
       <div className="grid grid-cols-3 gap-2">
         <button
