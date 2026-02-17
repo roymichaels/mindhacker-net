@@ -1,4 +1,4 @@
-import { Users, Compass } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { UserNotificationBell } from '@/components/UserNotificationBell';
 import { usePractitionersModal } from '@/contexts/PractitionersModalContext';
@@ -6,10 +6,9 @@ import { cn } from '@/lib/utils';
 
 interface HeaderActionsProps {
   compact?: boolean;
-  onOpenHypnosis: () => void;
 }
 
-export function HeaderActions({ compact, onOpenHypnosis }: HeaderActionsProps) {
+export function HeaderActions({ compact }: HeaderActionsProps) {
   const { language } = useTranslation();
   const { openPractitioners } = usePractitionersModal();
 
@@ -27,16 +26,6 @@ export function HeaderActions({ compact, onOpenHypnosis }: HeaderActionsProps) {
         title={language === 'he' ? 'מאמנים' : 'Coaches'}
       >
         <Users className={cn(iconSize, "text-pink-600 dark:text-pink-400")} />
-      </button>
-      <button
-        className={cn(
-          size,
-          "rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center hover:brightness-110 transition"
-        )}
-        onClick={onOpenHypnosis}
-        title={language === 'he' ? 'כוח-על' : 'Power-Up'}
-      >
-        <Compass className={cn(iconSize, "text-violet-600 dark:text-violet-400")} />
       </button>
       <UserNotificationBell />
     </div>

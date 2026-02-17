@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Target, User } from 'lucide-react';
+import { LayoutDashboard, Target, Brain, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
@@ -9,15 +9,15 @@ import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 const tabs = [
   { id: 'today', path: '/today', icon: LayoutDashboard, labelEn: 'Today', labelHe: 'היום' },
   { id: 'plan', path: '/plan', icon: Target, labelEn: 'Plan', labelHe: 'תוכנית' },
+  { id: 'hypnosis', path: '/hypnosis', icon: Brain, labelEn: 'Sessions', labelHe: 'סשנים' },
   { id: 'me', path: '/me', icon: User, labelEn: 'Me', labelHe: 'אני' },
 ];
 
 interface TopNavBarProps {
-  onOpenHypnosis: () => void;
   onOpenSettings: () => void;
 }
 
-export function TopNavBar({ onOpenHypnosis, onOpenSettings }: TopNavBarProps) {
+export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
   const { language, isRTL } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ export function TopNavBar({ onOpenHypnosis, onOpenSettings }: TopNavBarProps) {
 
         {/* Right: Action icons */}
         <div className="flex items-center gap-1">
-          <HeaderActions onOpenHypnosis={onOpenHypnosis} />
+          <HeaderActions />
         </div>
       </div>
     </header>
