@@ -229,14 +229,14 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
 /* ─── DESKTOP VERTICAL TIMELINE ─── */
 function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isHe }: TimelineProps) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-1 mb-2">
+      <div className="flex items-center justify-between px-1 mb-1.5">
         <span className="text-xs font-bold text-foreground">
           {isHe ? 'מפת הדרך' : 'Roadmap'}
         </span>
-        <div className="w-8 h-8 rounded-full border-2 border-amber-500/40 flex items-center justify-center">
-          <span className="text-[9px] font-bold text-amber-500">{progressPercent}%</span>
+        <div className="w-7 h-7 rounded-full border-2 border-amber-500/40 flex items-center justify-center">
+          <span className="text-[8px] font-bold text-amber-500">{progressPercent}%</span>
         </div>
       </div>
 
@@ -244,14 +244,14 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
       <div className="relative">
         {months.map((month, monthIdx) => (
           <div key={monthIdx} className="relative">
-            {/* Month label - glassmorphism pill */}
-            <div className="flex items-center justify-center mb-2">
-              <div className="px-3 py-1 rounded-full bg-amber-500/10 backdrop-blur-md border border-amber-500/20 flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider whitespace-nowrap">
-                  {isHe ? `חודש ${monthIdx + 1}` : `Month ${monthIdx + 1}`}
+            {/* Month label - compact glassmorphism pill */}
+            <div className="flex items-center justify-center mb-1">
+              <div className="px-2 py-0.5 rounded-full bg-amber-500/10 backdrop-blur-md border border-amber-500/20 flex items-center gap-1">
+                <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wider whitespace-nowrap">
+                  {isHe ? `חודש ${monthIdx + 1}` : `M${monthIdx + 1}`}
                 </span>
-                <span className="text-[9px] text-amber-500/60">·</span>
-                <span className="text-[9px] text-muted-foreground">{month.label}</span>
+                <span className="text-[8px] text-amber-500/60">·</span>
+                <span className="text-[8px] text-muted-foreground">{month.label}</span>
               </div>
             </div>
 
@@ -260,22 +260,22 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
               {/* Vertical line background */}
               <div
                 className="absolute top-0 bottom-0 w-[3px] rounded-full bg-muted/20"
-                style={{ [isHe ? 'right' : 'left']: '11px' }}
+                style={{ [isHe ? 'right' : 'left']: '9px' }}
               />
               {/* Progress fill */}
               {(() => {
                 const monthWeeks = month.weeks;
                 if (monthWeeks.length === 0) return null;
                 const completedInMonth = monthWeeks.filter(w => w.is_completed || w.week_number < currentWeek).length;
-                const isCurrent = monthWeeks.some(w => w.week_number === currentWeek);
-                const fillPct = isCurrent
+                const hasCurrent = monthWeeks.some(w => w.week_number === currentWeek);
+                const fillPct = hasCurrent
                   ? Math.round(((completedInMonth + 0.5) / monthWeeks.length) * 100)
                   : Math.round((completedInMonth / monthWeeks.length) * 100);
                 return (
                   <div
                     className="absolute top-0 w-[3px] rounded-full bg-gradient-to-b from-emerald-500 via-amber-500 to-amber-400/30 transition-all duration-700"
                     style={{
-                      [isHe ? 'right' : 'left']: '11px',
+                      [isHe ? 'right' : 'left']: '9px',
                       height: `${Math.min(100, fillPct)}%`,
                     }}
                   />
@@ -291,7 +291,7 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                   <div
                     key={milestone.id}
                     className={cn(
-                      "relative flex items-start gap-3 py-2 px-1",
+                      "relative flex items-center gap-2 py-1 px-0.5",
                       isHe && "flex-row-reverse"
                     )}
                   >
@@ -300,69 +300,57 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                       {isCurrent ? (
                         <motion.div className="relative" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
                           <motion.div
-                            className="absolute -inset-2 rounded-full border-2 border-amber-500/50"
-                            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                            className="absolute -inset-1.5 rounded-full border-2 border-amber-500/50"
+                            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
                             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                           />
-                          <motion.div
-                            className="absolute -inset-1 rounded-full border border-amber-400/30"
-                            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-                          />
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 border-2 border-amber-300 shadow-[0_0_16px_rgba(245,158,11,0.5)] flex items-center justify-center">
-                            <MapPin className="w-3.5 h-3.5 text-amber-950" />
+                          <div className="w-[22px] h-[22px] rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 border-2 border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.5)] flex items-center justify-center">
+                            <MapPin className="w-2.5 h-2.5 text-amber-950" />
                           </div>
                         </motion.div>
                       ) : isCompleted ? (
-                        <motion.div
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className="w-7 h-7 rounded-full bg-emerald-500/90 border-2 border-emerald-400/60 shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center justify-center"
-                        >
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </motion.div>
+                        <div className="w-[22px] h-[22px] rounded-full bg-emerald-500/90 border-2 border-emerald-400/60 shadow-[0_0_8px_rgba(16,185,129,0.3)] flex items-center justify-center">
+                          <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                        </div>
                       ) : (
                         <div className={cn(
-                          "w-7 h-7 rounded-full border-2 border-dashed border-muted-foreground/25 bg-background/50",
+                          "w-[22px] h-[22px] rounded-full border-2 border-dashed border-muted-foreground/25 bg-background/50",
                           isFuture && "opacity-40"
                         )} />
                       )}
                     </div>
 
-                    {/* Content card */}
+                    {/* Content - inline */}
                     <div className={cn(
-                      "flex-1 min-w-0 rounded-lg px-2.5 py-1.5 transition-all",
+                      "flex-1 min-w-0 flex items-center gap-1.5 rounded-md px-1.5 py-0.5",
                       isCurrent && "bg-amber-500/10 border border-amber-500/30",
-                      isCompleted && !isCurrent && "bg-muted/20",
+                      isCompleted && !isCurrent && "bg-muted/10",
                       isFuture && "opacity-50"
                     )}>
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn(
-                          "text-[10px] font-bold",
-                          isCurrent ? "text-amber-500" : isCompleted ? "text-emerald-500" : "text-muted-foreground"
-                        )}>
-                          {isHe ? `ש׳${milestone.week_number}` : `W${milestone.week_number}`}
-                        </span>
-                        {isCurrent && (
-                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30">
-                            {isHe ? 'אתה כאן' : 'YOU ARE HERE'}
-                          </span>
-                        )}
-                      </div>
+                      <span className={cn(
+                        "text-[9px] font-bold shrink-0",
+                        isCurrent ? "text-amber-500" : isCompleted ? "text-emerald-500" : "text-muted-foreground"
+                      )}>
+                        {isHe ? `ש׳${milestone.week_number}` : `W${milestone.week_number}`}
+                      </span>
                       <p className={cn(
-                        "text-[11px] leading-tight mt-0.5 truncate",
+                        "text-[10px] leading-tight truncate",
                         isCurrent ? "text-foreground font-medium" : "text-muted-foreground"
                       )}>
                         {milestone.title}
                       </p>
+                      {isCurrent && (
+                        <span className="text-[7px] font-bold px-1 py-0 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0">
+                          {isHe ? 'כאן' : 'NOW'}
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            {monthIdx < 2 && <div className="h-2" />}
+            {monthIdx < 2 && <div className="h-1" />}
           </div>
         ))}
       </div>
