@@ -1,153 +1,200 @@
 
-# Aurora OS Design System Overhaul
+# V2 Visual Overhaul — Bold DOM Restructure
 
 ## Overview
 
-A comprehensive UI redesign creating a cohesive "Aurora OS" design language across 5 pages and shared components. No logic, routes, or data changes -- purely presentation layer.
+A dramatic visual redesign of all 5 pages with new DOM structures, upgraded typography, enforced spacing system, and a "UI V2" debug label. No logic/hooks/data changes.
 
-## Phase 1: Shared Components (Foundation)
+## Global Changes
 
-Create 6 reusable components in `src/components/aurora-ui/`:
+### PageShell.tsx — Spacing System Upgrade
+- Change padding to `px-4 md:px-8 py-8 md:py-10 pb-16`
+- Change default gap from `space-y-6` to nothing (each page controls its own `gap-8`)
 
-### `PageShell.tsx`
-- Wrapper with `max-w-6xl mx-auto` on desktop, consistent `px-4 md:px-6` padding
-- Accepts `className` for page-specific overrides
-- Handles RTL `dir` attribute automatically
+### SectionHeader.tsx — Typography Upgrade
+- Title: `text-xl font-semibold` (was `text-base font-bold`)
+- Subtitle: `text-sm text-muted-foreground` (was `text-xs`)
+- Add bottom margin: `mb-4` built into the component
+- Icon size bump to `w-5 h-5`
 
-### `SectionHeader.tsx`
-- Left: icon + title + optional subtitle
-- Right: optional action button (e.g., "See all", "Edit")
-- Props: `icon`, `title`, `subtitle`, `action`, `actionLabel`
-- Consistent typography: title is `text-base font-bold`, subtitle is `text-xs text-muted-foreground`
+### MetricCard.tsx — Card Elevation
+- Increase padding to `p-4 md:p-5`
+- Value size to `text-2xl font-bold`
+- Add subtle hover: `hover:shadow-md transition-shadow`
 
-### `MetricCard.tsx`
-- Small stat card with icon circle, label, value, and optional gradient background
-- Replaces the `ScoreCard` sub-component in ProfileContent
-- Props: `icon`, `label`, `value`, `suffix`, `gradient`
+### HeroBanner.tsx — Full Signature Hero
+- Increase padding to `p-8 md:p-10`
+- Title size: `text-2xl md:text-3xl font-semibold`
+- Subtitle: `text-base leading-7`
+- Add decorative gradient orbs (absolute positioned blurred circles)
+- Support `children` slot for custom content below title
 
-### `GradientCTAButton.tsx`
-- Primary gradient button (primary -> accent) with icon + arrow
-- Used as the single main CTA per page
-- Props: `onClick`, `label`, `icon`, `className`
+### GradientCTAButton.tsx — Bigger Impact
+- Height: `h-14` (was `h-12`)
+- Text: `text-base font-semibold`
+- Shadow: `shadow-xl shadow-primary/30`
 
-### `HeroBanner.tsx`
-- Full-width card with gradient background, icon, title, subtitle, and optional CTA button
-- Replaces inline hero patterns in PlanProgressHero and status banners
-- Props: `gradient`, `icon`, `title`, `subtitle`, `action`, `actionLabel`
+### PillChips.tsx — Minor
+- Pill text: `text-sm` stays, add `py-1.5` for bigger touch targets
 
-### `PillChips.tsx`
-- Renders a `flex-wrap` list of styled pill tags
-- Props: `items: string[]`, `colorScheme` (pink, violet, green, etc.)
-- Replaces repeated chip patterns in ProfileContent values/traits
+## Page-by-Page Restructure
 
-## Phase 2: `/today` (Home) Page
+### A) `/today` — TodayTab.tsx
 
-### Changes to `TodayTab.tsx`
-- Wrap content in `<PageShell>`
-- Keep `DashboardBannerSlider`, `NextActionBanner`, `TodaysHabitsCard`, `ChecklistsCard`
-- Use consistent `space-y-6` gap
+**New DOM structure:**
+```
+PageShell (gap-8)
+  "UI V2" debug label (absolute top-right)
+  DashboardBannerSlider (kept as-is)
+  NextActionBanner (kept as-is, already a signature element)
+  Two-column grid (gap-6, md:grid-cols-2)
+    TodaysHabitsCard
+    ChecklistsCard
+  HypnosisModal
+```
 
-### Changes to `NextActionBanner.tsx`
-- Refine spacing: ensure consistent `rounded-2xl` corners
-- Ensure mobile button stacking works cleanly
+Key changes:
+- Wrap in `PageShell className="space-y-8"`
+- Add the "UI V2" debug label as a fixed badge
 
-### Changes to `TodaysHabitsCard.tsx`
-- Use `rounded-2xl` for consistency
-- Use `SectionHeader` pattern for card header
+**TodaysHabitsCard.tsx changes:**
+- Card padding: `p-6` throughout
+- Header title: `text-lg font-semibold` (was `text-sm`)
+- Habit row padding: `p-4 rounded-xl` (was `p-3 rounded-lg`)
+- Progress bar: `h-2.5` (was `h-2`)
 
-### Changes to `ChecklistsCard.tsx`
-- Use `rounded-2xl` and soft shadow
-- Use `SectionHeader` pattern in header area
-- Remove `md:col-span-2` (now always single column in its grid cell)
+**ChecklistsCard.tsx changes:**
+- Header padding: `p-5` (was `p-4`)
+- Header title: `text-lg font-semibold` (was `font-bold` no size)
+- Checklist row padding: `p-5` (was `p-4`)
+- Item padding: `p-4 rounded-xl` (was `p-3 rounded-lg`)
 
-## Phase 3: `/plan` Page
+### B) `/me` — ProfileContent.tsx
 
-### Changes to `PlanTab.tsx`
-- Wrap in `<PageShell>`
-- Use `SectionHeader` for "Today's Missions" heading
-- Consistent section spacing with `space-y-6`
+**New DOM structure:**
+```
+div (space-y-8)
+  "UI V2" debug label (absolute top-right)
+  Identity Hero Card (existing, upgrade padding/typography)
+  Metrics Row (3-col grid, gap-4)
+  Values section (AuroraCard with upgraded header)
+  Traits section (AuroraCard with upgraded header)
+  Life Direction section (AuroraCard upgraded)
+  Career Path section (AuroraCard upgraded)
+  Transformation Habits section (AuroraCard upgraded)
+  Insights Grid (AuroraCard upgraded)
+  CTA Section (GradientCTAButton + Regenerate)
+  Modals
+```
 
-### Changes to `PlanProgressHero.tsx`
-- Use `rounded-2xl`, consistent shadow and border
-- Keep existing data fetching and display logic
+Key changes:
+- Root: `space-y-8` (was `space-y-4`)
+- Identity Hero: padding `p-8 md:p-10` (was `p-6`), name text `text-3xl` (was `text-2xl`)
+- Level/tokens/streak chips: `px-4 py-2` (was `px-3 py-1.5`), text `text-base` (was `text-sm`)
+- AuroraCard sub-component: header padding `px-5 py-4` (was `px-4 py-3`), header title `text-base font-semibold` (was `text-sm`), body padding `p-5` (was `p-4`)
+- Insights grid buttons: `p-4 rounded-2xl` (was `p-3 rounded-xl`), icon size `w-6 h-6` (was `w-5 h-5`)
+- CTA section: `pt-4 pb-6` (was `pt-2 pb-4`)
 
-### Changes to `PlanRoadmap.tsx`
-- Use `SectionHeader` for "90-Day Roadmap" heading
-- Month cards: `rounded-2xl`, consistent border/shadow
-- Week rows: consistent padding and hover states
+### C) `/sessions` — HypnosisLibrary.tsx
 
-## Phase 4: `/me` (Profile) Page
+**New DOM structure (replaces DashboardLayout with PageShell):**
+```
+PageShell (space-y-8)
+  "UI V2" debug label
+  Page Header (text-3xl font-semibold)
+  SessionStats
+  Daily Session Hero (signature element, p-8, bigger text)
+  SectionHeader "Quick Sessions"
+  Quick Sessions Grid (grid-cols-2 md:grid-cols-4 gap-4)
+    Session Cards (p-6, rounded-2xl, min-h-[120px])
+  SectionHeader "Recent Sessions"
+  RecentSessions
+```
 
-### Changes to `ProfileContent.tsx`
-- Wrap in `<PageShell>`
-- Replace `GlassCard` sub-component with consistent `rounded-2xl bg-card border shadow-sm` cards with `SectionHeader`-style headers
-- Replace `ScoreCard` with `MetricCard`
-- Replace inline chip rendering with `PillChips`
-- Replace bottom CTA with `GradientCTAButton`
-- Keep all modals, data hooks, and navigation logic unchanged
+Key changes:
+- Replace `DashboardLayout` wrapper with `PageShell`
+- Page title: `text-3xl font-semibold` (was `text-2xl sm:text-3xl font-bold`)
+- Section gap: `space-y-8` (was `space-y-6`)
+- Daily session hero: padding `p-8 md:p-10` (was `p-5 sm:p-6`), title `text-2xl md:text-3xl font-semibold` (was `text-lg sm:text-xl font-bold`)
+- Quick sessions: `md:grid-cols-4` (was `grid-cols-2`), card `p-6 min-h-[120px]` (was `p-4 min-h-[88px]`)
+- Session card title: `text-base font-semibold` (was `text-sm font-medium`)
+- Use `SectionHeader` component for "Quick Sessions" and "Recent Sessions" headings
 
-## Phase 5: `/quests` Page
+### D) `/plan` — PlanTab.tsx
 
-### Changes to `QuestsPage.tsx`
-- Wrap in `<PageShell>`
-- Use `SectionHeader` for page heading
-- Grid: `grid-cols-2 md:grid-cols-4 gap-4`
-- Quest cards: `rounded-2xl`, consistent border/shadow, hover states
-- Status badges: use `Badge` component consistently
+**New DOM structure:**
+```
+PageShell (space-y-8)
+  "UI V2" debug label
+  PlanProgressHero (kept, signature hero)
+  Section: Today's Missions
+    SectionHeader (text-xl)
+    TasksPanel wrapper (p-6, rounded-2xl)
+  Section: 90-Day Roadmap
+    PlanRoadmap
+  Section: Life Analysis
+    LifeAnalysisChart
+```
 
-## Phase 6: FlowRenderer Card Polish
+Key changes:
+- Root gap: `space-y-8` (was `space-y-6`)
+- Missions wrapper: `p-6` (was `p-4`)
+- Section spacing: `space-y-4` inside each section (was `space-y-3`)
 
-### Changes to `FlowRenderer.tsx`
-- Already has card wrapper, just ensure `rounded-2xl shadow-lg` matches the system
+### E) `/quests` — QuestsPage.tsx
 
-### Changes to `QuestionCard.tsx`
-- Option buttons: ensure consistent `rounded-xl border-2` treatment
-- CTA button: match `GradientCTAButton` gradient style
+**New DOM structure:**
+```
+PageShell (space-y-8)
+  "UI V2" debug label
+  Page Header (HeroBanner-style with icon + title + subtitle)
+  Quest Grid (grid-cols-2 md:grid-cols-4 gap-5)
+    Quest Cards (p-6, min-h-[160px], rounded-2xl)
+      Icon (text-4xl)
+      Title (text-base font-semibold)
+      Status badge / progress bar
+      Completed badge overlay
+  Back button
+```
 
-## Files Summary
+Key changes:
+- Replace `SectionHeader` at top with a proper `HeroBanner` component for the page header
+- Grid gap: `gap-5` (was `gap-4`)
+- Card: `p-6 min-h-[160px]` (was `p-5 min-h-[44px]`)
+- Icon: `text-4xl` (was `text-3xl`)
+- Title: `text-base font-semibold` (was `text-sm`)
+- Progress bar: `h-2` (was `h-1.5`)
+- Progress text: `text-xs` (was `text-[10px]`)
 
-### New files (6)
-| File | Purpose |
+## "UI V2" Debug Label
+
+Every page gets a temporary label at the top-right corner:
+```tsx
+<div className="flex justify-end">
+  <span className="text-[10px] font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">UI V2</span>
+</div>
+```
+This will be the first element inside PageShell on each page.
+
+## Files Modified (11)
+
+| File | Changes |
 |------|---------|
-| `src/components/aurora-ui/PageShell.tsx` | Layout wrapper |
-| `src/components/aurora-ui/SectionHeader.tsx` | Section header pattern |
-| `src/components/aurora-ui/MetricCard.tsx` | Stat display card |
-| `src/components/aurora-ui/GradientCTAButton.tsx` | Primary CTA button |
-| `src/components/aurora-ui/HeroBanner.tsx` | Hero card component |
-| `src/components/aurora-ui/PillChips.tsx` | Chip/tag list |
+| `src/components/aurora-ui/PageShell.tsx` | Upgraded padding/spacing |
+| `src/components/aurora-ui/SectionHeader.tsx` | Bigger typography, built-in margin |
+| `src/components/aurora-ui/MetricCard.tsx` | Larger padding, hover state |
+| `src/components/aurora-ui/HeroBanner.tsx` | Larger padding/text, decorative orbs |
+| `src/components/aurora-ui/GradientCTAButton.tsx` | Taller, bolder |
+| `src/pages/TodayTab.tsx` | space-y-8, debug label |
+| `src/pages/PlanTab.tsx` | space-y-8, upgraded section padding, debug label |
+| `src/pages/QuestsPage.tsx` | HeroBanner header, larger cards, debug label |
+| `src/pages/HypnosisLibrary.tsx` | PageShell, bigger hero/cards, 4-col grid, debug label |
+| `src/components/dashboard/ProfileContent.tsx` | space-y-8, bigger hero/cards/chips/grid, debug label |
+| `src/components/dashboard/v2/TodaysHabitsCard.tsx` | Bigger padding/typography |
+| `src/components/dashboard/unified/ChecklistsCard.tsx` | Bigger padding/typography |
 
-### Modified files (8)
-| File | Change |
-|------|--------|
-| `src/pages/TodayTab.tsx` | Wrap in PageShell |
-| `src/pages/PlanTab.tsx` | Wrap in PageShell, use SectionHeader |
-| `src/pages/MeTab.tsx` | Wrap in PageShell |
-| `src/pages/QuestsPage.tsx` | Wrap in PageShell, expand grid to 4 cols |
-| `src/components/dashboard/ProfileContent.tsx` | Use MetricCard, PillChips, GradientCTAButton, SectionHeader-style headers |
-| `src/components/dashboard/v2/TodaysHabitsCard.tsx` | Consistent rounded-2xl styling |
-| `src/components/dashboard/unified/ChecklistsCard.tsx` | Consistent rounded-2xl styling, SectionHeader pattern |
-| `src/components/flow/QuestionCard.tsx` | Gradient CTA button style |
-
-### Not modified
-- No data hooks, DB schema, routes, or autosave logic
+## Files NOT Modified
+- All hooks, data fetching, edge functions, routes, DB schema
 - DashboardBannerSlider (already polished)
-- NextActionBanner (minimal changes, mostly fine)
-- DashboardLayout (container already handled)
-- All edge functions and flow specs
-
-## Design Tokens Applied Everywhere
-
-| Token | Value |
-|-------|-------|
-| Card radius | `rounded-2xl` |
-| Card border | `border border-border` |
-| Card shadow | `shadow-sm hover:shadow-md` |
-| Section gap | `space-y-6` |
-| Page padding | `px-4 md:px-6` |
-| Max width | `max-w-6xl mx-auto` (PageShell) |
-| Primary CTA | `bg-gradient-to-r from-primary to-accent` |
-| Touch target | `min-h-[44px]` on interactive elements |
-
-## Note on /sessions
-
-No `/sessions` route currently exists in the app. The hypnosis/sessions feature is accessed via a modal (`HypnosisModal`) triggered from the dashboard. Creating a dedicated sessions page would require new routing and potentially new data hooks, which is out of scope for this UI-only redesign. This can be added as a separate feature request.
+- NextActionBanner (already well-structured)
+- FlowRenderer / QuestionCard (already has card background)
