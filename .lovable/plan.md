@@ -1,190 +1,107 @@
 
-# Deep Verification Audit: Triggers, Indexes, Stripe, and Gating
+
+# Stripe Webhook as Source of Truth -- Implementation Plan
+
+## Current State (Problems)
+
+1. **Webhook resolves users only by email** -- scans all auth users via `listUsers()`, which is slow and fragile. Does not use `metadata.user_id` from the checkout session.
+2. **`profiles` table has no subscription columns** -- no `subscription_tier` or `is_pro` for fast frontend reads.
+3. **`user_subscriptions` table is missing columns** -- no `price_id`, `product_id`, or `cancel_at_period_end`.
+4. **`check-subscription` hits Stripe API on every call** -- should read from the DB instead (webhook keeps it current).
+5. **`useSubscriptionGate` calls the edge function** -- should read `user_subscriptions` table directly via a simple Supabase query.
+6. **`create-checkout-session` is missing `client_reference_id`** -- user resolution in webhook has no reliable fallback.
+7. **`STRIPE_WEBHOOK_SECRET` is not configured** -- signature verification silently falls back to parsing raw JSON.
+8. **No `invoice.paid` handler** -- only `invoice.payment_failed` is handled.
 
 ---
 
-## Prompt A: DB Trigger Forensics
+## What Changes
 
-### All Active Triggers (public schema)
+### Step 1: Database Migration
 
-| Table | Trigger Name | Timing | Event | Function | Writes To |
-|-------|-------------|--------|-------|----------|-----------|
-| `action_items` | `trg_action_item_completion` | BEFORE | UPDATE | `handle_action_item_completion()` | `xp_events` (via `award_unified_xp`), `profiles` (tokens) |
-| `action_items` | `update_action_items_updated_at` | BEFORE | UPDATE | `update_updated_at_column()` | self |
-| `admin_notifications` | `trg_fanout_admin_notifications_to_users` | AFTER | INSERT | `fanout_admin_notifications_to_users()` | `user_notifications` |
-| `affiliate_referrals` | `on_referral_status_change` | AFTER | UPDATE | `update_affiliate_earnings()` | `affiliates` |
-| `aurora_proactive_queue` | `bridge_proactive_to_notification_trigger` | AFTER | INSERT | `bridge_proactive_to_notification()` | `user_notifications` |
-| `bookings` | `check_booking_status` | BEFORE | INSERT/UPDATE | `validate_booking_status()` | none (validation only) |
-| `community_comments` | `trigger_update_stats_on_comment` | AFTER | INSERT | `update_community_member_stats()` | `community_members`, `community_point_logs`, `community_posts` |
-| `community_likes` | `trigger_update_stats_on_like` | AFTER | INSERT | `update_community_member_stats()` | `community_members`, `community_posts`, `community_comments` |
-| `community_posts` | `trigger_update_stats_on_post` | AFTER | INSERT | `update_community_member_stats()` | `community_members`, `community_point_logs` |
-| ~25 tables | `update_*_updated_at` | BEFORE | UPDATE | `update_updated_at_column()` | self |
+Add columns to `profiles`:
+- `subscription_tier TEXT DEFAULT 'free'`
+- `stripe_customer_id TEXT`
 
-### Key Confirmation: Proactive Pipeline
+Add columns to `user_subscriptions`:
+- `price_id TEXT`
+- `product_id TEXT`
+- `cancel_at_period_end BOOLEAN DEFAULT false`
 
-**YES** -- `bridge_proactive_to_notification` IS attached to `aurora_proactive_queue` (AFTER INSERT).
+### Step 2: Rewrite `stripe-webhook/index.ts`
 
-It inserts into `user_notifications` with:
-- `type = 'aurora_coaching'`
-- `link = '/aurora'`
-- metadata containing `proactive_id`, `trigger_type`, `priority`
+Key improvements:
+- **User resolution**: Read `metadata.user_id` or `client_reference_id` from checkout session first. Fall back to looking up `profiles.stripe_customer_id`. Final fallback: email lookup via `profiles` table (not `auth.admin.listUsers`).
+- **Add `invoice.paid` handler**: Reactivate subscription if it was `past_due`.
+- **Write to `profiles`**: Set `subscription_tier = 'pro'` or `'free'` and `stripe_customer_id` on every upsert.
+- **Store `price_id`, `product_id`, `cancel_at_period_end`** on `user_subscriptions`.
+- **Require signature verification**: Remove the dev fallback that parses raw JSON without verification.
 
-It does **NOT** call `push-notifications` edge function. Push notifications are a separate system not triggered by this pipeline.
+Events handled:
+| Event | Action |
+|-------|--------|
+| `checkout.session.completed` | Resolve user, retrieve subscription, upsert `user_subscriptions`, update `profiles` |
+| `customer.subscription.created` | Upsert subscription + update `profiles.subscription_tier` |
+| `customer.subscription.updated` | Same (catches plan changes, trial end, renewals) |
+| `customer.subscription.deleted` | Mark cancelled, set `profiles.subscription_tier = 'free'` |
+| `invoice.paid` | If subscription was `past_due`, reactivate to `active` |
+| `invoice.payment_failed` | Set status to `past_due` |
 
-### Cron Jobs
+### Step 3: Update `create-checkout-session/index.ts`
 
-| Job ID | Schedule | Target | Purpose |
-|--------|----------|--------|---------|
-| 1 | `0 */3 * * *` (every 3 hours) | `aurora-proactive` edge function | Batch analyze users for proactive coaching nudges |
+- Add `client_reference_id: user.id` to the checkout session creation.
+- Keep `metadata: { user_id: user.id }` (already present).
 
----
+### Step 4: Rewrite `check-subscription/index.ts`
 
-## Prompt B: Index and Performance Audit
+Instead of calling Stripe API, read from the database:
 
-### Current Indexes
-
-| Table | Index | Definition |
-|-------|-------|-----------|
-| `action_items` | `action_items_pkey` | btree(id) |
-| `action_items` | `idx_action_items_parent` | btree(parent_id) WHERE parent_id IS NOT NULL |
-| `action_items` | `idx_action_items_plan` | btree(plan_id) WHERE plan_id IS NOT NULL |
-| `action_items` | `idx_action_items_recurrence` | btree(user_id, recurrence_rule) WHERE recurrence_rule IS NOT NULL |
-| `action_items` | `idx_action_items_user_due` | btree(user_id, due_at) WHERE due_at IS NOT NULL |
-| `action_items` | `idx_action_items_user_type_status` | btree(user_id, type, status) |
-| `conversations` | `conversations_pkey` | btree(id) |
-| `conversations` | `idx_conversations_last_message` | btree(last_message_at DESC) |
-| `conversations` | `idx_conversations_participant_1` | btree(participant_1) |
-| `conversations` | `idx_conversations_participant_2` | btree(participant_2) |
-| `conversations` | `unique_direct_conversation` | btree(participant_1, participant_2) |
-| `daily_message_counts` | PK | btree(user_id, message_date) |
-| `messages` | `messages_pkey` | btree(id) |
-| `messages` | `idx_messages_conversation` | btree(conversation_id) |
-| `messages` | `idx_messages_created` | btree(created_at DESC) |
-| `profiles` | `profiles_pkey` | btree(id) |
-| `user_notifications` | `user_notifications_pkey` | btree(id) |
-| `user_notifications` | `idx_user_notifications_user_id` | btree(user_id) |
-| `user_notifications` | `idx_user_notifications_is_read` | btree(is_read) |
-| `user_notifications` | `idx_user_notifications_created_at` | btree(created_at DESC) |
-| `xp_events` | `xp_events_pkey` | btree(id) |
-| `xp_events` | `idx_xp_events_user_date` | btree(user_id, created_at DESC) |
-| `xp_events` | `idx_xp_events_source` | btree(source) |
-| `xp_events` | `idx_xp_events_idempotency` | UNIQUE btree(idempotency_key) WHERE NOT NULL |
-
-### Missing Indexes (Recommended)
-
-The hottest query patterns found in the codebase:
-
-1. **`action_items` filtered by `user_id + status`** (in `actionItems.ts:getTodayTasks`) -- COVERED by `idx_action_items_user_type_status`
-2. **`action_items` filtered by `user_id + type = 'habit'`** (in `useTodaysHabits.ts`) -- COVERED by same index
-3. **`messages` filtered by `conversation_id` ordered by `created_at`** -- COVERED by `idx_messages_conversation` (sort on created_at could be added)
-4. **`user_notifications` filtered by `user_id + is_read`** -- Needs composite index
-
-```sql
--- Recommended missing indexes:
-
--- 1. Composite for notification queries (user + unread filter)
-CREATE INDEX idx_user_notifications_user_unread 
-ON public.user_notifications (user_id, is_read, created_at DESC);
-
--- 2. Messages: conversation + order (composite for common query pattern)
-CREATE INDEX idx_messages_conversation_ordered 
-ON public.messages (conversation_id, created_at ASC);
-
--- 3. Profiles: missing index on subscription_tier for gating queries
-CREATE INDEX idx_profiles_subscription_tier 
-ON public.profiles (subscription_tier) WHERE subscription_tier IS NOT NULL;
+```text
+1. Get user from auth token
+2. SELECT from user_subscriptions WHERE user_id = X AND status IN ('active','trialing') LIMIT 1
+3. Return { subscribed, tier, subscription_end, status }
 ```
 
-**Overall index coverage: GOOD.** The `action_items` table is well-indexed. Main gap is `user_notifications` composite and `messages` ordered composite.
+This makes it fast, free (no Stripe API call), and consistent with the webhook as source of truth.
+
+### Step 5: Rewrite `useSubscriptionGate.ts`
+
+Replace the edge function call with a direct Supabase query:
+
+```text
+1. Query user_subscriptions where user_id = currentUser AND status IN ('active','trialing')
+2. If found with pro product_id -> isPro = true
+3. Query daily_message_counts (unchanged)
+4. Derive all gate flags from these two queries
+```
+
+This eliminates the edge function call entirely for the common case, making page loads faster.
+
+### Step 6: Request `STRIPE_WEBHOOK_SECRET`
+
+Prompt you to add the secret. You will need to:
+1. Go to Stripe Dashboard > Developers > Webhooks
+2. Create an endpoint pointing to: `https://tsvfsbluyuaajqmkpzdv.supabase.co/functions/v1/stripe-webhook`
+3. Subscribe to: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`
+4. Copy the signing secret (starts with `whsec_`)
+5. Add it as the `STRIPE_WEBHOOK_SECRET` secret in the project
 
 ---
 
-## Prompt C: Stripe Subscription Architecture Verification
+## Files Changed
 
-### **NO STRIPE WEBHOOK EXISTS.**
+| File | Action |
+|------|--------|
+| Migration SQL | Add columns to `profiles` and `user_subscriptions` |
+| `supabase/functions/stripe-webhook/index.ts` | Rewrite with metadata-based user resolution, `profiles` sync, `invoice.paid` handler |
+| `supabase/functions/create-checkout-session/index.ts` | Add `client_reference_id` |
+| `supabase/functions/check-subscription/index.ts` | Rewrite to read from DB instead of Stripe API |
+| `src/hooks/useSubscriptionGate.ts` | Read from `user_subscriptions` table directly |
 
-There is no `supabase/functions/stripe-webhook/` directory. No file in the codebase references "stripe-webhook".
+## What Does NOT Change
 
-### Current Stripe Architecture
+- `customer-portal/index.ts` -- works fine as-is
+- `UpgradePromptModal.tsx` -- UI component, no data layer changes
+- `ProGateOverlay.tsx` -- UI component, no data layer changes
+- `supabase/config.toml` -- already has `verify_jwt = false` for stripe-webhook
 
-Three edge functions exist:
-- `create-checkout-session/` -- Creates Stripe Checkout with 7-day trial
-- `check-subscription/` -- Queries Stripe API directly for active/trialing subscriptions by email
-- `customer-portal/` -- Creates Stripe billing portal session
-
-### Canonical Subscription Truth
-
-Currently: **Stripe is the single source of truth.** `check-subscription` queries Stripe directly every time. The `user_subscriptions` table exists but is **NOT being written to** by any function or webhook.
-
-This is problematic because:
-- Every page load makes a Stripe API call
-- No webhook means subscription changes (cancellation, payment failure) are only detected when the user opens the app
-- `user_subscriptions.stripe_customer_id` and `stripe_subscription_id` columns exist but are always NULL
-
-### Required: `stripe-webhook` Edge Function
-
-Must handle these events:
-1. `checkout.session.completed` -- Create/update `user_subscriptions`, set `profiles.subscription_tier = 'pro'`
-2. `customer.subscription.updated` -- Update status, `current_period_end`, `cancel_at_period_end`
-3. `customer.subscription.deleted` -- Set tier back to `'free'`, deactivate subscription
-4. `invoice.payment_failed` -- Flag subscription as `past_due`
-
-DB columns to use:
-- `user_subscriptions`: `user_id`, `tier_id`, `status`, `stripe_customer_id`, `stripe_subscription_id`, `started_at`, `expires_at`
-- `profiles`: `subscription_tier` (for fast frontend reads)
-
----
-
-## Prompt D: Subscription Gate Enforcement Map
-
-### Current State: `useSubscriptionGate` is BUILT but NOT ENFORCED
-
-The hook exists in `src/hooks/useSubscriptionGate.ts` and exposes: `canSendMessage`, `canAccessPlan`, `canAccessHypnosis`, `canAccessNudges`, `maxHabits`, `showUpgradePrompt`.
-
-The `UpgradePromptModal` exists in `src/components/subscription/UpgradePromptModal.tsx`.
-
-**But neither is imported anywhere except `src/pages/Subscriptions.tsx`** (which only reads `isPro`).
-
-### Enforcement Map: Where Gates Must Be Applied
-
-| # | Feature | File Path | Function/Component | Current Status | Recommended Integration |
-|---|---------|-----------|-------------------|----------------|------------------------|
-| 1 | **Aurora chat send** | `src/components/dashboard/GlobalChatInput.tsx` | `handleSubmit()` | **NOT ENFORCED** | Import `useSubscriptionGate`, check `canSendMessage` before sending, show remaining count, trigger `showUpgradePrompt('aurora')` when limit hit |
-| 2 | **Aurora chat send (chat area)** | `src/hooks/aurora/useAuroraChat.tsx` | `sendMessage()` (line 841) | **NOT ENFORCED** | Call `increment_daily_message_count` RPC after successful send; or gate at UI level only |
-| 3 | **Plan tab view** | `src/pages/PlanTab.tsx` | `PlanTab` component | **NOT ENFORCED** | Import `useSubscriptionGate`, if `!canAccessPlan` show locked overlay with upgrade CTA |
-| 4 | **Life Plan view** | `src/pages/LifePlan.tsx` | `LifePlan` component | **NOT ENFORCED** | Same pattern as PlanTab |
-| 5 | **Hypnosis / Power-Up entry** | `src/components/dashboard/HypnosisModal.tsx` | `HypnosisModal` component | **NOT ENFORCED** | Check `canAccessHypnosis` on open, show upgrade prompt if false |
-| 6 | **Habit creation** | `src/hooks/aurora/useAuroraChat.tsx` | `createDailyHabit()` (line 183) | **NOT ENFORCED** | Check habit count against `maxHabits` before creating |
-| 7 | **Proactive nudge click-through** | `src/components/dashboard/v2/NextActionBanner.tsx` | Banner action buttons | **NOT ENFORCED** | Check `canAccessNudges` before executing action |
-
-### Implementation Plan (5 Highest-Impact Gates)
-
-**Gate 1: Aurora Chat (GlobalChatInput.tsx)**
-- Import `useSubscriptionGate`
-- In `handleSubmit`: if `!canSendMessage`, call `showUpgradePrompt('aurora')` and return
-- After successful send, call `supabase.rpc('increment_daily_message_count', { p_user_id: user.id })`
-- Show `messagesRemaining` counter in the input area for free users
-- Render `UpgradePromptModal` in the component
-
-**Gate 2: Plan Tab (PlanTab.tsx)**
-- Import `useSubscriptionGate`
-- If `!canAccessPlan`, render a locked state with blurred content preview and upgrade CTA
-- Render `UpgradePromptModal`
-
-**Gate 3: Hypnosis Modal (HypnosisModal.tsx)**
-- Import `useSubscriptionGate`
-- In the `open` handler or at modal top: if `!canAccessHypnosis`, show upgrade prompt instead of session
-- Could allow 1 free trial session, then gate
-
-**Gate 4: Life Plan (LifePlan.tsx)**
-- Same pattern as PlanTab -- lock view for free users
-
-**Gate 5: Habit Creation Cap (useAuroraChat.tsx)**
-- Before `createDailyHabit`, count existing habits
-- If count >= `maxHabits` (3 for free), return false and show toast directing to upgrade
-
-### Technical Notes
-- The `increment_daily_message_count` SQL function exists in the DB but is **never called** from any frontend or edge function code
-- The `daily_message_counts` table has proper RLS and a composite PK on `(user_id, message_date)`
-- The `UpgradePromptModal` component is complete and bilingual but unused outside Subscriptions page
-- A `stripe-webhook` edge function must be created before gates are production-ready, otherwise subscription state will lag
