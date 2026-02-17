@@ -4,7 +4,7 @@
  */
 import type { LucideIcon } from 'lucide-react';
 
-export type JourneyTheme = 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning' | 'hobbies';
+export type JourneyTheme = 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning' | 'hobbies' | 'coaching';
 
 export interface Phase {
   id: number;
@@ -97,7 +97,7 @@ export interface JourneyResetDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isResetting: boolean;
-  journeyType?: 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning';
+  journeyType?: 'launchpad' | 'business' | 'health' | 'relationships' | 'finances' | 'learning' | 'coaching';
 }
 
 // Props for shared loading state
