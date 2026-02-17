@@ -103,12 +103,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   return (
     <div className="flex flex-col w-full">
       {/* ===== 3-COL GRID: HUD | Today+Week | Diagnostics ===== */}
-      <div className="flex flex-col gap-0 md:grid md:grid-cols-[280px_1fr_280px] md:gap-3 md:items-start">
+      <div className="flex flex-col gap-0 lg:grid lg:grid-cols-[240px_1fr_240px] xl:grid-cols-[280px_1fr_280px] lg:gap-4 lg:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="p-4 pt-0 md:pt-0 md:-mt-10 lg:-mt-10 md:order-1 md:flex md:flex-col md:justify-center">
+        <div className="p-4 pt-0 lg:pt-0 lg:-mt-10 lg:order-1 lg:flex lg:flex-col lg:justify-center">
           {/* Mobile: 3-col compact grid */}
-          <div className="flex flex-col gap-2 md:hidden">
+          <div className="flex flex-col gap-2 lg:hidden">
             {/* Top: Identity + Orb side by side */}
             <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
               {/* Orb - right side (appears first in RTL) */}
@@ -188,7 +188,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </div>
 
           {/* Desktop: orb + stats below */}
-          <div className="hidden md:flex md:flex-col md:items-center md:gap-3 w-full">
+          <div className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 w-full">
             <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full aspect-square overflow-hidden cursor-pointer">
               <PersonalizedOrb size={260} state="idle" />
             </button>
@@ -266,9 +266,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:order-2 md:overflow-y-auto md:min-h-0">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 lg:flex-none lg:order-2 lg:overflow-y-auto lg:min-h-0">
           {/* Spacer for desktop */}
-          <div className="hidden md:block pt-4" />
+          <div className="hidden lg:block pt-4" />
 
           <CollapsiblePlanRow
             icon={<Sparkles className="w-4 h-4 text-amber-500" />}
@@ -369,7 +369,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 3 - Diagnostics (desktop only) ===== */}
-        <div className="hidden md:flex md:flex-col md:gap-3 md:order-3 md:pt-4">
+        <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
             {language === 'he' ? 'אבחון' : 'Diagnostics'}
           </h3>
@@ -492,7 +492,7 @@ function CollapsiblePlanRow({
       {!isOpen && (
         <div className="px-3 pb-2">
           {/* Mobile: single preview line only */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             {previewText ? (
               <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
             ) : items && items.length > 0 ? (
@@ -500,7 +500,7 @@ function CollapsiblePlanRow({
             ) : null}
           </div>
           {/* Desktop: checkable items */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             {items && items.length > 0 && onItemToggle ? (
               <div className="space-y-1">
                 {items.filter(i => !i.done).slice(0, 3).map((item) => (
