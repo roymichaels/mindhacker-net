@@ -91,6 +91,8 @@ const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
 const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
+const QuestsPage = lazy(() => import("./pages/QuestsPage"));
+const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Free journey redirects handled inline below
 // Practitioner pages
 const Practitioners = lazy(() => import("./pages/Practitioners"));
@@ -406,6 +408,23 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <LaunchpadComplete />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Pillar Quests */}
+                        <Route
+                          path="/quests"
+                          element={
+                            <ProtectedRoute>
+                              <QuestsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/quests/:pillar"
+                          element={
+                            <ProtectedRoute>
+                              <QuestRunnerPage />
                             </ProtectedRoute>
                           }
                         />
