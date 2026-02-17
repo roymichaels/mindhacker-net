@@ -136,6 +136,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 </div>
               </div>
             </div>
+            {/* Separator */}
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
             {/* Bottom: Stats row */}
             <div className="grid grid-cols-3 gap-1.5">
               {[
@@ -150,6 +152,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 </div>
               ))}
             </div>
+            {/* Separator */}
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
             {/* Hypnosis session stats */}
             <div className="grid grid-cols-3 gap-1.5">
               {[
@@ -164,6 +168,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 </div>
               ))}
             </div>
+            {/* Separator */}
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
             {/* Start Session button - mobile only, inside HUD */}
             <button
               onClick={handleStartDailySession}
@@ -205,6 +211,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 <Flame className="h-2.5 w-2.5" />{streak.streak}
               </span>
             </div>
+            {/* Separator */}
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
             {/* Stats grid */}
             <div className="flex flex-col gap-2 w-full">
               <div className="grid grid-cols-3 gap-1.5">
@@ -220,6 +228,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 ))}
               </div>
+              {/* Separator */}
+              <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
               {/* Hypnosis session stats - desktop */}
               <div className="grid grid-cols-3 gap-1.5">
                 {[
@@ -234,6 +244,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 ))}
               </div>
+              {/* Separator */}
+              <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
               {/* Start Session button - desktop, below hypnosis stats */}
               <button
                 onClick={handleStartDailySession}
@@ -319,6 +331,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             </button>
           </div>
 
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
           {/* Row 2: Identity Card / 90-Day Plan / AI Analysis */}
           <div className="grid grid-cols-3 gap-2">
             <button
