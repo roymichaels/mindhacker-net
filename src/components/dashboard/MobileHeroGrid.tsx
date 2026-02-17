@@ -98,26 +98,22 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextTask = taskItems.find(t => !t.done);
   const nextHabit = habits.find(h => !h.isCompleted);
 
-  // Orb expands to fill available HUD space; HUD card has ~200px of non-orb content
+  // Orb: use left column height on desktop, fixed 280 on mobile/fallback
   const hudNonOrbHeight = 200;
-  const orbSize = leftColHeight > 0 ? Math.max(200, leftColHeight - hudNonOrbHeight) : 320;
+  const orbSize = leftColHeight > hudNonOrbHeight
+    ? Math.max(200, leftColHeight - hudNonOrbHeight)
+    : 280;
 
   return (
-    <div className="space-y-3">
-      {/* ===== 2-COL GRID: HUD + Plan ===== */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-stretch">
+    <div className="space-y-3 md:h-[calc(100vh-8rem)]">
+      {/* ===== 2-COL GRID: Plan (left on desktop) + HUD (right on desktop) ===== */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:items-stretch md:h-full">
 
         {/* ===== COL 1 - HUD ===== */}
-        <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full">
-          <motion.div
-            className="relative flex items-center justify-center overflow-visible"
-            animate={{ width: orbSize, height: orbSize }}
-            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          >
-            <div className="relative w-full h-full">
-              <PersonalizedOrb size={orbSize} state="idle" />
-            </div>
-          </motion.div>
+        <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full md:order-2">
+          <div className="relative flex items-center justify-center overflow-visible flex-1 min-h-[200px] w-full">
+            <PersonalizedOrb size={orbSize} state="idle" />
+          </div>
           {identityTitle && (
             <div className="flex items-center gap-1.5">
               <span className="text-base">{identityTitle.icon}</span>
@@ -153,7 +149,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 h-full">
+        <div ref={leftColRef} className="flex flex-col gap-2 h-full md:order-1">
           {/* Start Session button */}
           <button
             onClick={handleStartDailySession}
