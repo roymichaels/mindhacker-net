@@ -21,6 +21,7 @@ interface PillarHubLayoutProps {
   isLoading?: boolean;
   extraHeaderButtons?: ReactNode;
   journeyLabel?: { he: string; en: string };
+  hideHeader?: boolean;
   children: ReactNode;
 }
 
@@ -34,6 +35,7 @@ const PillarHubLayout = ({
   isLoading = false,
   extraHeaderButtons,
   journeyLabel,
+  hideHeader = false,
   children,
 }: PillarHubLayoutProps) => {
   const { isRTL, language } = useTranslation();
@@ -72,42 +74,43 @@ const PillarHubLayout = ({
   return (
     <DashboardLayout>
       <div className="space-y-6 pb-24 sm:pt-9" dir={isRTL ? "rtl" : "ltr"}>
-        {/* Header Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${colors.headerGradient} p-6 shadow-lg border ${colors.headerBorder}`}
-        >
-          <div className="relative z-10">
-            <div className="flex flex-col gap-3 mb-2">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 ${colors.iconBg} rounded-lg backdrop-blur-sm`}>
-                  <Icon className={`h-6 w-6 ${colors.iconColor} ${colors.iconFill || ''}`} />
+        {!hideHeader && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${colors.headerGradient} p-6 shadow-lg border ${colors.headerBorder}`}
+          >
+            <div className="relative z-10">
+              <div className="flex flex-col gap-3 mb-2">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 ${colors.iconBg} rounded-lg backdrop-blur-sm`}>
+                    <Icon className={`h-6 w-6 ${colors.iconColor} ${colors.iconFill || ''}`} />
+                  </div>
+                  <h1 className={`text-2xl md:text-3xl font-bold ${colors.titleColor}`}>
+                    {language === 'he' ? title.he : title.en}
+                  </h1>
                 </div>
-                <h1 className={`text-2xl md:text-3xl font-bold ${colors.titleColor}`}>
-                  {language === 'he' ? title.he : title.en}
-                </h1>
+                
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    onClick={() => navigate(journeyPath)}
+                    className={`flex-1 ${colors.primaryBtn}`}
+                  >
+                    <Rocket className="w-4 h-4 me-2" />
+                    {language === 'he' ? journeyText.he : journeyText.en}
+                  </Button>
+                  {extraHeaderButtons}
+                </div>
               </div>
-              
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Button
-                  onClick={() => navigate(journeyPath)}
-                  className={`flex-1 ${colors.primaryBtn}`}
-                >
-                  <Rocket className="w-4 h-4 me-2" />
-                  {language === 'he' ? journeyText.he : journeyText.en}
-                </Button>
-                {extraHeaderButtons}
-              </div>
+              <p className={`${colors.descColor} text-sm md:text-base`}>
+                {language === 'he' ? description.he : description.en}
+              </p>
             </div>
-            <p className={`${colors.descColor} text-sm md:text-base`}>
-              {language === 'he' ? description.he : description.en}
-            </p>
-          </div>
-          {/* Decorative elements */}
-          <div className={`absolute top-0 end-0 w-32 h-32 ${colors.circle1} rounded-full -translate-y-1/2 translate-x-1/2`} />
-          <div className={`absolute bottom-0 start-0 w-24 h-24 ${colors.circle2} rounded-full translate-y-1/2 -translate-x-1/2`} />
-        </motion.div>
+            {/* Decorative elements */}
+            <div className={`absolute top-0 end-0 w-32 h-32 ${colors.circle1} rounded-full -translate-y-1/2 translate-x-1/2`} />
+            <div className={`absolute bottom-0 start-0 w-24 h-24 ${colors.circle2} rounded-full translate-y-1/2 -translate-x-1/2`} />
+          </motion.div>
+        )}
 
         {children}
       </div>
