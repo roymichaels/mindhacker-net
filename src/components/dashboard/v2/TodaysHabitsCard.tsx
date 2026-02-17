@@ -41,17 +41,17 @@ export function TodaysHabitsCard() {
         allCompleted ? "from-emerald-500/10 to-transparent border-emerald-500/30" : "from-muted/30 to-transparent"
       )}
     >
-      <CardHeader className="pb-0.5 px-2.5 pt-2.5">
+      <CardHeader className="pb-1 px-4 pt-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xs font-semibold flex items-center gap-1.5">
-            <Sparkles className={cn("h-3.5 w-3.5", allCompleted ? "text-emerald-500" : "text-muted-foreground")} />
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Sparkles className={cn("h-4 w-4", allCompleted ? "text-emerald-500" : "text-muted-foreground")} />
             {language === 'he' ? 'הרגלים' : 'Habits'}
           </CardTitle>
-          <span className="text-[10px] text-muted-foreground font-medium">{completedCount}/{totalCount}</span>
+          <span className="text-xs text-muted-foreground font-medium">{completedCount}/{totalCount}</span>
         </div>
       </CardHeader>
-      <CardContent className="space-y-1 px-2.5 pb-2.5" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="space-y-0.5">
+      <CardContent className="space-y-2 px-4 pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="space-y-1">
           <AnimatePresence mode="popLayout">
             {habits.map((habit) => (
               <motion.button
@@ -63,25 +63,25 @@ export function TodaysHabitsCard() {
                 onClick={() => toggleHabit(habit.id, !habit.isCompleted)}
                 disabled={isToggling}
                 className={cn(
-                  "w-full flex items-center gap-2 py-1.5 px-2 rounded-lg text-start transition-all",
+                  "w-full flex items-center gap-2.5 py-2.5 px-3 rounded-lg text-start transition-all",
                   "hover:bg-muted/50",
                   habit.isCompleted ? "bg-emerald-500/10" : "bg-background/50 border border-border/50"
                 )}
               >
                 <div className={cn(
-                  "shrink-0 w-4 h-4 rounded-full flex items-center justify-center transition-all",
+                  "shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all",
                   habit.isCompleted ? "bg-emerald-500 text-white" : "border-2 border-muted-foreground/30"
                 )}>
-                  {habit.isCompleted && <Check className="h-2.5 w-2.5" />}
+                  {habit.isCompleted && <Check className="h-3 w-3" />}
                 </div>
-                <span className={cn("flex-1 text-xs", habit.isCompleted && "line-through text-muted-foreground")}>
+                <span className={cn("flex-1 text-sm", habit.isCompleted && "line-through text-muted-foreground")}>
                   {habit.title}
                 </span>
               </motion.button>
             ))}
           </AnimatePresence>
         </div>
-        <Progress value={progress} className={cn("h-1", allCompleted && "[&>div]:bg-emerald-500")} />
+        <Progress value={progress} className={cn("h-2", allCompleted && "[&>div]:bg-emerald-500")} />
       </CardContent>
     </Card>
   );

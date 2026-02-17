@@ -240,27 +240,27 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         {/* Animated glow */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
         
-        <CardContent className="p-3 relative">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <CardContent className="p-4 relative">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               {/* Icon */}
               <motion.div 
                 className={cn(
-                  "flex-shrink-0 p-2 rounded-xl",
+                  "flex-shrink-0 p-2.5 rounded-xl",
                   "bg-background/80 backdrop-blur-sm border border-border/50"
                 )}
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
-                <Icon className={cn("h-4 w-4", nextAction.iconColor)} />
+                <Icon className={cn("h-5 w-5", nextAction.iconColor)} />
               </motion.div>
               
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm line-clamp-2 sm:line-clamp-1">
+                <h3 className="font-semibold text-base line-clamp-2 sm:line-clamp-1">
                   {nextAction.title}
                 </h3>
-                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
                   {nextAction.subtitle}
                 </p>
               </div>

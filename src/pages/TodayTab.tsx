@@ -65,10 +65,10 @@ const TodayTab = () => {
   };
 
   return (
-    <PageShell className="space-y-2">
+    <PageShell className="space-y-3">
       <DashboardBannerSlider />
       <NextActionBanner onOpenHypnosis={handleOpenHypnosis} onOpenChat={handleOpenChat} />
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <TodaysHabitsCard />
         <ChecklistsCard />
       </div>
