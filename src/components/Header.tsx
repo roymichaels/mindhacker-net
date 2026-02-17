@@ -159,19 +159,36 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
     }
   };
 
-  // Guest Avatar Dropdown Component
-  const GuestAvatarDropdown = () => (
+
+  // Logo Component - Uses AuroraOrbIcon consistently across the app
+  // Hidden on mobile when logged in (logo is shown in mobile sidebar instead)
+  const LogoBrand = ({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) => (
+    <Link 
+      to={isAdminMode ? "/admin" : "/"} 
+      className={cn(
+        "flex items-center gap-2 hover:opacity-80 transition-opacity",
+        hiddenOnMobile && "hidden md:flex"
+      )}
+    >
+      <AuroraOrbIcon size={40} className="text-foreground flex-shrink-0" />
+      <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+        {isAdminMode ? t('admin.panelTitle') : brandName}
+      </span>
+    </Link>
+  );
+
+  // Guest Logo Dropdown - app name with dropdown menu for guests
+  const GuestLogoBrandDropdown = () => (
     <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/50 transition-all">
-          <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/30 shadow-lg shadow-primary/20">
-            <AvatarFallback className="bg-gradient-to-br from-primary/20 via-accent/20 to-primary/30 text-primary">
-              <User className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-        </Button>
+        <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none outline-none">
+          <AuroraOrbIcon size={40} className="text-foreground flex-shrink-0" />
+          <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
+            {brandName}
+          </span>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
+      <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
         <DropdownMenuLabel className="font-normal">
           <p className="text-sm font-medium leading-none">{t('header.guestMenu')}</p>
         </DropdownMenuLabel>
@@ -191,7 +208,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           {t('common.signup')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        {/* Language Switcher Sub-menu */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Globe className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
@@ -216,7 +232,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-        {/* Theme Toggle */}
         <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
           {isDark ? (
             <Sun className={isRTL ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
@@ -227,23 +242,6 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-
-  // Logo Component - Uses AuroraOrbIcon consistently across the app
-  // Hidden on mobile when logged in (logo is shown in mobile sidebar instead)
-  const LogoBrand = ({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) => (
-    <Link 
-      to={isAdminMode ? "/admin" : "/"} 
-      className={cn(
-        "flex items-center gap-2 hover:opacity-80 transition-opacity",
-        hiddenOnMobile && "hidden md:flex"
-      )}
-    >
-      <AuroraOrbIcon size={40} className="text-foreground flex-shrink-0" />
-      <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
-        {isAdminMode ? t('admin.panelTitle') : brandName}
-      </span>
-    </Link>
   );
 
   return (
@@ -269,8 +267,8 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                 )}
               </>
             ) : (
-              // Logged out: Logo + Brand on left
-              <LogoBrand />
+              // Logged out: Logo + Brand dropdown with guest menu
+              <GuestLogoBrandDropdown />
             )}
           </div>
 
@@ -312,10 +310,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
                   </Sheet>
                 )}
               </>
-            ) : (
-              // Logged out: Avatar dropdown on right
-              <GuestAvatarDropdown />
-            )}
+            ) : null}
           </div>
         </div>
       </header>
