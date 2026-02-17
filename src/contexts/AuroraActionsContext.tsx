@@ -9,12 +9,21 @@ interface AuroraActionsContextType {
   hypnosisModalOpen: boolean;
   dashboardModalOpen: boolean;
   dashboardInitialView: DashboardView;
+  settingsModalOpen: boolean;
+  profileDrawerOpen: boolean;
+  upgradeModalOpen: boolean;
   
   // Actions
   openHypnosis: () => void;
   openDashboard: (view?: DashboardView) => void;
   closeHypnosis: () => void;
   closeDashboard: () => void;
+  openSettings: () => void;
+  closeSettings: () => void;
+  openProfile: () => void;
+  closeProfile: () => void;
+  openUpgrade: () => void;
+  closeUpgrade: () => void;
 }
 
 const AuroraActionsContext = createContext<AuroraActionsContextType | undefined>(undefined);
@@ -27,23 +36,27 @@ export function AuroraActionsProvider({ children }: AuroraActionsProviderProps) 
   const [hypnosisModalOpen, setHypnosisModalOpen] = useState(false);
   const [dashboardModalOpen, setDashboardModalOpen] = useState(false);
   const [dashboardInitialView, setDashboardInitialView] = useState<DashboardView>('dashboard');
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
-  const openHypnosis = useCallback(() => {
-    setHypnosisModalOpen(true);
-  }, []);
-
-  const closeHypnosis = useCallback(() => {
-    setHypnosisModalOpen(false);
-  }, []);
+  const openHypnosis = useCallback(() => setHypnosisModalOpen(true), []);
+  const closeHypnosis = useCallback(() => setHypnosisModalOpen(false), []);
 
   const openDashboard = useCallback((view: DashboardView = 'dashboard') => {
     setDashboardInitialView(view);
     setDashboardModalOpen(true);
   }, []);
+  const closeDashboard = useCallback(() => setDashboardModalOpen(false), []);
 
-  const closeDashboard = useCallback(() => {
-    setDashboardModalOpen(false);
-  }, []);
+  const openSettings = useCallback(() => setSettingsModalOpen(true), []);
+  const closeSettings = useCallback(() => setSettingsModalOpen(false), []);
+
+  const openProfile = useCallback(() => setProfileDrawerOpen(true), []);
+  const closeProfile = useCallback(() => setProfileDrawerOpen(false), []);
+
+  const openUpgrade = useCallback(() => setUpgradeModalOpen(true), []);
+  const closeUpgrade = useCallback(() => setUpgradeModalOpen(false), []);
 
   return (
     <AuroraActionsContext.Provider
@@ -51,10 +64,19 @@ export function AuroraActionsProvider({ children }: AuroraActionsProviderProps) 
         hypnosisModalOpen,
         dashboardModalOpen,
         dashboardInitialView,
+        settingsModalOpen,
+        profileDrawerOpen,
+        upgradeModalOpen,
         openHypnosis,
         openDashboard,
         closeHypnosis,
         closeDashboard,
+        openSettings,
+        closeSettings,
+        openProfile,
+        closeProfile,
+        openUpgrade,
+        closeUpgrade,
       }}
     >
       {children}
