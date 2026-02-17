@@ -11,7 +11,7 @@ const Launchpad = () => {
   };
 
   const handleClose = () => {
-    navigate('/dashboard');
+    navigate('/today');
   };
 
   return (

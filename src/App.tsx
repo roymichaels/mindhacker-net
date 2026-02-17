@@ -33,6 +33,10 @@ const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const TodayTab = lazy(() => import("./pages/TodayTab"));
+const PlanTab = lazy(() => import("./pages/PlanTab"));
+const MeTab = lazy(() => import("./pages/MeTab"));
+const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
 
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
@@ -306,12 +310,14 @@ const App = () => (
                           }
                         />
 
-                        {/* Aurora route (protected) */}
+                        {/* Aurora route (protected) - Coach tab */}
                         <Route
                           path="/aurora"
                           element={
                             <ProtectedRoute>
-                              <Aurora />
+                              <DashboardLayout>
+                                <Aurora />
+                              </DashboardLayout>
                             </ProtectedRoute>
                           }
                         />
@@ -355,12 +361,43 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* User Dashboard */}
+                        {/* User Dashboard -> redirects to /today */}
                         <Route
                           path="/dashboard"
                           element={
                             <ProtectedRoute>
                               <UserDashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Tab routes */}
+                        <Route
+                          path="/today"
+                          element={
+                            <ProtectedRoute>
+                              <DashboardLayout>
+                                <TodayTab />
+                              </DashboardLayout>
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/plan"
+                          element={
+                            <ProtectedRoute>
+                              <DashboardLayout>
+                                <PlanTab />
+                              </DashboardLayout>
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/me"
+                          element={
+                            <ProtectedRoute>
+                              <DashboardLayout>
+                                <MeTab />
+                              </DashboardLayout>
                             </ProtectedRoute>
                           }
                         />

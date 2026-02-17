@@ -25,7 +25,7 @@ const Index = () => {
   // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
-      navigate('/dashboard', { replace: true });
+      navigate('/today', { replace: true });
     }
   }, [user, loading, navigate]);
   

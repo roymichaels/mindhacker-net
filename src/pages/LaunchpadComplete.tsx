@@ -149,7 +149,7 @@ export default function LaunchpadComplete() {
   }, [user, navigate]);
 
   const handleContinue = () => {
-    navigate('/dashboard');
+    navigate('/today');
   };
 
   // Parse welcome quiz data
