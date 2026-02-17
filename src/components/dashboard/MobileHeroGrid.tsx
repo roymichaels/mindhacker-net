@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Target, Headphones, Activity } from 'lucide-react';
+import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -144,7 +144,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Bottom: Stats row */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
+                { icon: Brain, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
                 { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
                 { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
               ].map((m) => (
@@ -162,7 +162,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               {[
                 { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
                 { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
-                { icon: Headphones, label: language === 'he' ? 'מועדף' : 'Favorite', value: sessionStats?.favoriteEgoState || '—', color: 'text-pink-500' },
+                { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-yellow-500' },
               ].map((m) => (
                 <div key={m.label} className="rounded-lg bg-muted/30 border border-border/50 px-2 py-2 flex flex-col items-center gap-1 text-center">
                   <m.icon className={cn("w-3.5 h-3.5 shrink-0", m.color)} />
@@ -237,7 +237,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <div className="flex flex-col gap-2 w-full">
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
+                  { icon: Brain, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
                   { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
                   { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
                 ].map((m) => (
@@ -255,7 +255,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 {[
                   { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
                   { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
-                  { icon: Headphones, label: language === 'he' ? 'מועדף' : 'Favorite', value: sessionStats?.favoriteEgoState || '—', color: 'text-pink-500' },
+                  { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-yellow-500' },
                 ].map((m) => (
                   <div key={m.label} className="rounded-lg bg-background/60 border border-border/40 p-1.5 flex flex-col items-center gap-0.5">
                     <m.icon className={cn("w-3.5 h-3.5", m.color)} />
