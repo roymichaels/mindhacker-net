@@ -382,29 +382,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             { icon: Clock, label: language === 'he' ? 'מינוף זמן' : 'Time Leverage', color: 'text-blue-500' },
             { icon: Activity, label: language === 'he' ? 'סיכון הורמונלי' : 'Hormonal Risk', color: 'text-orange-500' },
           ].map((d) => (
-            <div key={d.label} className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2">
+            <button
+              key={d.label}
+              onClick={() => setActiveModal('insights')}
+              className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer w-full text-start"
+            >
               <d.icon className={cn("w-4 h-4 shrink-0", d.color)} />
               <span className="text-xs font-medium flex-1">{d.label}</span>
-            </div>
+            </button>
           ))}
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
-          {/* Quick links */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setActiveModal('identity')}
-              className="rounded-lg bg-card/30 backdrop-blur-sm p-2 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
-            >
-              <UserCircle className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-[10px] font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('direction')}
-              className="rounded-lg bg-card/30 backdrop-blur-sm p-2 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
-            >
-              <Compass className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-[10px] font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
-            </button>
-          </div>
         </div>
       </div>
 
