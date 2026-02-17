@@ -318,7 +318,9 @@ const App = () => (
                           path="/hypnosis"
                           element={
                             <ProtectedRoute>
-                              <HypnosisLibrary />
+                              <DashboardLayout>
+                                <HypnosisLibrary />
+                              </DashboardLayout>
                             </ProtectedRoute>
                           }
                         />
