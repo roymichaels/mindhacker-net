@@ -208,7 +208,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:flex md:flex-col md:justify-between overflow-y-auto md:order-2 md:min-h-0 md:overflow-y-auto">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:flex md:flex-col overflow-y-auto md:order-2 md:min-h-0 md:overflow-y-auto">
           {/* Start Session button - desktop only */}
           <button
             onClick={handleStartDailySession}
@@ -331,7 +331,7 @@ function CollapsiblePlanRow({
 }: CollapsiblePlanRowProps) {
   const firstUndone = items?.find(i => !i.done);
   return (
-    <div className="rounded-xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden flex flex-col">
+    <div className="rounded-xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden flex flex-col md:flex-1">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent/5 transition-colors"
