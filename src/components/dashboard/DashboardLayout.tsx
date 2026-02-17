@@ -4,6 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
+import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { SettingsModal } from '@/components/settings';
 import { HypnosisModal } from './HypnosisModal';
@@ -29,7 +30,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <SidebarProvider>
           <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
-              <div className="flex h-12 items-center justify-end px-3">
+              <div className="flex h-12 items-center justify-between px-3">
+                <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
                 <HeaderActions compact onOpenHypnosis={() => setHypnosisOpen(true)} />
               </div>
             </header>
