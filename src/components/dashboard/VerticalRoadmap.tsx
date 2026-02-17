@@ -290,7 +290,7 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                   <div
                     key={milestone.id}
                     className={cn(
-                      "relative flex items-center gap-2.5 py-2.5 px-1 transition-all duration-300",
+                      "relative flex items-center gap-3 py-3 px-1 transition-all duration-300",
                       isHe && "flex-row-reverse",
                       isFuture && "opacity-30 blur-[0.5px]",
                       isCompleted && !isCurrent && "opacity-70"
@@ -320,24 +320,24 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
 
                     {/* Content card */}
                     <div className={cn(
-                      "flex-1 min-w-0 flex items-center gap-2 rounded-lg px-2.5 py-1.5",
+                      "flex-1 min-w-0 flex items-center gap-2.5 rounded-lg px-3 py-2",
                       isCurrent && "bg-amber-500/15 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
-                      isCompleted && !isCurrent && "bg-muted/10 rounded-md px-2 py-1",
+                      isCompleted && !isCurrent && "bg-muted/10 rounded-md px-2.5 py-1.5",
                     )}>
                       <span className={cn(
-                        "text-[11px] font-bold shrink-0",
+                        "text-xs font-bold shrink-0",
                         isCurrent ? "text-amber-500" : isCompleted ? "text-emerald-500" : "text-muted-foreground"
                       )}>
                         {isHe ? `ש׳${milestone.week_number}` : `W${milestone.week_number}`}
                       </span>
                       <p className={cn(
-                        "text-xs leading-snug truncate",
+                        "text-sm leading-snug truncate",
                         isCurrent ? "text-foreground font-semibold" : "text-muted-foreground"
                       )}>
                         {milestone.title}
                       </p>
                       {isCurrent && (
-                        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0">
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0">
                           {isHe ? 'כאן' : 'NOW'}
                         </span>
                       )}
