@@ -82,15 +82,19 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextHabit = habits.find(h => !h.isCompleted);
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-start">
       {/* ===== ROW 1 / RIGHT COL - HUD ===== */}
       <div className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-muted/30 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-950 p-4 flex flex-col items-center gap-3">
-        <div className="relative">
+        <motion.div
+          className="relative"
+          animate={{ width: expandedSection ? 120 : 64, height: expandedSection ? 120 : 64 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl scale-150" />
-          <div className="relative" style={{ width: 64, height: 64 }}>
-            <PersonalizedOrb size={64} state="idle" />
+          <div className="relative w-full h-full">
+            <PersonalizedOrb size={expandedSection ? 120 : 64} state="idle" />
           </div>
-        </div>
+        </motion.div>
         {identityTitle && (
           <div className="flex items-center gap-1.5">
             <span className="text-base">{identityTitle.icon}</span>
