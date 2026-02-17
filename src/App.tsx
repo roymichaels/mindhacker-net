@@ -186,9 +186,9 @@ const App = () => (
         <div className="relative z-10">
             <AuthProvider>
               <AuroraChatProvider>
-              <AuthModalProvider>
-              <GameStateProvider>
-              <LanguageProvider>
+               <LanguageProvider>
+               <AuthModalProvider>
+               <GameStateProvider>
                 <PractitionersModalProvider>
                 <TooltipProvider>
                   <Toaster />
@@ -724,9 +724,9 @@ const App = () => (
                 </BrowserRouter>
                 </TooltipProvider>
                 </PractitionersModalProvider>
-              </LanguageProvider>
-            </GameStateProvider>
-            </AuthModalProvider>
+              </GameStateProvider>
+             </AuthModalProvider>
+               </LanguageProvider>
             </AuroraChatProvider>
           </AuthProvider>
         </div>
