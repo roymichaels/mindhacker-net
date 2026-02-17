@@ -81,16 +81,16 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextHabit = habits.find(h => !h.isCompleted);
 
   // Orb size: small when collapsed, fills available space when expanded
-  const orbSize = expandedSection ? 200 : 64;
+  const orbSize = expandedSection ? 320 : 64;
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-start">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
       {/* ===== COL 1 (RIGHT in RTL) - HUD ===== */}
-      <div className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-muted/30 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-950 p-4 flex flex-col items-center gap-3">
+      <div className="rounded-2xl border border-border bg-card p-4 flex flex-col items-center gap-3 h-full">
         <motion.div
           className="relative flex items-center justify-center"
           animate={{ width: orbSize, height: orbSize }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
         >
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl scale-150" />
           <div className="relative w-full h-full">
@@ -122,7 +122,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
             { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
           ].map((m) => (
-            <div key={m.label} className="rounded-xl bg-muted/30 dark:bg-muted/10 border border-border/50 p-2.5 flex flex-col items-center gap-1">
+            <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
               <m.icon className={cn("w-4 h-4", m.color)} />
               <span className="text-lg font-bold leading-none">{m.value}</span>
               <span className="text-[10px] text-muted-foreground">{m.label}</span>
