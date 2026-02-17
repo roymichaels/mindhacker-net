@@ -12,6 +12,8 @@ import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
 import { LifestyleRoutineStep } from './steps/LifestyleRoutineStep';
 import { GrowthDeepDiveStep } from './steps/GrowthDeepDiveStep';
+import { FlowRenderer } from '@/components/flow/FlowRenderer';
+import { coreLaunchpadSpec } from '@/flows/coreLaunchpadSpec';
 import { FirstChatStep } from './steps/FirstChatStep';
 import { IntrospectionStep } from './steps/IntrospectionStep';
 import { LifePlanStep } from './steps/LifePlanStep';
