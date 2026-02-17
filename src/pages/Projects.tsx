@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectCard } from '@/components/projects/ProjectCard';
@@ -20,7 +19,7 @@ const Projects = () => {
   const otherProjects = projects.filter(p => p.status !== 'active');
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6 max-w-5xl mx-auto w-full" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-transparent p-6">
@@ -109,7 +108,7 @@ const Projects = () => {
 
       <AddProjectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
       <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />
-    </DashboardLayout>
+    </>
   );
 };
 
