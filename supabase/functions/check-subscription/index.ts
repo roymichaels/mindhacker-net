@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -28,54 +27,33 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Auth error: ${userError.message}`);
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
+    if (!user) throw new Error("User not authenticated");
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    // Read from DB (webhook keeps it current) instead of hitting Stripe API
+    const { data: sub } = await supabaseClient
+      .from("user_subscriptions")
+      .select("status, product_id, end_date, cancel_at_period_end, stripe_subscription_id")
+      .eq("user_id", user.id)
+      .in("status", ["active", "trialing"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-
-    if (customers.data.length === 0) {
+    if (!sub) {
       return new Response(JSON.stringify({ subscribed: false, tier: "free" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-
-    // Also check trialing
-    let activeSub = subscriptions.data[0] || null;
-    if (!activeSub) {
-      const trialSubs = await stripe.subscriptions.list({
-        customer: customerId,
-        status: "trialing",
-        limit: 1,
-      });
-      activeSub = trialSubs.data[0] || null;
-    }
-
-    if (!activeSub) {
-      return new Response(JSON.stringify({ subscribed: false, tier: "free" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const productId = activeSub.items.data[0]?.price?.product;
-    const isPro = productId === PRO_PRODUCT_ID;
-    const subscriptionEnd = new Date(activeSub.current_period_end * 1000).toISOString();
+    const isPro = sub.product_id === PRO_PRODUCT_ID;
 
     return new Response(JSON.stringify({
       subscribed: true,
       tier: isPro ? "pro" : "free",
-      product_id: productId,
-      subscription_end: subscriptionEnd,
-      subscription_status: activeSub.status,
+      product_id: sub.product_id,
+      subscription_end: sub.end_date,
+      subscription_status: sub.status,
+      cancel_at_period_end: sub.cancel_at_period_end,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

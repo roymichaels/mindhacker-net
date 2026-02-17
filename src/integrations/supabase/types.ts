@@ -4810,6 +4810,8 @@ export type Database = {
           level: number | null
           preferred_language: string | null
           session_streak: number | null
+          stripe_customer_id: string | null
+          subscription_tier: string | null
           tokens: number | null
           updated_at: string | null
         }
@@ -4826,6 +4828,8 @@ export type Database = {
           level?: number | null
           preferred_language?: string | null
           session_streak?: number | null
+          stripe_customer_id?: string | null
+          subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
         }
@@ -4842,6 +4846,8 @@ export type Database = {
           level?: number | null
           preferred_language?: string | null
           session_streak?: number | null
+          stripe_customer_id?: string | null
+          subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
         }
@@ -5732,12 +5738,15 @@ export type Database = {
         Row: {
           affiliate_code: string | null
           billing_cycle: string
+          cancel_at_period_end: boolean | null
           cancellation_reason: string | null
           cancelled_at: string | null
           created_at: string | null
           end_date: string | null
           id: string
           next_billing_date: string | null
+          price_id: string | null
+          product_id: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
@@ -5750,12 +5759,15 @@ export type Database = {
         Insert: {
           affiliate_code?: string | null
           billing_cycle?: string
+          cancel_at_period_end?: boolean | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string | null
           end_date?: string | null
           id?: string
           next_billing_date?: string | null
+          price_id?: string | null
+          product_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
@@ -5768,12 +5780,15 @@ export type Database = {
         Update: {
           affiliate_code?: string | null
           billing_cycle?: string
+          cancel_at_period_end?: boolean | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string | null
           end_date?: string | null
           id?: string
           next_billing_date?: string | null
+          price_id?: string | null
+          product_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
@@ -6529,6 +6544,9 @@ export type Database = {
         | "expired"
         | "trial"
         | "paused"
+        | "trialing"
+        | "past_due"
+        | "unpaid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6692,6 +6710,9 @@ export const Constants = {
         "expired",
         "trial",
         "paused",
+        "trialing",
+        "past_due",
+        "unpaid",
       ],
     },
   },

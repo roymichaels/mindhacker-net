@@ -22,6 +22,7 @@ export interface SubscriptionGate {
 
 const FREE_DAILY_MESSAGES = 5;
 const FREE_MAX_HABITS = 3;
+const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
 
 export const useSubscriptionGate = (): SubscriptionGate => {
   const { user } = useAuth();
@@ -31,19 +32,20 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   const { data: subData, isLoading: subLoading, refetch } = useQuery({
     queryKey: ["subscription-status", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("check-subscription");
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("status, product_id, end_date, cancel_at_period_end")
+        .eq("user_id", user!.id)
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
-      return data as {
-        subscribed: boolean;
-        tier: "free" | "pro";
-        product_id?: string;
-        subscription_end?: string;
-        subscription_status?: string;
-      };
+      return data;
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 60 * 1000, // every minute
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   });
 
   // Get daily message count
@@ -64,7 +66,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     staleTime: 30 * 1000,
   });
 
-  const isPro = subData?.tier === "pro" && subData?.subscribed === true;
+  const isPro = !!subData && subData.product_id === PRO_PRODUCT_ID;
   const dailyCount = messageData ?? 0;
   const messagesRemaining = isPro ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
 
@@ -86,7 +88,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     canAccessHypnosis: isPro,
     canAccessNudges: isPro,
     maxHabits: isPro ? Infinity : FREE_MAX_HABITS,
-    subscriptionEnd: subData?.subscription_end ?? null,
+    subscriptionEnd: subData?.end_date ?? null,
     showUpgradePrompt,
     upgradeFeature,
     dismissUpgrade,
