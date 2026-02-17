@@ -36,17 +36,21 @@ const PlanTab = () => {
   }
 
   return (
-    <PageShell className="space-y-6">
+    <PageShell className="space-y-8">
+      <div className="flex justify-end">
+        <span className="text-[10px] font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">UI V2</span>
+      </div>
+
       {/* Hero progress summary */}
       <PlanProgressHero />
 
       {/* Today's Missions */}
-      <section className="space-y-3">
+      <section className="space-y-4">
         <SectionHeader
           icon={ListChecks}
           title={language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}
         />
-        <div className="rounded-2xl border border-border bg-card shadow-sm p-4">
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-6">
           <TasksPanel />
         </div>
       </section>

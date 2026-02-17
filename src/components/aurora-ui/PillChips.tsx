@@ -28,7 +28,7 @@ export function PillChips({ items, colorScheme = 'primary', maxItems, className 
         <span
           key={i}
           className={cn(
-            'px-3 py-1 rounded-full text-sm font-medium border',
+            'px-3 py-1.5 rounded-full text-sm font-medium border',
             colorMap[colorScheme]
           )}
         >
