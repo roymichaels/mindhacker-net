@@ -23,7 +23,7 @@ import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
-import BugReportWidget from "@/components/BugReportWidget";
+
 import { PageSkeleton } from "@/components/ui/skeleton";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -66,7 +66,7 @@ const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
 const CommunityProfile = lazy(() => import("./pages/CommunityProfile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
-const Aurora = lazy(() => import("./pages/Aurora"));
+
 const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
 
 const Launchpad = lazy(() => import("./pages/Launchpad"));
@@ -310,17 +310,7 @@ const App = () => (
                           }
                         />
 
-                        {/* Aurora route (protected) - Coach tab */}
-                        <Route
-                          path="/aurora"
-                          element={
-                            <ProtectedRoute>
-                              <DashboardLayout>
-                                <Aurora />
-                              </DashboardLayout>
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Aurora route removed - chat is globally docked */}
 
                         {/* Hypnosis routes (protected) */}
                         <Route
@@ -741,7 +731,7 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
-                      <BugReportWidget />
+                      
                       
                     </Suspense>
                   </AnalyticsProvider>

@@ -1,16 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Target, Sparkles, User } from 'lucide-react';
+import { LayoutDashboard, Target, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const tabs = [
   { id: 'today', path: '/today', icon: LayoutDashboard, labelEn: 'Today', labelHe: 'היום' },
   { id: 'plan', path: '/plan', icon: Target, labelEn: 'Plan', labelHe: 'תוכנית' },
-  { id: 'aurora', path: '/aurora', icon: Sparkles, labelEn: 'Aurora', labelHe: 'אורורה' },
   { id: 'me', path: '/me', icon: User, labelEn: 'Me', labelHe: 'אני' },
 ];
 
