@@ -125,7 +125,7 @@ export default function FinalCTASection() {
             >
               <Button
                 size="lg"
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate('/launchpad')}
                 className="group text-xl px-12 py-8 rounded-2xl 
                   bg-gradient-to-br from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
                   hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800

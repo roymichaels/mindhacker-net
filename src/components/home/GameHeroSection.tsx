@@ -341,7 +341,7 @@ export default function GameHeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate('/launchpad')}
                 className="text-lg px-8 py-6 rounded-2xl border-2 border-border/80 
                   hover:border-primary/50 hover:bg-primary/5
                   group transition-all duration-300"
