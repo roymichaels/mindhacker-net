@@ -80,7 +80,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   const handleEditJourney = () => {
     onClose?.();
-    navigate(isLaunchpadComplete ? '/quests' : '/launchpad');
+    navigate('/onboarding');
   };
 
   if (isLoading) {
