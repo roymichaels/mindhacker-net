@@ -1,220 +1,174 @@
 
 
-# Phase 0 + Phase 1: PRODUCT_SPEC.md and Tab Mapping
+# Phase 2: App Command Bus -- Make Aurora the Operator
 
-## Deliverable
+## Problem
 
-Create a single `PRODUCT_SPEC.md` file at the project root that serves as the frozen source of truth. This prevents "assistant drift" by codifying exactly what each tab does, what Aurora can do, and what gating rules apply.
+Aurora has two disconnected command systems and an unused trust/confirmation layer:
 
-No UI or code changes -- this is a documentation-only step.
+1. **`useAuroraCommands`** handles navigation, settings, mode commands -- but is never imported anywhere.
+2. **`processActionTags`** (inside `useAuroraChat`, 300+ lines) handles task/habit/checklist/milestone mutations -- tightly coupled to the chat hook, no confirmation flow.
+3. **`useActionTrust`** + **`AuroraActionConfirmation`** exist but are not wired to anything.
+
+Result: Aurora executes destructive actions (delete task, archive checklist) silently with no user confirmation, and navigation commands are dead code.
 
 ---
 
-## PRODUCT_SPEC.md Contents
-
-### Section 1: The 4 Tabs
+## Architecture
 
 ```text
-Tab 1: TODAY (/today)
-  Label: Today / היום
-  Icon: LayoutDashboard
-  Purpose: "What matters in the next 3 hours"
-  MVP Behaviors:
-    - DashboardBannerSlider (auto-sliding in-game banners)
-    - NextActionBanner (priority-based single action: Launchpad > Nudges > Overdue > Habits > Hypnosis > Milestone > Chat)
-    - TodaysHabitsCard (daily habit checklist with completion toggles)
-    - ChecklistsCard (task items from 90-day plan milestones)
-    - HypnosisModal (triggered from banner, gated by launchpad completion)
-  Data sources: action_items, aurora_proactive_queue, user_notifications, xp_events, profiles
-  Existing files:
-    - src/pages/TodayTab.tsx
-    - src/components/dashboard/v2/NextActionBanner.tsx
-    - src/components/dashboard/v2/TodaysHabitsCard.tsx
-    - src/components/dashboard/unified/ChecklistsCard.tsx
-    - src/components/dashboard/DashboardBannerSlider.tsx
-
-Tab 2: PLAN (/plan)
-  Label: Plan / תוכנית
-  Icon: Target
-  Purpose: "Your 90-day transformation roadmap"
-  MVP Behaviors:
-    - PlanProgressHero (overall plan % and current week)
-    - GoalsCard (milestones grouped by month 1/2/3)
-    - PlanProgressCard (week-by-week progress)
-    - LifeAnalysisChart (8-pillar radar/pie)
-    - Pro-gated: free users see ProGateOverlay
-  Data sources: life_plans, life_plan_milestones, action_items, aurora_life_model
-  Existing files:
-    - src/pages/PlanTab.tsx
-    - src/components/dashboard/v2/PlanProgressHero.tsx
-    - src/components/dashboard/v2/GoalsCard.tsx
-    - src/components/dashboard/v2/PlanProgressCard.tsx
-    - src/components/dashboard/v2/LifeAnalysisChart.tsx
-
-Tab 3: COACH (/aurora)
-  Label: Aurora / אורורה
-  Icon: Sparkles
-  Purpose: "Your AI coaching conversation"
-  MVP Behaviors:
-    - Full-screen AuroraChatArea (message history + streaming responses)
-    - Launchpad flow (if not complete, show LaunchpadIntro then LaunchpadFlow)
-    - AuroraChatInput with voice recording, image attach
-    - AuroraActionsProvider for in-chat action buttons
-    - Message count gating for free users (5/day)
-  Data sources: aurora_conversations, aurora_messages, daily_message_counts
-  Existing files:
-    - src/pages/Aurora.tsx
-    - src/components/aurora/AuroraLayout.tsx
-    - src/components/aurora/AuroraChatArea.tsx
-    - src/components/aurora/AuroraChatInput.tsx
-
-Tab 4: ME (/me)
-  Label: Me / אני
-  Icon: User
-  Purpose: "Your identity, stats, and settings"
-  MVP Behaviors:
-    - StatsGrid (Level, Streak, Weekly XP, Tokens)
-    - Profile button -> ProfileDrawer (identity card, orb, achievements)
-    - Settings button -> SettingsModal (profile, aurora prefs, appearance, account)
-  Data sources: profiles, xp_events, user_subscriptions
-  Existing files:
-    - src/pages/MeTab.tsx
-    - src/components/dashboard/v2/StatsGrid.tsx
-    - src/components/dashboard/ProfileDrawer.tsx
-    - src/components/settings/SettingsModal.tsx
-```
-
-### Section 2: Aurora Dock Capabilities
-
-```text
-AURORA DOCK (GlobalChatInput -- floats above tabs 1, 2, 4; hidden on tab 3)
-
-Current capabilities (TODAY):
-  - Text message send to Aurora AI
-  - Voice recording + transcription (Whisper)
-  - Image attach (UI ready, backend TODO)
-  - Subscription gate: 5 msgs/day free, unlimited Pro
-  - Messages remaining counter (free users)
-  - UpgradePromptModal on limit hit
-  - AuroraChatBubbles: shows last 2-3 responses inline above input
-
-Current capabilities (NEXT -- not yet built):
-  - Deep-link actions from Aurora responses (navigate to specific tabs/modals)
-  - One-tap habit creation from chat
-  - One-tap task completion from chat
-  - Image analysis (backend support)
-  - Proactive push-to-chat (nudge appears as chat bubble)
-
-Existing files:
-  - src/components/dashboard/GlobalChatInput.tsx
-  - src/components/aurora/AuroraChatBubbles.tsx
-  - src/components/aurora/VoiceRecordingButton.tsx
-```
-
-### Section 3: Gating Rules
-
-```text
-GATING ARCHITECTURE
-
-Source of truth: useSubscriptionGate hook
-  File: src/hooks/useSubscriptionGate.ts
-  Reads: user_subscriptions table (status IN active/trialing)
-  Product ID for Pro: prod_TzbSX1sFG1woDZ
-
-FREE TIER:
-  - Aurora messages: 5/day (tracked in daily_message_counts, incremented via RPC)
-  - Habits: max 3
-  - Plan tab: LOCKED (ProGateOverlay)
-  - Hypnosis: LOCKED (ProGateOverlay)
-  - Proactive nudges: LOCKED
-  - Today tab: FULL ACCESS
-  - Me tab: FULL ACCESS
-  - Coach tab: ACCESS with message limit
-
-PRO TIER:
-  - Everything unlimited
-
-UI COMPONENTS:
-  - ProGateOverlay (src/components/subscription/ProGateOverlay.tsx)
-    Full-page lock state with upgrade CTA. Used in PlanTab, LifePlan, HypnosisModal.
-  - UpgradePromptModal (src/components/subscription/UpgradePromptModal.tsx)
-    Dialog triggered by useSubscriptionGate.showUpgradePrompt(). Used in GlobalChatInput, AuroraChatInput.
-
-ENFORCEMENT STATUS:
-  - GlobalChatInput: ENFORCED (canSendMessage check + daily count increment)
-  - AuroraChatInput: ENFORCED (same pattern)
-  - PlanTab: ENFORCED (ProGateOverlay)
-  - LifePlan page: ENFORCED (ProGateOverlay)
-  - HypnosisModal: ENFORCED (canAccessHypnosis check)
-  - Habit creation: NOT YET ENFORCED (maxHabits check exists in hook but not wired in createDailyHabit)
-  - Proactive nudge click-through: NOT YET ENFORCED
-
-STRIPE FLOW:
-  - create-checkout-session -> Stripe Checkout (with client_reference_id = user.id)
-  - stripe-webhook -> upserts user_subscriptions + updates profiles.subscription_tier
-  - check-subscription -> reads from DB (no longer calls Stripe API)
-  - customer-portal -> opens Stripe billing portal
-```
-
-### Section 4: Tab-to-Component Mapping (Phase 1)
-
-```text
-EXISTING BUILDING BLOCKS -> TAB ASSIGNMENT
-
-TODAY tab composes:
-  [ACTIVE] DashboardBannerSlider
-  [ACTIVE] NextActionBanner (v2)
-  [ACTIVE] TodaysHabitsCard (v2)
-  [ACTIVE] ChecklistsCard (unified)
-  [ACTIVE] HypnosisModal
-  [SHADOW - NOT USED IN TODAY] StatsGrid (lives in MeTab instead)
-  [SHADOW - NOT USED IN TODAY] PlanProgressHero (lives in PlanTab)
-
-PLAN tab composes:
-  [ACTIVE] PlanProgressHero (v2)
-  [ACTIVE] GoalsCard (v2)
-  [ACTIVE] PlanProgressCard (v2)
-  [ACTIVE] LifeAnalysisChart (v2)
-  [SHADOW - AVAILABLE] Life Plan expanded view (/life-plan page)
-  [SHADOW - AVAILABLE] Pillar hub pages (8x hubs at /health, /business, etc.)
-  [SHADOW - AVAILABLE] Journey flows (8x at /health/journey, /business/journey, etc.)
-
-COACH tab composes:
-  [ACTIVE] AuroraLayout (handles launchpad gating)
-  [ACTIVE] AuroraChatArea
-  [ACTIVE] AuroraChatInput
-  [ACTIVE] AuroraActionsProvider
-
-ME tab composes:
-  [ACTIVE] StatsGrid (v2)
-  [ACTIVE] ProfileDrawer
-  [ACTIVE] SettingsModal
-  [SHADOW - AVAILABLE] Purchases / subscription management
-  [SHADOW - AVAILABLE] PDF report exports
-  [SHADOW - AVAILABLE] Achievement badges
-
-FLOATING (all tabs):
-  [ACTIVE] GlobalChatInput (hidden on /aurora)
-  [ACTIVE] AuroraChatBubbles (hidden on /aurora)
-  [ACTIVE] BottomTabBar (mobile)
-  [ACTIVE] TopNavBar (desktop)
-
-ROUTES NOT IN ANY TAB (SHADOW):
-  /dashboard -> redirects to /today (legacy)
-  /life-plan -> standalone plan view (could be linked from Plan tab)
-  /projects -> premium projects hub
-  /launchpad -> standalone launchpad (also embedded in Aurora)
-  /health, /business, /consciousness, etc. -> pillar hubs
-  /*/journey -> pillar journey flows
-  /hypnosis -> standalone hypnosis library
-  /community/* -> community system (DEAD)
-  /messages/* -> messaging system (DEAD)
+Aurora AI Response
+       |
+       v
+  Tag Parser (extract all [command:...] tags)
+       |
+       v
+  Command Bus (single dispatch point)
+       |
+       +---> Trust Check (useActionTrust)
+       |         |
+       |    auto_execute? -----> Execute immediately
+       |         |
+       |    always_ask? -------> Show AuroraActionConfirmation
+       |                              |
+       |                         User confirms --> Execute
+       |                         User denies  --> Skip
+       |
+       +---> Execute Command
+       |         |
+       |    Mutation commands --> DB write + invalidate queries
+       |    Navigation commands --> router.navigate()
+       |    Modal commands --> open modal via context
+       |    Setting commands --> setTheme, etc.
+       |
+       +---> Action Receipt + Toast
 ```
 
 ---
 
-## Implementation
+## Files to Create/Modify
 
-Single file creation: `PRODUCT_SPEC.md` at project root containing all 4 sections above, formatted as clean markdown. No code changes, no migrations, no component modifications.
+### 1. NEW: `src/lib/commandBus.ts` -- Command Registry (pure TS, no React)
 
-This document becomes the contract that all future prompts reference before making changes.
+Defines the canonical command types and their payloads:
+
+```text
+Commands:
+  openTab(tabId: 'today' | 'plan' | 'aurora' | 'me')
+  openModal(modalId: 'hypnosis' | 'settings' | 'profile' | 'upgrade', payload?)
+  createActionItem(type, title, checklistTitle?)
+  completeActionItem(identifier)
+  deleteActionItem(identifier)
+  rescheduleActionItem(identifier, newDate)
+  createHabit(name)
+  completeHabit(name)
+  removeHabit(name)
+  createChecklist(title)
+  archiveChecklist(title)
+  renameChecklist(oldTitle, newTitle)
+  completeMilestone(weekNumber)
+  updatePlan(weekNumber, field, value)
+  addIdentity(elementType, content)
+  removeIdentity(elementType, content)
+  setReminder(message, date)
+  setFocus(title, days)
+  setTheme(value)
+  toggleTheme()
+  triggerAnalysis()
+```
+
+Each command is a typed discriminated union:
+```typescript
+type AppCommand =
+  | { type: 'openTab'; tabId: string }
+  | { type: 'openModal'; modalId: string; payload?: Record<string, any> }
+  | { type: 'createActionItem'; title: string; checklistTitle?: string }
+  | { type: 'completeActionItem'; identifier: string; checklistTitle?: string }
+  // ... etc
+```
+
+A `parseAllTags(content: string): AppCommand[]` function replaces the scattered regex parsing. It handles all tag formats from both `useAuroraCommands` and `processActionTags`.
+
+A `classifyRisk(command: AppCommand): 'safe' | 'moderate' | 'destructive'` function determines confirmation requirements:
+- **safe**: navigation, theme, analysis -- always auto-execute
+- **moderate**: create task, complete task, log habit -- respect trust preferences
+- **destructive**: delete task, archive checklist, remove habit -- always confirm unless trust is `auto_execute`
+
+### 2. NEW: `src/hooks/aurora/useCommandBus.tsx` -- React Hook
+
+The single dispatcher that:
+- Receives `AppCommand[]` from tag parsing
+- For each command, checks `useActionTrust.shouldAutoExecute(command.type)`
+- If auto-execute or safe: runs immediately, emits receipt + toast
+- If needs confirmation: queues command into a `pendingCommands` state
+- Exposes `confirmCommand(id)` and `rejectCommand(id)` for the confirmation UI
+- After execution, calls `useActionTrust.recordExecution(command.type)`
+- Returns `{ pendingCommands, confirmCommand, rejectCommand, lastReceipts }`
+
+Internally uses:
+- `useNavigate()` for tab/page navigation
+- `useAuroraActions()` for modal control (hypnosis, dashboard)
+- `useChecklistsData()` for task/checklist mutations
+- `useDailyHabits()` for habit mutations
+- Direct Supabase calls for milestones, identity, focus, reminders (moved from useAuroraChat)
+
+### 3. MODIFY: `src/hooks/aurora/useAuroraChat.tsx` -- Slim Down
+
+Remove the 300-line `processActionTags` function and all individual mutation functions (createDailyHabit, removeHabit, updateMilestone, addIdentityElement, etc.).
+
+Replace with:
+```typescript
+const { dispatchCommands, pendingCommands } = useCommandBus();
+
+// After streaming completes:
+const commands = parseAllTags(fullContent);
+const cleanedContent = stripAllTags(fullContent);
+await dispatchCommands(commands);
+```
+
+This reduces `useAuroraChat` from ~1037 lines to ~400 lines.
+
+### 4. MODIFY: `src/components/aurora/AuroraChatArea.tsx` -- Render Confirmations
+
+Import `useCommandBus` (or receive pending commands as props) and render `AuroraActionConfirmation` cards inline in the chat for any pending commands. When user confirms/rejects, call the bus methods.
+
+### 5. MODIFY: `src/contexts/AuroraActionsContext.tsx` -- Expand Modal Registry
+
+Add entries for all modals that Aurora can trigger:
+- `settingsModalOpen` + `openSettings()` / `closeSettings()`
+- `profileDrawerOpen` + `openProfile()` / `closeProfile()`
+- `upgradeModalOpen` + `openUpgrade()` / `closeUpgrade()`
+
+This makes `openModal('settings')` work through the context rather than ad-hoc navigation.
+
+### 6. MODIFY: `src/hooks/aurora/index.ts` -- Export new hook
+
+Add `export { useCommandBus } from './useCommandBus'`.
+
+---
+
+## What Does NOT Change
+
+- `AuroraActionConfirmation.tsx` -- UI component is already built, used as-is
+- `useActionTrust.tsx` -- Trust system is already built, used as-is
+- `aurora_action_preferences` table -- Already exists with correct schema and RLS
+- Edge functions -- No backend changes
+- Database -- No migrations needed
+
+## Confirmation Flow (User Experience)
+
+1. Aurora responds with: "Done! I completed the task for you. [task:complete:Morning:Meditate]"
+2. Command bus parses the tag, checks trust for `completeActionItem`
+3. If user has never done this before (trust = `always_ask`):
+   - A small confirmation card appears in chat: "Complete Task: Meditate (in Morning checklist)? [Yes] [No] [Always Allow]"
+4. User taps "Yes" -- task completes, toast appears, receipt logged
+5. User taps "Always Allow" -- trust level saved to DB, future completions auto-execute
+6. After 5 auto-executions, system suggests promoting other similar actions
+
+## Risk Classification
+
+| Risk | Commands | Behavior |
+|------|----------|----------|
+| Safe | openTab, openModal, setTheme, toggleTheme, triggerAnalysis | Always auto-execute, no confirmation |
+| Moderate | createActionItem, completeActionItem, createHabit, completeHabit, completeMilestone, setReminder, setFocus, addIdentity | Respect trust preferences (default: auto for create/complete) |
+| Destructive | deleteActionItem, archiveChecklist, removeHabit, removeIdentity | Always confirm unless trust is `auto_execute` |
