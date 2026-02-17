@@ -1,47 +1,67 @@
 
 
-# Move Identity/Direction/Insights Buttons & Add Translation Keys
+# Fix PWA Icon Disappearing When Saving to Home Screen
 
-## Layout Change
+## Problem
 
-The Identity, Direction, and Insights buttons currently sit at the bottom of the center column (Col 2). They need to move into the HUD column (Col 1), directly below the "Start Session" button -- on both mobile and desktop.
+iOS (and some Android browsers) don't support SVG for home screen icons. The current setup points `apple-touch-icon` and the PWA manifest exclusively to `/aurora-icon.svg`. The icon flashes briefly (from the page screenshot) then disappears when the OS tries to process the SVG and fails.
 
-### Mobile (lines 176-188 in MobileHeroGrid.tsx)
-After the existing "Start Session" button (inside the `lg:hidden` mobile block), insert the 3-button grid that's currently at lines 327-350.
+PNG icon files already exist in `public/` but aren't referenced:
+- `apple-touch-icon.png`
+- `pwa-192x192.png`
+- `pwa-512x512.png`
+- `icon-192x192.png`
+- `icon-512x512.png`
 
-### Desktop (lines 252-264 in MobileHeroGrid.tsx)
-After the desktop "Start Session" button, insert a copy of the same 3-button grid.
+## Changes
 
-### Remove from Col 2
-Delete the original button grid and its separator (lines 325-350) from the center column.
+### 1. `index.html` — Point apple-touch-icon to PNG
 
-## Translation Keys
+Replace all four `apple-touch-icon` lines (48-51) to reference the existing PNG file instead of SVG:
 
-Add proper translation keys instead of inline `language === 'he' ? ... : ...` for all affected strings. New keys to add in both `he.ts` and `en.ts`:
+```html
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon.png" />
+```
 
-| Key | Hebrew | English |
-|-----|--------|---------|
-| `dashboard.identity` | זהות | Identity |
-| `dashboard.direction` | כיוון | Direction |
-| `dashboard.insights` | תובנות | Insights |
-| `dashboard.startSession` | התחל סשן | Start Session |
-| `dashboard.minutes` | דק׳ | min |
+### 2. `vite.config.ts` — Add PNG icons to PWA manifest
 
-These will replace all inline ternaries for these labels in MobileHeroGrid.tsx.
+Update the manifest `icons` array to include the existing PNG files alongside the SVG:
 
-## Technical Details
+```js
+icons: [
+  {
+    src: "/pwa-192x192.png",
+    sizes: "192x192",
+    type: "image/png",
+    purpose: "any"
+  },
+  {
+    src: "/pwa-512x512.png",
+    sizes: "512x512",
+    type: "image/png",
+    purpose: "any"
+  },
+  {
+    src: "/pwa-512x512.png",
+    sizes: "512x512",
+    type: "image/png",
+    purpose: "maskable"
+  },
+  {
+    src: "/aurora-icon.svg",
+    sizes: "any",
+    type: "image/svg+xml",
+    purpose: "any"
+  }
+]
+```
 
-### Files Modified
+### Why This Fixes It
 
-**`src/i18n/translations/he.ts`**
-- Add `identity`, `direction`, `insights`, `startSession`, `minutes` under the `dashboard` section.
-
-**`src/i18n/translations/en.ts`**
-- Add the same keys with English values.
-
-**`src/components/dashboard/MobileHeroGrid.tsx`**
-1. **Mobile block** (~line 188): After the "Start Session" button, add a separator and the 3-button grid.
-2. **Desktop block** (~line 264): Same -- add separator + 3-button grid after the desktop "Start Session" button.
-3. **Col 2 bottom** (lines 325-350): Remove the original button grid and its separator.
-4. Replace all `language === 'he' ? 'זהות' : 'Identity'` patterns with `t('dashboard.identity')` (and similarly for direction, insights, startSession, minutes).
+- iOS requires PNG for `apple-touch-icon` — SVG is silently ignored, causing the icon to vanish
+- The PWA install prompt on both iOS and Android picks the best icon from the manifest; PNG entries ensure a compatible format is always available
+- The SVG is kept as a fallback for browsers that do support it
 
