@@ -24,6 +24,7 @@ interface IdentityProfileCardProps {
   identityTitle?: IdentityTitleData | null;
   className?: string;
   showActions?: boolean;
+  hasCompletedQuest?: boolean;
 }
 
 export function IdentityProfileCard({ 
@@ -32,7 +33,8 @@ export function IdentityProfileCard({
   selfConcepts,
   identityTitle,
   className,
-  showActions = true
+  showActions = true,
+  hasCompletedQuest = false
 }: IdentityProfileCardProps) {
   const { t, isRTL, language } = useTranslation();
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ export function IdentityProfileCard({
   const hasContent = values.length > 0 || principles.length > 0 || selfConcepts.length > 0 || identityTitle;
   
   const handleEditJourney = () => {
-    navigate('/launchpad');
+    navigate('/quests');
   };
 
   const handleRegenerate = async () => {
@@ -134,7 +136,7 @@ export function IdentityProfileCard({
             onClick={handleEditJourney}
           >
             <Sparkles className={cn("w-4 h-4", isRTL ? 'ml-2' : 'mr-2')} />
-            {language === 'he' ? 'ערוך מסע טרנספורמציה' : 'Edit Transformation Journey'}
+            {hasCompletedQuest ? t('launchpad.continueTransformationJourney') : t('launchpad.editTransformationJourney')}
             <ArrowIcon className={cn("w-4 h-4", isRTL ? 'mr-2' : 'ml-2')} />
           </Button>
 
