@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, Clock, Sparkles, Zap, Star, Target, Lock, Rocket } from 'lucide-react';
+import { Play, Clock, Zap, Star, Target, Lock, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
-import { RecentSessions, SessionStats } from '@/components/hypnosis';
+import { RecentSessions } from '@/components/hypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useGameState } from '@/contexts/GameStateContext';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,7 @@ const HypnosisLibrary = () => {
   const { impact } = useHaptics();
   const { currentMilestone, suggestedGoal, isLoading: isLoadingHypnosis } = useDailyHypnosis();
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
+  const { sessionStats, gameState } = useGameState();
 
   if (!isLoadingLaunchpad && !isLaunchpadComplete) {
     return (
@@ -69,68 +71,69 @@ const HypnosisLibrary = () => {
 
   return (
     <PageShell className="space-y-1.5">
-      {/* Stats */}
-      <SessionStats language={language as 'he' | 'en'} />
-
-      {/* Daily Session - compact */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileTap={{ scale: 0.98 }}
-        className="relative overflow-hidden rounded-xl p-3 cursor-pointer bg-gradient-to-br from-primary to-primary/80 active:brightness-95 transition-all"
-        onClick={handleStartDailySession}
-      >
-        <div className="absolute top-2 right-2 rtl:right-auto rtl:left-2">
-          <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5">
-            <Star className="w-3 h-3 text-white fill-white" />
-            <span className="text-[10px] font-medium text-white">
-              {language === 'he' ? 'יומי' : 'Daily'}
-            </span>
-          </div>
-        </div>
-        
-        <div className="relative z-10 text-white">
-          <div className="flex items-center gap-2 mb-1 mt-3">
+      {/* ===== 3-COLUMN HERO GRID ===== */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {/* Column 1: Dark card with daily session */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileTap={{ scale: 0.98 }}
+          className="relative overflow-hidden rounded-xl p-2 cursor-pointer bg-gradient-to-br from-primary to-primary/80 active:brightness-95 transition-all flex flex-col items-center justify-center text-center"
+          onClick={handleStartDailySession}
+        >
+          <div className="absolute inset-0 bg-white/5" />
+          <div className="relative z-10 text-white flex flex-col items-center gap-1">
             <span className="text-xl">✨</span>
-            <span className="text-[10px] opacity-80 flex items-center gap-1">
-              <Clock className="w-3 h-3" />15 {language === 'he' ? 'דק׳' : 'min'}
+            <h3 className="text-[10px] font-semibold leading-tight">
+              {language === 'he' ? 'הסשן היומי' : 'Daily Session'}
+            </h3>
+            <span className="text-[9px] opacity-80 flex items-center gap-0.5">
+              <Clock className="w-2.5 h-2.5" />15 {language === 'he' ? 'דק׳' : 'min'}
             </span>
-          </div>
-          <h3 className="text-sm font-semibold mb-0.5">
-            {language === 'he' ? 'הסשן המותאם שלך להיום' : 'Your Session for Today'}
-          </h3>
-          {currentMilestone && (
-            <p className="text-[10px] opacity-80 flex items-center gap-1 mb-1.5">
-              <Target className="w-3 h-3" />
-              {currentMilestone.title}
-            </p>
-          )}
-          <Button size="sm" className="gap-1.5 h-7 text-[11px] bg-background/90 text-foreground hover:bg-background border border-border/50">
-            <Play className="w-3.5 h-3.5" />
-            {language === 'he' ? 'התחל' : 'Start'}
-          </Button>
-        </div>
-        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-white/10 blur-3xl" />
-      </motion.div>
-
-      {/* Quick Sessions - 4 across */}
-      <div className="grid grid-cols-4 gap-1.5">
-        {QUICK_SESSIONS.map((session) => (
-          <Card
-            key={session.id}
-            className="relative overflow-hidden p-2 cursor-pointer hover:shadow-md transition-all active:scale-95 touch-manipulation"
-            onClick={() => handleStartSession(session.id, session.duration)}
-          >
-            <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br", session.gradient)} />
-            <div className="relative z-10 text-center">
-              <span className="text-base">{session.icon}</span>
-              <p className="text-[10px] font-semibold mt-0.5 leading-tight">
-                {language === 'he' ? session.titleHe : session.titleEn}
-              </p>
-              <p className="text-[9px] text-muted-foreground">{session.duration}{language === 'he' ? 'דק׳' : 'm'}</p>
+            <div className="mt-0.5 flex items-center gap-1 bg-background/90 text-foreground rounded-full px-2 py-0.5 text-[10px] font-medium">
+              <Play className="w-3 h-3" />
+              {language === 'he' ? 'התחל' : 'Start'}
             </div>
-          </Card>
-        ))}
+          </div>
+        </motion.div>
+
+        {/* Column 2: 4 vertical stats */}
+        <div className="flex flex-col gap-1">
+          {[
+            { icon: Target, value: sessionStats?.totalSessions || 0, label: language === 'he' ? 'סשנים' : 'Sessions', color: 'text-blue-500' },
+            { icon: Clock, value: sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0, label: language === 'he' ? 'דקות' : 'Min', color: 'text-green-500' },
+            { icon: Zap, value: gameState?.experience || 0, label: 'XP', color: 'text-amber-500' },
+            { icon: Star, value: gameState?.level || 1, label: language === 'he' ? 'רמה' : 'Lvl', color: 'text-purple-500' },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-lg bg-card border border-border p-1 flex items-center gap-1.5 flex-1">
+              <stat.icon className={cn("w-3 h-3 shrink-0", stat.color)} />
+              <div className="min-w-0">
+                <p className="text-xs font-bold leading-none">{stat.value.toLocaleString()}</p>
+                <p className="text-[8px] text-muted-foreground">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Column 3: 2x2 quick sessions */}
+        <div className="grid grid-cols-2 gap-1">
+          {QUICK_SESSIONS.map((session) => (
+            <Card
+              key={session.id}
+              className="relative overflow-hidden p-1.5 cursor-pointer hover:shadow-md transition-all active:scale-95 touch-manipulation"
+              onClick={() => handleStartSession(session.id, session.duration)}
+            >
+              <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br", session.gradient)} />
+              <div className="relative z-10 text-center">
+                <span className="text-sm">{session.icon}</span>
+                <p className="text-[9px] font-semibold leading-tight">
+                  {language === 'he' ? session.titleHe : session.titleEn}
+                </p>
+                <p className="text-[8px] text-muted-foreground">{session.duration}{language === 'he' ? 'דק׳' : 'm'}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Recent Sessions */}

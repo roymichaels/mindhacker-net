@@ -1,18 +1,58 @@
+import { useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import ProGateOverlay from '@/components/subscription/ProGateOverlay';
-import { PlanProgressHero, LifeAnalysisChart } from '@/components/dashboard/v2';
+import { LifeAnalysisChart } from '@/components/dashboard/v2';
 import { TasksPanel } from '@/components/dashboard/plan/TasksPanel';
 import { PlanRoadmap } from '@/components/dashboard/plan/PlanRoadmap';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { SectionHeader } from '@/components/aurora-ui/SectionHeader';
-import { ListChecks } from 'lucide-react';
+import { ListChecks, Target, Calendar, Map, BarChart3 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const PlanTab = () => {
   const { t, isRTL, language } = useTranslation();
   const { canAccessPlan, isLoading } = useSubscriptionGate();
+  const { user } = useAuth();
+  const roadmapRef = useRef<HTMLDivElement>(null);
+  const analysisRef = useRef<HTMLDivElement>(null);
+
+  const { data: planData } = useQuery({
+    queryKey: ['plan-hero-grid', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data: plan } = await supabase
+        .from('life_plans')
+        .select('id, duration_months, start_date, status')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!plan) return null;
+      const { data: milestones } = await supabase
+        .from('life_plan_milestones')
+        .select('id, title, week_number, is_completed')
+        .eq('plan_id', plan.id)
+        .order('week_number', { ascending: true });
+      const completedMilestones = milestones?.filter(m => m.is_completed) || [];
+      const currentMilestone = milestones?.find(m => !m.is_completed);
+      const totalWeeks = (plan.duration_months || 3) * 4;
+      const currentWeek = currentMilestone?.week_number || completedMilestones.length + 1;
+      const currentMonth = Math.min(3, Math.ceil(currentWeek / 4));
+      const progressPercent = Math.round((completedMilestones.length / (milestones?.length || totalWeeks)) * 100);
+      return { currentWeek, totalWeeks, currentMonth, completedCount: completedMilestones.length, totalCount: milestones?.length || totalWeeks, progressPercent, currentMilestone };
+    },
+    enabled: !!user?.id,
+  });
 
   useSEO({
     title: t('seo.dashboardTitle'),
@@ -37,8 +77,72 @@ const PlanTab = () => {
 
   return (
     <PageShell className="space-y-2">
-      {/* Hero progress summary */}
-      <PlanProgressHero />
+      {/* ===== 3-COLUMN HERO GRID ===== */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {/* Column 1: Dark card with week indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-2 flex flex-col items-center justify-center text-center"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
+          <div className="relative z-10 flex flex-col items-center gap-1">
+            <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex flex-col items-center justify-center">
+              <span className="text-[8px] text-white/60">{language === 'he' ? 'שבוע' : 'Wk'}</span>
+              <span className="text-lg font-black text-white leading-none">{planData?.currentWeek || 1}</span>
+            </div>
+            <h3 className="text-[10px] font-bold text-white/90 leading-tight">
+              {language === 'he' ? 'תוכנית טרנספורמציה' : 'Transformation Plan'}
+            </h3>
+            {planData && (
+              <Badge variant="secondary" className="text-[9px] h-4 px-1.5">
+                <Calendar className="h-2 w-2 mr-0.5" />M{planData.currentMonth}
+              </Badge>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Column 2: Progress stats */}
+        <div className="flex flex-col gap-1.5">
+          <div className="rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 flex-1">
+            <Target className="w-3 h-3 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-none">{planData?.completedCount || 0}/{planData?.totalCount || 0}</p>
+              <p className="text-[9px] text-muted-foreground">{language === 'he' ? 'הושלמו' : 'Done'}</p>
+            </div>
+          </div>
+          <div className="rounded-lg bg-card border border-border p-1.5 flex-1">
+            <div className="flex items-center justify-between text-[10px] mb-0.5">
+              <span className="text-muted-foreground">{language === 'he' ? 'התקדמות' : 'Progress'}</span>
+              <span className="font-bold text-primary">{planData?.progressPercent || 0}%</span>
+            </div>
+            <Progress value={planData?.progressPercent || 0} className="h-1.5 [&>div]:bg-primary" />
+          </div>
+          {planData?.currentMilestone && (
+            <div className="rounded-lg bg-card border border-border p-1.5 flex-1">
+              <p className="text-[9px] text-muted-foreground truncate">→ {planData.currentMilestone.title}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Column 3: Action buttons */}
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => roadmapRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+          >
+            <Map className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span className="text-[11px] font-medium">{language === 'he' ? 'מפת דרכים' : 'Roadmap'}</span>
+          </button>
+          <button
+            onClick={() => analysisRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-accent shrink-0" />
+            <span className="text-[11px] font-medium">{language === 'he' ? 'ניתוח חיים' : 'Life Analysis'}</span>
+          </button>
+        </div>
+      </div>
 
       {/* Today's Missions */}
       <section className="space-y-1">
@@ -52,12 +156,12 @@ const PlanTab = () => {
       </section>
 
       {/* 90-Day Roadmap */}
-      <section>
+      <section ref={roadmapRef}>
         <PlanRoadmap />
       </section>
 
       {/* Life Analysis */}
-      <section>
+      <section ref={analysisRef}>
         <LifeAnalysisChart />
       </section>
     </PageShell>
