@@ -1,11 +1,11 @@
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Target, Sparkles, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
-import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
+import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const tabs = [
   { id: 'today', path: '/today', icon: LayoutDashboard, labelEn: 'Today', labelHe: 'היום' },
@@ -38,12 +38,7 @@ export function TopNavBar({ onOpenHypnosis, onOpenSettings }: TopNavBarProps) {
       <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
         {/* Left: Logo + Tabs */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
-            <AuroraOrbIcon className="w-8 h-8 text-foreground" size={32} />
-            <span className="font-bold text-sm text-foreground hidden lg:inline">
-              {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
-            </span>
-          </Link>
+          <AppNameDropdown onOpenSettings={onOpenSettings} />
 
           <nav className="flex items-center gap-1">
             {tabs.map((tab) => {
@@ -68,12 +63,9 @@ export function TopNavBar({ onOpenHypnosis, onOpenSettings }: TopNavBarProps) {
           </nav>
         </div>
 
-        {/* Right: Action icons + Account */}
+        {/* Right: Action icons */}
         <div className="flex items-center gap-1">
           <HeaderActions onOpenHypnosis={onOpenHypnosis} />
-          <div className="ms-2">
-            <AuroraAccountDropdown isCollapsed={false} onOpenSettings={onOpenSettings} />
-          </div>
         </div>
       </div>
     </header>
