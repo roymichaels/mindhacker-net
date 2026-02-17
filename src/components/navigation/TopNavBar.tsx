@@ -7,10 +7,7 @@ import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 
 const tabs = [
-  { id: 'today', path: '/today', icon: LayoutDashboard, labelEn: 'Today', labelHe: 'היום' },
-  { id: 'plan', path: '/plan', icon: Target, labelEn: 'Plan', labelHe: 'תוכנית' },
-  { id: 'hypnosis', path: '/hypnosis', icon: Brain, labelEn: 'Sessions', labelHe: 'סשנים' },
-  { id: 'me', path: '/me', icon: User, labelEn: 'Me', labelHe: 'אני' },
+  { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
 ];
 
 interface TopNavBarProps {
@@ -24,7 +21,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
   const { theme: brandTheme } = useThemeSettings();
 
   const isTabActive = (path: string) => {
-    if (path === '/today') return location.pathname === '/today' || location.pathname === '/dashboard';
+    if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';
     return location.pathname.startsWith(path);
   };
 
