@@ -1,108 +1,164 @@
 
 
-# MindOS Neural Architecture Intake V2 -- Full Rewrite
+# Adaptive Feedback Loop Engine -- The Missing 30%
 
 ## Overview
 
-Replace the current shallow 5-step onboarding flow (`onboardingFlowSpec.ts`) with a comprehensive 5-phase, 13-step neural intake system. This collects measurable behavioral variables (not emotional fluff) to power: hormonal optimization scores, 8-8-8 daily structure generation, personalized hypnosis calibration, and a fully customized 90-day plan.
+Add four interconnected systems that transform MindOS from a "smart once, then static" platform into a continuously adaptive behavioral operating system. These systems create the Collect-Diagnose-Generate-**Track-Adjust-Reinforce-Escalate** loop that's currently missing.
 
-## Current State
+## What Gets Built
 
-- **Onboarding** (`onboardingFlowSpec.ts`): 5 steps, ~12 questions total (friction type, tension, desired shift, commitment, light personalization)
-- **Launchpad** (`coreLaunchpadSpec.ts`): 10 steps with deeper profile but still missing biological/hormonal/dopamine/time architecture data
-- **AI Summary** (`generate-launchpad-summary`): Generates consciousness analysis + 90-day plan but lacks biological baseline data
-- **OnboardingReveal**: Shows basic pillar mapping, triggers `generate-launchpad-summary`
+### 1. Daily Check-In Micro-Pulse (30-second daily feedback)
 
-## What Changes
+A lightweight daily check-in that captures 5 real-time variables every day:
 
-### 1. Rewrite `src/flows/onboardingFlowSpec.ts` -- The Neural Intake
+- **Energy rating** (1-5 scale)
+- **Sleep compliance** (Did you hit your target sleep time? Yes/Partial/No)
+- **Task completion confidence** (How today went, 1-5)
+- **Screen discipline** (Stayed within target? Yes/No)
+- **Mood signal** (5 emoji options: wired, drained, neutral, focused, flow)
 
-Replace all 5 steps with 13 steps across 5 phases:
+This appears as a bottom-sheet modal triggered by the `NextActionBanner` priority system (inserted between habits and hypnosis priority) or proactively by Aurora at the user's evening recovery window time.
 
-**PHASE 1 -- STATE DIAGNOSIS**
-- Step 1: Primary Pressure Zone (single_select, 7 options: cognitive overload, energy instability, career stagnation, financial instability, emotional strain, direction confusion, lack of structure)
-- Step 2: Functional Impairment (branched multi_select -- 5 neuro-behavioral signals per pressure zone, e.g., "racing thoughts", "crash after lunch", "doom scrolling")
+**Storage**: New `daily_pulse_logs` table with one row per user per day. No JSON blobs -- flat columns for fast aggregation.
 
-**PHASE 2 -- BIOLOGICAL BASELINE**
-- Step 3: Biological Identity (age bracket, gender, body fat estimate, physical activity level)
-- Step 4: Sleep Structure (wake time picker, sleep time picker, avg sleep duration, sleep quality 1-5 slider, screen before bed yes/no)
-- Step 5: Dopamine Load (screen time, social media frequency, porn frequency, caffeine intake, alcohol frequency)
-- Step 6: Physical Inputs (diet type, protein awareness, water intake, sun exposure, cold exposure)
+**Database table:**
+```
+daily_pulse_logs
+- id (uuid, PK)
+- user_id (uuid, FK profiles)
+- log_date (date, unique per user)
+- energy_rating (smallint, 1-5)
+- sleep_compliance (text: 'yes'|'partial'|'no')
+- task_confidence (smallint, 1-5)
+- screen_discipline (boolean)
+- mood_signal (text: 'wired'|'drained'|'neutral'|'focused'|'flow')
+- created_at (timestamptz)
+```
 
-**PHASE 3 -- TIME ARCHITECTURE**
-- Step 7: Work Reality (work type, daily work hours slider, commute duration, energy peak time, energy crash time)
-- Step 8: Life Load (dependents, household responsibility, social life frequency)
+### 2. Weekly Recalibration Algorithm
 
-**PHASE 4 -- PSYCHOLOGICAL OPERATING SYSTEM**
-- Step 9: Execution Pattern (single_select: start-and-quit, overplan-and-delay, avoid hard tasks, burn out quickly, intense but inconsistent, consistent but plateaued)
-- Step 10: Motivation Driver (single_select: fear of failure, desire for status, identity upgrade, freedom, stability, approval)
-- Step 11: 90-Day Vector (primary target single_select + "why does this matter" textarea + urgency 1-10 slider)
+Every 7 days, a new edge function (`aurora-recalibrate`) runs automatically (triggered by `pg_cron` or the proactive engine's `batch_analyze`). It:
 
-**PHASE 5 -- COMMITMENT FILTER**
-- Step 12: Lifestyle Restructure Willingness (1-10 slider)
-- Step 13: Final Notes (textarea -- anything else the system should know)
+**Computes 3 derived scores from the week's pulse data:**
 
-All questions store to `step_1_intention` (phase 1) and `step_2_profile_data` (phases 2-5) in `launchpad_progress`, maintaining DB compatibility.
+- **Compliance Score** = weighted average of (sleep compliance + screen discipline + task confidence) over 7 days
+- **Cognitive Load Score** = function of (energy variance + mood instability + work hours from intake)
+- **Recovery Debt Score** = function of (sleep compliance misses + low energy days + high screen days)
 
-### 2. Rewrite `src/components/onboarding/OnboardingReveal.tsx` -- Neural Diagnostics Screen
+**Then adjusts the active 90-day plan:**
 
-After completion, show a diagnostics dashboard with computed scores:
-- Nervous System State (derived from pressure zone + functional impairment)
-- Energy Stability Score (from sleep + dopamine load + physical inputs)
-- Hormonal Risk Index (from body fat + activity + sun/cold exposure + sleep quality)
-- Dopamine Load Index (from screen time + social media + porn + caffeine + alcohol)
-- Time Optimization Potential (from work hours + commute + dependents vs available time)
-- 90-Day Roadmap Preview (from target + urgency + commitment)
-- Personalized Hypnosis Theme for Week 1
+- If compliance < 40%: reduce current week's task count, extend deadlines, add recovery blocks
+- If compliance 40-70%: maintain current aggressiveness
+- If compliance > 70%: optionally increase intensity (only if user's restructure_willingness >= 7)
+- If Recovery Debt > threshold: inject extra recovery tasks, reduce cognitive load tasks
 
-These are computed client-side as preview scores, then the AI refines them.
+**How it works technically:**
+- Reads last 7 days from `daily_pulse_logs`
+- Reads current `life_plan_milestones` for the active week
+- Computes delta between baseline (from intake) and actual performance
+- Updates `life_plan_milestones.tasks` array for upcoming weeks (not past weeks)
+- Logs the recalibration event to a new `recalibration_logs` table for audit trail
+- Feeds results into Aurora's context builder so the AI coach knows what changed
 
-### 3. Update `supabase/functions/_shared/launchpad-ai-prompt.ts` -- Enhanced AI Prompt
+**Database table:**
+```
+recalibration_logs
+- id (uuid, PK)
+- user_id (uuid, FK profiles)
+- week_number (smallint)
+- compliance_score (numeric)
+- cognitive_load_score (numeric)
+- recovery_debt_score (numeric)
+- adjustments_made (jsonb -- what changed)
+- created_at (timestamptz)
+```
 
-Expand the system prompt to:
-- Accept and process all new biological/hormonal/dopamine data
-- Generate an optimized 8-8-8 daily structure (Sleep Block, Deep Work Block, Admin Block, Training Window, Personal Development Window, Recovery Window) based on wake/sleep times, work hours, peak energy
-- Compute hormonal reset priority score
-- Generate hypnosis personalization variables (tone from motivation driver, theme from pressure zone, intensity from commitment score, length from available free time, frequency from dopamine load)
-- Include the diagnostic scores in the output JSON schema
+### 3. Behavioral Risk Prediction Model
 
-### 4. Update `supabase/functions/generate-launchpad-summary/index.ts` -- Data Pipeline
+Embedded within the recalibration engine, a rule-based prediction system that flags relapse risks:
 
-- Update `buildAnalysisPrompt()` to pass all new fields (biological baseline, dopamine load, physical inputs, time architecture, execution pattern, motivation driver, 90-day vector, commitment score) to the AI
-- Update the output JSON schema to include `daily_structure` (8-8-8 blocks), `hormonal_profile`, `dopamine_index`, `hypnosis_calibration`
-- These new fields get saved into `launchpad_summaries.summary_data` (existing JSON column, no schema change needed)
-- The 90-day plan generation uses the new time architecture to place tasks in correct time blocks
+| Intake Pattern | Live Signal | Risk | Action |
+|---|---|---|---|
+| start_and_quit + high urgency | Compliance dropping week-over-week | Overtraining | Reduce plan intensity, insert rest day |
+| burn_out_quickly + identity_upgrade | 3+ days energy <= 2 | Overcommitment | Pause secondary tasks, push hypnosis |
+| avoid_hard_tasks + low commitment | 0 tasks completed 3 days running | Avoidance spiral | Aurora proactive nudge: micro-task |
+| intense_but_inconsistent + any | High variance in daily scores | Boom-bust cycle | Stabilize with fixed anchor tasks |
+| consistent_but_plateaued + any | All scores flat for 2+ weeks | Stagnation | Inject challenge upgrade, new milestone |
 
-### 5. Update `src/flows/onboardingFlowSpec.ts` exports
+These predictions are stored in the recalibration log and surfaced to Aurora's context builder as `behavioral_risk_alerts`. The AI coach then references them naturally in conversation ("I noticed your energy has been dropping this week...").
 
-Update `FRICTION_PILLAR_MAP` to map new pressure zones to pillars. Update `PILLAR_SUGGESTIONS` with more targeted suggestions based on the richer data.
+### 4. Adaptive Hypnosis Reinforcement Loop
 
-### 6. Auto-save mapping in `OnboardingFlow.tsx`
+Currently hypnosis uses static week-based themes. This upgrade makes it session-aware:
 
-Update the `autoSave` callback to persist all new answer keys:
-- Phase 1 answers -> `step_1_intention`
-- Phase 2-5 answers -> `step_2_profile_data`
+**Before each session, the `generate-hypnosis-script` edge function checks:**
+- Yesterday's pulse data (energy, mood, sleep)
+- Current week's compliance score
+- Active behavioral risk alerts
+
+**Then dynamically selects:**
+- **After a failure day** (low energy + missed tasks): Recovery/self-compassion script
+- **After a win streak** (3+ good days): Momentum amplification script
+- **After high screen time**: Digital detox reinforcement
+- **After sleep miss**: Sleep architecture reset theme
+- **Default**: Continue with the weekly theme from the 90-day plan
+
+This is implemented by enriching the context passed to `generate-hypnosis-script` with pulse data, not by changing the script generation logic itself. The AI model already adapts based on context.
+
+## Integration Points
+
+### Context Builder Enhancement
+
+Add to `AuroraContext` in `_shared/contextBuilder.ts`:
+
+```typescript
+// New fields
+pulse_today: { energy: number; mood: string; sleep: string } | null;
+pulse_week: { avg_energy: number; compliance: number; recovery_debt: number } | null;
+behavioral_risks: { risk: string; severity: string }[];
+last_recalibration: { date: string; adjustments: string } | null;
+```
+
+Two new parallel queries added to the existing `Promise.all` block -- no performance regression.
+
+### Proactive Engine Enhancement
+
+Add new trigger types to `aurora-proactive/index.ts`:
+- `daily_pulse_reminder`: Triggered at recovery window time if no pulse logged today
+- `recalibration_report`: Triggered weekly after recalibration runs
+- `risk_alert`: Triggered when behavioral risk prediction fires
+
+### Dashboard Integration
+
+- Daily Pulse card appears in the "Today" section of the dashboard
+- Weekly recalibration summary shows as a collapsible card in the Plan page
+- Risk alerts surface through the existing `NextActionBanner` priority system (inserted at priority level 3, after consciousness journey and proactive coaching)
 
 ## Files Modified
 
 | File | Change |
-|------|--------|
-| `src/flows/onboardingFlowSpec.ts` | Full rewrite -- 13 steps, 5 phases, ~45 questions |
-| `src/components/onboarding/OnboardingFlow.tsx` | Update auto-save to handle all new keys |
-| `src/components/onboarding/OnboardingReveal.tsx` | Full rewrite -- neural diagnostics screen with computed scores |
-| `supabase/functions/_shared/launchpad-ai-prompt.ts` | Enhanced prompt with 8-8-8, hormonal, dopamine, hypnosis calibration |
-| `supabase/functions/generate-launchpad-summary/index.ts` | Update `buildAnalysisPrompt()` to pass new data fields |
+|---|---|
+| `supabase/functions/_shared/contextBuilder.ts` | Add pulse + risk data to AuroraContext |
+| `supabase/functions/aurora-proactive/index.ts` | Add pulse_reminder and risk_alert triggers |
+| `supabase/functions/aurora-recalibrate/index.ts` | **NEW** -- weekly recalibration engine |
+| `supabase/functions/generate-hypnosis-script/index.ts` | Enrich context with pulse data |
+| `src/components/dashboard/DailyPulseCard.tsx` | **NEW** -- 30-second check-in UI |
+| `src/hooks/useDailyPulse.ts` | **NEW** -- pulse CRUD hook |
+| `src/components/dashboard/RecalibrationSummary.tsx` | **NEW** -- weekly adjustment display |
 
-## No Database Changes Needed
+## Database Changes
 
-All new data fits into existing JSON columns (`step_1_intention`, `step_2_profile_data`) in `launchpad_progress`. The AI summary output goes into the existing `summary_data` JSON column in `launchpad_summaries`.
+Two new tables (`daily_pulse_logs`, `recalibration_logs`) with RLS policies restricting access to the owning user. One row per user per day for pulse, one row per user per week for recalibration.
 
-## Integration Points (Already Wired)
+## Execution Order
 
-- `generate-launchpad-summary` already populates `aurora_life_direction`, `aurora_identity_elements`, `aurora_commitments`, `aurora_daily_minimums`, `life_plans`, `life_plan_milestones`
-- Dashboard already reads from these tables for Identity Card, AI Analysis, 90-Day Plan, etc.
-- Hypnosis script generator already reads from `launchpad_summaries.summary_data` -- it will automatically pick up the new calibration data
-- Aurora chat context builder already reads the Life Model tables
-
-No new wiring needed. The richer input data flows through existing pipelines and automatically improves all downstream personalization.
+1. Create database tables with RLS
+2. Build `useDailyPulse` hook and `DailyPulseCard` UI component
+3. Integrate pulse card into dashboard priority system
+4. Enhance context builder with pulse data
+5. Build `aurora-recalibrate` edge function with risk prediction
+6. Wire recalibration into proactive engine
+7. Enrich hypnosis script generation with pulse context
+8. Add `RecalibrationSummary` to Plan page
 
