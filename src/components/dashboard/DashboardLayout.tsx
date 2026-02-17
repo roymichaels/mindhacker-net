@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return (
       <AuroraActionsProvider>
         <SidebarProvider>
-          <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
               <div className="flex h-12 items-center justify-between px-3">
                 <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
@@ -37,7 +37,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </div>
             </header>
 
-            <main className="flex-1 min-h-0 overflow-y-auto px-3 pt-2 pb-36">
+            <main className="flex-1 min-h-0 overflow-y-auto px-3 pt-2 pb-36 flex flex-col">
               {children}
             </main>
 
@@ -53,12 +53,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <AuroraActionsProvider>
       <SidebarProvider>
-        <div className="min-h-screen flex flex-col bg-background w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           <TopNavBar
             onOpenSettings={() => setSettingsOpen(true)}
           />
 
-          <main className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-6 pb-36 max-w-screen-xl mx-auto w-full">
+          <main className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-6 pb-36 max-w-screen-xl mx-auto w-full flex flex-col">
             {children}
           </main>
 
