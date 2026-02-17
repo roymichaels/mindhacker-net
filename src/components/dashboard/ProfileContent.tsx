@@ -46,7 +46,7 @@ interface ProfileContentProps {
 
 export function ProfileContent({ onClose }: ProfileContentProps) {
   const navigate = useNavigate();
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: launchpadData, isLoading } = useLaunchpadData();
@@ -95,9 +95,12 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
     }
   };
 
+  const pillarQuests = (launchpadData?.personalProfile as Record<string, any>)?.pillar_quests;
+  const hasCompletedAnyQuest = Object.values(pillarQuests || {}).some((q: any) => q?.completed);
+
   const handleEditJourney = () => {
     onClose?.();
-    navigate('/launchpad');
+    navigate(isLaunchpadComplete ? '/quests' : '/launchpad');
   };
 
   if (isLoading) {
@@ -403,9 +406,9 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           onClick={handleEditJourney}
         >
           <Sparkles className={cn("w-5 h-5", isRTL ? 'ml-2' : 'mr-2')} />
-          {isLaunchpadComplete 
-            ? (language === 'he' ? 'ערוך מסע טרנספורמציה' : 'Edit Transformation Journey')
-            : (language === 'he' ? 'התחל מסע טרנספורמציה' : 'Start Transformation Journey')
+          {isLaunchpadComplete
+            ? (hasCompletedAnyQuest ? t('launchpad.continueTransformationJourney') : t('launchpad.editTransformationJourney'))
+            : t('launchpad.startTransformationJourney')
           }
           <ArrowRight className={cn("w-4 h-4", isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
         </Button>
