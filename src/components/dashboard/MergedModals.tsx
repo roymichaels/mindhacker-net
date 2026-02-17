@@ -7,8 +7,9 @@ import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsC
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { supabase } from '@/integrations/supabase/client';
-import { Brain, Compass, UserCircle, Heart, BarChart3, Flame, Zap, Trophy } from 'lucide-react';
+import { Brain, Compass, UserCircle, Heart, BarChart3, Flame, Zap, Trophy, Activity, Target, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ModalProps {
   open: boolean;
@@ -176,10 +177,62 @@ export function MergedDirectionModal({ open, onOpenChange, language, commitments
   );
 }
 
-// ===== INSIGHTS MODAL: AI Analysis + Consciousness + Stats =====
-export function MergedInsightsModal({ open, onOpenChange, language }: ModalProps) {
+// ===== INSIGHTS MODAL: AI Analysis + Consciousness + Diagnostics + Stats =====
+interface MergedInsightsModalProps extends ModalProps {
+  initialTab?: string;
+}
+
+export function MergedInsightsModal({ open, onOpenChange, language, initialTab }: MergedInsightsModalProps) {
   const dashboard = useUnifiedDashboard();
+  const { user } = useAuth();
   const isRTL = language === 'he';
+  const [diagnosticScores, setDiagnosticScores] = useState<Array<{
+    key: string; label: string; labelEn: string; value: number;
+    interpretation: string; interpretationEn: string;
+    icon: typeof Zap; color: string; bgColor: string;
+  }>>([]);
+  const [diagLoading, setDiagLoading] = useState(false);
+
+  // Determine which tab to show by default
+  const defaultTab = initialTab === 'diagnostics' ? 'diagnostics' 
+    : (initialTab && ['ai', 'consciousness', 'stats'].includes(initialTab)) ? initialTab 
+    : 'ai';
+
+  useEffect(() => {
+    if (!user || !open) return;
+    setDiagLoading(true);
+    async function fetchDiag() {
+      try {
+        const { data } = await supabase
+          .from('launchpad_summaries')
+          .select('summary_data')
+          .eq('user_id', user!.id)
+          .order('generated_at', { ascending: false })
+          .limit(1)
+          .single();
+        if (data?.summary_data) {
+          const sd = data.summary_data as any;
+          const diag = sd.diagnostics || sd.diagnostic_scores || {};
+          setDiagnosticScores([
+            { key: 'energy_stability', label: 'יציבות אנרגיה', labelEn: 'Energy Stability', value: diag.energy_stability?.score ?? diag.nervous_system_score ?? 0, interpretation: diag.energy_stability?.interpretation || 'לא זמין', interpretationEn: diag.energy_stability?.interpretation_en || 'Not available', icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+            { key: 'recovery_debt', label: 'חוב ריקברי', labelEn: 'Recovery Debt', value: diag.recovery_debt?.score ?? diag.recovery_debt_score ?? 0, interpretation: diag.recovery_debt?.interpretation || 'לא זמין', interpretationEn: diag.recovery_debt?.interpretation_en || 'Not available', icon: Activity, color: 'text-red-500', bgColor: 'bg-red-500/10' },
+            { key: 'dopamine_load', label: 'עומס דופמין', labelEn: 'Dopamine Load', value: diag.dopamine_load?.score ?? diag.dopamine_load_score ?? 0, interpretation: diag.dopamine_load?.interpretation || 'לא זמין', interpretationEn: diag.dopamine_load?.interpretation_en || 'Not available', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
+            { key: 'execution_reliability', label: 'אמינות ביצוע', labelEn: 'Execution Reliability', value: diag.execution_reliability?.score ?? diag.execution_reliability_score ?? 0, interpretation: diag.execution_reliability?.interpretation || 'לא זמין', interpretationEn: diag.execution_reliability?.interpretation_en || 'Not available', icon: Target, color: 'text-green-500', bgColor: 'bg-green-500/10' },
+            { key: 'time_leverage', label: 'מינוף זמן', labelEn: 'Time Leverage', value: diag.time_leverage?.score ?? diag.time_optimization_score ?? 0, interpretation: diag.time_leverage?.interpretation || 'לא זמין', interpretationEn: diag.time_leverage?.interpretation_en || 'Not available', icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
+            { key: 'hormonal_risk', label: 'סיכון הורמונלי', labelEn: 'Hormonal Risk', value: diag.hormonal_risk?.score ?? diag.hormonal_risk_score ?? 0, interpretation: diag.hormonal_risk?.interpretation || 'לא זמין', interpretationEn: diag.hormonal_risk?.interpretation_en || 'Not available', icon: Activity, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
+          ]);
+        }
+      } catch (err) {
+        console.error('Error fetching diagnostics:', err);
+      } finally {
+        setDiagLoading(false);
+      }
+    }
+    fetchDiag();
+  }, [user, open]);
+
+  const getScoreColor = (score: number) => score >= 75 ? 'text-green-500' : score >= 50 ? 'text-amber-500' : score >= 25 ? 'text-orange-500' : 'text-red-500';
+  const getBarColor = (score: number) => score >= 75 ? 'bg-green-500' : score >= 50 ? 'bg-amber-500' : score >= 25 ? 'bg-orange-500' : 'bg-red-500';
 
   const stats = [
     { label: language === 'he' ? 'רמה' : 'Level', value: dashboard.level, icon: Trophy, color: 'text-amber-500' },
@@ -195,10 +248,11 @@ export function MergedInsightsModal({ open, onOpenChange, language }: ModalProps
           title={language === 'he' ? 'תובנות' : 'Insights'}
           icon={<Brain className="h-5 w-5" />}
         />
-        <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
+        <Tabs defaultValue={defaultTab} key={defaultTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="ai">{language === 'he' ? 'ניתוח AI' : 'AI Analysis'}</TabsTrigger>
             <TabsTrigger value="consciousness">{language === 'he' ? 'תודעה' : 'Consciousness'}</TabsTrigger>
+            <TabsTrigger value="diagnostics">{language === 'he' ? 'אבחון' : 'Diagnostics'}</TabsTrigger>
             <TabsTrigger value="stats">{language === 'he' ? 'סטטיסטיקה' : 'Stats'}</TabsTrigger>
           </TabsList>
           <TabsContent value="ai" className="mt-4">
@@ -206,6 +260,49 @@ export function MergedInsightsModal({ open, onOpenChange, language }: ModalProps
           </TabsContent>
           <TabsContent value="consciousness" className="mt-4">
             <ConsciousnessCard />
+          </TabsContent>
+          <TabsContent value="diagnostics" className="mt-4">
+            {diagLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : diagnosticScores.length === 0 ? (
+              <div className="text-center py-12">
+                <Activity className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">
+                  {isRTL ? 'השלם את המסע לקבל אבחון' : 'Complete the intake for diagnostics'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3" dir={isRTL ? 'rtl' : 'ltr'}>
+                {diagnosticScores.map((score) => {
+                  const Icon = score.icon;
+                  return (
+                    <div key={score.key} className="rounded-xl border border-border/50 p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className={cn("p-2 rounded-lg", score.bgColor)}>
+                            <Icon className={cn("w-4 h-4", score.color)} />
+                          </div>
+                          <span className="text-sm font-semibold">
+                            {isRTL ? score.label : score.labelEn}
+                          </span>
+                        </div>
+                        <span className={cn("text-xl font-bold tabular-nums", getScoreColor(score.value))}>
+                          {score.value}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
+                        <div className={cn("h-full rounded-full transition-all", getBarColor(score.value))} style={{ width: `${score.value}%` }} />
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {isRTL ? score.interpretation : score.interpretationEn}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
           <TabsContent value="stats" className="mt-4">
             <div className="grid grid-cols-2 gap-4" dir={isRTL ? 'rtl' : 'ltr'}>
