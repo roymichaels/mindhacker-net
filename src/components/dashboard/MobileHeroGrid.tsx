@@ -166,13 +166,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Start Session button - mobile only, inside HUD */}
             <button
               onClick={handleStartDailySession}
-              className="w-full flex items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+              className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
             >
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1 text-xs text-amber-950">
                 <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
               </span>
-              <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
-                <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
+              <span className="flex items-center gap-2 text-sm font-bold text-amber-950">
+                <Play className="w-4 h-4 fill-amber-950" />
                 {language === 'he' ? 'התחל סשן' : 'Start Session'}
               </span>
             </button>
@@ -236,13 +236,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               {/* Start Session button - desktop, below hypnosis stats */}
               <button
                 onClick={handleStartDailySession}
-                className="w-full flex items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+                className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
               >
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs text-amber-950">
                   <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
                 </span>
-                <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
-                  <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
+                <span className="flex items-center gap-2 text-sm font-bold text-amber-950">
+                  <Play className="w-4 h-4 fill-amber-950" />
                   {language === 'he' ? 'התחל סשן' : 'Start Session'}
                 </span>
               </button>
