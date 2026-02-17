@@ -81,7 +81,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextHabit = habits.find(h => !h.isCompleted);
 
   // Orb size: small when collapsed, fills available space when expanded
-  const orbSize = expandedSection ? 320 : 64;
+  const orbSize = expandedSection ? 320 : 320;
 
   return (
     <div className="space-y-3">
