@@ -1,111 +1,106 @@
 
 
-# Phase 3: UX Polish -- Consistent Header, Dedupe Dashboards, Aurora Dock States
+# Plan Page Redesign: From Redundant to Million-Dollar
 
-## Summary of Current State
+## The Problem
 
-**Duplicate dashboards:** `UnifiedDashboardView` (src/components/dashboard/UnifiedDashboardView.tsx) is a legacy superset -- it renders StatsGrid, PlanProgressHero, GoalsCard, etc. all in one view. It is only used inside `DashboardModal` (opened by Aurora's `openDashboard()` command). Meanwhile, the actual tabs (`TodayTab`, `PlanTab`, `MeTab`) are the real UI. Decision: **v2 components are the winners. UnifiedDashboardView is legacy.**
+The current Plan page displays the **same milestone data 4 times** across overlapping components, creating a confusing, repetitive experience:
 
-**QuickActionsBar:** Exported from v2/index.ts but imported by nobody. Dead code.
+| Component | What it shows | Redundant? |
+|-----------|--------------|------------|
+| PlanProgressHero | Week counter, progress bar, current milestone | Primary |
+| GoalsPanel | Milestones by month with progress | Duplicate of GoalsCard |
+| GoalsCard | Milestones by month with progress | Duplicate of GoalsPanel |
+| PlanProgressCard | Progress bar + current milestone | Duplicate of Hero |
+| /life-plan page | Full milestone detail view | Separate page for same data |
 
-**Aurora Dock:** Currently has 2 states: collapsed (just the input bar) and expanded (chat bubbles appear). There is no "minimized orb" state. The dock is always visible as a full-width input bar on non-Aurora tabs.
+Additionally, TasksPanel (Missions tab) pulls from `aurora_checklist_items` which feels disconnected from the 90-day plan context.
 
-**Header:** Mobile and desktop headers are embedded directly in `DashboardLayout.tsx` with inline icon buttons (Tasks, Goals, Coaches, Hypnosis, Notifications). No shared "primary action" concept.
+## The Solution: Single Unified Plan Page
 
----
-
-## Changes
-
-### 1. Delete Dead Code
-
-| File | Action |
-|------|--------|
-| `src/components/dashboard/v2/QuickActionsBar.tsx` | Delete |
-| `src/components/dashboard/v2/index.ts` | Remove QuickActionsBar export |
-| `src/components/dashboard/UnifiedDashboardView.tsx` | Delete |
-| `src/components/dashboard/DashboardModal.tsx` | Simplify to just ProfileContent (no more dashboard view inside a modal inside the app) |
-| `src/contexts/AuroraActionsContext.tsx` | Remove `openDashboard`/`closeDashboard`/`dashboardModalOpen`/`dashboardInitialView` -- the dashboard IS the app now, not a modal |
-
-### 2. Aurora Dock: 3 States
-
-Refactor `GlobalChatInput` + `AuroraChatBubbles` interaction in `DashboardLayout` into a single `AuroraDock` component with 3 explicit states:
-
-| State | Trigger | UI |
-|-------|---------|-----|
-| **Minimized** (orb) | Default on page load, tap X on peek | Small floating orb button (bottom-right on desktop, bottom-center above tab bar on mobile). Shows unread indicator dot if Aurora has unsent nudges. |
-| **Peek** (input bar) | Tap orb, or type starts | Current GlobalChatInput appears. If there are recent messages, AuroraChatBubbles shows last 2-3 inline above input. |
-| **Full chat** | Tap "expand" icon on peek header, or navigate to /aurora tab | Navigate to /aurora tab (full AuroraChatArea). On /aurora tab, dock is hidden entirely. |
-
-State management lives in `AuroraChatContext` (already has `isChatExpanded`; add `dockState: 'orb' | 'peek' | 'full'`).
-
-New file: `src/components/aurora/AuroraDock.tsx` -- composes the orb, GlobalChatInput, and AuroraChatBubbles based on state.
-
-### 3. Consistent Header
-
-Create a shared `HeaderActions` component used by both mobile and desktop headers in DashboardLayout:
+Consolidate everything into **one cohesive, scrollable Plan page** with no tabs and no separate `/life-plan` route. The page tells a clear story from top to bottom:
 
 ```text
-src/components/navigation/HeaderActions.tsx
-
-Props: compact (boolean, for mobile sizing)
-
-Renders (in order):
-  - TasksPopover
-  - GoalsPopover  
-  - CoachesButton (pink circle, opens practitioners modal)
-  - PowerUpButton (violet circle, opens hypnosis modal)
-  - NotificationBell
-
-Mobile: Same icons, same order, compact sizing (h-8 w-8)
-Desktop: Same icons, same order, standard sizing (h-9 w-9)
++------------------------------------------+
+|  PLAN PROGRESS HERO (compact)            |
+|  Week 3/12 | Month 1 | 0% progress      |
++------------------------------------------+
+|                                          |
+|  TODAY'S MISSIONS                        |
+|  Smart section: overdue + today tasks    |
+|  from checklists, contextual to plan     |
+|  [progress bar: 2/7 done today]          |
+|                                          |
++------------------------------------------+
+|                                          |
+|  90-DAY ROADMAP                          |
+|  Month 1: Foundations  [0/4] ----        |
+|    > Week 1 (current)  [expand]          |
+|      - title + description               |
+|      - tasks with checkboxes             |
+|      - XP/Token rewards                  |
+|      - [Complete Week] button            |
+|    > Week 2                              |
+|    > Week 3                              |
+|    > Week 4                              |
+|  Month 2: Building     [0/4] ----        |
+|  Month 3: Momentum     [0/4] ----        |
+|                                          |
++------------------------------------------+
+|                                          |
+|  LIFE ANALYSIS (pie chart)               |
+|  Balance index across 8 pillars          |
+|                                          |
++------------------------------------------+
 ```
 
-This replaces the duplicated inline icon buttons in both mobile header and TopNavBar's right section.
+## Technical Plan
 
-### 4. Suggestion Tap Behavior
+### Step 1: Create unified `PlanRoadmap` component
+New file: `src/components/dashboard/plan/PlanRoadmap.tsx`
 
-In `AuroraWelcome.tsx` (and any smart suggestion chips), when user taps a suggestion:
-- Parse it through `parseAllTags` from the command bus
-- If it produces commands and all are `safe` risk: execute immediately via `dispatchCommands`, show receipt toast
-- If it produces `moderate`/`destructive` commands: send as chat message (current behavior, Aurora will respond with confirmation cards)
-- If no tags detected (plain text suggestion): send as chat message (current behavior)
+Combines the best of `GoalsPanel`, `GoalsCard`, and the `/life-plan` page into one component:
+- Month accordion sections with themed gradients and icons (seedling, hammer, rocket)
+- Week rows inside each month with expand/collapse
+- Expanded week shows: description, task checkboxes, XP/token rewards, complete button
+- Current week auto-highlighted with "Current" badge
+- Completed weeks show green checkmark
 
-This leverages the Phase 2 command bus directly -- no new infrastructure needed.
+Uses a single query (from `GoalsPanel` pattern) to fetch plan + milestones.
 
----
+### Step 2: Refactor `PlanTab.tsx`
+Remove `Tabs` wrapper entirely. Render a clean vertical flow:
+1. `PlanProgressHero` (already good, keep as-is)
+2. `TasksPanel` (renamed section header to "Today's Missions")
+3. `PlanRoadmap` (new unified component)
+4. `LifeAnalysisChart` (keep at bottom)
 
-## Files Created
+Remove imports: `GoalsPanel`, `GoalsCard`, `PlanProgressCard`, `Tabs/TabsList/TabsTrigger/TabsContent`
 
-| File | Purpose |
-|------|---------|
-| `src/components/aurora/AuroraDock.tsx` | Unified 3-state dock (orb/peek/full) |
-| `src/components/navigation/HeaderActions.tsx` | Shared header action icons |
+### Step 3: Remove `/life-plan` route
+- Remove route from `App.tsx`
+- Remove lazy import of `LifePlan`
+- Remove `navigate('/life-plan')` calls from `PlanProgressHero` "View Plan" button (replace with scroll-to-roadmap or remove entirely since we're already on the plan page)
+- Keep `src/pages/LifePlan.tsx` file but it becomes unused (can delete later)
 
-## Files Modified
+### Step 4: Clean up unused components
+- `GoalsCard` - fully replaced by `PlanRoadmap`
+- `PlanProgressCard` - fully replaced by `PlanProgressHero`
+- `GoalsPanel` - fully replaced by `PlanRoadmap`
+- Remove from `src/components/dashboard/v2/index.ts` exports
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/DashboardLayout.tsx` | Replace inline header icons with HeaderActions; replace GlobalChatInput+AuroraChatBubbles with AuroraDock |
-| `src/components/navigation/TopNavBar.tsx` | Replace inline right-side icons with HeaderActions |
-| `src/contexts/AuroraChatContext.tsx` | Add `dockState` to context (orb/peek/full) |
-| `src/contexts/AuroraActionsContext.tsx` | Remove dashboard modal state (openDashboard, etc.) |
-| `src/components/dashboard/DashboardModal.tsx` | Remove UnifiedDashboardView, keep only profile view |
-| `src/components/dashboard/v2/index.ts` | Remove QuickActionsBar export |
-| `src/components/aurora/AuroraWelcome.tsx` | Add command bus integration for suggestion taps |
+### Step 5: Polish PlanProgressHero
+- Remove the "View Plan" button (no longer needed since roadmap is inline below)
+- Keep the week counter, month badge, progress bar, and current milestone preview
 
-## Files Deleted
+### Summary of changes
 
-| File | Reason |
-|------|--------|
-| `src/components/dashboard/v2/QuickActionsBar.tsx` | Dead code, never imported |
-| `src/components/dashboard/UnifiedDashboardView.tsx` | Legacy superset, replaced by tab pages |
-
-## What Does NOT Change
-
-- `TodayTab.tsx`, `PlanTab.tsx`, `MeTab.tsx`, `Aurora.tsx` -- tab content unchanged
-- `BottomTabBar.tsx` -- 4-tab nav unchanged
-- `AuroraChatArea.tsx`, `AuroraChatBubbles.tsx`, `GlobalChatInput.tsx` -- internal logic unchanged, just composed differently by AuroraDock
-- Command bus (`commandBus.ts`, `useCommandBus.tsx`) -- used as-is
-- All v2 dashboard cards -- unchanged
-- Database / Edge functions -- no backend changes
+| Action | File |
+|--------|------|
+| Create | `src/components/dashboard/plan/PlanRoadmap.tsx` |
+| Rewrite | `src/pages/PlanTab.tsx` (remove tabs, linear layout) |
+| Edit | `src/components/dashboard/v2/PlanProgressHero.tsx` (remove View Plan button) |
+| Edit | `src/App.tsx` (remove `/life-plan` route) |
+| Edit | `src/components/dashboard/v2/index.ts` (remove unused exports) |
+| Delete refs | `GoalsPanel.tsx`, `GoalsCard.tsx`, `PlanProgressCard.tsx` become unused |
 
