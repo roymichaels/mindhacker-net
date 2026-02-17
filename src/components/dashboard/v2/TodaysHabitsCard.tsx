@@ -15,37 +15,16 @@ export function TodaysHabitsCard() {
   const { habits, isLoading, toggleHabit, isToggling, completedCount, totalCount, progress } = useTodaysHabits();
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardHeader className="pb-2">
-          <Skeleton className="h-5 w-32" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </CardContent>
-      </Card>
-    );
+    return <Card><CardContent className="p-3 space-y-2"><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /></CardContent></Card>;
   }
 
   if (habits.length === 0) {
     return (
       <Card id="habits-card" className="bg-gradient-to-br from-emerald-500/5 to-transparent">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-emerald-500" />
-            {language === 'he' ? 'ההרגלים של היום' : "Today's Habits"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-6">
-          <p className="text-sm text-muted-foreground mb-3">
-            {language === 'he' 
-              ? 'עדיין אין לך הרגלים יומיים' 
-              : "You don't have daily habits yet"}
-          </p>
-          <Button size="sm" variant="outline" onClick={() => navigate('/aurora')}>
-            {language === 'he' ? 'הוסף הרגלים' : 'Add Habits'}
+        <CardContent className="p-3 text-center">
+          <p className="text-xs text-muted-foreground mb-2">{language === 'he' ? 'אין הרגלים עדיין' : 'No habits yet'}</p>
+          <Button size="sm" variant="outline" onClick={() => navigate('/aurora')} className="h-7 text-[11px]">
+            {language === 'he' ? 'הוסף' : 'Add'}
           </Button>
         </CardContent>
       </Card>
@@ -58,95 +37,51 @@ export function TodaysHabitsCard() {
     <Card 
       id="habits-card"
       className={cn(
-        "rounded-2xl shadow-sm bg-gradient-to-br transition-colors",
-        allCompleted 
-          ? "from-emerald-500/10 to-transparent border-emerald-500/30" 
-          : "from-muted/30 to-transparent"
+        "rounded-xl shadow-sm bg-gradient-to-br transition-colors",
+        allCompleted ? "from-emerald-500/10 to-transparent border-emerald-500/30" : "from-muted/30 to-transparent"
       )}
     >
-      <CardHeader className="pb-1 px-3 pt-3">
+      <CardHeader className="pb-0.5 px-2.5 pt-2.5">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Sparkles className={cn(
-              "h-4 w-4",
-              allCompleted ? "text-emerald-500" : "text-muted-foreground"
-            )} />
-            {language === 'he' ? 'ההרגלים של היום' : "Today's Habits"}
+          <CardTitle className="text-xs font-semibold flex items-center gap-1.5">
+            <Sparkles className={cn("h-3.5 w-3.5", allCompleted ? "text-emerald-500" : "text-muted-foreground")} />
+            {language === 'he' ? 'הרגלים' : 'Habits'}
           </CardTitle>
-          <span className="text-sm text-muted-foreground font-medium">
-            {completedCount}/{totalCount}
-          </span>
+          <span className="text-[10px] text-muted-foreground font-medium">{completedCount}/{totalCount}</span>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 px-3 pb-3" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Habit list */}
-        <div className="space-y-1.5">
+      <CardContent className="space-y-1 px-2.5 pb-2.5" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="space-y-0.5">
           <AnimatePresence mode="popLayout">
             {habits.map((habit) => (
               <motion.button
                 key={habit.id}
                 layout
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 onClick={() => toggleHabit(habit.id, !habit.isCompleted)}
                 disabled={isToggling}
                 className={cn(
-                  "w-full flex items-center gap-3 py-2 px-2.5 rounded-xl text-start",
-                  "transition-all duration-200",
+                  "w-full flex items-center gap-2 py-1.5 px-2 rounded-lg text-start transition-all",
                   "hover:bg-muted/50",
-                  habit.isCompleted 
-                    ? "bg-emerald-500/10" 
-                    : "bg-background/50 border border-border/50"
+                  habit.isCompleted ? "bg-emerald-500/10" : "bg-background/50 border border-border/50"
                 )}
               >
-                {/* Checkbox */}
                 <div className={cn(
-                  "flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center",
-                  "transition-all duration-200",
-                  habit.isCompleted 
-                    ? "bg-emerald-500 text-white" 
-                    : "border-2 border-muted-foreground/30"
+                  "shrink-0 w-4 h-4 rounded-full flex items-center justify-center transition-all",
+                  habit.isCompleted ? "bg-emerald-500 text-white" : "border-2 border-muted-foreground/30"
                 )}>
-                  {habit.isCompleted && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                    >
-                      <Check className="h-3 w-3" />
-                    </motion.div>
-                  )}
+                  {habit.isCompleted && <Check className="h-2.5 w-2.5" />}
                 </div>
-                
-                {/* Title */}
-                <span className={cn(
-                  "flex-1 text-sm transition-all",
-                  habit.isCompleted && "line-through text-muted-foreground"
-                )}>
+                <span className={cn("flex-1 text-xs", habit.isCompleted && "line-through text-muted-foreground")}>
                   {habit.title}
                 </span>
               </motion.button>
             ))}
           </AnimatePresence>
         </div>
-        
-        {/* Progress bar */}
-        <div className="space-y-1.5 pt-1">
-          <Progress 
-            value={progress} 
-            className={cn(
-              "h-1.5",
-              allCompleted && "[&>div]:bg-emerald-500"
-            )} 
-          />
-          <p className="text-xs text-muted-foreground text-center">
-            {allCompleted 
-              ? (language === 'he' ? '🎉 כל הכבוד! סיימת את כל ההרגלים' : '🎉 Great job! All habits completed')
-              : `${progress}% ${language === 'he' ? 'הושלמו' : 'complete'}`
-            }
-          </p>
-        </div>
+        <Progress value={progress} className={cn("h-1", allCompleted && "[&>div]:bg-emerald-500")} />
       </CardContent>
     </Card>
   );

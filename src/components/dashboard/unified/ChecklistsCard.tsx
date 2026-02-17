@@ -31,31 +31,24 @@ interface Checklist {
   aurora_checklist_items?: ChecklistItem[];
 }
 
-// Helper to get date status
 const getDateStatus = (dueDate: string | null | undefined, isCompleted: boolean): 'overdue' | 'today' | 'tomorrow' | 'upcoming' | 'completed' | 'none' => {
   if (isCompleted) return 'completed';
   if (!dueDate) return 'none';
-  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const due = new Date(dueDate);
   due.setHours(0, 0, 0, 0);
-  
   const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
   if (diffDays < 0) return 'overdue';
   if (diffDays === 0) return 'today';
   if (diffDays === 1) return 'tomorrow';
   return 'upcoming';
 };
 
-// Format date for display
 const formatDueDate = (dueDate: string | null | undefined, language: string): string => {
   if (!dueDate) return '';
-  
   const status = getDateStatus(dueDate, false);
   const date = new Date(dueDate);
-  
   if (language === 'he') {
     switch (status) {
       case 'overdue': return `${Math.abs(Math.ceil((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)))} ימים באיחור`;
@@ -64,16 +57,14 @@ const formatDueDate = (dueDate: string | null | undefined, language: string): st
       default: return date.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
     }
   }
-  
   switch (status) {
-    case 'overdue': return `${Math.abs(Math.ceil((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)))} days overdue`;
+    case 'overdue': return `${Math.abs(Math.ceil((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)))}d overdue`;
     case 'today': return 'Today';
     case 'tomorrow': return 'Tomorrow';
     default: return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
   }
 };
 
-// Icon mapping based on checklist title
 const getChecklistIcon = (title: string): string => {
   if (title.includes('להפסיק') || title.includes('stop') || title.includes('🚫')) return '🚫';
   if (title.includes('לבנות') || title.includes('build') || title.includes('🏗️')) return '🏗️';
@@ -82,16 +73,11 @@ const getChecklistIcon = (title: string): string => {
   return '📋';
 };
 
-// Color mapping based on checklist type
 const getChecklistColor = (title: string): string => {
-  if (title.includes('להפסיק') || title.includes('stop') || title.includes('🚫')) 
-    return 'from-red-500/10 to-orange-500/10 border-red-500/20';
-  if (title.includes('לבנות') || title.includes('build') || title.includes('🏗️')) 
-    return 'from-green-500/10 to-emerald-500/10 border-green-500/20';
-  if (title.includes('קריירה') || title.includes('career') || title.includes('💼')) 
-    return 'from-blue-500/10 to-indigo-500/10 border-blue-500/20';
-  if (title.includes('אתגר') || title.includes('challenge') || title.includes('⚡')) 
-    return 'from-amber-500/10 to-orange-500/10 border-amber-500/20';
+  if (title.includes('להפסיק') || title.includes('stop') || title.includes('🚫')) return 'from-red-500/10 to-orange-500/10 border-red-500/20';
+  if (title.includes('לבנות') || title.includes('build') || title.includes('🏗️')) return 'from-green-500/10 to-emerald-500/10 border-green-500/20';
+  if (title.includes('קריירה') || title.includes('career') || title.includes('💼')) return 'from-blue-500/10 to-indigo-500/10 border-blue-500/20';
+  if (title.includes('אתגר') || title.includes('challenge') || title.includes('⚡')) return 'from-amber-500/10 to-orange-500/10 border-amber-500/20';
   return 'from-purple-500/10 to-violet-500/10 border-purple-500/20';
 };
 
@@ -104,11 +90,8 @@ export function ChecklistsCard() {
   const toggleExpand = (checklistId: string) => {
     setExpandedChecklists(prev => {
       const next = new Set(prev);
-      if (next.has(checklistId)) {
-        next.delete(checklistId);
-      } else {
-        next.add(checklistId);
-      }
+      if (next.has(checklistId)) next.delete(checklistId);
+      else next.add(checklistId);
       return next;
     });
   };
@@ -116,76 +99,40 @@ export function ChecklistsCard() {
   const handleToggleItem = async (itemId: string, isCompleted: boolean) => {
     const result = await toggleItem(itemId, !isCompleted);
     if (result && !isCompleted) {
-      toast.success(language === 'he' ? 'משימה הושלמה! +10 XP' : 'Task completed! +10 XP', {
-        icon: '🎉',
-      });
+      toast.success(language === 'he' ? 'הושלם! +10 XP' : 'Done! +10 XP', { icon: '🎉' });
     }
   };
 
   if (loading) {
-    return (
-      <div className="rounded-xl border bg-card p-4 animate-pulse">
-        <div className="h-6 bg-muted rounded w-32 mb-4" />
-        <div className="space-y-3">
-          <div className="h-12 bg-muted rounded" />
-          <div className="h-12 bg-muted rounded" />
-        </div>
-      </div>
-    );
+    return <div className="rounded-xl border bg-card p-3 animate-pulse"><div className="h-4 bg-muted rounded w-24 mb-2" /><div className="h-8 bg-muted rounded" /></div>;
   }
 
   if (checklists.length === 0) {
     return (
-      <div className="rounded-xl border bg-card p-6 text-center">
-        <ListTodo className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-        <h3 className="font-semibold mb-1">
-          {language === 'he' ? 'אין משימות עדיין' : 'No tasks yet'}
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          {language === 'he' 
-            ? 'השלם את תכנית הטרנספורמציה כדי ליצור משימות'
-            : 'Complete the transformation plan to create tasks'
-          }
-        </p>
+      <div className="rounded-xl border bg-card p-3 text-center">
+        <ListTodo className="w-8 h-8 mx-auto text-muted-foreground mb-1" />
+        <h3 className="font-semibold text-xs mb-0.5">{language === 'he' ? 'אין משימות' : 'No tasks'}</h3>
+        <p className="text-[10px] text-muted-foreground">{language === 'he' ? 'השלם את התוכנית ליצירת משימות' : 'Complete the plan to create tasks'}</p>
       </div>
     );
   }
 
-  // Calculate overall progress
   const allItems = checklists.flatMap(c => c.aurora_checklist_items || []);
   const completedItems = allItems.filter(i => i.is_completed);
-  const overallProgress = allItems.length > 0 
-    ? Math.round((completedItems.length / allItems.length) * 100)
-    : 0;
+  const overallProgress = allItems.length > 0 ? Math.round((completedItems.length / allItems.length) * 100) : 0;
 
   return (
-    <div 
-      className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="p-3 border-b bg-gradient-to-r from-primary/5 to-transparent">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-primary/10">
-              <ListTodo className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold">
-                {language === 'he' ? '📋 המשימות שלי' : '📋 My Tasks'}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {completedItems.length}/{allItems.length} {language === 'he' ? 'הושלמו' : 'completed'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{overallProgress}%</span>
-            <div className="w-20">
-              <Progress value={overallProgress} className="h-2" />
-            </div>
-          </div>
+      <div className="px-2.5 py-2 border-b bg-gradient-to-r from-primary/5 to-transparent flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <ListTodo className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-semibold">{language === 'he' ? 'משימות' : 'Tasks'}</span>
+          <span className="text-[10px] text-muted-foreground">{completedItems.length}/{allItems.length}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-medium">{overallProgress}%</span>
+          <div className="w-14"><Progress value={overallProgress} className="h-1.5" /></div>
         </div>
       </div>
 
@@ -201,119 +148,66 @@ export function ChecklistsCard() {
 
           return (
             <div key={checklist.id} className="overflow-hidden">
-              {/* Checklist Header */}
               <button
                 onClick={() => toggleExpand(checklist.id)}
-                className={cn(
-                  "w-full py-2 px-3 flex items-center gap-3 hover:bg-muted/50 transition-colors",
-                  "text-start"
-                )}
+                className="w-full py-1.5 px-2.5 flex items-center gap-2 hover:bg-muted/50 transition-colors text-start"
               >
-                <span className="text-xl">{icon}</span>
+                <span className="text-sm">{icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">
-                      {checklist.title.replace(/^[🚫🏗️💼⚡📋]\s*/, '')}
-                    </span>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      ({completed}/{items.length})
-                    </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-medium truncate">{checklist.title.replace(/^[🚫🏗️💼⚡📋]\s*/, '')}</span>
+                    <span className="text-[10px] text-muted-foreground">({completed}/{items.length})</span>
                   </div>
-                  <div className="mt-1.5">
-                    <Progress value={progress} className="h-1.5" />
-                  </div>
+                  <Progress value={progress} className="h-1 mt-1" />
                 </div>
-                
-                {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                )}
+                {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground shrink-0" /> : <ChevronDown className="w-3 h-3 text-muted-foreground shrink-0" />}
               </button>
 
-              {/* Checklist Items */}
               <AnimatePresence>
                 {isExpanded && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={cn(
-                      "border-t bg-gradient-to-br",
-                      colorClass
-                    )}
+                    transition={{ duration: 0.15 }}
+                    className={cn("border-t bg-gradient-to-br", colorClass)}
                   >
-                    <div className="p-2.5 space-y-1.5">
-                      {items
-                        .sort((a, b) => a.order_index - b.order_index)
-                        .map((item) => (
-                          <motion.div
-                            key={item.id}
-                            initial={{ x: -10, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            className={cn(
-                              "flex items-center gap-3 py-2 px-2.5 rounded-xl bg-background/80 backdrop-blur-sm",
-                              "border border-border/50 transition-all cursor-pointer hover:border-primary/30",
-                              item.is_completed && "opacity-60",
-                              getDateStatus(item.due_date, item.is_completed) === 'overdue' && "border-destructive/50 bg-destructive/5"
-                            )}
-                            onClick={() => handleToggleItem(item.id, item.is_completed)}
-                          >
-                            <div
-                              className={cn(
-                                "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                                item.is_completed
-                                  ? "bg-primary border-primary"
-                                  : "border-muted-foreground/50 hover:border-primary"
-                              )}
-                            >
-                              {item.is_completed && (
-                                <Check className="w-3 h-3 text-primary-foreground" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <span
-                                className={cn(
-                                  "text-sm block",
-                                  item.is_completed && "line-through text-muted-foreground"
+                    <div className="p-2 space-y-0.5">
+                      {items.sort((a, b) => a.order_index - b.order_index).map((item) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className={cn(
+                            "flex items-center gap-2 py-1.5 px-2 rounded-lg bg-background/80",
+                            "border border-border/50 transition-all cursor-pointer hover:border-primary/30",
+                            item.is_completed && "opacity-60",
+                            getDateStatus(item.due_date, item.is_completed) === 'overdue' && "border-destructive/50 bg-destructive/5"
+                          )}
+                          onClick={() => handleToggleItem(item.id, item.is_completed)}
+                        >
+                          <div className={cn(
+                            "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
+                            item.is_completed ? "bg-primary border-primary" : "border-muted-foreground/50"
+                          )}>
+                            {item.is_completed && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className={cn("text-xs block", item.is_completed && "line-through text-muted-foreground")}>{item.content}</span>
+                            {item.due_date && !item.is_completed && (
+                              <div className="mt-0.5">
+                                {getDateStatus(item.due_date, item.is_completed) === 'overdue' ? (
+                                  <Badge variant="destructive" className="text-[9px] h-4 gap-0.5 px-1"><AlertCircle className="w-2.5 h-2.5" />{formatDueDate(item.due_date, language)}</Badge>
+                                ) : getDateStatus(item.due_date, item.is_completed) === 'today' ? (
+                                  <Badge variant="secondary" className="text-[9px] h-4 gap-0.5 px-1 bg-amber-500/20 text-amber-700 border-amber-500/30"><Clock className="w-2.5 h-2.5" />{formatDueDate(item.due_date, language)}</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-[9px] h-4 gap-0.5 px-1"><Calendar className="w-2.5 h-2.5" />{formatDueDate(item.due_date, language)}</Badge>
                                 )}
-                              >
-                                {item.content}
-                              </span>
-                              {/* Due date badge */}
-                              {item.due_date && !item.is_completed && (
-                                <div className="flex items-center gap-1 mt-1">
-                                  {getDateStatus(item.due_date, item.is_completed) === 'overdue' ? (
-                                    <Badge variant="destructive" className="text-[10px] h-5 gap-1">
-                                      <AlertCircle className="w-3 h-3" />
-                                      {formatDueDate(item.due_date, language)}
-                                    </Badge>
-                                  ) : getDateStatus(item.due_date, item.is_completed) === 'today' ? (
-                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-amber-500/20 text-amber-700 border-amber-500/30">
-                                      <Clock className="w-3 h-3" />
-                                      {formatDueDate(item.due_date, language)}
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="outline" className="text-[10px] h-5 gap-1">
-                                      <Calendar className="w-3 h-3" />
-                                      {formatDueDate(item.due_date, language)}
-                                    </Badge>
-                                  )}
-                                </div>
-                              )}
-                              {/* Completed date */}
-                              {item.is_completed && item.completed_at && (
-                                <span className="text-[10px] text-muted-foreground mt-1 block">
-                                  ✓ {new Date(item.completed_at).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
-                            {item.is_completed && (
-                              <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                              </div>
                             )}
-                          </motion.div>
-                        ))}
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </motion.div>
                 )}
@@ -324,13 +218,10 @@ export function ChecklistsCard() {
       </div>
 
       {/* XP Reminder */}
-      <div className="p-2 bg-muted/30 border-t">
-        <p className="text-xs text-center text-muted-foreground">
-          <Sparkles className="w-3 h-3 inline-block me-1" />
-          {language === 'he' 
-            ? 'כל משימה שתשלים = +10 XP' 
-            : 'Each completed task = +10 XP'
-          }
+      <div className="px-2 py-1 bg-muted/30 border-t">
+        <p className="text-[10px] text-center text-muted-foreground">
+          <Sparkles className="w-2.5 h-2.5 inline-block me-0.5" />
+          {language === 'he' ? 'כל משימה = +10 XP' : 'Each task = +10 XP'}
         </p>
       </div>
     </div>
