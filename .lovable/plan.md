@@ -1,37 +1,34 @@
 
+## Fix Grid Column Height Alignment
 
-## Root Cause Analysis
+### Problem
+From the screenshots, the two-column grid on desktop and tablet has mismatched heights -- the orb/HUD column (left) is shorter than the plan column (right), leaving empty space. The columns need to stretch equally so both fill the available viewport height.
 
-After tracing through the component hierarchy, the reason 100+ attempts failed is that **the orb element itself has hardcoded `minWidth` and `minHeight` inline styles** (in `WebGLOrb.tsx`, line 742-746):
+### Solution
 
+**File: `src/components/dashboard/MobileHeroGrid.tsx`**
+
+1. **Grid container**: Change from `md:auto-rows-min md:items-start` to `md:grid-rows-[1fr]` (single row that fills available height) and `md:items-stretch` so both columns stretch to the same height.
+
+2. **HUD column (orb + stats)**: Remove `md:sticky md:top-0`. Add `md:overflow-y-auto` so if content exceeds the column height it scrolls internally. Use `md:flex md:flex-col md:justify-center` to vertically center the orb content within the full-height column.
+
+3. **Plan column**: Keep `md:overflow-y-auto` for internal scrolling. Both columns will now share the same height, determined by the grid row which fills the remaining viewport space.
+
+4. **Mobile**: No changes -- mobile remains a single-column stacked layout with natural scrolling.
+
+### Technical Details
+
+```text
+Grid Container Changes:
+  REMOVE: md:auto-rows-min md:items-start
+  ADD:    md:grid-rows-[1fr] md:items-stretch
+
+HUD Column Changes:
+  REMOVE: md:sticky md:top-0
+  ADD:    md:overflow-y-auto md:justify-center
+
+Plan Column:
+  Keep existing md:overflow-y-auto (already has it)
 ```
-style={{
-  width: size,
-  height: size,
-  minWidth: size,    // <-- THIS prevents shrinking
-  minHeight: size,   // <-- THIS prevents shrinking
-  ...
-}}
-```
 
-No amount of `overflow: hidden`, `min-h-0`, `max-h-full`, `grid-rows-1`, or `flex` constraints on parent containers can override a child's explicit `minWidth`/`minHeight`. The 280px orb physically forces the HUD column to be at least 280px tall, causing the overflow you see.
-
-## Fix Plan
-
-### Step 1: Remove rigid min-size from WebGLOrb
-
-In `src/components/orb/WebGLOrb.tsx`, remove `minWidth: size` and `minHeight: size` from the container's inline style. Keep `width` and `height` so it renders at the desired size, but allow CSS parents to clip/constrain it.
-
-### Step 2: Contain the orb on desktop in MobileHeroGrid
-
-In `src/components/dashboard/MobileHeroGrid.tsx`, wrap the desktop orb in a container with `overflow-hidden` and `max-h-full` so it clips gracefully if the grid row is shorter than 280px. The orb will render at full size but the container will visually crop it to fit.
-
-### Step 3: Clean up accumulated workarounds
-
-Remove the inline `style={{ overflow: 'hidden', minHeight: 0 }}` and `style={{ flex: '1 1 0', minHeight: 0 }}` hacks that were added in previous attempts, replacing them with clean Tailwind classes now that the root cause is fixed.
-
-## Technical Details
-
-- `WebGLOrb.tsx` line 745-746: delete `minWidth: size` and `minHeight: size`
-- `MobileHeroGrid.tsx` line 104: clean up inline styles, use `md:overflow-hidden md:min-h-0`
-- `MobileHeroGrid.tsx` line 166: use `overflow-hidden min-h-0 flex-1` without inline styles
+This ensures both columns always match the viewport-available height on desktop and tablet, with internal scrolling when content overflows.
