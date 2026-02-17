@@ -101,7 +101,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[300px_1fr] md:gap-2 md:items-stretch md:overflow-hidden">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="rounded-2xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 md:order-1 md:overflow-y-auto md:flex md:flex-col md:justify-center">
+        <div className="rounded-2xl bg-card/50 backdrop-blur-sm p-4 md:order-1 md:overflow-y-auto md:flex md:flex-col md:justify-center">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
@@ -150,7 +150,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Start Session button - mobile only, inside HUD */}
             <button
               onClick={handleStartDailySession}
-              className="w-full flex items-center justify-center gap-3 rounded-xl bg-background border border-border px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+              className="w-full flex items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
             >
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
@@ -212,7 +212,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* Start Session button - desktop only */}
           <button
             onClick={handleStartDailySession}
-            className="hidden md:flex w-full items-center justify-center gap-3 rounded-xl bg-background dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-border dark:border-primary/30 px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+            className="hidden md:flex w-full items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
           >
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
@@ -261,21 +261,21 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setActiveModal('identity')}
-              className="rounded-xl bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-border dark:border-primary/30 p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
             >
               <UserCircle className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
             </button>
             <button
               onClick={() => setActiveModal('direction')}
-              className="rounded-xl bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-border dark:border-primary/30 p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
             >
               <Compass className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
             </button>
             <button
               onClick={() => setActiveModal('insights')}
-              className="rounded-xl bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-border dark:border-primary/30 p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
+              className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-amber-500/10 transition-all"
             >
               <Brain className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
@@ -331,7 +331,7 @@ function CollapsiblePlanRow({
 }: CollapsiblePlanRowProps) {
   const firstUndone = items?.find(i => !i.done);
   return (
-    <div className="rounded-xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden flex flex-col">
+    <div className="rounded-xl border-b border-border/30 overflow-hidden flex flex-col">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent/5 transition-colors"
