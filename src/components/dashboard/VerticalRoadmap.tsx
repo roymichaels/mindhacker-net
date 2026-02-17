@@ -115,7 +115,7 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
         className="relative overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="relative flex items-start gap-0" style={{ minWidth: `${milestones.length * 84}px` }}>
+        <div className="relative flex items-start gap-0" style={{ minWidth: `${milestones.length * 96}px` }}>
           {/* Horizontal line background */}
           <div className="absolute top-[16px] left-0 right-0 h-[3px] bg-muted/30 rounded-full" />
           {/* Horizontal line progress fill */}
@@ -151,7 +151,7 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
                       "flex flex-col items-center snap-center transition-all duration-300",
                       isFuture && "opacity-30 blur-[0.5px]"
                     )}
-                    style={{ minWidth: '84px' }}
+                    style={{ minWidth: '96px' }}
                   >
                     {/* Node */}
                     <div className="relative z-10 mb-1.5">
@@ -200,10 +200,10 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
 
                     {/* Title */}
                     <p className={cn(
-                      "text-[10px] leading-tight text-center max-w-[76px] mt-0.5",
+                      "text-[11px] leading-snug text-center max-w-[88px] mt-0.5",
                       isCurrent ? "text-foreground font-semibold" : isCompleted ? "text-muted-foreground" : "text-muted-foreground/70"
                     )}
-                      style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                      style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                     >
                       {milestone.title}
                     </p>
