@@ -310,8 +310,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
-          {/* Daily Pulse Check-in */}
-          <DailyPulseCard />
+          {/* Daily Pulse Check-in - mobile only, desktop shows in COL 3 */}
+          <div className="lg:hidden">
+            <DailyPulseCard />
+          </div>
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
@@ -372,6 +374,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         {/* ===== COL 3 - Diagnostics (desktop only) ===== */}
         <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4">
+          {/* Daily Pulse - desktop, above diagnostics */}
+          <DailyPulseCard />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
             {language === 'he' ? 'אבחון' : 'Diagnostics'}
           </h3>
