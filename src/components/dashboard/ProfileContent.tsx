@@ -23,13 +23,22 @@ import {
   Compass,
   TrendingUp,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Brain,
+  Calendar,
+  UserCircle,
+  Activity,
+  Anchor
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import {
+  AIAnalysisModal, LifePlanModal, ConsciousnessModal, BehavioralModal,
+  IdentityModal, TraitsModal, CommitmentsModal, AnchorsModal,
+} from '@/components/dashboard/DashboardModals';
 
 interface ProfileContentProps {
   onClose?: () => void;
@@ -45,6 +54,9 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
   
+  type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | null;
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 0;
@@ -345,7 +357,41 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         </motion.div>
       )}
 
-      {/* ===== ACTION BUTTONS ===== */}
+      {/* ===== MY INSIGHTS TOOLS GRID ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.55 }}
+      >
+        <GlassCard
+          icon={<Brain className="w-4 h-4 text-primary" />}
+          title={language === 'he' ? 'התובנות שלי' : 'My Insights'}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {([
+              { key: 'ai' as ModalType, icon: <Sparkles className="w-5 h-5" />, label: language === 'he' ? 'ניתוח AI' : 'AI Analysis' },
+              { key: 'plan' as ModalType, icon: <Calendar className="w-5 h-5" />, label: language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan' },
+              { key: 'consciousness' as ModalType, icon: <Brain className="w-5 h-5" />, label: language === 'he' ? 'מפת תודעה' : 'Consciousness' },
+              { key: 'identity' as ModalType, icon: <UserCircle className="w-5 h-5" />, label: language === 'he' ? 'כרטיס זהות' : 'Identity Card' },
+              { key: 'traits' as ModalType, icon: <Heart className="w-5 h-5" />, label: language === 'he' ? 'תכונות אופי' : 'Traits' },
+              { key: 'behavioral' as ModalType, icon: <Activity className="w-5 h-5" />, label: language === 'he' ? 'תובנות' : 'Insights' },
+              { key: 'commitments' as ModalType, icon: <Target className="w-5 h-5" />, label: language === 'he' ? 'התחייבויות' : 'Commitments' },
+              { key: 'anchors' as ModalType, icon: <Anchor className="w-5 h-5" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
+            ]).map((tool) => (
+              <button
+                key={tool.key}
+                onClick={() => setActiveModal(tool.key)}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group"
+              >
+                <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
+                <span className="text-xs font-medium text-foreground leading-tight">{tool.label}</span>
+              </button>
+            ))}
+          </div>
+        </GlassCard>
+      </motion.div>
+
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -378,6 +424,16 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           {language === 'he' ? 'חשב מחדש ניתוח AI' : 'Regenerate AI Analysis'}
         </Button>
       </motion.div>
+
+      {/* ===== MODALS ===== */}
+      <AIAnalysisModal open={activeModal === 'ai'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
+      <LifePlanModal open={activeModal === 'plan'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
+      <ConsciousnessModal open={activeModal === 'consciousness'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
+      <BehavioralModal open={activeModal === 'behavioral'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
+      <IdentityModal open={activeModal === 'identity'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} values={dashboardData.values} principles={dashboardData.principles} selfConcepts={dashboardData.selfConcepts} identityTitle={dashboardData.identityTitle} />
+      <TraitsModal open={activeModal === 'traits'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
+      <CommitmentsModal open={activeModal === 'commitments'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} commitments={dashboardData.activeCommitments} />
+      <AnchorsModal open={activeModal === 'anchors'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} anchors={dashboardData.dailyAnchors} />
     </div>
   );
 }
