@@ -1,22 +1,37 @@
 
 
-## Fix Two-Column Height Alignment on Tablet/Desktop
+## Root Cause Analysis
 
-The problem is that the left HUD column (with the orb) and the right plan column have mismatched heights. The HUD column stretches tall while the plan content ends shorter, creating an asymmetrical layout.
+After tracing through the component hierarchy, the reason 100+ attempts failed is that **the orb element itself has hardcoded `minWidth` and `minHeight` inline styles** (in `WebGLOrb.tsx`, line 742-746):
 
-### Root Cause
+```
+style={{
+  width: size,
+  height: size,
+  minWidth: size,    // <-- THIS prevents shrinking
+  minHeight: size,   // <-- THIS prevents shrinking
+  ...
+}}
+```
 
-The plan column (COL 2) has `md:flex-none` which prevents it from stretching to fill its grid cell. Meanwhile the HUD column grows freely with the orb. Both columns need to fill their grid cell equally.
+No amount of `overflow: hidden`, `min-h-0`, `max-h-full`, `grid-rows-1`, or `flex` constraints on parent containers can override a child's explicit `minWidth`/`minHeight`. The 280px orb physically forces the HUD column to be at least 280px tall, causing the overflow you see.
 
-### Changes
+## Fix Plan
 
-**File: `src/components/dashboard/MobileHeroGrid.tsx`**
+### Step 1: Remove rigid min-size from WebGLOrb
 
-1. **Plan column (line 208)**: Replace `md:flex-none` with `md:h-full` so it stretches to match the HUD column height within the grid cell.
+In `src/components/orb/WebGLOrb.tsx`, remove `minWidth: size` and `minHeight: size` from the container's inline style. Keep `width` and `height` so it renders at the desired size, but allow CSS parents to clip/constrain it.
 
-2. **Grid wrapper (line 116)**: Keep `md:auto-rows-fr` (already correct) to ensure equal row heights, and add `md:items-stretch` to force both columns to fill the full grid cell height.
+### Step 2: Contain the orb on desktop in MobileHeroGrid
 
-3. **Plan column inner content**: Add `flex-1` to the collapsible rows wrapper area so the plan cards distribute evenly within the stretched column.
+In `src/components/dashboard/MobileHeroGrid.tsx`, wrap the desktop orb in a container with `overflow-hidden` and `max-h-full` so it clips gracefully if the grid row is shorter than 280px. The orb will render at full size but the container will visually crop it to fit.
 
-This will make both columns visually match in height on tablet and desktop screens.
+### Step 3: Clean up accumulated workarounds
 
+Remove the inline `style={{ overflow: 'hidden', minHeight: 0 }}` and `style={{ flex: '1 1 0', minHeight: 0 }}` hacks that were added in previous attempts, replacing them with clean Tailwind classes now that the root cause is fixed.
+
+## Technical Details
+
+- `WebGLOrb.tsx` line 745-746: delete `minWidth: size` and `minHeight: size`
+- `MobileHeroGrid.tsx` line 104: clean up inline styles, use `md:overflow-hidden md:min-h-0`
+- `MobileHeroGrid.tsx` line 166: use `overflow-hidden min-h-0 flex-1` without inline styles
