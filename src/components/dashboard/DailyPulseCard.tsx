@@ -53,17 +53,21 @@ export function DailyPulseCard() {
         </div>
         <div className="grid grid-cols-5 gap-1">
           {[
-            { icon: Zap, val: todayPulse.energy_rating, label: isHe ? 'אנרגיה' : 'Energy' },
-            { icon: Moon, val: todayPulse.sleep_compliance === 'yes' ? '✓' : todayPulse.sleep_compliance === 'partial' ? '~' : '✗', label: isHe ? 'שינה' : 'Sleep' },
-            { icon: Check, val: todayPulse.task_confidence, label: isHe ? 'ביצוע' : 'Tasks' },
-            { icon: Smartphone, val: todayPulse.screen_discipline ? '✓' : '✗', label: isHe ? 'מסך' : 'Screen' },
-            { icon: Brain, val: MOOD_OPTIONS.find(m => m.value === todayPulse.mood_signal)?.emoji || '😐', label: isHe ? 'מצב' : 'Mood' },
-          ].map((item) => (
-            <div key={item.label} className="flex flex-col items-center gap-0.5 rounded-lg bg-muted/30 p-1.5">
-              <span className="text-sm font-bold">{item.val}</span>
-              <span className="text-[8px] text-muted-foreground">{item.label}</span>
-            </div>
-          ))}
+            { icon: Zap, val: todayPulse.energy_rating, label: isHe ? 'אנרגיה' : 'Energy', color: 'text-amber-500' },
+            { icon: Moon, val: todayPulse.sleep_compliance === 'yes' ? '✓' : todayPulse.sleep_compliance === 'partial' ? '~' : '✗', label: isHe ? 'שינה' : 'Sleep', color: 'text-blue-500' },
+            { icon: Check, val: todayPulse.task_confidence, label: isHe ? 'ביצוע' : 'Tasks', color: 'text-emerald-500' },
+            { icon: Smartphone, val: todayPulse.screen_discipline ? '✓' : '✗', label: isHe ? 'מסך' : 'Screen', color: 'text-violet-500' },
+            { icon: Brain, val: MOOD_OPTIONS.find(m => m.value === todayPulse.mood_signal)?.emoji || '😐', label: isHe ? 'מצב' : 'Mood', color: 'text-rose-500' },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="flex flex-col items-center gap-0.5 rounded-lg bg-muted/30 p-1.5">
+                <Icon className={cn("w-3 h-3", item.color)} />
+                <span className={cn("text-sm font-bold", item.color)}>{item.val}</span>
+                <span className="text-[8px] text-muted-foreground">{item.label}</span>
+              </div>
+            );
+          })}
         </div>
         {weekStats && weekStats.daysLogged > 1 && (
           <div className="mt-2 flex items-center gap-2 text-[10px] text-muted-foreground">
