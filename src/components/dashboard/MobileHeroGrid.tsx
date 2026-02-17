@@ -96,12 +96,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const orbSize = 280;
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0">
       {/* ===== 2-COL GRID: Plan (left on desktop) + HUD (right on desktop) ===== */}
-      <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[300px_1fr] md:grid-rows-[1fr] md:overflow-hidden md:items-stretch">
+      <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[300px_1fr] md:gap-2 md:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="rounded-2xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 md:order-1 md:overflow-y-auto md:flex md:flex-col md:justify-center">
+        <div className="rounded-2xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 md:order-1 md:sticky md:top-0">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
@@ -208,7 +208,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:flex md:flex-col overflow-y-auto md:order-2 md:min-h-0 md:overflow-y-auto">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:order-2">
           {/* Start Session button - desktop only */}
           <button
             onClick={handleStartDailySession}
@@ -331,7 +331,7 @@ function CollapsiblePlanRow({
 }: CollapsiblePlanRowProps) {
   const firstUndone = items?.find(i => !i.done);
   return (
-    <div className="rounded-xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden flex flex-col md:flex-1">
+    <div className="rounded-xl border border-border dark:border-primary/30 bg-card dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden flex flex-col">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent/5 transition-colors"
