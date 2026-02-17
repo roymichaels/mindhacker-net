@@ -79,7 +79,7 @@ export const useCommandBus = () => {
   const navigate = useNavigate();
   const { setTheme, theme } = useTheme();
   const queryClient = useQueryClient();
-  const { openHypnosis, openDashboard, openSettings, openProfile, openUpgrade } = useAuroraActions();
+  const { openHypnosis, openSettings, openProfile, openUpgrade } = useAuroraActions();
 
   const {
     createChecklist,

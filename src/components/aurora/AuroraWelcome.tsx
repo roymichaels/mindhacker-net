@@ -30,7 +30,7 @@ const cardColors = [
 const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
   const { suggestions, isLoading } = useSmartSuggestions();
-  const { openHypnosis, openDashboard } = useAuroraActions();
+  const { openHypnosis } = useAuroraActions();
 
   const handleSuggestionAction = (action: SuggestionAction) => {
     switch (action.type) {
@@ -38,7 +38,7 @@ const AuroraWelcome = ({ onSuggestionClick }: AuroraWelcomeProps) => {
         openHypnosis();
         break;
       case 'open_dashboard':
-        openDashboard(action.view);
+        // Dashboard is now the app itself – no-op
         break;
       case 'send_message':
         onSuggestionClick(action.prompt);
