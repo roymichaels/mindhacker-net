@@ -14,13 +14,13 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ icon: Icon, emoji, title, subtitle, action, actionLabel, className }: SectionHeaderProps) {
   return (
-    <div className={cn('flex items-center justify-between', className)}>
-      <div className="flex items-center gap-2 min-w-0">
-        {Icon && <Icon className="w-4 h-4 text-primary shrink-0" />}
-        {emoji && <span className="text-base shrink-0">{emoji}</span>}
+    <div className={cn('flex items-center justify-between mb-4', className)}>
+      <div className="flex items-center gap-2.5 min-w-0">
+        {Icon && <Icon className="w-5 h-5 text-primary shrink-0" />}
+        {emoji && <span className="text-lg shrink-0">{emoji}</span>}
         <div className="min-w-0">
-          <h2 className="text-base font-bold truncate">{title}</h2>
-          {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+          <h2 className="text-xl font-semibold truncate">{title}</h2>
+          {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
         </div>
       </div>
       {action && actionLabel && (
