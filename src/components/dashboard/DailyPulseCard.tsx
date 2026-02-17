@@ -46,7 +46,7 @@ export function DailyPulseCard() {
     return (
       <div className="rounded-xl border border-border/50 bg-card/50 p-3">
         <div className="flex items-center gap-2 mb-2">
-          <Activity className="w-4 h-4 text-green-500" />
+          <Activity className="w-4 h-4 text-primary" />
           <span className="text-xs font-semibold text-green-500">
             {isHe ? 'דופק יומי ✓' : 'Daily Pulse ✓'}
           </span>
@@ -205,11 +205,11 @@ export function DailyPulseCard() {
   const StepIcon = currentStep.icon;
 
   return (
-    <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-3">
+    <div className="rounded-xl border border-border/50 bg-gradient-to-br from-primary/5 via-transparent to-transparent p-3">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-amber-500" />
+          <Activity className="w-4 h-4 text-primary" />
           <span className="text-xs font-semibold">
             {isHe ? 'דופק יומי' : 'Daily Pulse'}
           </span>
@@ -220,7 +220,7 @@ export function DailyPulseCard() {
               key={i}
               className={cn(
                 "w-5 h-1 rounded-full transition-all",
-                i <= step ? "bg-amber-500" : "bg-muted/50"
+                i <= step ? "bg-primary" : "bg-muted/50"
               )}
             />
           ))}
