@@ -1,107 +1,144 @@
 
-# Premium "Million Dollar App" Redesign
 
-## Core Problems
-1. The 3-column hero grid is too cramped on mobile — 3 tiny columns with microscopic content
-2. Plan page has redundant "Life Analysis" section that adds no value to the transformation flow
-3. Hero grid Column 3 buttons just scroll to sections below — pointless duplication
-4. Cards look generic — plain white with basic text, no visual personality
-5. No visual hierarchy — everything looks the same importance level
+# Rebuild MindOS Entry Experience — 5-Step Identity Calibration
 
-## Strategy: Replace 3-Column Grids with Premium Single-Flow Layouts
+## What Changes
 
-Instead of cramming 3 columns on mobile, use **full-width premium cards** with rich visual treatments. Density comes from **collapsible sections** and **smart stacking**, not from shrinking.
+The current `/start` flow shows an 8-pillar grid as Screen 1 ("What area needs attention?"). This is a dashboard disguised as onboarding. We're replacing it with a friction-first 5-step calibration at `/onboarding`.
 
----
+## Architecture Difference
 
-## Plan Page (`PlanTab.tsx`) — Complete Redesign
+**Current** (10 screens at `/start`):
+Screen 1: Pick a pillar (8 options) --> Screen 2: Pain --> Screen 3: Outcome --> Screen 4: Commitment --> Screen 5: Secondary focus --> Screen 6: Blocker --> Screen 7: Energy time --> Screen 8: Identity text --> Screen 9: Vision text --> Screen 10: Reveal
 
-**Remove entirely:**
-- Life Analysis collapsible section (and its import + state + ref)
-- Column 3 action buttons (Roadmap/Life Analysis scroll buttons — redundant)
+**New** (5 screens at `/onboarding`):
+Screen 1: "What feels hardest?" (6 emotional options, maps to pillar silently) --> Screen 2: Specific tension (dynamic per friction type) --> Screen 3: Desired shift (specific, not vague) --> Screen 4: Commitment calibration --> Screen 5: Light personalization (age range, work structure, experience level) --> Reveal screen
 
-**New layout (top to bottom):**
+Key differences:
+- No pillar grid shown. User picks an emotional pain point, system maps it to a pillar internally
+- 5 screens instead of 10 (no secondary focus, no blocker, no energy, no identity text, no vision text)
+- Personalization (demographics) comes LAST, after friction is established
+- Dashboard is locked until `onboarding_complete = true`
 
-1. **Full-width Transformation Hero** — Single dark gradient card spanning full width:
-   - Left side: Week number circle (large, `w-20 h-20`) + "Transformation Plan" title + month badge
-   - Right side: Progress ring or large progress bar with completion stats (0/12 completed, 0%)
-   - Below: Current milestone preview line
-   - This replaces the entire 3-column grid
+## Route Changes
 
-2. **Today's Missions** — Collapsible (expanded by default), same as now but with richer header styling (gradient accent strip on left border)
+| Route | Before | After |
+|-------|--------|-------|
+| `/onboarding` | Does not exist | New entry point for first-time users |
+| `/start` | Activation flow | Redirects to `/onboarding` |
+| `/launchpad` | Redirects to `/start` | Redirects to `/onboarding` |
+| `/today` | Always accessible | Redirects to `/onboarding` if not completed |
+| `/plan`, `/me`, `/sessions` | Always accessible | Redirects to `/onboarding` if not completed |
 
-3. **90-Day Roadmap** — Collapsible (collapsed by default), same as now
+## Data Storage (Zero Schema Changes)
 
----
+All data stores into existing `launchpad_progress` columns:
 
-## Today Page (`TodayTab.tsx`) — Minor Polish
+`step_1_intention` (JSON):
+```json
+{
+  "friction_type": "mentally_exhausted",
+  "selected_pillar": "mind",
+  "specific_tension": "cant_stop_overthinking",
+  "desired_shift": "wake_without_anxiety",
+  "commitment_level": "real_change"
+}
+```
 
-- Keep banner slider and next action banner as-is (they're already good)
-- Keep 2-column grid for habits + checklists
-- No structural changes needed, just ensure consistent card styling
+`step_2_profile_data` (JSON):
+```json
+{
+  "age_range": "25_34",
+  "work_structure": "employed",
+  "experience_level": "rebuilding"
+}
+```
 
----
+On completion: `launchpad_complete = true`, `step_7_dashboard_activated = true`
 
-## Profile Page (`ProfileContent.tsx`) — Replace 3-Col Grid
+## Friction-to-Pillar Mapping
 
-**New layout:**
+The 6 friction options on Screen 1 map silently to pillars:
 
-1. **Full-width Identity Hero** — Single dark gradient card:
-   - Center: Orb (100px) + identity title + gamification chips (Lv, Tokens, Streak) in a row
-   - Below orb: 3 inline metric badges (Mind, Clarity, Readiness) as horizontal pills
+| Friction Option | Internal Pillar |
+|----------------|-----------------|
+| "I feel mentally exhausted" | mind |
+| "I feel stuck in my career" | career |
+| "I feel financially stressed" | money |
+| "My relationships feel disconnected" | relationships |
+| "I lack structure and discipline" | health |
+| "I feel physically drained" | health |
 
-2. **3 Action Buttons** — Full-width row of 3 evenly-spaced buttons (not cramped column):
-   - My Values, Key Traits, Life Direction — each as a horizontal button with icon + label
+## New Files (4)
 
-3. **Rest stays the same** (Career/Change cards, Insights grid, CTA)
+### 1. `src/flows/onboardingFlowSpec.ts`
+5-step FlowSpec with friction-first emotional language:
 
----
+**Step 1 - Friction Anchor**: 6 emotional options (single_select, auto-advance)
+**Step 2 - Specific Tension**: Dynamic options per friction type using branching logic (single_select, auto-advance). Each friction type gets 5 specific sub-tensions.
+**Step 3 - Desired Shift**: 5 specific, non-vague outcome options (single_select, auto-advance). Options like "I'd wake up without anxiety" not "financial freedom".
+**Step 4 - Commitment Calibration**: 4 options (single_select, auto-advance)
+**Step 5 - Light Personalization**: 3 single_select questions shown sequentially (age range, work structure, experience level). These feel relevant because friction was established first.
 
-## Sessions Page (`HypnosisLibrary.tsx`) — Replace 3-Col Grid
+### 2. `src/components/onboarding/OnboardingFlow.tsx`
+Full-screen orchestrator (replaces ActivationFlow pattern):
+- Dark background (`bg-gray-950`)
+- Centered question, no nav, no tab bar
+- 5-segment progress indicator
+- Auto-advance on single_select (400ms delay)
+- Framer Motion slide transitions
+- Auto-save on every answer
+- After Step 5: shows Reveal screen
 
-**New layout:**
+### 3. `src/components/onboarding/OnboardingReveal.tsx`
+"Your Personalized Upgrade Path is Ready" screen:
+- Shows identified focus area (mapped pillar label)
+- Detected friction type
+- Commitment level
+- Suggested starting quest + first habit
+- "Enter My System" button
+- On click: saves to `launchpad_progress`, calls `generate-launchpad-summary`, redirects to `/today`
 
-1. **Full-width Daily Session Hero** — Large gradient card with centered content:
-   - Emoji + "Your Daily Session" + duration + prominent Play button
-   - Gradient background matching primary color
+### 4. `src/pages/Onboarding.tsx`
+Route page component rendering `OnboardingFlow`
 
-2. **Stats Row** — Horizontal row of 4 stat pills (Sessions, Minutes, XP, Level) — `grid grid-cols-4 gap-2`
+## Modified Files (2)
 
-3. **Quick Sessions** — Horizontal row of 4 cards — `grid grid-cols-4 gap-2` (same as stats row)
+### 5. `src/App.tsx`
+- Add `/onboarding` route (public, renders `Onboarding` page)
+- Change `/start`, `/launchpad`, `/quests`, `/free-journey` to all redirect to `/onboarding`
+- Wrap `/today`, `/plan`, `/sessions`, `/me` routes with an onboarding gate: if `launchpad_complete !== true`, redirect to `/onboarding`
 
-4. **Recent Sessions** — Stays the same
+### 6. `src/components/dashboard/ProfileContent.tsx`
+- Update `handleEditJourney` to navigate to `/onboarding` instead of `/quests` or `/launchpad`
 
----
+## What Gets Removed / Deprecated
+- `/start` route becomes a redirect to `/onboarding`
+- The 10-screen activation flow files stay in codebase but are no longer routed to
+- Grid-first pillar selection is no longer the entry point anywhere
 
-## Technical Details
+## What Stays Untouched
+- `generate-launchpad-summary` edge function (reads from same columns)
+- All dashboard pages (just gated behind onboarding check)
+- Existing `launchpad_progress` DB schema
+- Auth modal system
+- XP/gamification engine
+- Pillar quest specs (available post-onboarding as deep-dives)
 
-### Files Modified (4)
+## UI Rules (enforced in OnboardingFlow)
+- `bg-gray-950` dark background with forced dark CSS variables
+- Centered question with `text-2xl font-bold`
+- 4-6 large tap targets per screen (`min-h-[56px]`, `rounded-2xl`)
+- Soft slide-up animation (200ms ease-out)
+- 5-segment thin progress bar at top (`h-1`)
+- No top nav, no bottom tab bar
+- Subtle back button at bottom (not prominent)
+- Auto-advance: 400ms delay after single_select with scale animation
 
-1. **`src/pages/PlanTab.tsx`**
-   - Remove: `LifeAnalysisChart` import, `analysisRef`, `analysisOpen` state, entire Life Analysis section, Column 3 action buttons
-   - Replace 3-col grid with single full-width hero card
-   - Hero contains: week circle (left), stats + progress bar (right), current milestone (bottom)
-   - Keep collapsible Tasks (expanded) and Roadmap (collapsed)
-
-2. **`src/components/dashboard/ProfileContent.tsx`**
-   - Replace 3-col grid with: full-width identity hero (orb centered, chips below)
-   - Move metrics to horizontal badge row inside hero
-   - Move 3 action buttons to a full-width `grid grid-cols-3 gap-2` row below hero
-   - Button size: `py-3` with `text-sm` labels and `w-5 h-5` icons
-
-3. **`src/pages/HypnosisLibrary.tsx`**
-   - Replace 3-col grid with: full-width daily session hero card
-   - Stats become horizontal `grid grid-cols-4 gap-2` row
-   - Quick sessions become horizontal `grid grid-cols-4 gap-2` row
-   - Each section stacked vertically with `space-y-3`
-
-4. **`src/components/dashboard/plan/PlanRoadmap.tsx`** (minor)
-   - Remove the duplicate section header "🗺️ 90-Day Roadmap" inside the component (since the collapsible toggle already shows it)
-
-### Design Standards
-- Hero cards: `rounded-2xl p-5` with gradient backgrounds
-- Full-width layout: no more 3-col grids on mobile
-- Stats: horizontal pill rows with `grid grid-cols-4` or `grid grid-cols-3`
-- Buttons: full-width rows with minimum `py-3` height
-- Collapsible headers: `px-4 py-3.5` with `text-base font-semibold`
-- Color accents: left border gradient strips on collapsible sections
+## Implementation Order
+1. Create `onboardingFlowSpec.ts` (5 steps + branching + friction-to-pillar mapping)
+2. Create `OnboardingReveal.tsx` (reveal screen)
+3. Create `OnboardingFlow.tsx` (orchestrator)
+4. Create `Onboarding.tsx` (page)
+5. Update `App.tsx` (routes + onboarding gate)
+6. Update `ProfileContent.tsx` (navigation fix)
