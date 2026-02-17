@@ -160,7 +160,7 @@ export function ChecklistsCard() {
 
   return (
     <div 
-      className="rounded-xl border bg-card overflow-hidden md:col-span-2"
+      className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}

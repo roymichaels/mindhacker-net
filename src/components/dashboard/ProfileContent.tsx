@@ -23,7 +23,6 @@ import {
   Compass,
   TrendingUp,
   Zap,
-  ArrowRight,
   Brain,
   Calendar,
   UserCircle,
@@ -39,6 +38,10 @@ import {
   AIAnalysisModal, LifePlanModal, ConsciousnessModal, BehavioralModal,
   IdentityModal, TraitsModal, CommitmentsModal, AnchorsModal,
 } from '@/components/dashboard/DashboardModals';
+import { MetricCard } from '@/components/aurora-ui/MetricCard';
+import { PillChips } from '@/components/aurora-ui/PillChips';
+import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
+import { SectionHeader } from '@/components/aurora-ui/SectionHeader';
 
 interface ProfileContentProps {
   onClose?: () => void;
@@ -56,7 +59,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   
   type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   const consciousnessScore = (launchpadSummary?.consciousness_score as number) || 0;
@@ -65,15 +67,12 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   const handleRegenerate = async () => {
     if (!user?.id) return;
-    
     setIsRegenerating(true);
     try {
       const { error } = await supabase.functions.invoke('generate-launchpad-summary', {
         body: { userId: user.id, regenerate: true },
       });
-
       if (error) throw error;
-
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['launchpad-data', user.id], refetchType: 'active' }),
         queryClient.invalidateQueries({ queryKey: ['launchpad-summary', user.id], refetchType: 'active' }),
@@ -85,7 +84,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         queryClient.invalidateQueries({ queryKey: ['aurora-onboarding-progress', user.id], refetchType: 'active' }),
         queryClient.invalidateQueries({ queryKey: ['game-state'], refetchType: 'active' }),
       ]);
-
       toast.success(language === 'he' ? 'הניתוח עודכן בהצלחה!' : 'Analysis regenerated!');
     } catch (error) {
       console.error('Error regenerating summary:', error);
@@ -112,7 +110,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       {/* ===== HERO SECTION - Identity Card ===== */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -120,17 +118,12 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         transition={{ duration: 0.5 }}
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 backdrop-blur-xl border border-primary/30 shadow-xl"
       >
-        {/* Glow background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-        
         <div className="relative z-10 p-6 flex flex-col items-center text-center">
-          {/* Large Orb */}
           <div className="relative mb-6">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-2xl scale-110" />
             <PersonalizedOrb size={200} state="idle" />
           </div>
-
-          {/* Identity Title */}
           <div className="mb-4">
             {dashboardData.identityTitle ? (
               <>
@@ -148,8 +141,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
               </h2>
             )}
           </div>
-
-          {/* Stats Row */}
           <div className="flex items-center justify-center gap-4 text-sm">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border border-border/50">
               <Star className="w-4 h-4 text-yellow-500" />
@@ -174,21 +165,20 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="grid grid-cols-3 gap-3"
       >
-        <ScoreCard 
+        <MetricCard 
           icon={<Zap className="w-4 h-4" />}
           label={language === 'he' ? 'תודעה' : 'Consciousness'}
           value={consciousnessScore}
-          suffix=""
           gradient="from-yellow-500 to-orange-500"
         />
-        <ScoreCard 
+        <MetricCard 
           icon={<Compass className="w-4 h-4" />}
           label={language === 'he' ? 'בהירות' : 'Clarity'}
           value={clarityScore}
           suffix="%"
           gradient="from-blue-500 to-cyan-500"
         />
-        <ScoreCard 
+        <MetricCard 
           icon={<TrendingUp className="w-4 h-4" />}
           label={language === 'he' ? 'מוכנות' : 'Readiness'}
           value={transformationReadiness}
@@ -206,39 +196,21 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           className="space-y-3"
         >
           {dashboardData.values.length > 0 && (
-            <GlassCard 
+            <AuroraCard 
               icon={<Heart className="w-4 h-4 text-pink-500" />}
               title={language === 'he' ? 'הערכים שלי' : 'My Values'}
             >
-              <div className="flex flex-wrap gap-2">
-                {dashboardData.values.slice(0, 5).map((value, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-600 dark:text-pink-400 text-sm font-medium border border-pink-500/20"
-                  >
-                    {value}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
+              <PillChips items={dashboardData.values} colorScheme="pink" maxItems={5} />
+            </AuroraCard>
           )}
 
           {dashboardData.characterTraits.length > 0 && (
-            <GlassCard 
+            <AuroraCard 
               icon={<Sparkles className="w-4 h-4 text-violet-500" />}
               title={language === 'he' ? 'תכונות דומיננטיות' : 'Dominant Traits'}
             >
-              <div className="flex flex-wrap gap-2">
-                {dashboardData.characterTraits.slice(0, 5).map((trait, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-sm font-medium border border-violet-500/20"
-                  >
-                    {trait}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
+              <PillChips items={dashboardData.characterTraits} colorScheme="violet" maxItems={5} />
+            </AuroraCard>
           )}
         </motion.div>
       )}
@@ -250,7 +222,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <GlassCard 
+          <AuroraCard 
             icon={<Compass className="w-4 h-4 text-blue-500" />}
             title={language === 'he' ? 'כיוון החיים' : 'Life Direction'}
           >
@@ -264,7 +236,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
               </div>
               <Progress value={clarityScore} className="h-2" />
             </div>
-          </GlassCard>
+          </AuroraCard>
         </motion.div>
       )}
 
@@ -275,7 +247,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <GlassCard 
+          <AuroraCard 
             icon={<Target className="w-4 h-4 text-amber-500" />}
             title={language === 'he' ? 'נתיב הקריירה' : 'Career Path'}
           >
@@ -301,7 +273,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
                 </div>
               )}
             </div>
-          </GlassCard>
+          </AuroraCard>
         </motion.div>
       )}
 
@@ -313,7 +285,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          <GlassCard 
+          <AuroraCard 
             icon={<RefreshCw className="w-4 h-4 text-green-500" />}
             title={language === 'he' ? 'טרנספורמציה' : 'Transformation'}
           >
@@ -324,39 +296,20 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
                     <X className="w-3 h-3" />
                     {language === 'he' ? 'לעזוב' : 'To Quit'}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {launchpadData?.firstWeek?.habits_to_quit?.map((habit, i) => (
-                      <span
-                        key={i}
-                        className="px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-xs font-medium border border-destructive/20"
-                      >
-                        {habit}
-                      </span>
-                    ))}
-                  </div>
+                  <PillChips items={launchpadData?.firstWeek?.habits_to_quit ?? []} colorScheme="red" />
                 </div>
               )}
-
               {(launchpadData?.firstWeek?.habits_to_build?.length ?? 0) > 0 && (
                 <div>
                   <p className="text-xs font-medium text-green-600 dark:text-green-500 mb-2 flex items-center gap-1">
                     <Check className="w-3 h-3" />
                     {language === 'he' ? 'לפתח' : 'To Build'}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {launchpadData?.firstWeek?.habits_to_build?.map((habit, i) => (
-                      <span
-                        key={i}
-                        className="px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-500 text-xs font-medium border border-green-500/20"
-                      >
-                        {habit}
-                      </span>
-                    ))}
-                  </div>
+                  <PillChips items={launchpadData?.firstWeek?.habits_to_build ?? []} colorScheme="green" />
                 </div>
               )}
             </div>
-          </GlassCard>
+          </AuroraCard>
         </motion.div>
       )}
 
@@ -366,7 +319,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.55 }}
       >
-        <GlassCard
+        <AuroraCard
           icon={<Brain className="w-4 h-4 text-primary" />}
           title={language === 'he' ? 'התובנות שלי' : 'My Insights'}
         >
@@ -384,34 +337,32 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
               <button
                 key={tool.key}
                 onClick={() => setActiveModal(tool.key)}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group"
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[44px]"
               >
                 <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
                 <span className="text-xs font-medium text-foreground leading-tight">{tool.label}</span>
               </button>
             ))}
           </div>
-        </GlassCard>
+        </AuroraCard>
       </motion.div>
 
-
+      {/* ===== CTA BUTTONS ===== */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
         className="space-y-3 pt-2 pb-4"
       >
-        <Button
-          className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold shadow-lg shadow-primary/25"
+        <GradientCTAButton
           onClick={handleEditJourney}
-        >
-          <Sparkles className={cn("w-5 h-5", isRTL ? 'ml-2' : 'mr-2')} />
-          {isLaunchpadComplete
-            ? (hasCompletedAnyQuest ? t('launchpad.continueTransformationJourney') : t('launchpad.editTransformationJourney'))
-            : t('launchpad.startTransformationJourney')
+          icon={<Sparkles className="w-5 h-5" />}
+          label={
+            isLaunchpadComplete
+              ? (hasCompletedAnyQuest ? t('launchpad.continueTransformationJourney') : t('launchpad.editTransformationJourney'))
+              : t('launchpad.startTransformationJourney')
           }
-          <ArrowRight className={cn("w-4 h-4", isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
-        </Button>
+        />
 
         <Button
           variant="outline"
@@ -420,9 +371,9 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
           disabled={isRegenerating}
         >
           {isRegenerating ? (
-            <Loader2 className={cn("w-4 h-4 animate-spin", isRTL ? 'ml-2' : 'mr-2')} />
+            <Loader2 className={cn("w-4 h-4 animate-spin", isRTL ? 'ms-2' : 'me-2')} />
           ) : (
-            <RefreshCw className={cn("w-4 h-4", isRTL ? 'ml-2' : 'mr-2')} />
+            <RefreshCw className={cn("w-4 h-4", isRTL ? 'ms-2' : 'me-2')} />
           )}
           {language === 'he' ? 'חשב מחדש ניתוח AI' : 'Regenerate AI Analysis'}
         </Button>
@@ -441,51 +392,18 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   );
 }
 
-// ===== SUB-COMPONENTS =====
+// ===== SUB-COMPONENT =====
 
-interface ScoreCardProps {
-  icon: ReactNode;
-  label: string;
-  value: number;
-  suffix: string;
-  gradient: string;
-}
-
-function ScoreCard({ icon, label, value, suffix, gradient }: ScoreCardProps) {
-  return (
-    <div className="relative overflow-hidden rounded-xl bg-card/60 backdrop-blur-xl border border-border/50 p-3 text-center">
-      <div className={cn(
-        "absolute inset-0 opacity-10 bg-gradient-to-br",
-        gradient
-      )} />
-      <div className="relative z-10">
-        <div className={cn(
-          "inline-flex items-center justify-center w-8 h-8 rounded-full mb-1",
-          "bg-gradient-to-br",
-          gradient,
-          "text-white"
-        )}>
-          {icon}
-        </div>
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
-        <p className="text-xl font-bold text-foreground">
-          {value}{suffix}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-interface GlassCardProps {
+interface AuroraCardProps {
   icon: ReactNode;
   title: string;
   children: ReactNode;
 }
 
-function GlassCard({ icon, title, children }: GlassCardProps) {
+function AuroraCard({ icon, title, children }: AuroraCardProps) {
   return (
-    <div className="rounded-xl bg-card/60 backdrop-blur-xl border border-border/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/30 bg-muted/30">
+    <div className="rounded-2xl bg-card border border-border shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
         {icon}
         <h3 className="font-semibold text-sm text-foreground">{title}</h3>
       </div>

@@ -58,7 +58,7 @@ export function TodaysHabitsCard() {
     <Card 
       id="habits-card"
       className={cn(
-        "bg-gradient-to-br transition-colors",
+        "rounded-2xl shadow-sm bg-gradient-to-br transition-colors",
         allCompleted 
           ? "from-emerald-500/10 to-transparent border-emerald-500/30" 
           : "from-muted/30 to-transparent"
