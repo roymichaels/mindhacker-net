@@ -1,63 +1,117 @@
 
-# 3-Column Hero Grid for Profile, Sessions, and Plan
+# Unified Identity Activation Flow — `/start`
 
-## Concept
-Replace the stacked hero + stats layout on all 3 pages with a single **3-column grid row** that packs the key info into one horizontal band, dramatically reducing vertical scroll.
+## Overview
+Replace the 11-step `/launchpad` and grid-based `/quests` with a single psychologically-sequenced 10-screen activation flow at `/start`. Emotion-first, demographics after commitment. One question per screen, auto-advance on single-select, clean dark minimal UI.
 
-## Profile Page (`ProfileContent.tsx`)
+## Data Strategy (Zero Schema Changes)
+All 10 screens store data into existing `launchpad_progress` columns:
+- Screens 1-4 (Focus, Pain, Outcome, Commitment) --> `step_1_intention` (JSON)
+- Screens 5-7 (Growth Intent, Behavioral Block, Energy) --> `step_2_profile_data` (JSON)
+- Screens 8-9 (Identity Anchor, 90-Day Vision) --> `step_2_profile_data` (merged)
+- Screen 10 (Reveal) --> marks `step_7_dashboard_activated = true`, calls `generate-launchpad-summary`, redirects to `/today`
 
-Current: Hero card (orb + title + chips) stacked above 3 stats, stacked above values/traits cards.
+The JSON structure inside `step_1_intention`:
+```json
+{
+  "primary_focus": "health",
+  "primary_pain": "low_energy",
+  "desired_outcome": "consistent_energy",
+  "commitment_level": "locked_in",
+  "secondary_focus": ["career", "relationships"],
+  "core_obstacle": "procrastination",
+  "peak_productivity": "morning",
+  "identity_statement": "A disciplined, high-energy leader...",
+  "ninety_day_vision": "I wake up at 6am feeling..."
+}
+```
 
-New **single row** `grid grid-cols-3 gap-1.5`:
+## New Files
 
-| Column 1 (Right in RTL) | Column 2 (Middle) | Column 3 (Left in RTL) |
-|---|---|---|
-| Dark bg card with Orb (60px), identity title, Lv / Tokens / Streak chips | 3 vertical metric pills: תודעה, בהירות, מוכנות (with values) | 3 vertical action buttons: הערכים שלי, תכונות דומיננטיות, כיוון החיים |
+### 1. `src/flows/activationFlowSpec.ts`
+New FlowSpec with 10 steps, each containing 1 mini-step (one question per screen):
 
-- Remove the separate "Stats Row" (3-col grid below hero) -- merged into column 2
-- Remove the separate "Values & Traits" cards and "Life Direction" card -- replaced by the 3 buttons in column 3 that open modals
-- Keep the Insights grid, CTA, and Career/Change cards below
+| Screen | Question | Type | Auto-Advance |
+|--------|----------|------|--------------|
+| 1 - Focus | "What area needs the most attention?" | single_select (8 pillars) | Yes |
+| 2 - Pain | Dynamic pain points based on Screen 1 | single_select (6 options per pillar) | Yes |
+| 3 - Outcome | "What would change everything?" | single_select (dynamic) | Yes |
+| 4 - Commitment | "How serious are you?" | single_select (4 levels) | Yes |
+| 5 - Growth | "Where else do you want improvement?" | multi_select (max 2) | No |
+| 6 - Block | "What stops you most?" | single_select (8 obstacles) | Yes |
+| 7 - Energy | "When are you most productive?" | single_select (6 time slots) | Yes |
+| 8 - Identity | "Who do you need to become?" | textarea (min 20 chars) | No |
+| 9 - Vision | "90 days from now, what changed?" | textarea (min 20 chars) | No |
+| 10 - Reveal | Dynamic summary + "Enter MindOS" CTA | custom | No |
 
-## Sessions Page (`HypnosisLibrary.tsx`)
+Screens 2 and 3 use branching logic (same pattern as existing `coreLaunchpadSpec`) to show dynamic options based on `primary_focus` selection.
 
-Current: 4 stat cards stacked above daily session hero stacked above quick sessions.
+### 2. `src/components/activation/ActivationFlow.tsx`
+New orchestrator component (replaces `LaunchpadFlow` role):
+- Full-screen dark minimal layout
+- No header navigation, no dashboard chrome
+- 10-segment progress bar at top
+- Uses `FlowRenderer` for screens 1-9
+- Custom component for Screen 10 (Reveal)
+- Framer Motion page transitions
+- Auto-save on every answer change
 
-New **single row** `grid grid-cols-3 gap-1.5`:
+### 3. `src/components/activation/RevealScreen.tsx`
+Screen 10 -- the personalized summary reveal:
+- Animated entry with staggered sections
+- Shows: primary focus, biggest blocker, commitment level, identity statement, 90-day vision
+- Single CTA: "Enter MindOS" (GradientCTAButton)
+- On click: saves all data to `launchpad_progress`, calls `generate-launchpad-summary`, redirects to `/today`
 
-| Column 1 (Right) | Column 2 (Middle) | Column 3 (Left) |
-|---|---|---|
-| Dark bg card with session emoji, "Your Daily Session" title, Play button | 4 vertical stats: Sessions, Minutes, XP, Level | 4 quick session buttons stacked: Calm, Focus, Energy, Sleep |
+### 4. `src/components/activation/ActivationProgress.tsx`
+Minimal 10-segment progress bar (thin line, no step titles, no dots -- just clean segments that fill as user progresses).
 
-- `SessionStats` content moves inline into column 2
-- Quick sessions move from a separate 4-col grid into column 3 as a 2x2 mini grid
-- Daily hero shrinks into column 1
+### 5. `src/pages/Start.tsx`
+New page component for `/start` route. Renders `ActivationFlow`. Handles completion redirect to `/today`.
 
-## Plan Page (`PlanTab.tsx`)
+## Modified Files
 
-Current: PlanProgressHero card stacked above missions stacked above roadmap.
+### 6. `src/App.tsx` (Routes)
+- Add `/start` route pointing to `Start.tsx`
+- Redirect `/launchpad` to `/start`
+- Redirect `/quests` to `/start`
+- Keep `/launchpad/complete` route for existing users who already completed
 
-New **single row** `grid grid-cols-3 gap-1.5`:
+### 7. `src/hooks/useLaunchpadProgress.ts`
+- Add a mapping function that converts activation flow answers into the existing `launchpad_progress` column structure
+- The `completeStep` function will accept the unified activation data and write it across `step_1_intention` and `step_2_profile_data`
+- Mark `step_7_dashboard_activated = true` and `launchpad_complete = true` on completion
 
-| Column 1 (Right) | Column 2 (Middle) | Column 3 (Left) |
-|---|---|---|
-| Dark bg card with week number circle, "Transformation Plan" title, month badge | Vertical progress stats: Completed/Total, Progress %, current milestone | Action buttons: View Roadmap (scroll to section), View Life Analysis |
+### 8. `src/hooks/useLaunchpadAutoSave.ts`
+- Add support for the activation flow's data shape (single JSON blob auto-saved to `step_1_intention`)
 
-- `PlanProgressHero` content splits across columns 1 and 2
-- Column 3 provides quick navigation buttons
+## What Gets Removed (Cleanup)
+- `/quests` route and grid selection screen
+- Direct pillar selection from landing page (consciousness card click --> `/start` instead)
+- Navigation links during onboarding flow
+- The old 11-step flow remains in codebase but is no longer the primary entry (redirected)
 
-## Technical Details
+## What Stays Untouched
+- `generate-launchpad-summary` edge function (reads from same columns)
+- XP/gamification engine (`award_unified_xp` RPC)
+- All existing `launchpad_progress` DB schema
+- Dashboard pages (`/today`, `/plan`, `/sessions`, `/me`)
+- Existing pillar quest specs (for future deep-dives post-activation)
+- Auth modal system
 
-### Files Modified (4)
-1. **`src/components/dashboard/ProfileContent.tsx`** -- Replace hero + stats row + values/traits cards with single 3-col grid. Column 1: dark card with orb. Column 2: 3 stacked metrics. Column 3: 3 action buttons opening existing modals (identity for values, traits, behavioral for direction).
-2. **`src/pages/HypnosisLibrary.tsx`** -- Replace SessionStats + Daily Hero + Quick Sessions with single 3-col grid. Inline the stats data directly.
-3. **`src/components/hypnosis/SessionStats.tsx`** -- May be simplified or kept as-is if still used elsewhere.
-4. **`src/pages/PlanTab.tsx`** -- Replace PlanProgressHero with inline 3-col grid containing the same data.
+## UI Design Specs
+- Background: `bg-gray-950` (near-black)
+- Cards: Large tappable (min 56px height), `rounded-2xl`, subtle border glow on hover
+- Typography: Question title `text-2xl font-bold`, emotional microcopy `text-sm text-muted-foreground` below each question
+- Progress bar: 10 thin segments, `h-1`, primary color fill, no labels
+- Transitions: `framer-motion` slide-up with 200ms ease-out
+- Auto-advance: 400ms delay after selection with subtle scale animation
 
-### Design Pattern
-- All 3 grids use the same structure: `grid grid-cols-3 gap-1.5`
-- Column 1 always has the dark gradient bg card (brand identity)
-- Column 2 always has vertical stacked metrics
-- Column 3 always has vertical stacked action buttons
-- Each column uses `rounded-xl border` with `p-2` padding
-- Text sizes: titles `text-xs font-bold`, values `text-sm font-bold`, labels `text-[10px]`
-- Buttons in column 3: `text-[11px]` with small icons, full-width within their column
+## Implementation Order
+1. Create `activationFlowSpec.ts` with all 10 screens and branching logic
+2. Create `ActivationProgress.tsx` (simple progress bar)
+3. Create `RevealScreen.tsx` (summary + CTA)
+4. Create `ActivationFlow.tsx` (orchestrator)
+5. Create `Start.tsx` (page)
+6. Update `App.tsx` routes (add `/start`, redirect `/launchpad`)
+7. Update `useLaunchpadProgress.ts` (activation data mapper)
