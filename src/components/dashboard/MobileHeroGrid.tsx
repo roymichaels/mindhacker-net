@@ -10,7 +10,7 @@ import { useXpProgress, useStreak, useTokens } from '@/hooks/useGameState';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -40,7 +40,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const tokens = useTokens();
   const { suggestedGoal } = useDailyHypnosis();
   const { impact } = useHaptics();
-  const { habits, completedCount, totalCount } = useTodaysHabits();
+  const { habits, completedCount, totalCount, toggleHabit } = useTodaysHabits();
 
   const { data: taskItems = [] } = useQuery({
     queryKey: ['mobile-grid-tasks', user?.id],
@@ -97,6 +97,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const tasksPercent = tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0;
   const nextTask = taskItems.find(t => !t.done);
   const nextHabit = habits.find(h => !h.isCompleted);
+  const queryClient = useQueryClient();
+
+  const handleTaskToggle = async (id: string, done: boolean) => {
+    await supabase.from('action_items').update({ status: done ? 'done' : 'pending', completed_at: done ? new Date().toISOString() : null }).eq('id', id);
+    queryClient.invalidateQueries({ queryKey: ['mobile-grid-tasks'] });
+  };
 
   // Orb: use left column height on desktop, fixed 280 on mobile/fallback
   const hudNonOrbHeight = 200;
@@ -236,6 +242,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             onToggle={() => toggle('habits')}
             previewText={nextHabit?.title}
             items={habitMiniItems}
+            onItemToggle={(id, done) => toggleHabit(id, done)}
           />
           <CollapsiblePlanRow
             icon={<Calendar className="w-4 h-4 text-amber-500" />}
@@ -258,6 +265,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             previewText={nextTask?.title}
             items={taskItems}
             progressPercent={tasksPercent}
+            onItemToggle={handleTaskToggle}
           />
 
           {/* 3 Action Buttons: Identity / Direction / Insights */}
@@ -326,11 +334,13 @@ interface CollapsiblePlanRowProps {
   previewText?: string;
   items?: { id: string; title: string; done?: boolean }[];
   progressPercent?: number;
+  onItemToggle?: (id: string, done: boolean) => void;
 }
 
 function CollapsiblePlanRow({
-  icon, title, count, countSuffix, badge, badgeExtra, isOpen, onToggle, previewText, items, progressPercent,
+  icon, title, count, countSuffix, badge, badgeExtra, isOpen, onToggle, previewText, items, progressPercent, onItemToggle,
 }: CollapsiblePlanRowProps) {
+  const firstUndone = items?.find(i => !i.done);
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden flex flex-col">
       <button
@@ -362,7 +372,18 @@ function CollapsiblePlanRow({
 
       {!isOpen && (
         <div className="px-3 pb-2 min-h-[2.5rem]">
-          {previewText && <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>}
+          {firstUndone && onItemToggle ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); onItemToggle(firstUndone.id, true); }}
+                className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
+                aria-label="Complete item"
+              />
+              <span className="text-xs text-muted-foreground truncate flex-1">{firstUndone.title}</span>
+            </div>
+          ) : previewText ? (
+            <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
+          ) : null}
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
               <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
