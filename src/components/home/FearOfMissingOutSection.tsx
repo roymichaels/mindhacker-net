@@ -115,7 +115,7 @@ export default function FearOfMissingOutSection() {
           >
             <Button
               size="lg"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/launchpad')}
               className="text-lg px-10 py-7 rounded-2xl 
                 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
                 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800

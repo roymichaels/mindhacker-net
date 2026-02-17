@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 interface DashboardActivationProps {
   onComplete: () => void;
@@ -28,10 +30,22 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
   const { language, isRTL } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleActivate = async () => {
+    // Gate on auth — show modal if not logged in
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    await generateSummary();
+  };
+
+  const generateSummary = async () => {
     setIsGenerating(true);
     
     try {
@@ -76,8 +90,25 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
     }
   };
 
+  // After auth success, proceed with generation
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    // Small delay to let auth state propagate
+    setTimeout(() => {
+      generateSummary();
+    }, 500);
+  };
+
   return (
     <div className="space-y-4 text-center" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        defaultView="signup"
+        onSuccess={handleAuthSuccess}
+      />
+
       {/* Compact Hero */}
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
@@ -182,6 +213,11 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
             </>
           ) : isCompleting ? (
             language === 'he' ? 'מפעיל...' : 'Activating...'
+          ) : !user ? (
+            <>
+              <Rocket className="w-5 h-5" />
+              {language === 'he' ? '🚀 הירשם והפעל את הדשבורד' : '🚀 Sign Up & Activate Dashboard'}
+            </>
           ) : (
             <>
               <Rocket className="w-5 h-5" />

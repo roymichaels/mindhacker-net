@@ -2,9 +2,12 @@ import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLaunchpadProgress, STEPS, PHASES, getPhaseForStep, isLastStepInPhase } from '@/hooks/useLaunchpadProgress';
+import { useGuestLaunchpadProgress } from '@/hooks/useGuestLaunchpadProgress';
 import { useLaunchpadAutoSave } from '@/hooks/useLaunchpadAutoSave';
+import { useGuestLaunchpadAutoSave } from '@/hooks/useGuestLaunchpadAutoSave';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalProfileStep } from './steps/PersonalProfileStep';
 import { LifestyleRoutineStep } from './steps/LifestyleRoutineStep';
@@ -30,37 +33,96 @@ interface LaunchpadFlowProps {
 export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowProps) {
   const { language, isRTL } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isGuest = !user;
   
   // ============ Authenticated hooks ============
   const authProgress = useLaunchpadProgress();
   const authAutoSave = useLaunchpadAutoSave();
   
-  // ============ Unified adapter ============
-  const currentStep = authProgress.currentStep;
-  const isLaunchpadComplete = authProgress.isLaunchpadComplete;
-  const isCompleting = authProgress.isCompleting;
-  const totalSteps = authProgress.totalSteps;
-  const isResetting = authProgress.isResetting;
-  const isLoadingData = authAutoSave.isLoading;
-  const launchpadData = authAutoSave.launchpadData;
+  // ============ Guest hooks (localStorage) ============
+  const guestProgress = useGuestLaunchpadProgress();
+  const step1Save = useGuestLaunchpadAutoSave({ stepKey: 'step_1' });
+  const step2Save = useGuestLaunchpadAutoSave({ stepKey: 'step_2' });
+  const step3Save = useGuestLaunchpadAutoSave({ stepKey: 'step_3' });
+  const step4Save = useGuestLaunchpadAutoSave({ stepKey: 'step_4' });
+  const step8Save = useGuestLaunchpadAutoSave({ stepKey: 'step_8' });
+  const step9Save = useGuestLaunchpadAutoSave({ stepKey: 'step_9' });
+  const step10Save = useGuestLaunchpadAutoSave({ stepKey: 'step_10' });
   
-  const getStepRewards = authProgress.getStepRewards;
+  // ============ Unified adapter ============
+  const currentStep = isGuest ? guestProgress.currentStep : authProgress.currentStep;
+  const isLaunchpadComplete = isGuest ? guestProgress.isLaunchpadComplete : authProgress.isLaunchpadComplete;
+  const isCompleting = isGuest ? guestProgress.isCompleting : authProgress.isCompleting;
+  const totalSteps = isGuest ? guestProgress.totalSteps : authProgress.totalSteps;
+  const isResetting = isGuest ? guestProgress.isResetting : authProgress.isResetting;
+  const isLoadingData = isGuest ? false : authAutoSave.isLoading;
+  const launchpadData = isGuest ? null : authAutoSave.launchpadData;
+  
+  const getStepRewards = isGuest ? guestProgress.getStepRewards : authProgress.getStepRewards;
   
   const completeStep = useCallback((args: { step: number; data?: Record<string, unknown> }) => {
-    authProgress.completeStep(args);
-  }, [authProgress]);
+    if (isGuest) {
+      let stepData: Record<string, unknown> | undefined;
+      switch (args.step) {
+        case 1: stepData = args.data ? { intention: JSON.stringify(args.data) } : undefined; break;
+        case 2: stepData = args.data ? { profile_data: args.data } : undefined; break;
+        case 3: stepData = args.data ? { lifestyle_data: args.data } : undefined; break;
+        case 4: stepData = args.data ? { growth_data: args.data } : undefined; break;
+        case 5: stepData = args.data ? { summary: JSON.stringify(args.data) } : undefined; break;
+        case 6: stepData = args.data ? { form_data: args.data } : undefined; break;
+        case 7: stepData = args.data ? { form_data: args.data } : undefined; break;
+        case 8: stepData = args.data?.focusAreas ? { focus_areas: args.data.focusAreas as string[] } : undefined; break;
+        case 9: stepData = args.data ? { actions: args.data } : undefined; break;
+        case 10: stepData = args.data ? { final_notes: args.data.notes as string } : undefined; break;
+        default: stepData = args.data;
+      }
+      guestProgress.completeStep({ step: args.step, data: stepData });
+    } else {
+      authProgress.completeStep(args);
+    }
+  }, [isGuest, guestProgress, authProgress]);
   
   const resetJourney = useCallback(() => {
-    authProgress.resetJourney();
-  }, [authProgress]);
+    if (isGuest) {
+      guestProgress.resetJourney();
+    } else {
+      authProgress.resetJourney();
+    }
+  }, [isGuest, guestProgress, authProgress]);
   
   const getSavedData = useCallback((step: number) => {
-    return authAutoSave.getSavedData(step);
-  }, [authAutoSave]);
+    if (isGuest) {
+      switch (step) {
+        case 1: return step1Save.loadData();
+        case 2: return step2Save.loadData();
+        case 3: return step3Save.loadData();
+        case 4: return step4Save.loadData();
+        case 8: return step8Save.loadData();
+        case 9: return step9Save.loadData();
+        case 10: return step10Save.loadData();
+        default: return null;
+      }
+    } else {
+      return authAutoSave.getSavedData(step);
+    }
+  }, [isGuest, step1Save, step2Save, step3Save, step4Save, step8Save, step9Save, step10Save, authAutoSave]);
   
   const handleAutoSave = useCallback((step: number, data: Record<string, unknown>) => {
-    authAutoSave.autoSave(step, data);
-  }, [authAutoSave]);
+    if (isGuest) {
+      switch (step) {
+        case 1: step1Save.saveData(data); break;
+        case 2: step2Save.saveData(data); break;
+        case 3: step3Save.saveData(data); break;
+        case 4: step4Save.saveData(data); break;
+        case 8: step8Save.saveData(data); break;
+        case 9: step9Save.saveData(data); break;
+        case 10: step10Save.saveData(data); break;
+      }
+    } else {
+      authAutoSave.autoSave(step, data);
+    }
+  }, [isGuest, step1Save, step2Save, step3Save, step4Save, step8Save, step9Save, step10Save, authAutoSave]);
   
   // ============ Local state ============
   const [viewingStep, setViewingStep] = useState<number | null>(null);
@@ -85,12 +147,10 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       return;
     }
     
-    // Store profile data for GrowthDeepDiveStep (step 2)
     if (currentStep === 2 && data) {
       setProfileData(data);
     }
     
-    // Check if this step completes a phase
     if (isLastStepInPhase(currentStep) && currentStep < 11) {
       const phase = getPhaseForStep(currentStep);
       if (phase) {
@@ -147,9 +207,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
       rewards: getStepRewards(displayedStep),
     };
     
-    // Get previous answers for GrowthDeepDiveStep
     const previousAnswers = profileData || 
-      launchpadData?.personalProfile || 
+      (isGuest ? guestProgress.progress?.step_2_profile_data : launchpadData?.personalProfile) || 
       undefined;
 
     switch (displayedStep) {
@@ -195,8 +254,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
           <FirstChatStep 
             key={`step-5-${viewingStep ?? 'current'}`} 
             {...stepProps}
-            savedData={authAutoSave.getSavedData(5) as { messages?: Array<{ role: 'user' | 'assistant'; content: string }>; questionIndex?: number; answers?: string[]; isComplete?: boolean } | undefined}
-            onAutoSave={(data) => handleAutoSave(5, data)}
+            savedData={!isGuest ? (authAutoSave.getSavedData(5) as { messages?: Array<{ role: 'user' | 'assistant'; content: string }>; questionIndex?: number; answers?: string[]; isComplete?: boolean } | undefined) : undefined}
+            onAutoSave={!isGuest ? ((data) => handleAutoSave(5, data)) : undefined}
           />
         );
       case 6:
@@ -204,7 +263,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
           <IntrospectionStep 
             key={`step-6-${viewingStep ?? 'current'}`} 
             {...stepProps}
-            savedFormSubmissionId={launchpadData?.step_3_form_submission_id ?? undefined}
+            savedFormSubmissionId={!isGuest ? (launchpadData?.step_3_form_submission_id ?? undefined) : undefined}
           />
         );
       case 7:
@@ -212,7 +271,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
           <LifePlanStep 
             key={`step-7-${viewingStep ?? 'current'}`} 
             {...stepProps}
-            savedFormSubmissionId={launchpadData?.step_4_form_submission_id ?? undefined}
+            savedFormSubmissionId={!isGuest ? (launchpadData?.step_4_form_submission_id ?? undefined) : undefined}
           />
         );
       case 8:
@@ -251,8 +310,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     }
   };
 
-  // Show loader while data is loading
-  if (isLoadingData) {
+  // Show loader while data is loading (authenticated only)
+  if (!isGuest && isLoadingData) {
     return <JourneyLoadingState theme="launchpad" />;
   }
 
@@ -317,8 +376,8 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
         </div>
       </div>
 
-      {/* Aurora Chat Dock */}
-      <JourneyChatDock />
+      {/* Aurora Chat Dock - only for authenticated users */}
+      {!isGuest && <JourneyChatDock />}
     </div>
   );
 }

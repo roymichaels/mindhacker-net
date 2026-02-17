@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PractitionersModalProvider } from "@/contexts/PractitionersModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
+import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
@@ -30,8 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
-const Login = lazy(() => import("./pages/Login"));
-const SignUp = lazy(() => import("./pages/SignUp"));
+// Login and SignUp pages removed — auth is now modal-based
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const TodayTab = lazy(() => import("./pages/TodayTab"));
 const PlanTab = lazy(() => import("./pages/PlanTab"));
@@ -186,6 +186,7 @@ const App = () => (
         <div className="relative z-10">
             <AuthProvider>
               <AuroraChatProvider>
+              <AuthModalProvider>
               <GameStateProvider>
               <LanguageProvider>
                 <PractitionersModalProvider>
@@ -200,8 +201,9 @@ const App = () => (
                       <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<Index />} />
-                        <Route path="/signup" element={<SignUp />} />
-                        <Route path="/login" element={<Login />} />
+                        {/* /login and /signup redirect to home (auth is now modal-based) */}
+                        <Route path="/signup" element={<Navigate to="/" replace />} />
+                        <Route path="/login" element={<Navigate to="/" replace />} />
                         <Route path="/courses" element={<Courses />} />
                         <Route path="/courses/:slug" element={<CourseDetail />} />
                         <Route path="/courses/:slug/watch" element={<CourseWatch />} />
@@ -397,14 +399,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/launchpad"
-                          element={
-                            <ProtectedRoute>
-                              <Launchpad />
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Launchpad is public — auth gating happens at step 11 */}
+                        <Route path="/launchpad" element={<Launchpad />} />
                         <Route
                           path="/launchpad/complete"
                           element={
@@ -730,6 +726,7 @@ const App = () => (
                 </PractitionersModalProvider>
               </LanguageProvider>
             </GameStateProvider>
+            </AuthModalProvider>
             </AuroraChatProvider>
           </AuthProvider>
         </div>
