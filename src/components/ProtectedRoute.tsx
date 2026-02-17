@@ -47,7 +47,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={`/login?redirect=${location.pathname}`} replace />;
+    return <Navigate to={`/login?redirect=${location.pathname === '/dashboard' ? '/today' : location.pathname}`} replace />;
   }
 
   return <>{children}</>;

@@ -201,7 +201,7 @@ export function LaunchpadFlow({ className, mode = 'authenticated', onComplete, o
     if (onClose) {
       onClose();
     } else {
-      navigate(isGuest ? '/free-journey' : '/dashboard');
+      navigate(isGuest ? '/free-journey' : '/today');
     }
   };
 
