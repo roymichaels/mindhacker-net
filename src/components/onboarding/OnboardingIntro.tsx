@@ -9,7 +9,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { ArrowRight, ChevronLeft, Sparkles, User, Calendar, Users } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Sparkles, User, Calendar, Users, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface OnboardingIntroProps {
@@ -33,6 +34,7 @@ const AGE_OPTIONS = [
 export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isHe = language === 'he';
 
   const [phase, setPhase] = useState<'splash' | 'info'>('splash');
@@ -67,7 +69,15 @@ export function OnboardingIntro({ onComplete }: OnboardingIntroProps) {
   const isFormValid = name.trim().length >= 2 && gender && ageBracket;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Exit button */}
+      <button
+        onClick={() => navigate(user ? '/today' : '/')}
+        className="absolute top-6 end-6 z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        aria-label="Exit"
+      >
+        <X className="w-5 h-5" />
+      </button>
       <AnimatePresence mode="wait">
         {phase === 'splash' ? (
           <motion.div
