@@ -1,15 +1,13 @@
 /**
- * MobileHeroGrid - Compact 3-column mobile-only grid
- * RTL: HUD (right) | Daily Session (middle) | Plan+Tasks (left)
+ * MobileHeroGrid - 3-row (mobile) / 3-column (desktop) hero grid
+ * RTL order: HUD (right/first) | Daily Session (middle) | Plan+Tasks (left/last)
  */
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useGameState } from '@/contexts/GameStateContext';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useTokens } from '@/hooks/useGameState';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Progress } from '@/components/ui/progress';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, CheckCircle2 } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, CheckCircle2, TrendingUp, Eye, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -46,115 +44,109 @@ export function MobileHeroGrid({ planData, habitsCount = 0, habitsTotal = 0, tas
   };
 
   const identityTitle = dashboard.identityTitle;
+  const readinessVal = Math.min(100, xp.percentage || 85);
+  const clarityVal = dashboard.selfConcepts.length > 0 ? 65 : 20;
+  const consciousnessVal = dashboard.values.length > 0 ? 72 : 15;
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-3">
-      {/* RIGHT COL (first in RTL) - HUD */}
-      <div className="rounded-xl border border-border bg-card p-2 flex flex-col items-center gap-1.5 min-h-0">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {/* ===== ROW 1 / RIGHT COL - HUD ===== */}
+      <div className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-muted/30 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-950 p-4 flex flex-col items-center gap-3">
         {/* Orb */}
-        <div className="relative" style={{ width: 44, height: 44 }}>
-          <PersonalizedOrb size={44} state="idle" />
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl scale-150" />
+          <div className="relative" style={{ width: 64, height: 64 }}>
+            <PersonalizedOrb size={64} state="idle" />
+          </div>
         </div>
-        
-        {/* Identity */}
+
+        {/* Identity title */}
         {identityTitle && (
-          <div className="flex items-center gap-1 min-w-0 w-full justify-center">
-            <span className="text-xs flex-shrink-0">{identityTitle.icon}</span>
-            <span className="text-[9px] font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base">{identityTitle.icon}</span>
+            <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {language === 'he' ? identityTitle.title : identityTitle.titleEn}
             </span>
           </div>
         )}
 
-        {/* Pills row */}
-        <div className="flex items-center gap-1 flex-wrap justify-center">
-          <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
-            <Star className="h-2.5 w-2.5" />{xp.level}
+        {/* Pills */}
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
+            <Star className="h-3 w-3" />Lv.{xp.level}
           </span>
-          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-yellow-500">
-            <Gem className="h-2.5 w-2.5" />{tokens.balance}
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+            <Gem className="h-3 w-3" />{tokens.balance}
           </span>
-          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-orange-500">
-            <Flame className="h-2.5 w-2.5" />{streak.streak}
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+            <Flame className="h-3 w-3" />{streak.streak}
           </span>
         </div>
 
-        {/* Micro metric bars */}
-        <div className="w-full space-y-1 px-0.5">
+        {/* 3 metric cards row */}
+        <div className="grid grid-cols-3 gap-2 w-full">
           {[
-            { label: language === 'he' ? 'מוכנות' : 'Ready', value: Math.min(100, xp.percentage), color: 'bg-green-500' },
-            { label: language === 'he' ? 'בהירות' : 'Clarity', value: dashboard.selfConcepts.length > 0 ? 70 : 20, color: 'bg-blue-500' },
-            { label: language === 'he' ? 'תודעה' : 'Aware', value: dashboard.values.length > 0 ? 60 : 15, color: 'bg-purple-500' },
+            { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+            { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
+            { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-purple-500' },
           ].map((m) => (
-            <div key={m.label} className="flex items-center gap-1">
-              <span className="text-[7px] text-muted-foreground w-6 text-end truncate">{m.label}</span>
-              <div className="flex-1 h-1 rounded-full bg-muted/50 overflow-hidden">
-                <div className={cn("h-full rounded-full transition-all", m.color)} style={{ width: `${m.value}%` }} />
-              </div>
+            <div key={m.label} className="rounded-xl bg-muted/30 dark:bg-muted/10 border border-border/50 p-2.5 flex flex-col items-center gap-1">
+              <m.icon className={cn("w-4 h-4", m.color)} />
+              <span className="text-lg font-bold leading-none">{m.value}</span>
+              <span className="text-[10px] text-muted-foreground">{m.label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* MIDDLE COL - Daily Session Hero */}
+      {/* ===== ROW 2 / MIDDLE COL - Daily Session Hero ===== */}
       <div
-        className="rounded-xl overflow-hidden bg-gradient-to-br from-primary to-primary/70 p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:brightness-90 transition-all touch-manipulation"
+        className="rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-primary/70 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer active:brightness-90 transition-all touch-manipulation min-h-[160px]"
         onClick={handleStartDailySession}
       >
-        <span className="text-2xl">✨</span>
-        <h3 className="text-[10px] font-bold text-white leading-tight text-center">
-          {language === 'he' ? 'הסשן היומי שלך' : 'Daily Session'}
+        <div className="absolute inset-0 bg-white/5" />
+        <span className="text-4xl">✨</span>
+        <h3 className="text-lg font-bold text-white leading-tight text-center">
+          {language === 'he' ? 'הסשן היומי שלך' : 'Your Daily Session'}
         </h3>
-        <span className="text-[9px] text-white/70 flex items-center gap-0.5">
-          <Clock className="w-2.5 h-2.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+        <span className="text-sm text-white/80 flex items-center gap-1">
+          <Clock className="w-4 h-4" />15 {language === 'he' ? 'דקות' : 'minutes'}
         </span>
-        <div className="flex items-center gap-1 bg-background/90 text-foreground rounded-full px-2.5 py-1 text-[9px] font-semibold shadow-md mt-0.5">
-          <Play className="w-2.5 h-2.5" />
-          {language === 'he' ? 'התחל' : 'Start'}
+        <div className="flex items-center gap-1.5 bg-background/90 text-foreground rounded-full px-5 py-2 text-sm font-semibold shadow-lg mt-1">
+          <Play className="w-4 h-4" />
+          {language === 'he' ? 'התחל עכשיו' : 'Start Now'}
         </div>
       </div>
 
-      {/* LEFT COL (last in RTL) - Plan Modules */}
-      <div className="rounded-xl border border-border bg-card p-2 flex flex-col gap-1.5 min-h-0">
-        {/* Habits mini */}
-        <div className="flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-[8px] text-muted-foreground">{language === 'he' ? 'הרגלים' : 'Habits'}</span>
-              <span className="text-[8px] font-bold">{habitsCount}/{habitsTotal}</span>
-            </div>
-            <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-0.5">
-              <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${habitsTotal > 0 ? (habitsCount / habitsTotal) * 100 : 0}%` }} />
-            </div>
+      {/* ===== ROW 3 / LEFT COL - Plan Modules ===== */}
+      <div className="grid grid-cols-3 gap-2">
+        {/* Habits card */}
+        <div className="rounded-xl border border-border bg-card p-3 flex flex-col items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-green-500" />
+          <span className="text-xs font-semibold text-center">{language === 'he' ? 'הרגלים' : 'Habits'}</span>
+          <span className="text-lg font-bold">{habitsCount}/{habitsTotal}</span>
+          <div className="w-full h-1.5 rounded-full bg-muted/50 overflow-hidden">
+            <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${habitsTotal > 0 ? (habitsCount / habitsTotal) * 100 : 0}%` }} />
           </div>
         </div>
 
-        {/* 90-Day Plan mini */}
-        <div className="flex items-center gap-1">
-          <Calendar className="w-3 h-3 text-primary flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-[8px] text-muted-foreground">{language === 'he' ? '90 יום' : '90 Day'}</span>
-              <span className="text-[8px] font-bold">{language === 'he' ? `ש׳${planData?.currentWeek || 1}` : `W${planData?.currentWeek || 1}`}</span>
-            </div>
-            <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-0.5">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${planData?.progressPercent || 0}%` }} />
-            </div>
+        {/* 90-Day Plan card */}
+        <div className="rounded-xl border border-border bg-card p-3 flex flex-col items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold text-center">{language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}</span>
+          <span className="text-lg font-bold">{language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}</span>
+          <div className="w-full h-1.5 rounded-full bg-muted/50 overflow-hidden">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${planData?.progressPercent || 0}%` }} />
           </div>
         </div>
 
-        {/* Tasks mini */}
-        <div className="flex items-center gap-1">
-          <ListChecks className="w-3 h-3 text-amber-500 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-[8px] text-muted-foreground">{language === 'he' ? 'משימות' : 'Tasks'}</span>
-              <span className="text-[8px] font-bold">{tasksCount}/{tasksTotal}</span>
-            </div>
-            <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-0.5">
-              <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${tasksTotal > 0 ? (tasksCount / tasksTotal) * 100 : 0}%` }} />
-            </div>
+        {/* Tasks card */}
+        <div className="rounded-xl border border-border bg-card p-3 flex flex-col items-center gap-2">
+          <ListChecks className="w-5 h-5 text-amber-500" />
+          <span className="text-xs font-semibold text-center">{language === 'he' ? 'משימות' : 'Tasks'}</span>
+          <span className="text-lg font-bold">{tasksCount}/{tasksTotal}</span>
+          <div className="w-full h-1.5 rounded-full bg-muted/50 overflow-hidden">
+            <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${tasksTotal > 0 ? (tasksCount / tasksTotal) * 100 : 0}%` }} />
           </div>
         </div>
       </div>
