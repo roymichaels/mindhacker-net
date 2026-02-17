@@ -92,30 +92,8 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
   return (
     <div className="space-y-4">
-      {/* ===== 3 MERGED ACTION BUTTONS ===== */}
-      <div className="grid grid-cols-3 gap-2">
-        <button
-          onClick={() => setActiveModal('identity')}
-          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
-        >
-          <UserCircle className="w-5 h-5 text-violet-500" />
-          <span className="text-sm font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
-        </button>
-        <button
-          onClick={() => setActiveModal('direction')}
-          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
-        >
-          <Compass className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
-        </button>
-        <button
-          onClick={() => setActiveModal('insights')}
-          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
-        >
-          <Brain className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
-        </button>
-      </div>
+
+
 
       {/* ===== CAREER + TRANSFORMATION ===== */}
       <div className="grid grid-cols-2 gap-3">

@@ -12,11 +12,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useHaptics } from '@/hooks/useHaptics';
 import { AnimatePresence, motion } from 'framer-motion';
+import {
+  MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
+} from '@/components/dashboard/MergedModals';
 
 interface MobileHeroGridProps {
   planData: {
@@ -58,6 +61,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
+  type ModalType = 'identity' | 'direction' | 'insights' | null;
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   const handleStartDailySession = () => {
     impact('medium');
@@ -135,6 +140,20 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div className="space-y-2">
+          {/* Start Session button */}
+          <button
+            onClick={handleStartDailySession}
+            className="w-full flex items-center justify-center gap-3 rounded-xl bg-purple-600 dark:bg-purple-700 px-4 py-2.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+          >
+            <span className="flex items-center gap-1 text-xs text-yellow-300/80">
+              <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+            </span>
+            <span className="flex items-center gap-2 text-sm font-bold text-yellow-300">
+              <Play className="w-4 h-4 fill-yellow-300" />
+              {language === 'he' ? 'התחל סשן' : 'Start Session'}
+            </span>
+          </button>
+
           <CollapsiblePlanRow
             icon={<Sparkles className="w-4 h-4 text-primary" />}
             title={language === 'he' ? 'הרגלים' : 'Habits'}
@@ -166,22 +185,56 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             items={taskItems}
             progressPercent={tasksPercent}
           />
+
+          {/* 3 Action Buttons: Identity / Direction / Insights */}
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setActiveModal('identity')}
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+            >
+              <UserCircle className="w-4 h-4 text-violet-500" />
+              <span className="text-xs font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
+            </button>
+            <button
+              onClick={() => setActiveModal('direction')}
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+            >
+              <Compass className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
+            </button>
+            <button
+              onClick={() => setActiveModal('insights')}
+              className="rounded-xl bg-card border border-border p-2.5 flex flex-col items-center gap-1 hover:bg-primary/10 hover:border-primary/40 transition-all"
+            >
+              <Brain className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ===== START SESSION BUTTON ===== */}
-      <button
-        onClick={handleStartDailySession}
-        className="w-full flex items-center justify-center gap-3 rounded-2xl bg-purple-600 dark:bg-purple-700 px-6 py-3.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
-      >
-        <span className="flex items-center gap-1 text-xs text-yellow-300/80">
-          <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
-        </span>
-        <span className="flex items-center gap-2 text-base font-bold text-yellow-300">
-          <Play className="w-5 h-5 fill-yellow-300" />
-          {language === 'he' ? 'התחל סשן' : 'Start Session'}
-        </span>
-      </button>
+      {/* Modals */}
+      <MergedIdentityModal
+        open={activeModal === 'identity'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+        values={dashboard.values}
+        principles={dashboard.principles}
+        selfConcepts={dashboard.selfConcepts}
+        identityTitle={identityTitle}
+      />
+      <MergedDirectionModal
+        open={activeModal === 'direction'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+        commitments={dashboard.activeCommitments}
+        anchors={dashboard.dailyAnchors}
+      />
+      <MergedInsightsModal
+        open={activeModal === 'insights'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+      />
     </div>
   );
 }
