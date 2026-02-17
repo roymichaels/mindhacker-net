@@ -1,50 +1,36 @@
 
 
-## Fix Avatar/Orb Customization Based on AI Summarization and User DNA
+## Add Visual DNA Breakdown Card to Profile Page
 
-### Problem
-The `useOrbProfile` hook currently only extracts **hobbies** from `step_2_profile_data` to drive the orb's visual identity. It completely ignores:
-- **AI Summarization data** from `launchpad_summaries` (identity profile, suggested ego state, dominant traits, values hierarchy, behavioral insights)
-- **Rich profile data** from `step_2_profile_data` (decision style, conflict handling, problem approach, life priorities, traits)
+### Overview
+Create a new "Orb DNA" card on the profile page that shows users exactly which traits, hobbies, and behaviors are shaping their orb's appearance. This gives transparency into the avatar system and makes the personalization feel tangible.
 
-This means the orb looks generic for most users despite having rich personality data available.
+### What the Card Will Show
 
-### Solution
-Enhance `useOrbProfile` to pull data from both `launchpad_summaries` and the full `step_2_profile_data`, then feed it all into the existing `generateOrbProfile()` function from `orbProfileGenerator.ts` which already supports all these inputs (hobbies, decisionStyle, conflictStyle, problemSolvingStyle, traits, priorities, egoState, clarityScore).
+**1. Archetype Blend** -- The dominant and secondary archetypes with their icons and percentage weights (e.g., "Creator 45% / Mystic 30%"), rendered as colored progress bars matching the orb's gradient.
 
-### Changes
+**2. Influencing Hobbies** -- The user's hobbies displayed as pill chips, each tagged with which archetype they feed into (e.g., "music" with a Creator icon).
 
-**1. `src/hooks/useOrbProfile.ts`** -- Main changes:
-- Add a query to fetch `launchpad_summaries` (summary_data, clarity_score, consciousness_score, transformation_readiness)
-- Extract the full profile data from `step_2_profile_data`: decision style, conflict handling, problem approach, life priorities
-- Extract AI-generated data from summary: suggested ego state, dominant traits, values hierarchy
-- Replace the simplified `generateVisualProfile()` call with the full `generateOrbProfile()` from `orbProfileGenerator.ts`, passing all available user DNA signals
-- This feeds into the existing `avatarDNA.ts` system which already has mappings for all these traits
+**3. Behavioral Signature** -- Decision style, conflict style, and problem-solving style shown as compact labeled chips (e.g., "Decisions: Gut Feeling", "Conflict: Diplomatic").
 
-**2. Data flow after fix:**
+**4. Orb Stats** -- Level complexity, particle count, layer count, and texture type as a small metrics row showing how progression affects visual complexity.
 
-```text
-step_2_profile_data (hobbies, decision_style, conflict_handling, life_priorities, problem_approach)
-       +
-launchpad_summaries (ego_state, clarity_score, consciousness_score, transformation_readiness)
-       +
-game_state (level, streak, XP)
-       |
-       v
-generateOrbProfile() --> computeAvatarDNA() --> dnaToOrbProfile()
-       |
-       v
-Personalized Orb (colors, morphology, particles, motion, texture)
-```
+**5. Color Preview** -- A small row of color swatches showing the orb's primary, secondary, and accent colors derived from the DNA blend.
 
 ### Technical Details
 
-The key change is in the `computedProfile` useMemo inside `useOrbProfile`:
+**New file: `src/components/gamification/OrbDNACard.tsx`**
+- Imports `useOrbProfile` to access `profile.computedFrom` (archetypeWeights, dominantHobbies, egoState, level, streak, clarityScore)
+- Imports `useLaunchpadProgress` to access `step_2_profile_data` for behavioral styles (decision_style, conflict_handling, problem_approach, life_priorities)
+- Uses the existing `extractProfileData` pattern from `useOrbProfile.ts`
+- Uses existing `getArchetypeName`, `getArchetypeIcon` from `orbProfileGenerator.ts`
+- Uses existing `PillChips` component for hobby/trait display
+- Uses existing `CompactCard` pattern from `ProfileContent.tsx`
+- Bilingual support via `useTranslation`
 
-- **Before**: `generateVisualProfile(hobbies, level, streak)` -- only uses hobbies
-- **After**: `generateOrbProfile({ hobbies, decisionStyle, conflictStyle, problemSolvingStyle, priorities, selectedTraitIds, level, experience, streak, clarityScore, consciousnessScore, transformationReadiness, egoState })` -- uses full DNA
+**Modified file: `src/components/dashboard/ProfileContent.tsx`**
+- Import and render `OrbDNACard` as a new section below the existing Career + Transformation grid
+- Passes no props -- the card is self-contained via hooks
 
-The `generateOrbProfile` function and `computeAvatarDNA` already exist and handle all these inputs with proper archetype blending, motion profiles, color palettes, particle systems, and complexity scaling. They just weren't being called with the full data.
-
-No new tables, migrations, or edge functions needed. This is purely a frontend data-wiring fix.
+**No database changes needed** -- all data comes from existing hooks (`useOrbProfile`, `useLaunchpadProgress`).
 
