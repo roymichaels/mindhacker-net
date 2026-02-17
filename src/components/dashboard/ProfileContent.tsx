@@ -10,8 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
   RefreshCw, Loader2, Check, X, Sparkles, Star, Gem, Flame,
-  Heart, Target, Compass, TrendingUp, Zap, Brain, Calendar,
-  UserCircle, Activity, Anchor
+  Heart, Target, Compass, TrendingUp, Zap, Brain,
+  UserCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,9 +19,8 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
-  AIAnalysisModal, LifePlanModal, ConsciousnessModal, BehavioralModal,
-  IdentityModal, TraitsModal, CommitmentsModal, AnchorsModal,
-} from '@/components/dashboard/DashboardModals';
+  MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
+} from '@/components/dashboard/MergedModals';
 import { PillChips } from '@/components/aurora-ui/PillChips';
 import { GradientCTAButton } from '@/components/aurora-ui/GradientCTAButton';
 
@@ -39,7 +38,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   const dashboardData = useUnifiedDashboard();
   const { data: launchpadSummary } = useLaunchpadSummary();
   
-  type ModalType = 'ai' | 'plan' | 'consciousness' | 'behavioral' | 'identity' | 'traits' | 'commitments' | 'anchors' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -140,28 +139,28 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         </div>
       </motion.div>
 
-      {/* ===== 3 ACTION BUTTONS ROW ===== */}
+      {/* ===== 3 MERGED ACTION BUTTONS ===== */}
       <div className="grid grid-cols-3 gap-2">
         <button
           onClick={() => setActiveModal('identity')}
           className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
         >
-          <Heart className="w-5 h-5 text-pink-500" />
-          <span className="text-sm font-medium">{language === 'he' ? 'ערכים' : 'Values'}</span>
+          <UserCircle className="w-5 h-5 text-violet-500" />
+          <span className="text-sm font-medium">{language === 'he' ? 'זהות' : 'Identity'}</span>
         </button>
         <button
-          onClick={() => setActiveModal('traits')}
-          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
-        >
-          <Sparkles className="w-5 h-5 text-violet-500" />
-          <span className="text-sm font-medium">{language === 'he' ? 'תכונות' : 'Traits'}</span>
-        </button>
-        <button
-          onClick={() => setActiveModal('behavioral')}
+          onClick={() => setActiveModal('direction')}
           className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
         >
           <Compass className="w-5 h-5 text-blue-500" />
           <span className="text-sm font-medium">{language === 'he' ? 'כיוון' : 'Direction'}</span>
+        </button>
+        <button
+          onClick={() => setActiveModal('insights')}
+          className="rounded-xl bg-card border border-border p-3 flex flex-col items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all min-h-[60px]"
+        >
+          <Brain className="w-5 h-5 text-primary" />
+          <span className="text-sm font-medium">{language === 'he' ? 'תובנות' : 'Insights'}</span>
         </button>
       </div>
 
@@ -201,31 +200,6 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         )}
       </div>
 
-      {/* ===== INSIGHTS GRID ===== */}
-      <CompactCard icon={<Brain className="w-4 h-4 text-primary" />} title={language === 'he' ? 'תובנות' : 'Insights'}>
-        <div className="grid grid-cols-4 gap-2">
-          {([
-            { key: 'ai' as ModalType, icon: <Sparkles className="w-5 h-5" />, label: language === 'he' ? 'AI' : 'AI' },
-            { key: 'plan' as ModalType, icon: <Calendar className="w-5 h-5" />, label: '90D' },
-            { key: 'consciousness' as ModalType, icon: <Brain className="w-5 h-5" />, label: language === 'he' ? 'תודעה' : 'Mind' },
-            { key: 'identity' as ModalType, icon: <UserCircle className="w-5 h-5" />, label: language === 'he' ? 'זהות' : 'ID' },
-            { key: 'traits' as ModalType, icon: <Heart className="w-5 h-5" />, label: language === 'he' ? 'תכונות' : 'Traits' },
-            { key: 'behavioral' as ModalType, icon: <Activity className="w-5 h-5" />, label: language === 'he' ? 'דפוסים' : 'Patterns' },
-            { key: 'commitments' as ModalType, icon: <Target className="w-5 h-5" />, label: language === 'he' ? 'מחויבות' : 'Goals' },
-            { key: 'anchors' as ModalType, icon: <Anchor className="w-5 h-5" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
-          ]).map((tool) => (
-            <button
-              key={tool.key}
-              onClick={() => setActiveModal(tool.key)}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[56px]"
-            >
-              <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
-              <span className="text-xs font-medium text-foreground leading-none">{tool.label}</span>
-            </button>
-          ))}
-        </div>
-      </CompactCard>
-
       {/* ===== CTA ===== */}
       <div className="flex gap-2">
         <GradientCTAButton
@@ -249,15 +223,28 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         </Button>
       </div>
 
-      {/* ===== MODALS ===== */}
-      <AIAnalysisModal open={activeModal === 'ai'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
-      <LifePlanModal open={activeModal === 'plan'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
-      <ConsciousnessModal open={activeModal === 'consciousness'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
-      <BehavioralModal open={activeModal === 'behavioral'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
-      <IdentityModal open={activeModal === 'identity'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} values={dashboardData.values} principles={dashboardData.principles} selfConcepts={dashboardData.selfConcepts} identityTitle={dashboardData.identityTitle} />
-      <TraitsModal open={activeModal === 'traits'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} />
-      <CommitmentsModal open={activeModal === 'commitments'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} commitments={dashboardData.activeCommitments} />
-      <AnchorsModal open={activeModal === 'anchors'} onOpenChange={(open) => !open && setActiveModal(null)} language={language} anchors={dashboardData.dailyAnchors} />
+      {/* ===== MERGED MODALS ===== */}
+      <MergedIdentityModal
+        open={activeModal === 'identity'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+        values={dashboardData.values}
+        principles={dashboardData.principles}
+        selfConcepts={dashboardData.selfConcepts}
+        identityTitle={dashboardData.identityTitle}
+      />
+      <MergedDirectionModal
+        open={activeModal === 'direction'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+        commitments={dashboardData.activeCommitments}
+        anchors={dashboardData.dailyAnchors}
+      />
+      <MergedInsightsModal
+        open={activeModal === 'insights'}
+        onOpenChange={(open) => !open && setActiveModal(null)}
+        language={language}
+      />
     </div>
   );
 }
