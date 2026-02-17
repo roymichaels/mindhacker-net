@@ -100,6 +100,12 @@ export interface AuroraContext {
 
   // Opener hints (computed)
   opener_hints: string[];
+
+  // Adaptive Feedback Loop
+  pulse_today: { energy: number; mood: string; sleep: string; task_confidence: number; screen_discipline: boolean } | null;
+  pulse_week: { avg_energy: number; avg_confidence: number; compliance: number; recovery_debt: number; days_logged: number } | null;
+  behavioral_risks: { risk: string; severity: string; action: string }[];
+  last_recalibration: { week: number; compliance: number; cognitive_load: number; recovery_debt: number; adjustments: string } | null;
 }
 
 // ─── Hash ──────────────────────────────────────────────────
@@ -150,6 +156,9 @@ export async function buildContext(
     habitsRes,
     milestonesRes,
     parentTasksRes,
+    pulseTodayRes,
+    pulseWeekRes,
+    recalibRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -177,6 +186,12 @@ export async function buildContext(
     supabase.from("action_items").select("id, title, status, metadata, plan_id").eq("user_id", userId).eq("type", "milestone").order("order_index"),
     // Parent tasks (checklists) with child counts
     supabase.from("action_items").select("id, title").eq("user_id", userId).eq("type", "task").is("parent_id", null).in("status", ["todo", "doing"]),
+    // Pulse: today
+    supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).eq("log_date", today).maybeSingle(),
+    // Pulse: last 7 days
+    supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).gte("log_date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]).order("log_date", { ascending: false }),
+    // Latest recalibration
+    supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
   ]);
 
   const profile = profileRes.data;
@@ -200,6 +215,26 @@ export async function buildContext(
   const habits = habitsRes.data || [];
   const milestones = milestonesRes.data || [];
   const parentTasks = parentTasksRes.data || [];
+
+  // Pulse data
+  const pulseToday = pulseTodayRes.data;
+  const pulseWeekData = pulseWeekRes.data || [];
+  const latestRecalib = recalibRes.data?.[0];
+
+  // Compute pulse week stats
+  let pulseWeekStats: AuroraContext["pulse_week"] = null;
+  if (pulseWeekData.length > 0) {
+    const avgEnergy = pulseWeekData.reduce((s: number, p: any) => s + p.energy_rating, 0) / pulseWeekData.length;
+    const avgConfidence = pulseWeekData.reduce((s: number, p: any) => s + p.task_confidence, 0) / pulseWeekData.length;
+    const sleepYes = pulseWeekData.filter((p: any) => p.sleep_compliance === 'yes').length;
+    const screenYes = pulseWeekData.filter((p: any) => p.screen_discipline).length;
+    const compliance = ((sleepYes + screenYes + (avgConfidence / 5 * pulseWeekData.length)) / (pulseWeekData.length * 3)) * 100;
+    const recoveryDebt = ((pulseWeekData.length - sleepYes) + pulseWeekData.filter((p: any) => p.energy_rating <= 2).length + (pulseWeekData.length - screenYes)) / (pulseWeekData.length * 3) * 100;
+    pulseWeekStats = { avg_energy: Math.round(avgEnergy * 10) / 10, avg_confidence: Math.round(avgConfidence * 10) / 10, compliance: Math.round(compliance), recovery_debt: Math.round(recoveryDebt), days_logged: pulseWeekData.length };
+  }
+
+  // Extract behavioral risks from latest recalibration
+  const behavioralRisks: AuroraContext["behavioral_risks"] = (latestRecalib?.behavioral_risks as any[]) || [];
 
   // ── Compute habit completion status ────────────────────
   const todayStart = `${today}T00:00:00`;
@@ -343,6 +378,24 @@ export async function buildContext(
     })),
 
     opener_hints: openerHints,
+
+    // Adaptive feedback loop
+    pulse_today: pulseToday ? {
+      energy: pulseToday.energy_rating,
+      mood: pulseToday.mood_signal,
+      sleep: pulseToday.sleep_compliance,
+      task_confidence: pulseToday.task_confidence,
+      screen_discipline: pulseToday.screen_discipline,
+    } : null,
+    pulse_week: pulseWeekStats,
+    behavioral_risks: behavioralRisks,
+    last_recalibration: latestRecalib ? {
+      week: latestRecalib.week_number,
+      compliance: latestRecalib.compliance_score,
+      cognitive_load: latestRecalib.cognitive_load_score,
+      recovery_debt: latestRecalib.recovery_debt_score,
+      adjustments: JSON.stringify(latestRecalib.adjustments_made),
+    } : null,
   };
 
   // Compute hash for tracing
@@ -378,5 +431,9 @@ function createEmptyContext(today: string): AuroraContext {
     recent_insights: [],
     projects: [],
     opener_hints: [],
+    pulse_today: null,
+    pulse_week: null,
+    behavioral_risks: [],
+    last_recalibration: null,
   };
 }

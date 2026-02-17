@@ -2577,6 +2577,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_pulse_logs: {
+        Row: {
+          created_at: string
+          energy_rating: number
+          id: string
+          log_date: string
+          mood_signal: string
+          screen_discipline: boolean
+          sleep_compliance: string
+          task_confidence: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          energy_rating: number
+          id?: string
+          log_date?: string
+          mood_signal: string
+          screen_discipline?: boolean
+          sleep_compliance: string
+          task_confidence: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          energy_rating?: number
+          id?: string
+          log_date?: string
+          mood_signal?: string
+          screen_discipline?: boolean
+          sleep_compliance?: string
+          task_confidence?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       edge_function_errors: {
         Row: {
           created_at: string
@@ -5100,6 +5136,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      recalibration_logs: {
+        Row: {
+          adjustments_made: Json | null
+          behavioral_risks: Json | null
+          cognitive_load_score: number
+          compliance_score: number
+          created_at: string
+          id: string
+          recovery_debt_score: number
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          adjustments_made?: Json | null
+          behavioral_risks?: Json | null
+          cognitive_load_score?: number
+          compliance_score?: number
+          created_at?: string
+          id?: string
+          recovery_debt_score?: number
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          adjustments_made?: Json | null
+          behavioral_risks?: Json | null
+          cognitive_load_score?: number
+          compliance_score?: number
+          created_at?: string
+          id?: string
+          recovery_debt_score?: number
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
       }
       relationships_journeys: {
         Row: {
