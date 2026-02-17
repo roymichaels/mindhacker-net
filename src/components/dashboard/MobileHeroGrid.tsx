@@ -98,10 +98,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {/* ===== 2-COL GRID: Plan (left on desktop) + HUD (right on desktop) ===== */}
-      <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[1fr_300px] md:grid-rows-1 md:overflow-hidden">
+      <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[300px_1fr] md:grid-rows-1 md:overflow-hidden">
 
         {/* ===== COL 1 - HUD ===== */}
-        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:justify-center md:gap-2 md:order-2 md:overflow-hidden md:min-h-0 md:self-start">
+        <div className="rounded-2xl border border-border bg-card p-2 md:flex md:flex-col md:items-center md:justify-center md:gap-2 md:order-1 md:overflow-hidden md:min-h-0">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
@@ -169,7 +169,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none overflow-y-auto md:order-1 md:min-h-0 md:max-h-full md:overflow-y-auto">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none overflow-y-auto md:order-2 md:min-h-0 md:max-h-full md:overflow-y-auto">
           {/* Premium identity + stats card - desktop only */}
           <div className="hidden md:flex flex-col gap-3 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-transparent p-4">
             <div className="flex items-center justify-between">
