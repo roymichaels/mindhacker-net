@@ -93,36 +93,36 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-3">
       {/* ===== 3-COLUMN HERO GRID ===== */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-3">
         {/* Column 1: Dark card with Orb + identity */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-2 flex flex-col items-center justify-center text-center"
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-4 flex flex-col items-center justify-center text-center"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-          <div className="relative z-10 flex flex-col items-center gap-1">
-            <PersonalizedOrb size={60} state="idle" />
+          <div className="relative z-10 flex flex-col items-center gap-1.5">
+            <PersonalizedOrb size={80} state="idle" />
             {dashboardData.identityTitle ? (
-              <h2 className="text-[10px] font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-tight">
+              <h2 className="text-sm font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-tight">
                 {dashboardData.identityTitle.icon} {language === 'he' ? dashboardData.identityTitle.title : dashboardData.identityTitle.titleEn}
               </h2>
             ) : (
-              <h2 className="text-[10px] font-medium text-muted-foreground">
+              <h2 className="text-sm font-medium text-muted-foreground">
                 {language === 'he' ? 'המסע מתחיל' : 'Journey Starts'}
               </h2>
             )}
-            <div className="flex items-center gap-1">
-              <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-background/50 text-[9px] font-semibold border border-border/50">
-                <Star className="w-2.5 h-2.5 text-yellow-500" />Lv.{dashboardData.level}
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
+                <Star className="w-3.5 h-3.5 text-yellow-500" />Lv.{dashboardData.level}
               </span>
-              <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-background/50 text-[9px] font-semibold border border-border/50">
-                <Gem className="w-2.5 h-2.5 text-purple-500" />{dashboardData.tokens}
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
+                <Gem className="w-3.5 h-3.5 text-purple-500" />{dashboardData.tokens}
               </span>
-              <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-background/50 text-[9px] font-semibold border border-border/50">
-                <Flame className="w-2.5 h-2.5 text-orange-500" />{dashboardData.streak}
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/50 text-xs font-semibold border border-border/50">
+                <Flame className="w-3.5 h-3.5 text-orange-500" />{dashboardData.streak}
               </span>
             </div>
           </div>
@@ -131,15 +131,15 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         {/* Column 2: 3 vertical metrics */}
         <div className="flex flex-col gap-1.5">
           {[
-            { icon: <Zap className="w-3 h-3" />, label: language === 'he' ? 'תודעה' : 'Mind', value: consciousnessScore, color: 'text-yellow-500' },
-            { icon: <Compass className="w-3 h-3" />, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityScore}%`, color: 'text-blue-500' },
-            { icon: <TrendingUp className="w-3 h-3" />, label: language === 'he' ? 'מוכנות' : 'Ready', value: `${transformationReadiness}%`, color: 'text-green-500' },
+            { icon: <Zap className="w-4 h-4" />, label: language === 'he' ? 'תודעה' : 'Mind', value: consciousnessScore, color: 'text-yellow-500' },
+            { icon: <Compass className="w-4 h-4" />, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityScore}%`, color: 'text-blue-500' },
+            { icon: <TrendingUp className="w-4 h-4" />, label: language === 'he' ? 'מוכנות' : 'Ready', value: `${transformationReadiness}%`, color: 'text-green-500' },
           ].map((s) => (
-            <div key={s.label} className="rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 flex-1">
+            <div key={s.label} className="rounded-xl bg-card border border-border p-3 flex items-center gap-2 flex-1">
               <div className={cn("shrink-0", s.color)}>{s.icon}</div>
               <div className="min-w-0">
-                <p className="text-sm font-bold leading-none">{s.value}</p>
-                <p className="text-[9px] text-muted-foreground">{s.label}</p>
+                <p className="text-lg font-bold leading-none">{s.value}</p>
+                <p className="text-xs text-muted-foreground">{s.label}</p>
               </div>
             </div>
           ))}
@@ -149,33 +149,33 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         <div className="flex flex-col gap-1.5">
           <button
             onClick={() => setActiveModal('identity')}
-            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
           >
-            <Heart className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-            <span className="text-[11px] font-medium">{language === 'he' ? 'הערכים שלי' : 'My Values'}</span>
+            <Heart className="w-5 h-5 text-pink-500 shrink-0" />
+            <span className="text-sm font-medium">{language === 'he' ? 'הערכים שלי' : 'My Values'}</span>
           </button>
           <button
             onClick={() => setActiveModal('traits')}
-            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
           >
-            <Sparkles className="w-3.5 h-3.5 text-violet-500 shrink-0" />
-            <span className="text-[11px] font-medium">{language === 'he' ? 'תכונות דומיננטיות' : 'Key Traits'}</span>
+            <Sparkles className="w-5 h-5 text-violet-500 shrink-0" />
+            <span className="text-sm font-medium">{language === 'he' ? 'תכונות דומיננטיות' : 'Key Traits'}</span>
           </button>
           <button
             onClick={() => setActiveModal('behavioral')}
-            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
           >
-            <Compass className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-            <span className="text-[11px] font-medium">{language === 'he' ? 'כיוון החיים' : 'Life Direction'}</span>
+            <Compass className="w-5 h-5 text-blue-500 shrink-0" />
+            <span className="text-sm font-medium">{language === 'he' ? 'כיוון החיים' : 'Life Direction'}</span>
           </button>
         </div>
       </div>
 
       {/* ===== CAREER + TRANSFORMATION - side by side ===== */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-3">
         {(launchpadData?.firstWeek?.career_status || launchpadData?.firstWeek?.career_goal) && (
-          <CompactCard icon={<Target className="w-3 h-3 text-amber-500" />} title={language === 'he' ? 'קריירה' : 'Career'}>
-            <div className="space-y-1 text-xs">
+          <CompactCard icon={<Target className="w-4 h-4 text-amber-500" />} title={language === 'he' ? 'קריירה' : 'Career'}>
+            <div className="space-y-1.5 text-sm">
               {launchpadData?.firstWeek?.career_status && (
                 <p className="text-muted-foreground line-clamp-1">📍 {launchpadData.firstWeek.career_status}</p>
               )}
@@ -188,17 +188,17 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 
         {((launchpadData?.firstWeek?.habits_to_quit?.length ?? 0) > 0 || 
           (launchpadData?.firstWeek?.habits_to_build?.length ?? 0) > 0) && (
-          <CompactCard icon={<RefreshCw className="w-3 h-3 text-green-500" />} title={language === 'he' ? 'שינוי' : 'Change'}>
-            <div className="space-y-1">
+          <CompactCard icon={<RefreshCw className="w-4 h-4 text-green-500" />} title={language === 'he' ? 'שינוי' : 'Change'}>
+            <div className="space-y-1.5">
               {(launchpadData?.firstWeek?.habits_to_quit?.length ?? 0) > 0 && (
                 <div>
-                  <p className="text-[10px] font-medium text-destructive flex items-center gap-0.5 mb-0.5"><X className="w-2.5 h-2.5" />{language === 'he' ? 'לעזוב' : 'Quit'}</p>
+                  <p className="text-xs font-medium text-destructive flex items-center gap-1 mb-0.5"><X className="w-3 h-3" />{language === 'he' ? 'לעזוב' : 'Quit'}</p>
                   <PillChips items={launchpadData?.firstWeek?.habits_to_quit ?? []} colorScheme="red" maxItems={2} />
                 </div>
               )}
               {(launchpadData?.firstWeek?.habits_to_build?.length ?? 0) > 0 && (
                 <div>
-                  <p className="text-[10px] font-medium text-green-600 dark:text-green-500 flex items-center gap-0.5 mb-0.5"><Check className="w-2.5 h-2.5" />{language === 'he' ? 'לפתח' : 'Build'}</p>
+                  <p className="text-xs font-medium text-green-600 dark:text-green-500 flex items-center gap-1 mb-0.5"><Check className="w-3 h-3" />{language === 'he' ? 'לפתח' : 'Build'}</p>
                   <PillChips items={launchpadData?.firstWeek?.habits_to_build ?? []} colorScheme="green" maxItems={2} />
                 </div>
               )}
@@ -208,32 +208,32 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
       </div>
 
       {/* ===== INSIGHTS GRID ===== */}
-      <CompactCard icon={<Brain className="w-3 h-3 text-primary" />} title={language === 'he' ? 'תובנות' : 'Insights'}>
-        <div className="grid grid-cols-4 gap-1">
+      <CompactCard icon={<Brain className="w-4 h-4 text-primary" />} title={language === 'he' ? 'תובנות' : 'Insights'}>
+        <div className="grid grid-cols-4 gap-1.5">
           {([
-            { key: 'ai' as ModalType, icon: <Sparkles className="w-3.5 h-3.5" />, label: language === 'he' ? 'AI' : 'AI' },
-            { key: 'plan' as ModalType, icon: <Calendar className="w-3.5 h-3.5" />, label: '90D' },
-            { key: 'consciousness' as ModalType, icon: <Brain className="w-3.5 h-3.5" />, label: language === 'he' ? 'תודעה' : 'Mind' },
-            { key: 'identity' as ModalType, icon: <UserCircle className="w-3.5 h-3.5" />, label: language === 'he' ? 'זהות' : 'ID' },
-            { key: 'traits' as ModalType, icon: <Heart className="w-3.5 h-3.5" />, label: language === 'he' ? 'תכונות' : 'Traits' },
-            { key: 'behavioral' as ModalType, icon: <Activity className="w-3.5 h-3.5" />, label: language === 'he' ? 'דפוסים' : 'Patterns' },
-            { key: 'commitments' as ModalType, icon: <Target className="w-3.5 h-3.5" />, label: language === 'he' ? 'מחויבות' : 'Goals' },
-            { key: 'anchors' as ModalType, icon: <Anchor className="w-3.5 h-3.5" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
+            { key: 'ai' as ModalType, icon: <Sparkles className="w-5 h-5" />, label: language === 'he' ? 'AI' : 'AI' },
+            { key: 'plan' as ModalType, icon: <Calendar className="w-5 h-5" />, label: '90D' },
+            { key: 'consciousness' as ModalType, icon: <Brain className="w-5 h-5" />, label: language === 'he' ? 'תודעה' : 'Mind' },
+            { key: 'identity' as ModalType, icon: <UserCircle className="w-5 h-5" />, label: language === 'he' ? 'זהות' : 'ID' },
+            { key: 'traits' as ModalType, icon: <Heart className="w-5 h-5" />, label: language === 'he' ? 'תכונות' : 'Traits' },
+            { key: 'behavioral' as ModalType, icon: <Activity className="w-5 h-5" />, label: language === 'he' ? 'דפוסים' : 'Patterns' },
+            { key: 'commitments' as ModalType, icon: <Target className="w-5 h-5" />, label: language === 'he' ? 'מחויבות' : 'Goals' },
+            { key: 'anchors' as ModalType, icon: <Anchor className="w-5 h-5" />, label: language === 'he' ? 'עוגנים' : 'Anchors' },
           ]).map((tool) => (
             <button
               key={tool.key}
               onClick={() => setActiveModal(tool.key)}
-              className="flex flex-col items-center gap-0.5 p-1.5 rounded-lg bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[36px]"
+              className="flex flex-col items-center gap-1 p-3 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/40 transition-all text-center group min-h-[48px]"
             >
               <span className="text-muted-foreground group-hover:text-primary transition-colors">{tool.icon}</span>
-              <span className="text-[10px] font-medium text-foreground leading-none">{tool.label}</span>
+              <span className="text-xs font-medium text-foreground leading-none">{tool.label}</span>
             </button>
           ))}
         </div>
       </CompactCard>
 
       {/* ===== CTA ===== */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-2">
         <GradientCTAButton
           onClick={handleEditJourney}
           icon={<Sparkles className="w-4 h-4" />}
@@ -247,7 +247,7 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
         <Button
           variant="outline"
           size="icon"
-          className="h-9 w-9 shrink-0 border-primary/30"
+          className="h-11 w-11 shrink-0 border-primary/30"
           onClick={handleRegenerate}
           disabled={isRegenerating}
         >
@@ -272,11 +272,11 @@ export function ProfileContent({ onClose }: ProfileContentProps) {
 function CompactCard({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
     <div className="rounded-xl bg-card border border-border overflow-hidden">
-      <div className="flex items-center gap-1.5 px-2 py-1 border-b border-border/50 bg-muted/30">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/50 bg-muted/30">
         {icon}
-        <h3 className="font-semibold text-[11px] text-foreground">{title}</h3>
+        <h3 className="font-semibold text-sm text-foreground">{title}</h3>
       </div>
-      <div className="p-2">{children}</div>
+      <div className="p-3">{children}</div>
     </div>
   );
 }

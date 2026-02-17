@@ -76,27 +76,27 @@ const PlanTab = () => {
   }
 
   return (
-    <PageShell className="space-y-2">
+    <PageShell className="space-y-3">
       {/* ===== 3-COLUMN HERO GRID ===== */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-3">
         {/* Column 1: Dark card with week indicator */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-2 flex flex-col items-center justify-center text-center"
+          className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 border border-primary/30 p-4 flex flex-col items-center justify-center text-center"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20" />
-          <div className="relative z-10 flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex flex-col items-center justify-center">
-              <span className="text-[8px] text-white/60">{language === 'he' ? 'שבוע' : 'Wk'}</span>
-              <span className="text-lg font-black text-white leading-none">{planData?.currentWeek || 1}</span>
+          <div className="relative z-10 flex flex-col items-center gap-1.5">
+            <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/30 flex flex-col items-center justify-center">
+              <span className="text-[10px] text-white/60">{language === 'he' ? 'שבוע' : 'Wk'}</span>
+              <span className="text-2xl font-black text-white leading-none">{planData?.currentWeek || 1}</span>
             </div>
-            <h3 className="text-[10px] font-bold text-white/90 leading-tight">
+            <h3 className="text-sm font-bold text-white/90 leading-tight">
               {language === 'he' ? 'תוכנית טרנספורמציה' : 'Transformation Plan'}
             </h3>
             {planData && (
-              <Badge variant="secondary" className="text-[9px] h-4 px-1.5">
-                <Calendar className="h-2 w-2 mr-0.5" />M{planData.currentMonth}
+              <Badge variant="secondary" className="text-xs h-5 px-2">
+                <Calendar className="h-3 w-3 mr-1" />M{planData.currentMonth}
               </Badge>
             )}
           </div>
@@ -104,23 +104,23 @@ const PlanTab = () => {
 
         {/* Column 2: Progress stats */}
         <div className="flex flex-col gap-1.5">
-          <div className="rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 flex-1">
-            <Target className="w-3 h-3 text-primary shrink-0" />
+          <div className="rounded-xl bg-card border border-border p-3 flex items-center gap-2 flex-1">
+            <Target className="w-4 h-4 text-primary shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold leading-none">{planData?.completedCount || 0}/{planData?.totalCount || 0}</p>
-              <p className="text-[9px] text-muted-foreground">{language === 'he' ? 'הושלמו' : 'Done'}</p>
+              <p className="text-lg font-bold leading-none">{planData?.completedCount || 0}/{planData?.totalCount || 0}</p>
+              <p className="text-xs text-muted-foreground">{language === 'he' ? 'הושלמו' : 'Done'}</p>
             </div>
           </div>
-          <div className="rounded-lg bg-card border border-border p-1.5 flex-1">
-            <div className="flex items-center justify-between text-[10px] mb-0.5">
+          <div className="rounded-xl bg-card border border-border p-3 flex-1">
+            <div className="flex items-center justify-between text-xs mb-1">
               <span className="text-muted-foreground">{language === 'he' ? 'התקדמות' : 'Progress'}</span>
               <span className="font-bold text-primary">{planData?.progressPercent || 0}%</span>
             </div>
-            <Progress value={planData?.progressPercent || 0} className="h-1.5 [&>div]:bg-primary" />
+            <Progress value={planData?.progressPercent || 0} className="h-2 [&>div]:bg-primary" />
           </div>
           {planData?.currentMilestone && (
-            <div className="rounded-lg bg-card border border-border p-1.5 flex-1">
-              <p className="text-[9px] text-muted-foreground truncate">→ {planData.currentMilestone.title}</p>
+            <div className="rounded-xl bg-card border border-border p-3 flex-1">
+              <p className="text-xs text-muted-foreground truncate">→ {planData.currentMilestone.title}</p>
             </div>
           )}
         </div>
@@ -129,28 +129,28 @@ const PlanTab = () => {
         <div className="flex flex-col gap-1.5">
           <button
             onClick={() => roadmapRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
           >
-            <Map className="w-3.5 h-3.5 text-primary shrink-0" />
-            <span className="text-[11px] font-medium">{language === 'he' ? 'מפת דרכים' : 'Roadmap'}</span>
+            <Map className="w-5 h-5 text-primary shrink-0" />
+            <span className="text-sm font-medium">{language === 'he' ? 'מפת דרכים' : 'Roadmap'}</span>
           </button>
           <button
             onClick={() => analysisRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex-1 rounded-lg bg-card border border-border p-1.5 flex items-center gap-1.5 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
+            className="flex-1 rounded-xl bg-card border border-border p-3 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/40 transition-all text-start"
           >
-            <BarChart3 className="w-3.5 h-3.5 text-accent shrink-0" />
-            <span className="text-[11px] font-medium">{language === 'he' ? 'ניתוח חיים' : 'Life Analysis'}</span>
+            <BarChart3 className="w-5 h-5 text-accent shrink-0" />
+            <span className="text-sm font-medium">{language === 'he' ? 'ניתוח חיים' : 'Life Analysis'}</span>
           </button>
         </div>
       </div>
 
       {/* Today's Missions */}
-      <section className="space-y-1">
+      <section className="space-y-2">
         <SectionHeader
           icon={ListChecks}
           title={language === 'he' ? '⚡ משימות היום' : "⚡ Today's Missions"}
         />
-        <div className="rounded-2xl border border-border bg-card shadow-sm p-3">
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-4">
           <TasksPanel />
         </div>
       </section>
