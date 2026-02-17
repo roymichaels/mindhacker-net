@@ -1436,6 +1436,119 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_client_plans: {
+        Row: {
+          client_name: string | null
+          client_user_id: string | null
+          coach_id: string
+          coaching_niche: string | null
+          created_at: string
+          id: string
+          methodology: Json | null
+          notes: string | null
+          plan_data: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_name?: string | null
+          client_user_id?: string | null
+          coach_id: string
+          coaching_niche?: string | null
+          created_at?: string
+          id?: string
+          methodology?: Json | null
+          notes?: string | null
+          plan_data?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string | null
+          client_user_id?: string | null
+          coach_id?: string
+          coaching_niche?: string | null
+          created_at?: string
+          id?: string
+          methodology?: Json | null
+          notes?: string | null
+          plan_data?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_client_plans_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coaching_journeys: {
+        Row: {
+          ai_summary: string | null
+          coaching_niche: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_10_action_plan: Json | null
+          step_2_niche: Json | null
+          step_3_methodology: Json | null
+          step_4_ideal_client: Json | null
+          step_5_value_proposition: Json | null
+          step_6_credentials: Json | null
+          step_7_services: Json | null
+          step_8_marketing: Json | null
+          step_9_operations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          coaching_niche?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_10_action_plan?: Json | null
+          step_2_niche?: Json | null
+          step_3_methodology?: Json | null
+          step_4_ideal_client?: Json | null
+          step_5_value_proposition?: Json | null
+          step_6_credentials?: Json | null
+          step_7_services?: Json | null
+          step_8_marketing?: Json | null
+          step_9_operations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          coaching_niche?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_10_action_plan?: Json | null
+          step_2_niche?: Json | null
+          step_3_methodology?: Json | null
+          step_4_ideal_client?: Json | null
+          step_5_value_proposition?: Json | null
+          step_6_credentials?: Json | null
+          step_7_services?: Json | null
+          step_8_marketing?: Json | null
+          step_9_operations?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_categories: {
         Row: {
           color: string | null
