@@ -30,10 +30,10 @@ const MeTab = () => {
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-1 sm:top-7 end-1 z-10 text-muted-foreground hover:text-foreground"
+        className="absolute top-3 sm:top-8 end-3 sm:end-4 z-10 h-10 w-10 rounded-full bg-black/20 dark:bg-white/10 backdrop-blur-sm text-white hover:bg-black/30 dark:hover:bg-white/20"
         onClick={() => setSettingsOpen(true)}
       >
-        <Settings className="h-5 w-5" />
+        <Settings className="h-6 w-6" />
       </Button>
 
       <ProfileContent />

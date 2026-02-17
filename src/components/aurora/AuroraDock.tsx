@@ -35,7 +35,7 @@ export function AuroraDock() {
       <div
         className={cn(
           "fixed left-0 right-0 z-40 flex flex-col items-center",
-          "bg-background border-t border-border",
+          "bg-background border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.08)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.4)]",
           isMobile
             ? "bottom-14"
             : "bottom-0"
