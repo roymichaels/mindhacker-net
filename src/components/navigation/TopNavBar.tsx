@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, Store } from 'lucide-react';
+import { LayoutDashboard, FolderKanban } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
@@ -9,7 +9,6 @@ import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 const tabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
-  { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Marketplace', labelHe: 'מרכז מאמנים' },
 ];
 
 interface TopNavBarProps {
