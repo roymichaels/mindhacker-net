@@ -37,9 +37,8 @@ const PlanTab = () => {
 
   return (
     <PageShell className="space-y-8">
-      <div className="flex justify-end">
-        <span className="text-[10px] font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">UI V2</span>
-      </div>
+
+
 
       {/* Hero progress summary */}
       <PlanProgressHero />
