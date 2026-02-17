@@ -98,12 +98,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const orbSize = 280;
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 w-full">
+    <div className="flex flex-col w-full">
       {/* ===== 2-COL GRID: Plan (left on desktop) + HUD (right on desktop) ===== */}
-      <div className="flex flex-col gap-0 flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-[300px_1fr] md:gap-2 md:items-stretch md:overflow-hidden">
+      <div className="flex flex-col gap-0 md:grid md:grid-cols-[300px_1fr] md:gap-2 md:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="p-4 pt-0 md:pt-0 md:-mt-10 lg:-mt-[4.5rem] md:order-1 md:overflow-y-auto md:flex md:flex-col md:justify-center">
+        <div className="p-4 pt-0 md:pt-0 md:-mt-10 lg:-mt-[4.5rem] md:order-1 md:flex md:flex-col md:justify-center">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
