@@ -360,15 +360,19 @@ function CollapsiblePlanRow({
       </button>
 
       {!isOpen && (
-        <div className="px-3 pb-2 min-h-[2.5rem]">
-          {firstUndone && onItemToggle ? (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => { e.stopPropagation(); onItemToggle(firstUndone.id, true); }}
-                className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
-                aria-label="Complete item"
-              />
-              <span className="text-xs text-muted-foreground truncate flex-1">{firstUndone.title}</span>
+        <div className="px-3 pb-2">
+          {items && items.length > 0 && onItemToggle ? (
+            <div className="space-y-1">
+              {items.filter(i => !i.done).slice(0, 3).map((item) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
+                    className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
+                    aria-label="Complete item"
+                  />
+                  <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
+                </div>
+              ))}
             </div>
           ) : previewText ? (
             <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
