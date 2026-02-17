@@ -2691,6 +2691,47 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_events: {
+        Row: {
+          balance_after: number
+          change: number
+          created_at: string
+          id: string
+          idempotency_key: string | null
+          reason: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          balance_after: number
+          change: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          reason?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          balance_after?: number
+          change?: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          reason?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "energy_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exit_intent_leads: {
         Row: {
           contacted_at: string | null
@@ -6454,6 +6495,16 @@ export type Database = {
             }
             Returns: undefined
           }
+      award_energy: {
+        Args: {
+          p_amount: number
+          p_idempotency_key?: string
+          p_reason?: string
+          p_source: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       award_unified_xp:
         | {
             Args: {
@@ -6579,6 +6630,16 @@ export type Database = {
         Returns: string
       }
       reconcile_user_xp: { Args: { p_user_id: string }; Returns: Json }
+      spend_energy: {
+        Args: {
+          p_amount: number
+          p_idempotency_key?: string
+          p_reason?: string
+          p_source: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "practitioner" | "affiliate"

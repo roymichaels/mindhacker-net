@@ -1,9 +1,9 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { useGameState, useXpProgress, useStreak, useTokens } from '@/hooks/useGameState';
+import { useGameState, useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { LevelProgress } from './LevelProgress';
 import { StreakCounter } from './StreakCounter';
-import { TokenBalance } from './TokenBalance';
+import { EnergyBalance } from './EnergyBalance';
 import { getEgoState } from '@/lib/egoStates';
 import { useTranslation } from '@/hooks/useTranslation';
 import { TrendingUp, Clock, Target } from 'lucide-react';
@@ -40,7 +40,7 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
         <div className="h-4 w-px bg-border" />
         <StreakCounter size="sm" showLabel={false} />
         <div className="h-4 w-px bg-border" />
-        <TokenBalance size="sm" />
+        <EnergyBalance size="sm" />
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function GameStatsCard({ className, compact = false }: GameStatsCardProps
           </div>
         </div>
         <div className="text-end">
-          <TokenBalance size="lg" />
+          <EnergyBalance size="lg" />
         </div>
       </div>
 

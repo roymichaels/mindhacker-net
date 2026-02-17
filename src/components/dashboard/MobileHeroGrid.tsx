@@ -6,13 +6,13 @@ import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
-import { useXpProgress, useStreak, useTokens } from '@/hooks/useGameState';
+import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Target, Headphones, Activity } from 'lucide-react';
+import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Target, Headphones, Activity } from 'lucide-react';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -43,7 +43,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const streak = useStreak();
-  const tokens = useTokens();
+  const tokens = useEnergy();
   const { suggestedGoal } = useDailyHypnosis();
   const { impact } = useHaptics();
   const { openHypnosis } = useAuroraActions();
@@ -131,7 +131,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                     <Star className="h-3 w-3" />Lv.{xp.level}
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                    <Gem className="h-3 w-3" />{tokens.balance}
+                    <ZapIcon className="h-3 w-3 fill-yellow-500/30" />{tokens.balance}
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                     <Flame className="h-3 w-3" />{streak.streak}
@@ -225,7 +225,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 <Star className="h-2.5 w-2.5" />Lv.{xp.level}
               </span>
               <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                <Gem className="h-2.5 w-2.5" />{tokens.balance}
+                <ZapIcon className="h-2.5 w-2.5 fill-yellow-500/30" />{tokens.balance}
               </span>
               <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                 <Flame className="h-2.5 w-2.5" />{streak.streak}

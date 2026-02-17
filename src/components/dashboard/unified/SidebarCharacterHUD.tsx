@@ -7,7 +7,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Progress } from '@/components/ui/progress';
-import { Flame, Gem, Star } from 'lucide-react';
+import { Flame, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarCharacterHUDProps {
@@ -87,7 +87,7 @@ export function SidebarCharacterHUD({
               <span className="font-bold">Lv.{level}</span>
             </div>
             <div className="flex items-center gap-1 text-yellow-500">
-              <Gem className="h-3 w-3" />
+              <Zap className="h-3 w-3 fill-yellow-500/30" />
               <span className="font-semibold">{tokens}</span>
             </div>
             <div className="flex items-center gap-1 text-orange-500">

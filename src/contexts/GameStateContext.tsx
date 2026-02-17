@@ -7,7 +7,7 @@ import {
   type Achievement 
 } from '@/lib/achievements';
 import { debug } from '@/lib/debug';
-import { showLevelUp, showTokensEarned } from '@/lib/feedback';
+import { showLevelUp, showEnergyEarned } from '@/lib/feedback';
 
 export interface UserGameState {
   level: number;
@@ -35,7 +35,11 @@ interface GameStateContextValue {
   // Actions
   refreshGameState: () => Promise<void>;
   addExperience: (amount: number) => Promise<void>;
+  spendEnergy: (amount: number, source?: string, reason?: string) => Promise<boolean>;
+  addEnergy: (amount: number, source?: string, reason?: string) => Promise<void>;
+  /** @deprecated Use spendEnergy */
   spendTokens: (amount: number) => Promise<boolean>;
+  /** @deprecated Use addEnergy */
   addTokens: (amount: number) => Promise<void>;
   setActiveEgoState: (egoState: string) => Promise<void>;
   checkAndAwardAchievements: () => Promise<Achievement[]>;
@@ -161,7 +165,6 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
 
       if (error) throw error;
 
-      // Parse result from DB function
       const result = data as {
         xp_gained: number;
         new_experience: number;
@@ -183,7 +186,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       if (result.levels_gained > 0) {
         showLevelUp(result.new_level);
         if (result.tokens_awarded > 0) {
-          showTokensEarned(result.tokens_awarded);
+          showEnergyEarned(result.tokens_awarded);
         }
       }
     } catch (err) {
@@ -191,47 +194,71 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     }
   }, [user?.id, gameState]);
 
-  // Spend tokens
-  const spendTokens = useCallback(async (amount: number): Promise<boolean> => {
-    if (!user?.id || !gameState || gameState.tokens < amount) {
-      toast.error('Not enough tokens!');
+  // Spend energy via RPC (atomic, with ledger)
+  const spendEnergy = useCallback(async (amount: number, source: string = 'frontend', reason?: string): Promise<boolean> => {
+    if (!user?.id || !gameState) {
+      toast.error('Not enough energy!');
       return false;
     }
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ tokens: gameState.tokens - amount })
-        .eq('id', user.id);
+      const { data, error } = await supabase.rpc('spend_energy', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_source: source,
+        p_reason: reason || null,
+      });
 
       if (error) throw error;
 
-      setGameState(prev => prev ? { ...prev, tokens: prev.tokens - amount } : null);
+      const result = data as { success: boolean; new_balance?: number; error?: string };
+      
+      if (!result.success) {
+        toast.error(result.error || 'Not enough energy!');
+        return false;
+      }
+
+      setGameState(prev => prev ? { ...prev, tokens: result.new_balance ?? prev.tokens - amount } : null);
       return true;
     } catch (err) {
-      debug.warn('[GameState] Error spending tokens:', err);
+      debug.warn('[GameState] Error spending energy:', err);
       return false;
     }
   }, [user?.id, gameState]);
 
-  // Add tokens
-  const addTokens = useCallback(async (amount: number) => {
+  // Add energy via RPC (with ledger)
+  const addEnergy = useCallback(async (amount: number, source: string = 'frontend', reason?: string) => {
     if (!user?.id || !gameState) return;
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ tokens: gameState.tokens + amount })
-        .eq('id', user.id);
+      const { data, error } = await supabase.rpc('award_energy', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_source: source,
+        p_reason: reason || null,
+      });
 
       if (error) throw error;
 
-      setGameState(prev => prev ? { ...prev, tokens: prev.tokens + amount } : null);
-      showTokensEarned(amount);
+      const result = data as { success: boolean; new_balance?: number };
+
+      if (result.success) {
+        setGameState(prev => prev ? { ...prev, tokens: result.new_balance ?? prev.tokens + amount } : null);
+        showEnergyEarned(amount);
+      }
     } catch (err) {
-      debug.warn('[GameState] Error adding tokens:', err);
+      debug.warn('[GameState] Error adding energy:', err);
     }
   }, [user?.id, gameState]);
+
+  // Legacy aliases
+  const spendTokens = useCallback(async (amount: number): Promise<boolean> => {
+    return spendEnergy(amount, 'legacy', 'legacy spendTokens call');
+  }, [spendEnergy]);
+
+  const addTokens = useCallback(async (amount: number) => {
+    return addEnergy(amount, 'legacy', 'legacy addTokens call');
+  }, [addEnergy]);
 
   // Set active ego state
   const setActiveEgoState = useCallback(async (egoState: string) => {
@@ -259,7 +286,6 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     const egoStatesUsed = Object.keys(gameState.egoStateUsage).length;
 
     for (const achievement of Object.values(ACHIEVEMENTS)) {
-      // Skip if already unlocked
       if (unlockedAchievements.includes(achievement.id)) continue;
 
       let shouldUnlock = false;
@@ -295,12 +321,11 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
             newAchievements.push(achievement);
             setUnlockedAchievements(prev => [...prev, achievement.id]);
 
-            // Award XP via unified system and tokens separately
             if (achievement.xp) {
               await addExperience(achievement.xp, 'achievement', `Unlocked: ${achievement.name}`);
             }
             if (achievement.tokens) {
-              await addTokens(achievement.tokens);
+              await addEnergy(achievement.tokens, 'achievement', `Unlocked: ${achievement.name}`);
             }
 
             toast.success(`🏆 Achievement Unlocked!`, {
@@ -314,7 +339,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     }
 
     return newAchievements;
-  }, [user?.id, gameState, sessionStats, unlockedAchievements, addExperience, addTokens]);
+  }, [user?.id, gameState, sessionStats, unlockedAchievements, addExperience, addEnergy]);
 
   // Record a completed session
   const recordSession = useCallback(async (session: {
@@ -342,10 +367,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
 
       if (error) throw error;
 
-      // Refresh state to get updated streak and XP from trigger
       await refreshGameState();
-      
-      // Check for new achievements
       await checkAndAwardAchievements();
 
       toast.success(`Session Complete!`, {
@@ -370,6 +392,8 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     error,
     refreshGameState,
     addExperience,
+    spendEnergy,
+    addEnergy,
     spendTokens,
     addTokens,
     setActiveEgoState,
