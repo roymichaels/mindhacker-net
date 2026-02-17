@@ -48,7 +48,7 @@ export function MobileHeroGrid({ planData, habitsCount = 0, habitsTotal = 0, tas
   const identityTitle = dashboard.identityTitle;
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 md:hidden">
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-3">
       {/* RIGHT COL (first in RTL) - HUD */}
       <div className="rounded-xl border border-border bg-card p-2 flex flex-col items-center gap-1.5 min-h-0">
         {/* Orb */}
