@@ -224,12 +224,12 @@ const AuroraAccountDropdown = ({
 
           <DropdownMenuSeparator />
 
-          {/* Back to Aurora */}
+          {/* Back to Dashboard */}
           {(showBackToAurora || isInPanel) && (
             <>
-              <DropdownMenuItem onClick={() => navigate('/aurora')}>
+              <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                 <LayoutDashboard className="h-4 w-4 me-2" />
-                {language === 'he' ? 'חזרה לאורורה' : 'Back to Aurora'}
+                {language === 'he' ? 'חזרה לדשבורד' : 'Back to Dashboard'}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
