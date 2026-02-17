@@ -114,32 +114,32 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 md:hidden">
             {/* Top: Identity + Orb side by side */}
-            <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
-              {/* Identity + badges */}
-              <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+              {/* Orb - right side (appears first in RTL) */}
+              <div className="relative flex items-center justify-center overflow-visible w-[110px] h-[110px] order-2 rtl:order-1">
+                <PersonalizedOrb size={110} state="idle" />
+              </div>
+              {/* Identity + badges - left side */}
+              <div className="flex flex-col gap-2 order-1 rtl:order-2">
                 {identityTitle && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm">{identityTitle.icon}</span>
-                    <span className="text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent leading-tight">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">{identityTitle.icon}</span>
+                    <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent leading-tight">
                       {language === 'he' ? identityTitle.title : identityTitle.titleEn}
                     </span>
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-1">
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
-                    <Star className="h-2.5 w-2.5" />Lv.{xp.level}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                    <Star className="h-3 w-3" />Lv.{xp.level}
                   </span>
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                    <Gem className="h-2.5 w-2.5" />{tokens.balance}
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+                    <Gem className="h-3 w-3" />{tokens.balance}
                   </span>
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                    <Flame className="h-2.5 w-2.5" />{streak.streak}
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                    <Flame className="h-3 w-3" />{streak.streak}
                   </span>
                 </div>
-              </div>
-              {/* Orb */}
-              <div className="relative flex items-center justify-center overflow-visible w-[100px] h-[100px]">
-                <PersonalizedOrb size={100} state="idle" />
               </div>
             </div>
             {/* Bottom: Stats row */}
