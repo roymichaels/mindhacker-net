@@ -12,7 +12,7 @@ export function PageShell({ children, className }: PageShellProps) {
   return (
     <div
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={cn('max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-6 pb-14', className)}
+      className={cn('max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-6 pb-14 w-full flex-1 flex flex-col', className)}
     >
       {children}
     </div>
