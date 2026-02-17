@@ -25,6 +25,7 @@ import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
 import { LifePlanModal } from '@/components/dashboard/DashboardModals';
+import { DiagnosticsModal } from '@/components/dashboard/DiagnosticsModal';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 
 interface MobileHeroGridProps {
@@ -70,8 +71,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
   const leftColRef = useRef<HTMLDivElement>(null);
-  type ModalType = 'identity' | 'direction' | 'insights' | 'plan' | null;
+  type ModalType = 'identity' | 'direction' | 'insights' | 'plan' | 'diagnostics' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [diagnosticTab, setDiagnosticTab] = useState<string | undefined>();
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const handleStartDailySession = () => {
@@ -375,16 +377,16 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           </h3>
           {/* 6 diagnostic score cards */}
           {[
-            { icon: Zap, label: language === 'he' ? 'יציבות אנרגיה' : 'Energy Stability', color: 'text-amber-500' },
-            { icon: Activity, label: language === 'he' ? 'חוב ריקברי' : 'Recovery Debt', color: 'text-red-500' },
-            { icon: Brain, label: language === 'he' ? 'עומס דופמין' : 'Dopamine Load', color: 'text-purple-500' },
-            { icon: Target, label: language === 'he' ? 'אמינות ביצוע' : 'Execution Reliability', color: 'text-green-500' },
-            { icon: Clock, label: language === 'he' ? 'מינוף זמן' : 'Time Leverage', color: 'text-blue-500' },
-            { icon: Activity, label: language === 'he' ? 'סיכון הורמונלי' : 'Hormonal Risk', color: 'text-orange-500' },
+            { key: 'energy_stability', icon: Zap, label: language === 'he' ? 'יציבות אנרגיה' : 'Energy Stability', color: 'text-amber-500' },
+            { key: 'recovery_debt', icon: Activity, label: language === 'he' ? 'חוב ריקברי' : 'Recovery Debt', color: 'text-red-500' },
+            { key: 'dopamine_load', icon: Brain, label: language === 'he' ? 'עומס דופמין' : 'Dopamine Load', color: 'text-purple-500' },
+            { key: 'execution_reliability', icon: Target, label: language === 'he' ? 'אמינות ביצוע' : 'Execution Reliability', color: 'text-green-500' },
+            { key: 'time_leverage', icon: Clock, label: language === 'he' ? 'מינוף זמן' : 'Time Leverage', color: 'text-blue-500' },
+            { key: 'hormonal_risk', icon: Activity, label: language === 'he' ? 'סיכון הורמונלי' : 'Hormonal Risk', color: 'text-orange-500' },
           ].map((d) => (
             <button
               key={d.label}
-              onClick={() => setActiveModal('insights')}
+              onClick={() => { setDiagnosticTab(d.key); setActiveModal('diagnostics'); }}
               className="rounded-lg bg-card/30 backdrop-blur-sm border border-border/40 p-2.5 flex items-center gap-2 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer w-full text-start"
             >
               <d.icon className={cn("w-4 h-4 shrink-0", d.color)} />
@@ -420,6 +422,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         open={activeModal === 'plan'}
         onOpenChange={(open) => !open && setActiveModal(null)}
         language={language}
+      />
+      <DiagnosticsModal
+        open={activeModal === 'diagnostics'}
+        onOpenChange={(open) => { if (!open) { setActiveModal(null); setDiagnosticTab(undefined); } }}
+        language={language}
+        initialTab={diagnosticTab}
       />
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
     </div>
