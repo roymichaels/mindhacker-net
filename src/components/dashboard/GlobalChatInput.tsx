@@ -3,13 +3,19 @@ import { Send, Loader2, Plus, Image, Camera, X } from 'lucide-react';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import VoiceRecordingButton from '@/components/aurora/VoiceRecordingButton';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const GlobalChatInput = () => {
   const { t, tg, isRTL } = useGenderedTranslation();
+  const { user } = useAuth();
+  const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -88,6 +94,12 @@ const GlobalChatInput = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && !selectedImage) || isStreaming) return;
+
+    // Subscription gate check
+    if (!canSendMessage) {
+      showUpgradePrompt('aurora_limit');
+      return;
+    }
     
     const messageToSend = input.trim();
     setInput('');
@@ -103,6 +115,11 @@ const GlobalChatInput = () => {
     }
     
     if (!messageToSend) return;
+
+    // Increment daily message count for free users
+    if (!isPro && user?.id) {
+      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {});
+    }
     
     // Retry sending with exponential backoff
     let attempts = 0;
@@ -298,6 +315,17 @@ const GlobalChatInput = () => {
           </p>
         )}
       </form>
+
+      {/* Free tier message counter */}
+      {!isPro && (
+        <p className="text-[10px] text-muted-foreground text-center mt-1">
+          {isRTL
+            ? `${messagesRemaining} הודעות נותרו היום`
+            : `${messagesRemaining} messages remaining today`}
+        </p>
+      )}
+
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </div>
   );
 };

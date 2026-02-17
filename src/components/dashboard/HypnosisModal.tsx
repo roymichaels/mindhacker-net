@@ -12,6 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { 
   generateHypnosisScript, 
@@ -49,6 +51,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { isLaunchpadComplete, isLoading: isLoadingLaunchpad } = useLaunchpadProgress();
   const { impact, pattern: hapticPattern } = useHaptics();
   const { currentMilestone, suggestedGoal, isLoading: isLoadingContext } = useDailyHypnosis();
+  const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
 
   const [state, setState] = useState<SessionState>('generating');
   const [goal, setGoal] = useState('');
@@ -130,11 +133,17 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   // Auto-start session when modal opens
   useEffect(() => {
     if (open && !isLoadingContext) {
+      // Gate: check subscription before starting
+      if (!canAccessHypnosis) {
+        showUpgradePrompt('hypnosis');
+        onOpenChange(false);
+        return;
+      }
       const sessionGoal = suggestedGoal || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
       setGoal(sessionGoal);
       startSession(sessionGoal);
     }
-  }, [open, isLoadingContext]);
+  }, [open, isLoadingContext, canAccessHypnosis]);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -710,6 +719,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent 
         className="max-w-2xl h-[85svh] max-h-[92svh] p-0 flex flex-col bg-background overflow-visible"
@@ -942,6 +952,8 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         </AnimatePresence>
       </DialogContent>
     </Dialog>
+    <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
+    </>
   );
 }
 

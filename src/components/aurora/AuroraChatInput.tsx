@@ -3,6 +3,10 @@ import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import VoiceRecordingButton from './VoiceRecordingButton';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +17,8 @@ interface AuroraChatInputProps {
 
 const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const { t, tg, isRTL } = useGenderedTranslation();
+  const { user } = useAuth();
+  const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const [input, setInput] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -40,9 +46,20 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || disabled) return;
+
+    // Subscription gate check
+    if (!canSendMessage) {
+      showUpgradePrompt('aurora_limit');
+      return;
+    }
     
     onSend(input.trim());
     setInput('');
+
+    // Increment daily message count for free users
+    if (!isPro && user?.id) {
+      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {});
+    }
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -125,11 +142,19 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
           </p>
         )}
 
-        {/* Footer Note */}
-        <p className="text-xs text-muted-foreground text-center mt-3">
-          {t('aurora.footerNote')}
-        </p>
+        {/* Footer Note + Message Counter */}
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <p className="text-xs text-muted-foreground">
+            {t('aurora.footerNote')}
+          </p>
+          {!isPro && (
+            <span className="text-xs text-muted-foreground">
+              · {messagesRemaining} {isRTL ? 'נותרו' : 'left'}
+            </span>
+          )}
+        </div>
       </form>
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </div>
   );
 };

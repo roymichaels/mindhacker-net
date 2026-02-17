@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import ProGateOverlay from '@/components/subscription/ProGateOverlay';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +51,7 @@ const LifePlan = () => {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
+  const { canAccessPlan, isLoading: subLoading } = useSubscriptionGate();
   const [plan, setPlan] = useState<LifePlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set());
@@ -212,6 +215,14 @@ const LifePlan = () => {
     const completed = plan.milestones.filter(m => m.is_completed).length;
     return Math.round((completed / plan.milestones.length) * 100);
   };
+
+  if (!subLoading && !canAccessPlan) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <ProGateOverlay feature="plan" />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
