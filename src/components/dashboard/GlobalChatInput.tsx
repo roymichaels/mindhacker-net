@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Plus, Image, Camera, X } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
@@ -28,6 +29,7 @@ const GlobalChatInput = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   
   const { sendMessageRef, isStreaming, isChatExpanded, setIsChatExpanded } = useAuroraChatContext();
+  const isMobile = useIsMobile();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -257,18 +259,7 @@ const GlobalChatInput = () => {
             />
           </div>
 
-          {/* Aurora branding button - expands chat */}
-          <button
-            type="button"
-            onClick={() => setIsChatExpanded(!isChatExpanded)}
-            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
-          >
-            <AuroraOrbIcon className="w-4 h-4" size={16} />
-            <span className="text-xs font-medium text-muted-foreground">Aurora</span>
-            {isStreaming && (
-              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            )}
-          </button>
+
 
           {/* Input Container */}
           <div className="flex-1 h-9 relative bg-background/50 backdrop-blur-xl rounded-lg border border-border/50 flex items-center">
@@ -319,6 +310,19 @@ const GlobalChatInput = () => {
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             ) : (
               <Send className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {/* Aurora branding button - far right */}
+          <button
+            type="button"
+            onClick={() => setIsChatExpanded(!isChatExpanded)}
+            className="h-9 flex items-center gap-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors shrink-0"
+          >
+            <AuroraOrbIcon className="w-4 h-4" size={16} />
+            {!isMobile && <span className="text-xs font-medium text-muted-foreground">Aurora</span>}
+            {isStreaming && (
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
             )}
           </button>
         </div>
