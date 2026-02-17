@@ -64,11 +64,11 @@ export function TodaysHabitsCard() {
           : "from-muted/30 to-transparent"
       )}
     >
-      <CardHeader className="pb-2 px-4 pt-4">
+      <CardHeader className="pb-1 px-3 pt-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <Sparkles className={cn(
-              "h-5 w-5",
+              "h-4 w-4",
               allCompleted ? "text-emerald-500" : "text-muted-foreground"
             )} />
             {language === 'he' ? 'ההרגלים של היום' : "Today's Habits"}
@@ -78,9 +78,9 @@ export function TodaysHabitsCard() {
           </span>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 px-4 pb-4" dir={isRTL ? 'rtl' : 'ltr'}>
+      <CardContent className="space-y-2 px-3 pb-3" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Habit list */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <AnimatePresence mode="popLayout">
             {habits.map((habit) => (
               <motion.button
@@ -92,7 +92,7 @@ export function TodaysHabitsCard() {
                 onClick={() => toggleHabit(habit.id, !habit.isCompleted)}
                 disabled={isToggling}
                 className={cn(
-                  "w-full flex items-center gap-3 p-3 rounded-xl text-start",
+                  "w-full flex items-center gap-3 py-2 px-2.5 rounded-xl text-start",
                   "transition-all duration-200",
                   "hover:bg-muted/50",
                   habit.isCompleted 
@@ -136,7 +136,7 @@ export function TodaysHabitsCard() {
           <Progress 
             value={progress} 
             className={cn(
-              "h-2.5",
+              "h-1.5",
               allCompleted && "[&>div]:bg-emerald-500"
             )} 
           />

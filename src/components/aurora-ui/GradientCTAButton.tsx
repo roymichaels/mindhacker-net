@@ -20,7 +20,7 @@ export function GradientCTAButton({ onClick, label, icon, className, disabled }:
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full h-11 text-sm bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold shadow-xl shadow-primary/30',
+        'w-full h-9 text-xs bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold shadow-xl shadow-primary/30',
         className
       )}
     >

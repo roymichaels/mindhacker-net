@@ -49,7 +49,7 @@ export function LifeAnalysisChart() {
       <CardContent>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           {/* Pie Chart */}
-          <div className="relative h-[150px] w-[150px] sm:h-[180px] sm:w-[180px] flex-shrink-0">
+          <div className="relative h-[120px] w-[120px] sm:h-[140px] sm:w-[140px] flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -58,8 +58,8 @@ export function LifeAnalysisChart() {
                   nameKey={language === 'he' ? 'nameHe' : 'name'}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
+                  innerRadius={40}
+                  outerRadius={60}
                   paddingAngle={2}
                   animationBegin={0}
                   animationDuration={800}
