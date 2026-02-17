@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sprout, Hammer, Rocket, ChevronDown, Check, Zap, Coins, Trophy, Target } from 'lucide-react';
+import { Sprout, Hammer, Rocket, ChevronDown, Check, Sparkles, Coins, Trophy, Target } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -347,7 +347,7 @@ export function PlanRoadmap() {
                             <div className="ps-10 flex items-center justify-between gap-3">
                               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
-                                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                                   {milestone.xp_reward} XP
                                 </span>
                                 <span className="flex items-center gap-1">
