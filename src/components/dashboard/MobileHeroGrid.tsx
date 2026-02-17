@@ -361,22 +361,33 @@ function CollapsiblePlanRow({
 
       {!isOpen && (
         <div className="px-3 pb-2">
-          {items && items.length > 0 && onItemToggle ? (
-            <div className="space-y-1">
-              {items.filter(i => !i.done).slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
-                    className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
-                    aria-label="Complete item"
-                  />
-                  <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
-                </div>
-              ))}
-            </div>
-          ) : previewText ? (
-            <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
-          ) : null}
+          {/* Mobile: single preview line only */}
+          <div className="md:hidden">
+            {previewText ? (
+              <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
+            ) : items && items.length > 0 ? (
+              <p className="text-xs text-muted-foreground truncate">→ {items.find(i => !i.done)?.title || items[0].title}</p>
+            ) : null}
+          </div>
+          {/* Desktop: checkable items */}
+          <div className="hidden md:block">
+            {items && items.length > 0 && onItemToggle ? (
+              <div className="space-y-1">
+                {items.filter(i => !i.done).slice(0, 3).map((item) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
+                      className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-amber-500 hover:bg-amber-500/10 transition-colors"
+                      aria-label="Complete item"
+                    />
+                    <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
+                  </div>
+                ))}
+              </div>
+            ) : previewText ? (
+              <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
+            ) : null}
+          </div>
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
               <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
