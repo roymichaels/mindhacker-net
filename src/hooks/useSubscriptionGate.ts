@@ -25,7 +25,7 @@ const FREE_MAX_HABITS = 3;
 const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
 
 export const useSubscriptionGate = (): SubscriptionGate => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [upgradeFeature, setUpgradeFeature] = useState<string | null>(null);
 
   // Check subscription status via Stripe
@@ -43,7 +43,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!user && !isAdmin,
     staleTime: 5 * 60 * 1000,
     refetchInterval: 60 * 1000,
   });
@@ -62,9 +62,29 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       if (error) throw error;
       return data?.count ?? 0;
     },
-    enabled: !!user,
+    enabled: !!user && !isAdmin,
     staleTime: 30 * 1000,
   });
+
+  // Admins bypass all gates
+  if (isAdmin) {
+    return {
+      tier: "pro",
+      isPro: true,
+      isLoading: false,
+      canSendMessage: true,
+      messagesRemaining: Infinity,
+      canAccessPlan: true,
+      canAccessHypnosis: true,
+      canAccessNudges: true,
+      maxHabits: Infinity,
+      subscriptionEnd: null,
+      showUpgradePrompt: () => {},
+      upgradeFeature: null,
+      dismissUpgrade: () => {},
+      refetch: () => {},
+    };
+  }
 
   const isPro = !!subData && subData.product_id === PRO_PRODUCT_ID;
   const dailyCount = messageData ?? 0;
