@@ -21,19 +21,23 @@ import { cn } from '@/lib/utils';
 
 // Keys that go into step_1_intention
 const STEP1_KEYS = [
-  'pressure_zone', 'functional_signals', 'target_90_days',
-  'why_matters', 'urgency_scale', 'restructure_willingness', 'final_notes',
+  'entry_context', 'pressure_zone', 'functional_signals', 'failure_moment',
+  'target_90_days', 'urgency_scale', 'restructure_willingness',
+  'non_negotiable_constraint', 'final_notes',
 ];
 
 // Keys that go into step_2_profile_data
 const STEP2_KEYS = [
   'age_bracket', 'gender', 'body_fat_estimate', 'activity_level',
-  'wake_time', 'sleep_time', 'sleep_quality', 'screen_before_bed',
-  'daily_screen_time', 'social_media_frequency', 'caffeine_intake', 'alcohol_frequency',
-  'diet_type', 'protein_awareness', 'water_intake', 'sun_exposure', 'cold_exposure',
+  'wake_time', 'sleep_time', 'sleep_duration_avg', 'sleep_quality', 'screen_before_bed',
+  'wake_during_night', 'sunlight_after_waking',
+  'caffeine_intake', 'first_caffeine_timing', 'alcohol_frequency', 'nicotine', 'weed_thc',
+  'daily_screen_time', 'shorts_reels', 'gaming', 'porn_frequency', 'late_night_scrolling',
+  'diet_type', 'protein_awareness', 'meals_per_day', 'water_intake', 'nutrition_weak_point',
   'work_type', 'daily_work_hours', 'commute_duration', 'energy_peak_time', 'energy_crash_time',
-  'dependents', 'household_responsibility', 'social_life_frequency',
-  'execution_pattern', 'motivation_driver',
+  'dependents', 'household_responsibility', 'social_life_frequency', 'training_window_available',
+  'execution_pattern', 'friction_trigger', 'motivation_driver',
+  'hypnosis_style', 'preferred_session_length', 'preferred_reminders',
 ];
 
 export function OnboardingFlow() {
@@ -201,19 +205,23 @@ export function OnboardingFlow() {
 
   // Phase labels
   const phaseLabels: Record<number, { he: string; en: string }> = {
+    0: { he: 'הקשר כניסה', en: 'Entry Context' },
     1: { he: 'אבחון מצב', en: 'State Diagnosis' },
     2: { he: 'אבחון מצב', en: 'State Diagnosis' },
-    3: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
+    3: { he: 'אבחון מצב', en: 'State Diagnosis' },
     4: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
     5: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
     6: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
-    7: { he: 'ארכיטקטורת זמן', en: 'Time Architecture' },
-    8: { he: 'ארכיטקטורת זמן', en: 'Time Architecture' },
-    9: { he: 'מערכת הפעלה פסיכולוגית', en: 'Psychological OS' },
-    10: { he: 'מערכת הפעלה פסיכולוגית', en: 'Psychological OS' },
+    7: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
+    8: { he: 'בסיס ביולוגי', en: 'Biological Baseline' },
+    9: { he: 'ארכיטקטורת זמן', en: 'Time Architecture' },
+    10: { he: 'ארכיטקטורת זמן', en: 'Time Architecture' },
     11: { he: 'מערכת הפעלה פסיכולוגית', en: 'Psychological OS' },
-    12: { he: 'פילטר מחויבות', en: 'Commitment Filter' },
-    13: { he: 'פילטר מחויבות', en: 'Commitment Filter' },
+    12: { he: 'מערכת הפעלה פסיכולוגית', en: 'Psychological OS' },
+    13: { he: 'מערכת הפעלה פסיכולוגית', en: 'Psychological OS' },
+    14: { he: 'יעד + מחויבות', en: 'Target + Commitment' },
+    15: { he: 'יעד + מחויבות', en: 'Target + Commitment' },
+    16: { he: 'יעד + מחויבות', en: 'Target + Commitment' },
   };
 
   const currentPhase = phaseLabels[currentStep.id];
