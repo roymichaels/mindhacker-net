@@ -157,7 +157,7 @@ const GlobalChatInput = () => {
   };
 
   return (
-    <div className="shrink-0 w-full pt-3 pb-[15px] px-4" data-global-chat-input>
+    <div className="shrink-0 w-full pt-1 pb-2 px-4" data-global-chat-input>
       {/* Image Preview */}
       <AnimatePresence>
         {imagePreview && (

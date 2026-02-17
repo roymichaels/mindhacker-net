@@ -35,13 +35,14 @@ export function AuroraDock() {
       <div
         className={cn(
           "fixed left-0 right-0 z-40 flex flex-col items-center",
+          "bg-background border-t border-border",
           isMobile
-            ? "bottom-14 pb-[env(safe-area-inset-bottom)]"
+            ? "bottom-14"
             : "bottom-0"
         )}
       >
         {/* Collapse/Expand toggle + Bug report */}
-        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 mb-1">
+        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
           <button
             onClick={() => setBugReportOpen(true)}
             className={cn(
