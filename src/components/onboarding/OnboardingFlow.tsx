@@ -1,14 +1,14 @@
 /**
  * OnboardingFlow — Full-screen 5-step identity calibration orchestrator.
  * 
- * Dark background, no nav, auto-advance, 5-segment progress.
+ * Supports multi_select (toggle + continue) and single_select (auto-advance).
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { OnboardingReveal } from './OnboardingReveal';
@@ -32,17 +32,8 @@ export function OnboardingFlow() {
   const visibleMiniSteps = currentStep ? getVisibleMiniSteps(currentStep, answers) : [];
   const currentMini: MiniStep | undefined = visibleMiniSteps[currentMiniIdx];
 
-  // Compute overall progress (flat across all mini-steps)
-  const totalMiniSteps = steps.reduce((acc, step) => {
-    const visible = getVisibleMiniSteps(step, answers);
-    return acc + (visible.length || 1);
-  }, 0);
-  
-  let completedMinis = 0;
-  for (let i = 0; i < currentStepIdx; i++) {
-    completedMinis += getVisibleMiniSteps(steps[i], answers).length || 1;
-  }
-  completedMinis += currentMiniIdx;
+  const isMultiSelect = currentMini?.inputType === 'multi_select';
+  const currentMultiSelections = isMultiSelect ? (answers[currentMini?.id || ''] as string[] || []) : [];
 
   // Auto-save on every change
   const autoSave = useCallback(async (updatedAnswers: FlowAnswers) => {
@@ -55,7 +46,9 @@ export function OnboardingFlow() {
         if (updatedAnswers[key]) step1Data[key] = updatedAnswers[key];
       });
       if (updatedAnswers.friction_type) {
-        step1Data.selected_pillar = FRICTION_PILLAR_MAP[updatedAnswers.friction_type as string] || 'mind';
+        const ft = updatedAnswers.friction_type;
+        const primaryFriction = Array.isArray(ft) ? ft[0] : ft;
+        step1Data.selected_pillar = FRICTION_PILLAR_MAP[primaryFriction as string] || 'mind';
       }
       ['age_range', 'work_structure', 'experience_level'].forEach(key => {
         if (updatedAnswers[key]) step2Data[key] = updatedAnswers[key];
@@ -88,18 +81,35 @@ export function OnboardingFlow() {
 
   const handleSelect = useCallback((value: string) => {
     if (!currentMini) return;
-    setSelectedValue(value);
-    
-    const updated = { ...answers, [currentMini.id]: value };
-    setAnswers(updated);
-    autoSave(updated);
 
-    // Auto-advance after 400ms
-    if (advanceTimeout.current) clearTimeout(advanceTimeout.current);
-    advanceTimeout.current = setTimeout(() => {
+    if (isMultiSelect) {
+      // Toggle value in array
+      const current = (answers[currentMini.id] as string[]) || [];
+      const toggled = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      const updated = { ...answers, [currentMini.id]: toggled };
+      setAnswers(updated);
+      autoSave(updated);
+    } else {
+      // Single select: auto-advance
+      setSelectedValue(value);
+      const updated = { ...answers, [currentMini.id]: value };
+      setAnswers(updated);
+      autoSave(updated);
+
+      if (advanceTimeout.current) clearTimeout(advanceTimeout.current);
+      advanceTimeout.current = setTimeout(() => {
+        advanceToNext();
+      }, 400);
+    }
+  }, [currentMini, isMultiSelect, answers, autoSave, advanceToNext]);
+
+  const handleContinue = useCallback(() => {
+    if (currentMultiSelections.length > 0) {
       advanceToNext();
-    }, 400);
-  }, [currentMini, answers, autoSave, advanceToNext]);
+    }
+  }, [currentMultiSelections.length, advanceToNext]);
 
   const goBack = useCallback(() => {
     setSelectedValue(null);
@@ -157,20 +167,29 @@ export function OnboardingFlow() {
             className="w-full space-y-8"
           >
             {/* Question */}
-            <h1 className="text-2xl font-bold text-white text-center leading-tight">
-              {isHe ? currentMini.title_he : currentMini.title_en}
-            </h1>
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-bold text-white leading-tight">
+                {isHe ? currentMini.title_he : currentMini.title_en}
+              </h1>
+              {isMultiSelect && (
+                <p className="text-sm text-white/40">
+                  {isHe ? 'ניתן לבחור מספר תשובות' : 'You can select multiple answers'}
+                </p>
+              )}
+            </div>
 
             {/* Options */}
             <div className="space-y-3">
               {currentMini.options?.map((option: FlowOption) => {
-                const isSelected = selectedValue === option.value || answers[currentMini.id] === option.value;
+                const isSelected = isMultiSelect
+                  ? currentMultiSelections.includes(option.value)
+                  : (selectedValue === option.value || answers[currentMini.id] === option.value);
                 return (
                   <motion.button
                     key={option.value}
                     onClick={() => handleSelect(option.value)}
                     whileTap={{ scale: 0.97 }}
-                    animate={isSelected && selectedValue === option.value ? { scale: [1, 1.02, 1] } : {}}
+                    animate={isSelected && !isMultiSelect && selectedValue === option.value ? { scale: [1, 1.02, 1] } : {}}
                     transition={{ duration: 0.2 }}
                     className={cn(
                       'w-full min-h-[56px] rounded-2xl px-5 py-4 text-start flex items-center gap-3 transition-all duration-200 border',
@@ -183,15 +202,36 @@ export function OnboardingFlow() {
                     <span className="font-medium text-base">
                       {isHe ? option.label_he : option.label_en}
                     </span>
+                    {isMultiSelect && isSelected && (
+                      <span className="ms-auto text-primary">✓</span>
+                    )}
                   </motion.button>
                 );
               })}
             </div>
+
+            {/* Continue button for multi-select */}
+            {isMultiSelect && (
+              <AnimatePresence>
+                {currentMultiSelections.length > 0 && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    onClick={handleContinue}
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                  >
+                    {isHe ? 'המשך' : 'Continue'}
+                    {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Back button (subtle, at bottom) */}
+      {/* Back button */}
       {canGoBack && (
         <div className="px-6 pb-8 flex justify-center">
           <button

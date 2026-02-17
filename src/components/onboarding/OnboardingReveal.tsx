@@ -25,7 +25,8 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
   const [isLoading, setIsLoading] = useState(false);
   const isHe = language === 'he';
 
-  const frictionType = answers.friction_type as string;
+  const frictionRaw = answers.friction_type;
+  const frictionType = Array.isArray(frictionRaw) ? frictionRaw[0] : (frictionRaw as string);
   const pillar = FRICTION_PILLAR_MAP[frictionType] || 'mind';
   const pillarInfo = PILLAR_LABELS[pillar];
   const suggestions = PILLAR_SUGGESTIONS[pillar];
@@ -45,7 +46,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
     try {
       // Build step_1_intention data
       const step1Data = {
-        friction_type: frictionType,
+        friction_type: answers.friction_type,
         selected_pillar: pillar,
         specific_tension: answers.specific_tension,
         desired_shift: answers.desired_shift,
@@ -133,7 +134,13 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
             className="rounded-2xl bg-white/5 border border-white/10 p-4 text-start"
           >
             <p className="text-sm text-white/50 mb-1">{isHe ? 'חיכוך שזוהה' : 'Detected Friction'}</p>
-            <p className="text-lg font-semibold text-white">{answers.specific_tension ? String(answers.specific_tension).replace(/_/g, ' ') : frictionType.replace(/_/g, ' ')}</p>
+            <p className="text-lg font-semibold text-white">
+              {(() => {
+                const tension = answers.specific_tension;
+                if (Array.isArray(tension)) return tension.map(t => String(t).replace(/_/g, ' ')).join(', ');
+                return tension ? String(tension).replace(/_/g, ' ') : (frictionType || '').replace(/_/g, ' ');
+              })()}
+            </p>
           </motion.div>
 
           {/* Commitment */}
