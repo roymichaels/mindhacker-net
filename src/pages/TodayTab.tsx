@@ -11,12 +11,13 @@ import { NextActionBanner } from '@/components/dashboard/v2';
 import { TodaysHabitsCard } from '@/components/dashboard/v2';
 import { ChecklistsCard } from '@/components/dashboard/unified';
 import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
+import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
 const TodayTab = () => {
-  const { t, isRTL, language } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isLaunchpadComplete } = useLaunchpadProgress();
@@ -64,7 +65,7 @@ const TodayTab = () => {
   };
 
   return (
-    <div className="space-y-5 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <PageShell className="space-y-6">
       <DashboardBannerSlider />
       <NextActionBanner onOpenHypnosis={handleOpenHypnosis} onOpenChat={handleOpenChat} />
       <div className="grid gap-4 md:grid-cols-2">
@@ -72,7 +73,7 @@ const TodayTab = () => {
         <ChecklistsCard />
       </div>
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
-    </div>
+    </PageShell>
   );
 };
 

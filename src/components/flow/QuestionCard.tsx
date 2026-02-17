@@ -201,9 +201,9 @@ export function QuestionCard({
             disabled={!isValid}
             size="lg"
             className={cn(
-              "min-w-[160px] h-12 font-bold transition-all",
+              "min-w-[160px] h-12 font-bold transition-all rounded-xl",
               isValid
-                ? "bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg"
+                ? "bg-gradient-to-r from-primary to-accent hover:shadow-lg text-primary-foreground"
                 : "opacity-50"
             )}
           >

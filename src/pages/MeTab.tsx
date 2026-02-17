@@ -2,9 +2,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
 import { ProfileContent } from '@/components/dashboard/ProfileContent';
+import { PageShell } from '@/components/aurora-ui/PageShell';
 
 const MeTab = () => {
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
 
   useSEO({
     title: t('seo.dashboardTitle'),
@@ -20,9 +21,9 @@ const MeTab = () => {
   });
 
   return (
-    <div className="relative pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <PageShell>
       <ProfileContent />
-    </div>
+    </PageShell>
   );
 };
 
