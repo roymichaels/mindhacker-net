@@ -23,6 +23,7 @@ import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
 import { LifePlanModal } from '@/components/dashboard/DashboardModals';
+import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 
 interface MobileHeroGridProps {
   planData: {
@@ -69,6 +70,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const leftColRef = useRef<HTMLDivElement>(null);
   type ModalType = 'identity' | 'direction' | 'insights' | 'plan' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const handleStartDailySession = () => {
     impact('medium');
@@ -108,9 +110,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Top: Identity + Orb side by side */}
             <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
               {/* Orb - right side (appears first in RTL) */}
-              <div className="relative flex items-center justify-center overflow-visible w-[110px] h-[110px] order-2 rtl:order-1">
+              <button onClick={() => setOrbDNAOpen(true)} className="relative flex items-center justify-center overflow-visible w-[110px] h-[110px] order-2 rtl:order-1 cursor-pointer">
                 <PersonalizedOrb size={110} state="idle" />
-              </div>
+              </button>
               {/* Identity + badges - left side */}
               <div className="flex flex-col gap-2 order-1 rtl:order-2">
                 {identityTitle && (
@@ -179,9 +181,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Desktop: orb + stats below */}
           <div className="hidden md:flex md:flex-col md:items-center md:gap-3 w-full">
-            <div className="flex items-center justify-center w-full aspect-square overflow-hidden">
+            <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full aspect-square overflow-hidden cursor-pointer">
               <PersonalizedOrb size={260} state="idle" />
-            </div>
+            </button>
             {/* Identity title - own row */}
             {identityTitle && (
               <div className="flex items-center justify-center gap-1.5 w-full">
@@ -371,6 +373,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         onOpenChange={(open) => !open && setActiveModal(null)}
         language={language}
       />
+      <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
     </div>
   );
 }
