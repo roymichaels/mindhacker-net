@@ -1,8 +1,7 @@
 /**
- * OnboardingFlow — Full-screen 13-step neural architecture intake orchestrator.
+ * OnboardingFlow — Full-screen neural architecture intake orchestrator.
  * 
- * Supports multi_select (toggle + continue), single_select (auto-advance),
- * slider, and textarea input types.
+ * Flow: Intro Splash → Basic Info → 16-step calibration → Reveal
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { OnboardingReveal } from './OnboardingReveal';
+import { OnboardingIntro } from './OnboardingIntro';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import type { FlowAnswers, MiniStep, FlowOption } from '@/lib/flow/types';
@@ -46,6 +46,7 @@ export function OnboardingFlow() {
   const navigate = useNavigate();
   const isHe = language === 'he';
 
+  const [showIntro, setShowIntro] = useState(true);
   const [answers, setAnswers] = useState<FlowAnswers>({});
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [currentMiniIdx, setCurrentMiniIdx] = useState(0);
@@ -188,6 +189,21 @@ export function OnboardingFlow() {
       if (advanceTimeout.current) clearTimeout(advanceTimeout.current);
     };
   }, []);
+
+  if (showIntro) {
+    return (
+      <OnboardingIntro
+        onComplete={(basicInfo) => {
+          setAnswers(prev => ({
+            ...prev,
+            gender: basicInfo.gender,
+            age_bracket: basicInfo.ageBracket,
+          }));
+          setShowIntro(false);
+        }}
+      />
+    );
+  }
 
   if (showReveal) {
     return <OnboardingReveal answers={answers} />;
