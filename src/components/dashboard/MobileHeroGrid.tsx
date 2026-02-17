@@ -359,9 +359,9 @@ function CollapsiblePlanRow({
         </div>
       </button>
 
-      {!isOpen && previewText && (
-        <div className="px-3 pb-2">
-          <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
+      {!isOpen && (
+        <div className="px-3 pb-2 min-h-[2.5rem]">
+          {previewText && <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>}
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
               <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${progressPercent}%` }} />
