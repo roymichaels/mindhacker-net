@@ -82,7 +82,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const nextHabit = habits.find(h => !h.isCompleted);
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-start">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
       {/* ===== ROW 1 / RIGHT COL - HUD ===== */}
       <div className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-muted/30 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-950 p-4 flex flex-col items-center gap-3">
         <motion.div
@@ -131,7 +131,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
       {/* ===== ROW 2 / MIDDLE COL - Daily Session Hero ===== */}
       <div
-        className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-primary/70 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer active:brightness-90 transition-all touch-manipulation min-h-[160px]"
+        className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-primary/70 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer active:brightness-90 transition-all touch-manipulation min-h-[160px] h-full"
         onClick={handleStartDailySession}
       >
         <div className="absolute inset-0 bg-white/5" />
