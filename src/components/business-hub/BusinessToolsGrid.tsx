@@ -104,7 +104,7 @@ interface BusinessToolsGridProps {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-4 gap-3">
       {businessTools.map((tool, index) => (
         <motion.div
           key={tool.id}
@@ -121,21 +121,13 @@ interface BusinessToolsGridProps {
             {/* Gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-50 group-hover:opacity-80 transition-opacity`} />
             
-            <CardContent className="relative p-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-xl ${tool.iconBg} backdrop-blur-sm`}>
-                  <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-xs text-foreground leading-tight">
-                       {tool.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight">
-                       {tool.desc}
-                  </p>
-                </div>
-                <ArrowRight className={`h-4 w-4 ${tool.iconColor} opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1`} />
+            <CardContent className="relative p-3 flex flex-col items-center text-center gap-2">
+              <div className={`p-2.5 rounded-xl ${tool.iconBg} backdrop-blur-sm`}>
+                <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
               </div>
+              <h3 className="font-semibold text-xs text-foreground leading-tight">
+                {tool.title}
+              </h3>
             </CardContent>
           </Card>
         </motion.div>
