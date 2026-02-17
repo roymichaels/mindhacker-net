@@ -39,6 +39,8 @@ const Business = () => {
 
   const handleCloseModal = () => setActiveModal(null);
 
+  const hasBusinesses = !journeysLoading && journeys.length > 0;
+
   return (
     <PillarHubLayout
       colors={colors}
@@ -48,6 +50,7 @@ const Business = () => {
       journeyPath="/business/journey"
       seoPath="/business"
       isLoading={isLoading}
+      hideHeader={hasBusinesses}
       extraHeaderButtons={
         <Button
           onClick={() => handleOpenModal('financials')}
@@ -59,37 +62,23 @@ const Business = () => {
         </Button>
       }
     >
-      {/* Business Tools Grid */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <h2 className="text-lg font-semibold mb-4">
-          {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
-        </h2>
-        <BusinessToolsGrid onOpenModal={handleOpenModal} />
-      </motion.div>
-
-      {/* My Businesses Section */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">
-            {language === 'he' ? 'העסקים שלי' : 'My Businesses'}
-          </h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/business/journey')}
-            className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-          >
-            <Plus className="h-4 w-4 me-1" />
-            {language === 'he' ? 'עסק חדש' : 'New Business'}
-          </Button>
-        </div>
-        
-        {journeysLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-24 w-full rounded-xl" />
+      {/* My Businesses Section - shown first when businesses exist */}
+      {hasBusinesses && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {language === 'he' ? 'העסקים שלי' : 'My Businesses'}
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/business/journey')}
+              className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+            >
+              <Plus className="h-4 w-4 me-1" />
+              {language === 'he' ? 'עסק חדש' : 'New Business'}
+            </Button>
           </div>
-        ) : journeys.length > 0 ? (
           <div className="space-y-3">
             {journeys.map((journey) => (
               <BusinessCard
@@ -109,7 +98,25 @@ const Business = () => {
               />
             ))}
           </div>
-        ) : (
+        </motion.div>
+      )}
+
+      {/* Business Tools Grid */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <h2 className="text-lg font-semibold mb-4">
+          {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
+        </h2>
+        <BusinessToolsGrid onOpenModal={handleOpenModal} />
+      </motion.div>
+
+      {/* My Businesses Section - shown after tools when no businesses */}
+      {!hasBusinesses && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {language === 'he' ? 'העסקים שלי' : 'My Businesses'}
+            </h2>
+          </div>
           <Card className="backdrop-blur-xl bg-background/60 border-border/50 border-dashed">
             <CardContent className="p-8 text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 mb-4">
@@ -132,8 +139,8 @@ const Business = () => {
               </Button>
             </CardContent>
           </Card>
-        )}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Business Status Card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
