@@ -219,25 +219,40 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                   </div>
                 ))}
               </div>
+              {/* Hypnosis session stats - desktop */}
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
+                  { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
+                  { icon: Headphones, label: language === 'he' ? 'מועדף' : 'Favorite', value: sessionStats?.favoriteEgoState || '—', color: 'text-pink-500' },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-lg bg-background/60 border border-border/40 p-1.5 flex flex-col items-center gap-0.5">
+                    <m.icon className={cn("w-3.5 h-3.5", m.color)} />
+                    <span className="text-sm font-bold leading-none">{m.value}</span>
+                    <span className="text-[9px] text-muted-foreground">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Start Session button - desktop, below hypnosis stats */}
+              <button
+                onClick={handleStartDailySession}
+                className="w-full flex items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
+              >
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
+                </span>
+                <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
+                  <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
+                  {language === 'he' ? 'התחל סשן' : 'Start Session'}
+                </span>
+              </button>
             </div>
           </div>
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1 md:flex-none md:order-2 md:overflow-y-auto md:min-h-0">
-          {/* Start Session button - desktop only */}
-          <button
-            onClick={handleStartDailySession}
-            className="hidden md:flex w-full items-center justify-center gap-3 rounded-xl bg-background/50 backdrop-blur-sm px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
-          >
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
-            </span>
-            <span className="flex items-center gap-2 text-sm font-bold text-amber-500 dark:text-amber-400">
-              <Play className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
-              {language === 'he' ? 'התחל סשן' : 'Start Session'}
-            </span>
-          </button>
+          {/* Start Session button moved to HUD column on desktop */}
 
           <CollapsiblePlanRow
             icon={<Sparkles className="w-4 h-4 text-amber-500" />}
