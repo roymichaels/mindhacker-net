@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, Clock, Zap, Star, Target, Lock, Rocket } from 'lucide-react';
@@ -12,8 +12,10 @@ import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useEnergy } from '@/hooks/useGameState';
+import { useAuth } from '@/contexts/AuthContext';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { ENERGY_COSTS } from '@/lib/energyCosts';
+import { hasFreeWeeklySession } from '@/lib/freeWeeklySession';
 import EnergySpendModal from '@/components/energy/EnergySpendModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -34,7 +36,15 @@ const HypnosisLibrary = () => {
   const { sessionStats, gameState, spendEnergy } = useGameState();
   const { openHypnosis } = useAuroraActions();
   const { canAfford } = useEnergy();
+  const { user } = useAuth();
   const [energyModalOpen, setEnergyModalOpen] = useState(false);
+  const [freeSessionAvailable, setFreeSessionAvailable] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      hasFreeWeeklySession(user.id).then(setFreeSessionAvailable);
+    }
+  }, [user?.id]);
 
   if (!isLoadingLaunchpad && !isLaunchpadComplete) {
     return (
@@ -62,6 +72,13 @@ const HypnosisLibrary = () => {
   }
 
   const requestSession = () => {
+    if (freeSessionAvailable) {
+      // Free weekly session — skip energy gate
+      setFreeSessionAvailable(false);
+      openHypnosis();
+      toast.success(language === 'he' ? '🎁 סשן שבועי חינם!' : '🎁 Free weekly session!');
+      return;
+    }
     impact('medium');
     setEnergyModalOpen(true);
   };

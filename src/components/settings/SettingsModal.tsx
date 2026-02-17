@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, User, Sparkles, Palette, Bell, UserCog } from 'lucide-react';
+import { Settings, User, Sparkles, Palette, Bell, UserCog, Zap } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import ProfileSettingsTab from './tabs/ProfileSettingsTab';
 import AuroraPreferencesTab, { type AuroraPreferences } from './tabs/AuroraPreferencesTab';
 import AppearanceSettingsTab from './tabs/AppearanceSettingsTab';
 import AccountSettingsTab from './tabs/AccountSettingsTab';
+import EnergyHistory from '@/components/energy/EnergyHistory';
 
 interface SettingsModalProps {
   open: boolean;
@@ -25,7 +26,7 @@ interface SettingsModalProps {
 
 const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   const { user } = useAuth();
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
 
   // Profile state
   const [displayName, setDisplayName] = useState('');
@@ -151,7 +152,7 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
         />
 
         <Tabs defaultValue="profile" className="flex flex-col flex-1 min-h-0" dir={isRTL ? 'rtl' : 'ltr'}>
-          <TabsList className="mx-6 mb-2 grid grid-cols-4 h-auto p-1">
+          <TabsList className="mx-6 mb-2 grid grid-cols-5 h-auto p-1">
             <TabsTrigger value="profile" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">{t('settings.tabs.profile')}</span>
@@ -159,6 +160,10 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
             <TabsTrigger value="aurora" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">{t('settings.tabs.aurora')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="energy" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:inline">{language === 'he' ? 'אנרגיה' : 'Energy'}</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="flex flex-col items-center gap-1 py-2 px-1 text-xs">
               <Palette className="h-4 w-4" />
@@ -186,6 +191,10 @@ const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
                 preferences={preferences}
                 setPreferences={setPreferences}
               />
+            </TabsContent>
+
+            <TabsContent value="energy" className="mt-0 pb-4">
+              <EnergyHistory />
             </TabsContent>
 
             <TabsContent value="appearance" className="mt-0 pb-4">
