@@ -182,6 +182,13 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <div className="relative flex items-center justify-center overflow-visible flex-1 min-h-[200px] w-full">
               <PersonalizedOrb size={orbSize} state="idle" />
             </div>
+          </div>
+        </div>
+
+        {/* ===== COL 2 - Plan Modules ===== */}
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 overflow-y-auto md:order-1 min-h-0 md:overflow-y-auto">
+          {/* Identity + game stats - desktop only, above metrics */}
+          <div className="hidden md:flex flex-col items-center gap-1.5">
             {identityTitle && (
               <div className="flex items-center gap-1.5">
                 <span className="text-base">{identityTitle.icon}</span>
@@ -202,10 +209,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
               </span>
             </div>
           </div>
-        </div>
-
-        {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 overflow-y-auto md:order-1 min-h-0 md:overflow-y-auto">
           {/* Stats row - desktop only, above session button */}
           <div className="hidden md:grid grid-cols-3 gap-2 w-full">
             {[
