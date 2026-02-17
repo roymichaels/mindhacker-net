@@ -20,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings } from "lucide-react";
+import { LogOut, Globe, Home, PanelLeft, Sun, Moon, User, Menu, Settings, ChevronDown } from "lucide-react";
 import { useSidebarSafe } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -186,6 +186,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
           <span className={`font-bold text-sm sm:text-base md:text-lg truncate max-w-[120px] sm:max-w-none ${brandColors?.text || 'text-foreground'}`}>
             {brandName}
           </span>
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={isRTL ? "end" : "start"} className="w-56 bg-card dark:bg-card border border-border shadow-xl z-50">
