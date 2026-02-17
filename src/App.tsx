@@ -381,13 +381,7 @@ const App = () => (
                         />
                         <Route
                           path="/plan"
-                          element={
-                            <ProtectedRoute>
-                              <DashboardLayout>
-                                <PlanTab />
-                              </DashboardLayout>
-                            </ProtectedRoute>
-                          }
+                          element={<Navigate to="/today" replace />}
                         />
                         <Route
                           path="/me"

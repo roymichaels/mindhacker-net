@@ -113,7 +113,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he' 
           ? 'עדיף לטפל בהן לפני שממשיכים הלאה'
           : 'Better handle these before moving forward',
-        action: () => navigate('/missions'),
+        action: () => document.getElementById('tasks-card')?.scrollIntoView({ behavior: 'smooth' }),
         actionLabel: language === 'he' ? 'צפה במשימות' : 'View Tasks',
       };
     }
@@ -188,7 +188,7 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
         subtitle: language === 'he'
           ? `נותרו ${dashboard.activeFocusPlan.daysRemaining} ימים`
           : `${dashboard.activeFocusPlan.daysRemaining} days remaining`,
-        action: () => navigate('/plan'),
+        action: () => document.getElementById('roadmap-card')?.scrollIntoView({ behavior: 'smooth' }),
         actionLabel: language === 'he' ? 'צפה בתוכנית' : 'View Plan',
       };
     }
