@@ -12,7 +12,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard, Target, Headphones } from 'lucide-react';
+import { Play, Clock, Flame, Gem, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, Zap, ChevronDown, UserCircle, Compass, Brain, Map, ScanSearch, IdCard, Target, Headphones, Activity } from 'lucide-react';
+import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
+import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
@@ -303,6 +305,14 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             progressPercent={tasksPercent}
             onItemToggle={handleTaskToggle}
           />
+
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+
+          {/* Daily Pulse Check-in */}
+          <DailyPulseCard />
+
+          {/* Weekly Recalibration Summary */}
+          <RecalibrationSummary />
 
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
 

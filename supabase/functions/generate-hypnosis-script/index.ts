@@ -98,6 +98,10 @@ serve(async (req) => {
       weeklyStatsRes,
       recentRemindersRes,
       lastSessionRes,
+      // Pulse data for adaptive hypnosis
+      pulseYesterdayRes,
+      pulseWeekRes,
+      recalibRes,
     ] = await Promise.all([
       supabase.from('profiles').select('full_name, aurora_preferences').eq('id', user.id).single(),
       supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
@@ -118,6 +122,12 @@ serve(async (req) => {
       supabase.from('weekly_progress_stats').select('*').eq('user_id', user.id).order('week_start_date', { ascending: false }).limit(1),
       supabase.from('aurora_reminders').select('message, reminder_date, context').eq('user_id', user.id).eq('is_delivered', false).order('reminder_date', { ascending: true }).limit(3),
       supabase.from('hypnosis_sessions').select('ego_state, duration_seconds, created_at, script_data').eq('user_id', user.id).eq('completed_at', null).not('completed_at', 'is', null).order('completed_at', { ascending: false }).limit(1),
+      // Yesterday's pulse
+      supabase.from('daily_pulse_logs').select('*').eq('user_id', user.id).eq('log_date', new Date(Date.now() - 86400000).toISOString().split('T')[0]).maybeSingle(),
+      // Last 7 days pulse
+      supabase.from('daily_pulse_logs').select('*').eq('user_id', user.id).gte('log_date', weekAgo.toISOString().split('T')[0]).order('log_date', { ascending: false }),
+      // Latest recalibration
+      supabase.from('recalibration_logs').select('compliance_score, behavioral_risks').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1),
     ]);
 
     // ============================================
@@ -524,6 +534,42 @@ serve(async (req) => {
     
     if (isDailySession) {
       personalizationContext += `\nThis is their DAILY SESSION - make it feel personally crafted for today. Create a sense of ritual and consistency.\n`;
+    }
+
+    // ── Adaptive Pulse Data for Hypnosis Reinforcement Loop ──
+    const yesterdayPulse = pulseYesterdayRes.data;
+    const pulseWeekData = pulseWeekRes.data || [];
+    const latestRecalib = recalibRes.data?.[0];
+
+    if (yesterdayPulse || pulseWeekData.length > 0) {
+      personalizationContext += `\n=== ADAPTIVE BEHAVIORAL STATE (from Daily Pulse) ===\n`;
+
+      if (yesterdayPulse) {
+        personalizationContext += `YESTERDAY: Energy=${yesterdayPulse.energy_rating}/5, Mood=${yesterdayPulse.mood_signal}, Sleep=${yesterdayPulse.sleep_compliance}, Tasks=${yesterdayPulse.task_confidence}/5, Screen=${yesterdayPulse.screen_discipline ? 'disciplined' : 'exceeded'}\n`;
+
+        // Adaptive theme selection
+        if (yesterdayPulse.energy_rating <= 2 && yesterdayPulse.task_confidence <= 2) {
+          personalizationContext += `ADAPTIVE THEME: RECOVERY — Yesterday was tough. Focus on self-compassion, rebuilding energy, and gentle encouragement. No pressure.\n`;
+        } else if (yesterdayPulse.sleep_compliance === 'no') {
+          personalizationContext += `ADAPTIVE THEME: SLEEP RESET — Sleep was missed. Include sleep architecture suggestions and evening routine reinforcement.\n`;
+        } else if (!yesterdayPulse.screen_discipline) {
+          personalizationContext += `ADAPTIVE THEME: DIGITAL DETOX — Screen discipline failed. Reinforce mindful technology use and presence.\n`;
+        }
+      }
+
+      // Win streak detection
+      const recentGoodDays = pulseWeekData.filter((p: any) => p.energy_rating >= 4 && p.task_confidence >= 4).length;
+      if (recentGoodDays >= 3) {
+        personalizationContext += `ADAPTIVE THEME: MOMENTUM — ${recentGoodDays} strong days this week! Amplify momentum and build on success.\n`;
+      }
+
+      if (latestRecalib) {
+        personalizationContext += `WEEKLY COMPLIANCE: ${latestRecalib.compliance_score}%\n`;
+        const risks = (latestRecalib.behavioral_risks as any[]) || [];
+        if (risks.length > 0) {
+          personalizationContext += `ACTIVE RISKS: ${risks.map((r: any) => r.risk).join(', ')} — Address these subtly in suggestions.\n`;
+        }
+      }
     }
 
     // ============================================
