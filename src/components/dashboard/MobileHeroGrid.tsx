@@ -267,7 +267,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 lg:flex-none lg:order-2 lg:overflow-y-auto lg:min-h-0">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 lg:flex-none lg:order-2 lg:overflow-y-auto lg:min-h-0 lg:max-h-[calc(100vh-6rem)]">
           {/* Spacer for desktop */}
           <div className="hidden lg:block pt-4" />
 
@@ -352,7 +352,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 3 - Roadmap (desktop only) ===== */}
-        <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4">
+        <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto scrollbar-hide lg:sticky lg:top-20">
           <VerticalRoadmap />
         </div>
       </div>
