@@ -33,9 +33,6 @@ import { useAuth } from "@/contexts/AuthContext";
 const Index = lazy(() => import("./pages/Index"));
 // Login and SignUp pages removed — auth is now modal-based
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
-const TodayTab = lazy(() => import("./pages/TodayTab"));
-const PlanTab = lazy(() => import("./pages/PlanTab"));
-const MeTab = lazy(() => import("./pages/MeTab"));
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
 
 const Courses = lazy(() => import("./pages/Courses"));
@@ -67,7 +64,7 @@ const CommunityProfile = lazy(() => import("./pages/CommunityProfile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 
-const HypnosisLibrary = lazy(() => import("./pages/HypnosisLibrary"));
+
 
 const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
@@ -318,17 +315,8 @@ const App = () => (
 
                         {/* Aurora route removed - chat is globally docked */}
 
-                        {/* Hypnosis routes (protected) */}
-                        <Route
-                          path="/hypnosis"
-                          element={
-                            <ProtectedRoute>
-                              <DashboardLayout>
-                                <HypnosisLibrary />
-                              </DashboardLayout>
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Hypnosis library → redirect to dashboard */}
+                        <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
 
                         {/* Dynamic Landing Pages */}
                         <Route path="/lp/:slug" element={<DynamicLandingPage />} />
@@ -359,40 +347,21 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* User Dashboard -> redirects to /today */}
+                        {/* Unified Dashboard */}
                         <Route
                           path="/dashboard"
                           element={
                             <ProtectedRoute>
-                              <UserDashboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Tab routes */}
-                        <Route
-                          path="/today"
-                          element={
-                            <ProtectedRoute>
                               <DashboardLayout>
-                                <TodayTab />
+                                <UserDashboard />
                               </DashboardLayout>
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/plan"
-                          element={<Navigate to="/today" replace />}
-                        />
-                        <Route
-                          path="/me"
-                          element={
-                            <ProtectedRoute>
-                              <DashboardLayout>
-                                <MeTab />
-                              </DashboardLayout>
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Legacy tab routes → redirect to dashboard */}
+                        <Route path="/today" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/me" element={<Navigate to="/dashboard" replace />} />
                         {/* Projects */}
                         <Route
                           path="/projects"

@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { BottomTabBar } from '@/components/navigation/BottomTabBar';
+
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
@@ -41,7 +41,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
 
             <AuroraDock />
-            <BottomTabBar />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
           </div>
         </SidebarProvider>
