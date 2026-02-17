@@ -1,0 +1,340 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-02-17",
+  "totalMacroSteps": 11,
+  "estimatedMinScreens": 79,
+  "estimatedMaxScreens": 95,
+  "phases": [
+    {
+      "id": 1,
+      "key": "who_you_are",
+      "title_he": "מי אתה עכשיו?",
+      "title_en": "Who Are You Now?",
+      "icon": "🔍",
+      "steps": [1, 2, 3]
+    },
+    {
+      "id": 2,
+      "key": "whats_not_working",
+      "title_he": "מה לא עובד?",
+      "title_en": "What's Not Working?",
+      "icon": "⚠️",
+      "steps": [4, 5, 6, 7]
+    },
+    {
+      "id": 3,
+      "key": "who_you_want_to_be",
+      "title_he": "מי אתה רוצה להיות?",
+      "title_en": "Who Do You Want to Be?",
+      "icon": "🚀",
+      "steps": [8, 9, 10, 11]
+    }
+  ],
+  "macroSteps": [
+    {
+      "macroStep": 1,
+      "key": "welcome",
+      "title_he": "ברוך הבא",
+      "title_en": "Welcome",
+      "phase": 1,
+      "rewards": { "xp": 25, "tokens": 0, "unlock": "personal_profile" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_1_intention", "format": "JSON.stringify(allAnswers)" },
+      "miniSteps": [
+        {
+          "id": "main_area",
+          "macroStepNumber": 1,
+          "title_he": "תחומי חיים",
+          "title_en": "Life Areas",
+          "prompt_he": "במה אתה מתעסק כרגע בחיים?",
+          "prompt_en": "What are you currently dealing with in life?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "career", "label_he": "קריירה/עבודה", "label_en": "Career/Work", "icon": "💼" },
+            { "value": "business", "label_he": "עסק/יזמות", "label_en": "Business/Entrepreneurship", "icon": "🚀" },
+            { "value": "relationships", "label_he": "זוגיות/מערכות יחסים", "label_en": "Relationships", "icon": "❤️" },
+            { "value": "family", "label_he": "משפחה/ילדים", "label_en": "Family/Children", "icon": "👨‍👩‍👧" },
+            { "value": "health", "label_he": "בריאות/כושר", "label_en": "Health/Fitness", "icon": "💪" },
+            { "value": "energy", "label_he": "אנרגיה/שינה", "label_en": "Energy/Sleep", "icon": "🔋" },
+            { "value": "finance", "label_he": "כסף/פיננסים", "label_en": "Money/Finances", "icon": "💰" },
+            { "value": "purpose", "label_he": "מטרה/כיוון בחיים", "label_en": "Purpose/Direction", "icon": "🎯" },
+            { "value": "emotional", "label_he": "רגשות/בריאות נפשית", "label_en": "Emotions/Mental Health", "icon": "🧠" },
+            { "value": "social", "label_he": "חברים/קהילה", "label_en": "Friends/Community", "icon": "👥" },
+            { "value": "learning", "label_he": "לימודים/התפתחות", "label_en": "Learning/Growth", "icon": "📚" },
+            { "value": "spirituality", "label_he": "רוחניות/משמעות", "label_en": "Spirituality/Meaning", "icon": "✨" }
+          ],
+          "validation": { "required": true, "minSelected": 1 },
+          "gating": { "authGate": false, "canSkip": false },
+          "branching": null
+        },
+        {
+          "id": "career_specific",
+          "macroStepNumber": 1,
+          "prompt_he": "מה בדיוק בקריירה?",
+          "prompt_en": "What specifically about your career?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "advance", "label_he": "רוצה להתקדם בתפקיד", "label_en": "Want to advance in my role", "icon": "📈" },
+            { "value": "change", "label_he": "רוצה לשנות מקצוע", "label_en": "Want to change profession", "icon": "🔄" },
+            { "value": "stuck", "label_he": "מרגיש תקוע ומשועמם", "label_en": "Feeling stuck and bored", "icon": "😔" },
+            { "value": "searching", "label_he": "מחפש עבודה", "label_en": "Looking for a job", "icon": "🔍" },
+            { "value": "independent", "label_he": "רוצה להפוך לעצמאי", "label_en": "Want to become independent", "icon": "🚀" },
+            { "value": "balance", "label_he": "רוצה איזון עבודה-חיים", "label_en": "Want work-life balance", "icon": "⚖️" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": { "showIf": "main_area", "dependsOn": ["career"] }
+        },
+        {
+          "id": "business_specific",
+          "macroStepNumber": 1,
+          "prompt_he": "מה בדיוק בעסק/יזמות?",
+          "prompt_en": "What specifically about business/entrepreneurship?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "start", "label_he": "רוצה להקים עסק", "label_en": "Want to start a business", "icon": "🚀" },
+            { "value": "grow", "label_he": "רוצה להגדיל את העסק", "label_en": "Want to grow the business", "icon": "📈" },
+            { "value": "struggle", "label_he": "העסק מתקשה", "label_en": "Business is struggling", "icon": "😟" },
+            { "value": "marketing", "label_he": "צריך עזרה בשיווק", "label_en": "Need help with marketing", "icon": "📣" },
+            { "value": "team", "label_he": "ניהול צוות", "label_en": "Team management", "icon": "👥" },
+            { "value": "pivot", "label_he": "רוצה לשנות כיוון", "label_en": "Want to pivot", "icon": "🔄" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": { "showIf": "main_area", "dependsOn": ["business"] }
+        },
+        {
+          "id": "relationships_specific",
+          "macroStepNumber": 1,
+          "prompt_he": "מה בדיוק במערכות יחסים?",
+          "prompt_en": "What specifically about relationships?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "find_partner", "label_he": "רוצה למצוא בן/בת זוג", "label_en": "Want to find a partner", "icon": "💕" },
+            { "value": "current_relationship", "label_he": "בעיות בזוגיות הנוכחית", "label_en": "Issues in current relationship", "icon": "💔" },
+            { "value": "healing", "label_he": "ריפוי מפרידה", "label_en": "Healing from separation", "icon": "🩹" },
+            { "value": "communication", "label_he": "רוצה לשפר תקשורת", "label_en": "Want to improve communication", "icon": "💬" },
+            { "value": "intimacy", "label_he": "קרבה ואינטימיות", "label_en": "Closeness and intimacy", "icon": "🔥" },
+            { "value": "commitment", "label_he": "פחד מהתחייבות", "label_en": "Fear of commitment", "icon": "🔐" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": { "showIf": "main_area", "dependsOn": ["relationships"] }
+        },
+        {
+          "id": "emotional_state",
+          "macroStepNumber": 1,
+          "prompt_he": "איך אתה מרגיש לגבי המצב?",
+          "prompt_en": "How do you feel about the situation?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "frustrated", "label_he": "מתוסכל", "label_en": "Frustrated", "icon": "😤" },
+            { "value": "hopeful", "label_he": "מלא תקווה", "label_en": "Hopeful", "icon": "🌟" },
+            { "value": "confused", "label_he": "מבולבל", "label_en": "Confused", "icon": "😵‍💫" },
+            { "value": "motivated", "label_he": "מוטיבציה", "label_en": "Motivated", "icon": "🚀" },
+            { "value": "anxious", "label_he": "חרד", "label_en": "Anxious", "icon": "😰" },
+            { "value": "determined", "label_he": "נחוש", "label_en": "Determined", "icon": "💪" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": null
+        },
+        {
+          "id": "tried_before",
+          "macroStepNumber": 1,
+          "prompt_he": "מה כבר ניסית?",
+          "prompt_en": "What have you already tried?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "reading", "label_he": "ספרים/מאמרים", "label_en": "Books/articles", "icon": "📚" },
+            { "value": "courses", "label_he": "קורסים", "label_en": "Courses", "icon": "🎓" },
+            { "value": "coaching", "label_he": "אימון/ייעוץ", "label_en": "Coaching/counseling", "icon": "👨‍💼" },
+            { "value": "therapy", "label_he": "טיפול", "label_en": "Therapy", "icon": "🛋️" },
+            { "value": "apps", "label_he": "אפליקציות", "label_en": "Apps", "icon": "📱" },
+            { "value": "nothing", "label_he": "לא הרבה", "label_en": "Not much", "icon": "🆕" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": null
+        },
+        {
+          "id": "help_style",
+          "macroStepNumber": 1,
+          "prompt_he": "מה יעזור לך הכי הרבה?",
+          "prompt_en": "What would help you the most?",
+          "inputType": "multi_select",
+          "options": [
+            { "value": "practical", "label_he": "פתרונות מעשיים", "label_en": "Practical solutions", "icon": "🔧" },
+            { "value": "listening", "label_he": "הקשבה", "label_en": "Being heard", "icon": "👂" },
+            { "value": "plan", "label_he": "תוכנית ברורה", "label_en": "Clear plan", "icon": "📋" },
+            { "value": "push", "label_he": "דחיפה לפעולה", "label_en": "Push to action", "icon": "🚀" },
+            { "value": "understanding", "label_he": "הבנה עצמית", "label_en": "Self-understanding", "icon": "🔮" },
+            { "value": "accountability", "label_he": "אחריותיות", "label_en": "Accountability", "icon": "✅" }
+          ],
+          "validation": { "required": false },
+          "gating": { "canSkip": true },
+          "branching": null
+        }
+      ]
+    },
+    {
+      "macroStep": 2,
+      "key": "personal_profile",
+      "title_he": "פרופיל אישי",
+      "title_en": "Personal Profile",
+      "phase": 1,
+      "rewards": { "xp": 40, "tokens": 5, "unlock": "lifestyle_routine" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_2_profile_data" },
+      "validation": { "minCategoriesFilled": 10 },
+      "miniStepCount": 38,
+      "miniStepNote": "See LAUNCHPAD_FLOWSPEC_AUDIT.md for full 38-question breakdown across 7 sections. Too large for inline JSON."
+    },
+    {
+      "macroStep": 3,
+      "key": "lifestyle_routine",
+      "title_he": "שגרת חיים",
+      "title_en": "Lifestyle & Routine",
+      "phase": 1,
+      "rewards": { "xp": 35, "tokens": 0, "unlock": "growth_deep_dive" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_2_profile_data", "jsonPath": "via autoSave" },
+      "miniStepCount": 14,
+      "miniStepNote": "14 questions: 4 time_picker, 8 single_select, 2 multi_select across sleep/work/meals/energy/constraints sections."
+    },
+    {
+      "macroStep": 4,
+      "key": "growth_deep_dive",
+      "title_he": "העמקה אישית",
+      "title_en": "Personal Deep Dive",
+      "phase": 2,
+      "rewards": { "xp": 35, "tokens": 0, "unlock": "aurora_chat_basic" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_2_profile_data", "jsonPath": "deep_dive.answers" },
+      "dynamic": true,
+      "dependsOn": "step2.growth_focus",
+      "miniStepCount": "1-5 (dynamic)",
+      "aiTrigger": { "function": "aurora-analyze", "body": { "type": "growth_deep_dive" } }
+    },
+    {
+      "macroStep": 5,
+      "key": "first_chat",
+      "title_he": "שיחה ראשונה עם אורורה",
+      "title_en": "First Chat with Aurora",
+      "phase": 2,
+      "rewards": { "xp": 50, "tokens": 0, "unlock": "introspection_questionnaire" },
+      "renderer": "custom_chat",
+      "storage": { "table": "launchpad_progress", "column": "step_2_summary" },
+      "miniStepCount": 5,
+      "aiTrigger": { "function": "aurora-chat", "type": "summary_generation" }
+    },
+    {
+      "macroStep": 6,
+      "key": "introspection",
+      "title_he": "התבוננות פנימית",
+      "title_en": "Introspection",
+      "phase": 2,
+      "rewards": { "xp": 50, "tokens": 5, "unlock": "introspection_complete" },
+      "renderer": "custom_text_deep",
+      "storage": { "table": "form_submissions", "formId": "45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308", "linkColumn": "step_3_form_submission_id" },
+      "miniStepCount": 5,
+      "validation": { "minAnswered": 3, "minChars": 30 },
+      "gating": { "authGate": true, "canSkip": true },
+      "aiTrigger": { "function": "analyze-introspection-form" }
+    },
+    {
+      "macroStep": 7,
+      "key": "life_plan",
+      "title_he": "חזון וכיוון",
+      "title_en": "Vision & Direction",
+      "phase": 2,
+      "rewards": { "xp": 100, "tokens": 10, "unlock": "life_plan_complete" },
+      "renderer": "custom_text_deep",
+      "storage": { "table": "form_submissions", "formId": "f2b4e2c6-40a8-4b8b-9a35-6a1e5c54a6f3", "linkColumn": "step_4_form_submission_id" },
+      "miniStepCount": 6,
+      "validation": { "minAnswered": 3, "minChars": 20 },
+      "gating": { "authGate": true, "canSkip": true },
+      "aiTrigger": { "function": "analyze-life-plan" }
+    },
+    {
+      "macroStep": 8,
+      "key": "focus_areas",
+      "title_he": "תחומי פוקוס",
+      "title_en": "Focus Areas",
+      "phase": 3,
+      "rewards": { "xp": 50, "tokens": 0, "unlock": "focus_areas_selection" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_5_focus_areas_selected" },
+      "miniStepCount": 1,
+      "validation": { "exactSelected": 3 }
+    },
+    {
+      "macroStep": 9,
+      "key": "first_week",
+      "title_he": "שבוע ראשון",
+      "title_en": "First Week",
+      "phase": 3,
+      "rewards": { "xp": 75, "tokens": 0, "unlock": "first_week_planning" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "step_6_actions" },
+      "miniStepCount": 4
+    },
+    {
+      "macroStep": 10,
+      "key": "final_notes",
+      "title_he": "הערות נוספות",
+      "title_en": "Final Notes",
+      "phase": 3,
+      "rewards": { "xp": 25, "tokens": 0, "unlock": "final_notes" },
+      "renderer": "card",
+      "storage": { "table": "launchpad_progress", "column": "via autoSave" },
+      "miniStepCount": 1,
+      "gating": { "canSkip": true }
+    },
+    {
+      "macroStep": 11,
+      "key": "dashboard_activation",
+      "title_he": "הפעלת הדשבורד",
+      "title_en": "Dashboard Activation",
+      "phase": 3,
+      "rewards": { "xp": 100, "tokens": 25, "unlock": "life_os_complete" },
+      "renderer": "custom_activation",
+      "storage": { "table": "launchpad_progress", "column": "step_7_dashboard_activated" },
+      "miniStepCount": 1,
+      "gating": { "authGate": true },
+      "aiTrigger": { "function": "generate-launchpad-summary" }
+    }
+  ],
+  "dbColumnMapping": {
+    "step_1_intention": "Step 1 answers (JSON string)",
+    "step_2_profile_data": "Steps 2, 3, 4 combined profile data (JSON object)",
+    "step_2_summary": "Step 5 chat data (JSON string with messages/answers)",
+    "step_3_form_submission_id": "Step 6 introspection form ID",
+    "step_4_form_submission_id": "Step 7 life plan form ID",
+    "step_5_focus_areas_selected": "Step 8 selected areas (string[])",
+    "step_6_actions": "Step 9 first week plan (JSON object)",
+    "step_7_dashboard_activated": "Step 11 activation flag (boolean)"
+  },
+  "pillarJourneyInjection": {
+    "description": "After Step 8 (Focus Areas), the user's 3 chosen pillars map to pillar-specific 8-step journeys. These are separate routes, not inline in the Launchpad.",
+    "pillarJourneyPaths": {
+      "health": "/health/journey",
+      "money": "/finances/journey",
+      "mind": "/purpose/journey",
+      "relationships": "/relationships/journey",
+      "career": "/business/journey",
+      "creativity": "/hobbies/journey",
+      "social": "/relationships/journey",
+      "spirituality": "/purpose/journey"
+    },
+    "journeyFlowFiles": [
+      "src/components/business-journey/BusinessJourneyFlow.tsx",
+      "src/components/finances-journey/FinancesJourneyFlow.tsx",
+      "src/components/relationships-journey/RelationshipsJourneyFlow.tsx",
+      "src/components/learning-journey/LearningJourneyFlow.tsx",
+      "src/components/hobbies-journey/HobbiesJourneyFlow.tsx",
+      "src/components/purpose-journey/PurposeJourneyFlow.tsx"
+    ],
+    "note": "All pillar journeys follow the same 8-step structure defined in src/hooks/journey/. Each has Vision, Current State, pillar-specific deep-dives, and Action Plan steps."
+  }
+}
