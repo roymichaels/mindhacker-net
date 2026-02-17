@@ -1,12 +1,22 @@
+/**
+ * Aurora Proactive Coaching Engine
+ * 
+ * Now uses shared contextBuilder from aurora-chat instead of
+ * duplicating getUserContext logic.
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildContext, AuroraContext } from "../_shared/contextBuilder.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-interface UserContext {
+// ─── Adapt AuroraContext to proactive needs ────────────────
+
+interface ProactiveSnapshot {
   overdue_tasks: number;
   overdue_task_names: string[];
   today_total: number;
@@ -18,168 +28,51 @@ interface UserContext {
   current_week: number;
   milestone_title: string;
   milestone_progress: number;
-  // Project context
   stalled_projects: { name: string; days_stalled: number }[];
   approaching_deadlines: { name: string; days_left: number }[];
   projects_without_milestones: string[];
 }
 
-const getUserContext = async (
-  supabase: SupabaseClient<any, any, any>,
-  userId: string
-): Promise<UserContext> => {
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-
-  // Overdue tasks
-  const { data: overdueTasks } = await supabase
-    .from('aurora_checklist_items')
-    .select('id, content, checklist_id')
-    .eq('is_completed', false)
-    .lt('due_date', todayStr);
-
-  // Filter to user's checklists
-  const { data: userChecklists } = await supabase
-    .from('aurora_checklists')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('status', 'active');
-
-  const userChecklistIds = new Set((userChecklists || []).map((c: any) => c.id));
-  const userOverdue = (overdueTasks || []).filter((t: any) => userChecklistIds.has(t.checklist_id));
-
-  // Today's tasks
-  const { data: todayTasks } = await supabase
-    .from('aurora_checklist_items')
-    .select('id, is_completed, checklist_id')
-    .eq('due_date', todayStr);
-
-  const userTodayTasks = (todayTasks || []).filter((t: any) => userChecklistIds.has(t.checklist_id));
-  const todayCompleted = userTodayTasks.filter((t: any) => t.is_completed).length;
-
-  // Incomplete daily habits
-  const { data: dailyChecklists } = await supabase
-    .from('aurora_checklists')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('time_scope', 'daily');
-
-  const dailyIds = (dailyChecklists || []).map((c: any) => c.id);
-  let incompleteHabits = 0;
-  if (dailyIds.length > 0) {
-    const { count } = await supabase
-      .from('aurora_checklist_items')
-      .select('*', { count: 'exact', head: true })
-      .in('checklist_id', dailyIds)
-      .eq('is_completed', false);
-    incompleteHabits = count || 0;
-  }
-
-  // User progress
-  const { data: progress } = await supabase
-    .from('aurora_onboarding_progress')
-    .select('last_active_at, energy_level')
-    .eq('user_id', userId)
-    .single();
-
-  // Current milestone
-  const { data: lifePlan } = await supabase
-    .from('life_plans')
-    .select('id, start_date')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  let currentWeek = 1;
-  let milestoneTitle = '';
-  let milestoneProgress = 0;
-
-  if (lifePlan) {
-    const startDate = new Date(lifePlan.start_date);
-    const diffDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    currentWeek = Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
-
-    const { data: milestone } = await supabase
-      .from('life_plan_milestones')
-      .select('title, is_completed')
-      .eq('plan_id', lifePlan.id)
-      .eq('week_number', currentWeek)
-      .single();
-
-    if (milestone) {
-      milestoneTitle = (milestone as any).title;
-      milestoneProgress = (milestone as any).is_completed ? 100 : 0;
-    }
-  }
-
-  // Streak (consecutive days with at least 1 completed task)
-  let streakDays = 0;
-  for (let i = 1; i <= 30; i++) {
-    const checkDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const { count } = await supabase
-      .from('aurora_checklist_items')
-      .select('*', { count: 'exact', head: true })
-      .eq('due_date', checkDate)
-      .not('completed_at', 'is', null);
-    if ((count || 0) > 0) streakDays++;
-    else break;
-  }
-
-  // === Project Analysis ===
-  const { data: activeProjects } = await supabase
-    .from('user_projects')
-    .select('id, name, status, progress_percentage, target_date, updated_at, created_at')
-    .eq('user_id', userId)
-    .eq('status', 'active');
-
-  const projects = activeProjects || [];
-  const stalledProjects: { name: string; days_stalled: number }[] = [];
-  const approachingDeadlines: { name: string; days_left: number }[] = [];
-  const projectsWithoutMilestones: string[] = [];
-
-  for (const p of projects) {
-    const daysSinceUpdate = Math.floor((now.getTime() - new Date(p.updated_at || p.created_at).getTime()) / (1000 * 60 * 60 * 24));
-    if (daysSinceUpdate >= 7) {
-      stalledProjects.push({ name: p.name, days_stalled: daysSinceUpdate });
-    }
-    if (p.target_date) {
-      const daysLeft = Math.floor((new Date(p.target_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysLeft >= 0 && daysLeft <= 14) {
-        approachingDeadlines.push({ name: p.name, days_left: daysLeft });
-      }
-    }
-    if ((p.progress_percentage || 0) === 0) {
-      projectsWithoutMilestones.push(p.name);
-    }
-  }
+function toProactiveSnapshot(ctx: AuroraContext): ProactiveSnapshot {
+  const completedHabits = ctx.action_items.habits.filter(h => h.completed_today).length;
+  const currentMilestone = ctx.action_items.milestones.find(m => !m.is_completed);
+  
+  // Estimate streak from habits (simplified — context builder could add this later)
+  const maxStreak = ctx.action_items.habits.reduce((max, h) => Math.max(max, h.streak), 0);
 
   return {
-    overdue_tasks: userOverdue.length,
-    overdue_task_names: userOverdue.slice(0, 3).map((t: any) => t.content),
-    today_total: userTodayTasks.length,
-    today_completed: todayCompleted,
-    incomplete_habits: incompleteHabits,
-    streak_days: streakDays,
-    last_active: (progress as any)?.last_active_at || null,
-    energy_level: (progress as any)?.energy_level || 'medium',
-    current_week: currentWeek,
-    milestone_title: milestoneTitle,
-    milestone_progress: milestoneProgress,
-    stalled_projects: stalledProjects,
-    approaching_deadlines: approachingDeadlines,
-    projects_without_milestones: projectsWithoutMilestones,
+    overdue_tasks: ctx.action_items.overdue_tasks.length,
+    overdue_task_names: ctx.action_items.overdue_tasks.slice(0, 3).map(t => t.title),
+    today_total: ctx.action_items.today_tasks.length,
+    today_completed: ctx.action_items.today_tasks.filter(t => t.status === 'done').length,
+    incomplete_habits: ctx.action_items.habits.length - completedHabits,
+    streak_days: maxStreak,
+    last_active: null,
+    energy_level: 'medium',
+    current_week: ctx.life_plan?.current_week || 1,
+    milestone_title: currentMilestone?.title || '',
+    milestone_progress: currentMilestone ? (currentMilestone.is_completed ? 100 : 0) : 0,
+    stalled_projects: ctx.projects.filter(p => p.days_since_update >= 7).map(p => ({ name: p.name, days_stalled: p.days_since_update })),
+    approaching_deadlines: ctx.projects
+      .filter(p => p.target_date)
+      .map(p => {
+        const daysLeft = Math.floor((new Date(p.target_date!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        return { name: p.name, days_left: daysLeft };
+      })
+      .filter(p => p.days_left >= 0 && p.days_left <= 14),
+    projects_without_milestones: ctx.projects.filter(p => p.progress === 0).map(p => p.name),
   };
-};
+}
+
+// ─── AI Coaching Message ───────────────────────────────────
 
 const generateAICoachingMessage = async (
-  context: UserContext,
+  snapshot: ProactiveSnapshot,
   triggerType: string
 ): Promise<{ title: string; body: string }> => {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
-    return generateFallbackMessage(context, triggerType);
+    return generateFallbackMessage(snapshot, triggerType);
   }
 
   try {
@@ -187,15 +80,15 @@ const generateAICoachingMessage = async (
 
 סוג ההודעה: ${triggerType}
 נתוני משתמש:
-- משימות באיחור: ${context.overdue_tasks} ${context.overdue_task_names.length > 0 ? `(${context.overdue_task_names.join(', ')})` : ''}
-- משימות היום: ${context.today_completed}/${context.today_total} הושלמו
-- הרגלים לא מושלמים: ${context.incomplete_habits}
-- רצף ימים: ${context.streak_days}
-- שבוע נוכחי בתוכנית: ${context.current_week}/12
-- אבן דרך: ${context.milestone_title}
-- רמת אנרגיה: ${context.energy_level}
-${context.stalled_projects.length > 0 ? `- פרויקטים תקועים: ${context.stalled_projects.map(p => `${p.name} (${p.days_stalled} ימים)`).join(', ')}` : ''}
-${context.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים: ${context.approaching_deadlines.map(p => `${p.name} (${p.days_left} ימים)`).join(', ')}` : ''}
+- משימות באיחור: ${snapshot.overdue_tasks} ${snapshot.overdue_task_names.length > 0 ? `(${snapshot.overdue_task_names.join(', ')})` : ''}
+- משימות היום: ${snapshot.today_completed}/${snapshot.today_total} הושלמו
+- הרגלים לא מושלמים: ${snapshot.incomplete_habits}
+- רצף ימים: ${snapshot.streak_days}
+- שבוע נוכחי בתוכנית: ${snapshot.current_week}/12
+- אבן דרך: ${snapshot.milestone_title}
+- רמת אנרגיה: ${snapshot.energy_level}
+${snapshot.stalled_projects.length > 0 ? `- פרויקטים תקועים: ${snapshot.stalled_projects.map(p => `${p.name} (${p.days_stalled} ימים)`).join(', ')}` : ''}
+${snapshot.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים: ${snapshot.approaching_deadlines.map(p => `${p.name} (${p.days_left} ימים)`).join(', ')}` : ''}
 
 כתבי תגובה בפורמט JSON בלבד:
 {"title": "כותרת קצרה עם אימוג'י", "body": "הודעה אישית מעודדת של 1-2 משפטים"}`;
@@ -231,7 +124,7 @@ ${context.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים:
 
     if (!response.ok) {
       console.error("AI gateway error:", response.status);
-      return generateFallbackMessage(context, triggerType);
+      return generateFallbackMessage(snapshot, triggerType);
     }
 
     const data = await response.json();
@@ -241,57 +134,59 @@ ${context.approaching_deadlines.length > 0 ? `- דדליינים מתקרבים:
       return { title: args.title, body: args.body };
     }
 
-    return generateFallbackMessage(context, triggerType);
+    return generateFallbackMessage(snapshot, triggerType);
   } catch (e) {
     console.error("AI coaching error:", e);
-    return generateFallbackMessage(context, triggerType);
+    return generateFallbackMessage(snapshot, triggerType);
   }
 };
 
-const generateFallbackMessage = (context: UserContext, triggerType: string): { title: string; body: string } => {
+// ─── Fallback Messages ─────────────────────────────────────
+
+const generateFallbackMessage = (snapshot: ProactiveSnapshot, triggerType: string): { title: string; body: string } => {
   const messages: Record<string, { title: string; body: string }> = {
     morning_briefing: {
       title: '☀️ בוקר טוב!',
-      body: context.today_total > 0
-        ? `יש לך ${context.today_total} משימות היום. בואי נתחיל!`
+      body: snapshot.today_total > 0
+        ? `יש לך ${snapshot.today_total} משימות היום. בואי נתחיל!`
         : 'יום חדש, הזדמנויות חדשות! מה בתוכנית?',
     },
     progress_check: {
       title: '📊 עדכון התקדמות',
-      body: `השלמת ${context.today_completed}/${context.today_total} משימות היום. ${context.today_completed === context.today_total ? 'מדהים! 🎉' : 'המשיכי ככה!'}`,
+      body: `השלמת ${snapshot.today_completed}/${snapshot.today_total} משימות היום. ${snapshot.today_completed === snapshot.today_total ? 'מדהים! 🎉' : 'המשיכי ככה!'}`,
     },
     missed_task_nudge: {
       title: '📋 יש משימות שמחכות',
-      body: `${context.overdue_tasks} משימות באיחור. ${context.overdue_task_names[0] ? `למשל: "${context.overdue_task_names[0]}"` : ''} רוצה לטפל בזה?`,
+      body: `${snapshot.overdue_tasks} משימות באיחור. ${snapshot.overdue_task_names[0] ? `למשל: "${snapshot.overdue_task_names[0]}"` : ''} רוצה לטפל בזה?`,
     },
     streak_celebration: {
       title: '🔥 רצף מרשים!',
-      body: `${context.streak_days} ימים רצופים! אתה לגמרי על הכיוון הנכון.`,
+      body: `${snapshot.streak_days} ימים רצופים! אתה לגמרי על הכיוון הנכון.`,
     },
     task_suggestion: {
       title: '💡 רעיון לשיפור',
-      body: `בהתבסס על ההתקדמות שלך בשבוע ${context.current_week}, יש לי כמה הצעות לשפר את המסלול.`,
+      body: `בהתבסס על ההתקדמות שלך בשבוע ${snapshot.current_week}, יש לי כמה הצעות לשפר את המסלול.`,
     },
     weekly_review: {
       title: '📝 סיכום שבועי',
-      body: `שבוע ${context.current_week} מסתיים. בואי נסכם ונתכנן את הבא!`,
+      body: `שבוע ${snapshot.current_week} מסתיים. בואי נסכם ונתכנן את הבא!`,
     },
     project_stalled: {
       title: '📂 פרויקט מחכה לך',
-      body: context.stalled_projects.length > 0
-        ? `"${context.stalled_projects[0].name}" לא עודכן ${context.stalled_projects[0].days_stalled} ימים. מה המצב?`
+      body: snapshot.stalled_projects.length > 0
+        ? `"${snapshot.stalled_projects[0].name}" לא עודכן ${snapshot.stalled_projects[0].days_stalled} ימים. מה המצב?`
         : 'יש פרויקט שלא עודכן הרבה זמן. בואי נבדוק!',
     },
     project_deadline: {
       title: '⏳ דדליין מתקרב!',
-      body: context.approaching_deadlines.length > 0
-        ? `"${context.approaching_deadlines[0].name}" מסתיים בעוד ${context.approaching_deadlines[0].days_left} ימים!`
+      body: snapshot.approaching_deadlines.length > 0
+        ? `"${snapshot.approaching_deadlines[0].name}" מסתיים בעוד ${snapshot.approaching_deadlines[0].days_left} ימים!`
         : 'יש פרויקט עם דדליין קרוב.',
     },
     project_setup: {
       title: '🚀 התחל עם הפרויקט',
-      body: context.projects_without_milestones.length > 0
-        ? `"${context.projects_without_milestones[0]}" עדיין ב-0%. בואי נתחיל לתכנן!`
+      body: snapshot.projects_without_milestones.length > 0
+        ? `"${snapshot.projects_without_milestones[0]}" עדיין ב-0%. בואי נתחיל לתכנן!`
         : 'יש פרויקט חדש שמחכה לתכנון.',
     },
   };
@@ -299,65 +194,28 @@ const generateFallbackMessage = (context: UserContext, triggerType: string): { t
   return messages[triggerType] || messages.morning_briefing;
 };
 
+// ─── Analyze & Queue ───────────────────────────────────────
+
 const analyzeAndQueue = async (
   supabase: SupabaseClient<any, any, any>,
   userId: string,
-  context: UserContext
+  snapshot: ProactiveSnapshot
 ): Promise<void> => {
   const now = new Date();
   const hour = now.getHours();
 
-  interface QueueItem {
-    trigger_type: string;
-    priority: number;
-  }
-
+  interface QueueItem { trigger_type: string; priority: number; }
   const items: QueueItem[] = [];
 
-  // Morning briefing (7-10am)
-  if (hour >= 7 && hour <= 10) {
-    items.push({ trigger_type: 'morning_briefing', priority: 7 });
-  }
-
-  // Overdue tasks (any time, high priority)
-  if (context.overdue_tasks > 0) {
-    items.push({ trigger_type: 'missed_task_nudge', priority: 8 });
-  }
-
-  // Progress check (2-6pm)
-  if (hour >= 14 && hour <= 18 && context.today_total > 0) {
-    items.push({ trigger_type: 'progress_check', priority: 5 });
-  }
-
-  // Streak celebration
-  if (context.streak_days >= 3 && context.streak_days % 3 === 0) {
-    items.push({ trigger_type: 'streak_celebration', priority: 6 });
-  }
-
-  // Weekly review (Friday evening)
-  if (now.getDay() === 5 && hour >= 16) {
-    items.push({ trigger_type: 'weekly_review', priority: 7 });
-  }
-
-  // Task suggestions (Sunday morning)
-  if (now.getDay() === 0 && hour >= 8 && hour <= 12) {
-    items.push({ trigger_type: 'task_suggestion', priority: 4 });
-  }
-
-  // Project: stalled (7+ days no update)
-  if (context.stalled_projects.length > 0) {
-    items.push({ trigger_type: 'project_stalled', priority: 7 });
-  }
-
-  // Project: deadline approaching (14 days)
-  if (context.approaching_deadlines.length > 0) {
-    items.push({ trigger_type: 'project_deadline', priority: 8 });
-  }
-
-  // Project: new project with no progress
-  if (context.projects_without_milestones.length > 0) {
-    items.push({ trigger_type: 'project_setup', priority: 5 });
-  }
+  if (hour >= 7 && hour <= 10) items.push({ trigger_type: 'morning_briefing', priority: 7 });
+  if (snapshot.overdue_tasks > 0) items.push({ trigger_type: 'missed_task_nudge', priority: 8 });
+  if (hour >= 14 && hour <= 18 && snapshot.today_total > 0) items.push({ trigger_type: 'progress_check', priority: 5 });
+  if (snapshot.streak_days >= 3 && snapshot.streak_days % 3 === 0) items.push({ trigger_type: 'streak_celebration', priority: 6 });
+  if (now.getDay() === 5 && hour >= 16) items.push({ trigger_type: 'weekly_review', priority: 7 });
+  if (now.getDay() === 0 && hour >= 8 && hour <= 12) items.push({ trigger_type: 'task_suggestion', priority: 4 });
+  if (snapshot.stalled_projects.length > 0) items.push({ trigger_type: 'project_stalled', priority: 7 });
+  if (snapshot.approaching_deadlines.length > 0) items.push({ trigger_type: 'project_deadline', priority: 8 });
+  if (snapshot.projects_without_milestones.length > 0) items.push({ trigger_type: 'project_setup', priority: 5 });
 
   for (const item of items) {
     const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString();
@@ -370,12 +228,11 @@ const analyzeAndQueue = async (
       .limit(1);
 
     if (!existing || existing.length === 0) {
-      const msg = await generateAICoachingMessage(context, item.trigger_type);
-
+      const msg = await generateAICoachingMessage(snapshot, item.trigger_type);
       await (supabase as any).from('aurora_proactive_queue').insert({
         user_id: userId,
         trigger_type: item.trigger_type,
-        trigger_data: { context },
+        trigger_data: { context: snapshot },
         priority: item.priority,
         scheduled_for: now.toISOString(),
         title: msg.title,
@@ -385,6 +242,8 @@ const analyzeAndQueue = async (
     }
   }
 };
+
+// ─── Serve ─────────────────────────────────────────────────
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -401,9 +260,10 @@ serve(async (req) => {
 
     if (action === 'analyze') {
       if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      const context = await getUserContext(supabase, user_id);
-      await analyzeAndQueue(supabase, user_id, context);
-      return new Response(JSON.stringify({ success: true, context }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      const ctx = await buildContext(supabase, user_id, 'he');
+      const snapshot = toProactiveSnapshot(ctx);
+      await analyzeAndQueue(supabase, user_id, snapshot);
+      return new Response(JSON.stringify({ success: true, context: snapshot }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     if (action === 'get_pending') {
@@ -453,20 +313,21 @@ serve(async (req) => {
       let processed = 0;
       for (const user of (activeUsers || []) as { user_id: string }[]) {
         try {
-          const context = await getUserContext(supabase, user.user_id);
-          await analyzeAndQueue(supabase, user.user_id, context);
+          const ctx = await buildContext(supabase, user.user_id, 'he');
+          const snapshot = toProactiveSnapshot(ctx);
+          await analyzeAndQueue(supabase, user.user_id, snapshot);
           processed++;
-        } catch (err) {
-          console.error(`Error processing ${user.user_id}:`, err);
+        } catch (e) {
+          console.error(`Error processing user ${user.user_id}:`, e);
         }
       }
 
-      return new Response(JSON.stringify({ success: true, processed }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: true, processed, total: (activeUsers || []).length }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  } catch (error) {
-    console.error('Aurora Proactive error:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (error: any) {
+    console.error('Aurora proactive error:', error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

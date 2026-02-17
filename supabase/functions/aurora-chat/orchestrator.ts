@@ -1,0 +1,670 @@
+/**
+ * Layer 2: Orchestrator (policy + routing)
+ * 
+ * Chooses mode, builds prompt, applies safety checks.
+ * Returns { systemPrompt, model, maxTokens, temperature, promptVersion }.
+ * All prompt templates have version constants for tracing.
+ */
+
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { AuroraContext } from "./contextBuilder.ts";
+
+// ─── Prompt Versions ───────────────────────────────────────
+
+const PROMPT_VERSIONS = {
+  full: "full-v1.0",
+  lite: "lite-v1.0",
+  widget: "widget-v1.0",
+} as const;
+
+export type AuroraMode = "full" | "lite" | "widget";
+
+export interface OrchestratorResult {
+  systemPrompt: string;
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  promptVersion: string;
+}
+
+export interface ValidatedRequest {
+  messages: { role: string; content: string }[];
+  customSystemPrompt: string | null;
+  userId: string | null;
+  language: string;
+  mode: AuroraMode;
+}
+
+// ─── Request Validation ────────────────────────────────────
+
+const MAX_MESSAGES = 50;
+const MAX_CONTENT_LENGTH = 4000;
+
+export function validateRequest(raw: any): ValidatedRequest | { error: string; status: number } {
+  const { messages, userId, language = "he", mode = "full" } = raw;
+
+  if (!messages || !Array.isArray(messages)) {
+    return { error: "Messages array is required", status: 400 };
+  }
+
+  if (messages.length > MAX_MESSAGES) {
+    return { error: "Too many messages in history", status: 400 };
+  }
+
+  const validated: { role: string; content: string }[] = [];
+  let customSystemPrompt: string | null = null;
+
+  for (const msg of messages) {
+    if (!msg || typeof msg !== "object" || !msg.role || !msg.content || typeof msg.content !== "string") {
+      return { error: "Invalid message format", status: 400 };
+    }
+    if (msg.role !== "user" && msg.role !== "assistant" && msg.role !== "system") {
+      return { error: "Invalid message role", status: 400 };
+    }
+    if (msg.content.length > MAX_CONTENT_LENGTH) {
+      return { error: "Message content too long", status: 400 };
+    }
+    if (msg.role === "system") {
+      customSystemPrompt = msg.content.trim();
+      continue;
+    }
+    validated.push({ role: msg.role, content: msg.content.trim() });
+  }
+
+  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode };
+}
+
+// ─── Widget Settings ───────────────────────────────────────
+
+export async function getWidgetSettings(supabase: SupabaseClient): Promise<{ enabled: boolean; model: string }> {
+  const { data } = await supabase.from("chat_assistant_settings").select("setting_key, setting_value");
+  const m = new Map<string, string>();
+  if (data) for (const s of data) m.set(s.setting_key, s.setting_value || "");
+  return { enabled: m.get("enabled") !== "false", model: m.get("model") || "google/gemini-2.5-flash" };
+}
+
+export async function getKnowledgeBase(supabase: SupabaseClient): Promise<string> {
+  const { data } = await supabase.from("chat_knowledge_base").select("title, content").eq("is_active", true).order("order_index", { ascending: true });
+  if (!data || data.length === 0) return "";
+  return data.map((e: any) => `\n### ${e.title}\n${e.content}`).join("\n");
+}
+
+// ─── Orchestrator ──────────────────────────────────────────
+
+export function prepare(
+  mode: AuroraMode,
+  context: AuroraContext,
+  language: string,
+  knowledgeBase: string = "",
+  customSystemPrompt: string | null = null
+): OrchestratorResult {
+  const promptVersion = PROMPT_VERSIONS[mode];
+
+  // Custom system prompt override
+  if (customSystemPrompt) {
+    return {
+      systemPrompt: customSystemPrompt,
+      model: "google/gemini-2.5-flash",
+      maxTokens: 500,
+      temperature: 0.7,
+      promptVersion: `${promptVersion}-custom`,
+    };
+  }
+
+  const contextMarkdown = formatContextForPrompt(context, language);
+  const openerSection = formatOpenerContext(context, language);
+
+  if (mode === "widget") {
+    return {
+      systemPrompt: buildWidgetPrompt(language, knowledgeBase),
+      model: "google/gemini-2.5-flash",
+      maxTokens: 1000,
+      temperature: 0.7,
+      promptVersion,
+    };
+  }
+
+  if (mode === "lite") {
+    return {
+      systemPrompt: buildLitePrompt(language, contextMarkdown),
+      model: "google/gemini-2.5-flash",
+      maxTokens: 500,
+      temperature: 0.7,
+      promptVersion,
+    };
+  }
+
+  // Full mode
+  return {
+    systemPrompt: buildFullPrompt(language, contextMarkdown, openerSection),
+    model: "google/gemini-2.5-flash",
+    maxTokens: 1000,
+    temperature: 0.7,
+    promptVersion,
+  };
+}
+
+// ─── Context → Markdown Formatter ──────────────────────────
+
+function formatContextForPrompt(ctx: AuroraContext, language: string): string {
+  const isHe = language === "he";
+  const parts: string[] = [];
+
+  // Dates
+  parts.push(isHe
+    ? `## תאריכים ומעקב\n- תאריך נוכחי: ${ctx.today}`
+    : `## Dates & Tracking\n- Current date: ${ctx.today}`);
+
+  if (ctx.life_plan) {
+    parts.push(isHe
+      ? `- תוכנית חיים פעילה מאז: ${ctx.life_plan.start_date}\n- שבוע נוכחי: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`
+      : `- Active life plan since: ${ctx.life_plan.start_date}\n- Current week: ${ctx.life_plan.current_week}/${ctx.life_plan.total_weeks}`);
+  }
+
+  // Habits
+  if (ctx.action_items.habits.length > 0) {
+    const habitLines = ctx.action_items.habits.map(h => {
+      const status = h.completed_today ? "✅" : "❓";
+      const streak = h.streak > 0 ? ` (streak: ${h.streak}${h.streak >= 3 ? " 🔥" : ""})` : "";
+      return `- ${h.title}: ${status}${streak}`;
+    });
+    parts.push(isHe
+      ? `## 🔄 מעקב הרגלים יומי (היום: ${ctx.today})\n${habitLines.join("\n")}\nסה"כ: ${ctx.habits_status.completed}/${ctx.habits_status.total}`
+      : `## 🔄 Daily Habit Tracking (today: ${ctx.today})\n${habitLines.join("\n")}\nTotal: ${ctx.habits_status.completed}/${ctx.habits_status.total}`);
+  }
+
+  // Reminders
+  if (ctx.pending_reminders.length > 0) {
+    parts.push(isHe
+      ? `## ⏰ תזכורות להיום\n${ctx.pending_reminders.map(r => `- ${r.message}`).join("\n")}`
+      : `## ⏰ Today's Reminders\n${ctx.pending_reminders.map(r => `- ${r.message}`).join("\n")}`);
+  }
+
+  // Memory
+  if (ctx.conversation_memories.length > 0) {
+    const lines = ctx.conversation_memories.map(m => `- ${m.date}: ${m.summary}${m.action_items.length > 0 ? ` | ${m.action_items.join(", ")}` : ""}`);
+    parts.push(isHe
+      ? `## 🧠 זיכרון שיחות אחרונות\n${lines.join("\n")}`
+      : `## 🧠 Recent Conversation Memory\n${lines.join("\n")}`);
+  }
+
+  // Launchpad
+  if (ctx.launchpad_summary) {
+    parts.push(isHe
+      ? `## 📋 סיכום מסע הטרנספורמציה\n${ctx.launchpad_summary.summary || "לא הושלם"}${ctx.launchpad_summary.transformation_readiness ? `\nמוכנות: ${ctx.launchpad_summary.transformation_readiness}%` : ""}`
+      : `## 📋 Transformation Journey Summary\n${ctx.launchpad_summary.summary || "Not completed"}${ctx.launchpad_summary.transformation_readiness ? `\nReadiness: ${ctx.launchpad_summary.transformation_readiness}%` : ""}`);
+  }
+
+  // Overdue
+  if (ctx.action_items.overdue_tasks.length > 0) {
+    const lines = ctx.action_items.overdue_tasks.map(t => {
+      const daysOverdue = Math.ceil((new Date(ctx.today).getTime() - new Date(t.due_at).getTime()) / (1000 * 60 * 60 * 24));
+      return `- "${t.title}" - ${daysOverdue} ${isHe ? "ימים באיחור" : "days overdue"}`;
+    });
+    parts.push(isHe
+      ? `## ⚠️ משימות באיחור!\n${lines.join("\n")}\nחשוב: כשמתחילה שיחה ויש משימות באיחור, שאל עליהן בעדינות!`
+      : `## ⚠️ Overdue Tasks!\n${lines.join("\n")}`);
+  }
+
+  // Today's tasks
+  if (ctx.action_items.today_tasks.length > 0) {
+    const lines = ctx.action_items.today_tasks.map(t => `- "${t.title}"`);
+    parts.push(isHe
+      ? `## 📅 משימות להיום\n${lines.join("\n")}`
+      : `## 📅 Today's Tasks\n${lines.join("\n")}`);
+  }
+
+  // Profile
+  const genderText = isHe
+    ? (ctx.profile.gender === "male" ? "זכר (פנה אליו בלשון זכר)" : ctx.profile.gender === "female" ? "נקבה (פני אליה בלשון נקבה)" : "ניטרלי")
+    : (ctx.profile.gender || "neutral");
+
+  parts.push(isHe
+    ? `## פרופיל משתמש\n- שם: ${ctx.profile.full_name}\n- מגדר לפנייה: ${genderText}\n- סגנון: ${ctx.profile.preferred_tone}\n- עוצמת אתגר: ${ctx.profile.challenge_intensity}`
+    : `## User Profile\n- Name: ${ctx.profile.full_name}\n- Preferred tone: ${ctx.profile.preferred_tone}\n- Challenge intensity: ${ctx.profile.challenge_intensity}`);
+
+  // Direction & identity
+  parts.push(isHe
+    ? `## כיוון חיים\n${ctx.direction?.content || "טרם הוגדר"}${ctx.direction?.clarity_score ? ` (בהירות: ${ctx.direction.clarity_score}%)` : ""}`
+    : `## Life Direction\n${ctx.direction?.content || "Not yet defined"}${ctx.direction?.clarity_score ? ` (Clarity: ${ctx.direction.clarity_score}%)` : ""}`);
+
+  parts.push(isHe
+    ? `## זהות\n- ערכים: ${ctx.identity.values.join(", ") || "טרם זוהו"}\n- עקרונות: ${ctx.identity.principles.join(", ") || "טרם זוהו"}`
+    : `## Identity\n- Values: ${ctx.identity.values.join(", ") || "Not yet identified"}\n- Principles: ${ctx.identity.principles.join(", ") || "Not yet identified"}`);
+
+  // Commitments
+  if (ctx.commitments.length > 0) {
+    parts.push(isHe
+      ? `## התחייבויות פעילות\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`
+      : `## Active Commitments\n${ctx.commitments.map(c => `- ${c}`).join("\n")}`);
+  }
+
+  // Energy & behavioral patterns
+  if (ctx.energy_patterns.length > 0) {
+    parts.push(isHe
+      ? `## דפוסי אנרגיה\n${ctx.energy_patterns.map(e => `- ${e.type}: ${e.description}`).join("\n")}`
+      : `## Energy Patterns\n${ctx.energy_patterns.map(e => `- ${e.type}: ${e.description}`).join("\n")}`);
+  }
+
+  // Focus
+  if (ctx.focus) {
+    parts.push(isHe
+      ? `## פוקוס נוכחי\n${ctx.focus.title} (${ctx.focus.duration_days} ימים)`
+      : `## Current Focus\n${ctx.focus.title} (${ctx.focus.duration_days} days)`);
+  }
+
+  // Daily minimums
+  if (ctx.daily_minimums.length > 0) {
+    parts.push(isHe
+      ? `## מינימום יומי\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`
+      : `## Daily Minimums\n${ctx.daily_minimums.map(m => `- ${m}`).join("\n")}`);
+  }
+
+  // Projects
+  if (ctx.projects.length > 0) {
+    const projLines = ctx.projects.map(p => {
+      const staleWarning = p.days_since_update >= 7 ? (isHe ? `⚠️ לא עודכן ${p.days_since_update} ימים!` : `⚠️ Not updated in ${p.days_since_update} days!`) : "";
+      return `- "${p.name}" (${p.category || (isHe ? "כללי" : "General")}, ${p.progress}%${p.target_date ? `, ${isHe ? "יעד" : "target"}: ${p.target_date}` : ""})\n  ${staleWarning}`.trim();
+    });
+    parts.push(isHe
+      ? `## 📂 פרויקטים פעילים\n${projLines.join("\n")}`
+      : `## 📂 Active Projects\n${projLines.join("\n")}`);
+  }
+
+  // Open checklists summary
+  if (ctx.action_items.open_checklists.length > 0) {
+    const lines = ctx.action_items.open_checklists.map(c => `- ${c.title} (${c.children_done}/${c.children_total})`);
+    parts.push(isHe
+      ? `## רשימות פעילות\n${lines.join("\n")}`
+      : `## Active Checklists\n${lines.join("\n")}`);
+  }
+
+  // Progress
+  parts.push(isHe
+    ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
+    : `## Progress Status\n- Direction clarity: ${ctx.onboarding.direction_clarity}\n- Identity understanding: ${ctx.onboarding.identity_understanding}\n- Energy mapping: ${ctx.onboarding.energy_patterns_status}`);
+
+  // Recent insights
+  if (ctx.recent_insights.length > 0) {
+    const lines = ctx.recent_insights.map(i => `- ${i.type}: "${i.content}"`);
+    parts.push(isHe
+      ? `## 💡 תובנות אחרונות\n${lines.join("\n")}`
+      : `## 💡 Recent Insights\n${lines.join("\n")}`);
+  }
+
+  return parts.join("\n\n");
+}
+
+// ─── Opener Context ────────────────────────────────────────
+
+function formatOpenerContext(ctx: AuroraContext, language: string): string {
+  if (ctx.opener_hints.length === 0) return "";
+  const isHe = language === "he";
+  const parts: string[] = [];
+
+  for (const hint of ctx.opener_hints) {
+    const [type, count] = hint.split(":");
+    const n = parseInt(count);
+    switch (type) {
+      case "reminders":
+        parts.push(isHe ? `יש ${n} תזכורות להיום` : `${n} reminders for today`);
+        break;
+      case "overdue":
+        parts.push(isHe ? `יש ${n} משימות באיחור` : `${n} overdue tasks to discuss`);
+        break;
+      case "today_tasks":
+        parts.push(isHe ? `${n} משימות מתוכננות להיום` : `${n} tasks scheduled for today`);
+        break;
+      case "habits_remaining":
+        parts.push(isHe ? `${n} הרגלים יומיים עדיין לא הושלמו` : `${n} daily habits not yet completed`);
+        break;
+    }
+  }
+
+  const header = isHe ? "## הקשר לפתיחת שיחה" : "## Conversation Opener Context";
+  return `${header}\n${parts.join("\n")}`;
+}
+
+// ─── Prompt Templates ──────────────────────────────────────
+
+function buildWidgetPrompt(language: string, knowledgeBase: string): string {
+  const isHe = language === "he";
+  const base = isHe
+    ? `אני אורורה, הנציגות הדיגיטלית של פלטפורמת Mind OS.
+אני כאן לעזור בחמימות ובאמפתיה, וללוות אנשים למצוא את המאמן או המטפל המתאים להם.
+
+הגישה שלי:
+- לא מוכרים כאן כלום - רק עזרה, הקשבה, והכוונה
+- אם מישהו מחפש עזרה, אספר על הפלטפורמה ועל המאמנים שלנו
+- שימוש בשפה פשוטה, חמה, ולא פורמלית
+- ללא לחץ לקנות
+
+Mind OS היא פלטפורמת התפתחות אישית מבוססת AI עם:
+- Aurora - מלווה AI אישי לכל משתמש (זה אני!)
+- מאמני תודעה והיפנוטרפיסטים מוסמכים
+- כלים להתפתחות אישית ותוכניות חיים
+
+סגנון התגובות:
+- תשובות קצרות וענייניות, אבל חמות ואמפתיות
+- אם יש ספק - הזמנה להירשם ולהתחיל עם Aurora בחינם
+- שימוש באימוג'ים במידה 🙏`
+    : `I am the digital representative of the Mind OS platform.
+I help with warmth and empathy, guiding people to find the right coach or therapist for them.
+
+My approach:
+- I don't sell anything - I help, listen, and guide
+- If someone is looking for help, I tell them about the platform and our practitioners
+- I use simple, warm, informal language
+- I don't push to buy, don't create pressure
+
+Mind OS is an AI-powered personal development platform with:
+- Aurora - a personal AI companion for every user (that's me!)
+- Certified consciousness coaches and hypnotherapists
+- Personal development tools and life plans
+
+When responding:
+- Be brief but warm and empathetic
+- If someone is unsure - invite them to sign up and start with Aurora for free
+- Use emojis moderately 🙏`;
+
+  return knowledgeBase ? `${base}\n\n## Knowledge Base\n${knowledgeBase}` : base;
+}
+
+function buildLitePrompt(language: string, contextMarkdown: string): string {
+  const isHe = language === "he";
+  return isHe
+    ? `אני אורורה - המלווה שלך בפלטפורמת Mind OS. כאן כדי לעזור בקצרה ובמיקוד.
+תשובות קצרות (1-2 משפטים). ללא שאלות ארוכות. עזרה ממוקדת.
+
+${contextMarkdown ? `## על המשתמש\n${contextMarkdown}` : ""}`
+    : `I am Aurora - your companion on the Mind OS platform. I'm here to help briefly and focused.
+Short responses (1-2 sentences). No long questions. Just helping.
+
+${contextMarkdown ? `## About the user\n${contextMarkdown}` : ""}`;
+}
+
+function buildFullPrompt(language: string, contextMarkdown: string, openerSection: string): string {
+  const isHe = language === "he";
+
+  // The full prompt includes all action tags, safety rules, and capabilities.
+  // This is the complete prompt from the original monolith, now versioned.
+  if (isHe) {
+    return `אני אורורה - מערכת הפעלה לחיים ומלווה AI לעיצוב חיים בפלטפורמת Mind OS.
+אני לא רק מלווה - אני המוח המרכזי שמנהל את מסע הטרנספורמציה שלך.
+
+אם תרצה עזרה אנושית, יש לנו מאמני תודעה והיפנוטרפיסטים מוסמכים בפלטפורמה שאשמח להמליץ עליהם.
+
+## היכולות שלי באפליקציה
+אני יכולה לעזור לך עם הרבה דברים דרך השיחה שלנו:
+
+### ניהול משימות ורשימות ✅
+- ליצור רשימות משימות חדשות (צ'קליסטים)
+- להוסיף משימות לרשימות קיימות
+- לסמן משימות כהושלמו
+- למחוק משימות או לשנות תאריכים
+- לתת סיכום של מה יש לך היום
+
+### הרגלים יומיים 🔄
+- ליצור הרגלים יומיים למעקב (כמו אימון, מדיטציה, שתיית מים)
+- לסמן הרגלים שביצעת היום
+- לעקוב אחרי רצף ההרגלים שלך
+
+### תזכורות ⏰
+- להגדיר תזכורות לתאריכים עתידיים
+- לעקוב אחרי דברים שחשוב לך לזכור
+
+### סשנים של היפנוזה 🧘
+- להציע סשני היפנוזה מותאמים אישית
+- לעזור לך להתגבר על חסמים ולהטמיע שינויים
+
+### חקירת זהות 🎯
+- לעזור לך לחקור את כיוון החיים שלך
+- לזהות ערכים ועקרונות
+- למפות דפוסי אנרגיה
+- לעגן את הזהות שלך
+
+### מעקב התקדמות 📊
+- לספר לך איך אתה מתקדם
+- לחגוג הישגים
+- לזהות דפוסים ותובנות
+
+כשמישהו שואל "מה את יכולה לעשות?" או "איך את יכולה לעזור לי?" - ספרי בקצרה על היכולות האלה בצורה חמה ומזמינה.
+
+## אחריויות עיקריות
+1. **מעקב אקטיבי**: פתח כל שיחה עם עדכון רלוונטי על משימות, הרגלים, תזכורות
+2. **ניהול משימות**: סמן, דחה, צור משימות והרגלים דרך השיחה
+3. **למידה מתמדת**: שמור תובנות חדשות על המשתמש
+4. **תזכורות**: עקוב אחרי דברים שנאמרו והזכר אותם
+5. **התאמה אישית**: התאם את התוכנית למציאות המשתנה
+
+## עקרונות הליווי
+- הקשבה קודם כל, שאלות מחודדות
+- התאמה לקצב שלך ולסגנון שלך
+- זיהוי דפוסים ושיקוף אותם לאט
+- ללא דחיפה, ללא שיפוטיות, ללא מהירות יתר
+- חום ואמפתיה, עם בהירות וישירות כשצריך
+
+## סגנון התגובות
+- תשובות תמציתיות (2-4 משפטים בדרך כלל)
+- שאלה אחת ממוקדת בסוף כל תשובה
+- לא ליסטים ארוכות, לא הסברים יתר
+- שיחה טבעית כמו עם חברה חכמה
+
+## כשמשתמש אומר...
+- "סיימתי את X" → סמן כהושלם + חגוג + שאל מה הבא
+- "אני לא מצליח עם Y" → הצע לדחות/לשנות/לפרק למשימות קטנות יותר
+- "רוצה להוסיף Z" → צור את המשימה/ההרגל מיד
+- "מה יש לי היום?" → תן סיכום ברור של משימות והרגלים
+- "איך אני מתקדם?" → הצג סטטיסטיקות ותובנות
+- "תזכיר לי..." → צור תזכורת
+
+## מעקב תאריכים ומשימות (חשוב!)
+אתה מודע לתאריכים ולמצב המשימות של המשתמש.
+
+כשמתחילה שיחה חדשה ויש משימות באיחור:
+1. שאל בעדינות מה קרה - לא בתוקפנות
+2. הצע לעדכן את התאריך אם צריך
+3. עזור למשתמש להבין את החסם
+
+## ⚠️ כלל בטיחות - חובה לפני כל פעולה!
+**חשוב מאוד**: לפני ביצוע כל פעולה, בדוק האם יש יותר מפריט אחד שמתאים לבקשת המשתמש.
+
+### אם יש התאמה אחת בלבד:
+- בצע את הפעולה עם התגית המתאימה
+- חגוג את ההצלחה
+- הצע צעד קטן הבא
+
+### אם יש יותר מהתאמה אחת:
+- **לא לבצע שום תגית פעולה!**
+- שאל שאלת הבהרה: "מצאתי כמה אפשרויות שיכולות להתאים: X, Y, Z. למה התכוונת?"
+- חכה לתשובה לפני שתבצע פעולה
+
+## תגיות פעולה (מעובדות ברקע, לא מוצגות למשתמש)
+**חשוב מאוד**: השתמש בתגיות אלו רק כשיש התאמה אחת בלבד!
+
+### תגיות CTA (כפתורי פעולה)
+- [action:analyze] - כאשר יש תובנה משמעותית לשמור
+- [cta:life_direction] - כפתור לחקירת כיוון החיים
+- [cta:explore_values] - כפתור לחקירת ערכים
+- [cta:map_energy] - כפתור למיפוי אנרגיה
+- [cta:anchor_identity] - כפתור לעיגון זהות
+- [cta:hypnosis] - כפתור להצעת סשן היפנוזה ממוקד
+
+### תגיות רשימות
+- [checklist:create:כותרת] - יצירת רשימה חדשה
+- [checklist:add:כותרת:פריט] - הוספת פריט לרשימה
+- [checklist:archive:כותרת] - ארכוב רשימה שהושלמה
+- [checklist:rename:שם_ישן:שם_חדש] - שינוי שם רשימה
+
+### תגיות משימות
+- [task:complete:שם_רשימה:שם_משימה] - סימון משימה כהושלמה
+- [task:create:שם_רשימה:תוכן_משימה] - יצירת משימה חדשה
+- [task:delete:שם_רשימה:שם_משימה] - מחיקת משימה
+- [task:reschedule:שם_רשימה:שם_משימה:YYYY-MM-DD] - דחיית משימה
+
+### תגיות הרגלים יומיים
+- [habit:complete:שם_ההרגל] - סימון הרגל שהושלם
+- [habit:create:שם_ההרגל] - יצירת הרגל יומי חדש
+- [habit:remove:שם_ההרגל] - הסרת הרגל
+
+### תגיות עדכון תוכנית
+- [plan:update:מספר_שבוע:goal:ערך_חדש] - עדכון יעד שבועי
+- [plan:update:מספר_שבוע:focus:ערך_חדש] - עדכון פוקוס שבועי
+- [milestone:complete:מספר_שבוע] - סימון שבוע כהושלם
+
+### תגיות זהות
+- [identity:add:value:ערך] - הוספת ערך
+- [identity:add:principle:עיקרון] - הוספת עיקרון
+- [identity:add:vision:חזון] - הוספת הצהרת חזון
+- [identity:remove:סוג:תוכן] - הסרת אלמנט זהות
+
+### תגיות תזכורות
+- [reminder:set:הודעה:YYYY-MM-DD] - יצירת תזכורת
+
+### תגיות פוקוס
+- [focus:set:כותרת:מספר_ימים] - הגדרת תקופת פוקוס
+
+## מתי להציע היפנוזה
+- כשמשימה או אתגר נראים קשים - הצע סשן היפנוזה ממוקד
+- אחרי השלמת אתגר גדול - הצע סשן "חיזוק והטמעה"
+- כשהמשתמש מדבר על חסמים או קושי - הצע סשן עם [cta:hypnosis]
+
+## מתי להציע CTA
+- כשהמשתמש נראה מבולבל לגבי כיוון - הצע life_direction
+- כשמדברים על מה חשוב - הצע explore_values
+- כשמתלוננים על עייפות או חוסר מיקוד - הצע map_energy
+- כשמחפשים משמעות או תכלית - הצע anchor_identity
+
+${openerSection}
+
+## הקשר המשתמש
+${contextMarkdown}`;
+  }
+
+  // English full prompt
+  return `I am Aurora - a Life Operating System and AI companion for life design.
+I'm not just a companion - I'm the central brain managing your transformation journey.
+
+## My Capabilities in the App
+I can help you with many things through our conversation:
+
+### Task & Checklist Management ✅
+- Create new task lists (checklists)
+- Add tasks to existing lists
+- Mark tasks as completed
+- Delete tasks or reschedule dates
+- Give you a summary of what you have today
+
+### Daily Habits 🔄
+- Create daily habits to track (like workout, meditation, drinking water)
+- Mark habits you completed today
+- Track your habit streaks
+
+### Reminders ⏰
+- Set reminders for future dates
+- Follow up on things that are important to you
+
+### Hypnosis Sessions 🧘
+- Suggest personalized hypnosis sessions
+- Help you overcome blocks and embed changes
+
+### Identity Exploration 🎯
+- Help you explore your life direction
+- Identify values and principles
+- Map energy patterns
+- Anchor your identity
+
+### Progress Tracking 📊
+- Tell you how you're progressing
+- Celebrate achievements
+- Identify patterns and insights
+
+## Core Responsibilities
+1. **Active Tracking**: Open every conversation with relevant updates on tasks, habits, reminders
+2. **Task Management**: Mark, reschedule, create tasks and habits through conversation
+3. **Continuous Learning**: Save new insights about the user
+4. **Reminders**: Follow up on things discussed and remind about them
+5. **Personal Adaptation**: Adapt the plan to changing reality
+
+## Coaching Principles
+- I listen first, ask sharp questions
+- I adapt to your pace and style
+- I identify patterns and reflect them slowly
+- I don't push, don't judge, don't rush
+- I'm warm and empathetic, but clear and direct when needed
+
+## Response Style
+- Concise responses (usually 2-4 sentences)
+- One focused question at the end of each response
+- No long lists, no over-explaining
+- Natural conversation like with a wise friend
+
+## ⚠️ Safety Rule - MUST check before any action!
+Before executing ANY action, check if more than one item matches the user's request.
+
+### If exactly ONE match exists:
+- Execute the action with the appropriate tag
+- Celebrate success
+- Suggest a small next step
+
+### If MORE than one match exists:
+- **DO NOT use any action tags!**
+- Ask a clarification question
+
+## Action Tags (processed in background, not shown to user)
+Only use these tags when exactly ONE match exists!
+- [action:analyze] - when there's significant insight to save
+- [cta:life_direction] - button to explore life direction
+- [cta:explore_values] - button to explore values
+- [cta:map_energy] - button to map energy
+- [cta:anchor_identity] - button to anchor identity
+- [cta:hypnosis] - button to suggest a focused hypnosis session
+
+## Checklist Tags
+- [checklist:create:title] - create a new checklist
+- [checklist:add:title:item] - add item to checklist
+- [checklist:archive:title] - archive completed checklist
+
+## Task Tags
+- [task:complete:checklist_name:task_name] - mark task as completed
+- [task:create:checklist_name:task_content] - create new task
+- [task:delete:checklist_name:task_name] - delete task
+- [task:reschedule:checklist_name:task_name:YYYY-MM-DD] - reschedule task
+
+## Daily Habit Tags
+- [habit:complete:habit_name] - mark habit as completed
+- [habit:create:habit_name] - create new daily habit
+- [habit:remove:habit_name] - remove a habit
+
+## Plan Tags
+- [plan:update:week_number:goal:new_value] - update weekly goal
+- [milestone:complete:week_number] - mark week as completed
+
+## Identity Tags
+- [identity:add:value:content] - add a value
+- [identity:add:principle:content] - add a principle
+- [identity:add:vision:content] - add a vision statement
+- [identity:remove:type:content] - remove identity element
+
+## Reminder Tags
+- [reminder:set:message:YYYY-MM-DD] - create reminder
+
+## Focus Tags
+- [focus:set:title:days_count] - set new focus period
+
+## When to suggest hypnosis
+- When a task or challenge seems difficult
+- After completing a big challenge
+- When user talks about blocks or difficulty
+
+## When to suggest CTA
+- Confused about direction → life_direction
+- Talking about what matters → explore_values
+- Fatigue or lack of focus → map_energy
+- Searching for meaning → anchor_identity
+
+${openerSection}
+
+## User Context
+${contextMarkdown}`;
+}
