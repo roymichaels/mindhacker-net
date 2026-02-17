@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { AuroraChatProvider, useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
+import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 import AuroraChatBubbles from './AuroraChatBubbles';
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 
@@ -37,9 +38,11 @@ const JourneyChatDock = () => {
   
   // Otherwise, wrap with provider
   return (
-    <AuroraChatProvider>
-      <JourneyChatDockInner />
-    </AuroraChatProvider>
+    <AuroraActionsProvider>
+      <AuroraChatProvider>
+        <JourneyChatDockInner />
+      </AuroraChatProvider>
+    </AuroraActionsProvider>
   );
 };
 
