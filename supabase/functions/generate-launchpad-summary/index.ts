@@ -632,8 +632,8 @@ async function generateAISummaryAndPlan(data: LaunchpadData, userEmail: string):
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite', // Faster model for quicker responses
-        max_tokens: 4000, // Limit response size
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 6000,
         messages: [
           { role: 'system', content: LAUNCHPAD_SYSTEM_PROMPT },
           { role: 'user', content: prompt }
@@ -676,146 +676,158 @@ async function generateAISummaryAndPlan(data: LaunchpadData, userEmail: string):
 function buildAnalysisPrompt(data: LaunchpadData): string {
   const sections: string[] = [];
 
-  // Step 1: Initial Intention
-  sections.push('## Step 1: Initial Intention (Welcome Quiz)');
-  sections.push(JSON.stringify(data.welcomeQuiz, null, 2));
-
-  // Step 2: Personal Profile
-  sections.push('\n## Step 2: Personal Profile');
-  sections.push(JSON.stringify(data.personalProfile, null, 2));
-
-  // NEW: Step 3: Lifestyle & Routine (CRITICAL for schedule-aware recommendations)
-  sections.push('\n## Step 3: Lifestyle & Daily Routine');
-  sections.push('**IMPORTANT: Use this data to tailor ALL time-based recommendations!**');
-  if (data.lifestyleRoutine && Object.keys(data.lifestyleRoutine).length > 0) {
-    sections.push(JSON.stringify(data.lifestyleRoutine, null, 2));
-    // Highlight key schedule info
-    if (data.lifestyleRoutine.wake_time) {
-      sections.push(`Wake time: ${data.lifestyleRoutine.wake_time}`);
+  // ─── PHASE 1: State Diagnosis ───
+  sections.push('# PHASE 1 — STATE DIAGNOSIS');
+  sections.push('## Pressure Zone & Functional Signals');
+  if (data.welcomeQuiz) {
+    sections.push(JSON.stringify(data.welcomeQuiz, null, 2));
+    // Highlight key diagnostic data
+    if (data.welcomeQuiz.pressure_zone) {
+      sections.push(`Primary Pressure Zone: ${data.welcomeQuiz.pressure_zone}`);
     }
-    if (data.lifestyleRoutine.sleep_time) {
-      sections.push(`Sleep time: ${data.lifestyleRoutine.sleep_time}`);
+    if (data.welcomeQuiz.functional_signals) {
+      sections.push(`Functional Signals: ${JSON.stringify(data.welcomeQuiz.functional_signals)}`);
     }
-    if (data.lifestyleRoutine.shift_work && data.lifestyleRoutine.shift_work !== 'no') {
-      sections.push(`⚠️ SHIFT WORKER: ${data.lifestyleRoutine.shift_work}`);
+    if (data.welcomeQuiz.diagnostic_scores) {
+      sections.push(`Pre-computed Diagnostic Scores: ${JSON.stringify(data.welcomeQuiz.diagnostic_scores)}`);
     }
-    if (data.lifestyleRoutine.peak_productivity) {
-      sections.push(`Peak productivity: ${data.lifestyleRoutine.peak_productivity}`);
-    }
-  } else {
-    sections.push('No lifestyle routine data provided');
   }
 
-  // Step 4: Deep Dive Answers (was step 3)
-  sections.push('\n## Step 4: Growth Deep Dive Answers');
-  sections.push(JSON.stringify(data.growthDeepDive, null, 2));
+  // ─── PHASE 2: Biological Baseline ───
+  sections.push('\n# PHASE 2 — BIOLOGICAL BASELINE');
+  sections.push('## Personal Profile & Biological Data');
+  if (data.personalProfile && Object.keys(data.personalProfile).length > 0) {
+    sections.push(JSON.stringify(data.personalProfile, null, 2));
+    
+    // Highlight critical biological variables
+    const pp = data.personalProfile as any;
+    if (pp.age_bracket) sections.push(`Age: ${pp.age_bracket}`);
+    if (pp.gender) sections.push(`Gender: ${pp.gender}`);
+    if (pp.body_fat_estimate) sections.push(`Body Fat: ${pp.body_fat_estimate}`);
+    if (pp.activity_level) sections.push(`Activity Level: ${pp.activity_level}`);
+    
+    // Sleep structure
+    if (pp.wake_time) sections.push(`Wake Time: ${pp.wake_time}`);
+    if (pp.sleep_time) sections.push(`Sleep Time: ${pp.sleep_time}`);
+    if (pp.sleep_quality) sections.push(`Sleep Quality: ${pp.sleep_quality}/5`);
+    if (pp.screen_before_bed) sections.push(`Screen Before Bed: ${pp.screen_before_bed}`);
+    
+    // Dopamine load
+    if (pp.daily_screen_time) sections.push(`Screen Time (non-work): ${pp.daily_screen_time}`);
+    if (pp.social_media_frequency) sections.push(`Social Media: ${pp.social_media_frequency}`);
+    if (pp.caffeine_intake) sections.push(`Caffeine: ${pp.caffeine_intake}`);
+    if (pp.alcohol_frequency) sections.push(`Alcohol: ${pp.alcohol_frequency}`);
+    
+    // Physical inputs
+    if (pp.diet_type) sections.push(`Diet: ${pp.diet_type}`);
+    if (pp.protein_awareness) sections.push(`Protein Awareness: ${pp.protein_awareness}`);
+    if (pp.water_intake) sections.push(`Water: ${pp.water_intake}`);
+    if (pp.sun_exposure) sections.push(`Sun Exposure: ${pp.sun_exposure}`);
+    if (pp.cold_exposure) sections.push(`Cold Exposure: ${pp.cold_exposure}`);
+  }
 
-  // Step 5: First Chat Transcript with Aurora (was step 4)
+  // ─── PHASE 3: Time Architecture ───
+  sections.push('\n# PHASE 3 — TIME ARCHITECTURE');
+  sections.push('**CRITICAL: Use this to generate the 8-8-8 daily structure!**');
+  const pp = data.personalProfile as any;
+  if (pp) {
+    if (pp.work_type) sections.push(`Work Type: ${pp.work_type}`);
+    if (pp.daily_work_hours) sections.push(`Daily Work Hours: ${pp.daily_work_hours}`);
+    if (pp.commute_duration) sections.push(`Commute: ${pp.commute_duration}`);
+    if (pp.energy_peak_time) sections.push(`Energy Peak: ${pp.energy_peak_time}`);
+    if (pp.energy_crash_time) sections.push(`Energy Crash: ${pp.energy_crash_time}`);
+    if (pp.dependents) sections.push(`Dependents: ${pp.dependents}`);
+    if (pp.household_responsibility) sections.push(`Household Load: ${pp.household_responsibility}`);
+    if (pp.social_life_frequency) sections.push(`Social Life: ${pp.social_life_frequency}`);
+  }
+
+  // Also include lifestyle routine data if available (from older launchpad)
+  if (data.lifestyleRoutine && Object.keys(data.lifestyleRoutine).length > 0) {
+    sections.push('\n## Legacy Lifestyle Routine Data');
+    sections.push(JSON.stringify(data.lifestyleRoutine, null, 2));
+  }
+
+  // ─── PHASE 4: Psychological OS ───
+  sections.push('\n# PHASE 4 — PSYCHOLOGICAL OPERATING SYSTEM');
+  if (pp) {
+    if (pp.execution_pattern) sections.push(`Execution Pattern: ${pp.execution_pattern}`);
+    if (pp.motivation_driver) sections.push(`Motivation Driver: ${pp.motivation_driver}`);
+  }
+  const wq = data.welcomeQuiz as any;
+  if (wq) {
+    if (wq.target_90_days) sections.push(`90-Day Target: ${wq.target_90_days}`);
+    if (wq.why_matters) sections.push(`Why It Matters: ${wq.why_matters}`);
+    if (wq.urgency_scale) sections.push(`Urgency: ${wq.urgency_scale}/10`);
+  }
+
+  // ─── PHASE 5: Commitment Filter ───
+  sections.push('\n# PHASE 5 — COMMITMENT FILTER');
+  if (wq) {
+    if (wq.restructure_willingness) sections.push(`Restructure Willingness: ${wq.restructure_willingness}/10`);
+    if (wq.final_notes) {
+      sections.push('**User Final Notes:**');
+      sections.push(wq.final_notes);
+      sections.push('**⚠️ HONOR THESE NOTES IN THE PLAN!**');
+    }
+  }
+
+  // Also include final notes from step_10 if available
+  if (data.finalNotes && data.finalNotes.trim()) {
+    sections.push('\n## Additional User Notes');
+    sections.push(data.finalNotes);
+  }
+
+  // ─── SUPPLEMENTARY DATA ───
+  
+  // Deep dive answers if available
+  if (data.growthDeepDive && Object.keys(data.growthDeepDive).length > 0) {
+    sections.push('\n## Growth Deep Dive Answers');
+    sections.push(JSON.stringify(data.growthDeepDive, null, 2));
+  }
+
+  // First Chat Transcript
   if (data.firstChatTranscript) {
-    sections.push('\n## Step 5: First Chat with Aurora (Full Transcript)');
+    sections.push('\n## First Chat with Aurora');
     if (data.firstChatTranscript.messages && Array.isArray(data.firstChatTranscript.messages)) {
-      sections.push('Conversation:');
       data.firstChatTranscript.messages.forEach((msg: any) => {
         sections.push(`${msg.role === 'user' ? 'User' : 'Aurora'}: ${msg.content}`);
       });
-      if (data.firstChatTranscript.answers && Array.isArray(data.firstChatTranscript.answers)) {
-        sections.push(`\nUser's answers summary: ${data.firstChatTranscript.answers.join(' | ')}`);
-      }
     } else {
       sections.push(JSON.stringify(data.firstChatTranscript, null, 2));
     }
   }
 
-  // Also include messages table data if available
   if (data.firstChat && Array.isArray(data.firstChat) && data.firstChat.length > 0) {
-    sections.push('\n## Aurora Conversation Messages (from database)');
+    sections.push('\n## Aurora Conversation Messages');
     sections.push(data.firstChat.map((m: any) => `${m.sender_type}: ${m.content}`).slice(0, 15).join('\n'));
   }
 
-  // Step 8: Selected Focus Areas (was step 5)
-  sections.push('\n## Step 8: Selected Focus Areas');
-  if (Array.isArray(data.selectedFocusAreas) && data.selectedFocusAreas.length > 0) {
-    sections.push(`Selected areas: ${data.selectedFocusAreas.join(', ')}`);
-  } else {
-    sections.push('No focus areas selected yet');
-  }
-
-  // Step 9: First Week Actions (was step 6)
-  sections.push('\n## Step 9: First Week Actions & Goals');
-  sections.push(JSON.stringify(data.firstWeekActions, null, 2));
-
-  // NEW: Step 10: Final Notes from User
-  sections.push('\n## Step 10: User\'s Final Notes & Special Requests');
-  if (data.finalNotes && data.finalNotes.trim()) {
-    sections.push('**User wrote:**');
-    sections.push(data.finalNotes);
-    sections.push('**⚠️ IMPORTANT: Consider these notes when creating recommendations!**');
-  } else {
-    sections.push('No additional notes provided');
-  }
-
-  // Identity Building (from aurora tables)
+  // Identity elements
   sections.push('\n## Identity Building Elements');
-  sections.push(`Traits: ${data.identityBuilding.traits.map((t: any) => t.content).join(', ') || 'None defined'}`);
-  sections.push(`Values: ${data.identityBuilding.values.map((v: any) => v.content).join(', ') || 'None defined'}`);
-  sections.push(`Principles: ${data.identityBuilding.principles.map((p: any) => p.content).join(', ') || 'None defined'}`);
+  sections.push(`Traits: ${data.identityBuilding.traits.map((t: any) => t.content).join(', ') || 'None'}`);
+  sections.push(`Values: ${data.identityBuilding.values.map((v: any) => v.content).join(', ') || 'None'}`);
+  sections.push(`Principles: ${data.identityBuilding.principles.map((p: any) => p.content).join(', ') || 'None'}`);
 
-  // Introspection Form (Step 5 form submission)
-  sections.push('\n## Introspection Form Responses');
+  // Focus areas
+  if (Array.isArray(data.selectedFocusAreas) && data.selectedFocusAreas.length > 0) {
+    sections.push(`\n## Selected Focus Areas: ${data.selectedFocusAreas.join(', ')}`);
+  }
+
+  // First week actions
+  if (data.firstWeekActions && Object.keys(data.firstWeekActions).length > 0) {
+    sections.push('\n## First Week Actions');
+    sections.push(JSON.stringify(data.firstWeekActions, null, 2));
+  }
+
+  // Introspection
   if (data.introspection.analyses?.[0]) {
+    sections.push('\n## Introspection Analysis');
     sections.push(JSON.stringify(data.introspection.analyses[0].analysis_result, null, 2));
-  } else if (data.introspection.submissions?.[0]) {
-    sections.push(JSON.stringify(data.introspection.submissions[0].responses, null, 2));
-  } else {
-    sections.push('No introspection form data');
   }
 
-  // Life Plan Form (Step 6 form submission)
-  sections.push('\n## Life Plan');
+  // Life Plan
   if (data.lifePlan.direction) {
-    sections.push(`Life Direction: ${data.lifePlan.direction.content}`);
-    sections.push(`Clarity Score: ${data.lifePlan.direction.clarity_score}`);
-  }
-  if (data.lifePlan.visions?.length > 0) {
-    sections.push('Visions:');
-    data.lifePlan.visions.forEach((v: any) => {
-      sections.push(`- ${v.timeframe}: ${v.title} - ${v.description || ''}`);
-    });
-  }
-  if (data.lifePlan.analyses?.[0]) {
-    sections.push(JSON.stringify(data.lifePlan.analyses[0].analysis_result, null, 2));
-  }
-
-  // Focus Plans
-  sections.push('\n## Focus Plans & Commitments');
-  if (data.focusAreas.plans?.length > 0) {
-    sections.push('Active Plans:');
-    data.focusAreas.plans.forEach((p: any) => {
-      sections.push(`- ${p.title}: ${p.description || ''}`);
-    });
-  }
-  if (data.focusAreas.dailyMinimums?.length > 0) {
-    sections.push('Daily Minimums:');
-    data.focusAreas.dailyMinimums.forEach((m: any) => {
-      sections.push(`- ${m.title} (${m.category || 'general'})`);
-    });
-  }
-  if (data.focusAreas.commitments?.length > 0) {
-    sections.push('Commitments:');
-    data.focusAreas.commitments.forEach((c: any) => {
-      sections.push(`- ${c.title}: ${c.description || ''}`);
-    });
-  }
-
-  // Existing checklists
-  sections.push('\n## Existing Checklists');
-  if (data.firstWeek.checklists?.length > 0) {
-    sections.push('Checklists created:');
-    data.firstWeek.checklists.forEach((c: any) => {
-      sections.push(`- ${c.title}: ${c.aurora_checklist_items?.length || 0} items`);
-    });
-  } else {
-    sections.push('No checklists yet');
+    sections.push(`\n## Life Direction: ${data.lifePlan.direction.content}`);
   }
 
   console.log('Built analysis prompt with sections:', sections.length);
