@@ -1,6 +1,8 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { getBreadcrumbSchema } from '@/lib/seo';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import ProGateOverlay from '@/components/subscription/ProGateOverlay';
 import {
   PlanProgressHero,
   GoalsCard,
@@ -10,6 +12,7 @@ import {
 
 const PlanTab = () => {
   const { t, isRTL } = useTranslation();
+  const { canAccessPlan, isLoading } = useSubscriptionGate();
 
   useSEO({
     title: t('seo.dashboardTitle'),
@@ -23,6 +26,14 @@ const PlanTab = () => {
       ]),
     ],
   });
+
+  if (!isLoading && !canAccessPlan) {
+    return (
+      <div className="space-y-5 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+        <ProGateOverlay feature="plan" className="min-h-[60vh]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pt-0 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
