@@ -84,106 +84,104 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const orbSize = expandedSection ? 320 : 64;
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div className="space-y-3">
+      {/* ===== 2-COL GRID: HUD + Plan ===== */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 
-      {/* ===== COL 1 (RIGHT in RTL) - HUD ===== */}
-      <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full">
-        <motion.div
-          className="relative flex items-center justify-center overflow-visible"
-          animate={{ width: orbSize, height: orbSize }}
-          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-        >
-          <div className="relative w-full h-full">
-            <PersonalizedOrb size={orbSize} state="idle" />
-          </div>
-        </motion.div>
-        {identityTitle && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-base">{identityTitle.icon}</span>
-            <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+        {/* ===== COL 1 - HUD ===== */}
+        <div className="rounded-2xl border border-border bg-card p-2 flex flex-col items-center gap-2 h-full">
+          <motion.div
+            className="relative flex items-center justify-center overflow-visible"
+            animate={{ width: orbSize, height: orbSize }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+          >
+            <div className="relative w-full h-full">
+              <PersonalizedOrb size={orbSize} state="idle" />
+            </div>
+          </motion.div>
+          {identityTitle && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-base">{identityTitle.icon}</span>
+              <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
+              <Star className="h-3 w-3" />Lv.{xp.level}
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+              <Gem className="h-3 w-3" />{tokens.balance}
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+              <Flame className="h-3 w-3" />{streak.streak}
             </span>
           </div>
-        )}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
-            <Star className="h-3 w-3" />Lv.{xp.level}
-          </span>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-            <Gem className="h-3 w-3" />{tokens.balance}
-          </span>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-            <Flame className="h-3 w-3" />{streak.streak}
-          </span>
+          <div className="grid grid-cols-3 gap-2 w-full">
+            {[
+              { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-purple-500' },
+              { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
+              { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+            ].map((m) => (
+              <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
+                <m.icon className={cn("w-4 h-4", m.color)} />
+                <span className="text-lg font-bold leading-none">{m.value}</span>
+                <span className="text-[10px] text-muted-foreground">{m.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 w-full">
-          {[
-            { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-purple-500' },
-            { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
-            { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
-          ].map((m) => (
-            <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
-              <m.icon className={cn("w-4 h-4", m.color)} />
-              <span className="text-lg font-bold leading-none">{m.value}</span>
-              <span className="text-[10px] text-muted-foreground">{m.label}</span>
-            </div>
-          ))}
+
+        {/* ===== COL 2 - Plan Modules ===== */}
+        <div className="space-y-2">
+          <CollapsiblePlanRow
+            icon={<Sparkles className="w-4 h-4 text-primary" />}
+            title={language === 'he' ? 'הרגלים' : 'Habits'}
+            count={`${completedCount}/${totalCount}`}
+            isOpen={expandedSection === 'habits'}
+            onToggle={() => toggle('habits')}
+            previewText={nextHabit?.title}
+            items={habitMiniItems}
+          />
+          <CollapsiblePlanRow
+            icon={<Calendar className="w-4 h-4 text-primary" />}
+            title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
+            count={`${planData?.progressPercent || 0}%`}
+            badge={language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}
+            badgeExtra={language === 'he' ? `חודש ${planData?.currentMonth || 1}` : `M${planData?.currentMonth || 1}`}
+            isOpen={expandedSection === 'plan'}
+            onToggle={() => toggle('plan')}
+            previewText={planData?.currentMilestone?.title ? `→ ${planData.currentMilestone.title}` : undefined}
+            progressPercent={planData?.progressPercent || 0}
+          />
+          <CollapsiblePlanRow
+            icon={<ListChecks className="w-4 h-4 text-primary" />}
+            title={language === 'he' ? 'משימות' : 'Tasks'}
+            count={`${tasksCompleted}/${tasksTotal}`}
+            countSuffix={`${tasksPercent}%`}
+            isOpen={expandedSection === 'tasks'}
+            onToggle={() => toggle('tasks')}
+            previewText={nextTask?.title}
+            items={taskItems}
+            progressPercent={tasksPercent}
+          />
         </div>
       </div>
 
-      {/* ===== COL 2 (MIDDLE) - Daily Session Hero ===== */}
-      <div
-        className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-primary/70 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer active:brightness-90 transition-all touch-manipulation min-h-[160px] h-full"
+      {/* ===== START SESSION BUTTON ===== */}
+      <button
         onClick={handleStartDailySession}
+        className="w-full flex items-center justify-center gap-3 rounded-2xl bg-purple-600 dark:bg-purple-700 px-6 py-3.5 shadow-lg hover:brightness-110 active:brightness-90 transition-all touch-manipulation"
       >
-        <div className="absolute inset-0 bg-white/5" />
-        <span className="relative text-4xl">✨</span>
-        <h3 className="relative text-lg font-bold text-white leading-tight text-center">
-          {language === 'he' ? 'הסשן היומי שלך' : 'Your Daily Session'}
-        </h3>
-        <span className="relative text-sm text-white/80 flex items-center gap-1">
-          <Clock className="w-4 h-4" />15 {language === 'he' ? 'דקות' : 'minutes'}
+        <span className="flex items-center gap-1 text-xs text-yellow-300/80">
+          <Clock className="w-3.5 h-3.5" />15 {language === 'he' ? 'דק׳' : 'min'}
         </span>
-        <div className="relative flex items-center gap-1.5 bg-background/90 text-foreground rounded-full px-5 py-2 text-sm font-semibold shadow-lg mt-1">
-          <Play className="w-4 h-4" />
-          {language === 'he' ? 'התחל עכשיו' : 'Start Now'}
-        </div>
-      </div>
-
-      {/* ===== COL 3 (LEFT in RTL) - Plan Modules ===== */}
-      <div className="space-y-2">
-        <CollapsiblePlanRow
-          icon={<Sparkles className="w-4 h-4 text-primary" />}
-          title={language === 'he' ? 'הרגלים' : 'Habits'}
-          count={`${completedCount}/${totalCount}`}
-          isOpen={expandedSection === 'habits'}
-          onToggle={() => toggle('habits')}
-          previewText={nextHabit?.title}
-          items={habitMiniItems}
-        />
-        <CollapsiblePlanRow
-          icon={<Calendar className="w-4 h-4 text-primary" />}
-          title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
-          count={`${planData?.progressPercent || 0}%`}
-          badge={language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}
-          badgeExtra={language === 'he' ? `חודש ${planData?.currentMonth || 1}` : `M${planData?.currentMonth || 1}`}
-          isOpen={expandedSection === 'plan'}
-          onToggle={() => toggle('plan')}
-          previewText={planData?.currentMilestone?.title ? `→ ${planData.currentMilestone.title}` : undefined}
-          progressPercent={planData?.progressPercent || 0}
-        />
-        <CollapsiblePlanRow
-          icon={<ListChecks className="w-4 h-4 text-primary" />}
-          title={language === 'he' ? 'משימות' : 'Tasks'}
-          count={`${tasksCompleted}/${tasksTotal}`}
-          countSuffix={`${tasksPercent}%`}
-          isOpen={expandedSection === 'tasks'}
-          onToggle={() => toggle('tasks')}
-          previewText={nextTask?.title}
-          items={taskItems}
-          progressPercent={tasksPercent}
-        />
-      </div>
+        <span className="flex items-center gap-2 text-base font-bold text-yellow-300">
+          <Play className="w-5 h-5 fill-yellow-300" />
+          {language === 'he' ? 'התחל סשן' : 'Start Session'}
+        </span>
+      </button>
     </div>
   );
 }
