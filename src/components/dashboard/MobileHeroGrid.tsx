@@ -167,29 +167,29 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             <div className="flex items-center justify-center w-full aspect-square overflow-hidden">
               <PersonalizedOrb size={260} state="idle" />
             </div>
-            {/* Identity + badges */}
-            <div className="flex flex-col gap-2 w-full">
-              <div className="flex items-center justify-between">
-                {identityTitle && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">{identityTitle.icon}</span>
-                    <span className="text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
-                      {language === 'he' ? identityTitle.title : identityTitle.titleEn}
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center gap-1">
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
-                    <Star className="h-2.5 w-2.5" />Lv.{xp.level}
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                    <Gem className="h-2.5 w-2.5" />{tokens.balance}
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                    <Flame className="h-2.5 w-2.5" />{streak.streak}
-                  </span>
-                </div>
+            {/* Identity title - own row */}
+            {identityTitle && (
+              <div className="flex items-center justify-center gap-1.5 w-full">
+                <span className="text-base">{identityTitle.icon}</span>
+                <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
+                  {language === 'he' ? identityTitle.title : identityTitle.titleEn}
+                </span>
               </div>
+            )}
+            {/* Level / Tokens / Streak badges */}
+            <div className="flex items-center justify-center gap-1.5 w-full">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                <Star className="h-2.5 w-2.5" />Lv.{xp.level}
+              </span>
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
+                <Gem className="h-2.5 w-2.5" />{tokens.balance}
+              </span>
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                <Flame className="h-2.5 w-2.5" />{streak.streak}
+              </span>
+            </div>
+            {/* Stats grid */}
+            <div className="flex flex-col gap-2 w-full">
               <div className="grid grid-cols-3 gap-1.5">
                 {[
                   { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
