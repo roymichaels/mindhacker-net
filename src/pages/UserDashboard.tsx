@@ -19,6 +19,7 @@ import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
 import { ProfileContent } from '@/components/dashboard/ProfileContent';
 import { RecentSessions } from '@/components/hypnosis';
 import { PageShell } from '@/components/aurora-ui/PageShell';
+import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -152,6 +153,8 @@ const UserDashboard = () => {
 
   return (
     <PageShell className="space-y-6">
+      {/* ===== MOBILE HERO GRID ===== */}
+      <MobileHeroGrid planData={planData} />
       {/* ===== SECTION 1: PROFILE IDENTITY CARD ===== */}
       <section>
         <ProfileContent />
