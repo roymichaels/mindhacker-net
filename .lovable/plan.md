@@ -1,49 +1,74 @@
 
+# Fix Dashboard Color Confusion
 
-# Upgrade Roadmap: Bigger Milestones, Clearer Text, Blur Irrelevant
+## Problem
+Nearly every dashboard element (badges, icons, separators, buttons, section headers) uses the same amber/gold tone. This creates a monotone, hard-to-read interface where nothing stands out -- especially in light mode where amber washes out against white.
 
-## What Changes
+## Solution
+Introduce a clear color hierarchy with distinct, purposeful colors per section type while keeping amber as the brand accent for the primary CTA only.
 
-### Desktop Vertical Timeline
-- **Larger milestone rows**: Each row gets more padding (`py-2.5` instead of `py-1`) and the content card becomes a proper mini-card with padding and rounded corners
-- **Bigger nodes**: Current week node grows to 28px, completed/future nodes to 24px
-- **Clearer text**: Week label bumps to 11px bold, milestone title to 12px with proper line height. Current week title is semi-bold white
-- **Current week emphasis**: The content card gets a stronger amber glow border, subtle amber background, and the "NOW"/"כאן" badge is larger and more prominent
-- **Blur irrelevant future milestones**: Future weeks get `opacity-30` plus a `blur-[0.5px]` CSS filter to visually de-emphasize them, making the completed and current weeks pop
-- **Completed milestones**: Slightly muted (`opacity-70`) but still sharp -- not blurred, just less prominent than current
-- **Month pills**: Slightly larger text (10px label, 9px sublabel) for better readability
+## Changes by Component
 
-### Mobile/Tablet Horizontal Timeline
-- **Larger nodes**: Current node 32px, others 28px
-- **Wider per-node column**: 84px instead of 72px for breathing room
-- **Bigger labels**: Week label 10px, title 10px (was 9px)
-- **Blur future**: Same blur treatment on future nodes and their labels
-- **Current week card**: Stronger glow and "HERE" badge bigger
+### 1. MobileHeroGrid.tsx -- Stat Badges and Section Icons
+
+**Game badges** (Lv, Tokens, Streak): Keep amber -- these are the "gold" game elements.
+
+**Diagnostics row** (Awareness, Clarity, Readiness): Already have distinct colors (amber, blue, green) -- keep as-is.
+
+**Section icons** (Habits, 90-Day Plan, Tasks): Give each a unique color instead of all amber:
+- Habits: `text-emerald-500` (green = growth/habits)
+- 90-Day Plan: `text-blue-500` (blue = planning)
+- Tasks: `text-violet-500` (purple = productivity)
+
+**Golden separators**: Replace `via-amber-500/40` with `via-border` so they use the theme's native border color -- subtle, clean, not amber.
+
+**Identity/Direction/Insights buttons**: Give unique icon colors:
+- Identity: `text-rose-500`
+- Direction: `text-blue-500`  
+- Insights: `text-violet-500`
+
+### 2. DailyPulseCard.tsx -- Pulse Card
+
+**Border**: Change from `border-amber-500/30` to `border-border/50` (theme-native).
+
+**Background gradient**: Change from amber-tinted to `from-primary/5 via-transparent to-transparent` (subtle brand tint).
+
+**Progress dots**: Change from `bg-amber-500` to `bg-primary` (brand color instead of amber).
+
+**Header icon**: Change Activity icon from `text-amber-500` to `text-primary`.
+
+### 3. CollapsiblePlanRow -- Plan Badges
+
+**Week badge**: Change from `bg-amber-500/10 text-amber-500 border-amber-500/20` to `bg-primary/10 text-primary border-primary/20` for the active badge.
+
+**Progress bars**: Change from `bg-amber-500` to `bg-primary`.
+
+**Count suffix**: Change from `text-amber-500` to `text-primary`.
+
+### 4. VerticalRoadmap.tsx -- Roadmap Colors
+
+Keep amber for the current-week node (it's the spotlight). No changes needed here -- the roadmap amber is intentional and distinctive since it only highlights the "you are here" marker.
 
 ## Technical Details
 
-### File: `src/components/dashboard/VerticalRoadmap.tsx`
+### File: `src/components/dashboard/MobileHeroGrid.tsx`
+- Lines 279, 291, 302: Change section icon colors from `text-amber-500` to emerald/blue/violet
+- Lines 143, 159, 175, 218, 235, 251, 276, 288, 300, 314, 320, 325: Change separator `via-amber-500/40` to `via-border`
+- Lines 333, 340, 346: Change Identity/Direction/Insights icon colors
+- Lines 331, 338, 345: Change hover from `hover:bg-amber-500/10` to `hover:bg-accent/10`
 
-**DesktopTimeline changes (lines 229-358):**
-- Node sizes: `w-7 h-7` (28px) for current, `w-6 h-6` (24px) for completed/future
-- Row padding: `py-2.5 px-1`
-- Content card: `rounded-lg px-2.5 py-1.5` with stronger styling per state
-- Current: `bg-amber-500/15 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.15)]`
-- Future: add `filter blur-[0.5px] opacity-30` wrapper
-- Text sizes: week `text-[11px]`, title `text-xs` (12px)
-- "NOW" badge: `text-[8px] px-2 py-0.5`
+### File: `src/components/dashboard/DailyPulseCard.tsx`
+- Line 208: Border and bg-gradient color changes
+- Lines 217-226: Progress dots from amber to primary
+- Line 49: Header icon color
 
-**HorizontalTimeline changes (lines 85-227):**
-- Node sizes: current `w-8 h-8`, others `w-7 h-7`
-- Column width: `minWidth: 84px`
-- Labels: `text-[10px]`
-- Future items: `opacity-30 blur-[0.5px]`
-- Title max-width: `max-w-[76px]`
+### File: `src/components/dashboard/MobileHeroGrid.tsx` (CollapsiblePlanRow)
+- Lines 420-421: Badge colors from amber to primary
+- Line 431: Count suffix color
+- Lines 467, 511: Progress bar color
 
 ## Result
-- Current week stands out dramatically with size, glow, and contrast
-- Completed weeks are visible but subdued
-- Future weeks fade into a soft blur, creating a clear visual hierarchy
-- All text is larger and more readable
-- The roadmap feels like a premium, important navigation element
-
+- Each section has a distinct color identity making the dashboard scannable at a glance
+- Light mode gets proper contrast since `text-primary` (rose) and varied colors stand out against white
+- Dark mode keeps its premium feel with richer color variety
+- Amber remains exclusive to game badges and the CTA button, making them feel special
