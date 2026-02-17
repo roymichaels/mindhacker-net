@@ -1,71 +1,65 @@
 
-# Move Daily Pulse Above Habits + Add Vertical Roadmap to Left Column
 
-## What Changes
+# Upgrade Roadmap: Polish + Horizontal on Mobile/Tablet
 
-### 1. Move "Daily Pulse" (דופק יומי) above "Habits" (הרגלים) in COL 2
-Currently, the Daily Pulse card sits below Tasks in the middle column (mobile) and in COL 3 (desktop). It will be moved to the very top of COL 2 (the plan modules column), above the Habits collapsible row, on both mobile and desktop.
+## Current Issues
+- The vertical roadmap is desktop-only (hidden on mobile/tablet)
+- Design is functional but lacks the premium Web3 "wow" factor
+- No way for mobile users to see their journey progress
 
-### 2. Replace COL 3 with a Vertical Milestone Roadmap (Web3-style)
-The now-empty right column on desktop will be replaced with a beautiful vertical timeline roadmap showing the user's 12-week (90-day) journey. Inspired by Web3/crypto project roadmaps, it will feature:
+## Changes
 
-- A **vertical glowing line** running down the center-left of the column, with milestone nodes along it
-- Each milestone node is a **circle with a pulsing glow** for the current week, filled/checked for completed weeks, and dimmed/outlined for future weeks
-- The **current milestone** gets a larger node with an animated ring + golden accent
-- Each node connects to a small card showing: week number, milestone title, and completion status
-- Completed milestones show a checkmark with a green glow
-- Future milestones appear slightly transparent/muted
-- A subtle **progress gradient** fills the line from top down to the current position
-- Month labels ("Month 1: Foundations", "Month 2: Building", "Month 3: Momentum") divide the roadmap into 3 themed sections with separator lines
+### 1. Responsive Layout in `VerticalRoadmap.tsx`
+- **Desktop (lg+)**: Keep vertical layout, but enhance visuals
+- **Mobile/Tablet (below lg)**: Render as a horizontal scrollable timeline with snap scrolling, auto-scrolled to the current week node
+
+### 2. Visual Upgrades (both orientations)
+- **Larger "current" node** (28px vs 22px) with a double-ring glow effect and subtle shadow pulse
+- **Connector line**: thicker (3px) with a gradient that transitions from emerald (completed) through amber (current) to muted (future)
+- **Month dividers**: styled as pill badges with a subtle glassmorphism background instead of plain text
+- **Completed nodes**: add a subtle line-through or checkmark animation on mount
+- **Future nodes**: use a dotted/dashed border instead of solid to clearly differentiate from completed
+- **Progress percentage**: show as a small radial/arc indicator next to the header instead of plain text
+
+### 3. Horizontal Mode Details (Mobile/Tablet)
+- Container: `overflow-x-auto snap-x snap-mandatory` with hidden scrollbar CSS
+- Each week node is a vertical card (node on top, week label + title below) spaced horizontally
+- Month labels appear as floating section headers above the horizontal line
+- Auto-scroll via `useEffect` + `scrollIntoView` to center the current week on mount
+- The connecting line runs horizontally with the same gradient fill logic
+- Compact: ~80px wide per node, fits 4-5 visible nodes with scroll
+
+### 4. Integration in `MobileHeroGrid.tsx`
+- Remove the `hidden lg:flex` wrapper from COL 3's roadmap
+- On mobile, render the roadmap above or below the "90-Day Plan" collapsible row (below Daily Pulse, above Habits) as a horizontal strip
+- On desktop, keep it in COL 3 as vertical
 
 ## Technical Details
 
+### File: `src/components/dashboard/VerticalRoadmap.tsx` (rewrite)
+- Add `useIsMobile` or media query check (use the existing `use-mobile` hook, but check for `lg` breakpoint ~1024px since the grid switches there)
+- Render two layouts conditionally:
+  - `HorizontalTimeline` for small screens
+  - `VerticalTimeline` for desktop
+- `HorizontalTimeline`:
+  - Horizontal flex container with `overflow-x-auto scrollbar-hide snap-x`
+  - A horizontal gradient line (`h-[3px]`) running behind the nodes
+  - Each milestone as a snap-aligned column: node circle on top, week badge + title below
+  - Month labels as sticky/floating amber pills at section boundaries
+  - `useRef` + `scrollIntoView({ behavior: 'smooth', inline: 'center' })` on the current week node
+- `VerticalTimeline`:
+  - Keep existing structure but upgrade node sizes, line thickness, and add dashed borders for future nodes
+  - Month dividers get glassmorphism pill styling
+
 ### File: `src/components/dashboard/MobileHeroGrid.tsx`
-- Move `<DailyPulseCard />` from COL 3 and the `lg:hidden` mobile position to the top of COL 2 (before the Habits collapsible row)
-- Remove the duplicate `lg:hidden` wrapper -- show it in COL 2 on all screen sizes
-- Remove the COL 3 desktop-only `<DailyPulseCard />`
-- In COL 3, render the new `<VerticalRoadmap />` component instead, using `planData` prop + fetching milestones
+- Move `<VerticalRoadmap />` from the desktop-only COL 3 wrapper
+- On mobile: render it inside COL 2 (between Daily Pulse and Habits)
+- On desktop: keep it in COL 3
+- Use `lg:hidden` / `hidden lg:block` pattern for the two placements
 
-### File: `src/components/dashboard/VerticalRoadmap.tsx` (New)
-- New component that fetches milestones from `life_plan_milestones` table via the active `life_plans` record
-- Renders a vertical timeline with:
-  - A continuous gradient line (`bg-gradient-to-b from-amber-500 to-amber-500/20`)
-  - Milestone nodes positioned along the line with connecting horizontal arms
-  - Current week node has a pulsing amber ring animation (CSS keyframes via framer-motion)
-  - Completed nodes: filled amber with checkmark icon
-  - Future nodes: border-only, muted opacity
-  - Month dividers with themed labels (Foundations/Building/Momentum)
-- Supports RTL layout
-- Shows "You are here" indicator at the current week
-- Compact design that fits the 240-280px column width
+## Result
+- Mobile users see a sleek horizontal scrollable roadmap showing their 12-week journey
+- Desktop keeps the vertical column layout
+- Both get upgraded visuals with better glow effects, gradient lines, and glassmorphism month badges
+- Current week auto-scrolls into view on mobile
 
-### File: `src/components/dashboard/MobileHeroGrid.tsx` (COL 3 update)
-- Import and render `<VerticalRoadmap />` in the desktop-only COL 3 container
-- On mobile, the roadmap remains accessible through the "90-Day Plan" collapsible row (no change there)
-
-## Layout Result
-
-```text
-Desktop (3 columns):
-+------------------+-------------------------+------------------+
-|   COL 1 (HUD)    |    COL 2 (Plan)         | COL 3 (Roadmap)  |
-|                   |                         |                  |
-|   [Orb]           |   [Daily Pulse]         |  Month 1         |
-|   Identity Title  |   [Habits]              |  o-- Week 1 Done |
-|   Badges          |   [90-Day Plan]         |  o-- Week 2 Done |
-|   Stats           |   [Tasks]               |  o-- Week 3 Done |
-|   Session Stats   |   [Recalibration]       |  *== Week 4 NOW  |
-|   [Start Session] |   [Identity/Dir/Ins]    |  Month 2         |
-|                   |                         |  o-- Week 5      |
-|                   |                         |  o-- Week 6      |
-|                   |                         |  ...              |
-+------------------+-------------------------+------------------+
-
-Mobile (stacked):
-[Daily Pulse]
-[Habits]
-[90-Day Plan]
-[Tasks]
-[Recalibration]
-[Identity / Direction / Insights]
-```
