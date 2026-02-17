@@ -84,52 +84,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const orbSize = expandedSection ? 320 : 64;
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      {/* ===== COL 1 (RIGHT in RTL) - HUD ===== */}
-      <div className="rounded-2xl border border-border bg-card p-4 flex flex-col items-center gap-3 h-full">
-        <motion.div
-          className="relative flex items-center justify-center"
-          animate={{ width: orbSize, height: orbSize }}
-          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-        >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl scale-150" />
-          <div className="relative w-full h-full">
-            <PersonalizedOrb size={orbSize} state="idle" />
-          </div>
-        </motion.div>
-        {identityTitle && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-base">{identityTitle.icon}</span>
-            <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {language === 'he' ? identityTitle.title : identityTitle.titleEn}
-            </span>
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
-            <Star className="h-3 w-3" />Lv.{xp.level}
-          </span>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-            <Gem className="h-3 w-3" />{tokens.balance}
-          </span>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-            <Flame className="h-3 w-3" />{streak.streak}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2 w-full">
-          {[
-            { icon: Zap, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-purple-500' },
-            { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
-            { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
-          ].map((m) => (
-            <div key={m.label} className="rounded-xl bg-muted/30 border border-border/50 p-2.5 flex flex-col items-center gap-1">
-              <m.icon className={cn("w-4 h-4", m.color)} />
-              <span className="text-lg font-bold leading-none">{m.value}</span>
-              <span className="text-[10px] text-muted-foreground">{m.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 
       {/* ===== COL 2 (MIDDLE) - Daily Session Hero ===== */}
       <div
