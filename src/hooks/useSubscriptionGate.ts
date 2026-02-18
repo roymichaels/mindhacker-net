@@ -66,7 +66,16 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     staleTime: 30 * 1000,
   });
 
-  // Admins bypass all gates
+  // All hooks must be called before any early return
+  const showUpgradePrompt = useCallback((feature: string) => {
+    setUpgradeFeature(feature);
+  }, []);
+
+  const dismissUpgrade = useCallback(() => {
+    setUpgradeFeature(null);
+  }, []);
+
+  // Admins bypass all gates (after all hooks)
   if (isAdmin) {
     return {
       tier: "business",
@@ -81,10 +90,10 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canAccessBusiness: true,
       maxHabits: Infinity,
       subscriptionEnd: null,
-      showUpgradePrompt: () => {},
-      upgradeFeature: null,
-      dismissUpgrade: () => {},
-      refetch: () => {},
+      showUpgradePrompt,
+      upgradeFeature,
+      dismissUpgrade,
+      refetch: () => { refetch(); },
     };
   }
 
@@ -93,21 +102,13 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   const dailyCount = messageData ?? 0;
   const messagesRemaining = isPaid ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
 
-  const showUpgradePrompt = useCallback((feature: string) => {
-    setUpgradeFeature(feature);
-  }, []);
-
-  const dismissUpgrade = useCallback(() => {
-    setUpgradeFeature(null);
-  }, []);
-
   return {
     tier,
-    isPro: isPaid, // backward compat: true for any paid tier
+    isPro: isPaid,
     isLoading: subLoading,
     canSendMessage: isPaid || messagesRemaining > 0,
     messagesRemaining,
-    canAccessPlan: true, // now free for all
+    canAccessPlan: true,
     canAccessHypnosis: tierIncludes(tier, "pro"),
     canAccessNudges: tierIncludes(tier, "pro"),
     canBeCoach: tierIncludes(tier, "coach"),
