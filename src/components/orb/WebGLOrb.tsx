@@ -636,23 +636,23 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           }
           
           // Multiple wave layers for complex movement
-          const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.12 * waveScale;
-          const wave2 = Math.sin(nz * 3 + time * 1.8) * Math.cos(ny * 2.5 + time * 1.2) * 0.08 * waveScale;
-          const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.06 * waveScale;
+          const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.02 * waveScale;
+          const wave2 = Math.sin(nz * 3 + time * 1.8) * Math.cos(ny * 2.5 + time * 1.2) * 0.015 * waveScale;
+          const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.01 * waveScale;
           
           // Radial pulse with multiple frequencies
-          const pulse1 = Math.sin(time * pulseMod + dist * 4) * 0.05;
-          const pulse2 = Math.sin(time * pulseMod * 0.7 + dist * 2) * 0.03;
+          const pulse1 = Math.sin(time * pulseMod + dist * 4) * 0.01;
+          const pulse2 = Math.sin(time * pulseMod * 0.7 + dist * 2) * 0.005;
           
           // Audio reactivity
-          const audioBoost = audioLevel * 0.35;
+          const audioBoost = audioLevel * 0.08;
           
-          // Combined deformation — scaled to geometry radius to prevent explosion
+          // Combined deformation — gentle breathing, no spikes
           const deform = (
-            noiseVal * morphIntensity * morphMod * 0.4 + 
-            (wave1 + wave2 + wave3) * 0.3 + 
-            (pulse1 + pulse2) * 0.3 + 
-            audioBoost * 0.3
+            noiseVal * morphIntensity * morphMod * 0.06 + 
+            (wave1 + wave2 + wave3) + 
+            (pulse1 + pulse2) + 
+            audioBoost
           );
           
           positions.setXYZ(
