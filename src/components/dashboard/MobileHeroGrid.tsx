@@ -114,7 +114,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="flex flex-col gap-0 lg:grid lg:grid-cols-[240px_1fr_240px] xl:grid-cols-[280px_1fr_280px] lg:gap-4 lg:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="p-4 pt-0 lg:pt-4 lg:order-1 lg:flex lg:flex-col lg:justify-start">
+        <div className="p-4 pt-0 lg:pt-0 lg:order-1 lg:sticky lg:top-0 lg:self-start lg:flex lg:flex-col lg:justify-start">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 lg:hidden">
             {/* Top: Identity + Orb side by side */}
