@@ -2,7 +2,7 @@
  * Hook to generate and manage personalized orb profile
  * 
  * FULL DNA SYSTEM - Maps user traits, hobbies, behaviors, AI summary → visual profile
- * User Data + AI Summary → generateOrbProfile() → computeAvatarDNA() → OrbProfile → THREE.js
+ * Now includes: deterministic seed, diagnostic state, version tracking
  */
 
 import { useMemo, useEffect, useRef } from 'react';
@@ -16,18 +16,15 @@ import {
   DEFAULT_ORB_PROFILE as GENERATOR_DEFAULT,
   type GenerateOrbProfileInput,
 } from '@/lib/orbProfileGenerator';
-import type { OrbProfile } from '@/components/orb/types';
+import { hashUserId } from '@/lib/orbSeed';
+import type { OrbProfile, DiagnosticState } from '@/components/orb/types';
 import type { ArchetypeId } from '@/lib/archetypes';
 
-// Re-export types
 export type { OrbProfile };
 
-// Default orb profile
 export const DEFAULT_ORB_PROFILE: OrbProfile = {
   ...GENERATOR_DEFAULT,
-  computedFrom: {
-    ...GENERATOR_DEFAULT.computedFrom,
-  },
+  computedFrom: { ...GENERATOR_DEFAULT.computedFrom },
 };
 
 interface OrbProfileRow {
@@ -48,9 +45,6 @@ interface OrbProfileRow {
   updated_at: string;
 }
 
-/**
- * Extract profile fields from step_2_profile_data
- */
 function extractProfileData(profileData: Record<string, unknown> | null) {
   if (!profileData) return { hobbies: [], decisionStyle: undefined, conflictStyle: undefined, problemSolvingStyle: undefined, priorities: [], traits: [] };
   return {
@@ -64,10 +58,10 @@ function extractProfileData(profileData: Record<string, unknown> | null) {
 }
 
 /**
- * Convert database row to OrbProfile
+ * Convert database row to OrbProfile - FIXED: preserve motion/texture fields
  */
 function rowToProfile(row: OrbProfileRow): OrbProfile {
-  const computedFrom = row.computed_from as Record<string, unknown>;
+  const cf = row.computed_from as Record<string, unknown>;
   
   return {
     primaryColor: row.primary_color,
@@ -77,33 +71,38 @@ function rowToProfile(row: OrbProfileRow): OrbProfile {
     morphSpeed: row.morph_speed,
     fractalOctaves: Math.max(2, Math.min(6, row.geometry_detail)),
     coreIntensity: row.core_intensity,
-    coreSize: 0.2 + Math.min((computedFrom?.level as number) || 1, 15) * 0.02,
+    coreSize: 0.2 + Math.min((cf?.level as number) || 1, 15) * 0.02,
     layerCount: row.layer_count,
     geometryDetail: row.geometry_detail,
     particleEnabled: row.particle_enabled,
     particleCount: row.particle_count,
     particleColor: row.secondary_colors?.[0] || row.primary_color,
-    motionSpeed: 1.0,
-    pulseRate: 1.0,
-    smoothness: 0.6,
-    textureType: 'flowing',
-    textureIntensity: 0.5,
+    // FIXED: Read from computed_from instead of hardcoding
+    motionSpeed: (cf?.motionSpeed as number) ?? 1.0,
+    pulseRate: (cf?.pulseRate as number) ?? 1.0,
+    smoothness: (cf?.smoothness as number) ?? 0.6,
+    textureType: (cf?.textureType as string) ?? 'flowing',
+    textureIntensity: (cf?.textureIntensity as number) ?? 0.5,
+    seed: (cf?.seed as number) ?? undefined,
+    geometryFamily: (cf?.geometryFamily as OrbProfile['geometryFamily']) ?? undefined,
+    diagnosticState: 'ok',
     computedFrom: {
-      dominantArchetype: ((computedFrom?.dominantArchetype as string) || 'explorer') as ArchetypeId,
-      secondaryArchetype: (computedFrom?.secondaryArchetype as ArchetypeId | null) || null,
-      archetypeWeights: [],
-      dominantHobbies: (computedFrom?.dominantHobbies as string[]) || [],
-      egoState: (computedFrom?.egoState as string) || 'guardian',
-      level: (computedFrom?.level as number) || 1,
-      streak: (computedFrom?.streak as number) || 0,
-      topTraitCategories: [],
-      clarityScore: (computedFrom?.clarityScore as number) || 0,
+      dominantArchetype: ((cf?.dominantArchetype as string) || 'explorer') as ArchetypeId,
+      secondaryArchetype: (cf?.secondaryArchetype as ArchetypeId | null) || null,
+      archetypeWeights: (cf?.archetypeWeights as { id: ArchetypeId; weight: number }[]) || [],
+      dominantHobbies: (cf?.dominantHobbies as string[]) || [],
+      egoState: (cf?.egoState as string) || 'guardian',
+      level: (cf?.level as number) || 1,
+      streak: (cf?.streak as number) || 0,
+      topTraitCategories: (cf?.topTraitCategories as string[]) || [],
+      clarityScore: (cf?.clarityScore as number) || 0,
+      orb_profile_version: (cf?.orb_profile_version as string) || undefined,
     },
   };
 }
 
 /**
- * Convert OrbProfile to database row format
+ * Convert OrbProfile to database row format - FIXED: store all computed fields
  */
 function profileToRow(profile: OrbProfile, userId: string): Record<string, unknown> {
   return {
@@ -119,18 +118,28 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
     particle_count: profile.particleCount,
     geometry_detail: profile.geometryDetail,
     computed_from: {
+      dominantArchetype: profile.computedFrom.dominantArchetype,
+      secondaryArchetype: profile.computedFrom.secondaryArchetype,
+      archetypeWeights: profile.computedFrom.archetypeWeights,
       dominantHobbies: profile.computedFrom.dominantHobbies,
       level: profile.computedFrom.level,
       streak: profile.computedFrom.streak,
       clarityScore: profile.computedFrom.clarityScore,
       egoState: profile.computedFrom.egoState,
+      topTraitCategories: profile.computedFrom.topTraitCategories,
+      orb_profile_version: profile.computedFrom.orb_profile_version,
+      // FIXED: Store all computed fields
+      motionSpeed: profile.motionSpeed,
+      pulseRate: profile.pulseRate,
+      smoothness: profile.smoothness,
+      textureType: profile.textureType,
+      textureIntensity: profile.textureIntensity,
+      seed: profile.seed,
+      geometryFamily: profile.geometryFamily,
     },
   };
 }
 
-/**
- * Extract AI summary data relevant to orb
- */
 function extractSummarySignals(summaryData: Record<string, unknown> | null): {
   egoState?: string;
   traits?: string[];
@@ -143,21 +152,23 @@ function extractSummarySignals(summaryData: Record<string, unknown> | null): {
   };
 }
 
+/** Check if ORB_DEBUG is enabled */
+function isOrbDebug(): boolean {
+  try { return localStorage.getItem('ORB_DEBUG') === 'true'; } catch { return false; }
+}
+
 export function useOrbProfile() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const lastSavedRef = useRef<{ signature: string; at: number } | null>(null);
   
-  // Get user data sources
   const { gameState } = useGameState();
   const { isLaunchpadComplete, progress } = useLaunchpadProgress();
 
-  // Extract FULL profile data from launchpad (hobbies, decision style, conflict, priorities, traits)
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
 
-  // Fetch AI summary data from launchpad_summaries
   const { data: summaryRow } = useQuery({
     queryKey: ['launchpad-summary-orb', user?.id],
     queryFn: async () => {
@@ -176,12 +187,10 @@ export function useOrbProfile() {
     staleTime: 10 * 60 * 1000,
   });
 
-  // Extract AI signals
   const summarySignals = useMemo(() => {
     return extractSummarySignals(summaryRow?.summary_data as Record<string, unknown> | null);
   }, [summaryRow?.summary_data]);
 
-  // Fetch stored profile from database
   const { data: storedProfile, isLoading } = useQuery({
     queryKey: ['orb-profile', user?.id],
     queryFn: async () => {
@@ -198,7 +207,6 @@ export function useOrbProfile() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Generate profile signature for comparison
   const profileSignature = (p: OrbProfile) =>
     JSON.stringify({
       primaryColor: p.primaryColor,
@@ -207,9 +215,34 @@ export function useOrbProfile() {
       layerCount: p.layerCount,
       geometryDetail: p.geometryDetail,
       level: p.computedFrom.level,
+      seed: p.seed,
     });
 
-  // FULL DNA: Compute profile from all user signals
+  // Compute seed
+  const seed = useMemo(() => user?.id ? hashUserId(user.id) : 0, [user?.id]);
+
+  // Detect missing data for diagnostic state
+  const diagnosticInfo = useMemo((): { state: DiagnosticState; missedFields: string[] } => {
+    if (!user?.id) return { state: 'no_user', missedFields: ['user_id'] };
+    
+    const missed: string[] = [];
+    const hasProfileData = profileData.hobbies.length > 0 || !!profileData.decisionStyle || !!profileData.conflictStyle;
+    const hasSummary = !!summaryRow;
+    const hasGameProgress = (gameState?.level || 1) > 1;
+    
+    if (!hasProfileData) missed.push('hobbies', 'decisionStyle', 'conflictStyle', 'priorities');
+    if (!hasSummary) missed.push('launchpad_summary');
+    if (!hasGameProgress) missed.push('game_state_level');
+    if (!profileData.traits.length && !summarySignals.traits?.length) missed.push('traits');
+    
+    const hasAtLeastOne = hasProfileData || hasSummary || hasGameProgress;
+    return { 
+      state: hasAtLeastOne ? 'ok' : 'missing_data', 
+      missedFields: missed 
+    };
+  }, [user?.id, profileData, summaryRow, gameState?.level, summarySignals.traits]);
+
+  // FULL DNA: Compute profile from all user signals + seed
   const computedProfile = useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
 
@@ -217,7 +250,6 @@ export function useOrbProfile() {
     const streak = gameState?.sessionStreak || 0;
     const experience = gameState?.experience || 0;
 
-    // Merge traits from profile data + AI summary
     const allTraits = [
       ...(profileData.traits || []),
       ...(summarySignals.traits || []),
@@ -237,10 +269,39 @@ export function useOrbProfile() {
       consciousnessScore: summaryRow?.consciousness_score ?? undefined,
       transformationReadiness: summaryRow?.transformation_readiness ?? undefined,
       egoState: summarySignals.egoState || gameState?.activeEgoState,
+      seed,
+      userId: user.id,
     };
 
-    return generateOrbProfile(input);
-  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, gameState?.activeEgoState]);
+    const profile = generateOrbProfile(input);
+    
+    // Apply diagnostic state
+    profile.diagnosticState = diagnosticInfo.state;
+    profile.missedFields = diagnosticInfo.missedFields;
+    
+    // If missing data, apply grayscale + low particles
+    if (diagnosticInfo.state === 'missing_data') {
+      profile.primaryColor = '0 0% 45%';
+      profile.secondaryColors = ['0 0% 55%', '0 0% 35%'];
+      profile.accentColor = '0 0% 60%';
+      profile.particleColor = '0 0% 50%';
+      profile.particleCount = Math.min(5, profile.particleCount);
+      profile.particleEnabled = profile.particleCount > 0;
+    }
+
+    // Debug logging
+    if (isOrbDebug()) {
+      console.group('[ORB_DEBUG] Profile Computed');
+      console.log('User ID:', user.id);
+      console.log('Seed:', seed);
+      console.log('Diagnostic:', diagnosticInfo.state, diagnosticInfo.missedFields);
+      console.log('Input:', input);
+      console.log('Output:', profile);
+      console.groupEnd();
+    }
+
+    return profile;
+  }, [user?.id, profileData, summarySignals, summaryRow, gameState?.level, gameState?.sessionStreak, gameState?.experience, gameState?.activeEgoState, seed, diagnosticInfo]);
 
   // Mutation to save/update profile
   const saveProfileMutation = useMutation({
@@ -257,7 +318,7 @@ export function useOrbProfile() {
     },
   });
 
-  // Auto-save profile when computed profile changes significantly
+  // Auto-save when profile changes significantly
   useEffect(() => {
     if (!user?.id || isLoading) return;
     
@@ -276,7 +337,8 @@ export function useOrbProfile() {
       JSON.stringify(storedProfile.secondaryColors) !== JSON.stringify(computedProfile.secondaryColors) ||
       storedProfile.layerCount !== computedProfile.layerCount ||
       storedProfile.geometryDetail !== computedProfile.geometryDetail ||
-      storedProfile.computedFrom.level !== computedProfile.computedFrom.level;
+      storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
+      storedProfile.seed !== computedProfile.seed;
 
     if (!needsUpdate) return;
 
@@ -300,12 +362,12 @@ export function useOrbProfile() {
     isPersonalized: !!user?.id && (profileData.hobbies.length > 0 || (gameState?.level || 1) > 1 || !!summaryRow),
     saveProfile: saveProfileMutation.mutate,
     isSaving: saveProfileMutation.isPending,
+    seed,
+    diagnosticState: diagnosticInfo.state,
+    missedFields: diagnosticInfo.missedFields,
   };
 }
 
-/**
- * Lightweight hook for orb rendering without database sync
- */
 export function useOrbProfileComputed() {
   const { user } = useAuth();
   const { gameState } = useGameState();
@@ -314,6 +376,8 @@ export function useOrbProfileComputed() {
   const profileData = useMemo(() => {
     return extractProfileData(progress?.step_2_profile_data as Record<string, unknown> | null);
   }, [progress?.step_2_profile_data]);
+
+  const seed = useMemo(() => user?.id ? hashUserId(user.id) : 0, [user?.id]);
 
   return useMemo((): OrbProfile => {
     if (!user?.id) return DEFAULT_ORB_PROFILE;
@@ -329,6 +393,8 @@ export function useOrbProfileComputed() {
       experience: gameState?.experience || 0,
       streak: gameState?.sessionStreak || 0,
       egoState: gameState?.activeEgoState,
+      seed,
+      userId: user.id,
     });
-  }, [user?.id, profileData, gameState?.activeEgoState, gameState?.level, gameState?.sessionStreak, gameState?.experience]);
+  }, [user?.id, profileData, gameState?.activeEgoState, gameState?.level, gameState?.sessionStreak, gameState?.experience, seed]);
 }

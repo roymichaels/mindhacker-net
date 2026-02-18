@@ -1,23 +1,21 @@
 /**
  * PersonalizedOrb - Wrapper component that loads user's orb profile
  * and renders the appropriate orb with personalized settings.
- * Uses theme colors from admin panel when user is not personalized.
+ * Now includes: debug overlay, diagnostic rendering, smooth transitions.
  */
 
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { Orb } from './Orb';
-import type { OrbRef, OrbProps } from './types';
-import { DEFAULT_ORB_PROFILE } from '@/lib/orbProfileGenerator';
+import { OrbDebugOverlay } from './OrbDebugOverlay';
+import type { OrbRef, OrbProps, OrbProfile } from './types';
+import { DEFAULT_ORB_PROFILE, interpolateOrbProfiles } from '@/lib/orbProfileGenerator';
 
 export interface PersonalizedOrbProps extends Omit<OrbProps, 'egoState'> {
-  /** Force a specific ego state instead of user's active one */
   forceEgoState?: string;
-  /** Disable personalization and use defaults */
   disablePersonalization?: boolean;
-  /** Show loading skeleton while profile loads */
   showLoadingSkeleton?: boolean;
 }
 
@@ -39,10 +37,14 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     ref
   ) {
     const { user } = useAuth();
-    const { profile, isLoading, isPersonalized, storedProfile } = useOrbProfile();
+    const { profile, isLoading, isPersonalized, storedProfile, seed, diagnosticState, missedFields } = useOrbProfile();
     const { theme, loading: themeLoading } = useThemeSettings();
 
-    // Create theme-based colors from admin panel settings
+    // Smooth transition state
+    const prevProfileRef = useRef<OrbProfile | null>(null);
+    const [transitionProfile, setTransitionProfile] = useState<OrbProfile | null>(null);
+    const animFrameRef = useRef<number>(0);
+
     const themeColors = useMemo(() => ({
       primary: `hsl(${theme.primary_h}, ${theme.primary_s}, ${theme.primary_l})`,
       secondary: `hsl(${theme.secondary_h}, ${theme.secondary_s}, ${theme.secondary_l})`,
@@ -52,10 +54,8 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
          theme.secondary_h, theme.secondary_s, theme.secondary_l,
          theme.accent_h, theme.accent_s, theme.accent_l]);
 
-    // Determine the profile to use - enhanced with theme colors
     const activeProfile = useMemo(() => {
       if (disablePersonalization || !user) {
-        // Use theme colors from admin panel for default orb
         return {
           ...DEFAULT_ORB_PROFILE,
           primaryColor: themeColors.primary,
@@ -66,19 +66,48 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
       return profile;
     }, [disablePersonalization, user, profile, themeColors]);
 
-    // Extract ego state from profile or use force override
-    const egoState = forceEgoState || activeProfile.computedFrom.egoState || 'guardian';
+    // Smooth transition when profile changes
+    useEffect(() => {
+      const prev = prevProfileRef.current;
+      if (!prev || prev === activeProfile) {
+        prevProfileRef.current = activeProfile;
+        return;
+      }
 
-    // Show skeleton while loading if requested
-    // Avoid "flash then disappear": during background refetches `isLoading` can flip true and
-    // would replace a rendered orb with the skeleton. Only show skeleton on the initial load
-    // when we don't have a stored profile yet.
+      // Don't transition if geometry family changed (requires rebuild)
+      if (prev.geometryFamily !== activeProfile.geometryFamily) {
+        prevProfileRef.current = activeProfile;
+        setTransitionProfile(null);
+        return;
+      }
+
+      const startTime = performance.now();
+      const duration = 800;
+
+      const tick = () => {
+        const elapsed = performance.now() - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        
+        if (t < 1) {
+          setTransitionProfile(interpolateOrbProfiles(prev, activeProfile, eased));
+          animFrameRef.current = requestAnimationFrame(tick);
+        } else {
+          setTransitionProfile(null);
+          prevProfileRef.current = activeProfile;
+        }
+      };
+
+      animFrameRef.current = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(animFrameRef.current);
+    }, [activeProfile]);
+
+    const displayProfile = transitionProfile || activeProfile;
+    const egoState = forceEgoState || displayProfile.computedFrom.egoState || 'guardian';
+
     if (showLoadingSkeleton && (themeLoading || (isLoading && !storedProfile))) {
       return (
-        <div
-          className={className}
-          style={{ width: size, height: size }}
-        >
+        <div className={className} style={{ width: size, height: size }}>
           <div
             className="w-full h-full rounded-full animate-pulse"
             style={{
@@ -91,21 +120,29 @@ export const PersonalizedOrb = forwardRef<OrbRef, PersonalizedOrbProps>(
     }
 
     return (
-      <Orb
-        ref={ref}
-        size={size}
-        state={state}
-        audioLevel={audioLevel}
-        tunnelMode={tunnelMode}
-        egoState={egoState}
-        className={className}
-        showGlow={showGlow}
-        onReady={onReady}
-        // Pass profile data with theme colors
-        profile={activeProfile}
-        themeColors={themeColors}
-        {...props}
-      />
+      <div className="relative" style={{ width: size, height: size }}>
+        <Orb
+          ref={ref}
+          size={size}
+          state={state}
+          audioLevel={audioLevel}
+          tunnelMode={tunnelMode}
+          egoState={egoState}
+          className={className}
+          showGlow={showGlow}
+          onReady={onReady}
+          profile={displayProfile}
+          themeColors={themeColors}
+          {...props}
+        />
+        <OrbDebugOverlay
+          profile={displayProfile}
+          userId={user?.id}
+          seed={seed}
+          missedFields={missedFields}
+          diagnosticState={diagnosticState}
+        />
+      </div>
     );
   }
 );

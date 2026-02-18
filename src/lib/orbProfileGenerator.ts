@@ -1,64 +1,16 @@
 /**
  * Orb Profile Generator - Dynamic Identity-Based Avatar System
  * 
- * Generates personalized orb profiles based on user's actual identity data:
- * - Hobbies and interests
- * - Behavioral patterns
- * - Character traits
- * - Life priorities
- * - Level and XP progression
+ * Generates personalized orb profiles based on user's actual identity data.
+ * Now includes deterministic per-user seed for structural variance.
  */
 
 import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
 import { getArchetype, type ArchetypeId } from './archetypes';
+import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
+import type { OrbProfile } from '@/components/orb/types';
 
-export interface OrbProfile {
-  // Colors
-  primaryColor: string;
-  secondaryColors: string[];
-  accentColor: string;
-  
-  // Animation
-  morphIntensity: number;
-  morphSpeed: number;
-  fractalOctaves: number;
-  
-  // Core
-  coreIntensity: number;
-  coreSize: number;
-  
-  // Geometry
-  layerCount: number;
-  geometryDetail: number;
-  
-  // Particles
-  particleEnabled: boolean;
-  particleCount: number;
-  particleColor: string;
-  
-  // Motion profile
-  motionSpeed: number;
-  pulseRate: number;
-  smoothness: number;
-  
-  // Texture
-  textureType: string;
-  textureIntensity: number;
-  
-  // Computed from data
-  computedFrom: {
-    dominantArchetype: ArchetypeId;
-    secondaryArchetype: ArchetypeId | null;
-    archetypeWeights: { id: ArchetypeId; weight: number }[];
-    level: number;
-    streak: number;
-    dominantHobbies: string[];
-    clarityScore: number;
-    // Legacy compatibility
-    egoState?: string;
-    topTraitCategories?: string[];
-  };
-}
+export type { OrbProfile };
 
 export const DEFAULT_ORB_PROFILE: OrbProfile = {
   primaryColor: '200 80% 50%',
@@ -79,6 +31,7 @@ export const DEFAULT_ORB_PROFILE: OrbProfile = {
   smoothness: 0.6,
   textureType: 'flowing',
   textureIntensity: 0.5,
+  diagnosticState: 'no_user',
   computedFrom: {
     dominantArchetype: 'explorer',
     secondaryArchetype: null,
@@ -93,37 +46,39 @@ export const DEFAULT_ORB_PROFILE: OrbProfile = {
 };
 
 export interface GenerateOrbProfileInput {
-  // Profile data from launchpad
   hobbies?: string[];
   decisionStyle?: string;
   conflictStyle?: string;
   problemSolvingStyle?: string;
-  
-  // Identity elements
   selectedTraitIds?: string[];
-  
-  // Life priorities
   priorities?: string[];
-  
-  // Game state
   level?: number;
   experience?: number;
   streak?: number;
-  
-  // Aurora data
   clarityScore?: number;
   consciousnessScore?: number;
   transformationReadiness?: number;
-  
-  // Legacy support - will be phased out
   egoState?: string;
+  /** Deterministic seed from user_id */
+  seed?: number;
+  /** User ID for seed computation */
+  userId?: string;
+}
+
+/** Apply seed-based hue offset to an HSL color string */
+function applyHueOffset(hslStr: string, offset: number): string {
+  const match = hslStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
+  if (!match) return hslStr;
+  const h = (parseInt(match[1]) + offset + 360) % 360;
+  return `${h} ${match[2]}% ${match[3]}%`;
 }
 
 /**
  * Generate a personalized orb profile from user data
  */
 export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
-  // Build user data for DNA computation
+  const seed = input.seed ?? (input.userId ? hashUserId(input.userId) : 0);
+  
   const userData: UserDataForDNA = {
     hobbies: input.hobbies || [],
     decisionStyle: input.decisionStyle,
@@ -137,75 +92,103 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
     clarityScore: input.clarityScore,
   };
   
-  // Compute avatar DNA
   const dna = computeAvatarDNA(userData);
-  
-  // Convert DNA to orb profile
-  return dnaToOrbProfile(dna, userData, input.egoState);
+  return dnaToOrbProfile(dna, userData, seed, input.egoState);
 }
 
 /**
- * Convert avatar DNA to orb profile
+ * Convert avatar DNA to orb profile with WIDENED ranges and seed-based variance
  */
 function dnaToOrbProfile(
   dna: AvatarDNA, 
   userData: UserDataForDNA,
+  seed: number,
   legacyEgoState?: string
 ): OrbProfile {
   const { archetypeBlend, motionProfile, complexityLevel } = dna;
   const { blendedColors, blendedMorphology, blendedMotion, blendedTexture } = archetypeBlend;
   
-  // Calculate geometry detail based on complexity
-  const geometryDetail = 2 + complexityLevel;
+  // Seed-based offsets
+  const hueOffset = seedHueOffset(seed);
+  const geometryFamily = pickGeometryFamily(archetypeBlend.dominantArchetype, seed);
   
-  // Calculate fractal octaves from complexity
+  // Apply hue offset to all colors
+  const primaryColor = applyHueOffset(blendedColors.primary, hueOffset);
+  const secondaryColor = applyHueOffset(blendedColors.secondary, hueOffset);
+  const accentColor = applyHueOffset(blendedColors.accent, hueOffset);
+  
+  // WIDENED geometry detail: 2-6
+  const geometryDetail = Math.min(6, 2 + complexityLevel);
+  
+  // WIDENED fractal octaves: 2-6
   const fractalOctaves = Math.min(6, 2 + complexityLevel);
   
-  // Calculate core size and intensity from level
   const level = userData.level || 1;
   const coreSize = 0.2 + Math.min(level, 15) * 0.015;
   const coreIntensity = Math.min(1, 0.6 + (level / 20) * 0.4);
   
-  // Calculate morph intensity from morphology blend
-  const morphIntensity = 0.3 + blendedMorphology.organicFlow * 0.5 + 
-    (1 - blendedMorphology.edgeSharpness) * 0.2;
+  // WIDENED morphIntensity: 0.15–0.95
+  const rawMorph = 0.15 + blendedMorphology.organicFlow * 0.5 + 
+    (1 - blendedMorphology.edgeSharpness) * 0.3;
+  const morphIntensity = Math.min(0.95, rawMorph + seedFloat(seed, 1) * 0.15);
   
-  // Calculate morph speed from motion blend
-  const morphSpeed = 0.5 + blendedMotion.baseSpeed * 0.3 + 
-    motionProfile.smoothness * 0.2;
+  // WIDENED morphSpeed
+  const morphSpeed = 0.5 + blendedMotion.baseSpeed * 0.4 + 
+    motionProfile.smoothness * 0.3 + seedFloat(seed, 2) * 0.2;
   
-  // Particle settings
-  const particleEnabled = dna.particleCount > 0;
+  // WIDENED motionSpeed: 0.5–2.2
+  const motionSpeed = Math.max(0.5, Math.min(2.2, 
+    motionProfile.speed * (1 + seedFloat(seed, 3) * 0.3)
+  ));
   
-  // Streak bonus for intensity
+  // WIDENED pulseRate: 0.4–2.8
+  const pulseRate = Math.max(0.4, Math.min(2.8, 
+    motionProfile.pulseRate * (1 + seedFloat(seed, 4) * 0.4)
+  ));
+  
+  // WIDENED layerCount: 1–5
+  const layerCount = Math.min(5, dna.layerCount + seedInt(seed, 5, 0, 1));
+  
+  // WIDENED particleCount: 0–120
+  const particleCount = Math.min(120, dna.particleCount + seedInt(seed, 6, 0, 20));
+  
+  const particleEnabled = particleCount > 0;
+  
+  // Texture type influenced by seed + archetype
+  const textureTypes = ['flowing', 'crystalline', 'ethereal', 'electric', 'plasma', 'nebula'];
+  const textureIdx = seedInt(seed, 7, 0, textureTypes.length - 1);
+  const textureType = blendedTexture?.type || textureTypes[textureIdx];
+  
+  // Streak bonus
   const streakBonus = Math.min(userData.streak || 0, 30) / 30 * 0.15;
   
+  // Smoothness with seed variance
+  const smoothness = Math.max(0.2, Math.min(0.95, 
+    motionProfile.smoothness + seedFloat(seed, 8) * 0.15
+  ));
+
   return {
-    primaryColor: blendedColors.primary,
-    secondaryColors: [blendedColors.secondary, blendedColors.accent],
-    accentColor: blendedColors.accent,
-    
-    morphIntensity: Math.min(1, morphIntensity + streakBonus),
+    primaryColor,
+    secondaryColors: [secondaryColor, accentColor],
+    accentColor,
+    morphIntensity: Math.min(0.95, morphIntensity + streakBonus),
     morphSpeed,
     fractalOctaves,
-    
     coreIntensity,
     coreSize,
-    
-    layerCount: dna.layerCount,
+    layerCount,
     geometryDetail,
-    
     particleEnabled,
-    particleCount: dna.particleCount,
-    particleColor: blendedColors.accent,
-    
-    motionSpeed: motionProfile.speed,
-    pulseRate: motionProfile.pulseRate,
-    smoothness: motionProfile.smoothness,
-    
-    textureType: blendedTexture.type,
-    textureIntensity: dna.textureIntensity,
-    
+    particleCount,
+    particleColor: accentColor,
+    motionSpeed,
+    pulseRate,
+    smoothness,
+    textureType,
+    textureIntensity: dna.textureIntensity + seedFloat(seed, 9) * 0.1,
+    seed,
+    geometryFamily,
+    diagnosticState: 'ok',
     computedFrom: {
       dominantArchetype: archetypeBlend.dominantArchetype,
       secondaryArchetype: archetypeBlend.secondaryArchetype,
@@ -214,61 +197,34 @@ function dnaToOrbProfile(
       streak: userData.streak || 0,
       dominantHobbies: dna.dominantHobbies,
       clarityScore: userData.clarityScore || 0,
-      // Legacy fields
       egoState: legacyEgoState,
       topTraitCategories: userData.traits.slice(0, 3),
     },
   };
 }
 
-/**
- * Generate a quick preview profile for non-authenticated users
- */
 export function generateDefaultProfile(): OrbProfile {
   return DEFAULT_ORB_PROFILE;
 }
 
-/**
- * Get archetype icon for display
- */
 export function getArchetypeIcon(archetypeId: ArchetypeId): string {
   return getArchetype(archetypeId).icon;
 }
 
-/**
- * Get archetype name for display
- */
 export function getArchetypeName(archetypeId: ArchetypeId, isHebrew: boolean): string {
   const archetype = getArchetype(archetypeId);
   return isHebrew ? archetype.nameHe : archetype.name;
 }
 
-/**
- * Legacy compatibility: Map old ego state to closest archetype
- * This allows gradual migration from ego states to archetypes
- */
 export function egoStateToArchetype(egoState: string): ArchetypeId {
   const mapping: Record<string, ArchetypeId> = {
-    guardian: 'healer',
-    healer: 'healer',
-    mystic: 'mystic',
-    visionary: 'creator',
-    warrior: 'warrior',
-    rebel: 'warrior',
-    sage: 'sage',
-    creator: 'creator',
-    explorer: 'explorer',
-    lover: 'healer',
-    magician: 'mystic',
-    ruler: 'warrior',
-    innocent: 'explorer',
-    everyman: 'healer',
-    hero: 'warrior',
-    outlaw: 'warrior',
-    jester: 'creator',
-    caregiver: 'healer',
+    guardian: 'healer', healer: 'healer', mystic: 'mystic',
+    visionary: 'creator', warrior: 'warrior', rebel: 'warrior',
+    sage: 'sage', creator: 'creator', explorer: 'explorer',
+    lover: 'healer', magician: 'mystic', ruler: 'warrior',
+    innocent: 'explorer', everyman: 'healer', hero: 'warrior',
+    outlaw: 'warrior', jester: 'creator', caregiver: 'healer',
   };
-  
   return mapping[egoState.toLowerCase()] || 'explorer';
 }
 
@@ -300,41 +256,29 @@ export function interpolateOrbProfiles(
     secondaryColors: t < 0.5 ? from.secondaryColors : to.secondaryColors,
     accentColor: t < 0.5 ? from.accentColor : to.accentColor,
     particleColor: t < 0.5 ? from.particleColor : to.particleColor,
+    // Keep the target's geometry/seed during transition
+    geometryFamily: t < 0.5 ? from.geometryFamily : to.geometryFamily,
+    seed: to.seed,
   };
 }
 
-/**
- * Convert HEX color to HSL string
- */
 export function hexToHsl(hex: string): string {
   hex = hex.replace('#', '');
-  
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
   const b = parseInt(hex.substring(4, 6), 16) / 255;
-
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
-  let h = 0;
-  let s = 0;
+  let h = 0, s = 0;
   const l = (max + min) / 2;
-
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    
     switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-        break;
-      case g:
-        h = ((b - r) / d + 2) / 6;
-        break;
-      case b:
-        h = ((r - g) / d + 4) / 6;
-        break;
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
     }
   }
-
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
