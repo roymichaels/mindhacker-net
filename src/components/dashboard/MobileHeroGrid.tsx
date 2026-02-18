@@ -218,14 +218,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1">
-          {/* Spacer for desktop */}
-          <div className="hidden lg:block pt-2" />
+          <div className="pt-2" />
 
-          {/* Start Session - desktop only (mobile has it in inline HUD) */}
-          <div className="hidden lg:block">
-            <StartSessionButton />
-          </div>
-          <div className="hidden lg:block h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <StartSessionButton />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Motivational Banner */}
           <MotivationalBanner />
@@ -261,11 +257,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-          {/* Horizontal Roadmap - mobile/tablet only */}
-          <div className="lg:hidden">
-            <VerticalRoadmap />
-          </div>
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent lg:hidden" />
+          {/* Roadmap now in RoadmapSidebar on all screens */}
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
@@ -356,33 +348,22 @@ function CollapsiblePlanRow({
 
       {!isOpen && (
         <div className="px-3 pb-2">
-          {/* Mobile: single preview line only */}
-          <div className="lg:hidden">
-            {previewText ? (
-              <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
-            ) : items && items.length > 0 ? (
-              <p className="text-xs text-muted-foreground truncate">→ {items.find(i => !i.done)?.title || items[0].title}</p>
-            ) : null}
-          </div>
-          {/* Desktop: checkable items */}
-          <div className="hidden lg:block">
-            {items && items.length > 0 && onItemToggle ? (
-              <div className="space-y-1">
-                {items.filter(i => !i.done).slice(0, 3).map((item) => (
-                  <div key={item.id} className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
-                      className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-primary hover:bg-primary/10 transition-colors"
-                      aria-label="Complete item"
-                    />
-                    <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
-                  </div>
-                ))}
-              </div>
-            ) : previewText ? (
-              <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
-            ) : null}
-          </div>
+          {items && items.length > 0 && onItemToggle ? (
+            <div className="space-y-1">
+              {items.filter(i => !i.done).slice(0, 3).map((item) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
+                    className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-primary hover:bg-primary/10 transition-colors"
+                    aria-label="Complete item"
+                  />
+                  <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
+                </div>
+              ))}
+            </div>
+          ) : previewText ? (
+            <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
+          ) : null}
           {progressPercent !== undefined && (
             <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
               <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
