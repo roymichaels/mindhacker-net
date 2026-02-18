@@ -19,6 +19,7 @@ const SERVICE_TYPES = {
   he: [
     { id: 'one_on_one', label: 'אימון אישי 1:1' },
     { id: 'group', label: 'אימון קבוצתי' },
+    { id: 'multi_session', label: 'תהליך של כמה מפגשים' },
     { id: 'workshops', label: 'סדנאות' },
     { id: 'online_course', label: 'קורס דיגיטלי' },
     { id: 'vip_day', label: 'יום VIP אינטנסיבי' },
@@ -27,6 +28,7 @@ const SERVICE_TYPES = {
   en: [
     { id: 'one_on_one', label: '1:1 Coaching' },
     { id: 'group', label: 'Group Coaching' },
+    { id: 'multi_session', label: 'Multi-Session Process' },
     { id: 'workshops', label: 'Workshops' },
     { id: 'online_course', label: 'Online Course' },
     { id: 'vip_day', label: 'VIP Intensive Day' },
