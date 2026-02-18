@@ -8,9 +8,11 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { usePractitioners, useMyPractitionerProfile, type Practitioner } from '@/hooks/usePractitioners';
 import PractitionerCard from '@/components/practitioners/PractitionerCard';
 import PractitionerDetailView from '@/components/practitioners/PractitionerDetailView';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 
 const SPECIALTIES = [
   { key: 'all', labelHe: 'הכל', labelEn: 'All' },
@@ -30,6 +32,7 @@ export default function Marketplace() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [selectedPractitioner, setSelectedPractitioner] = useState<Practitioner | null>(null);
   const isAlreadyCoach = !!myProfile;
+  const { canBeCoach, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
 
   const filteredPractitioners = practitioners?.filter((p) => {
     const matchesSearch =
@@ -73,7 +76,7 @@ export default function Marketplace() {
         {/* Become a Coach CTA */}
         {user && !isAlreadyCoach && (
           <Button
-            onClick={() => navigate('/coaching/journey')}
+            onClick={() => { if (!canBeCoach) { showUpgradePrompt('coach'); return; } navigate('/coaching/journey'); }}
             className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
             size="sm"
           >
@@ -142,6 +145,7 @@ export default function Marketplace() {
           </Button>
         </div>
       )}
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </div>
   );
 }

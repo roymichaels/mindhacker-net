@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useBusinessJourneys } from "@/hooks/useBusinessJourneys";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BusinessCard } from "@/components/business/BusinessCard";
+import UpgradePromptModal from "@/components/subscription/UpgradePromptModal";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Briefcase, Rocket, Stethoscope, Plus } from "lucide-react";
@@ -31,6 +33,15 @@ const Business = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<BusinessModalType>(null);
   const colors = pillarColors.business;
+  const { canAccessBusiness, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
+
+  const guardBusiness = () => {
+    if (!canAccessBusiness) {
+      showUpgradePrompt('business');
+      return true;
+    }
+    return false;
+  };
 
   const handleOpenModal = (modalType: string) => {
     if (modalType === 'hypnosis' || modalType === '90-day-plan') return;
@@ -48,6 +59,7 @@ const Business = () => {
       title={{ he: 'עסקים', en: 'Business' }}
       description={{ he: t('business.subtitle'), en: t('business.subtitle') }}
       journeyPath="/business/journey"
+      onJourneyClick={guardBusiness}
       seoPath="/business"
       isLoading={isLoading}
       hideHeader={hasBusinesses}
@@ -72,7 +84,7 @@ const Business = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/business/journey')}
+              onClick={() => { if (!guardBusiness()) navigate('/business/journey'); }}
               className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
             >
               <Plus className="h-4 w-4 me-1" />
@@ -131,7 +143,7 @@ const Business = () => {
                   : 'Start your first business journey and build the business you have been dreaming of'}
               </p>
               <Button
-                onClick={() => navigate('/business/journey')}
+                onClick={() => { if (!guardBusiness()) navigate('/business/journey'); }}
                 className={colors.primaryBtn}
               >
                 <Rocket className="h-4 w-4 me-2" />
@@ -154,6 +166,7 @@ const Business = () => {
       <StrategyModal isOpen={activeModal === 'strategy'} onClose={handleCloseModal} />
       <BrandingModal isOpen={activeModal === 'branding'} onClose={handleCloseModal} />
       <GrowthModal isOpen={activeModal === 'growth'} onClose={handleCloseModal} />
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </PillarHubLayout>
   );
 };

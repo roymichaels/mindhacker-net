@@ -20,12 +20,14 @@ import { useNavigate } from 'react-router-dom';
 import { useDailyHypnosis } from '@/hooks/useDailyHypnosis';
 import { useAuroraActions } from '@/contexts/AuroraActionsContext';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { VerticalRoadmap } from '@/components/dashboard/VerticalRoadmap';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 
 interface MobileHeroGridProps {
   planData: {
@@ -47,6 +49,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { suggestedGoal } = useDailyHypnosis();
   const { impact } = useHaptics();
   const { openHypnosis } = useAuroraActions();
+  const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const { habits, completedCount, totalCount, toggleHabit } = useTodaysHabits();
   const { sessionStats } = useGameState();
 
@@ -76,6 +79,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
 
   const handleStartDailySession = () => {
+    if (!canAccessHypnosis) {
+      showUpgradePrompt('hypnosis');
+      return;
+    }
     impact('medium');
     openHypnosis();
   };
@@ -389,6 +396,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         initialTab={insightsTab}
       />
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </div>
   );
 }

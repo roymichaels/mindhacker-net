@@ -22,6 +22,7 @@ interface PillarHubLayoutProps {
   extraHeaderButtons?: ReactNode;
   journeyLabel?: { he: string; en: string };
   hideHeader?: boolean;
+  onJourneyClick?: () => boolean | void;
   children: ReactNode;
 }
 
@@ -36,6 +37,7 @@ const PillarHubLayout = ({
   extraHeaderButtons,
   journeyLabel,
   hideHeader = false,
+  onJourneyClick,
   children,
 }: PillarHubLayoutProps) => {
   const { isRTL, language } = useTranslation();
@@ -93,7 +95,7 @@ const PillarHubLayout = ({
                 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <Button
-                    onClick={() => navigate(journeyPath)}
+                    onClick={() => { if (onJourneyClick?.()) return; navigate(journeyPath); }}
                     className={`flex-1 ${colors.primaryBtn}`}
                   >
                     <Rocket className="w-4 h-4 me-2" />

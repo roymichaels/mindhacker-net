@@ -9,6 +9,7 @@ import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGuestDataMigration } from '@/hooks/useGuestDataMigration';
 import { NextActionBanner } from '@/components/dashboard/v2';
 import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { ProfileContent } from '@/components/dashboard/ProfileContent';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
@@ -16,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { usePromoPopup } from '@/hooks/usePromoPopup';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 
 const UserDashboard = () => {
   const { t, language } = useTranslation();
@@ -79,6 +81,8 @@ const UserDashboard = () => {
       .then(() => {});
   }, [user?.id]);
 
+  const { canAccessHypnosis, showUpgradePrompt: showSubUpgrade, upgradeFeature: subUpgradeFeature, dismissUpgrade: dismissSubUpgrade } = useSubscriptionGate();
+
   const handleOpenHypnosis = () => {
     if (!isLaunchpadComplete) {
       toast(language === 'he' ? 'יש להשלים את מסע התודעה לפני שימוש בהיפנוזה' : 'Complete the Consciousness Journey before using Hypnosis', {
@@ -87,6 +91,10 @@ const UserDashboard = () => {
           onClick: () => navigate('/launchpad'),
         },
       });
+      return;
+    }
+    if (!canAccessHypnosis) {
+      showSubUpgrade('hypnosis');
       return;
     }
     setHypnosisOpen(true);
@@ -104,6 +112,7 @@ const UserDashboard = () => {
       </section>
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
       <PromoUpgradeModal open={shouldShowPromo} onDismiss={dismissPromo} />
+      <UpgradePromptModal feature={subUpgradeFeature} onDismiss={dismissSubUpgrade} />
     </PageShell>
   );
 };

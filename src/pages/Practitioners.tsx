@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import Header from '@/components/Header';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import Footer from '@/components/Footer';
 import { useTranslation } from '@/hooks/useTranslation';
 import { usePractitioners, useMyPractitionerProfile } from '@/hooks/usePractitioners';
@@ -12,6 +13,7 @@ import { useSEO } from '@/hooks/useSEO';
 import PractitionerCard from '@/components/practitioners/PractitionerCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 
 const SPECIALTIES = [
   { key: 'all', labelHe: 'הכל', labelEn: 'All' },
@@ -30,6 +32,7 @@ const Practitioners = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const isAlreadyCoach = !!myProfile;
+  const { canBeCoach, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
 
   useSEO({
     title: t('practitioners.pageTitle'),
@@ -75,7 +78,10 @@ const Practitioners = () => {
             {user && !isAlreadyCoach && (
               <div className="mb-8">
                 <Button
-                  onClick={() => navigate('/coaching/journey')}
+                  onClick={() => {
+                    if (!canBeCoach) { showUpgradePrompt('coach'); return; }
+                    navigate('/coaching/journey');
+                  }}
                   className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
                   size="lg"
                 >
@@ -153,6 +159,7 @@ const Practitioners = () => {
       </main>
 
       <Footer />
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </div>
   );
 };
