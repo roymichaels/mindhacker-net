@@ -116,7 +116,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="flex flex-col gap-0">
 
         {/* ===== Mobile HUD (hidden on desktop — HudSidebar handles it) ===== */}
-        <div className="p-4 pt-0 lg:hidden">
+        <div className="p-4 pt-0 hidden">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 lg:hidden">
             {/* Top: Identity + Orb side by side */}

@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 
 export function RoadmapSidebar() {
   const { isRTL, language } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneData | null>(null);
   const { milestones, currentWeek, hasLifePlan, plan } = useLifePlanWithMilestones();
   const isHe = language === 'he';
@@ -26,7 +26,7 @@ export function RoadmapSidebar() {
     <>
       <aside
         className={cn(
-          "hidden lg:flex lg:flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
+          "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
           "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
           "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
           "ltr:border-e rtl:border-s border-border/50 dark:border-primary/15",
