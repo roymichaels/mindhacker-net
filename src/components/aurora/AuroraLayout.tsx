@@ -6,7 +6,9 @@ import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { LaunchpadFlow, LaunchpadIntro } from '@/components/launchpad';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import AuroraChatArea from './AuroraChatArea';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { usePromoPopup } from '@/hooks/usePromoPopup';
+import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 
 const AuroraLayout = () => {
   const { user } = useAuth();
@@ -22,6 +24,17 @@ const AuroraLayout = () => {
   
   const [showLaunchpad, setShowLaunchpad] = useState(true);
   const [showLaunchpadIntro, setShowLaunchpadIntro] = useState(true);
+  const { shouldShowPromo, dismissPromo, triggerPromo } = usePromoPopup();
+  const launchpadWasIncomplete = useRef(!isLaunchpadComplete);
+
+  // Trigger promo after launchpad completion
+  useEffect(() => {
+    if (isLaunchpadComplete && launchpadWasIncomplete.current) {
+      launchpadWasIncomplete.current = false;
+      const t = setTimeout(() => triggerPromo(), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [isLaunchpadComplete, triggerPromo]);
 
   if (isLoading || launchpadLoading) {
     return (
@@ -60,6 +73,7 @@ const AuroraLayout = () => {
       <div className="flex-1 min-h-0 w-full h-full overflow-hidden pb-28" dir={isRTL ? 'rtl' : 'ltr'}>
         <AuroraChatArea conversationId={activeConversationId} />
       </div>
+      <PromoUpgradeModal open={shouldShowPromo} onDismiss={dismissPromo} />
     </DashboardLayout>
   );
 };
