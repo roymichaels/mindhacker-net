@@ -96,7 +96,7 @@ export function HudSidebar() {
 
             {/* Middle: Stats */}
             <div className="flex flex-col items-center gap-1 w-full px-0.5">
-              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
               {[
                 { icon: ZapIcon, value: tokens.balance, label: language === 'he' ? 'אנרגיה' : 'Energy', color: 'text-accent-foreground' },
                 { icon: Flame, value: streak.streak, label: language === 'he' ? 'רצף' : 'Streak', color: 'text-destructive' },
@@ -109,7 +109,7 @@ export function HudSidebar() {
                   <span className="text-[10px] font-bold leading-none">{m.value}</span>
                 </div>
               ))}
-              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
             </div>
 
             {/* Bottom: Modal triggers */}
