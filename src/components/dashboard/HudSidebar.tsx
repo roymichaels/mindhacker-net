@@ -76,6 +76,22 @@ export function HudSidebar() {
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                 Lv.{xp.level}
               </span>
+              {/* MapleStory-style EXP bar */}
+              <div className="w-full px-0.5">
+                <div className="relative w-full h-3 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-sm bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 transition-all duration-500"
+                    style={{ width: `${xp.percentage || 0}%` }}
+                  />
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-sm bg-gradient-to-b from-white/30 to-transparent"
+                    style={{ width: `${xp.percentage || 0}%` }}
+                  />
+                </div>
+                <p className="text-[7px] text-center text-muted-foreground font-mono mt-0.5">
+                  {xp.current ?? 0}/{xp.required ?? 100} EXP
+                </p>
+              </div>
             </div>
 
             {/* Middle: Stats */}
@@ -138,6 +154,23 @@ export function HudSidebar() {
             <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
               <Flame className="h-2.5 w-2.5" />{streak.streak}
             </span>
+          </div>
+
+          {/* MapleStory-style EXP bar — expanded */}
+          <div className="w-full">
+            <div className="relative w-full h-4 rounded-sm border border-primary/30 bg-background/80 overflow-hidden shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]">
+              <div
+                className="absolute inset-y-0 left-0 rounded-sm bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 transition-all duration-500"
+                style={{ width: `${xp.percentage || 0}%` }}
+              />
+              <div
+                className="absolute inset-y-0 left-0 rounded-sm bg-gradient-to-b from-white/30 to-transparent"
+                style={{ width: `${xp.percentage || 0}%` }}
+              />
+              <span className="absolute inset-0 flex items-center justify-center text-[8px] font-mono font-bold text-foreground/80 drop-shadow-sm">
+                EXP {xp.current ?? 0} / {xp.required ?? 100} ({xp.percentage}%)
+              </span>
+            </div>
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
