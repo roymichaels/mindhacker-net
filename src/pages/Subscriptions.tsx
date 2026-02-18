@@ -3,30 +3,39 @@ import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Zap, Lock, Loader2 } from "lucide-react";
+import { CheckCircle2, Zap, Lock, Loader2, Crown, Briefcase, Users } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { getBreadcrumbSchema } from "@/lib/seo";
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
-import { formatPrice } from "@/lib/currency";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { TIER_CONFIGS, TIER_FEATURES, type SubscriptionTier, tierIncludes } from "@/lib/subscriptionTiers";
+
+const TIER_ORDER: SubscriptionTier[] = ["free", "pro", "coach", "business"];
+
+const TIER_ICONS: Record<SubscriptionTier, React.ReactNode> = {
+  free: <Zap className="h-8 w-8" />,
+  pro: <Crown className="h-8 w-8" />,
+  coach: <Users className="h-8 w-8" />,
+  business: <Briefcase className="h-8 w-8" />,
+};
 
 const Subscriptions = () => {
   const { language } = useTranslation();
   const isRTL = language === "he";
   const { user } = useAuth();
-  const { isPro, subscriptionEnd, isLoading } = useSubscriptionGate();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { tier: userTier, subscriptionEnd, isLoading } = useSubscriptionGate();
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
   useSEO({
     title: isRTL ? "מנויים | מיינד OS" : "Subscriptions | MindOS",
     description: isRTL
-      ? "שדרג ל-Pro וקבל גישה מלאה לכל הכלים של MindOS"
-      : "Upgrade to Pro and get full access to all MindOS tools",
-    keywords: "subscription, pro, mindos, coaching, AI",
+      ? "בחר את התוכנית המתאימה לך ושדרג את המסע שלך"
+      : "Choose the plan that fits you and upgrade your journey",
+    keywords: "subscription, pro, coach, business, mindos",
     url: `${window.location.origin}/subscriptions`,
     type: "website",
     structuredData: [
@@ -37,7 +46,7 @@ const Subscriptions = () => {
     ],
   });
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (tier: SubscriptionTier) => {
     if (!user) {
       toast({
         title: isRTL ? "נדרשת התחברות" : "Login required",
@@ -47,9 +56,11 @@ const Subscriptions = () => {
       return;
     }
 
-    setCheckoutLoading(true);
+    setLoadingTier(tier);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session");
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { tier },
+      });
       if (error) throw error;
       if (data?.url) {
         window.open(data.url, "_blank");
@@ -61,7 +72,7 @@ const Subscriptions = () => {
         variant: "destructive",
       });
     } finally {
-      setCheckoutLoading(false);
+      setLoadingTier(null);
     }
   };
 
@@ -84,34 +95,20 @@ const Subscriptions = () => {
     }
   };
 
-  const proFeatures = isRTL
-    ? [
-        "הודעות ללא הגבלה לאורורה — אימון AI אישי",
-        "מנוע תכנון 90 יום מלא",
-        "נאדג׳ים פרואקטיביים של המאמן",
-        "ספריית היפנוזה",
-        "הרגלים ורשימות ללא הגבלה",
-        "כל מרכזי העמודים פתוחים",
-      ]
-    : [
-        "Unlimited Aurora messages — personal AI coaching",
-        "Full 90-day plan engine",
-        "Proactive coaching nudges",
-        "Hypnosis library",
-        "Unlimited habits and checklists",
-        "All pillar hubs unlocked",
-      ];
+  const isPaidUser = userTier !== "free";
 
   const faqItems = isRTL
     ? [
-        { q: "מה כולל הניסיון החינמי?", a: "7 ימים של גישה מלאה לכל הפיצ'רים של Pro, ללא תשלום. תוכל לבטל בכל רגע." },
+        { q: "מה כולל הניסיון החינמי?", a: "7 ימים של גישה מלאה ל-Pro, ללא תשלום. תוכל לבטל בכל רגע." },
         { q: "איך מבטלים?", a: "דרך ניהול המנוי (Stripe Portal) או מהדאשבורד. אין עמלות ביטול." },
         { q: "מה קורה אחרי הביטול?", a: "תמשיך ליהנות מהגישה עד סוף התקופה ששילמת. אחר כך תחזור לתוכנית החינמית." },
+        { q: "אפשר לשדרג או לשנמך?", a: "כן, תוכל לשנות תוכנית בכל עת דרך ניהול המנוי." },
       ]
     : [
         { q: "What's included in the free trial?", a: "7 days of full Pro access, no charge. Cancel anytime." },
         { q: "How do I cancel?", a: "Through the subscription management portal. No cancellation fees." },
         { q: "What happens after cancellation?", a: "You keep access until the end of your billing period, then revert to Free." },
+        { q: "Can I upgrade or downgrade?", a: "Yes, you can change your plan anytime through subscription management." },
       ];
 
   return (
@@ -122,18 +119,18 @@ const Subscriptions = () => {
         {/* Hero */}
         <div className="text-center mb-12 md:mb-16">
           <h1 className="text-4xl md:text-6xl font-black cyber-glow mb-4">
-            {isRTL ? "שחרר את הפוטנציאל המלא" : "Unlock Your Full Potential"}
+            {isRTL ? "בחר את המסלול שלך" : "Choose Your Path"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {isRTL
-              ? "גישה מלאה לכל הכלים של MindOS — אימון AI ללא הגבלה, תכנון 90 יום, ועוד"
-              : "Full access to every MindOS tool — unlimited AI coaching, 90-day planning, and more"}
+              ? "מהתפתחות אישית ועד לבניית עסק — יש לנו תוכנית בשבילך"
+              : "From personal growth to building a business — we have a plan for you"}
           </p>
         </div>
 
         {/* Active subscription banner */}
-        {isPro && (
-          <div className="max-w-4xl mx-auto mb-8">
+        {isPaidUser && (
+          <div className="max-w-6xl mx-auto mb-8">
             <Card className="glass-panel border-primary" dir={isRTL ? "rtl" : "ltr"}>
               <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
                 <div className="flex items-center gap-3">
@@ -141,7 +138,11 @@ const Subscriptions = () => {
                     <CheckCircle2 className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-bold text-lg">{isRTL ? "מנוי Pro פעיל" : "Pro subscription active"}</p>
+                    <p className="font-bold text-lg">
+                      {isRTL
+                        ? `מנוי ${TIER_CONFIGS[userTier].label.he} פעיל`
+                        : `${TIER_CONFIGS[userTier].label.en} subscription active`}
+                    </p>
                     {subscriptionEnd && (
                       <p className="text-sm text-muted-foreground">
                         {isRTL ? "מתחדש ב-" : "Renews "}
@@ -159,88 +160,117 @@ const Subscriptions = () => {
           </div>
         )}
 
-        {/* Pro Card */}
-        <div className="max-w-4xl mx-auto mb-16">
-          <Card className="glass-panel border-primary cyber-border relative" dir={isRTL ? "rtl" : "ltr"}>
-            {!isPro && (
-              <div className="absolute -top-4 right-1/2 translate-x-1/2">
-                <Badge className="cyber-glow px-6 py-2 text-base whitespace-nowrap">
-                  <Zap className="w-4 h-4 ml-2" />
-                  {isRTL ? "7 ימי ניסיון חינם!" : "7-day free trial!"}
-                </Badge>
-              </div>
-            )}
+        {/* Tier Grid */}
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {TIER_ORDER.map((tierKey) => {
+            const config = TIER_CONFIGS[tierKey];
+            const features = TIER_FEATURES[tierKey];
+            const isCurrent = userTier === tierKey;
+            const isUpgrade = !tierIncludes(userTier, tierKey) && tierKey !== "free";
+            const isDowngrade = tierIncludes(userTier, tierKey) && tierKey !== userTier && tierKey !== "free";
+            const isPopular = tierKey === "pro";
 
-            <CardHeader className="text-center pt-8">
-              <div className="flex justify-center mb-6">
-                <div className="rounded-full bg-primary/20 p-6">
-                  <Zap className="h-12 w-12 text-primary" />
-                </div>
-              </div>
-              <CardTitle className="text-3xl md:text-4xl mb-2">MindOS Pro</CardTitle>
-              <CardDescription className="text-base">
-                {isRTL ? "גישה מלאה וללא הגבלה לכל הכלים" : "Full, unlimited access to every tool"}
-              </CardDescription>
-              <div className="mt-6">
-                <div className="text-6xl md:text-7xl font-black cyber-glow mb-2">
-                  {formatPrice(97, language)}
-                </div>
-                <div className="text-lg text-muted-foreground">
-                  {isRTL ? "לחודש" : "per month"}
-                </div>
-              </div>
-            </CardHeader>
+            return (
+              <Card
+                key={tierKey}
+                className={`glass-panel relative flex flex-col ${isCurrent ? "border-primary cyber-border" : ""} ${isPopular ? "ring-2 ring-primary/50" : ""}`}
+                dir={isRTL ? "rtl" : "ltr"}
+              >
+                {isCurrent && (
+                  <div className="absolute -top-3 right-1/2 translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
+                      {isRTL ? "התוכנית שלך" : "Your Plan"}
+                    </Badge>
+                  </div>
+                )}
+                {isPopular && !isCurrent && (
+                  <div className="absolute -top-3 right-1/2 translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
+                      <Zap className="w-3 h-3 mr-1" />
+                      {isRTL ? "הכי פופולרי" : "Most Popular"}
+                    </Badge>
+                  </div>
+                )}
 
-            <CardContent className="px-6 md:px-12 py-8">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-bold text-xl mb-4 text-center">
-                    {isRTL ? "מה כלול ב-Pro?" : "What's included in Pro?"}
-                  </h3>
-                  <ul className="space-y-3">
-                    {proFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-base">{feature}</span>
+                <CardHeader className="text-center pt-8 pb-4">
+                  <div className="flex justify-center mb-3">
+                    <div className="rounded-full bg-primary/10 p-3 text-primary">
+                      {TIER_ICONS[tierKey]}
+                    </div>
+                  </div>
+                  <CardTitle className="text-2xl">{config.label[isRTL ? "he" : "en"]}</CardTitle>
+                  <CardDescription className="text-sm min-h-[40px]">
+                    {config.description[isRTL ? "he" : "en"]}
+                  </CardDescription>
+                  <div className="mt-4">
+                    <div className="text-4xl font-black cyber-glow">
+                      {tierKey === "free"
+                        ? (isRTL ? "חינם" : "Free")
+                        : isRTL
+                          ? `₪${config.priceILS}`
+                          : `$${config.priceUSD}`}
+                    </div>
+                    {tierKey !== "free" && (
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {isRTL ? "לחודש" : "per month"}
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="flex-1 px-5">
+                  <ul className="space-y-2.5">
+                    {(isRTL ? features.he : features.en).map((feat, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </CardContent>
 
-                <div className="border-t border-border/50 pt-6">
-                  <div className="bg-primary/5 rounded-lg p-4 space-y-2">
-                    <p className="font-semibold text-center">
-                      {isRTL ? "💰 ביטול בכל עת, ללא התחייבות" : "💰 Cancel anytime, no commitment"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-
-            {!isPro && (
-              <CardFooter className="flex flex-col gap-4 px-6 md:px-12 pb-8">
-                <Button
-                  onClick={handleCheckout}
-                  disabled={checkoutLoading || isLoading}
-                  size="lg"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xl py-6 cyber-glow"
-                >
-                  {checkoutLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : isRTL ? (
-                    "התחל 7 ימי ניסיון חינם"
+                <CardFooter className="px-5 pb-6 pt-4">
+                  {tierKey === "free" ? (
+                    isCurrent ? (
+                      <Button variant="outline" className="w-full" disabled>
+                        {isRTL ? "התוכנית הנוכחית" : "Current Plan"}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" className="w-full" disabled>
+                        {isRTL ? "כלול" : "Included"}
+                      </Button>
+                    )
+                  ) : isCurrent ? (
+                    <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
+                      {portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                      {isRTL ? "ניהול מנוי" : "Manage"}
+                    </Button>
+                  ) : isUpgrade ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => handleCheckout(tierKey)}
+                      disabled={loadingTier === tierKey || isLoading}
+                    >
+                      {loadingTier === tierKey ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4 mr-1" />
+                          {config.trial
+                            ? (isRTL ? `נסה ${config.trial} ימים חינם` : `Try ${config.trial} days free`)
+                            : (isRTL ? "שדרג עכשיו" : "Upgrade now")}
+                        </>
+                      )}
+                    </Button>
                   ) : (
-                    "Start 7-day free trial"
+                    <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
+                      {isRTL ? "שנה תוכנית" : "Change Plan"}
+                    </Button>
                   )}
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  {isRTL
-                    ? "לאחר הניסיון: ₪97/חודש. ביטול בכל עת."
-                    : "After trial: $27/month. Cancel anytime."}
-                </p>
-              </CardFooter>
-            )}
-          </Card>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
 
         {/* FAQ */}

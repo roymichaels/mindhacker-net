@@ -7,7 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRICE_ID = "price_1T1cFiL9lVJ44TbR4XaEKcq2";
+const TIER_PRICES: Record<string, { priceId: string; trial?: number }> = {
+  pro:      { priceId: "price_1T20nXL9lVJ44TbRUzy3AjEN", trial: 7 },
+  coach:    { priceId: "price_1T20oXL9lVJ44TbR60Ny0vdt" },
+  business: { priceId: "price_1T20nDL9lVJ44TbRJh4CiTNn" },
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -26,6 +30,17 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
+    // Parse requested tier (default to pro)
+    let requestedTier = "pro";
+    try {
+      const body = await req.json();
+      if (body?.tier && TIER_PRICES[body.tier]) {
+        requestedTier = body.tier;
+      }
+    } catch { /* no body = default pro */ }
+
+    const tierConfig = TIER_PRICES[requestedTier];
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
@@ -38,17 +53,22 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://mind-os-space.lovable.app";
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       client_reference_id: user.id,
-      line_items: [{ price: PRICE_ID, quantity: 1 }],
+      line_items: [{ price: tierConfig.priceId, quantity: 1 }],
       mode: "subscription",
-      subscription_data: { trial_period_days: 7 },
       success_url: `${origin}/today?checkout=success`,
       cancel_url: `${origin}/subscriptions`,
       metadata: { user_id: user.id },
-    });
+    };
+
+    if (tierConfig.trial) {
+      sessionParams.subscription_data = { trial_period_days: tierConfig.trial };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

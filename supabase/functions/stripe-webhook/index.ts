@@ -8,7 +8,15 @@ const corsHeaders = {
 };
 
 const PRO_TIER_ID = "85d62654-8a60-4c75-bb74-2f559be31aef";
-const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
+
+// Product ID → tier mapping
+const PRODUCT_TIER_MAP: Record<string, string> = {
+  "prod_U00p6Sl2YSs5vQ": "pro",
+  "prod_TzbSX1sFG1woDZ": "pro",      // legacy pro product
+  "prod_U00qb2VULzdvYx": "coach",
+  "prod_TzsD5sivmfnEeC": "coach",     // legacy coach product
+  "prod_U00oHca1mJzxl1": "business",
+};
 
 const log = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : "");
@@ -55,22 +63,18 @@ serve(async (req) => {
     session: Stripe.Checkout.Session,
     customerId: string | null
   ): Promise<string | null> {
-    // 1. metadata.user_id
     if (session.metadata?.user_id) {
       log("Resolved via metadata.user_id", { userId: session.metadata.user_id });
       return session.metadata.user_id;
     }
-    // 2. client_reference_id
     if (session.client_reference_id) {
       log("Resolved via client_reference_id", { userId: session.client_reference_id });
       return session.client_reference_id;
     }
-    // 3. profiles.stripe_customer_id
     if (customerId) {
       const found = await resolveUserFromCustomerId(customerId);
       if (found) return found;
     }
-    // 4. Email fallback
     const email = session.customer_email || session.customer_details?.email;
     if (email) return await resolveUserByEmail(email);
     return null;
@@ -86,7 +90,6 @@ serve(async (req) => {
       log("Resolved via profiles.stripe_customer_id", { userId: data.id });
       return data.id;
     }
-    // Fallback: get email from Stripe customer, then look up auth
     try {
       const customer = await stripe.customers.retrieve(customerId);
       if (!customer.deleted && "email" in customer && customer.email) {
@@ -109,7 +112,8 @@ serve(async (req) => {
   // ── Subscription Upsert ────────────────────────────────────────
 
   function getTier(productId: string | null): string {
-    return productId === PRO_PRODUCT_ID ? "pro" : "free";
+    if (!productId) return "free";
+    return PRODUCT_TIER_MAP[productId] || "free";
   }
 
   async function upsertSub(sub: Stripe.Subscription, userId: string) {
@@ -134,7 +138,6 @@ serve(async (req) => {
     const trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
     const cancelledAt = sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null;
 
-    // Check if record exists
     const { data: existing } = await supabase
       .from("user_subscriptions")
       .select("id")
@@ -205,7 +208,6 @@ serve(async (req) => {
         const userId = await resolveUserFromSession(session, customerId);
         if (!userId) { log("User not resolved"); break; }
 
-        // Store stripe_customer_id immediately
         await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", userId);
 
         const subId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
@@ -220,7 +222,6 @@ serve(async (req) => {
         const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         log(event.type, { subId: sub.id, status: sub.status });
 
-        // Find user from existing record first
         const { data: existingSub } = await supabase
           .from("user_subscriptions")
           .select("user_id")

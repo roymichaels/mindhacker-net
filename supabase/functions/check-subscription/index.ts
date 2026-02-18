@@ -6,7 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
+const PRODUCT_TIER_MAP: Record<string, string> = {
+  "prod_U00p6Sl2YSs5vQ": "pro",
+  "prod_TzbSX1sFG1woDZ": "pro",
+  "prod_U00qb2VULzdvYx": "coach",
+  "prod_TzsD5sivmfnEeC": "coach",
+  "prod_U00oHca1mJzxl1": "business",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -29,7 +35,6 @@ serve(async (req) => {
     const user = userData.user;
     if (!user) throw new Error("User not authenticated");
 
-    // Read from DB (webhook keeps it current) instead of hitting Stripe API
     const { data: sub } = await supabaseClient
       .from("user_subscriptions")
       .select("status, product_id, end_date, cancel_at_period_end, stripe_subscription_id")
@@ -45,11 +50,11 @@ serve(async (req) => {
       });
     }
 
-    const isPro = sub.product_id === PRO_PRODUCT_ID;
+    const tier = sub.product_id ? (PRODUCT_TIER_MAP[sub.product_id] || "free") : "free";
 
     return new Response(JSON.stringify({
       subscribed: true,
-      tier: isPro ? "pro" : "free",
+      tier,
       product_id: sub.product_id,
       subscription_end: sub.end_date,
       subscription_status: sub.status,
