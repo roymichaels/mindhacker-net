@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PersonalizedOrb from './PersonalizedOrb';
+import { createPortal } from 'react-dom';
 
 interface OrbFullscreenViewerProps {
   open: boolean;
@@ -16,24 +17,22 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
   const velocity = useRef({ x: 0, y: 0 });
   const animFrame = useRef<number>(0);
 
-  // Calculate orb size based on viewport
   useEffect(() => {
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(min * 0.5, 450));
+      setOrbSize(Math.min(min * 0.45, 400));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
   }, [open]);
 
-  // Inertia spin loop
+  // Inertia loop
   useEffect(() => {
     if (!open) return;
     const spin = () => {
       if (!isDragging.current) {
-        // Apply friction
         velocity.current.x *= 0.97;
         velocity.current.y *= 0.97;
         setRotation(prev => ({
@@ -47,12 +46,20 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
     return () => cancelAnimationFrame(animFrame.current);
   }, [open]);
 
+  // Lock body scroll
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     isDragging.current = true;
     lastMouse.current = { x: e.clientX, y: e.clientY };
     velocity.current = { x: 0, y: 0 };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -71,7 +78,6 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
     isDragging.current = false;
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -81,57 +87,99 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
     return () => document.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
-  return (
+  const content = (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Dark overlay */}
+          {/* Full dark overlay */}
           <div
-            className="absolute inset-0 bg-black/92"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.95)',
+            }}
             onClick={onClose}
           />
 
           {/* Close button */}
           <motion.button
-            className="absolute top-6 right-6 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors backdrop-blur-sm"
+            style={{
+              position: 'absolute',
+              top: 24,
+              right: 24,
+              zIndex: 10,
+              padding: 10,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'rgba(255,255,255,0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             onClick={onClose}
+            whileHover={{ background: 'rgba(255,255,255,0.2)', color: '#fff' }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ delay: 0.2 }}
           >
-            <X className="h-6 w-6" />
+            <X style={{ width: 24, height: 24 }} />
           </motion.button>
 
-          {/* Orb container - centered and draggable */}
+          {/* Centered orb with drag-to-spin */}
           <motion.div
-            className="relative z-10 select-none touch-none"
-            style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
+            style={{
+              position: 'relative',
+              zIndex: 5,
+              cursor: isDragging.current ? 'grabbing' : 'grab',
+              userSelect: 'none',
+              touchAction: 'none',
+            }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            initial={{ scale: 0.3, opacity: 0 }}
+            initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.3, opacity: 0 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+            exit={{ scale: 0.2, opacity: 0 }}
+            transition={{ type: 'spring', damping: 18, stiffness: 180 }}
           >
             <div
               style={{
-                transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+                transform: `perspective(800px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
                 transformStyle: 'preserve-3d',
+                transition: isDragging.current ? 'none' : undefined,
               }}
             >
-              {/* Ambient glow */}
+              {/* Glow behind orb */}
               <div
-                className="absolute inset-[-30%] rounded-full blur-3xl opacity-25 pointer-events-none"
                 style={{
-                  background: `radial-gradient(circle, hsl(var(--primary) / 0.5) 0%, transparent 70%)`,
+                  position: 'absolute',
+                  inset: '-40%',
+                  borderRadius: '50%',
+                  filter: 'blur(60px)',
+                  opacity: 0.3,
+                  pointerEvents: 'none',
+                  background: 'radial-gradient(circle, hsl(340 82% 65% / 0.5) 0%, transparent 70%)',
                 }}
               />
               <PersonalizedOrb
@@ -143,9 +191,20 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
             </div>
           </motion.div>
 
-          {/* Hint text */}
+          {/* Hint */}
           <motion.p
-            className="absolute bottom-8 text-white/30 text-xs tracking-widest uppercase pointer-events-none"
+            style={{
+              position: 'absolute',
+              bottom: 32,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              color: 'rgba(255,255,255,0.25)',
+              fontSize: 11,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -156,4 +215,7 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
       )}
     </AnimatePresence>
   );
+
+  // Portal to document.body to escape any parent stacking contexts
+  return createPortal(content, document.body);
 }
