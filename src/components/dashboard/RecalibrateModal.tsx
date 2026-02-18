@@ -1,24 +1,23 @@
 /**
- * RecalibrateModal — Full-screen editable form of all activation answers.
+ * RecalibrateModal — Full editable form of ALL onboarding answers.
+ * Uses the full onboardingFlowSpec (Neural Intake V3 — 17 steps, ~70 variables).
  * On save, re-runs generate-launchpad-summary to rebuild the entire plan.
- * 
- * Smart pre-fill: If step_1_intention is empty, synthesizes answers from
- * existing Life Model data (identity elements, focus areas, profile data).
  */
 import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/useTranslation';
-import { activationFlowSpec } from '@/flows/activationFlowSpec';
+import onboardingFlowSpec from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { cn } from '@/lib/utils';
-import { RefreshCw, Loader2, Sparkles, Check } from 'lucide-react';
+import { RefreshCw, Loader2, Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FlowAnswers, MiniStep, FlowStep } from '@/lib/flow/types';
 
@@ -40,150 +39,22 @@ const MOTIVATIONAL_MESSAGES_EN = [
   'Preparing your next growth phase...',
 ];
 
-// Map profile/life-model data to activation flow keys
-const FOCUS_AREA_MAP: Record<string, string> = {
-  'weight-loss': 'health', 'muscle-building': 'health', 'energy-vitality': 'health',
-  'career-purpose': 'career', 'fast-learning': 'career', 'focus': 'career',
-  'wealth': 'money', 'financial-freedom': 'money',
-  'confidence': 'mind', 'emotional-regulation': 'mind', 'stress': 'mind',
-  'relationships': 'relationships', 'communication': 'relationships',
-  'creativity': 'creativity', 'social': 'social',
-  'spirituality': 'spirituality', 'meaning': 'spirituality',
-  // Direct mappings
-  health: 'health', career: 'career', money: 'money', mind: 'mind',
-};
+// Keys that map to step_1_intention
+const STEP1_KEYS = new Set([
+  'entry_context', 'pressure_zone', 'functional_signals', 'failure_moment',
+  'target_90_days', 'urgency_scale', 'restructure_willingness',
+  'non_negotiable_constraint', 'final_notes',
+]);
 
-const LIFE_PRIORITY_MAP: Record<string, string> = {
-  health: 'health', career: 'career', wealth: 'money', money: 'money',
-  relationships: 'relationships', 'personal-growth': 'mind',
-  freedom: 'career', spirituality: 'spirituality', peace: 'mind',
-};
-
-/**
- * Synthesize activation flow answers from existing Life Model data
- */
-async function synthesizeFromLifeModel(userId: string): Promise<FlowAnswers> {
-  const [
-    { data: profile },
-    { data: identityElements },
-    { data: lifePlan },
-    { data: launchpad },
-  ] = await Promise.all([
-    supabase.from('profiles').select('first_name, display_name').eq('id', userId).maybeSingle(),
-    supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', userId),
-    supabase.from('life_plans').select('plan_data, status').eq('user_id', userId).eq('status', 'active').maybeSingle(),
-    supabase.from('launchpad_progress').select('step_2_profile_data, step_5_focus_areas_selected').eq('user_id', userId).maybeSingle(),
-  ]);
-
-  const answers: FlowAnswers = {};
-  const profileData = launchpad?.step_2_profile_data as Record<string, unknown> | null;
-  const focusAreas = (launchpad?.step_5_focus_areas_selected as string[]) || [];
-
-  // 1. Primary Focus — from focus areas or life priorities
-  if (focusAreas.length > 0) {
-    const mapped = FOCUS_AREA_MAP[focusAreas[0]] || focusAreas[0];
-    answers.primary_focus = mapped;
-  } else if (profileData?.life_priorities) {
-    const priorities = profileData.life_priorities as string[];
-    if (priorities.length > 0) {
-      answers.primary_focus = LIFE_PRIORITY_MAP[priorities[0]] || 'mind';
-    }
-  }
-  if (!answers.primary_focus) answers.primary_focus = 'mind';
-
-  // 2. Secondary Focus — remaining focus areas
-  const secondaryRaw = focusAreas.slice(1, 3).map(f => FOCUS_AREA_MAP[f] || f).filter(f => f !== answers.primary_focus);
-  if (secondaryRaw.length > 0) {
-    answers.secondary_focus = secondaryRaw;
-  } else if (profileData?.life_priorities) {
-    const priorities = (profileData.life_priorities as string[]).slice(1, 3);
-    answers.secondary_focus = priorities.map(p => LIFE_PRIORITY_MAP[p] || p).filter(p => p !== answers.primary_focus);
-  }
-
-  // 3. Commitment Level — infer from profile completeness
-  const hasIdentity = (identityElements?.length || 0) > 0;
-  const hasPlan = !!lifePlan;
-  if (hasIdentity && hasPlan) {
-    answers.commitment_level = 'locked_in';
-  } else if (hasIdentity || hasPlan) {
-    answers.commitment_level = 'ready';
-  } else {
-    answers.commitment_level = 'curious';
-  }
-
-  // 4. Core Obstacle — from profile obstacles
-  if (profileData?.obstacles) {
-    const obstacles = profileData.obstacles as string[];
-    const obstacleMap: Record<string, string> = {
-      'dont-know-how': 'limiting_beliefs',
-      'no-time': 'distraction',
-      'no-motivation': 'procrastination',
-      'fear': 'fear',
-      'perfectionism': 'perfectionism',
-      'overthinking': 'overthinking',
-    };
-    answers.core_obstacle = obstacleMap[obstacles[0]] || 'procrastination';
-  }
-
-  // 5. Peak Productivity — from morning/evening preference
-  if (profileData?.morning_evening) {
-    const prodMap: Record<string, string> = {
-      'early-bird': 'early_morning',
-      'morning-person': 'morning',
-      'night-owl': 'night',
-      'flexible': 'afternoon',
-    };
-    answers.peak_productivity = prodMap[profileData.morning_evening as string] || 'morning';
-  }
-
-  // 6. Identity Statement — from identity elements
-  if (identityElements && identityElements.length > 0) {
-    const identityTitle = identityElements.find(e => e.element_type === 'identity_title');
-    const traits = identityElements.filter(e => e.element_type === 'character_trait').map(e => e.content);
-    const values = identityElements.filter(e => e.element_type === 'value').map(e => e.content);
-    const selfConcepts = identityElements.filter(e => e.element_type === 'self_concept').map(e => e.content);
-
-    const parts: string[] = [];
-    if (identityTitle) parts.push(identityTitle.content);
-    if (traits.length > 0) parts.push(traits.slice(0, 3).join(', '));
-    if (values.length > 0) parts.push(values.slice(0, 3).join(', '));
-    if (selfConcepts.length > 0) parts.push(selfConcepts[0]);
-
-    answers.identity_statement = parts.join(' | ');
-  }
-
-  // 7. 90-Day Vision — from life plan data
-  if (lifePlan?.plan_data) {
-    const planData = lifePlan.plan_data as Record<string, unknown>;
-    if (planData.description) {
-      answers.ninety_day_vision = planData.description as string;
-    } else if (planData.title) {
-      answers.ninety_day_vision = planData.title as string;
-    }
-  }
-
-  // 8. Set dynamic pain/outcome keys based on primary focus
-  const focus = answers.primary_focus as string;
-  if (focus) {
-    // Try to infer pain from growth_focus or deep_dive answers
-    if (profileData?.growth_focus) {
-      const growthFocus = profileData.growth_focus as string[];
-      const focusRelated = growthFocus.find(g => (FOCUS_AREA_MAP[g] || g) === focus);
-      if (focusRelated) {
-        // Use deepDive data if available
-        const deepDive = profileData?.deep_dive as Record<string, unknown> | null;
-        if (deepDive?.answers) {
-          const deepAnswers = deepDive.answers as Record<string, string[]>;
-          if (deepAnswers[focusRelated]) {
-            // Map first deep dive answer as a hint but don't override
-          }
-        }
-      }
-    }
-  }
-
-  return answers;
-}
+// Phase groupings for collapsible sections
+const PHASE_GROUPS = [
+  { id: 'entry', labelHe: 'הקשר כניסה', labelEn: 'Entry Context', stepIds: [0] },
+  { id: 'diagnosis', labelHe: 'אבחון מצב', labelEn: 'State Diagnosis', stepIds: [1, 2, 3] },
+  { id: 'biological', labelHe: 'בסיס ביולוגי', labelEn: 'Biological Baseline', stepIds: [4, 5, 6, 7, 8] },
+  { id: 'time', labelHe: 'ארכיטקטורת זמן', labelEn: 'Time Architecture', stepIds: [9, 10] },
+  { id: 'psychological', labelHe: 'מערכת הפעלה פסיכולוגית', labelEn: 'Psychological OS', stepIds: [11, 12, 13] },
+  { id: 'target', labelHe: 'יעד + מחויבות', labelEn: 'Target + Commitment', stepIds: [14, 15, 16] },
+];
 
 export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) {
   const { user } = useAuth();
@@ -195,7 +66,7 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [motivationalIdx, setMotivationalIdx] = useState(0);
-  const [dataSource, setDataSource] = useState<'activation' | 'synthesized' | 'empty'>('empty');
+  const [collapsedPhases, setCollapsedPhases] = useState<Set<string>>(new Set());
 
   // Cycle motivational messages while submitting
   useEffect(() => {
@@ -212,77 +83,70 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
     setLoading(true);
     (async () => {
       try {
-        // Try loading from step_1_intention first
         const { data } = await supabase
           .from('launchpad_progress')
-          .select('step_1_intention')
+          .select('step_1_intention, step_2_profile_data')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        let hasActivationData = false;
+        const flat: FlowAnswers = {};
+
+        // Parse step_1_intention
         if (data?.step_1_intention) {
-          let parsed: Record<string, unknown> = {};
-          if (typeof data.step_1_intention === 'string') {
-            try { parsed = JSON.parse(data.step_1_intention); } catch { /* skip */ }
-          } else if (typeof data.step_1_intention === 'object') {
-            parsed = data.step_1_intention as Record<string, unknown>;
-          }
-
-          // Check if we have meaningful activation data
-          if (parsed.primary_focus) {
-            hasActivationData = true;
-            const flat: FlowAnswers = {};
-            for (const [k, v] of Object.entries(parsed)) {
-              flat[k] = v as string | string[];
-            }
-            // Map primary_pain back to pillar-specific key
-            if (flat.primary_pain && flat.primary_focus) {
-              flat[`primary_pain_${flat.primary_focus}`] = flat.primary_pain;
-            }
-            if (flat.desired_outcome && flat.primary_focus) {
-              flat[`desired_outcome_${flat.primary_focus}`] = flat.desired_outcome;
-            }
-            setAnswers(flat);
-            setDataSource('activation');
+          const parsed = typeof data.step_1_intention === 'string'
+            ? (() => { try { return JSON.parse(data.step_1_intention); } catch { return {}; } })()
+            : (data.step_1_intention as Record<string, unknown>);
+          for (const [k, v] of Object.entries(parsed)) {
+            if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
           }
         }
 
-        // If no activation data, synthesize from Life Model
-        if (!hasActivationData) {
-          const synthesized = await synthesizeFromLifeModel(user.id);
-          const hasAnyData = Object.values(synthesized).some(v => 
-            v !== undefined && v !== null && v !== '' && 
-            (Array.isArray(v) ? v.length > 0 : true)
-          );
-          setAnswers(synthesized);
-          setDataSource(hasAnyData ? 'synthesized' : 'empty');
+        // Parse step_2_profile_data
+        if (data?.step_2_profile_data) {
+          const parsed = typeof data.step_2_profile_data === 'string'
+            ? (() => { try { return JSON.parse(data.step_2_profile_data); } catch { return {}; } })()
+            : (data.step_2_profile_data as Record<string, unknown>);
+          for (const [k, v] of Object.entries(parsed)) {
+            if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
+          }
         }
+
+        setAnswers(flat);
       } catch (e) {
-        console.error('Failed to load activation answers:', e);
+        console.error('Failed to load answers:', e);
       } finally {
         setLoading(false);
       }
     })();
   }, [open, user?.id]);
 
-  // Get the 9 question steps (exclude screen 10 which is the reveal)
+  // Get all card steps (exclude custom renderers)
   const questionSteps = useMemo(
-    () => activationFlowSpec.steps.filter(s => s.renderer === 'card'),
+    () => onboardingFlowSpec.steps.filter(s => s.renderer === 'card'),
     []
   );
 
-  const setAnswer = (key: string, value: string | string[]) => {
+  const setAnswer = (key: string, value: string | string[] | number) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
   };
 
-  const toggleMultiSelect = (key: string, value: string) => {
+  const toggleMultiSelect = (key: string, value: string, maxSelected?: number) => {
     setAnswers(prev => {
       const current = (prev[key] as string[]) || [];
       if (current.includes(value)) {
         return { ...prev, [key]: current.filter(v => v !== value) };
       }
-      if (current.length >= 2) return prev; // max 2
+      if (maxSelected && current.length >= maxSelected) return prev;
       return { ...prev, [key]: [...current, value] };
+    });
+  };
+
+  const togglePhase = (phaseId: string) => {
+    setCollapsedPhases(prev => {
+      const next = new Set(prev);
+      if (next.has(phaseId)) next.delete(phaseId);
+      else next.add(phaseId);
+      return next;
     });
   };
 
@@ -292,25 +156,31 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
     setMotivationalIdx(0);
 
     try {
-      // Build canonical intention JSON
-      const focus = answers.primary_focus as string;
-      const intentionData: Record<string, unknown> = {
-        primary_focus: answers.primary_focus,
-        primary_pain: answers[`primary_pain_${focus}`] || answers.primary_pain,
-        desired_outcome: answers[`desired_outcome_${focus}`] || answers.desired_outcome,
-        commitment_level: answers.commitment_level,
-        secondary_focus: answers.secondary_focus || [],
-        core_obstacle: answers.core_obstacle,
-        peak_productivity: answers.peak_productivity,
-        identity_statement: answers.identity_statement,
-        ninety_day_vision: answers.ninety_day_vision,
-      };
+      // Split answers into step_1 and step_2 data
+      const step1Data: Record<string, unknown> = {};
+      const step2Data: Record<string, unknown> = {};
+
+      for (const [k, v] of Object.entries(answers)) {
+        if (v === undefined || v === null) continue;
+        if (STEP1_KEYS.has(k)) {
+          step1Data[k] = v;
+        } else {
+          step2Data[k] = v;
+        }
+      }
+
+      // Add pillar mapping from pressure_zone
+      if (answers.pressure_zone) {
+        const { FRICTION_PILLAR_MAP } = await import('@/flows/onboardingFlowSpec');
+        step1Data.selected_pillar = FRICTION_PILLAR_MAP[answers.pressure_zone as string] || 'mind';
+      }
 
       // 1. Save updated answers
       const { error: updateErr } = await supabase
         .from('launchpad_progress')
         .update({
-          step_1_intention: JSON.stringify(intentionData),
+          step_1_intention: step1Data as any,
+          step_2_profile_data: step2Data as any,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
@@ -358,6 +228,21 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
 
   const messages = isHe ? MOTIVATIONAL_MESSAGES_HE : MOTIVATIONAL_MESSAGES_EN;
 
+  // Count answered questions
+  const totalQuestions = questionSteps.reduce((sum, step) => {
+    const visible = getVisibleMiniSteps(step, answers);
+    return sum + (visible.length > 0 ? visible.length : step.miniSteps.filter(m => !m.branching).length);
+  }, 0);
+  
+  const answeredCount = questionSteps.reduce((sum, step) => {
+    const visible = getVisibleMiniSteps(step, answers);
+    const minis = visible.length > 0 ? visible : step.miniSteps.filter(m => !m.branching);
+    return sum + minis.filter(m => {
+      const a = answers[m.id];
+      return a !== undefined && a !== null && a !== '' && (!Array.isArray(a) || a.length > 0);
+    }).length;
+  }, 0);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden border-border/50 bg-background/95 backdrop-blur-xl flex flex-col">
@@ -369,22 +254,14 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
             </div>
             <div>
               <h2 className="text-base font-bold">{isHe ? 'כיול מחדש' : 'Recalibrate'}</h2>
-              <p className="text-xs text-muted-foreground">{isHe ? 'עדכן את התשובות שלך וחשב מחדש את כל התוכנית' : 'Update your answers to recalculate your entire plan'}</p>
+              <p className="text-xs text-muted-foreground">
+                {isHe 
+                  ? `${answeredCount}/${totalQuestions} תשובות • עדכן וחשב מחדש`
+                  : `${answeredCount}/${totalQuestions} answered • Update and recalculate`}
+              </p>
             </div>
           </div>
         </div>
-
-        {/* Synthesized data banner */}
-        {!submitting && !loading && dataSource === 'synthesized' && (
-          <div className="mx-5 mt-3 px-3 py-2 rounded-xl bg-accent/10 border border-accent/20 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              {isHe
-                ? 'מילאנו את התשובות באופן אוטומטי מהנתונים הקיימים שלך. עדכן לפי הצורך.'
-                : 'We auto-filled answers from your existing data. Edit as needed.'}
-            </p>
-          </div>
-        )}
 
         {/* Body */}
         {submitting ? (
@@ -421,35 +298,75 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
           </div>
         ) : (
           <ScrollArea className="flex-1 min-h-0">
-            <div className="p-5 space-y-4 pb-28">
-              {questionSteps.map((step, stepIdx) => {
-                // For steps with branching (pain/outcome), show all options but only for the selected focus
-                const visibleMinis = getVisibleMiniSteps(step, answers);
-                
-                // If no visible minis due to branching and primary_focus not set yet, 
-                // show the first mini-step as a fallback so users can see something
-                const minisToRender = visibleMinis.length > 0 
-                  ? visibleMinis 
-                  : step.miniSteps.length > 0 && step.miniSteps[0].branching
-                    ? [step.miniSteps[0]] // show first variant as fallback
-                    : [];
-                
-                if (minisToRender.length === 0) return null;
+            <div className="p-4 space-y-3 pb-28">
+              {PHASE_GROUPS.map(phase => {
+                const phaseSteps = questionSteps.filter(s => phase.stepIds.includes(s.id));
+                if (phaseSteps.length === 0) return null;
+                const isCollapsed = collapsedPhases.has(phase.id);
+
+                // Count answered in this phase
+                const phaseAnswered = phaseSteps.reduce((sum, step) => {
+                  const visible = getVisibleMiniSteps(step, answers);
+                  const minis = visible.length > 0 ? visible : step.miniSteps.filter(m => !m.branching);
+                  return sum + minis.filter(m => {
+                    const a = answers[m.id];
+                    return a !== undefined && a !== null && a !== '' && (!Array.isArray(a) || a.length > 0);
+                  }).length;
+                }, 0);
+
+                const phaseTotal = phaseSteps.reduce((sum, step) => {
+                  const visible = getVisibleMiniSteps(step, answers);
+                  return sum + (visible.length > 0 ? visible.length : step.miniSteps.filter(m => !m.branching).length);
+                }, 0);
 
                 return (
-                  <div key={step.id}>
-                    {minisToRender.map(mini => (
-                      <QuestionSection
-                        key={mini.id}
-                        mini={mini}
-                        stepIndex={stepIdx + 1}
-                        totalSteps={questionSteps.length}
-                        answer={answers[mini.id]}
-                        isHe={isHe}
-                        onSelect={(val) => setAnswer(mini.id, val)}
-                        onToggleMulti={(val) => toggleMultiSelect(mini.id, val)}
-                      />
-                    ))}
+                  <div key={phase.id} className="rounded-2xl border border-border/30 overflow-hidden">
+                    {/* Phase header */}
+                    <button
+                      onClick={() => togglePhase(phase.id)}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-card/60 hover:bg-card/80 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-foreground">
+                          {isHe ? phase.labelHe : phase.labelEn}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold">
+                          {phaseAnswered}/{phaseTotal}
+                        </span>
+                      </div>
+                      {isCollapsed ? (
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+
+                    {/* Phase content */}
+                    {!isCollapsed && (
+                      <div className="p-3 space-y-3 bg-background/30">
+                        {phaseSteps.map(step => {
+                          const visibleMinis = getVisibleMiniSteps(step, answers);
+                          const minisToRender = visibleMinis.length > 0
+                            ? visibleMinis
+                            : step.miniSteps.filter(m => !m.branching).slice(0, 1);
+
+                          if (minisToRender.length === 0) return null;
+
+                          return minisToRender.map(mini => (
+                            <QuestionSection
+                              key={mini.id + '_' + step.id}
+                              mini={mini}
+                              answer={answers[mini.id]}
+                              isHe={isHe}
+                              onSelect={(val) => setAnswer(mini.id, val)}
+                              onToggleMulti={(val) => toggleMultiSelect(mini.id, val, mini.validation.maxSelected)}
+                              onSliderChange={(val) => setAnswer(mini.id, val)}
+                              onTextChange={(val) => setAnswer(mini.id, val)}
+                            />
+                          ));
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -478,42 +395,68 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
 /* ─── Individual Question Section ─── */
 interface QuestionSectionProps {
   mini: MiniStep;
-  stepIndex: number;
-  totalSteps: number;
   answer: string | string[] | number | undefined;
   isHe: boolean;
   onSelect: (value: string) => void;
   onToggleMulti: (value: string) => void;
+  onSliderChange: (value: number) => void;
+  onTextChange: (value: string) => void;
 }
 
-function QuestionSection({ mini, stepIndex, totalSteps, answer, isHe, onSelect, onToggleMulti }: QuestionSectionProps) {
+function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSliderChange, onTextChange }: QuestionSectionProps) {
   const title = isHe ? mini.title_he : mini.title_en;
-  const prompt = isHe ? (mini.prompt_he || '') : (mini.prompt_en || '');
   const isMulti = mini.inputType === 'multi_select';
   const isTextarea = mini.inputType === 'textarea';
+  const isSlider = mini.inputType === 'slider';
+  const hasAnswer = answer !== undefined && answer !== null && answer !== '' && (!Array.isArray(answer) || answer.length > 0);
 
   return (
-    <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm p-4 space-y-3">
-      {/* Header */}
+    <div className={cn(
+      "rounded-xl border p-3 space-y-2 transition-colors",
+      hasAnswer
+        ? "border-primary/20 bg-primary/5"
+        : "border-border/20 bg-card/30"
+    )}>
+      {/* Title */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-          {stepIndex}/{totalSteps}
-        </span>
-        <h3 className="text-sm font-semibold flex-1">{title}</h3>
+        {hasAnswer && <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
+        <h4 className="text-xs font-semibold text-foreground/90 leading-tight">{title}</h4>
       </div>
-      {prompt && <p className="text-xs text-muted-foreground">{prompt}</p>}
 
-      {/* Options or textarea */}
-      {isTextarea ? (
+      {/* Slider */}
+      {isSlider && (
+        <div className="space-y-2 px-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{mini.sliderMin ?? 1}</span>
+            <span className="text-lg font-bold text-primary">
+              {(answer as number) ?? mini.sliderMin ?? 1}
+            </span>
+            <span className="text-xs text-muted-foreground">{mini.sliderMax ?? 10}</span>
+          </div>
+          <Slider
+            value={[(answer as number) ?? mini.sliderMin ?? 1]}
+            min={mini.sliderMin ?? 1}
+            max={mini.sliderMax ?? 10}
+            step={mini.sliderStep ?? 1}
+            onValueChange={(v) => onSliderChange(v[0])}
+          />
+        </div>
+      )}
+
+      {/* Textarea */}
+      {isTextarea && (
         <Textarea
           value={(answer as string) || ''}
-          onChange={(e) => onSelect(e.target.value)}
-          className="min-h-[100px] rounded-xl bg-background/60 border-border/30 resize-none text-sm"
-          placeholder={prompt}
+          onChange={(e) => onTextChange(e.target.value)}
+          className="min-h-[80px] rounded-lg bg-background/60 border-border/30 resize-none text-xs"
+          placeholder={isHe ? 'כתוב כאן...' : 'Write here...'}
           dir={isHe ? 'rtl' : 'ltr'}
         />
-      ) : (
-        <div className="grid grid-cols-2 gap-2">
+      )}
+
+      {/* Select options */}
+      {!isSlider && !isTextarea && (
+        <div className="grid grid-cols-2 gap-1.5">
           {mini.options?.map(opt => {
             const selected = isMulti
               ? ((answer as string[]) || []).includes(opt.value)
@@ -525,16 +468,16 @@ function QuestionSection({ mini, stepIndex, totalSteps, answer, isHe, onSelect, 
                 key={opt.value}
                 onClick={() => isMulti ? onToggleMulti(opt.value) : onSelect(opt.value)}
                 className={cn(
-                  "flex items-center gap-2 p-3 rounded-xl border text-start transition-all min-h-[44px]",
-                  "text-sm font-medium",
+                  "flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-start transition-all min-h-[36px]",
+                  "text-xs font-medium",
                   selected
                     ? "bg-primary/10 border-primary/40 text-foreground shadow-sm shadow-primary/10"
                     : "bg-background/40 border-border/20 text-muted-foreground hover:bg-accent/5 hover:border-border/40"
                 )}
               >
-                {opt.icon && <span className="text-base flex-shrink-0">{opt.icon}</span>}
+                {opt.icon && <span className="text-sm flex-shrink-0">{opt.icon}</span>}
                 <span className="flex-1 leading-tight">{label}</span>
-                {selected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                {selected && <Check className="w-3 h-3 text-primary flex-shrink-0" />}
               </button>
             );
           })}
