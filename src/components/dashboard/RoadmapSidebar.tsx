@@ -8,13 +8,15 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { VerticalRoadmap, type MilestoneData } from '@/components/dashboard/VerticalRoadmap';
 import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
 import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
-import { PanelLeftClose, PanelLeftOpen, Check, MapPin } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Check, MapPin, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
 
 export function RoadmapSidebar() {
   const { isRTL, language } = useTranslation();
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneData | null>(null);
+  const [recalibrateOpen, setRecalibrateOpen] = useState(false);
   const { milestones, currentWeek, hasLifePlan, plan } = useLifePlanWithMilestones();
   const isHe = language === 'he';
 
@@ -66,6 +68,10 @@ export function RoadmapSidebar() {
                 <span className="text-[8px] text-muted-foreground">{isHe ? 'אין תוכנית' : 'No plan'}</span>
               </div>
             )}
+            {/* Recalibrate mini button */}
+            <button onClick={() => setRecalibrateOpen(true)} className="mt-2 p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors" title={isHe ? 'כיול מחדש' : 'Recalibrate'}>
+              <RefreshCw className="w-4 h-4 text-primary" />
+            </button>
           </div>
         )}
 
@@ -74,6 +80,14 @@ export function RoadmapSidebar() {
           <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
             <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-2" />
             <VerticalRoadmap onMilestoneClick={handleMilestoneClick} forceVertical />
+            {/* Recalibrate button — expanded */}
+            <button
+              onClick={() => setRecalibrateOpen(true)}
+              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>{isHe ? 'כיול מחדש' : 'Recalibrate'}</span>
+            </button>
           </div>
         )}
       </aside>
@@ -85,6 +99,7 @@ export function RoadmapSidebar() {
         open={!!selectedMilestone}
         onOpenChange={(open) => !open && setSelectedMilestone(null)}
       />
+      <RecalibrateModal open={recalibrateOpen} onOpenChange={setRecalibrateOpen} />
     </>
   );
 }
