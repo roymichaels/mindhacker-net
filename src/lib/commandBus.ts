@@ -22,7 +22,7 @@ export type AppCommand =
   | { type: 'updatePlan'; weekNumber: number; field: string; value: string }
   | { type: 'addIdentity'; elementType: string; content: string }
   | { type: 'removeIdentity'; elementType: string; content: string }
-  | { type: 'setReminder'; message: string; date: string }
+  | { type: 'setReminder'; message: string; date: string; time?: string }
   | { type: 'setFocus'; title: string; days: number }
   | { type: 'setTheme'; value: 'light' | 'dark' | 'system' }
   | { type: 'toggleTheme' }
@@ -153,9 +153,9 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'removeIdentity', elementType: m[1].trim(), content: m[2].trim() });
   }
 
-  // Reminder: [reminder:set:message:YYYY-MM-DD]
-  for (const m of content.matchAll(/\[reminder:set:(.+?):(\d{4}-\d{2}-\d{2})\]/g)) {
-    commands.push({ type: 'setReminder', message: m[1].trim(), date: m[2] });
+  // Reminder: [reminder:set:message:YYYY-MM-DDTHH:MM] or [reminder:set:message:YYYY-MM-DD]
+  for (const m of content.matchAll(/\[reminder:set:(.+?):(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?\]/g)) {
+    commands.push({ type: 'setReminder', message: m[1].trim(), date: m[2], time: m[3] || undefined });
   }
 
   // Focus: [focus:set:title:days]
@@ -211,7 +211,7 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
     case 'completeMilestone':
       return { actionType: 'task_complete', label: isHebrew ? 'השלמת שבוע' : 'Complete Week', description: isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}` };
     case 'setReminder':
-      return { actionType: 'reminder_set', label: isHebrew ? 'תזכורת' : 'Reminder', description: `${command.message} (${command.date})` };
+      return { actionType: 'reminder_set', label: isHebrew ? 'תזכורת' : 'Reminder', description: `${command.message} (${command.date}${command.time ? ' ' + command.time : ''})` };
     case 'setFocus':
       return { actionType: 'navigate', label: isHebrew ? 'פוקוס' : 'Focus', description: `${command.title} (${command.days}d)` };
     case 'addIdentity':

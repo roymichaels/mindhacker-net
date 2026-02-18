@@ -26,6 +26,7 @@ export interface AuroraContext {
 
   // Dates & plan
   today: string;
+  current_time: string;
   life_plan: {
     active: boolean;
     start_date: string | null;
@@ -308,6 +309,7 @@ export async function buildContext(
     },
 
     today,
+    current_time: now.toISOString().slice(11, 16),
     life_plan: lifePlan ? {
       active: true,
       start_date: lifePlan.start_date,
@@ -413,6 +415,7 @@ function createEmptyContext(today: string): AuroraContext {
     built_at: new Date().toISOString(),
     profile: { full_name: "Unknown", bio: null, gender: null, preferred_tone: "warm", challenge_intensity: "balanced" },
     today,
+    current_time: new Date().toISOString().slice(11, 16),
     life_plan: null,
     action_items: { overdue_tasks: [], today_tasks: [], habits: [], milestones: [], open_checklists: [] },
     habits_status: { completed: 0, total: 0 },
