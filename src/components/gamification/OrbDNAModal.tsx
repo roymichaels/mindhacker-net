@@ -39,7 +39,7 @@ export function OrbDNAModal({ open, onOpenChange }: OrbDNAModalProps) {
               onClick={() => { onOpenChange(false); setFullscreenOpen(true); }}
               className="cursor-pointer hover:scale-105 transition-transform duration-200"
             >
-              <PersonalizedOrb size={100} state="idle" />
+              <PersonalizedOrb size={250} state="idle" />
             </button>
           </div>
           <ScrollArea className="px-6 pb-6 max-h-[55vh]">
