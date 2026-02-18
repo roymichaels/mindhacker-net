@@ -122,8 +122,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             {/* Top: Identity + Orb side by side */}
             <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
               {/* Orb - right side (appears first in RTL) */}
-              <button onClick={() => setOrbDNAOpen(true)} className="relative flex items-center justify-center overflow-visible w-[110px] h-[110px] order-2 rtl:order-1 cursor-pointer">
-                <PersonalizedOrb size={110} state="idle" />
+              <button onClick={() => setOrbDNAOpen(true)} className="relative flex items-center justify-center overflow-visible w-[275px] h-[275px] order-2 rtl:order-1 cursor-pointer">
+                <PersonalizedOrb size={275} state="idle" />
               </button>
               {/* Identity + badges - left side */}
               <div className="flex flex-col gap-2 order-1 rtl:order-2">
