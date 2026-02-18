@@ -22,6 +22,9 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
 
   const features = isHe
     ? [
+        "בונה תוכניות AI למתאמנים",
+        "ניהול מתאמנים מלא",
+        "חנות דיגיטלית למכירת שירותים",
         "הודעות ללא הגבלה לאורורה",
         "היפנוזה AI מותאמת אישית יומית",
         "נאדג׳ים פרואקטיביים",
@@ -29,6 +32,9 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
         "תוכנית 90 יום מלאה",
       ]
     : [
+        "AI Plan Builder for clients",
+        "Full client management",
+        "Digital storefront for services",
         "Unlimited Aurora messages",
         "Daily personalized AI hypnosis",
         "Proactive coaching nudges",
@@ -37,8 +43,8 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
       ];
 
   const freeLimit = isHe
-    ? ["5 הודעות ביום", "3 הרגלים בלבד"]
-    : ["5 messages/day", "Only 3 habits"];
+    ? ["5 הודעות ביום", "3 הרגלים בלבד", "ללא כלי מאמן"]
+    : ["5 messages/day", "Only 3 habits", "No coach tools"];
 
   const originalPrice = isHe ? "₪347" : "$97";
   const salePrice = isHe ? "₪179" : "$49";
@@ -98,7 +104,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
 
                 {/* Title */}
                 <h2 className="text-xl font-bold leading-tight">
-                  {isHe ? "שחרר את הפוטנציאל המלא שלך" : "Unlock Your Full Potential"}
+                  {isHe ? "הפכו למאמנים מקצועיים" : "Become a Pro Coach"}
                 </h2>
 
                 {/* Price */}
