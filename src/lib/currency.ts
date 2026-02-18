@@ -4,7 +4,10 @@
 const USD_PRICE_MAP: Record<number, number> = {
   297: 79,      // Personal Hypnosis Video
   1997: 549,   // Consciousness Leap
-  97: 27,      // Monthly Subscription
+  179: 49,     // Pro Monthly
+  289: 79,     // Coach Monthly
+  469: 129,    // Business Monthly
+  97: 27,      // Legacy Monthly Subscription
   250: 69,     // Single Session
   800: 219,    // 4-Session Package
   1000: 279,   // General fallback for ~1000 ILS

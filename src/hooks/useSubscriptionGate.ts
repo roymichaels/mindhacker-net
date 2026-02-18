@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useCallback } from "react";
+import { SubscriptionTier, productIdToTier, tierIncludes } from "@/lib/subscriptionTiers";
 
 export interface SubscriptionGate {
-  tier: "free" | "pro";
+  tier: SubscriptionTier;
   isPro: boolean;
   isLoading: boolean;
   canSendMessage: boolean;
@@ -12,6 +13,8 @@ export interface SubscriptionGate {
   canAccessPlan: boolean;
   canAccessHypnosis: boolean;
   canAccessNudges: boolean;
+  canBeCoach: boolean;
+  canAccessBusiness: boolean;
   maxHabits: number;
   subscriptionEnd: string | null;
   showUpgradePrompt: (feature: string) => void;
@@ -22,13 +25,11 @@ export interface SubscriptionGate {
 
 const FREE_DAILY_MESSAGES = 5;
 const FREE_MAX_HABITS = 3;
-const PRO_PRODUCT_ID = "prod_TzbSX1sFG1woDZ";
 
 export const useSubscriptionGate = (): SubscriptionGate => {
   const { user, isAdmin } = useAuth();
   const [upgradeFeature, setUpgradeFeature] = useState<string | null>(null);
 
-  // Check subscription status via Stripe
   const { data: subData, isLoading: subLoading, refetch } = useQuery({
     queryKey: ["subscription-status", user?.id],
     queryFn: async () => {
@@ -48,7 +49,6 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     refetchInterval: 60 * 1000,
   });
 
-  // Get daily message count
   const { data: messageData } = useQuery({
     queryKey: ["daily-message-count", user?.id],
     queryFn: async () => {
@@ -69,7 +69,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   // Admins bypass all gates
   if (isAdmin) {
     return {
-      tier: "pro",
+      tier: "business",
       isPro: true,
       isLoading: false,
       canSendMessage: true,
@@ -77,6 +77,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canAccessPlan: true,
       canAccessHypnosis: true,
       canAccessNudges: true,
+      canBeCoach: true,
+      canAccessBusiness: true,
       maxHabits: Infinity,
       subscriptionEnd: null,
       showUpgradePrompt: () => {},
@@ -86,9 +88,10 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     };
   }
 
-  const isPro = !!subData && subData.product_id === PRO_PRODUCT_ID;
+  const tier: SubscriptionTier = subData ? productIdToTier(subData.product_id) : "free";
+  const isPaid = tier !== "free";
   const dailyCount = messageData ?? 0;
-  const messagesRemaining = isPro ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
+  const messagesRemaining = isPaid ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
 
   const showUpgradePrompt = useCallback((feature: string) => {
     setUpgradeFeature(feature);
@@ -99,15 +102,17 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   }, []);
 
   return {
-    tier: isPro ? "pro" : "free",
-    isPro,
+    tier,
+    isPro: isPaid, // backward compat: true for any paid tier
     isLoading: subLoading,
-    canSendMessage: isPro || messagesRemaining > 0,
+    canSendMessage: isPaid || messagesRemaining > 0,
     messagesRemaining,
-    canAccessPlan: isPro,
-    canAccessHypnosis: isPro,
-    canAccessNudges: isPro,
-    maxHabits: isPro ? Infinity : FREE_MAX_HABITS,
+    canAccessPlan: true, // now free for all
+    canAccessHypnosis: tierIncludes(tier, "pro"),
+    canAccessNudges: tierIncludes(tier, "pro"),
+    canBeCoach: tierIncludes(tier, "coach"),
+    canAccessBusiness: tierIncludes(tier, "business"),
+    maxHabits: isPaid ? Infinity : FREE_MAX_HABITS,
     subscriptionEnd: subData?.end_date ?? null,
     showUpgradePrompt,
     upgradeFeature,
