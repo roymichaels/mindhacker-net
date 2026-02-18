@@ -17,6 +17,9 @@ export interface OrbRef {
   setTunnelMode: (enabled: boolean) => void;
 }
 
+export type GeometryFamily = 'sphere' | 'torus' | 'dodeca' | 'icosa' | 'octa' | 'spiky';
+export type DiagnosticState = 'ok' | 'missing_data' | 'no_user';
+
 export interface OrbProfile {
   primaryColor: string;
   secondaryColors: string[];
@@ -31,13 +34,19 @@ export interface OrbProfile {
   particleEnabled: boolean;
   particleCount: number;
   particleColor: string;
-  // Motion profile (new)
-  motionSpeed?: number;
-  pulseRate?: number;
-  smoothness?: number;
-  // Texture (new)
-  textureType?: string;
-  textureIntensity?: number;
+  // Motion profile
+  motionSpeed: number;
+  pulseRate: number;
+  smoothness: number;
+  // Texture
+  textureType: string;
+  textureIntensity: number;
+  // Per-user seed & geometry
+  seed?: number;
+  geometryFamily?: GeometryFamily;
+  // Diagnostic
+  diagnosticState?: DiagnosticState;
+  missedFields?: string[];
   // Computed from data
   computedFrom: {
     // New archetype-based system
@@ -51,6 +60,8 @@ export interface OrbProfile {
     streak: number;
     topTraitCategories?: string[];
     clarityScore: number;
+    // Version tracking
+    orb_profile_version?: string;
   };
 }
 

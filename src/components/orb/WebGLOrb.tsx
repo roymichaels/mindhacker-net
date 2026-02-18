@@ -136,6 +136,29 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
 // ===== DNA-BASED GEOMETRY SELECTION =====
 type GeometryType = 'icosahedron' | 'dodecahedron' | 'octahedron' | 'tetrahedron' | 'sphere' | 'torusKnot';
 
+/** NEW: Read geometry from profile's geometryFamily field instead of palette ID */
+function getGeometryFromProfile(profile?: OrbProfile | null): { outer: GeometryType; inner1: GeometryType; inner2: GeometryType } {
+  const family = profile?.geometryFamily;
+  switch (family) {
+    case 'sphere':
+      return { outer: 'sphere', inner1: 'icosahedron', inner2: 'dodecahedron' };
+    case 'torus':
+      return { outer: 'torusKnot', inner1: 'dodecahedron', inner2: 'octahedron' };
+    case 'dodeca':
+      return { outer: 'dodecahedron', inner1: 'icosahedron', inner2: 'torusKnot' };
+    case 'icosa':
+      return { outer: 'icosahedron', inner1: 'octahedron', inner2: 'tetrahedron' };
+    case 'octa':
+      return { outer: 'octahedron', inner1: 'tetrahedron', inner2: 'icosahedron' };
+    case 'spiky':
+      return { outer: 'tetrahedron', inner1: 'octahedron', inner2: 'icosahedron' };
+    default:
+      // Legacy: fall back to palette-based selection
+      return { outer: 'icosahedron', inner1: 'dodecahedron', inner2: 'octahedron' };
+  }
+}
+
+/** Legacy palette-based selection (kept for backward compat) */
 function getGeometryForPalette(paletteId: string): { outer: GeometryType; inner1: GeometryType; inner2: GeometryType } {
   switch (paletteId) {
     case 'tech':
@@ -251,7 +274,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const shaderMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
-  const morphPhaseRef = useRef(0);
+  // Initialize morph phase from seed for per-user animation offset
+  const morphPhaseRef = useRef(profile?.seed ? (profile.seed % 1000) / 1000 * Math.PI * 2 : 0);
   // Safety margin to keep morphing/particles inside the canvas (prevents clipping)
   const fitScaleRef = useRef<number>(1);
 
@@ -301,17 +325,21 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return getMorphology(activePalette.id);
   }, [activePalette.id]);
 
-  // Get DNA-based geometry types
+  // Get DNA-based geometry types - prefer profile's geometryFamily, fallback to palette
   const geometryTypes = useMemo(() => {
+    if (profile?.geometryFamily) {
+      return getGeometryFromProfile(profile);
+    }
     return getGeometryForPalette(activePalette.id);
-  }, [activePalette.id]);
+  }, [profile?.geometryFamily, activePalette.id]);
 
-  // Get profile-based parameters - ENHANCED for dramatic morphing
-  const geometryDetail = Math.max(3, profile?.geometryDetail ?? 4);
-  const morphIntensity = Math.max(0.25, (profile?.morphIntensity ?? 0.2) * 1.5); // 50% stronger
-  const morphSpeed = profile?.morphSpeed ?? 1.2;
-  const fractalOctaves = Math.max(4, profile?.fractalOctaves ?? 5);
-  const particleCount = Math.max(60, profile?.particleCount ?? 80);
+  // Get profile-based parameters - ENHANCED with seed-driven variance
+  const geometryDetail = Math.max(2, Math.min(6, profile?.geometryDetail ?? 4));
+  const morphIntensity = Math.max(0.15, Math.min(0.95, (profile?.morphIntensity ?? 0.4) * 1.3));
+  const morphSpeed = profile?.morphSpeed ?? 1.0;
+  const fractalOctaves = Math.max(2, Math.min(6, profile?.fractalOctaves ?? 4));
+  const particleCount = Math.min(120, Math.max(0, profile?.particleCount ?? 40));
+  const textureType = profile?.textureType ?? 'flowing';
 
   useImperativeHandle(ref, () => ({
     setSpeaking: (speaking: boolean) => setInternalState(speaking ? 'speaking' : 'idle'),
@@ -617,18 +645,34 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           const ny = baseY / dist;
           const nz = baseZ / dist;
           
-          // ENHANCED organic noise-based deformation
-          const noiseVal = fbm(
-            nx * 2.5 + morphPhase * 0.6,
-            ny * 2.5 + morphPhase * 0.4,
-            nz * 2.5 + morphPhase * 0.8,
+          // Texture-type-influenced noise deformation
+          let noiseFreq = 2.5;
+          let noiseSharp = 1.0;
+          let waveScale = 1.0;
+          switch (textureType) {
+            case 'crystalline': noiseFreq = 4.0; noiseSharp = 1.5; break;
+            case 'ethereal': noiseFreq = 1.8; noiseSharp = 0.6; waveScale = 1.3; break;
+            case 'electric': noiseFreq = 3.5; noiseSharp = 2.0; break;
+            case 'plasma': noiseFreq = 2.0; noiseSharp = 0.8; waveScale = 1.5; break;
+            case 'nebula': noiseFreq = 1.5; noiseSharp = 0.5; waveScale = 1.2; break;
+            default: break; // 'flowing' uses defaults
+          }
+          
+          let noiseVal = fbm(
+            nx * noiseFreq + morphPhase * 0.6,
+            ny * noiseFreq + morphPhase * 0.4,
+            nz * noiseFreq + morphPhase * 0.8,
             fractalOctaves
           );
+          // Apply sharpness (step function for electric/crystalline)
+          if (noiseSharp > 1.2) {
+            noiseVal = Math.sign(noiseVal) * Math.pow(Math.abs(noiseVal), 1 / noiseSharp);
+          }
           
           // Multiple wave layers for complex movement
-          const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.12;
-          const wave2 = Math.sin(nz * 3 + time * 1.8) * Math.cos(ny * 2.5 + time * 1.2) * 0.08;
-          const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.06;
+          const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.12 * waveScale;
+          const wave2 = Math.sin(nz * 3 + time * 1.8) * Math.cos(ny * 2.5 + time * 1.2) * 0.08 * waveScale;
+          const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.06 * waveScale;
           
           // Radial pulse with multiple frequencies
           const pulse1 = Math.sin(time * pulseMod + dist * 4) * 0.05;
@@ -727,7 +771,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, activeMorphology, activePalette]);
+  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, textureType, activeMorphology, activePalette]);
 
   // Resize handling
   useEffect(() => {
