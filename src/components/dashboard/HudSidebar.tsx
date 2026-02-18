@@ -67,9 +67,9 @@ export function HudSidebar() {
 
         {/* ===== COLLAPSED MINI VIEW ===== */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-10 pb-2 px-1 overflow-hidden">
             {/* Top: Orb + Level */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-1">
               <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-12 h-12 overflow-visible cursor-pointer">
                 <PersonalizedOrb size={48} state="idle" />
               </button>
@@ -95,7 +95,7 @@ export function HudSidebar() {
             </div>
 
             {/* Middle: Stats */}
-            <div className="flex flex-col items-center gap-2 w-full px-0.5">
+            <div className="flex flex-col items-center gap-1 w-full px-0.5">
               <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
               {[
                 { icon: ZapIcon, value: tokens.balance, label: language === 'he' ? 'אנרגיה' : 'Energy', color: 'text-accent-foreground' },
@@ -104,7 +104,7 @@ export function HudSidebar() {
                 { icon: Eye, value: `${clarityVal}%`, label: language === 'he' ? 'בהירות' : 'Clarity', color: 'text-chart-2' },
                 { icon: TrendingUp, value: `${readinessVal}%`, label: language === 'he' ? 'מוכנות' : 'Ready', color: 'text-chart-4' },
               ].map((m, i) => (
-                <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1.5">
+                <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
                   <m.icon className={cn("w-4 h-4", m.color)} />
                   <span className="text-[10px] font-bold leading-none">{m.value}</span>
                 </div>
@@ -113,7 +113,7 @@ export function HudSidebar() {
             </div>
 
             {/* Bottom: Modal triggers */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-1">
               <button onClick={() => setActiveModal('identity')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <UserCircle className="w-4 h-4 text-chart-5" />
               </button>
