@@ -40,7 +40,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
     ? ["5 הודעות ביום", "3 הרגלים בלבד"]
     : ["5 messages/day", "Only 3 habits"];
 
-  const originalPrice = isHe ? "₪649" : "$149";
+  const originalPrice = isHe ? "₪347" : "$97";
   const salePrice = isHe ? "₪179" : "$49";
 
   return (
@@ -87,7 +87,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
                   className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-950 font-extrabold text-sm px-5 py-2 rounded-full shadow-lg shadow-yellow-500/30"
                 >
                   <Zap className="w-4 h-4" />
-                  {isHe ? "70% הנחה — לזמן מוגבל" : "70% OFF — LIMITED TIME"}
+                  {isHe ? "50% הנחה — לזמן מוגבל" : "50% OFF — LIMITED TIME"}
                   <Zap className="w-4 h-4" />
                 </motion.div>
 
