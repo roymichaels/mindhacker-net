@@ -1,83 +1,70 @@
 
 
-# HUD Collapsed Stretch + Roadmap Collapsed Mini-View + Milestone Detail Modal
+# Daily Roadmap - Dashboard Body Redesign
 
-## Problem
+## What Changes
 
-1. **HUD collapsed view** is too cramped -- tiny icons/text crammed at the top, not using the full sidebar height, hard to read.
-2. **Roadmap sidebar** shows nothing when collapsed -- just a narrow 10px bar. Users lose all context about their journey.
-3. **Milestones are not clickable** -- there's no way to see full details (description, goal, tasks, challenge, rewards) for any milestone.
+The dashboard body currently shows separate, disconnected sections: a Daily Pulse check-in, a Habits collapsible, and a Tasks collapsible. This feels fragmented and the Daily Pulse isn't motivating action. We'll replace all three with a single **Daily Roadmap** -- a unified, visual timeline of everything the user needs to do today.
 
-## Changes
+## New "Daily Roadmap" Component
 
-### 1. HudSidebar.tsx -- Stretch collapsed view to full height
+A vertical mini-timeline that merges today's habits, tasks, and current milestone into one motivating, actionable view:
 
-**Current**: `gap-2 pt-10` with `text-[8px]`/`text-[9px]` font sizes, all stacked tightly at top.
+```
+Today's Journey
+  [progress bar: 3/8 complete]
 
-**New collapsed layout**:
-- Widen collapsed width from `w-14` to `w-16` (64px) for better readability
-- Use `justify-between` on the flex column so content distributes vertically across the full sidebar height
-- Top section: Orb (48px) + Level badge
-- Middle section: Stats displayed with larger icons (`w-4 h-4`) and readable text (`text-[10px]`), each stat gets a mini card background with padding
-- Bottom section: Modal trigger buttons (Identity/Direction/Insights) anchored to the bottom
-- Separators between sections use gradient lines instead of plain 6px bars
-- Each stat item gets a tiny rounded background (`bg-muted/30 rounded-lg p-1.5`) for visual separation and readability
+  [=] Wake up routine           (habit, done)
+  [=] Morning meditation        (habit, done)
+  [=] Review daily plan         (task, done)
+  [ ] Nutrition tracking        (habit)
+  [ ] Week 3: Build routine     (milestone, current)
+  [ ] Evening reflection        (habit)
+  [ ] Screen off by 22:00       (habit)
+  [ ] Journal entry             (task)
+```
 
-### 2. RoadmapSidebar.tsx -- Show mini roadmap when collapsed
+Each item is tappable to complete (habits/tasks) or view details (milestones). Items are color-coded by type (emerald for habits, violet for tasks, amber for milestones).
 
-**Current**: When collapsed (`w-10`), content is fully hidden.
+## Layout in Dashboard Body
 
-**New collapsed layout**:
-- Widen collapsed width from `w-10` to `w-14` (56px)
-- Show a mini vertical timeline with:
-  - Small progress circle at top showing completion %
-  - Vertical line (3px) with gradient fill showing progress
-  - Mini milestone nodes: completed (green dot), current (amber pulsing dot), future (gray dashed circle)
-  - Week numbers as tiny labels (`text-[9px]`) next to each node
-  - Month divider pills (M1/M2/M3) as horizontal lines
-- Each milestone node is **clickable** -- opens the milestone detail modal
-- The mini view uses the same `useLifePlanWithMilestones()` hook data
+The new order in `MobileHeroGrid` COL 2:
 
-### 3. New: MilestoneDetailModal.tsx
+1. **StartSessionButton** (stays)
+2. **MotivationalBanner** (stays)
+3. **DailyRoadmap** (NEW -- replaces DailyPulse + Habits + Tasks)
+4. **RecalibrationSummary** (stays)
 
-A new dialog component that shows everything about a single milestone:
+The Daily Pulse data collection still happens, but moves into the Daily Roadmap as the first uncompleted item when not yet logged today (a quick inline prompt rather than a separate card).
 
-**Header**:
-- Week number badge + completion status indicator
-- Milestone title (large, prominent)
-- Focus area tag if present
-
-**Body (scrollable)**:
-- **Goal**: The milestone's goal text
-- **Description**: Full description
-- **Tasks**: Checklist of tasks (from the `tasks` string array)
-- **Challenge**: Weekly challenge text if present
-- **Rewards**: XP and token reward amounts displayed with icons
-
-**Footer**:
-- "Mark Complete" button (if not already completed, uses `useCompleteMilestone` hook)
-- Completed date if already done
-
-### 4. VerticalRoadmap.tsx -- Make milestones clickable
-
-- Add `onMilestoneClick?: (milestone: MilestoneData) => void` prop
-- Both Desktop and Horizontal timeline nodes get `cursor-pointer` + `onClick`
-- In the sidebar contexts, clicking opens the MilestoneDetailModal
-- In standalone usage (PlanTab), same behavior
-
-## Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/components/dashboard/HudSidebar.tsx` | Modify collapsed section -- stretch to full height, larger elements, distributed layout |
-| `src/components/dashboard/RoadmapSidebar.tsx` | Add collapsed mini-timeline view with clickable nodes |
-| `src/components/dashboard/MilestoneDetailModal.tsx` | Create -- full milestone detail dialog |
-| `src/components/dashboard/VerticalRoadmap.tsx` | Add `onMilestoneClick` prop, make nodes clickable, integrate modal |
+---
 
 ## Technical Details
 
-- The milestone detail modal uses the existing `Dialog` from `@/components/ui/dialog`
-- Milestone data is already fetched via `useLifePlanWithMilestones()` which returns the full `Milestone` type (with `description`, `goal`, `focus_area`, `tasks[]`, `challenge`, `xp_reward`, `tokens_reward`, etc.)
-- For the collapsed roadmap, a separate lightweight query is NOT needed -- the `VerticalRoadmap` component already has all the data. Instead, the `RoadmapSidebar` will query directly using `useLifePlanWithMilestones()` and render its own collapsed mini-view
-- The `useCompleteMilestone()` mutation hook already exists and handles DB update + toast + cache invalidation
+### New file: `src/components/dashboard/DailyRoadmap.tsx`
 
+- Combines data from `useTodaysHabits()`, tasks query (from `action_items`), `useLifePlanWithMilestones()`, and `useDailyPulse()`
+- Renders a vertical mini-timeline with a progress line (similar visual language to `VerticalRoadmap`)
+- Item types distinguished by icon + color:
+  - Habits: Sparkles icon, emerald
+  - Tasks: ListChecks icon, violet
+  - Milestones: MapPin icon, amber (non-toggleable, opens detail)
+  - Daily Pulse: Activity icon, primary (inline micro-form when not logged)
+- Progress bar at top showing `completed/total` with percentage
+- Items sorted: completed at bottom (faded), pulse first if not done, then habits, then tasks, then milestone
+- Each habit/task has a tap-to-complete circle (reuses existing toggle logic)
+- Collapsible "completed" section at bottom to keep focus on remaining items
+
+### Modify: `src/components/dashboard/MobileHeroGrid.tsx`
+
+- Remove `DailyPulseCard` import and usage
+- Remove the two `CollapsiblePlanRow` blocks (habits and tasks)
+- Add `DailyRoadmap` component in their place
+- Keep `CollapsiblePlanRow` sub-component in file (or remove if unused elsewhere)
+- Clean up unused imports (`Sparkles`, `ListChecks` if only used there)
+
+### Keep existing hooks unchanged
+
+- `useTodaysHabits` -- consumed by DailyRoadmap
+- `useDailyPulse` -- consumed by DailyRoadmap for inline pulse
+- Task query logic moves into DailyRoadmap (or extracted to a shared hook)
