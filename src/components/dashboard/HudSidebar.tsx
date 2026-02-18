@@ -17,8 +17,9 @@ import {
 } from '@/components/dashboard/MergedModals';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
-  Target, UserCircle, Compass,
+  Target, UserCircle, Compass, RefreshCw,
 } from 'lucide-react';
+import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
 
 export function HudSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -30,6 +31,7 @@ export function HudSidebar() {
   const { sessionStats } = useGameState();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
+  const [recalibrateOpen, setRecalibrateOpen] = useState(false);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [insightsTab, setInsightsTab] = useState<string | undefined>();
@@ -122,6 +124,10 @@ export function HudSidebar() {
               </button>
               <button onClick={() => setActiveModal('insights')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <Brain className="w-4 h-4 text-chart-3" />
+              </button>
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
+              <button onClick={() => setRecalibrateOpen(true)} className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors" title={language === 'he' ? 'כיול מחדש' : 'Recalibrate'}>
+                <RefreshCw className="w-4 h-4 text-primary" />
               </button>
             </div>
           </div>
@@ -224,6 +230,15 @@ export function HudSidebar() {
           </div>
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+          {/* Recalibrate button — expanded */}
+          <button
+            onClick={() => setRecalibrateOpen(true)}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>{language === 'he' ? 'כיול מחדש' : 'Recalibrate'}</span>
+          </button>
         </div>
         )}
       </aside>
@@ -243,6 +258,7 @@ export function HudSidebar() {
         open={activeModal === 'insights'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
         initialTab={insightsTab}
       />
+      <RecalibrateModal open={recalibrateOpen} onOpenChange={setRecalibrateOpen} />
     </>
   );
 }
