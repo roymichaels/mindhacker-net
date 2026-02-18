@@ -48,14 +48,16 @@ export type { MilestoneData };
 
 interface VerticalRoadmapProps {
   onMilestoneClick?: (milestone: MilestoneData) => void;
+  forceVertical?: boolean;
 }
 
-export function VerticalRoadmap({ onMilestoneClick }: VerticalRoadmapProps = {}) {
+export function VerticalRoadmap({ onMilestoneClick, forceVertical }: VerticalRoadmapProps = {}) {
   const { t, language } = useTranslation();
   const { milestones, currentWeek, isLoading, hasLifePlan } = useLifePlanWithMilestones();
   const navigate = useNavigate();
   const isHe = language === 'he';
   const isDesktop = useIsDesktop();
+  const useVertical = forceVertical || isDesktop;
 
   if (isLoading) {
     return (
@@ -92,7 +94,7 @@ export function VerticalRoadmap({ onMilestoneClick }: VerticalRoadmapProps = {})
   const completedCount = milestones.filter(m => m.is_completed).length;
   const progressPercent = Math.round((completedCount / milestones.length) * 100);
 
-  return isDesktop
+  return useVertical
     ? <DesktopTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} onMilestoneClick={onMilestoneClick} />
     : <HorizontalTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} onMilestoneClick={onMilestoneClick} />;
 }

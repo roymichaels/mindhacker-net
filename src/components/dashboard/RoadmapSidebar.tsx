@@ -73,7 +73,7 @@ export function RoadmapSidebar() {
         {!collapsed && (
           <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
             <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-2" />
-            <VerticalRoadmap onMilestoneClick={handleMilestoneClick} />
+            <VerticalRoadmap onMilestoneClick={handleMilestoneClick} forceVertical />
           </div>
         )}
       </aside>
