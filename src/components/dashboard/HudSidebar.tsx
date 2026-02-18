@@ -67,7 +67,7 @@ export function HudSidebar() {
 
         {/* ===== COLLAPSED MINI VIEW ===== */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-10 pb-2 px-1 overflow-hidden">
+          <div className="flex flex-col items-center gap-1 h-full pt-10 pb-2 px-1 overflow-hidden">
             {/* Top: Orb + Level */}
             <div className="flex flex-col items-center gap-1">
               <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-12 h-12 overflow-visible cursor-pointer">
