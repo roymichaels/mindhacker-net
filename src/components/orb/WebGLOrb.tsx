@@ -394,8 +394,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       intensity: { value: 1.0 },
     };
 
-    // ===== MAIN WIREFRAME uses inner1 geometry as the primary visible structure =====
-    const outerGeo = createGeometry(geometryTypes.inner1, 0.45, Math.max(1, geometryDetail - 1));
+    // ===== MAIN WIREFRAME - small core sphere (no large outer geometry) =====
+    const outerGeo = createGeometry(geometryTypes.inner2, 0.25, Math.max(0, geometryDetail - 2));
     const outerEdges = new THREE.WireframeGeometry(outerGeo);
     
     const positions = outerEdges.attributes.position;
@@ -442,14 +442,29 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Store base positions for morphing
     basePositionsRef.current = outerEdges.attributes.position.array.slice() as Float32Array;
-    // Store base colors so we can animate without accumulating brightness over time
     baseColorsRef.current = (outerEdges.getAttribute('color').array as Float32Array).slice() as Float32Array;
 
-    // No extra inner geometric structures — only core wireframe + particles
-    innerStructuresRef.current = [];
+    // ===== INNER STRUCTURE - medium shell =====
+    const inner1Geo = createGeometry(geometryTypes.inner1, 0.45, Math.max(1, geometryDetail - 1));
+    const inner1Edges = new THREE.WireframeGeometry(inner1Geo);
+    const inner1Positions = inner1Edges.attributes.position;
+    const inner1Colors = new Float32Array(inner1Positions.count * 3);
+    for (let i = 0; i < inner1Positions.count; i++) {
+      const y = inner1Positions.getY(i);
+      const t = (y + 0.5) / 1;
+      inner1Colors[i * 3] = secondaryColor.r + (accentColor.r - secondaryColor.r) * t;
+      inner1Colors[i * 3 + 1] = secondaryColor.g + (accentColor.g - secondaryColor.g) * t;
+      inner1Colors[i * 3 + 2] = secondaryColor.b + (accentColor.b - secondaryColor.b) * t;
+    }
+    inner1Edges.setAttribute('color', new THREE.BufferAttribute(inner1Colors, 3));
+    const inner1Wireframe = new THREE.LineSegments(inner1Edges, lineMaterial.clone());
+    inner1Wireframe.scale.setScalar(fitScale);
+    scene.add(inner1Wireframe);
+    innerStructuresRef.current = [inner1Wireframe];
 
     // Cleanup geometries
     outerGeo.dispose();
+    inner1Geo.dispose();
 
     // ===== PARTICLES - Gradient colored =====
     // Keep particle cloud slightly tighter so it doesn't get cut off by the canvas.
