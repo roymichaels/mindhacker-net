@@ -30,7 +30,7 @@ export function RoadmapSidebar() {
           "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
           "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
           "ltr:border-e rtl:border-s border-border/50 dark:border-primary/15",
-          collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
+          collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
         )}
       >
         {/* Collapse toggle */}
@@ -52,7 +52,7 @@ export function RoadmapSidebar() {
 
         {/* Collapsed mini-timeline */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-hidden">
             {hasLifePlan && milestones.length > 0 ? (
               <CollapsedMiniTimeline
                 milestones={milestones}
@@ -105,9 +105,9 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
   const monthBreaks = [4, 8]; // after week 4 and 8
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full relative">
+    <div className="flex flex-col items-center gap-1 w-full relative">
       {/* Progress circle — HUD card style */}
-      <div className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1.5">
+      <div className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
         <div className="w-9 h-9 rounded-full border-2 border-primary/40 flex items-center justify-center bg-background/50">
           <span className="text-[9px] font-bold text-primary">{progressPercent}%</span>
         </div>
@@ -149,7 +149,7 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
               <button
                 onClick={() => onMilestoneClick(milestone)}
                 className={cn(
-                  "relative z-10 flex flex-col items-center py-1.5 transition-all group",
+                  "relative z-10 flex flex-col items-center py-1 transition-all group",
                   isFuture && "opacity-30"
                 )}
                 title={milestone.title}
