@@ -9,6 +9,7 @@ import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { SettingsModal } from '@/components/settings';
 import { HudSidebar } from '@/components/dashboard/HudSidebar';
+import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
@@ -60,12 +61,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           />
 
           <div className="flex-1 min-h-0 flex">
-            {/* HUD Sidebar — start side (right in RTL, left in LTR) */}
-            <HudSidebar />
+            {/* Roadmap Sidebar — left in LTR, right in RTL */}
+            <RoadmapSidebar />
 
             <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-14 flex flex-col">
               {children}
             </main>
+
+            {/* HUD Sidebar — right in LTR, left in RTL */}
+            <HudSidebar />
           </div>
 
           <AuroraDock />

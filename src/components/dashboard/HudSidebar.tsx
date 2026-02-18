@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -24,7 +25,8 @@ import {
 } from 'lucide-react';
 
 export function HudSidebar() {
-  const { t, language } = useTranslation();
+  const [collapsed, setCollapsed] = useState(false);
+  const { t, language, isRTL } = useTranslation();
   const dashboard = useUnifiedDashboard();
   const xp = useXpProgress();
   const streak = useStreak();
@@ -56,12 +58,32 @@ export function HudSidebar() {
   return (
     <>
       {/* Fixed sidebar panel */}
-      <aside className="hidden lg:flex lg:flex-col w-[280px] xl:w-[300px] flex-shrink-0 h-full overflow-y-auto overflow-x-hidden
-        backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80
-        dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90
-        ltr:border-s rtl:border-e border-border/50 dark:border-primary/15
-      ">
-        <div className="flex flex-col items-center gap-3 p-3">
+      <aside className={cn(
+        "hidden lg:flex lg:flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
+        "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
+        "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
+        "ltr:border-s rtl:border-e border-border/50 dark:border-primary/15",
+        collapsed ? "w-10" : "w-[280px] xl:w-[300px]"
+      )}>
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(
+            "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
+            collapsed
+              ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
+              : "ltr:left-2 rtl:right-2"
+          )}
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed
+            ? (isRTL ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />)
+            : (isRTL ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />)
+          }
+        </button>
+
+        {!collapsed && (
+        <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-y-auto overflow-x-hidden">
           {/* Decorative top accent */}
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -163,6 +185,7 @@ export function HudSidebar() {
           {/* Bottom accent */}
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         </div>
+        )}
       </aside>
 
       {/* Modals */}

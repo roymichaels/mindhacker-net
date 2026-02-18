@@ -273,10 +273,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
         </div>
 
-        {/* ===== COL 3 - Roadmap (desktop only) ===== */}
-        <div className="hidden lg:flex lg:flex-col lg:gap-3 lg:order-3 lg:pt-4 lg:max-h-[calc(100vh-5rem)] lg:overflow-hidden">
-          <VerticalRoadmap />
-        </div>
+        {/* Desktop roadmap now in RoadmapSidebar */}
       </div>
 
       {/* Modals */}
