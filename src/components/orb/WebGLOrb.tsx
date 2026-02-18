@@ -362,7 +362,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     // Camera
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.z = 3.5;
+    camera.position.z = 2.2;
     cameraRef.current = camera;
 
     // Renderer
@@ -433,7 +433,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     
     const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
 
-    const fitScale = size <= 120 ? 0.78 : size <= 200 ? 0.86 : 0.92;
+    const fitScale = size <= 120 ? 0.92 : size <= 200 ? 0.95 : 1.0;
     fitScaleRef.current = fitScale;
     mainWireframe.scale.setScalar(fitScale);
 
@@ -723,10 +723,10 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
       // Camera movement
       if (isTunnel) {
-        camera.position.z = 3.0 + Math.sin(time * 0.5) * 0.4;
+        camera.position.z = 1.8 + Math.sin(time * 0.5) * 0.3;
         mainWireframe.rotation.z += 0.015;
       } else {
-        camera.position.z = 3.5;
+        camera.position.z = 2.2;
       }
 
       renderer.render(scene, camera);
