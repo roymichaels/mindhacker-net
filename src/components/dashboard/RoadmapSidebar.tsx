@@ -52,7 +52,7 @@ export function RoadmapSidebar() {
 
         {/* Collapsed mini-timeline */}
         {collapsed && (
-          <div className="flex flex-col items-center h-full pt-10 pb-4 px-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-y-auto overflow-x-hidden">
             {hasLifePlan && milestones.length > 0 ? (
               <CollapsedMiniTimeline
                 milestones={milestones}
@@ -61,7 +61,7 @@ export function RoadmapSidebar() {
                 onMilestoneClick={handleMilestoneClick}
               />
             ) : (
-              <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex flex-col items-center gap-2 text-center p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20">
                 <MapPin className="w-4 h-4 text-muted-foreground/40" />
                 <span className="text-[8px] text-muted-foreground">{isHe ? 'אין תוכנית' : 'No plan'}</span>
               </div>
@@ -105,11 +105,16 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
   const monthBreaks = [4, 8]; // after week 4 and 8
 
   return (
-    <div className="flex flex-col items-center gap-0 w-full relative">
-      {/* Progress circle */}
-      <div className="w-9 h-9 rounded-full border-2 border-primary/40 flex items-center justify-center mb-2 bg-background/50">
-        <span className="text-[9px] font-bold text-primary">{progressPercent}%</span>
+    <div className="flex flex-col items-center gap-2 w-full relative">
+      {/* Progress circle — HUD card style */}
+      <div className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1.5">
+        <div className="w-9 h-9 rounded-full border-2 border-primary/40 flex items-center justify-center bg-background/50">
+          <span className="text-[9px] font-bold text-primary">{progressPercent}%</span>
+        </div>
+        <span className="text-[8px] text-muted-foreground leading-none">{isHe ? 'התקדמות' : 'Progress'}</span>
       </div>
+
+      <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Vertical line container */}
       <div className="relative flex flex-col items-center gap-0 w-full">
@@ -117,7 +122,7 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
         <div className="absolute top-0 bottom-0 w-[3px] bg-muted/20 rounded-full left-1/2 -translate-x-1/2" />
         {/* Progress fill */}
         <div
-          className="absolute top-0 w-[3px] rounded-full bg-gradient-to-b from-emerald-500 via-emerald-400 to-amber-500/30 left-1/2 -translate-x-1/2 transition-all duration-700"
+          className="absolute top-0 w-[3px] rounded-full bg-gradient-to-b from-primary via-primary/60 to-accent/30 left-1/2 -translate-x-1/2 transition-all duration-700"
           style={{ height: `${Math.min(100, Math.round(((completedCount + 0.5) / milestones.length) * 100))}%` }}
         />
 
@@ -132,7 +137,7 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
               {/* Month divider */}
               {isMonthBreak && idx > 0 && (
                 <div className="flex items-center justify-center w-full my-1">
-                  <div className="px-1.5 py-0.5 rounded-full bg-muted/40 border border-border/20">
+                  <div className="px-1.5 py-0.5 rounded-full bg-muted/30 dark:bg-muted/15 border border-border/20">
                     <span className="text-[7px] font-bold text-muted-foreground">
                       {isHe ? `ח׳${milestone.week_number <= 4 ? 1 : milestone.week_number <= 8 ? 2 : 3}` : `M${milestone.week_number <= 4 ? 1 : milestone.week_number <= 8 ? 2 : 3}`}
                     </span>
@@ -152,17 +157,17 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
                 {isCurrent ? (
                   <motion.div className="relative">
                     <motion.div
-                      className="absolute -inset-1.5 rounded-full border border-amber-500/40"
+                      className="absolute -inset-1.5 rounded-full border border-primary/40"
                       animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                     />
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 border border-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.4)] flex items-center justify-center">
-                      <MapPin className="w-2.5 h-2.5 text-amber-950" />
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent border border-primary/50 shadow-[0_0_10px_hsl(var(--primary)/0.4)] flex items-center justify-center">
+                      <MapPin className="w-2.5 h-2.5 text-primary-foreground" />
                     </div>
                   </motion.div>
                 ) : isCompleted ? (
-                  <div className="w-4 h-4 rounded-full bg-emerald-500/80 border border-emerald-400/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                  <div className="w-4 h-4 rounded-full bg-chart-1/80 border border-chart-1/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />
                   </div>
                 ) : (
                   <div className="w-4 h-4 rounded-full border-2 border-dashed border-muted-foreground/20 bg-background/50 group-hover:border-muted-foreground/40 transition-colors" />
@@ -171,7 +176,7 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
                 {/* Week label */}
                 <span className={cn(
                   "text-[8px] font-bold mt-0.5 leading-none",
-                  isCurrent ? "text-amber-500" : isCompleted ? "text-emerald-500/70" : "text-muted-foreground/40"
+                  isCurrent ? "text-primary" : isCompleted ? "text-chart-1/70" : "text-muted-foreground/40"
                 )}>
                   {isHe ? `ש${milestone.week_number}` : `W${milestone.week_number}`}
                 </span>
@@ -180,6 +185,8 @@ function CollapsedMiniTimeline({ milestones, currentWeek, isHe, onMilestoneClick
           );
         })}
       </div>
+
+      <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
     </div>
   );
 }
