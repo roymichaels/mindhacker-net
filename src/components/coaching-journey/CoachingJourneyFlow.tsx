@@ -62,7 +62,7 @@ export function CoachingJourneyFlow({ className, journeyId, onComplete, onClose 
 
   const handleClose = () => {
     if (onClose) onClose();
-    else navigate('/marketplace');
+    else navigate('/coaches');
   };
 
   const handleNavigatePrev = () => {

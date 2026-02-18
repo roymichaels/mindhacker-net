@@ -94,7 +94,7 @@ const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
 const Hobbies = lazy(() => import("./pages/Hobbies"));
 const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
-const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const CoachClientPlans = lazy(() => import("./pages/panel/CoachClientPlans"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
@@ -249,8 +249,9 @@ const App = () => (
                         <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/start" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
-                        {/* Redirect practitioners to marketplace */}
-                        <Route path="/practitioners" element={<Navigate to="/marketplace" replace />} />
+                        {/* Redirect practitioners and old marketplace to coaches */}
+                        <Route path="/practitioners" element={<Navigate to="/coaches" replace />} />
+                        <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
                         <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
                         {/* Redirect old affiliate dashboard to new panel */}
@@ -396,13 +397,13 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Marketplace */}
+                        {/* Coaches */}
                         <Route
-                          path="/marketplace"
+                          path="/coaches"
                           element={
                             <ProtectedRoute>
                               <DashboardLayout>
-                                <Marketplace />
+                                <Coaches />
                               </DashboardLayout>
                             </ProtectedRoute>
                           }

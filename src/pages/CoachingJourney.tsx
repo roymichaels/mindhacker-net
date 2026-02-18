@@ -6,11 +6,11 @@ const CoachingJourney = () => {
   const { journeyId } = useParams<{ journeyId?: string }>();
 
   const handleComplete = () => {
-    navigate('/marketplace');
+    navigate('/coaches');
   };
 
   const handleClose = () => {
-    navigate('/marketplace');
+    navigate('/coaches');
   };
 
   return (
