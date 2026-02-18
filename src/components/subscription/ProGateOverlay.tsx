@@ -1,8 +1,8 @@
 import { Lock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 
 interface ProGateOverlayProps {
   feature: string;
@@ -10,7 +10,7 @@ interface ProGateOverlayProps {
 }
 
 const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
-  const navigate = useNavigate();
+  const { openSubscriptions } = useSubscriptionsModal();
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
@@ -49,7 +49,7 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
       <p className="text-muted-foreground text-sm max-w-xs">
         {isHe ? msg.he : msg.en}
       </p>
-      <Button onClick={() => navigate('/subscriptions')} size="lg">
+      <Button onClick={openSubscriptions} size="lg">
         <Zap className="h-4 w-4 me-2" />
         {isHe ? 'שדרג עכשיו' : 'Upgrade Now'}
       </Button>

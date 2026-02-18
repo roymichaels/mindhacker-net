@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscriptionsModal } from "@/contexts/SubscriptionsModalContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import CourseWatchSidebar from "@/components/course-watch/CourseWatchSidebar";
 import CourseWatchHeader from "@/components/course-watch/CourseWatchHeader";
@@ -18,6 +19,7 @@ const CourseWatch = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openSubscriptions } = useSubscriptionsModal();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentEpisodeId, setCurrentEpisodeId] = useState<string | null>(
     searchParams.get("episode")
@@ -218,7 +220,7 @@ const CourseWatch = () => {
               <Button onClick={() => navigate(`/courses/${course.slug}`)}>
                 צפה בפרטי הקורס
               </Button>
-              <Button variant="outline" onClick={() => navigate("/subscriptions")}>
+              <Button variant="outline" onClick={openSubscriptions}>
                 צפה במנויים
               </Button>
             </div>

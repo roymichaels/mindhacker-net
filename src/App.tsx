@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { PractitionersModalProvider } from "@/contexts/PractitionersModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
+import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GameStateProvider } from "@/contexts/GameStateContext";
 import AnalyticsProvider from "@/components/AnalyticsProvider";
@@ -20,6 +21,7 @@ import AffiliateTracker from "@/components/AffiliateTracker";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
+import SubscriptionsModal from "@/components/subscription/SubscriptionsModal";
 import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -199,8 +201,9 @@ const App = () => (
               <AuroraChatProvider>
                <LanguageProvider>
                <AuthModalProvider>
-               <GameStateProvider>
-                <PractitionersModalProvider>
+                <GameStateProvider>
+                <SubscriptionsModalProvider>
+                 <PractitionersModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -740,13 +743,14 @@ const App = () => (
                       <PWAInstallBanner />
                       <NotificationPermissionPrompt />
                       <CookieConsent />
-                      
+                      <SubscriptionsModal />
                       
                     </Suspense>
                   </AnalyticsProvider>
                 </BrowserRouter>
                 </TooltipProvider>
                 </PractitionersModalProvider>
+                </SubscriptionsModalProvider>
               </GameStateProvider>
              </AuthModalProvider>
                </LanguageProvider>
