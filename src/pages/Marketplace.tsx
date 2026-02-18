@@ -57,29 +57,31 @@ export default function Marketplace() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-amber-500/10">
-          <Sparkles className="h-5 w-5 text-amber-500" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-amber-500/10">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{t('practitioners.directoryTitle')}</h1>
+            <p className="text-sm text-muted-foreground">
+              {language === 'he' ? 'מצאו את המאמן המתאים לכם' : 'Find the right coach for you'}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">{t('practitioners.directoryTitle')}</h1>
-          <p className="text-sm text-muted-foreground">
-            {language === 'he' ? 'מצאו את המאמן המתאים לכם' : 'Find the right coach for you'}
-          </p>
-        </div>
-      </div>
 
-      {/* Become a Coach CTA */}
-      {user && !isAlreadyCoach && (
-        <Button
-          onClick={() => navigate('/coaching/journey')}
-          className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
-          size="lg"
-        >
-          <Rocket className="h-5 w-5 me-2" />
-          {language === 'en' ? 'Become a Coach' : 'הפוך למאמן'}
-        </Button>
-      )}
+        {/* Become a Coach CTA */}
+        {user && !isAlreadyCoach && (
+          <Button
+            onClick={() => navigate('/coaching/journey')}
+            className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
+            size="sm"
+          >
+            <Rocket className="h-4 w-4 me-1" />
+            {language === 'en' ? 'Become a Coach' : 'הפוך למאמן'}
+          </Button>
+        )}
+      </div>
 
       {/* Search + Filters */}
       <div className="space-y-3">
