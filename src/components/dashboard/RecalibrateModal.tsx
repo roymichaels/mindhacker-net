@@ -360,7 +360,7 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden border-border/50 bg-background/95 backdrop-blur-xl">
+      <DialogContent className="max-w-2xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden border-border/50 bg-background/95 backdrop-blur-xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/30 bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
           <div className="flex items-center gap-2.5">
@@ -420,15 +420,25 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <ScrollArea className="flex-1 h-0">
+          <ScrollArea className="flex-1 min-h-0">
             <div className="p-5 space-y-4 pb-28">
               {questionSteps.map((step, stepIdx) => {
+                // For steps with branching (pain/outcome), show all options but only for the selected focus
                 const visibleMinis = getVisibleMiniSteps(step, answers);
-                if (visibleMinis.length === 0) return null;
+                
+                // If no visible minis due to branching and primary_focus not set yet, 
+                // show the first mini-step as a fallback so users can see something
+                const minisToRender = visibleMinis.length > 0 
+                  ? visibleMinis 
+                  : step.miniSteps.length > 0 && step.miniSteps[0].branching
+                    ? [step.miniSteps[0]] // show first variant as fallback
+                    : [];
+                
+                if (minisToRender.length === 0) return null;
 
                 return (
                   <div key={step.id}>
-                    {visibleMinis.map(mini => (
+                    {minisToRender.map(mini => (
                       <QuestionSection
                         key={mini.id}
                         mini={mini}
