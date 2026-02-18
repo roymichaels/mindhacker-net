@@ -9,7 +9,7 @@ import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 const tabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
-  { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
+  { id: 'coaches', path: '/coaches', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
   { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים', comingSoon: true },
 ];
 

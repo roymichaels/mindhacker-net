@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Practitioners = () => {
   const navigate = useNavigate();
-  useEffect(() => { navigate('/marketplace', { replace: true }); }, [navigate]);
+  useEffect(() => { navigate('/coaches', { replace: true }); }, [navigate]);
   return null;
 };
 

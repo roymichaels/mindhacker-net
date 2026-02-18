@@ -47,9 +47,9 @@ const featureMessages: Record<string, FeatureMessage> = {
     en: "Coaching tools require a Coach subscription or higher",
     targetTier: "coach",
   },
-  marketplace: {
+  coaches: {
     he: "נוכחות בשוק המאמנים דורשת מנוי Coach",
-    en: "Marketplace listing requires a Coach subscription",
+    en: "Coach listing requires a Coach subscription",
     targetTier: "coach",
   },
   business: {
