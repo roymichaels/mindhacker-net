@@ -7,7 +7,7 @@ const tabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
   { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
-  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים' },
+  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים', comingSoon: true },
 ];
 
 export function BottomTabBar() {
@@ -26,15 +26,18 @@ export function BottomTabBar() {
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
+          const isComingSoon = 'comingSoon' in tab && tab.comingSoon;
           return (
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
               className={cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[64px]",
-                active
-                  ? "text-amber-500 dark:text-amber-400"
-                  : "text-muted-foreground"
+                isComingSoon
+                  ? "text-muted-foreground/40 opacity-50 grayscale"
+                  : active
+                    ? "text-amber-500 dark:text-amber-400"
+                    : "text-muted-foreground"
               )}
             >
               <Icon className="h-5 w-5" />
