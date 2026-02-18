@@ -408,7 +408,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
 
     // Fit-to-canvas safety margin (prevents visual clipping on small sizes)
-    const fitScale = size <= 200 ? 0.78 : 0.86;
+    const fitScale = size <= 120 ? 0.78 : size <= 200 ? 0.86 : 0.92;
     fitScaleRef.current = fitScale;
     mainWireframe.scale.setScalar(fitScale);
 

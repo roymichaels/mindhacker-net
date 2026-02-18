@@ -214,7 +214,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Desktop: orb + stats below */}
           <div className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 w-full">
-            <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full aspect-square overflow-hidden cursor-pointer">
+            <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full aspect-square overflow-visible cursor-pointer">
               <PersonalizedOrb size={260} state="idle" />
             </button>
             {/* Identity title - own row */}
