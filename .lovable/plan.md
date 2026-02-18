@@ -1,108 +1,98 @@
 
 
-# Marketing Integration & Ad Strategy Plan
+# Orb Visual Differentiation and Debugging Overhaul
 
-## Current Funnel Map
+## Root Cause Analysis
 
-```text
-Ad Click --> Landing Page (/) --> /onboarding --> Neural Intake (17 steps) --> Reveal Screen --> /today (Dashboard)
-                                                                                                     |
-                                                                                          PromoUpgradeModal (session-based)
-                                                                                          triggers for free users
-```
+The orb looks nearly identical for all users because of several compounding issues:
 
-## Problems Identified
+1. **No per-user seed**: Two users with similar (or empty) data get the exact same geometry, colors, and motion. There is no user_id-based randomization.
+2. **Silent fallback to defaults**: When data is missing (no launchpad progress, no summaries), `generateOrbProfile` quietly returns the same `DEFAULT_ORB_PROFILE` for everyone with no indication anything is wrong.
+3. **Conservative parameter ranges**: morphIntensity (0.3-0.8), motionSpeed (~1.0), pulseRate (~1.0) -- too narrow to produce visible differences.
+4. **Geometry locked to palette ID**: `getGeometryForPalette()` maps only 6 palette strings to geometry combos. The profile's archetype blend computes custom colors but the palette ID used for geometry selection often falls through to 'custom' or 'theme', which defaults to `explorer` geometry every time.
+5. **Stored profile loses data**: `rowToProfile()` hardcodes `motionSpeed: 1.0`, `pulseRate: 1.0`, `textureType: 'flowing'` -- discarding the computed values.
+6. **No transition system**: Profile changes cause a full scene teardown/rebuild, not a smooth morph.
 
-1. **No UTM tracking** -- Ad spend cannot be attributed. No `utm_source`, `utm_campaign`, or `utm_medium` params are captured anywhere (only `?ref=` for affiliates exists).
-2. **Landing page CTAs all go to `/launchpad`** which redirects to `/onboarding` -- an unnecessary hop.
-3. **No ad-specific landing pages** -- All traffic hits the generic homepage. No way to A/B test or tailor messaging per campaign.
-4. **Onboarding is 17+ steps before any value** -- High drop-off risk from cold ad traffic. No "quick win" moment.
-5. **Promo modal only triggers after multiple sessions** -- Cold ad traffic that signs up never sees the upgrade offer on their first session.
-6. **No post-onboarding conversion nudge** -- After the impressive Neural Diagnostics reveal, there's no upsell moment when motivation peaks.
-7. **No conversion event tracking** -- No way to fire Meta/Google pixel events for signup, onboarding completion, or purchase.
+## Plan Overview
 
-## Implementation Plan
+### Step A -- Debug Overlay and Logging
 
-### 1. UTM Parameter Tracking System
-Create a `useUTMTracker` hook (similar to existing `AffiliateTracker`) that:
-- Captures `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term` from URL params on any page
-- Stores them in `localStorage` with 30-day expiry
-- Attaches UTM data to the user's profile on signup (new `utm_data` JSONB column on `profiles` table)
-- Fires on the existing `AffiliateTracker` component or alongside it in `App.tsx`
+- Create `src/components/orb/OrbDebugOverlay.tsx`: a small floating panel rendered next to the Orb when debug mode is active.
+- Debug mode activated via `localStorage.setItem('ORB_DEBUG', 'true')` -- no env variable needed, works in production too.
+- The overlay displays: user_id, seed, dominant/secondary archetypes with weights, all 3 colors (with swatches), geometry family, textureType, particleCount, motionSpeed, pulseRate, morphIntensity, and a "Data Sources" section showing which fields are present vs missing (hobbies, traits, priorities, decisionStyle, conflictStyle, summaryData, gameState).
+- Console logging (guarded by the same flag) at profile computation time showing the full input and output.
+- Integrate overlay into `PersonalizedOrb.tsx` -- render it as an absolute-positioned child when debug is on.
 
-### 2. Fix Landing Page CTA Routing
-Update `GameHeroSection.tsx` and `FinalCTASection.tsx`:
-- Change all `navigate('/launchpad')` calls to `navigate('/onboarding')` directly
-- Eliminates the redirect hop and improves perceived speed
+### Step B -- Diagnostic Mode for Missing Data
 
-### 3. Ad Landing Route (`/go`)
-Create a lightweight `/go` route that:
-- Captures UTM params
-- Shows a minimal, high-conversion splash (orb + one headline + single CTA)
-- Auto-redirects to `/onboarding` on CTA click
-- Can be used as ad destination URL: `mindos.app/go?utm_source=meta&utm_campaign=90day`
+- Add an optional `diagnosticState` field to `OrbProfile` (e.g., `'ok' | 'missing_data' | 'no_user'`).
+- Add a `missedFields: string[]` array to track what is absent.
+- In `useOrbProfile.ts`, after computing the profile, check: does the user have at least one real data source (launchpad_progress with step_2_profile_data, OR launchpad_summaries, OR game_state level > 1)? If not, mark `diagnosticState = 'missing_data'` and list what is missing.
+- In `PersonalizedOrb.tsx`, when `diagnosticState === 'missing_data'`, apply a grayscale desaturated color override and reduce particles to 5. The debug overlay (always visible in diagnostic mode regardless of ORB_DEBUG flag) shows the missing fields list.
 
-### 4. Post-Reveal Conversion Moment
-Modify `OnboardingReveal.tsx` to add an upgrade prompt after the diagnostics reveal:
-- After showing Neural Diagnostics scores, present a "Unlock Your Full Protocol" card
-- Frame Pro tier as unlocking the complete Week 1 Protocol (unlimited Aurora messages, daily hypnosis)
-- Include a "Start Free" option alongside so it doesn't feel pushy
-- This is the peak motivation moment -- highest conversion probability
+### Step C -- User-Scoped Data and Cache Correctness
 
-### 5. First-Session Promo Trigger
-Update `usePromoPopup.ts`:
-- Add a `first_session_after_onboarding` trigger: if user just completed onboarding (check `launchpad_progress.completed_at` within last 30 minutes) and is free tier, show promo after 60 seconds on dashboard
-- Reduce session interval from 3 to 2 for new users (first week)
+- Audit `useOrbProfile`: queries already filter by `user?.id` -- this is correct.
+- Fix `rowToProfile()` to preserve `motionSpeed`, `pulseRate`, `smoothness`, `textureType`, `textureIntensity` from `computed_from` JSON instead of hardcoding defaults.
+- Fix `profileToRow()` to store all computed fields in `computed_from`.
+- Add `orb_profile_version` to `computed_from` -- a hash of the input data. When version changes, trigger `interpolateOrbProfiles()` for smooth transition.
+- Ensure `useMemo` dependencies include all relevant source objects (already mostly correct, but add summaryRow dependency explicitly).
 
-### 6. Conversion Pixel Events
-Create a `useConversionEvents` hook that fires standard events:
-- `PageView` on route change
-- `Lead` on onboarding start (step 1)
-- `CompleteRegistration` on signup
-- `ViewContent` on onboarding reveal
-- `InitiateCheckout` on promo modal CTA click
-- `Purchase` on successful checkout return
-- Events dispatch to `window.fbq` (Meta Pixel) and `window.gtag` (Google Ads) if present
-- Add pixel script injection via `index.html` `<head>` (pixel IDs stored as env vars / theme settings)
+### Step D -- Deterministic Per-User Seed
 
-### 7. Database Migration
-Add to `profiles` table:
-- `utm_data JSONB DEFAULT NULL` -- stores full UTM attribution
-- `onboarding_completed_at TIMESTAMPTZ DEFAULT NULL` -- for first-session promo logic
+- Create `src/lib/orbSeed.ts` with a `hashUserId(userId: string): number` function (FNV-1a hash producing a stable 32-bit integer).
+- Pass `seed` into `generateOrbProfile` and `computeAvatarDNA`.
+- The seed drives:
+  - **Geometry family rotation**: Within each archetype's allowed geometry set (2-3 options), `seed % options.length` picks which variant.
+  - **Hue offset**: `(seed % 30) - 15` degrees added to blended archetype hue, creating subtle but visible color shifts between same-archetype users.
+  - **Noise phase offset**: `(seed % 1000) / 1000` as an initial morphPhase, so animations start at different points.
+  - **Particle drift direction**: seed-based angle for particle orbit pattern.
 
-### 8. PromoUpgradeModal Price Update
-Update `PromoUpgradeModal.tsx` to reflect the actual pricing from memory (70% off, $149 -> $49) instead of current "50% OFF $97 -> $49".
+### Step E -- Wider Parameter Ranges and Structural Variance
 
-## Technical Details
+- Modify `generateOrbProfile` / `dnaToOrbProfile` parameter calculations:
+  - `morphIntensity`: range 0.15 -- 0.95 (currently ~0.3-0.7)
+  - `motionSpeed`: range 0.5 -- 2.2 (currently ~0.7-1.4)
+  - `pulseRate`: range 0.4 -- 2.8 (currently ~0.7-1.5)
+  - `layerCount`: range 1 -- 5 (currently 1-4)
+  - `particleCount`: range 0 -- 120 (currently 0-60, capped for performance)
+  - `fractalOctaves`: range 2 -- 6 (already this range but clamped tighter in practice)
+- Add seed-based geometry family selection to `OrbProfile` (new field `geometryFamily`): one of `'sphere' | 'torus' | 'dodeca' | 'icosa' | 'octa' | 'spiky'`.
+- The seed + archetype together determine geometry, so two warriors with different user_ids can get different base shapes.
 
-### Files to Create
-- `src/hooks/useUTMTracker.ts` -- UTM capture and storage
-- `src/hooks/useConversionEvents.ts` -- Pixel event firing
-- `src/pages/Go.tsx` -- Ad landing page
+### Step F -- Renderer Support for New Variants
 
-### Files to Modify
-- `src/App.tsx` -- Add `/go` route, mount UTM tracker
-- `src/components/AffiliateTracker.tsx` -- Extend to also capture UTM params (or keep separate)
-- `src/components/home/GameHeroSection.tsx` -- Fix CTA routes
-- `src/components/home/FinalCTASection.tsx` -- Fix CTA routes
-- `src/components/onboarding/OnboardingReveal.tsx` -- Add post-reveal conversion card
-- `src/hooks/usePromoPopup.ts` -- Add first-session trigger
-- `src/components/subscription/PromoUpgradeModal.tsx` -- Update pricing copy
-- `index.html` -- Add pixel script placeholders
+- In `WebGLOrb.tsx`:
+  - Replace `getGeometryForPalette(paletteId)` with `getGeometryFromProfile(profile)` that reads the new `geometryFamily` field.
+  - Add `textureType` influence on the noise function: different texture types use different fbm parameters (e.g., 'crystalline' uses sharper noise with higher frequency, 'ethereal' uses smoother with more octaves, 'electric' adds a step function for sparky edges).
+  - Add particle style variation: the existing `ParticleSystem` gets a `style` parameter that adjusts particle size, opacity curve, and drift pattern based on profile data.
+  - Support subdivision range 2-6 based on `geometryDetail` from profile (already partially supported).
 
-### Database Migration
-```sql
-ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS utm_data JSONB DEFAULT NULL,
-ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMPTZ DEFAULT NULL;
-```
+### Step G -- Smooth Transitions
 
-## Priority Order
-1. UTM tracking (must have before running ads)
-2. Fix CTA routing (quick win)
-3. Conversion pixel events (must have for ad optimization)
-4. Ad landing page `/go`
-5. Post-reveal conversion moment
-6. First-session promo trigger
-7. Price copy update
+- In `PersonalizedOrb.tsx`, track `prevProfile` via `useRef`.
+- When `profile` changes, run `interpolateOrbProfiles(prevProfile, newProfile, t)` over 800ms using `requestAnimationFrame`.
+- Pass the interpolated profile to the Orb during transition.
+- For geometry family changes (which require scene rebuild), cross-fade opacity between old and new canvas over 600ms.
+
+## Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `src/lib/orbSeed.ts` | Create -- FNV-1a hash function |
+| `src/components/orb/OrbDebugOverlay.tsx` | Create -- debug panel component |
+| `src/components/orb/types.ts` | Modify -- add `diagnosticState`, `missedFields`, `geometryFamily`, `seed` fields |
+| `src/lib/orbProfileGenerator.ts` | Modify -- accept seed, widen ranges, add geometry family selection |
+| `src/lib/avatarDNA.ts` | Modify -- accept seed for noise/geometry offsets |
+| `src/hooks/useOrbProfile.ts` | Modify -- add seed computation, diagnostic detection, version tracking |
+| `src/components/orb/PersonalizedOrb.tsx` | Modify -- integrate debug overlay, diagnostic rendering, smooth transitions |
+| `src/components/orb/WebGLOrb.tsx` | Modify -- read geometryFamily from profile, texture type variations, particle styles |
+| `src/lib/orbVisualSystem.ts` | Modify -- add geometry family mapping function |
+
+## How to Verify
+
+- **Toggle debug**: Open browser console, run `localStorage.setItem('ORB_DEBUG', 'true')` and refresh. A debug panel appears next to the Orb showing all computed values.
+- **Per-user differentiation**: Log in as two different users -- even with identical onboarding answers, the seed-based hue offset + geometry rotation produces visibly different orbs.
+- **Diagnostic mode**: Create a user who has not completed onboarding -- the orb renders in a desaturated/grayscale state with a "Missing Data" indicator.
+- **Reactivity**: Complete an onboarding step -- the orb smoothly transitions to the new profile within ~800ms.
 
