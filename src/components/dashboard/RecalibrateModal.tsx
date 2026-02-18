@@ -1,6 +1,9 @@
 /**
  * RecalibrateModal — Full-screen editable form of all activation answers.
  * On save, re-runs generate-launchpad-summary to rebuild the entire plan.
+ * 
+ * Smart pre-fill: If step_1_intention is empty, synthesizes answers from
+ * existing Life Model data (identity elements, focus areas, profile data).
  */
 import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -37,6 +40,151 @@ const MOTIVATIONAL_MESSAGES_EN = [
   'Preparing your next growth phase...',
 ];
 
+// Map profile/life-model data to activation flow keys
+const FOCUS_AREA_MAP: Record<string, string> = {
+  'weight-loss': 'health', 'muscle-building': 'health', 'energy-vitality': 'health',
+  'career-purpose': 'career', 'fast-learning': 'career', 'focus': 'career',
+  'wealth': 'money', 'financial-freedom': 'money',
+  'confidence': 'mind', 'emotional-regulation': 'mind', 'stress': 'mind',
+  'relationships': 'relationships', 'communication': 'relationships',
+  'creativity': 'creativity', 'social': 'social',
+  'spirituality': 'spirituality', 'meaning': 'spirituality',
+  // Direct mappings
+  health: 'health', career: 'career', money: 'money', mind: 'mind',
+};
+
+const LIFE_PRIORITY_MAP: Record<string, string> = {
+  health: 'health', career: 'career', wealth: 'money', money: 'money',
+  relationships: 'relationships', 'personal-growth': 'mind',
+  freedom: 'career', spirituality: 'spirituality', peace: 'mind',
+};
+
+/**
+ * Synthesize activation flow answers from existing Life Model data
+ */
+async function synthesizeFromLifeModel(userId: string): Promise<FlowAnswers> {
+  const [
+    { data: profile },
+    { data: identityElements },
+    { data: lifePlan },
+    { data: launchpad },
+  ] = await Promise.all([
+    supabase.from('profiles').select('first_name, display_name').eq('id', userId).maybeSingle(),
+    supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', userId),
+    supabase.from('life_plans').select('plan_data, status').eq('user_id', userId).eq('status', 'active').maybeSingle(),
+    supabase.from('launchpad_progress').select('step_2_profile_data, step_5_focus_areas_selected').eq('user_id', userId).maybeSingle(),
+  ]);
+
+  const answers: FlowAnswers = {};
+  const profileData = launchpad?.step_2_profile_data as Record<string, unknown> | null;
+  const focusAreas = (launchpad?.step_5_focus_areas_selected as string[]) || [];
+
+  // 1. Primary Focus — from focus areas or life priorities
+  if (focusAreas.length > 0) {
+    const mapped = FOCUS_AREA_MAP[focusAreas[0]] || focusAreas[0];
+    answers.primary_focus = mapped;
+  } else if (profileData?.life_priorities) {
+    const priorities = profileData.life_priorities as string[];
+    if (priorities.length > 0) {
+      answers.primary_focus = LIFE_PRIORITY_MAP[priorities[0]] || 'mind';
+    }
+  }
+  if (!answers.primary_focus) answers.primary_focus = 'mind';
+
+  // 2. Secondary Focus — remaining focus areas
+  const secondaryRaw = focusAreas.slice(1, 3).map(f => FOCUS_AREA_MAP[f] || f).filter(f => f !== answers.primary_focus);
+  if (secondaryRaw.length > 0) {
+    answers.secondary_focus = secondaryRaw;
+  } else if (profileData?.life_priorities) {
+    const priorities = (profileData.life_priorities as string[]).slice(1, 3);
+    answers.secondary_focus = priorities.map(p => LIFE_PRIORITY_MAP[p] || p).filter(p => p !== answers.primary_focus);
+  }
+
+  // 3. Commitment Level — infer from profile completeness
+  const hasIdentity = (identityElements?.length || 0) > 0;
+  const hasPlan = !!lifePlan;
+  if (hasIdentity && hasPlan) {
+    answers.commitment_level = 'locked_in';
+  } else if (hasIdentity || hasPlan) {
+    answers.commitment_level = 'ready';
+  } else {
+    answers.commitment_level = 'curious';
+  }
+
+  // 4. Core Obstacle — from profile obstacles
+  if (profileData?.obstacles) {
+    const obstacles = profileData.obstacles as string[];
+    const obstacleMap: Record<string, string> = {
+      'dont-know-how': 'limiting_beliefs',
+      'no-time': 'distraction',
+      'no-motivation': 'procrastination',
+      'fear': 'fear',
+      'perfectionism': 'perfectionism',
+      'overthinking': 'overthinking',
+    };
+    answers.core_obstacle = obstacleMap[obstacles[0]] || 'procrastination';
+  }
+
+  // 5. Peak Productivity — from morning/evening preference
+  if (profileData?.morning_evening) {
+    const prodMap: Record<string, string> = {
+      'early-bird': 'early_morning',
+      'morning-person': 'morning',
+      'night-owl': 'night',
+      'flexible': 'afternoon',
+    };
+    answers.peak_productivity = prodMap[profileData.morning_evening as string] || 'morning';
+  }
+
+  // 6. Identity Statement — from identity elements
+  if (identityElements && identityElements.length > 0) {
+    const identityTitle = identityElements.find(e => e.element_type === 'identity_title');
+    const traits = identityElements.filter(e => e.element_type === 'character_trait').map(e => e.content);
+    const values = identityElements.filter(e => e.element_type === 'value').map(e => e.content);
+    const selfConcepts = identityElements.filter(e => e.element_type === 'self_concept').map(e => e.content);
+
+    const parts: string[] = [];
+    if (identityTitle) parts.push(identityTitle.content);
+    if (traits.length > 0) parts.push(traits.slice(0, 3).join(', '));
+    if (values.length > 0) parts.push(values.slice(0, 3).join(', '));
+    if (selfConcepts.length > 0) parts.push(selfConcepts[0]);
+
+    answers.identity_statement = parts.join(' | ');
+  }
+
+  // 7. 90-Day Vision — from life plan data
+  if (lifePlan?.plan_data) {
+    const planData = lifePlan.plan_data as Record<string, unknown>;
+    if (planData.description) {
+      answers.ninety_day_vision = planData.description as string;
+    } else if (planData.title) {
+      answers.ninety_day_vision = planData.title as string;
+    }
+  }
+
+  // 8. Set dynamic pain/outcome keys based on primary focus
+  const focus = answers.primary_focus as string;
+  if (focus) {
+    // Try to infer pain from growth_focus or deep_dive answers
+    if (profileData?.growth_focus) {
+      const growthFocus = profileData.growth_focus as string[];
+      const focusRelated = growthFocus.find(g => (FOCUS_AREA_MAP[g] || g) === focus);
+      if (focusRelated) {
+        // Use deepDive data if available
+        const deepDive = profileData?.deep_dive as Record<string, unknown> | null;
+        if (deepDive?.answers) {
+          const deepAnswers = deepDive.answers as Record<string, string[]>;
+          if (deepAnswers[focusRelated]) {
+            // Map first deep dive answer as a hint but don't override
+          }
+        }
+      }
+    }
+  }
+
+  return answers;
+}
+
 export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -47,6 +195,7 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [motivationalIdx, setMotivationalIdx] = useState(0);
+  const [dataSource, setDataSource] = useState<'activation' | 'synthesized' | 'empty'>('empty');
 
   // Cycle motivational messages while submitting
   useEffect(() => {
@@ -63,12 +212,14 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
     setLoading(true);
     (async () => {
       try {
+        // Try loading from step_1_intention first
         const { data } = await supabase
           .from('launchpad_progress')
           .select('step_1_intention')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        let hasActivationData = false;
         if (data?.step_1_intention) {
           let parsed: Record<string, unknown> = {};
           if (typeof data.step_1_intention === 'string') {
@@ -77,21 +228,34 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
             parsed = data.step_1_intention as Record<string, unknown>;
           }
 
-          // Flatten pain/outcome dynamic keys into canonical form
-          const flat: FlowAnswers = {};
-          for (const [k, v] of Object.entries(parsed)) {
-            flat[k] = v as string | string[];
+          // Check if we have meaningful activation data
+          if (parsed.primary_focus) {
+            hasActivationData = true;
+            const flat: FlowAnswers = {};
+            for (const [k, v] of Object.entries(parsed)) {
+              flat[k] = v as string | string[];
+            }
+            // Map primary_pain back to pillar-specific key
+            if (flat.primary_pain && flat.primary_focus) {
+              flat[`primary_pain_${flat.primary_focus}`] = flat.primary_pain;
+            }
+            if (flat.desired_outcome && flat.primary_focus) {
+              flat[`desired_outcome_${flat.primary_focus}`] = flat.desired_outcome;
+            }
+            setAnswers(flat);
+            setDataSource('activation');
           }
+        }
 
-          // Map primary_pain back to its pillar-specific key
-          if (flat.primary_pain && flat.primary_focus) {
-            flat[`primary_pain_${flat.primary_focus}`] = flat.primary_pain;
-          }
-          if (flat.desired_outcome && flat.primary_focus) {
-            flat[`desired_outcome_${flat.primary_focus}`] = flat.desired_outcome;
-          }
-
-          setAnswers(flat);
+        // If no activation data, synthesize from Life Model
+        if (!hasActivationData) {
+          const synthesized = await synthesizeFromLifeModel(user.id);
+          const hasAnyData = Object.values(synthesized).some(v => 
+            v !== undefined && v !== null && v !== '' && 
+            (Array.isArray(v) ? v.length > 0 : true)
+          );
+          setAnswers(synthesized);
+          setDataSource(hasAnyData ? 'synthesized' : 'empty');
         }
       } catch (e) {
         console.error('Failed to load activation answers:', e);
@@ -210,6 +374,18 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
           </div>
         </div>
 
+        {/* Synthesized data banner */}
+        {!submitting && !loading && dataSource === 'synthesized' && (
+          <div className="mx-5 mt-3 px-3 py-2 rounded-xl bg-accent/10 border border-accent/20 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              {isHe
+                ? 'מילאנו את התשובות באופן אוטומטי מהנתונים הקיימים שלך. עדכן לפי הצורך.'
+                : 'We auto-filled answers from your existing data. Edit as needed.'}
+            </p>
+          </div>
+        )}
+
         {/* Body */}
         {submitting ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
@@ -245,7 +421,7 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
           </div>
         ) : (
           <ScrollArea className="flex-1 h-0">
-            <div className="p-5 space-y-6 pb-28">
+            <div className="p-5 space-y-4 pb-28">
               {questionSteps.map((step, stepIdx) => {
                 const visibleMinis = getVisibleMiniSteps(step, answers);
                 if (visibleMinis.length === 0) return null;
