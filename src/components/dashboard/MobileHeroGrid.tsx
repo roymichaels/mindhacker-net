@@ -109,108 +109,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const orbSize = 280;
 
   return (
-    <div className="flex flex-col w-full lg:ltr:pr-[280px] lg:rtl:pl-[280px] xl:ltr:pr-[300px] xl:rtl:pl-[300px]">
-      {/* ===== FIXED HUD SIDE PANEL (desktop only) ===== */}
-      <div className="hidden lg:flex lg:flex-col lg:fixed lg:top-[49px] ltr:lg:right-0 rtl:lg:left-0 lg:bottom-0 lg:w-[280px] xl:w-[300px] lg:z-30 lg:overflow-y-auto lg:overflow-x-hidden
-        backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80
-        dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90
-        ltr:border-l rtl:border-r border-border/50 dark:border-primary/15
-        shadow-[-4px_0_20px_-5px_hsl(var(--primary)/0.1)]
-      ">
-        {/* Inner content with padding */}
-        <div className="flex flex-col items-center gap-3 p-3">
-          {/* Decorative top accent line */}
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-
-          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[240px] aspect-square overflow-visible cursor-pointer">
-            <PersonalizedOrb size={220} state="idle" />
-          </button>
-          {identityTitle && (
-            <div className="flex items-center justify-center gap-1.5 w-full">
-              <span className="text-base">{identityTitle.icon}</span>
-              <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {language === 'he' ? identityTitle.title : identityTitle.titleEn}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center justify-center gap-1.5 w-full">
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
-              <Star className="h-2.5 w-2.5" />Lv.{xp.level}
-            </span>
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent-foreground border border-accent/20">
-              <ZapIcon className="h-2.5 w-2.5" />{tokens.balance}
-            </span>
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-              <Flame className="h-2.5 w-2.5" />{streak.streak}
-            </span>
-          </div>
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-          <div className="flex flex-col gap-2 w-full">
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-chart-4' },
-                { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-chart-2' },
-                { icon: Brain, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-chart-5' },
-              ].map((m) => (
-                <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
-                  <m.icon className={cn("w-3.5 h-3.5", m.color)} />
-                  <span className="text-sm font-bold leading-none">{m.value}</span>
-                  <span className="text-[9px] text-muted-foreground">{m.label}</span>
-                </div>
-              ))}
-            </div>
-            <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-chart-3' },
-                { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-chart-1' },
-                { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-chart-2' },
-              ].map((m) => (
-                <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
-                  <m.icon className={cn("w-3.5 h-3.5", m.color)} />
-                  <span className="text-sm font-bold leading-none">{m.value}</span>
-                  <span className="text-[9px] text-muted-foreground">{m.label}</span>
-                </div>
-              ))}
-            </div>
-            <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            <button
-              onClick={handleStartDailySession}
-              className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
-            >
-              <span className="flex items-center gap-1 text-xs text-primary-foreground/80">
-                <Clock className="w-3.5 h-3.5" />15 {t('dashboard.minutesShort')}
-              </span>
-              <span className="flex items-center gap-2 text-sm font-bold text-primary-foreground">
-                <Play className="w-4 h-4 fill-primary-foreground" />
-                {t('dashboard.startSession')}
-              </span>
-            </button>
-            <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
-                <UserCircle className="w-4 h-4 text-chart-5" />
-                <span className="text-xs font-medium">{t('dashboard.identity')}</span>
-              </button>
-              <button onClick={() => setActiveModal('direction')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
-                <Compass className="w-4 h-4 text-chart-2" />
-                <span className="text-xs font-medium">{t('dashboard.direction')}</span>
-              </button>
-              <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
-                <Brain className="w-4 h-4 text-chart-3" />
-                <span className="text-xs font-medium">{t('dashboard.insights')}</span>
-              </button>
-            </div>
-          </div>
-          {/* Bottom accent */}
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        </div>
-      </div>
-
+    <div className="flex flex-col w-full">
       {/* ===== MAIN CONTENT ===== */}
-      <div className="flex flex-col gap-0 lg:flex-row lg:gap-4 lg:items-start">
+      <div className="flex flex-col gap-0">
 
-        {/* ===== COL 1 - HUD (Mobile only) ===== */}
+        {/* ===== Mobile HUD (hidden on desktop — HudSidebar handles it) ===== */}
         <div className="p-4 pt-0 lg:hidden">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 lg:hidden">
@@ -312,9 +215,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1 lg:flex-none lg:overflow-y-auto lg:min-h-0 lg:max-h-[calc(100vh-6rem)]">
+        <div ref={leftColRef} className="flex flex-col gap-2 flex-1">
           {/* Spacer for desktop */}
-          <div className="hidden lg:block pt-4" />
+          <div className="hidden lg:block pt-2" />
 
           {/* Daily Pulse - top of COL 2, all screen sizes */}
           <DailyPulseCard />
