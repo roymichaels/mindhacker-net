@@ -15,6 +15,7 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
+import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useNavigate } from 'react-router-dom';
@@ -219,6 +220,12 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         <div ref={leftColRef} className="flex flex-col gap-2 flex-1">
           {/* Spacer for desktop */}
           <div className="hidden lg:block pt-2" />
+
+          {/* Start Session - desktop only (mobile has it in inline HUD) */}
+          <div className="hidden lg:block">
+            <StartSessionButton />
+          </div>
+          <div className="hidden lg:block h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Motivational Banner */}
           <MotivationalBanner />
