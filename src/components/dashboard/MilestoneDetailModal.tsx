@@ -50,7 +50,7 @@ export function MilestoneDetailModal({ milestone, planId, open, onOpenChange }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto pt-8">
         <DialogHeader>
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="text-xs font-bold">
