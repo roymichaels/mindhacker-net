@@ -1,70 +1,70 @@
 
+# Recalibrate Plan -- Full Recalculation Modal
 
-# Daily Roadmap - Dashboard Body Redesign
+## Overview
 
-## What Changes
+Add a "Recalibrate" button to the bottom of both sidebars (HUD + Roadmap) that opens a single premium modal. This modal shows ALL of the user's original activation answers in an editable form. When they save, it re-runs the `generate-launchpad-summary` edge function to regenerate their entire plan (summary, milestones, identity, commitments, daily anchors) from scratch.
 
-The dashboard body currently shows separate, disconnected sections: a Daily Pulse check-in, a Habits collapsible, and a Tasks collapsible. This feels fragmented and the Daily Pulse isn't motivating action. We'll replace all three with a single **Daily Roadmap** -- a unified, visual timeline of everything the user needs to do today.
+## User Experience
 
-## New "Daily Roadmap" Component
-
-A vertical mini-timeline that merges today's habits, tasks, and current milestone into one motivating, actionable view:
-
-```
-Today's Journey
-  [progress bar: 3/8 complete]
-
-  [=] Wake up routine           (habit, done)
-  [=] Morning meditation        (habit, done)
-  [=] Review daily plan         (task, done)
-  [ ] Nutrition tracking        (habit)
-  [ ] Week 3: Build routine     (milestone, current)
-  [ ] Evening reflection        (habit)
-  [ ] Screen off by 22:00       (habit)
-  [ ] Journal entry             (task)
-```
-
-Each item is tappable to complete (habits/tasks) or view details (milestones). Items are color-coded by type (emerald for habits, violet for tasks, amber for milestones).
-
-## Layout in Dashboard Body
-
-The new order in `MobileHeroGrid` COL 2:
-
-1. **StartSessionButton** (stays)
-2. **MotivationalBanner** (stays)
-3. **DailyRoadmap** (NEW -- replaces DailyPulse + Habits + Tasks)
-4. **RecalibrationSummary** (stays)
-
-The Daily Pulse data collection still happens, but moves into the Daily Roadmap as the first uncompleted item when not yet logged today (a quick inline prompt rather than a separate card).
-
----
+1. User taps the "Recalibrate" button (bottom of HUD sidebar or Roadmap sidebar)
+2. A full-screen Dialog opens showing all 9 activation questions with their current saved answers pre-filled
+3. User edits any answers they want (same UI components as activation flow but in a scrollable single-page layout)
+4. User taps "Recalculate My Plan" button at the bottom
+5. Loading state with a motivational message while the edge function runs
+6. On success: toast notification, modal closes, all dashboard queries invalidate and refresh
+7. Everything updates: summary, life plan, milestones, identity elements, commitments, daily habits
 
 ## Technical Details
 
-### New file: `src/components/dashboard/DailyRoadmap.tsx`
+### New file: `src/components/dashboard/RecalibrateModal.tsx`
 
-- Combines data from `useTodaysHabits()`, tasks query (from `action_items`), `useLifePlanWithMilestones()`, and `useDailyPulse()`
-- Renders a vertical mini-timeline with a progress line (similar visual language to `VerticalRoadmap`)
-- Item types distinguished by icon + color:
-  - Habits: Sparkles icon, emerald
-  - Tasks: ListChecks icon, violet
-  - Milestones: MapPin icon, amber (non-toggleable, opens detail)
-  - Daily Pulse: Activity icon, primary (inline micro-form when not logged)
-- Progress bar at top showing `completed/total` with percentage
-- Items sorted: completed at bottom (faded), pulse first if not done, then habits, then tasks, then milestone
-- Each habit/task has a tap-to-complete circle (reuses existing toggle logic)
-- Collapsible "completed" section at bottom to keep focus on remaining items
+- Full-screen Dialog (using Radix Dialog from shadcn)
+- On mount, fetches `launchpad_progress.step_1_intention` for the current user and parses the JSON to pre-fill all 9 fields
+- Renders a scrollable form with sections matching the activation flow:
+  1. Primary Focus (single select grid)
+  2. Primary Pain (dynamic based on focus, single select)
+  3. Desired Outcome (dynamic based on focus, single select)
+  4. Commitment Level (single select)
+  5. Secondary Focus (multi-select, max 2)
+  6. Core Obstacle (single select)
+  7. Peak Productivity (single select)
+  8. Identity Statement (textarea)
+  9. 90-Day Vision (textarea)
+- Each section reuses the option data from `activationFlowSpec.ts` (imported directly)
+- On submit:
+  1. Saves updated answers to `launchpad_progress.step_1_intention` and `step_2_profile_data`
+  2. Deactivates old life plan (`UPDATE life_plans SET status = 'archived'`)
+  3. Calls `generate-launchpad-summary` edge function (which already handles cleanup + full regeneration)
+  4. Invalidates all relevant query keys: `life-plan`, `milestones`, `launchpad-summary`, `current-week-milestone`
+  5. Shows success toast
 
-### Modify: `src/components/dashboard/MobileHeroGrid.tsx`
+### Modify: `src/components/dashboard/HudSidebar.tsx`
 
-- Remove `DailyPulseCard` import and usage
-- Remove the two `CollapsiblePlanRow` blocks (habits and tasks)
-- Add `DailyRoadmap` component in their place
-- Keep `CollapsiblePlanRow` sub-component in file (or remove if unused elsewhere)
-- Clean up unused imports (`Sparkles`, `ListChecks` if only used there)
+- Add a "Recalibrate" button at the very bottom of both collapsed and expanded views
+- Collapsed: small icon button (RefreshCw icon)
+- Expanded: full-width button with label
+- Opens `RecalibrateModal`
 
-### Keep existing hooks unchanged
+### Modify: `src/components/dashboard/RoadmapSidebar.tsx`
 
-- `useTodaysHabits` -- consumed by DailyRoadmap
-- `useDailyPulse` -- consumed by DailyRoadmap for inline pulse
-- Task query logic moves into DailyRoadmap (or extracted to a shared hook)
+- Add same "Recalibrate" button at the bottom of both collapsed and expanded views
+- Consistent styling with HudSidebar
+
+### No edge function changes needed
+
+The existing `generate-launchpad-summary` function already:
+- Reads all data from `launchpad_progress`
+- Generates AI summary and plan
+- Cleans up old data (checklists, commitments, identity elements)
+- Creates new life plan, milestones, and populates all Life Model tables
+- This is exactly what we need for recalculation
+
+### Form UI Pattern
+
+Each question section in the modal will use:
+- A card container with the question title
+- Option buttons matching the activation flow style (grid of selectable cards with icons)
+- Textarea for identity statement and vision
+- Dynamic pain/outcome options that change when primary focus changes
+- Visual feedback for selected state (primary border + background)
