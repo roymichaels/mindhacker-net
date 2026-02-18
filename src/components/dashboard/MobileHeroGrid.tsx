@@ -114,7 +114,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       <div className="flex flex-col gap-0 lg:grid lg:grid-cols-[240px_1fr_240px] xl:grid-cols-[280px_1fr_280px] lg:gap-4 lg:items-start">
 
         {/* ===== COL 1 - HUD (Orb) ===== */}
-        <div className="p-4 pt-0 lg:pt-0 lg:-mt-10 lg:order-1 lg:flex lg:flex-col lg:justify-center">
+        <div className="p-4 pt-0 lg:pt-4 lg:order-1 lg:flex lg:flex-col lg:justify-start">
           {/* Mobile: 3-col compact grid */}
           <div className="flex flex-col gap-2 lg:hidden">
             {/* Top: Identity + Orb side by side */}
@@ -212,43 +212,54 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             </div>
           </div>
 
-          {/* Desktop: orb + stats below */}
-          <div className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 w-full">
+          {/* Desktop: orb + stats below — unique HUD panel */}
+          <div className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 w-full rounded-2xl p-3 relative overflow-visible
+            backdrop-blur-xl bg-gradient-to-b from-card/60 via-background/40 to-card/60
+            dark:from-gray-900/80 dark:via-gray-950/60 dark:to-gray-900/80
+            border border-border/50 dark:border-primary/20
+            shadow-lg dark:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.15)]
+          ">
+            {/* Decorative corner accents */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/30 rounded-tl-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/30 rounded-tr-2xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/30 rounded-bl-2xl pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/30 rounded-br-2xl pointer-events-none" />
+
             <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full aspect-square overflow-visible cursor-pointer">
-              <PersonalizedOrb size={260} state="idle" />
+              <PersonalizedOrb size={240} state="idle" />
             </button>
             {/* Identity title - own row */}
             {identityTitle && (
               <div className="flex items-center justify-center gap-1.5 w-full">
                 <span className="text-base">{identityTitle.icon}</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-transparent">
+                <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   {language === 'he' ? identityTitle.title : identityTitle.titleEn}
                 </span>
               </div>
             )}
             {/* Level / Tokens / Streak badges */}
             <div className="flex items-center justify-center gap-1.5 w-full">
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
                 <Star className="h-2.5 w-2.5" />Lv.{xp.level}
               </span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
-                <ZapIcon className="h-2.5 w-2.5 fill-yellow-500/30" />{tokens.balance}
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent-foreground border border-accent/20">
+                <ZapIcon className="h-2.5 w-2.5" />{tokens.balance}
               </span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
                 <Flame className="h-2.5 w-2.5" />{streak.streak}
               </span>
             </div>
             {/* Separator */}
-            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
             {/* Stats grid */}
             <div className="flex flex-col gap-2 w-full">
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { icon: Brain, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-amber-500' },
-                  { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-blue-500' },
-                  { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-green-500' },
+                  { icon: TrendingUp, label: language === 'he' ? 'מוכנות' : 'Readiness', value: `${readinessVal}%`, color: 'text-chart-4' },
+                  { icon: Eye, label: language === 'he' ? 'בהירות' : 'Clarity', value: `${clarityVal}%`, color: 'text-chart-2' },
+                  { icon: Brain, label: language === 'he' ? 'תודעה' : 'Awareness', value: String(consciousnessVal), color: 'text-chart-5' },
                 ].map((m) => (
-                  <div key={m.label} className="rounded-lg bg-background/60 border border-border/40 p-1.5 flex flex-col items-center gap-0.5">
+                  <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
                     <m.icon className={cn("w-3.5 h-3.5", m.color)} />
                     <span className="text-sm font-bold leading-none">{m.value}</span>
                     <span className="text-[9px] text-muted-foreground">{m.label}</span>
@@ -256,15 +267,15 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 ))}
               </div>
               {/* Separator */}
-              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               {/* Hypnosis session stats - desktop */}
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-purple-500' },
-                  { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-cyan-500' },
-                  { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-yellow-500' },
+                  { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-chart-3' },
+                  { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-chart-1' },
+                  { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-chart-2' },
                 ].map((m) => (
-                  <div key={m.label} className="rounded-lg bg-background/60 border border-border/40 p-1.5 flex flex-col items-center gap-0.5">
+                  <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
                     <m.icon className={cn("w-3.5 h-3.5", m.color)} />
                     <span className="text-sm font-bold leading-none">{m.value}</span>
                     <span className="text-[9px] text-muted-foreground">{m.label}</span>
@@ -272,34 +283,34 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
                 ))}
               </div>
               {/* Separator */}
-              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-              {/* Start Session button - desktop, below hypnosis stats */}
+              <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+              {/* Start Session button */}
               <button
                 onClick={handleStartDailySession}
-                className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
+                className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
               >
-                <span className="flex items-center gap-1 text-xs text-amber-950">
+                <span className="flex items-center gap-1 text-xs text-primary-foreground/80">
                   <Clock className="w-3.5 h-3.5" />15 {t('dashboard.minutesShort')}
                 </span>
-                <span className="flex items-center gap-2 text-sm font-bold text-amber-950">
-                  <Play className="w-4 h-4 fill-amber-950" />
+                <span className="flex items-center gap-2 text-sm font-bold text-primary-foreground">
+                  <Play className="w-4 h-4 fill-primary-foreground" />
                   {t('dashboard.startSession')}
                 </span>
               </button>
               {/* Separator */}
-              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               {/* Identity / Direction / Insights */}
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
-                  <UserCircle className="w-4 h-4 text-rose-500" />
+                <button onClick={() => setActiveModal('identity')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
+                  <UserCircle className="w-4 h-4 text-chart-5" />
                   <span className="text-xs font-medium">{t('dashboard.identity')}</span>
                 </button>
-                <button onClick={() => setActiveModal('direction')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
-                  <Compass className="w-4 h-4 text-blue-500" />
+                <button onClick={() => setActiveModal('direction')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
+                  <Compass className="w-4 h-4 text-chart-2" />
                   <span className="text-xs font-medium">{t('dashboard.direction')}</span>
                 </button>
-                <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-card/30 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all">
-                  <Brain className="w-4 h-4 text-violet-500" />
+                <button onClick={() => setActiveModal('insights')} className="rounded-xl bg-muted/30 dark:bg-muted/15 backdrop-blur-sm p-2.5 flex flex-col items-center gap-1 hover:bg-accent/10 transition-all border border-border/20">
+                  <Brain className="w-4 h-4 text-chart-3" />
                   <span className="text-xs font-medium">{t('dashboard.insights')}</span>
                 </button>
               </div>
