@@ -7,13 +7,11 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
-import { useTodaysHabits } from '@/hooks/useTodaysHabits';
+
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
-import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
+import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
@@ -52,28 +50,10 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { impact } = useHaptics();
   const { openHypnosis } = useAuroraActions();
   const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
-  const { habits, completedCount, totalCount, toggleHabit } = useTodaysHabits();
+  
   const { sessionStats } = useGameState();
 
-  const { data: taskItems = [] } = useQuery({
-    queryKey: ['mobile-grid-tasks', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const { data } = await supabase
-        .from('action_items')
-        .select('id, title, status')
-        .eq('user_id', user.id)
-        .eq('type', 'task')
-        .neq('status', 'archived')
-        .order('order_index', { ascending: true })
-        .limit(10);
-      return (data || []).map(t => ({ id: t.id, title: t.title, done: t.status === 'done' }));
-    },
-    enabled: !!user?.id,
-  });
 
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const toggle = (id: string) => setExpandedSection(prev => prev === id ? null : id);
   const leftColRef = useRef<HTMLDivElement>(null);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -94,18 +74,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const clarityVal = dashboard.selfConcepts.length > 0 ? 65 : 20;
   const consciousnessVal = dashboard.values.length > 0 ? 72 : 15;
 
-  const habitMiniItems = habits.map(h => ({ id: h.id, title: h.title, done: h.isCompleted }));
-  const tasksCompleted = taskItems.filter(t => t.done).length;
-  const tasksTotal = taskItems.length;
-  const tasksPercent = tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0;
-  const nextTask = taskItems.find(t => !t.done);
-  const nextHabit = habits.find(h => !h.isCompleted);
-  const queryClient = useQueryClient();
-
-  const handleTaskToggle = async (id: string, done: boolean) => {
-    await supabase.from('action_items').update({ status: done ? 'done' : 'pending', completed_at: done ? new Date().toISOString() : null }).eq('id', id);
-    queryClient.invalidateQueries({ queryKey: ['mobile-grid-tasks'] });
-  };
 
   // Orb: fixed size on mobile, constrained on desktop
   const orbSize = 280;
@@ -227,34 +195,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           <MotivationalBanner />
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-          {/* Daily Pulse - top of COL 2, all screen sizes */}
-          <DailyPulseCard />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-          <CollapsiblePlanRow
-            icon={<Sparkles className="w-4 h-4 text-emerald-500" />}
-            title={language === 'he' ? 'הרגלים' : 'Habits'}
-            count={`${completedCount}/${totalCount}`}
-            isOpen={expandedSection === 'habits'}
-            onToggle={() => toggle('habits')}
-            previewText={nextHabit?.title}
-            items={habitMiniItems}
-            onItemToggle={(id, done) => toggleHabit(id, done)}
-          />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <CollapsiblePlanRow
-            icon={<ListChecks className="w-4 h-4 text-violet-500" />}
-            title={language === 'he' ? 'משימות' : 'Tasks'}
-            count={`${tasksCompleted}/${tasksTotal}`}
-            countSuffix={`${tasksPercent}%`}
-            isOpen={expandedSection === 'tasks'}
-            onToggle={() => toggle('tasks')}
-            previewText={nextTask?.title}
-            items={taskItems}
-            progressPercent={tasksPercent}
-            onItemToggle={handleTaskToggle}
-          />
-
+          {/* Daily Roadmap - unified timeline */}
+          <DailyRoadmap />
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Roadmap now in RoadmapSidebar on all screens */}
@@ -293,128 +235,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       />
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
-    </div>
-  );
-}
-
-/* ---- Collapsible Plan Row Sub-component ---- */
-interface CollapsiblePlanRowProps {
-  icon: React.ReactNode;
-  title: string;
-  count: string;
-  countSuffix?: string;
-  badge?: string;
-  badgeExtra?: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  previewText?: string;
-  items?: { id: string; title: string; done?: boolean }[];
-  progressPercent?: number;
-  onItemToggle?: (id: string, done: boolean) => void;
-}
-
-function CollapsiblePlanRow({
-  icon, title, count, countSuffix, badge, badgeExtra, isOpen, onToggle, previewText, items, progressPercent, onItemToggle,
-}: CollapsiblePlanRowProps) {
-  const firstUndone = items?.find(i => !i.done);
-  return (
-    <div className="rounded-xl border-b border-border/30 overflow-hidden flex flex-col">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-accent/5 transition-colors"
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          {icon}
-          <span className="text-sm font-semibold">{title}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {badge && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold border border-primary/20">
-              {badge}
-            </span>
-          )}
-          {badgeExtra && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
-              {badgeExtra}
-            </span>
-          )}
-          <span className="text-xs font-bold text-muted-foreground">{count}</span>
-          {countSuffix && (
-            <span className="text-[10px] font-medium text-primary">{countSuffix}</span>
-          )}
-          <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
-        </div>
-      </button>
-
-      {!isOpen && (
-        <div className="px-3 pb-2">
-          {items && items.length > 0 && onItemToggle ? (
-            <div className="space-y-1">
-              {items.filter(i => !i.done).slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onItemToggle(item.id, true); }}
-                    className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 flex-shrink-0 hover:border-primary hover:bg-primary/10 transition-colors"
-                    aria-label="Complete item"
-                  />
-                  <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
-                </div>
-              ))}
-            </div>
-          ) : previewText ? (
-            <p className="text-xs text-muted-foreground truncate">→ {previewText}</p>
-          ) : null}
-          {progressPercent !== undefined && (
-            <div className="h-1 rounded-full bg-muted/50 overflow-hidden mt-1.5">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
-            </div>
-          )}
-        </div>
-      )}
-
-      <AnimatePresence initial={false}>
-        {isOpen && items && items.length > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden border-t border-border"
-          >
-            <div className="p-2 space-y-1">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
-                  <div className={cn(
-                    "w-4 h-4 rounded-full border-2 flex-shrink-0",
-                    item.done ? "bg-primary border-primary" : "border-muted-foreground/40"
-                  )} />
-                  <span className={cn(
-                    "text-xs flex-1 min-w-0 truncate",
-                    item.done && "line-through text-muted-foreground"
-                  )}>
-                    {item.title}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-        {isOpen && progressPercent !== undefined && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-3 pb-2">
-              <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progressPercent}%` }} />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
