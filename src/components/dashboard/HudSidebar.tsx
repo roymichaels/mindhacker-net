@@ -84,8 +84,6 @@ export function HudSidebar() {
 
         {!collapsed && (
         <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-y-auto overflow-x-hidden">
-          {/* Decorative top accent */}
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
           <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[240px] aspect-square overflow-visible cursor-pointer">
             <PersonalizedOrb size={220} state="idle" />
