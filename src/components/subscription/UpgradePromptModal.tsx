@@ -1,8 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Zap, Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSubscriptionsModal } from "@/contexts/SubscriptionsModalContext";
 
 interface UpgradePromptModalProps {
   feature: string | null;
@@ -82,7 +82,7 @@ const tierLabels: Record<string, { en: string; he: string }> = {
 };
 
 const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => {
-  const navigate = useNavigate();
+  const { openSubscriptions } = useSubscriptionsModal();
   const { language } = useTranslation();
   const isRTL = language === "he";
 
@@ -96,7 +96,7 @@ const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => 
 
   const handleUpgrade = () => {
     onDismiss();
-    navigate("/subscriptions");
+    openSubscriptions();
   };
 
   return (
