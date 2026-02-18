@@ -1,9 +1,11 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Sparkles, Zap, Crown } from "lucide-react";
+import { Check, X, Sparkles, Zap, Crown, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface PromoUpgradeModalProps {
   open: boolean;
@@ -11,13 +13,30 @@ interface PromoUpgradeModalProps {
 }
 
 const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
-  const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const isHe = language === "he";
+  const [loading, setLoading] = useState(false);
 
-  const handleClaim = () => {
-    onDismiss();
-    navigate("/subscriptions");
+  const handleClaim = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { tier: "coach" },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        onDismiss();
+      }
+    } catch (err: any) {
+      toast({
+        title: isHe ? "שגיאה" : "Error",
+        description: err.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const features = isHe
@@ -152,9 +171,14 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
                 <div className="w-full space-y-2.5 pt-1">
                   <Button
                     onClick={handleClaim}
+                    disabled={loading}
                     className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-primary via-primary to-[hsl(var(--primary-glow))] shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
                   >
-                    <Sparkles className="w-4 h-4 me-1.5" />
+                    {loading ? (
+                      <Loader2 className="w-4 h-4 animate-spin me-1.5" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 me-1.5" />
+                    )}
                     {isHe ? "לקבל את ההנחה" : "Claim My Discount"}
                   </Button>
                   <button
