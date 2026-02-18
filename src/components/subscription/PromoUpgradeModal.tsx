@@ -154,17 +154,6 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
                       {f}
                     </motion.div>
                   ))}
-
-                  <div className="border-t border-white/10 my-2" />
-
-                  {freeLimit.map((f, i) => (
-                    <div key={`free-${i}`} className="flex items-center gap-2.5 text-sm text-muted-foreground/60">
-                      <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                        <X className="w-3 h-3 text-red-400" />
-                      </div>
-                      <span className="line-through">{f}</span>
-                    </div>
-                  ))}
                 </div>
 
                 {/* CTAs */}
