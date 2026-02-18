@@ -394,19 +394,17 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       intensity: { value: 1.0 },
     };
 
-    // ===== MAIN OUTER WIREFRAME - DNA-based geometry =====
-    const outerGeo = createGeometry(geometryTypes.outer, 0.55, geometryDetail);
+    // ===== MAIN WIREFRAME uses inner1 geometry as the primary visible structure =====
+    const outerGeo = createGeometry(geometryTypes.inner1, 0.45, Math.max(1, geometryDetail - 1));
     const outerEdges = new THREE.WireframeGeometry(outerGeo);
     
-    // Create gradient line material using vertex colors
     const positions = outerEdges.attributes.position;
     const colors = new Float32Array(positions.count * 3);
     
     for (let i = 0; i < positions.count; i++) {
       const y = positions.getY(i);
-      const normalizedY = (y + 1) / 2; // 0-1
+      const normalizedY = (y + 1) / 2;
       
-      // Blend between three colors based on position
       let r, g, b;
       if (normalizedY < 0.5) {
         const t = normalizedY * 2;
@@ -435,7 +433,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     
     const mainWireframe = new THREE.LineSegments(outerEdges, lineMaterial);
 
-    // Fit-to-canvas safety margin (prevents visual clipping on small sizes)
     const fitScale = size <= 120 ? 0.78 : size <= 200 ? 0.86 : 0.92;
     fitScaleRef.current = fitScale;
     mainWireframe.scale.setScalar(fitScale);
