@@ -236,8 +236,8 @@ const App = () => (
                         <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/start" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
-                        {/* Practitioner directory (public) */}
-                        <Route path="/practitioners" element={<Practitioners />} />
+                        {/* Redirect practitioners to marketplace */}
+                        <Route path="/practitioners" element={<Navigate to="/marketplace" replace />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
                         <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
                         {/* Redirect old affiliate dashboard to new panel */}
