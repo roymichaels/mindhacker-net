@@ -14,6 +14,8 @@ import { PageShell } from '@/components/aurora-ui/PageShell';
 import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { usePromoPopup } from '@/hooks/usePromoPopup';
+import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 
 const UserDashboard = () => {
   const { t, language } = useTranslation();
@@ -22,6 +24,7 @@ const UserDashboard = () => {
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
   useGuestDataMigration();
+  const { shouldShowPromo, dismissPromo } = usePromoPopup();
 
   // Plan data query
   const { data: planData } = useQuery({
@@ -100,6 +103,7 @@ const UserDashboard = () => {
         <ProfileContent />
       </section>
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+      <PromoUpgradeModal open={shouldShowPromo} onDismiss={dismissPromo} />
     </PageShell>
   );
 };
