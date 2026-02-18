@@ -647,12 +647,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           // Audio reactivity
           const audioBoost = audioLevel * 0.35;
           
-          // Combined DRAMATIC deformation
+          // Combined deformation — scaled to geometry radius to prevent explosion
           const deform = (
-            noiseVal * morphIntensity * morphMod * 1.5 + 
-            wave1 + wave2 + wave3 + 
-            pulse1 + pulse2 + 
-            audioBoost
+            noiseVal * morphIntensity * morphMod * 0.4 + 
+            (wave1 + wave2 + wave3) * 0.3 + 
+            (pulse1 + pulse2) * 0.3 + 
+            audioBoost * 0.3
           );
           
           positions.setXYZ(
