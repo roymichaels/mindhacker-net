@@ -17,6 +17,7 @@ interface Props {
 const NICHE_OPTIONS = {
   he: [
     { id: 'life', label: 'אימון חיים', emoji: '🌱' },
+    { id: 'consciousness', label: 'אימון תודעתי', emoji: '🔮' },
     { id: 'business', label: 'אימון עסקי', emoji: '💼' },
     { id: 'fitness', label: 'כושר ובריאות', emoji: '💪' },
     { id: 'mental', label: 'בריאות נפשית', emoji: '🧠' },
@@ -31,6 +32,7 @@ const NICHE_OPTIONS = {
   ],
   en: [
     { id: 'life', label: 'Life Coaching', emoji: '🌱' },
+    { id: 'consciousness', label: 'Consciousness Coaching', emoji: '🔮' },
     { id: 'business', label: 'Business Coaching', emoji: '💼' },
     { id: 'fitness', label: 'Fitness & Health', emoji: '💪' },
     { id: 'mental', label: 'Mental Health', emoji: '🧠' },
