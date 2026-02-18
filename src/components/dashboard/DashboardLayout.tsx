@@ -8,6 +8,7 @@ import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
 import { AuroraDock } from '@/components/aurora/AuroraDock';
 import { BottomTabBar } from '@/components/navigation/BottomTabBar';
 import { SettingsModal } from '@/components/settings';
+import { HudSidebar } from '@/components/dashboard/HudSidebar';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
@@ -58,9 +59,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             onOpenSettings={() => setSettingsOpen(true)}
           />
 
-          <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-14 w-full flex flex-col">
-            {children}
-          </main>
+          <div className="flex-1 min-h-0 flex">
+            {/* HUD Sidebar — start side (right in RTL, left in LTR) */}
+            <HudSidebar />
+
+            <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-14 flex flex-col">
+              {children}
+            </main>
+          </div>
 
           <AuroraDock />
 
