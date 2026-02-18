@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Send, Loader2, Plus, Image, Camera, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
@@ -15,6 +16,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const GlobalChatInput = () => {
+  const queryClient = useQueryClient();
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
   const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
@@ -121,7 +123,9 @@ const GlobalChatInput = () => {
 
     // Increment daily message count for free users
     if (!isPro && user?.id) {
-      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {});
+      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['daily-message-count', user.id] });
+      });
     }
     
     // Retry sending with exponential backoff
