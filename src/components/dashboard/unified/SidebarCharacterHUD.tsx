@@ -52,8 +52,8 @@ export function SidebarCharacterHUD({
         {/* Orb - Smaller for sidebar */}
         <div className="relative flex-shrink-0">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-lg scale-125" />
-          <div className="relative" style={{ width: 56, height: 56 }}>
-            <PersonalizedOrb size={56} state="idle" />
+          <div className="relative" style={{ width: 28, height: 28 }}>
+            <PersonalizedOrb size={28} state="idle" />
           </div>
         </div>
         
