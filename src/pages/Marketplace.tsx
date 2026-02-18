@@ -1,11 +1,11 @@
-import { Sparkles, Rocket, Brain, Users, Store, ArrowRight } from 'lucide-react';
+import { Sparkles, Rocket, Brain, Users, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
-import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
+import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { useState } from 'react';
 
 const FEATURES = [
   {
@@ -36,8 +36,7 @@ export default function Marketplace() {
   const { data: myProfile } = useMyPractitionerProfile();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isAlreadyCoach = !!myProfile;
-  const { canBeCoach, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
+  const [showPromo, setShowPromo] = useState(false);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-10" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -79,32 +78,20 @@ export default function Marketplace() {
 
       {/* CTA */}
       <div className="text-center">
-        {user && isAlreadyCoach ? (
-          <Button
-            onClick={() => navigate('/coach/content')}
-            className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
-            size="lg"
-          >
-            {language === 'he' ? 'לפאנל המאמן' : 'Go to Coach Panel'}
-            <ArrowRight className="h-4 w-4 ms-2" />
-          </Button>
-        ) : (
-          <Button
-            onClick={() => {
-              if (!user) { navigate('/auth'); return; }
-              if (!canBeCoach) { showUpgradePrompt('coach'); return; }
-              navigate('/coaching/journey');
-            }}
-            className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
-            size="lg"
-          >
-            <Rocket className="h-5 w-5 me-2" />
-            {language === 'he' ? 'הפכו למאמנים' : 'Become a Coach'}
-          </Button>
-        )}
+        <Button
+          onClick={() => {
+            if (!user) { navigate('/auth'); return; }
+            setShowPromo(true);
+          }}
+          className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white"
+          size="lg"
+        >
+          <Rocket className="h-5 w-5 me-2" />
+          {language === 'he' ? 'הפכו למאמנים' : 'Become a Coach'}
+        </Button>
       </div>
 
-      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
+      <PromoUpgradeModal open={showPromo} onDismiss={() => setShowPromo(false)} />
     </div>
   );
 }
