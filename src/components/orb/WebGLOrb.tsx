@@ -445,57 +445,11 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     // Store base colors so we can animate without accumulating brightness over time
     baseColorsRef.current = (outerEdges.getAttribute('color').array as Float32Array).slice() as Float32Array;
 
-    // ===== INNER GEOMETRIC STRUCTURES - DNA-based =====
-    const innerStructures: THREE.LineSegments[] = [];
-
-    // First inner structure
-    const inner1Geo = createGeometry(geometryTypes.inner1, 0.45, Math.max(1, geometryDetail - 1));
-    const inner1Edges = new THREE.WireframeGeometry(inner1Geo);
-    
-    // Add gradient colors to inner structure
-    const inner1Positions = inner1Edges.attributes.position;
-    const inner1Colors = new Float32Array(inner1Positions.count * 3);
-    for (let i = 0; i < inner1Positions.count; i++) {
-      const y = inner1Positions.getY(i);
-      const t = (y + 0.5) / 1;
-      inner1Colors[i * 3] = secondaryColor.r + (accentColor.r - secondaryColor.r) * t;
-      inner1Colors[i * 3 + 1] = secondaryColor.g + (accentColor.g - secondaryColor.g) * t;
-      inner1Colors[i * 3 + 2] = secondaryColor.b + (accentColor.b - secondaryColor.b) * t;
-    }
-    inner1Edges.setAttribute('color', new THREE.BufferAttribute(inner1Colors, 3));
-    
-    const inner1Wireframe = new THREE.LineSegments(inner1Edges, lineMaterial.clone());
-    inner1Wireframe.scale.setScalar(fitScale);
-    scene.add(inner1Wireframe);
-    innerStructures.push(inner1Wireframe);
-
-    // Second inner structure
-    const inner2Geo = createGeometry(geometryTypes.inner2, 0.25, Math.max(0, geometryDetail - 2));
-    const inner2Edges = new THREE.WireframeGeometry(inner2Geo);
-    
-    // Add gradient colors
-    const inner2Positions = inner2Edges.attributes.position;
-    const inner2Colors = new Float32Array(inner2Positions.count * 3);
-    for (let i = 0; i < inner2Positions.count; i++) {
-      const y = inner2Positions.getY(i);
-      const t = (y + 0.3) / 0.6;
-      inner2Colors[i * 3] = accentColor.r + (primaryColor.r - accentColor.r) * t;
-      inner2Colors[i * 3 + 1] = accentColor.g + (primaryColor.g - accentColor.g) * t;
-      inner2Colors[i * 3 + 2] = accentColor.b + (primaryColor.b - accentColor.b) * t;
-    }
-    inner2Edges.setAttribute('color', new THREE.BufferAttribute(inner2Colors, 3));
-    
-    const inner2Wireframe = new THREE.LineSegments(inner2Edges, lineMaterial.clone());
-    inner2Wireframe.scale.setScalar(fitScale);
-    scene.add(inner2Wireframe);
-    innerStructures.push(inner2Wireframe);
-
-    innerStructuresRef.current = innerStructures;
+    // No extra inner geometric structures — only core wireframe + particles
+    innerStructuresRef.current = [];
 
     // Cleanup geometries
     outerGeo.dispose();
-    inner1Geo.dispose();
-    inner2Geo.dispose();
 
     // ===== PARTICLES - Gradient colored =====
     // Keep particle cloud slightly tighter so it doesn't get cut off by the canvas.
@@ -512,7 +466,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       renderer.dispose();
       mainWireframe.geometry.dispose();
       (mainWireframe.material as THREE.Material).dispose();
-      innerStructures.forEach(s => {
+      innerStructuresRef.current.forEach(s => {
         s.geometry.dispose();
         (s.material as THREE.Material).dispose();
       });
