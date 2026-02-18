@@ -12,6 +12,7 @@ import { TodaysHabitsCard } from '@/components/dashboard/v2';
 import { ChecklistsCard } from '@/components/dashboard/unified';
 import { PlanRoadmap } from '@/components/dashboard/plan/PlanRoadmap';
 import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -37,6 +39,7 @@ const TodayTab = () => {
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const dashboard = useUnifiedDashboard();
   const [hypnosisOpen, setHypnosisOpen] = useState(false);
+  const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [activeInsight, setActiveInsight] = useState<string | null>(null);
   useGuestDataMigration();
@@ -102,6 +105,10 @@ const TodayTab = () => {
           onClick: () => navigate('/launchpad'),
         },
       });
+      return;
+    }
+    if (!canAccessHypnosis) {
+      showUpgradePrompt('hypnosis');
       return;
     }
     setHypnosisOpen(true);
@@ -349,6 +356,7 @@ const TodayTab = () => {
       </div>
 
       <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </PageShell>
   );
 };

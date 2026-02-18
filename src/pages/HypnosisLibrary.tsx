@@ -13,11 +13,13 @@ import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useGameState } from '@/contexts/GameStateContext';
 import { useEnergy } from '@/hooks/useGameState';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { ENERGY_COSTS } from '@/lib/energyCosts';
 import { hasFreeWeeklySession } from '@/lib/freeWeeklySession';
 import EnergySpendModal from '@/components/energy/EnergySpendModal';
 import { cn } from '@/lib/utils';
+import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 import { toast } from 'sonner';
 
 const QUICK_SESSIONS = [
@@ -39,6 +41,7 @@ const HypnosisLibrary = () => {
   const { user } = useAuth();
   const [energyModalOpen, setEnergyModalOpen] = useState(false);
   const [freeSessionAvailable, setFreeSessionAvailable] = useState(false);
+  const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
 
   useEffect(() => {
     if (user?.id) {
@@ -72,8 +75,11 @@ const HypnosisLibrary = () => {
   }
 
   const requestSession = () => {
+    if (!canAccessHypnosis) {
+      showUpgradePrompt('hypnosis');
+      return;
+    }
     if (freeSessionAvailable) {
-      // Free weekly session — skip energy gate
       setFreeSessionAvailable(false);
       openHypnosis();
       toast.success(language === 'he' ? '🎁 סשן שבועי חינם!' : '🎁 Free weekly session!');
@@ -172,6 +178,7 @@ const HypnosisLibrary = () => {
         onConfirm={confirmSpendAndStart}
         onCancel={() => setEnergyModalOpen(false)}
       />
+      <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
     </PageShell>
   );
 };
