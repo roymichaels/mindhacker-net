@@ -131,8 +131,8 @@ export function HudSidebar() {
         {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
         <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-y-auto overflow-x-hidden">
-          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[240px] aspect-square overflow-visible cursor-pointer">
-            <PersonalizedOrb size={220} state="idle" />
+          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[180px] aspect-square overflow-visible cursor-pointer">
+            <PersonalizedOrb size={160} state="idle" />
           </button>
 
           {identityTitle && (
