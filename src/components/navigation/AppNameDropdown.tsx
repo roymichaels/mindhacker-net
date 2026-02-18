@@ -24,6 +24,7 @@ import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 
 interface AppNameDropdownProps {
   onOpenSettings?: () => void;
@@ -43,6 +44,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const { openSubscriptions } = useSubscriptionsModal();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [orbViewerOpen, setOrbViewerOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
 
   const isAdmin = hasRole('admin');
@@ -101,6 +103,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   return (
     <>
       <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
+      <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
 
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
@@ -138,7 +141,14 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
             <div className="absolute inset-0 bg-gradient-to-t from-white/60 dark:from-black/40 to-transparent" />
 
             <div className="relative z-10 p-4 flex flex-col items-center text-center">
-              <div className="relative mb-3 group-hover:scale-105 transition-transform duration-300">
+              <div
+                className="relative mb-3 group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen(false);
+                  setOrbViewerOpen(true);
+                }}
+              >
                 <div className="absolute inset-[-40%] rounded-full bg-gradient-radial from-primary/40 via-primary/20 to-transparent blur-xl pointer-events-none" />
                 <div className="relative z-10">
                   <PersonalizedOrb size={80} state="idle" />
