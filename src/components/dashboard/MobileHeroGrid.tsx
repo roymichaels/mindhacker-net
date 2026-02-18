@@ -185,25 +185,19 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         </div>
 
         {/* ===== COL 2 - Plan Modules ===== */}
-        <div ref={leftColRef} className="flex flex-col gap-2 flex-1">
-          <div className="pt-2" />
+        <div ref={leftColRef} className="flex flex-col gap-4 flex-1 px-1">
+          <div className="pt-1" />
 
           <StartSessionButton />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Motivational Banner */}
           <MotivationalBanner />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           {/* Daily Roadmap - unified timeline */}
           <DailyRoadmap />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-          {/* Roadmap now in RoadmapSidebar on all screens */}
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
-
 
         </div>
 

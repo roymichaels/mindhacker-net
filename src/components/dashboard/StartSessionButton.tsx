@@ -99,7 +99,7 @@ export function StartSessionButton() {
   return (
     <>
       {/* Motivational greeting */}
-      <div className="text-center px-2 mb-1.5">
+      <div className="text-center px-3 mb-2">
         <p className="text-sm text-muted-foreground leading-relaxed">
           <span>{greeting.emoji} </span>
           {firstName && <span className="font-semibold text-foreground">{firstName}</span>}
@@ -110,13 +110,13 @@ export function StartSessionButton() {
 
       <button
         onClick={handleClick}
-        className="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-sm"
+        className="w-full flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-accent px-5 py-3.5 hover:brightness-110 active:brightness-90 transition-all touch-manipulation shadow-md"
       >
-        <span className="flex items-center gap-1 text-xs text-primary-foreground/80">
-          <Clock className="w-3.5 h-3.5" />15 {t('dashboard.minutesShort')}
+        <span className="flex items-center gap-1.5 text-sm text-primary-foreground/80">
+          <Clock className="w-4 h-4" />15 {t('dashboard.minutesShort')}
         </span>
-        <span className="flex items-center gap-2 text-sm font-bold text-primary-foreground">
-          <Play className="w-4 h-4 fill-primary-foreground" />
+        <span className="flex items-center gap-2 text-base font-bold text-primary-foreground">
+          <Play className="w-5 h-5 fill-primary-foreground" />
           {t('dashboard.startSession')}
         </span>
       </button>
