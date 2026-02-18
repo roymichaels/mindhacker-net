@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Globe, Sun, Moon, Shield, UserCog, Link2, LayoutDashboard, CreditCard } from 'lucide-react';
 import { Flame, Gem, Star } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -20,6 +20,7 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
 import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
@@ -39,6 +40,7 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
   const navigate = useNavigate();
   const location = useLocation();
   const dashboard = useUnifiedDashboard();
+  const { openSubscriptions } = useSubscriptionsModal();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { theme: brandTheme } = useThemeSettings();
@@ -227,6 +229,12 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               {(isAdmin || isPractitioner || isAffiliate) && <DropdownMenuSeparator />}
             </>
           )}
+
+          {/* Subscription */}
+          <DropdownMenuItem onClick={() => { setDropdownOpen(false); openSubscriptions(); }}>
+            <CreditCard className="h-4 w-4 me-2" />
+            {language === 'he' ? 'מנויים' : 'Subscription'}
+          </DropdownMenuItem>
 
           {/* Settings */}
           {onOpenSettings && (
