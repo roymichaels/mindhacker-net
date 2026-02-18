@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { handleError } from "@/lib/errorHandling";
@@ -14,6 +15,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -58,24 +60,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           open={showAuthModal} 
           onOpenChange={(open) => {
             setShowAuthModal(open);
-            // If they close the modal without logging in, keep it closeable
+            if (!open) {
+              // Redirect to homepage when modal is dismissed without logging in
+              navigate('/', { replace: true });
+            }
           }}
           defaultView="login"
         />
-        {/* Show a minimal background message when modal is dismissed */}
-        {!showAuthModal && (
-          <div className="text-center space-y-4">
-            <p className="text-muted-foreground">
-              {t('auth.loginRequired') || 'Please log in to continue'}
-            </p>
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="text-primary hover:underline font-medium"
-            >
-              {t('common.login') || 'Log in'}
-            </button>
-          </div>
-        )}
       </div>
     );
   }
