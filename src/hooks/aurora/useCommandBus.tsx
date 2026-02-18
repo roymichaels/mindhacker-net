@@ -288,8 +288,10 @@ export const useCommandBus = () => {
 
       // ── Reminder / Focus ──
       case 'setReminder': {
-        const ok = await createReminder(command.message, command.date);
-        return makeReceipt('reminder', 'create', ok, command.message, command.date);
+        // Build full datetime if time is provided
+        const reminderDate = command.time ? `${command.date}T${command.time}:00` : command.date;
+        const ok = await createReminder(command.message, reminderDate);
+        return makeReceipt('reminder', 'create', ok, command.message, command.time ? `${command.date} ${command.time}` : command.date);
       }
       case 'setFocus': {
         if (!user?.id) return null;

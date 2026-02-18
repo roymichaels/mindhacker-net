@@ -152,8 +152,8 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
 
   // Dates
   parts.push(isHe
-    ? `## תאריכים ומעקב\n- תאריך נוכחי: ${ctx.today}`
-    : `## Dates & Tracking\n- Current date: ${ctx.today}`);
+    ? `## תאריכים ומעקב\n- תאריך נוכחי: ${ctx.today}\n- שעה נוכחית: ${ctx.current_time} (UTC)`
+    : `## Dates & Tracking\n- Current date: ${ctx.today}\n- Current time: ${ctx.current_time} (UTC)`);
 
   if (ctx.life_plan) {
     parts.push(isHe
@@ -519,7 +519,9 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 - [identity:remove:סוג:תוכן] - הסרת אלמנט זהות
 
 ### תגיות תזכורות
-- [reminder:set:הודעה:YYYY-MM-DD] - יצירת תזכורת
+- [reminder:set:הודעה:YYYY-MM-DDTHH:MM] - יצירת תזכורת עם שעה מדויקת (חובה לכלול שעה!)
+- [reminder:set:הודעה:YYYY-MM-DD] - יצירת תזכורת ליום שלם (רק אם לא צוינה שעה)
+- ⚠️ כשמשתמש אומר "עוד X דקות/שעות" - חשב את השעה המדויקת מהשעה הנוכחית והשתמש בפורמט עם שעה!
 
 ### תגיות פוקוס
 - [focus:set:כותרת:מספר_ימים] - הגדרת תקופת פוקוס
@@ -647,7 +649,9 @@ Only use these tags when exactly ONE match exists!
 - [identity:remove:type:content] - remove identity element
 
 ## Reminder Tags
-- [reminder:set:message:YYYY-MM-DD] - create reminder
+- [reminder:set:message:YYYY-MM-DDTHH:MM] - create reminder with exact time (ALWAYS include time when user specifies!)
+- [reminder:set:message:YYYY-MM-DD] - create reminder for a full day (only when no time specified)
+- ⚠️ When user says "in X minutes/hours" - calculate the exact time from the current time and use the format with time!
 
 ## Focus Tags
 - [focus:set:title:days_count] - set new focus period
