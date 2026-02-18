@@ -82,7 +82,7 @@ export function MotivationalBanner() {
   const banner = banners[index];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg border border-border/30 bg-gradient-to-r cursor-pointer select-none"
+    <div className="relative w-full overflow-hidden rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm cursor-pointer select-none shadow-sm"
       onClick={next}
     >
       <AnimatePresence mode="wait">
@@ -92,10 +92,10 @@ export function MotivationalBanner() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className={`flex items-center gap-2.5 px-3 py-2 bg-gradient-to-r ${banner.gradient}`}
+          className={`flex items-center gap-3 px-4 py-3 bg-gradient-to-r ${banner.gradient}`}
         >
           <span className="text-primary shrink-0">{banner.icon}</span>
-          <span className="text-xs font-medium text-foreground/80 leading-snug">
+          <span className="text-sm font-medium text-foreground/80 leading-snug">
             {isHebrew ? banner.textHe : banner.textEn}
           </span>
         </motion.div>

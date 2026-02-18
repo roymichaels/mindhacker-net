@@ -125,29 +125,29 @@ export function DailyRoadmap() {
   const lineColorForDone = (done: boolean) => done ? 'bg-primary/40' : 'bg-border/60';
 
   return (
-    <div className="rounded-xl border border-border/40 bg-card/30 backdrop-blur-sm p-3">
+    <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-4 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-base font-bold">
           {isHe ? 'המסלול היומי' : "Today's Journey"}
         </h3>
-        <span className="text-xs font-semibold text-muted-foreground">
+        <span className="text-sm font-semibold text-muted-foreground">
           {completedTotal}/{totalItems}
         </span>
       </div>
 
       {/* Progress bar */}
-      <Progress value={progressPercent} className="h-1.5 mb-3" />
+      <Progress value={progressPercent} className="h-2 mb-4" />
 
       {/* Pending items timeline */}
       <div className="relative">
         {pendingItems.map((item, idx) => (
-          <div key={item.id} className="relative flex items-start gap-2.5 group">
+          <div key={item.id} className="relative flex items-start gap-3 group">
             {/* Timeline line */}
             {idx < pendingItems.length - 1 && (
               <div className={cn(
-                "absolute top-5 w-0.5 h-[calc(100%-4px)]",
-                "ltr:left-[7px] rtl:right-[7px]",
+                "absolute top-6 w-0.5 h-[calc(100%-8px)]",
+                "ltr:left-[9px] rtl:right-[9px]",
                 lineColorForDone(false)
               )} />
             )}
@@ -157,7 +157,7 @@ export function DailyRoadmap() {
               onClick={() => item.toggleable && handleToggle(item)}
               disabled={!item.toggleable}
               className={cn(
-                "relative z-10 w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 transition-all",
+                "relative z-10 w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5 transition-all",
                 item.toggleable && "cursor-pointer hover:scale-110",
                 !item.toggleable && "cursor-default",
                 dotColorForType(item.type, item.done)
@@ -165,9 +165,9 @@ export function DailyRoadmap() {
             />
 
             {/* Content */}
-            <div className="flex items-center gap-1.5 min-w-0 pb-2.5">
+            <div className="flex items-center gap-2 min-w-0 pb-3.5 min-h-[44px]">
               {iconForType(item.type)}
-              <span className="text-xs truncate">{item.title}</span>
+              <span className="text-sm truncate">{item.title}</span>
             </div>
           </div>
         ))}
@@ -178,7 +178,7 @@ export function DailyRoadmap() {
         <div className="mt-1">
           <button
             onClick={() => setShowCompleted(prev => !prev)}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full min-h-[44px]"
           >
             <ChevronDown className={cn("w-3 h-3 transition-transform", showCompleted && "rotate-180")} />
             <span className="font-medium">
@@ -195,22 +195,22 @@ export function DailyRoadmap() {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="pt-1.5 space-y-1">
+                <div className="pt-2 space-y-1.5">
                   {completedItems.map(item => (
-                    <div key={item.id} className="flex items-center gap-2.5 opacity-50">
+                    <div key={item.id} className="flex items-center gap-3 opacity-50 min-h-[40px]">
                       <button
                         onClick={() => item.toggleable && handleToggle(item)}
                         className={cn(
-                          "w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center",
+                          "w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center",
                           "bg-primary border-2 border-primary",
                           item.toggleable && "cursor-pointer"
                         )}
                       >
-                        <Check className="w-2.5 h-2.5 text-primary-foreground" />
+                        <Check className="w-3 h-3 text-primary-foreground" />
                       </button>
-                      <div className="flex items-center gap-1.5 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
                         {iconForType(item.type)}
-                        <span className="text-xs line-through text-muted-foreground truncate">{item.title}</span>
+                        <span className="text-sm line-through text-muted-foreground truncate">{item.title}</span>
                       </div>
                     </div>
                   ))}
