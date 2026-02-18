@@ -60,8 +60,8 @@ export function CharacterHUD({
         {/* Outer glow ring */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-125" />
         {/* Inner container with proper sizing */}
-        <div className="relative" style={{ width: 100, height: 100 }}>
-          <PersonalizedOrb size={100} state="idle" />
+        <div className="relative" style={{ width: 250, height: 250 }}>
+          <PersonalizedOrb size={250} state="idle" />
         </div>
       </div>
       

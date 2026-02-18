@@ -70,8 +70,8 @@ export function HudSidebar() {
           <div className="flex flex-col items-center gap-1 h-full pt-10 pb-2 px-1 overflow-hidden">
             {/* Top: Orb + Level */}
             <div className="flex flex-col items-center gap-1">
-              <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-12 h-12 overflow-visible cursor-pointer">
-                <PersonalizedOrb size={48} state="idle" />
+              <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-[120px] h-[120px] overflow-visible cursor-pointer">
+                <PersonalizedOrb size={120} state="idle" />
               </button>
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                 Lv.{xp.level}
@@ -130,8 +130,8 @@ export function HudSidebar() {
         {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
         <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-hidden h-full">
-          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[180px] aspect-square overflow-visible cursor-pointer">
-            <PersonalizedOrb size={160} state="idle" />
+          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[400px] aspect-square overflow-visible cursor-pointer">
+            <PersonalizedOrb size={400} state="idle" />
           </button>
 
           {identityTitle && (
