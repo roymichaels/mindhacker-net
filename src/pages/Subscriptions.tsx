@@ -1,5 +1,4 @@
 import { useAuth } from "@/contexts/AuthContext";
-import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,186 +111,187 @@ const Subscriptions = () => {
       ];
 
   return (
-    <div className="relative min-h-screen">
-      <Header />
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8" dir={isRTL ? "rtl" : "ltr"}>
+      {/* Hero */}
+      <div className="text-center space-y-3">
+        <h1 className="text-3xl md:text-4xl font-bold">
+          {isRTL ? "בחר את המסלול שלך" : "Choose Your Path"}
+        </h1>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          {isRTL
+            ? "מהתפתחות אישית ועד לבניית עסק — יש לנו תוכנית בשבילך"
+            : "From personal growth to building a business — we have a plan for you"}
+        </p>
+      </div>
 
-      <main className="relative container mx-auto px-4 py-8 mt-20" style={{ zIndex: 2 }}>
-        {/* Hero */}
-        <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-4xl md:text-6xl font-black cyber-glow mb-4">
-            {isRTL ? "בחר את המסלול שלך" : "Choose Your Path"}
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {isRTL
-              ? "מהתפתחות אישית ועד לבניית עסק — יש לנו תוכנית בשבילך"
-              : "From personal growth to building a business — we have a plan for you"}
-          </p>
-        </div>
+      {/* Active subscription banner */}
+      {isPaidUser && (
+        <Card className="border-primary/50 bg-primary/5 backdrop-blur-sm">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-primary/20 p-2">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="font-bold text-lg">
+                  {isRTL
+                    ? `מנוי ${TIER_CONFIGS[userTier].label.he} פעיל`
+                    : `${TIER_CONFIGS[userTier].label.en} subscription active`}
+                </p>
+                {subscriptionEnd && (
+                  <p className="text-sm text-muted-foreground">
+                    {isRTL ? "מתחדש ב-" : "Renews "}
+                    {new Date(subscriptionEnd).toLocaleDateString(isRTL ? "he-IL" : "en-US")}
+                  </p>
+                )}
+              </div>
+            </div>
+            <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading}>
+              {portalLoading && <Loader2 className="h-4 w-4 animate-spin me-2" />}
+              {isRTL ? "ניהול מנוי" : "Manage Subscription"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Active subscription banner */}
-        {isPaidUser && (
-          <div className="max-w-6xl mx-auto mb-8">
-            <Card className="glass-panel border-primary" dir={isRTL ? "rtl" : "ltr"}>
-              <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-primary/20 p-2">
-                    <CheckCircle2 className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg">
-                      {isRTL
-                        ? `מנוי ${TIER_CONFIGS[userTier].label.he} פעיל`
-                        : `${TIER_CONFIGS[userTier].label.en} subscription active`}
-                    </p>
-                    {subscriptionEnd && (
-                      <p className="text-sm text-muted-foreground">
-                        {isRTL ? "מתחדש ב-" : "Renews "}
-                        {new Date(subscriptionEnd).toLocaleDateString(isRTL ? "he-IL" : "en-US")}
-                      </p>
-                    )}
+      {/* Tier Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {TIER_ORDER.map((tierKey) => {
+          const config = TIER_CONFIGS[tierKey];
+          const features = TIER_FEATURES[tierKey];
+          const isCurrent = userTier === tierKey;
+          const isUpgrade = !tierIncludes(userTier, tierKey) && tierKey !== "free";
+          const isPopular = tierKey === "pro";
+          const isComingSoon = tierKey === "business";
+
+          return (
+            <Card
+              key={tierKey}
+              className={`relative flex flex-col rounded-2xl border bg-card/50 backdrop-blur-sm transition-all ${
+                isCurrent ? "border-primary ring-1 ring-primary/30" : ""
+              } ${isPopular && !isCurrent ? "ring-1 ring-primary/40" : ""} ${
+                isComingSoon ? "opacity-50 grayscale pointer-events-none" : ""
+              }`}
+            >
+              {isCurrent && (
+                <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
+                  <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
+                    {isRTL ? "התוכנית שלך" : "Your Plan"}
+                  </Badge>
+                </div>
+              )}
+              {isPopular && !isCurrent && (
+                <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
+                  <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
+                    <Zap className="w-3 h-3 me-1" />
+                    {isRTL ? "הכי פופולרי" : "Most Popular"}
+                  </Badge>
+                </div>
+              )}
+              {isComingSoon && (
+                <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
+                  <Badge variant="secondary" className="px-4 py-1 whitespace-nowrap">
+                    <Lock className="w-3 h-3 me-1" />
+                    {isRTL ? "בקרוב" : "Coming Soon"}
+                  </Badge>
+                </div>
+              )}
+
+              <CardHeader className="text-center pt-8 pb-4">
+                <div className="flex justify-center mb-3">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    {TIER_ICONS[tierKey]}
                   </div>
                 </div>
-                <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading}>
-                  {portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  {isRTL ? "ניהול מנוי" : "Manage Subscription"}
-                </Button>
+                <CardTitle className="text-2xl">{config.label[isRTL ? "he" : "en"]}</CardTitle>
+                <CardDescription className="text-sm min-h-[40px]">
+                  {config.description[isRTL ? "he" : "en"]}
+                </CardDescription>
+                <div className="mt-4">
+                  <div className="text-4xl font-black text-primary">
+                    {tierKey === "free"
+                      ? (isRTL ? "חינם" : "Free")
+                      : isRTL
+                        ? `₪${config.priceILS}`
+                        : `$${config.priceUSD}`}
+                  </div>
+                  {tierKey !== "free" && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {isRTL ? "לחודש" : "per month"}
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent className="flex-1 px-5">
+                <ul className="space-y-2.5">
+                  {(isRTL ? features.he : features.en).map((feat, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+
+              <CardFooter className="px-5 pb-6 pt-4">
+                {tierKey === "free" ? (
+                  <Button variant="outline" className="w-full" disabled={isCurrent}>
+                    {isCurrent
+                      ? (isRTL ? "התוכנית הנוכחית" : "Current Plan")
+                      : (isRTL ? "כלול" : "Included")}
+                  </Button>
+                ) : isCurrent ? (
+                  <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
+                    {portalLoading && <Loader2 className="h-4 w-4 animate-spin me-2" />}
+                    {isRTL ? "ניהול מנוי" : "Manage"}
+                  </Button>
+                ) : isUpgrade && !isComingSoon ? (
+                  <Button
+                    className="w-full"
+                    onClick={() => handleCheckout(tierKey)}
+                    disabled={loadingTier === tierKey || isLoading}
+                  >
+                    {loadingTier === tierKey ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4 me-1" />
+                        {config.trial
+                          ? (isRTL ? `נסה ${config.trial} ימים חינם` : `Try ${config.trial} days free`)
+                          : (isRTL ? "שדרג עכשיו" : "Upgrade now")}
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" disabled={isComingSoon} onClick={isComingSoon ? undefined : handleManageSubscription}>
+                    {isComingSoon ? (isRTL ? "בקרוב" : "Coming Soon") : (isRTL ? "שנה תוכנית" : "Change Plan")}
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* FAQ */}
+      <div className="max-w-4xl mx-auto mt-12 text-center">
+        <h2 className="text-2xl font-bold mb-6">
+          {isRTL ? "שאלות נפוצות" : "FAQ"}
+        </h2>
+        <div className="space-y-3 text-start">
+          {faqItems.map((item, i) => (
+            <Card key={i} className="bg-card/50 backdrop-blur-sm rounded-xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{item.q}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">{item.a}</p>
               </CardContent>
             </Card>
-          </div>
-        )}
-
-        {/* Tier Grid */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {TIER_ORDER.map((tierKey) => {
-            const config = TIER_CONFIGS[tierKey];
-            const features = TIER_FEATURES[tierKey];
-            const isCurrent = userTier === tierKey;
-            const isUpgrade = !tierIncludes(userTier, tierKey) && tierKey !== "free";
-            const isDowngrade = tierIncludes(userTier, tierKey) && tierKey !== userTier && tierKey !== "free";
-            const isPopular = tierKey === "pro";
-
-            return (
-              <Card
-                key={tierKey}
-                className={`glass-panel relative flex flex-col ${isCurrent ? "border-primary cyber-border" : ""} ${isPopular ? "ring-2 ring-primary/50" : ""}`}
-                dir={isRTL ? "rtl" : "ltr"}
-              >
-                {isCurrent && (
-                  <div className="absolute -top-3 right-1/2 translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
-                      {isRTL ? "התוכנית שלך" : "Your Plan"}
-                    </Badge>
-                  </div>
-                )}
-                {isPopular && !isCurrent && (
-                  <div className="absolute -top-3 right-1/2 translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap">
-                      <Zap className="w-3 h-3 mr-1" />
-                      {isRTL ? "הכי פופולרי" : "Most Popular"}
-                    </Badge>
-                  </div>
-                )}
-
-                <CardHeader className="text-center pt-8 pb-4">
-                  <div className="flex justify-center mb-3">
-                    <div className="rounded-full bg-primary/10 p-3 text-primary">
-                      {TIER_ICONS[tierKey]}
-                    </div>
-                  </div>
-                  <CardTitle className="text-2xl">{config.label[isRTL ? "he" : "en"]}</CardTitle>
-                  <CardDescription className="text-sm min-h-[40px]">
-                    {config.description[isRTL ? "he" : "en"]}
-                  </CardDescription>
-                  <div className="mt-4">
-                    <div className="text-4xl font-black cyber-glow">
-                      {tierKey === "free"
-                        ? (isRTL ? "חינם" : "Free")
-                        : isRTL
-                          ? `₪${config.priceILS}`
-                          : `$${config.priceUSD}`}
-                    </div>
-                    {tierKey !== "free" && (
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {isRTL ? "לחודש" : "per month"}
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-
-                <CardContent className="flex-1 px-5">
-                  <ul className="space-y-2.5">
-                    {(isRTL ? features.he : features.en).map((feat, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-
-                <CardFooter className="px-5 pb-6 pt-4">
-                  {tierKey === "free" ? (
-                    isCurrent ? (
-                      <Button variant="outline" className="w-full" disabled>
-                        {isRTL ? "התוכנית הנוכחית" : "Current Plan"}
-                      </Button>
-                    ) : (
-                      <Button variant="outline" className="w-full" disabled>
-                        {isRTL ? "כלול" : "Included"}
-                      </Button>
-                    )
-                  ) : isCurrent ? (
-                    <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
-                      {portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                      {isRTL ? "ניהול מנוי" : "Manage"}
-                    </Button>
-                  ) : isUpgrade ? (
-                    <Button
-                      className="w-full"
-                      onClick={() => handleCheckout(tierKey)}
-                      disabled={loadingTier === tierKey || isLoading}
-                    >
-                      {loadingTier === tierKey ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4 mr-1" />
-                          {config.trial
-                            ? (isRTL ? `נסה ${config.trial} ימים חינם` : `Try ${config.trial} days free`)
-                            : (isRTL ? "שדרג עכשיו" : "Upgrade now")}
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <Button variant="outline" className="w-full" onClick={handleManageSubscription} disabled={portalLoading}>
-                      {isRTL ? "שנה תוכנית" : "Change Plan"}
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            );
-          })}
+          ))}
         </div>
-
-        {/* FAQ */}
-        <div className="max-w-4xl mx-auto mt-16 text-center" dir={isRTL ? "rtl" : "ltr"}>
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 cyber-glow">
-            {isRTL ? "שאלות נפוצות" : "FAQ"}
-          </h2>
-          <div className="space-y-4 text-right">
-            {faqItems.map((item, i) => (
-              <Card key={i} className="glass-panel">
-                <CardHeader>
-                  <CardTitle className="text-lg">{item.q}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{item.a}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 };
