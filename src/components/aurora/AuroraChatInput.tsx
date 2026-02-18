@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGenderedTranslation } from '@/hooks/useGenderedTranslation';
@@ -20,6 +21,7 @@ interface AuroraChatInputProps {
 }
 
 const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
+  const queryClient = useQueryClient();
   const { t, tg, isRTL } = useGenderedTranslation();
   const { user } = useAuth();
   const { canSendMessage, messagesRemaining, isPro, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
@@ -77,7 +79,9 @@ const AuroraChatInput = ({ onSend, disabled }: AuroraChatInputProps) => {
 
     // Increment daily message count for free users
     if (!isPro && user?.id) {
-      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {});
+      supabase.rpc('increment_daily_message_count', { p_user_id: user.id }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['daily-message-count', user.id] });
+      });
     }
     
     if (textareaRef.current) {
