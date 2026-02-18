@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Calendar, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
+import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
 import { DailyPulseCard } from '@/components/dashboard/DailyPulseCard';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
@@ -244,18 +244,6 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             previewText={nextHabit?.title}
             items={habitMiniItems}
             onItemToggle={(id, done) => toggleHabit(id, done)}
-          />
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <CollapsiblePlanRow
-            icon={<Calendar className="w-4 h-4 text-blue-500" />}
-            title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
-            count={`${planData?.progressPercent || 0}%`}
-            badge={language === 'he' ? `שבוע ${planData?.currentWeek || 1}` : `Week ${planData?.currentWeek || 1}`}
-            badgeExtra={language === 'he' ? `חודש ${planData?.currentMonth || 1}` : `M${planData?.currentMonth || 1}`}
-            isOpen={expandedSection === 'plan'}
-            onToggle={() => toggle('plan')}
-            previewText={planData?.currentMilestone?.title ? `→ ${planData.currentMilestone.title}` : undefined}
-            progressPercent={planData?.progressPercent || 0}
           />
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <CollapsiblePlanRow
