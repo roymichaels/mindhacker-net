@@ -61,15 +61,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           />
 
           <div className="flex-1 min-h-0 flex">
-            {/* Roadmap Sidebar — left in LTR, right in RTL */}
-            <RoadmapSidebar />
+            {/* HUD Sidebar — left in LTR, right in RTL */}
+            <HudSidebar />
 
             <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-14 flex flex-col">
               {children}
             </main>
 
-            {/* HUD Sidebar — right in LTR, left in RTL */}
-            <HudSidebar />
+            {/* Roadmap Sidebar — right in LTR, left in RTL */}
+            <RoadmapSidebar />
           </div>
 
           <AuroraDock />
