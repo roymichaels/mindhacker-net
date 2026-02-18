@@ -11,39 +11,16 @@ interface OrbFullscreenViewerProps {
 
 export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps) {
   const [orbSize, setOrbSize] = useState(300);
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const isDragging = useRef(false);
-  const lastMouse = useRef({ x: 0, y: 0 });
-  const velocity = useRef({ x: 0, y: 0 });
-  const animFrame = useRef<number>(0);
 
   useEffect(() => {
     if (!open) return;
     const updateSize = () => {
       const min = Math.min(window.innerWidth, window.innerHeight);
-      setOrbSize(Math.min(min * 0.45, 400));
+      setOrbSize(Math.min(min * 0.55, 500));
     };
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
-  }, [open]);
-
-  // Inertia loop
-  useEffect(() => {
-    if (!open) return;
-    const spin = () => {
-      if (!isDragging.current) {
-        velocity.current.x *= 0.97;
-        velocity.current.y *= 0.97;
-        setRotation(prev => ({
-          x: prev.x + velocity.current.x,
-          y: prev.y + velocity.current.y,
-        }));
-      }
-      animFrame.current = requestAnimationFrame(spin);
-    };
-    animFrame.current = requestAnimationFrame(spin);
-    return () => cancelAnimationFrame(animFrame.current);
   }, [open]);
 
   // Lock body scroll
@@ -53,31 +30,7 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    isDragging.current = true;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
-    velocity.current = { x: 0, y: 0 };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    const dx = e.clientX - lastMouse.current.x;
-    const dy = e.clientY - lastMouse.current.y;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
-    velocity.current = { x: dy * 0.3, y: dx * 0.3 };
-    setRotation(prev => ({
-      x: prev.x + dy * 0.3,
-      y: prev.y + dx * 0.3,
-    }));
-  }, []);
-
-  const handlePointerUp = useCallback(() => {
-    isDragging.current = false;
-  }, []);
-
+  // Escape to close
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -146,49 +99,35 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
             <X style={{ width: 24, height: 24 }} />
           </motion.button>
 
-          {/* Centered orb with drag-to-spin */}
+          {/* Centered orb - the WebGL orb is already 3D, no CSS transform needed */}
           <motion.div
             style={{
               position: 'relative',
               zIndex: 5,
-              cursor: isDragging.current ? 'grabbing' : 'grab',
-              userSelect: 'none',
-              touchAction: 'none',
             }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.2, opacity: 0 }}
             transition={{ type: 'spring', damping: 18, stiffness: 180 }}
           >
+            {/* Glow behind orb */}
             <div
               style={{
-                transform: `perspective(800px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-                transformStyle: 'preserve-3d',
-                transition: isDragging.current ? 'none' : undefined,
+                position: 'absolute',
+                inset: '-40%',
+                borderRadius: '50%',
+                filter: 'blur(80px)',
+                opacity: 0.25,
+                pointerEvents: 'none',
+                background: 'radial-gradient(circle, hsl(340 82% 65% / 0.6) 0%, transparent 70%)',
               }}
-            >
-              {/* Glow behind orb */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: '-40%',
-                  borderRadius: '50%',
-                  filter: 'blur(60px)',
-                  opacity: 0.3,
-                  pointerEvents: 'none',
-                  background: 'radial-gradient(circle, hsl(340 82% 65% / 0.5) 0%, transparent 70%)',
-                }}
-              />
-              <PersonalizedOrb
-                size={orbSize}
-                state="idle"
-                showGlow
-                showLoadingSkeleton
-              />
-            </div>
+            />
+            <PersonalizedOrb
+              size={orbSize}
+              state="breathing"
+              showGlow
+              showLoadingSkeleton
+            />
           </motion.div>
 
           {/* Hint */}
@@ -209,13 +148,12 @@ export function OrbFullscreenViewer({ open, onClose }: OrbFullscreenViewerProps)
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            Click & drag to spin • Click outside to close
+            Click anywhere to close
           </motion.p>
         </motion.div>
       )}
     </AnimatePresence>
   );
 
-  // Portal to document.body to escape any parent stacking contexts
   return createPortal(content, document.body);
 }
