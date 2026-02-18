@@ -52,7 +52,7 @@ export function RoadmapSidebar() {
 
         {/* Collapsed mini-timeline */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
             {hasLifePlan && milestones.length > 0 ? (
               <CollapsedMiniTimeline
                 milestones={milestones}
