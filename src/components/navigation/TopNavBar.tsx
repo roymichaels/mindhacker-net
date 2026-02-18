@@ -10,7 +10,7 @@ const tabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
   { id: 'marketplace', path: '/marketplace', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
-  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים' },
+  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים', comingSoon: true },
 ];
 
 interface TopNavBarProps {
@@ -42,15 +42,18 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
             {tabs.map((tab) => {
               const active = isTabActive(tab.path);
               const Icon = tab.icon;
+              const isComingSoon = 'comingSoon' in tab && tab.comingSoon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                    active
-                      ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    isComingSoon
+                      ? "text-muted-foreground/40 opacity-50 grayscale"
+                      : active
+                        ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   <Icon className="h-4 w-4" />
