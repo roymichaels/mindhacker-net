@@ -17,7 +17,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import onboardingFlowSpec from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { cn } from '@/lib/utils';
-import { RefreshCw, Loader2, Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { RefreshCw, Loader2, Sparkles, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FlowAnswers, MiniStep, FlowStep } from '@/lib/flow/types';
 
@@ -77,38 +77,100 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
     return () => clearInterval(interval);
   }, [submitting]);
 
-  // Load current answers on open
+  // Load current answers from ALL available data sources on open
   useEffect(() => {
     if (!open || !user?.id) return;
     setLoading(true);
     (async () => {
       try {
-        const { data } = await supabase
+        // 1. Load launchpad_progress (all relevant columns)
+        const { data: launchpad } = await supabase
           .from('launchpad_progress')
-          .select('step_1_intention, step_2_profile_data')
+          .select('step_1_intention, step_2_profile_data, step_3_lifestyle_data, step_10_final_notes')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        // 2. Load aurora data for enrichment
+        const [
+          { data: energyPatterns },
+          { data: behavioralPatterns },
+          { data: lifeDirection },
+          { data: identityElements },
+          { data: commitments },
+        ] = await Promise.all([
+          supabase.from('aurora_energy_patterns').select('pattern_type, description').eq('user_id', user.id),
+          supabase.from('aurora_behavioral_patterns').select('pattern_type, description').eq('user_id', user.id),
+          supabase.from('aurora_life_direction').select('content, clarity_score').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+          supabase.from('aurora_identity_elements').select('element_type, content').eq('user_id', user.id),
+          supabase.from('aurora_commitments').select('title, description').eq('user_id', user.id).eq('status', 'active'),
+        ]);
+
         const flat: FlowAnswers = {};
 
-        // Parse step_1_intention
-        if (data?.step_1_intention) {
-          const parsed = typeof data.step_1_intention === 'string'
-            ? (() => { try { return JSON.parse(data.step_1_intention); } catch { return {}; } })()
-            : (data.step_1_intention as Record<string, unknown>);
-          for (const [k, v] of Object.entries(parsed)) {
-            if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
+        // Helper to parse JSON columns
+        const parseJson = (val: unknown): Record<string, unknown> => {
+          if (!val) return {};
+          if (typeof val === 'string') {
+            try { return JSON.parse(val); } catch { return {}; }
+          }
+          return val as Record<string, unknown>;
+        };
+
+        // Merge step_1_intention
+        const step1 = parseJson(launchpad?.step_1_intention);
+        for (const [k, v] of Object.entries(step1)) {
+          if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
+        }
+
+        // Merge step_2_profile_data
+        const step2 = parseJson(launchpad?.step_2_profile_data);
+        for (const [k, v] of Object.entries(step2)) {
+          if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
+        }
+
+        // Merge step_3_lifestyle_data (sleep, work patterns, etc.)
+        const step3 = parseJson(launchpad?.step_3_lifestyle_data);
+        for (const [k, v] of Object.entries(step3)) {
+          if (v !== undefined && v !== null && !flat[k]) flat[k] = v as string | string[] | number;
+        }
+
+        // Merge step_10_final_notes
+        if (launchpad?.step_10_final_notes && !flat['final_notes']) {
+          flat['final_notes'] = launchpad.step_10_final_notes as string;
+        }
+
+        // Legacy key mappings (old flow → new flow)
+        const LEGACY_MAP: Record<string, string> = {
+          'friction_type': 'pressure_zone',
+          'specific_tension': 'functional_signals',
+          'desired_shift': 'target_90_days',
+          'commitment_level': 'restructure_willingness',
+          'age_range': 'age_bracket',
+          'work_structure': 'current_work',
+        };
+        for (const [oldKey, newKey] of Object.entries(LEGACY_MAP)) {
+          if (flat[oldKey] && !flat[newKey]) {
+            flat[newKey] = flat[oldKey];
           }
         }
 
-        // Parse step_2_profile_data
-        if (data?.step_2_profile_data) {
-          const parsed = typeof data.step_2_profile_data === 'string'
-            ? (() => { try { return JSON.parse(data.step_2_profile_data); } catch { return {}; } })()
-            : (data.step_2_profile_data as Record<string, unknown>);
-          for (const [k, v] of Object.entries(parsed)) {
-            if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
-          }
+        // Enrich from aurora data (only fill gaps, don't override existing answers)
+        // Map energy patterns to relevant questions
+        if (energyPatterns?.length && !flat['energy_description']) {
+          const sleepPattern = energyPatterns.find(p => p.pattern_type === 'sleep');
+          const stressPattern = energyPatterns.find(p => p.pattern_type === 'stress');
+          if (sleepPattern && !flat['sleep_issues']) flat['sleep_issues'] = sleepPattern.description;
+          if (stressPattern && !flat['stress_description']) flat['stress_description'] = stressPattern.description;
+        }
+
+        // Map life direction to final notes if empty
+        if (lifeDirection?.content && !flat['final_notes']) {
+          flat['final_notes'] = lifeDirection.content;
+        }
+
+        // Map commitments context
+        if (commitments?.length && !flat['non_negotiable_constraint']) {
+          flat['non_negotiable_constraint'] = commitments.map(c => c.title).join(', ');
         }
 
         setAnswers(flat);
@@ -261,6 +323,13 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
               </p>
             </div>
           </div>
+          <button
+            onClick={() => onOpenChange(false)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+            aria-label="Close"
+          >
+            <X className="w-4.5 h-4.5" />
+          </button>
         </div>
 
         {/* Body */}
