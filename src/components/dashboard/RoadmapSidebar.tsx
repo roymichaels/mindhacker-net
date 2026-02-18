@@ -30,7 +30,7 @@ export function RoadmapSidebar() {
           "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
           "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
           "ltr:border-e rtl:border-s border-border/50 dark:border-primary/15",
-          collapsed ? "w-16 min-w-[64px]" : "w-[280px] xl:w-[300px]"
+          collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
         )}
       >
         {/* Collapse toggle */}
@@ -52,7 +52,7 @@ export function RoadmapSidebar() {
 
         {/* Collapsed mini-timeline */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-hidden">
             {hasLifePlan && milestones.length > 0 ? (
               <CollapsedMiniTimeline
                 milestones={milestones}
@@ -71,7 +71,7 @@ export function RoadmapSidebar() {
 
         {/* Expanded content */}
         {!collapsed && (
-          <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden p-3 pt-8">
+          <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
             <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-2" />
             <VerticalRoadmap onMilestoneClick={handleMilestoneClick} />
           </div>

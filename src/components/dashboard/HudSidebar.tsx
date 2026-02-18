@@ -46,7 +46,7 @@ export function HudSidebar() {
         "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
         "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
         "ltr:border-s rtl:border-e border-border/50 dark:border-primary/15",
-        collapsed ? "w-16 min-w-[64px]" : "w-[280px] xl:w-[300px]"
+        collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
       )}>
         {/* Collapse toggle */}
         <button
@@ -67,7 +67,7 @@ export function HudSidebar() {
 
         {/* ===== COLLAPSED MINI VIEW ===== */}
         {collapsed && (
-          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-hidden">
             {/* Top: Orb + Level */}
             <div className="flex flex-col items-center gap-2">
               <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-12 h-12 overflow-visible cursor-pointer">
@@ -107,7 +107,6 @@ export function HudSidebar() {
                 <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1.5">
                   <m.icon className={cn("w-4 h-4", m.color)} />
                   <span className="text-[10px] font-bold leading-none">{m.value}</span>
-                  <span className="text-[8px] text-muted-foreground leading-none">{m.label}</span>
                 </div>
               ))}
               <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -130,7 +129,7 @@ export function HudSidebar() {
 
         {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
-        <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-y-auto overflow-x-hidden">
+        <div className="flex flex-col items-center gap-3 p-3 pt-8 overflow-hidden h-full">
           <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-full max-w-[180px] aspect-square overflow-visible cursor-pointer">
             <PersonalizedOrb size={160} state="idle" />
           </button>
