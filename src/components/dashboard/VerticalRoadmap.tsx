@@ -30,12 +30,27 @@ function useIsDesktop() {
 
 interface MilestoneData {
   id: string;
+  plan_id?: string;
   week_number: number;
   title: string;
+  description?: string | null;
+  focus_area?: string | null;
+  goal?: string | null;
+  challenge?: string | null;
+  tasks?: string[];
   is_completed: boolean;
+  completed_at?: string | null;
+  xp_reward?: number;
+  tokens_reward?: number;
 }
 
-export function VerticalRoadmap() {
+export type { MilestoneData };
+
+interface VerticalRoadmapProps {
+  onMilestoneClick?: (milestone: MilestoneData) => void;
+}
+
+export function VerticalRoadmap({ onMilestoneClick }: VerticalRoadmapProps = {}) {
   const { t, language } = useTranslation();
   const { milestones, currentWeek, isLoading, hasLifePlan } = useLifePlanWithMilestones();
   const navigate = useNavigate();
@@ -78,8 +93,8 @@ export function VerticalRoadmap() {
   const progressPercent = Math.round((completedCount / milestones.length) * 100);
 
   return isDesktop
-    ? <DesktopTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} />
-    : <HorizontalTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} />;
+    ? <DesktopTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} onMilestoneClick={onMilestoneClick} />
+    : <HorizontalTimeline months={months} milestones={milestones} currentWeek={currentWeek} progressPercent={progressPercent} isHe={isHe} onMilestoneClick={onMilestoneClick} />;
 }
 
 interface TimelineProps {
@@ -88,10 +103,11 @@ interface TimelineProps {
   currentWeek: number;
   progressPercent: number;
   isHe: boolean;
+  onMilestoneClick?: (milestone: MilestoneData) => void;
 }
 
 /* ─── HORIZONTAL TIMELINE (Mobile/Tablet) ─── */
-function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, isHe }: TimelineProps) {
+function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, isHe, onMilestoneClick }: TimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentNodeRef = useRef<HTMLDivElement>(null);
 
@@ -156,8 +172,9 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
                   <div
                     key={milestone.id}
                     ref={isCurrent ? currentNodeRef : undefined}
+                    onClick={() => onMilestoneClick?.(milestone)}
                     className={cn(
-                      "flex flex-col items-center snap-center transition-all duration-300",
+                      "flex flex-col items-center snap-center transition-all duration-300 cursor-pointer",
                       isFuture && "opacity-30 blur-[0.5px]"
                     )}
                     style={{ minWidth: '96px' }}
@@ -235,7 +252,7 @@ function HorizontalTimeline({ months, milestones, currentWeek, progressPercent, 
 }
 
 /* ─── DESKTOP VERTICAL TIMELINE ─── */
-function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isHe }: TimelineProps) {
+function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isHe, onMilestoneClick }: TimelineProps) {
   return (
     <div className="flex flex-col gap-0">
       {/* Header */}
@@ -298,8 +315,9 @@ function DesktopTimeline({ months, milestones, currentWeek, progressPercent, isH
                 return (
                   <div
                     key={milestone.id}
+                    onClick={() => onMilestoneClick?.(milestone)}
                     className={cn(
-                      "relative flex items-center gap-3 py-3 px-1 transition-all duration-300",
+                      "relative flex items-center gap-3 py-3 px-1 transition-all duration-300 cursor-pointer hover:bg-accent/5 rounded-lg",
                       isHe && "flex-row-reverse",
                       isFuture && "opacity-30 blur-[0.5px]",
                       isCompleted && !isCurrent && "opacity-70"

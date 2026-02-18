@@ -46,7 +46,7 @@ export function HudSidebar() {
         "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
         "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
         "ltr:border-s rtl:border-e border-border/50 dark:border-primary/15",
-        collapsed ? "w-14" : "w-[280px] xl:w-[300px]"
+        collapsed ? "w-16" : "w-[280px] xl:w-[300px]"
       )}>
         {/* Collapse toggle */}
         <button
@@ -67,34 +67,48 @@ export function HudSidebar() {
 
         {/* ===== COLLAPSED MINI VIEW ===== */}
         {collapsed && (
-          <div className="flex flex-col items-center gap-2 pt-10 px-1 overflow-y-auto overflow-x-hidden">
-            <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-10 h-10 overflow-visible cursor-pointer">
-              <PersonalizedOrb size={40} state="idle" />
-            </button>
-            <span className="text-[9px] font-bold text-primary">Lv.{xp.level}</span>
-            <div className="w-6 h-px bg-border/50" />
-            {[
-              { icon: ZapIcon, value: tokens.balance, color: 'text-accent-foreground' },
-              { icon: Flame, value: streak.streak, color: 'text-destructive' },
-              { icon: Brain, value: consciousnessVal, color: 'text-chart-5' },
-              { icon: Eye, value: `${clarityVal}%`, color: 'text-chart-2' },
-              { icon: TrendingUp, value: `${readinessVal}%`, color: 'text-chart-4' },
-            ].map((m, i) => (
-              <div key={i} className="flex flex-col items-center gap-0.5">
-                <m.icon className={cn("w-3 h-3", m.color)} />
-                <span className="text-[8px] font-bold leading-none">{m.value}</span>
-              </div>
-            ))}
-            <div className="w-6 h-px bg-border/50" />
-            <button onClick={() => setActiveModal('identity')} className="p-1 rounded hover:bg-accent/10 transition-colors">
-              <UserCircle className="w-3.5 h-3.5 text-chart-5" />
-            </button>
-            <button onClick={() => setActiveModal('direction')} className="p-1 rounded hover:bg-accent/10 transition-colors">
-              <Compass className="w-3.5 h-3.5 text-chart-2" />
-            </button>
-            <button onClick={() => setActiveModal('insights')} className="p-1 rounded hover:bg-accent/10 transition-colors">
-              <Brain className="w-3.5 h-3.5 text-chart-3" />
-            </button>
+          <div className="flex flex-col items-center justify-between h-full pt-10 pb-4 px-1 overflow-y-auto overflow-x-hidden">
+            {/* Top: Orb + Level */}
+            <div className="flex flex-col items-center gap-2">
+              <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-12 h-12 overflow-visible cursor-pointer">
+                <PersonalizedOrb size={48} state="idle" />
+              </button>
+              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                Lv.{xp.level}
+              </span>
+            </div>
+
+            {/* Middle: Stats */}
+            <div className="flex flex-col items-center gap-2 w-full px-0.5">
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              {[
+                { icon: ZapIcon, value: tokens.balance, label: language === 'he' ? 'אנרגיה' : 'Energy', color: 'text-accent-foreground' },
+                { icon: Flame, value: streak.streak, label: language === 'he' ? 'רצף' : 'Streak', color: 'text-destructive' },
+                { icon: Brain, value: consciousnessVal, label: language === 'he' ? 'תודעה' : 'Aware', color: 'text-chart-5' },
+                { icon: Eye, value: `${clarityVal}%`, label: language === 'he' ? 'בהירות' : 'Clarity', color: 'text-chart-2' },
+                { icon: TrendingUp, value: `${readinessVal}%`, label: language === 'he' ? 'מוכנות' : 'Ready', color: 'text-chart-4' },
+              ].map((m, i) => (
+                <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1.5">
+                  <m.icon className={cn("w-4 h-4", m.color)} />
+                  <span className="text-[10px] font-bold leading-none">{m.value}</span>
+                  <span className="text-[8px] text-muted-foreground leading-none">{m.label}</span>
+                </div>
+              ))}
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            </div>
+
+            {/* Bottom: Modal triggers */}
+            <div className="flex flex-col items-center gap-2">
+              <button onClick={() => setActiveModal('identity')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
+                <UserCircle className="w-4 h-4 text-chart-5" />
+              </button>
+              <button onClick={() => setActiveModal('direction')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
+                <Compass className="w-4 h-4 text-chart-2" />
+              </button>
+              <button onClick={() => setActiveModal('insights')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
+                <Brain className="w-4 h-4 text-chart-3" />
+              </button>
+            </div>
           </div>
         )}
 
