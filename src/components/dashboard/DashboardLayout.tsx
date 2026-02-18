@@ -25,57 +25,35 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  
 
-  if (isMobile) {
-    return (
-      <AuroraActionsProvider>
-        <SidebarProvider>
-          <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+  return (
+    <AuroraActionsProvider>
+      <SidebarProvider>
+        <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
+          {isMobile ? (
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
               <div className="flex h-12 items-center justify-between px-3">
                 <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
                 <HeaderActions compact />
               </div>
             </header>
-
-            <main className="flex-1 min-h-0 overflow-y-auto px-3 pt-0 pb-28 flex flex-col">
-              {children}
-            </main>
-
-            <AuroraDock />
-            <BottomTabBar />
-            <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-          </div>
-        </SidebarProvider>
-      </AuroraActionsProvider>
-    );
-  }
-
-  return (
-    <AuroraActionsProvider>
-      <SidebarProvider>
-        <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
-          <TopNavBar
-            onOpenSettings={() => setSettingsOpen(true)}
-          />
+          ) : (
+            <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
+          )}
 
           <div className="flex-1 min-h-0 flex">
-            {/* HUD Sidebar — left in LTR, right in RTL */}
             <HudSidebar />
 
-            <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-14 flex flex-col">
+            <main className="flex-1 min-h-0 overflow-y-auto px-2 lg:px-3 pt-0 pb-28 md:pb-14 flex flex-col">
               {children}
             </main>
 
-            {/* Roadmap Sidebar — right in LTR, left in RTL */}
             <RoadmapSidebar />
           </div>
 
           <AuroraDock />
-
+          {isMobile && <BottomTabBar />}
           <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-          
         </div>
       </SidebarProvider>
     </AuroraActionsProvider>
