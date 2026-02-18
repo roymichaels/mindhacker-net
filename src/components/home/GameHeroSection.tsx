@@ -317,8 +317,8 @@ export default function GameHeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
-                onClick={() => navigate('/launchpad')}
-                className="group relative text-lg px-10 py-7 rounded-2xl 
+                onClick={() => navigate('/onboarding')}
+                className="group relative text-lg px-10 py-7 rounded-2xl
                   bg-gradient-to-r from-primary via-primary to-accent
                   hover:from-primary/90 hover:to-accent/90
                   text-primary-foreground font-black
@@ -341,8 +341,8 @@ export default function GameHeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate('/launchpad')}
-                className="text-lg px-8 py-6 rounded-2xl border-2 border-border/80 
+                onClick={() => navigate('/onboarding')}
+                className="text-lg px-8 py-6 rounded-2xl border-2 border-border/80
                   hover:border-primary/50 hover:bg-primary/5
                   group transition-all duration-300"
               >

@@ -18,6 +18,7 @@ import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
+import { useUTMTracker } from "@/hooks/useUTMTracker";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import CookieConsent from "@/components/CookieConsent";
@@ -58,6 +59,7 @@ const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
+const Go = lazy(() => import("./pages/Go"));
 const CommunityPost = lazy(() => import("./pages/CommunityPost"));
 const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
 const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
@@ -190,6 +192,11 @@ const BackgroundEffect = () => {
   }
 };
 
+// UTM tracker wrapper (hook needs to be inside BrowserRouter)
+const UTMTrackerMount = () => {
+  useUTMTracker();
+  return null;
+};
 
 const App = () => (
   <ErrorBoundary>
@@ -209,8 +216,9 @@ const App = () => (
                   <Sonner />
                 <LanguagePrompt />
                 <BrowserRouter>
-                  <AffiliateTracker />
-                  <AnalyticsProvider>
+                   <AffiliateTracker />
+                   <UTMTrackerMount />
+                   <AnalyticsProvider>
                     <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         {/* Public routes */}
@@ -234,6 +242,8 @@ const App = () => (
                         <Route path="/affiliate-signup" element={<AffiliateSignup />} />
                         {/* Onboarding — new entry point */}
                         <Route path="/onboarding" element={<Onboarding />} />
+                        {/* Ad landing page */}
+                        <Route path="/go" element={<Go />} />
                         {/* Legacy redirects → onboarding */}
                         <Route path="/start" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />

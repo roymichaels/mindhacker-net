@@ -475,12 +475,57 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           </div>
         </motion.div>
 
-        {/* ─── CTA ─── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
+        {/* ─── Post-Reveal Conversion Card ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border border-primary/30 p-5 space-y-3"
+        >
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" />
+            <h3 className="font-bold text-foreground">
+              {isHe ? 'שחרר את הפרוטוקול המלא' : 'Unlock Your Full Protocol'}
+            </h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {isHe
+              ? 'שדרג ל-Pro וקבל: הודעות ללא הגבלה לאורורה, היפנוזה AI יומית מותאמת אישית, וגישה לכל הכלים.'
+              : 'Upgrade to Pro for: unlimited Aurora messages, daily personalized AI hypnosis, and access to all tools.'
+            }
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm line-through text-muted-foreground/60">{isHe ? '₪497' : '$149'}/{ isHe ? 'חודש' : 'mo'}</span>
+            <span className="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{isHe ? '₪179' : '$49'}</span>
+            <span className="text-sm text-muted-foreground">/{isHe ? 'חודש' : 'mo'}</span>
+          </div>
           <button
-            onClick={handleEnterSystem}
+            onClick={async () => {
+              try {
+                const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+                  body: { tier: 'pro' },
+                });
+                if (error) throw error;
+                if (data?.url) window.open(data.url, '_blank');
+              } catch {
+                // fall through to free
+              }
+            }}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
+          >
+            {isHe ? '🔓 שדרג עכשיו — 70% הנחה' : '🔓 Upgrade Now — 70% Off'}
+          </button>
+        </motion.div>
+
+        {/* ─── CTA: Start Free ─── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }}>
+          <button
+            onClick={() => {
+              sessionStorage.setItem('just_completed_onboarding', '1');
+              handleEnterSystem();
+            }}
             disabled={isLoading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full py-4 rounded-2xl bg-card border-2 border-border hover:border-primary/50 text-foreground font-bold text-lg flex items-center justify-center gap-2 hover:bg-primary/5 transition-all disabled:opacity-50"
           >
             {isLoading ? (
               <>
@@ -489,7 +534,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
               </>
             ) : (
               <>
-                {isHe ? 'התחל היום' : 'Start Today'}
+                {isHe ? 'התחל חינם' : 'Start Free'}
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

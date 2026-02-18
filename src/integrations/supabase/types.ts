@@ -4998,12 +4998,14 @@ export type Database = {
           id: string
           last_session_date: string | null
           level: number | null
+          onboarding_completed_at: string | null
           preferred_language: string | null
           session_streak: number | null
           stripe_customer_id: string | null
           subscription_tier: string | null
           tokens: number | null
           updated_at: string | null
+          utm_data: Json | null
         }
         Insert: {
           active_ego_state?: string | null
@@ -5016,12 +5018,14 @@ export type Database = {
           id: string
           last_session_date?: string | null
           level?: number | null
+          onboarding_completed_at?: string | null
           preferred_language?: string | null
           session_streak?: number | null
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
+          utm_data?: Json | null
         }
         Update: {
           active_ego_state?: string | null
@@ -5034,12 +5038,14 @@ export type Database = {
           id?: string
           last_session_date?: string | null
           level?: number | null
+          onboarding_completed_at?: string | null
           preferred_language?: string | null
           session_streak?: number | null
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
+          utm_data?: Json | null
         }
         Relationships: []
       }
