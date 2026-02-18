@@ -395,7 +395,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     };
 
     // ===== MAIN OUTER WIREFRAME - DNA-based geometry =====
-    const outerGeo = createGeometry(geometryTypes.outer, 0.85, geometryDetail);
+    const outerGeo = createGeometry(geometryTypes.outer, 0.55, geometryDetail);
     const outerEdges = new THREE.WireframeGeometry(outerGeo);
     
     // Create gradient line material using vertex colors
