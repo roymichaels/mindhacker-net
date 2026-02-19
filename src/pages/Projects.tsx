@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, FolderKanban, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserProject } from '@/hooks/useProjects';
+import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import ProGateOverlay from '@/components/subscription/ProGateOverlay';
 
 interface ProjectsProps {
   openWizardTrigger?: number;
@@ -16,6 +18,7 @@ interface ProjectsProps {
 const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { language, isRTL } = useTranslation();
   const { projects, isLoading } = useProjects();
+  const { canAccessProjects } = useSubscriptionGate();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<UserProject | null>(null);
 
@@ -26,6 +29,14 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
 
   const activeProjects = projects.filter(p => p.status === 'active');
   const otherProjects = projects.filter(p => p.status !== 'active');
+
+  if (!canAccessProjects) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <ProGateOverlay feature="projects" className="max-w-md w-full" />
+      </div>
+    );
+  }
 
   return (
     <>

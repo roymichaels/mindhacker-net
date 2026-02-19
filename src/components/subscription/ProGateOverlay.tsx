@@ -19,6 +19,10 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
       he: 'מנוע התכנון ל-90 יום זמין למנויי Pro',
       en: 'The 90-day plan engine is available for Pro subscribers',
     },
+    projects: {
+      he: 'מודול הפרויקטים זמין למנויי Pro',
+      en: 'The Projects module is available for Pro subscribers',
+    },
     hypnosis: {
       he: 'ספריית ההיפנוזה זמינה למנויי Pro',
       en: 'The hypnosis library is available for Pro subscribers',

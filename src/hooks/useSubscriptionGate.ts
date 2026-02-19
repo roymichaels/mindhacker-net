@@ -11,6 +11,7 @@ export interface SubscriptionGate {
   canSendMessage: boolean;
   messagesRemaining: number;
   canAccessPlan: boolean;
+  canAccessProjects: boolean;
   canAccessHypnosis: boolean;
   canAccessNudges: boolean;
   canBeCoach: boolean;
@@ -84,6 +85,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canSendMessage: true,
       messagesRemaining: Infinity,
       canAccessPlan: true,
+      canAccessProjects: true,
       canAccessHypnosis: true,
       canAccessNudges: true,
       canBeCoach: true,
@@ -109,6 +111,7 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     canSendMessage: isPaid || messagesRemaining > 0,
     messagesRemaining,
     canAccessPlan: true,
+    canAccessProjects: tierIncludes(tier, "pro"),
     canAccessHypnosis: tierIncludes(tier, "pro"),
     canAccessNudges: tierIncludes(tier, "pro"),
     canBeCoach: tierIncludes(tier, "coach"),
