@@ -17,9 +17,25 @@ import { useTranslation } from '@/hooks/useTranslation';
 import onboardingFlowSpec from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
 import { cn } from '@/lib/utils';
-import { RefreshCw, Loader2, Sparkles, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { RefreshCw, Loader2, Sparkles, Check, ChevronDown, ChevronUp, X, GripVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { FlowAnswers, MiniStep, FlowStep } from '@/lib/flow/types';
+import type { FlowAnswers, MiniStep, FlowStep, FlowOption } from '@/lib/flow/types';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface RecalibrateModalProps {
   open: boolean;
@@ -492,6 +508,51 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
   );
 }
 
+/* ─── Sortable Rank Item for RecalibrateModal ─── */
+function SortableRecalRankItem({ item, index, isHe }: { item: FlowOption; index: number; isHe: boolean }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.value });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const label = isHe ? item.label_he : item.label_en;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all select-none min-h-[36px]",
+        isDragging
+          ? "border-primary bg-primary/15 shadow-lg scale-[1.02]"
+          : "border-border/20 bg-background/40 hover:border-primary/40"
+      )}
+    >
+      <span className="text-xs font-bold text-primary/70 min-w-[18px] text-center">{index + 1}</span>
+      {item.icon && <span className="text-sm shrink-0">{item.icon}</span>}
+      <span className="text-xs leading-tight flex-1 font-medium text-foreground">{label}</span>
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none cursor-grab active:cursor-grabbing p-0.5 text-muted-foreground hover:text-foreground"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
 /* ─── Individual Question Section ─── */
 interface QuestionSectionProps {
   mini: MiniStep;
@@ -508,7 +569,39 @@ function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSlider
   const isMulti = mini.inputType === 'multi_select';
   const isTextarea = mini.inputType === 'textarea';
   const isSlider = mini.inputType === 'slider';
+  const isPriorityRank = mini.inputType === 'priority_rank';
   const hasAnswer = answer !== undefined && answer !== null && answer !== '' && (!Array.isArray(answer) || answer.length > 0);
+
+  // Priority rank state
+  const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
+
+  useEffect(() => {
+    if (isPriorityRank && mini.options) {
+      if (Array.isArray(answer) && answer.length === mini.options.length) {
+        const ordered = (answer as string[])
+          .map(v => mini.options!.find(o => o.value === v))
+          .filter(Boolean) as FlowOption[];
+        setRankedItems(ordered);
+      } else {
+        setRankedItems([...mini.options]);
+        onSelect(mini.options.map(o => o.value) as any);
+      }
+    }
+  }, [mini.id]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = rankedItems.findIndex(i => i.value === active.id);
+    const newIndex = rankedItems.findIndex(i => i.value === over.id);
+    const reordered = arrayMove(rankedItems, oldIndex, newIndex);
+    setRankedItems(reordered);
+    onSelect(reordered.map(i => i.value) as any);
+  };
 
   return (
     <div className={cn(
@@ -554,8 +647,21 @@ function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSlider
         />
       )}
 
-      {/* Select options */}
-      {!isSlider && !isTextarea && (
+      {/* Priority Rank — Drag to reorder */}
+      {isPriorityRank && rankedItems.length > 0 && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={rankedItems.map(i => i.value)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-1.5">
+              {rankedItems.map((item, index) => (
+                <SortableRecalRankItem key={item.value} item={item} index={index} isHe={isHe} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      {/* Select options (single/multi) */}
+      {!isSlider && !isTextarea && !isPriorityRank && (
         <div className="grid grid-cols-2 gap-1.5">
           {mini.options?.map(opt => {
             const selected = isMulti
