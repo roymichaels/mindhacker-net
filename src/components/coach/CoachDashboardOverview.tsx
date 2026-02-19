@@ -1,20 +1,25 @@
 /**
- * CoachDashboardOverview - Default main content for the Coach Hub when no tab or client is selected.
- * Shows a welcome overview with key stats and quick-start guidance.
+ * @module coach/CoachDashboardOverview
+ * @purpose Coach Command Center — default main content for the Coach Hub
+ * Shows key stats, next sessions, revenue snapshot, and quick action shortcuts.
  */
+import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
-import { Users, Star, Calendar, TrendingUp } from 'lucide-react';
+import { useMyCoachProfile } from '@/domain/coaches';
+import { Users, Star, Calendar, TrendingUp, Sparkles, DollarSign, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import AutoPlanEngineModal from './AutoPlanEngineModal';
 
 const CoachDashboardOverview = () => {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { stats } = useCoachClientStats();
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
+  const [showPlanEngine, setShowPlanEngine] = useState(false);
 
+  // Review stats
   const { data: reviewStats } = useQuery({
     queryKey: ['coach-overview-reviews', myProfile?.id],
     queryFn: async () => {
@@ -32,11 +37,69 @@ const CoachDashboardOverview = () => {
     enabled: !!myProfile?.id,
   });
 
+  // Upcoming bookings count
+  const { data: upcomingCount } = useQuery({
+    queryKey: ['coach-upcoming-bookings', myProfile?.id],
+    queryFn: async () => {
+      if (!myProfile?.id) return 0;
+      const { count } = await supabase
+        .from('bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('practitioner_id', myProfile.id)
+        .gte('booking_date', new Date().toISOString().split('T')[0])
+        .in('status', ['pending', 'confirmed']);
+      return count || 0;
+    },
+    enabled: !!myProfile?.id,
+  });
+
+  // Plans count
+  const { data: plansCount } = useQuery({
+    queryKey: ['coach-plans-count', myProfile?.id],
+    queryFn: async () => {
+      if (!myProfile?.id) return 0;
+      const { count } = await supabase
+        .from('coach_client_plans')
+        .select('id', { count: 'exact', head: true })
+        .eq('coach_id', myProfile.id)
+        .eq('status', 'active');
+      return count || 0;
+    },
+    enabled: !!myProfile?.id,
+  });
+
   const overviewStats = [
     { icon: Users, value: stats.active, label: isHe ? 'מתאמנים פעילים' : 'Active Clients', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
     { icon: Star, value: reviewStats?.avg || 0, label: isHe ? 'דירוג ממוצע' : 'Avg Rating', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-    { icon: Calendar, value: stats.total, label: isHe ? 'סה"כ מתאמנים' : 'Total Clients', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+    { icon: Calendar, value: upcomingCount || 0, label: isHe ? 'פגישות קרובות' : 'Upcoming Sessions', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
     { icon: TrendingUp, value: reviewStats?.count || 0, label: isHe ? 'ביקורות' : 'Reviews', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' },
+  ];
+
+  const quickActions = [
+    {
+      icon: Sparkles,
+      label: isHe ? 'צור תוכנית AI' : 'Generate AI Plan',
+      desc: isHe ? 'תוכנית מותאמת שהופכת למשימות' : 'Custom plan that becomes playable tasks',
+      color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30',
+      iconColor: 'text-purple-400',
+      onClick: () => setShowPlanEngine(true),
+    },
+    {
+      icon: FileText,
+      label: isHe ? 'תוכניות פעילות' : 'Active Plans',
+      desc: isHe ? `${plansCount || 0} תוכניות` : `${plansCount || 0} plans`,
+      color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30',
+      iconColor: 'text-emerald-400',
+      onClick: () => {},
+    },
+    {
+      icon: DollarSign,
+      label: isHe ? 'הכנסות' : 'Revenue',
+      desc: isHe ? 'בקרוב' : 'Coming soon',
+      color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
+      iconColor: 'text-amber-400',
+      onClick: () => {},
+    },
   ];
 
   return (
@@ -47,7 +110,7 @@ const CoachDashboardOverview = () => {
           {isHe ? `שלום${myProfile?.display_name ? `, ${myProfile.display_name}` : ''}` : `Welcome${myProfile?.display_name ? `, ${myProfile.display_name}` : ''}`}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {isHe ? 'ברוכים הבאים למרכז השליטה שלכם' : 'Welcome to your Coach Hub'}
+          {isHe ? 'מרכז הפיקוד שלך — Coach Command Center' : 'Your Coach Command Center'}
         </p>
       </div>
 
@@ -62,6 +125,26 @@ const CoachDashboardOverview = () => {
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          {isHe ? 'פעולות מהירות' : 'Quick Actions'}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {quickActions.map((action) => (
+            <button
+              key={action.label}
+              onClick={action.onClick}
+              className={`rounded-xl border bg-gradient-to-br ${action.color} p-4 text-start hover:scale-[1.02] transition-transform`}
+            >
+              <action.icon className={`w-6 h-6 ${action.iconColor} mb-2`} />
+              <div className="font-medium text-sm">{action.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{action.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Quick Tips */}
       <div className="rounded-xl border border-border/50 bg-card/50 p-5 space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -74,7 +157,7 @@ const CoachDashboardOverview = () => {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
-            <span>{isHe ? 'השתמשו בכפתור "הוסף" כדי להוסיף מתאמנים חדשים' : 'Use the "Add" button to onboard new clients'}</span>
+            <span>{isHe ? 'צרו תוכנית AI שהופכת למשימות אוטומטיות' : 'Generate an AI plan that auto-converts to playable tasks'}</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
@@ -82,6 +165,9 @@ const CoachDashboardOverview = () => {
           </li>
         </ul>
       </div>
+
+      {/* Auto Plan Engine Modal */}
+      <AutoPlanEngineModal open={showPlanEngine} onOpenChange={setShowPlanEngine} />
     </div>
   );
 };

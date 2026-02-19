@@ -93,6 +93,7 @@ const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const AdminJourney = lazy(() => import("./pages/AdminJourney"));
 const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
+const CoachSlugRedirect = lazy(() => import("./components/coach/CoachSlugRedirect"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
@@ -207,6 +208,8 @@ const App = () => (
                         <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
                         <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
                         <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
+                        {/* Coach slug alias → storefront */}
+                        <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
                         {/* Redirect old affiliate dashboard to new panel */}
                         <Route
                           path="/affiliate-dashboard"
