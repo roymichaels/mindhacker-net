@@ -55,10 +55,16 @@ export function MobileTimePicker({
     return 0;
   });
 
-  const hours = Array.from(
-    { length: maxHour - minHour + 1 },
-    (_, i) => minHour + i
-  );
+  // Handle wrap-around (e.g. minHour=18, maxHour=3 means 18..23,0..3)
+  const hours = (() => {
+    if (minHour <= maxHour) {
+      return Array.from({ length: maxHour - minHour + 1 }, (_, i) => minHour + i);
+    }
+    // Wrap around midnight
+    const evening = Array.from({ length: 24 - minHour }, (_, i) => minHour + i);
+    const morning = Array.from({ length: maxHour + 1 }, (_, i) => i);
+    return [...evening, ...morning];
+  })();
   const minutes = Array.from(
     { length: 60 / minuteStep },
     (_, i) => i * minuteStep
