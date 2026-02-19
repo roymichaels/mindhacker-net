@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, ArrowRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, X, GripVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import onboardingFlowSpec, { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import { getVisibleMiniSteps } from '@/lib/flow/flowSpec';
@@ -16,8 +16,70 @@ import { OnboardingReveal } from './OnboardingReveal';
 import { OnboardingIntro } from './OnboardingIntro';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { FlowAnswers, MiniStep, FlowOption } from '@/lib/flow/types';
 import { cn } from '@/lib/utils';
+
+// ─── Sortable Item for priority_rank ───
+function SortableRankItem({ item, index, language }: { item: FlowOption; index: number; language: string }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.value });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const label = language === 'he' ? item.label_he : item.label_en;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all select-none",
+        isDragging
+          ? "border-primary bg-primary/15 shadow-lg scale-[1.02]"
+          : "border-border bg-card hover:border-primary/40"
+      )}
+    >
+      <span className="text-lg font-bold text-primary/70 min-w-[24px] text-center">{index + 1}</span>
+      {item.icon && <span className="text-lg shrink-0">{item.icon}</span>}
+      <span className="text-sm leading-tight flex-1">{label}</span>
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="w-5 h-5" />
+      </button>
+    </div>
+  );
+}
 
 // Keys that go into step_1_intention
 const STEP1_KEYS = [
@@ -53,6 +115,7 @@ export function OnboardingFlow() {
   const [showReveal, setShowReveal] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [textareaValue, setTextareaValue] = useState('');
+  const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
   const advanceTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const steps = onboardingFlowSpec.steps;
@@ -63,7 +126,14 @@ export function OnboardingFlow() {
   const isMultiSelect = currentMini?.inputType === 'multi_select';
   const isSlider = currentMini?.inputType === 'slider';
   const isTextarea = currentMini?.inputType === 'textarea';
+  const isTimePicker = currentMini?.inputType === 'time_picker';
+  const isPriorityRank = currentMini?.inputType === 'priority_rank';
   const currentMultiSelections = isMultiSelect ? (answers[currentMini?.id || ''] as string[] || []) : [];
+
+  // DnD sensors for priority_rank
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
+  const sensors = useSensors(pointerSensor, touchSensor);
 
   // Sync textarea value when mini-step changes
   useEffect(() => {
@@ -71,6 +141,43 @@ export function OnboardingFlow() {
       setTextareaValue((answers[currentMini.id] as string) || '');
     }
   }, [currentMini?.id, isTextarea]);
+
+  // Auto-set default for time_picker so Continue is immediately enabled
+  useEffect(() => {
+    if (currentMini && isTimePicker && !answers[currentMini.id]) {
+      const min = currentMini.minHour ?? 0;
+      const max = currentMini.maxHour ?? 23;
+      let defaultH = 7;
+      if (min <= max) {
+        defaultH = (defaultH >= min && defaultH <= max) ? defaultH : min;
+      } else {
+        defaultH = min;
+      }
+      const defaultTime = `${String(defaultH).padStart(2, '0')}:00`;
+      const updated = { ...answers, [currentMini.id]: defaultTime };
+      setAnswers(updated);
+      autoSave(updated);
+    }
+  }, [currentMini?.id, isTimePicker]);
+
+  // Initialize ranked items for priority_rank
+  useEffect(() => {
+    if (currentMini && isPriorityRank && currentMini.options) {
+      const saved = answers[currentMini.id];
+      if (Array.isArray(saved) && saved.length === currentMini.options.length) {
+        const ordered = saved
+          .map(v => currentMini.options!.find(o => o.value === v))
+          .filter(Boolean) as FlowOption[];
+        setRankedItems(ordered);
+      } else {
+        setRankedItems([...currentMini.options]);
+        const initial = currentMini.options.map(o => o.value);
+        const updated = { ...answers, [currentMini.id]: initial };
+        setAnswers(updated);
+        autoSave(updated);
+      }
+    }
+  }, [currentMini?.id, isPriorityRank]);
 
   // Auto-save on every change
   const autoSave = useCallback(async (updatedAnswers: FlowAnswers) => {
@@ -160,16 +267,42 @@ export function OnboardingFlow() {
     advanceToNext();
   }, [currentMini, textareaValue, answers, autoSave, advanceToNext]);
 
+  const handleTimeChange = useCallback((time: string) => {
+    if (!currentMini) return;
+    const updated = { ...answers, [currentMini.id]: time };
+    setAnswers(updated);
+    autoSave(updated);
+  }, [currentMini, answers, autoSave]);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !currentMini) return;
+
+    const oldIndex = rankedItems.findIndex(i => i.value === active.id);
+    const newIndex = rankedItems.findIndex(i => i.value === over.id);
+    const reordered = arrayMove(rankedItems, oldIndex, newIndex);
+    setRankedItems(reordered);
+
+    const values = reordered.map(i => i.value);
+    const updated = { ...answers, [currentMini.id]: values };
+    setAnswers(updated);
+    autoSave(updated);
+  }, [rankedItems, currentMini, answers, autoSave]);
+
   const handleContinue = useCallback(() => {
     if (isSlider) {
       autoSave(answers);
       advanceToNext();
     } else if (isTextarea) {
       handleTextareaSubmit();
+    } else if (isTimePicker) {
+      advanceToNext();
+    } else if (isPriorityRank) {
+      advanceToNext();
     } else if (currentMultiSelections.length > 0) {
       advanceToNext();
     }
-  }, [isSlider, isTextarea, currentMultiSelections.length, advanceToNext, autoSave, answers, handleTextareaSubmit]);
+  }, [isSlider, isTextarea, isTimePicker, isPriorityRank, currentMultiSelections.length, advanceToNext, autoSave, answers, handleTextareaSubmit]);
 
   const goBack = useCallback(() => {
     setSelectedValue(null);
@@ -212,12 +345,18 @@ export function OnboardingFlow() {
   if (!currentMini) return null;
 
   const canGoBack = currentStepIdx > 0 || currentMiniIdx > 0;
-  const showContinueBtn = isMultiSelect ? currentMultiSelections.length > 0 : (isSlider || isTextarea);
-  const canContinue = isSlider 
-    ? answers[currentMini.id] !== undefined 
-    : isTextarea 
+  const isSingleSelect = currentMini.inputType === 'single_select';
+  // Show continue for all non-auto-advance types
+  const showContinueBtn = isMultiSelect || isSlider || isTextarea || isTimePicker || isPriorityRank;
+  const canContinue = isSlider
+    ? answers[currentMini.id] !== undefined
+    : isTextarea
       ? !currentMini.validation.required || textareaValue.length >= (currentMini.validation.minChars || 1)
-      : currentMultiSelections.length > 0;
+      : isTimePicker
+        ? !!answers[currentMini.id]
+        : isPriorityRank
+          ? rankedItems.length > 0
+          : currentMultiSelections.length > 0;
 
   // Phase labels
   const phaseLabels: Record<number, { he: string; en: string }> = {
@@ -291,6 +430,11 @@ export function OnboardingFlow() {
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
                   {isHe ? currentMini.title_he : currentMini.title_en}
                 </h1>
+                {currentMini.prompt_he && (
+                  <p className="text-sm text-muted-foreground">
+                    {isHe ? currentMini.prompt_he : currentMini.prompt_en}
+                  </p>
+                )}
                 {isMultiSelect && (
                   <p className="text-sm text-muted-foreground">
                     {isHe ? 'ניתן לבחור מספר תשובות' : 'You can select multiple answers'}
@@ -342,8 +486,69 @@ export function OnboardingFlow() {
                 </div>
               )}
 
-              {/* Options (select types) */}
-              {!isSlider && !isTextarea && (
+              {/* Time Picker input */}
+              {isTimePicker && (
+                <div className="flex flex-col items-center gap-4">
+                  <MobileTimePicker
+                    value={typeof answers[currentMini.id] === 'string' && /^\d{2}:\d{2}$/.test(answers[currentMini.id] as string) ? (answers[currentMini.id] as string) : undefined}
+                    onChange={handleTimeChange}
+                    minHour={currentMini.minHour}
+                    maxHour={currentMini.maxHour}
+                  />
+                  {/* Render fallback options (e.g. "Flexible") below the picker */}
+                  {currentMini.options && currentMini.options.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-2 w-full">
+                      {currentMini.options.map((opt) => {
+                        const label = isHe ? opt.label_he : opt.label_en;
+                        const isSelected = answers[currentMini.id] === opt.value;
+                        return (
+                          <motion.button
+                            key={opt.value}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => {
+                              if (isSelected) {
+                                // Deselect — revert to time default
+                                const min = currentMini.minHour ?? 0;
+                                const defaultH = min <= (currentMini.maxHour ?? 23) ? (7 >= min ? 7 : min) : min;
+                                handleTimeChange(`${String(defaultH).padStart(2, '0')}:00`);
+                              } else {
+                                const updated = { ...answers, [currentMini.id]: opt.value };
+                                setAnswers(updated);
+                                autoSave(updated);
+                              }
+                            }}
+                            className={cn(
+                              "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                              isSelected
+                                ? "bg-primary/20 border-primary/60 text-foreground"
+                                : "bg-muted/50 border-border text-muted-foreground hover:border-border/80"
+                            )}
+                          >
+                            {opt.icon && <span className="mr-1">{opt.icon}</span>}
+                            {label}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Priority Rank — Drag to reorder */}
+              {isPriorityRank && rankedItems.length > 0 && (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={rankedItems.map(i => i.value)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {rankedItems.map((item, index) => (
+                        <SortableRankItem key={item.value} item={item} index={index} language={language} />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
+
+              {/* Options (single_select / multi_select) */}
+              {isSingleSelect || isMultiSelect ? (
                 <div className="grid grid-cols-1 gap-3">
                   {currentMini.options?.map((option: FlowOption) => {
                     const isSelected = isMultiSelect
@@ -374,7 +579,7 @@ export function OnboardingFlow() {
                     );
                   })}
                 </div>
-              )}
+              ) : null}
 
               {/* Continue button */}
               {showContinueBtn && (
