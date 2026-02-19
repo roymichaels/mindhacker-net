@@ -91,7 +91,7 @@ const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
-const AdminHub = lazy(() => import("./pages/AdminHub"));
+const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
@@ -355,14 +355,12 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Admin Hub - embedded in dashboard */}
+                        {/* Admin Hub - sidebar-driven layout */}
                         <Route
                           path="/admin-hub"
                           element={
                             <ProtectedRoute>
-                              <DashboardLayout>
-                                <AdminHub />
-                              </DashboardLayout>
+                              <AdminLayoutWrapper />
                             </ProtectedRoute>
                           }
                         />
