@@ -2,7 +2,7 @@ import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, us
 import * as THREE from 'three';
 import type { OrbRef, OrbProps, OrbState, OrbProfile } from './types';
 import { getEgoStateColors } from '@/lib/egoStates';
-import { ParticleSystem } from './OrbParticles';
+
 import { 
   COLOR_PALETTES, 
   MORPHOLOGY_PROFILES,
@@ -270,13 +270,13 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const innerStructuresRef = useRef<THREE.LineSegments[]>([]);
   const basePositionsRef = useRef<Float32Array | null>(null);
   const baseColorsRef = useRef<Float32Array | null>(null);
-  const particleSystemRef = useRef<ParticleSystem | null>(null);
+  
   const shaderMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
   const frameRef = useRef<number>(0);
   const timeRef = useRef(0);
   // Initialize morph phase from seed for per-user animation offset
   const morphPhaseRef = useRef(profile?.seed ? (profile.seed % 1000) / 1000 * Math.PI * 2 : 0);
-  // Safety margin to keep morphing/particles inside the canvas (prevents clipping)
+  // Safety margin to keep morphing inside the canvas (prevents clipping)
   const fitScaleRef = useRef<number>(1);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
@@ -338,7 +338,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const morphIntensity = Math.max(0.15, Math.min(0.95, (profile?.morphIntensity ?? 0.4) * 1.3));
   const morphSpeed = profile?.morphSpeed ?? 1.0;
   const fractalOctaves = Math.max(2, Math.min(6, profile?.fractalOctaves ?? 4));
-  const particleCount = Math.min(120, Math.max(0, profile?.particleCount ?? 40));
   const textureType = profile?.textureType ?? 'flowing';
 
   useImperativeHandle(ref, () => ({
@@ -466,13 +465,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     outerGeo.dispose();
     inner1Geo.dispose();
 
-    // ===== PARTICLES - Gradient colored =====
-    // Keep particle cloud slightly tighter so it doesn't get cut off by the canvas.
-    const ps = new ParticleSystem(particleCount, activePalette.primary, 0.45, 1.6);
-    ps.mesh.scale.setScalar(fitScale * 0.85);
-    scene.add(ps.mesh);
-    particleSystemRef.current = ps;
-
     onReady?.();
 
     // Cleanup
@@ -485,15 +477,12 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         s.geometry.dispose();
         (s.material as THREE.Material).dispose();
       });
-      if (particleSystemRef.current) {
-        particleSystemRef.current.dispose();
-      }
       ambient.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [size, geometryDetail, particleCount, activePalette.id, geometryTypes]);
+  }, [size, geometryDetail, activePalette.id, geometryTypes]);
 
   // Update colors when palette changes
   useEffect(() => {
@@ -556,10 +545,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       }
     });
 
-    // Update particles
-    if (particleSystemRef.current) {
-      particleSystemRef.current.setColor(activePalette.primary);
-    }
   }, [activePalette]);
 
   // Animation loop with ENHANCED morphing
@@ -714,11 +699,6 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         innerStructures[1].rotation.x += Math.cos(time * 0.6) * 0.003;
         const scale = 1 + Math.sin(time * 2.2 + 1.5) * 0.15 + audioLevel * 0.12;
         innerStructures[1].scale.setScalar(fitScale * scale);
-      }
-
-      // Update particles
-      if (particleSystemRef.current) {
-        particleSystemRef.current.update(time, audioLevel);
       }
 
       // Camera movement
