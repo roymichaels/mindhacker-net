@@ -100,7 +100,7 @@ export function StartSessionButton() {
     <>
       {/* Motivational greeting */}
       <div className="text-center px-3 mb-2">
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
           <span>{greeting.emoji} </span>
           {firstName && <span className="font-semibold text-foreground">{firstName}</span>}
           {firstName && <span className="text-muted-foreground">, </span>}
