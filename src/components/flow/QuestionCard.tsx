@@ -277,13 +277,47 @@ export function QuestionCard({
       )}
 
       {miniStep.inputType === 'time_picker' && (
-        <div className="flex justify-center">
-          <MobileTimePicker
-            value={typeof localValue === 'string' ? localValue : '07:00'}
-            onChange={handleTimeChange}
-            minHour={miniStep.minHour}
-            maxHour={miniStep.maxHour}
-          />
+        <div className="flex flex-col items-center gap-4">
+          {/* Show time picker only if not selecting a non-time option */}
+          {(!localValue || (typeof localValue === 'string' && /^\d{2}:\d{2}$/.test(localValue))) && (
+            <MobileTimePicker
+              value={typeof localValue === 'string' && /^\d{2}:\d{2}$/.test(localValue) ? localValue : '07:00'}
+              onChange={handleTimeChange}
+              minHour={miniStep.minHour}
+              maxHour={miniStep.maxHour}
+            />
+          )}
+          {/* Render fallback options (e.g. "Flexible", "Not working") below the picker */}
+          {miniStep.options && miniStep.options.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 w-full">
+              {miniStep.options.map((opt) => {
+                const label = language === 'he' ? opt.label_he : opt.label_en;
+                const isSelected = localValue === opt.value;
+                return (
+                  <Button
+                    key={opt.value}
+                    variant={isSelected ? 'default' : 'outline'}
+                    size="sm"
+                    className={cn(
+                      "rounded-full text-xs transition-all",
+                      isSelected && "ring-2 ring-primary/50"
+                    )}
+                    onClick={() => {
+                      if (isSelected) {
+                        // Deselect → go back to time picker with default
+                        handleTimeChange('07:00');
+                      } else {
+                        onChange(opt.value);
+                      }
+                    }}
+                  >
+                    {opt.icon && <span className="mr-1">{opt.icon}</span>}
+                    {label}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
