@@ -92,7 +92,7 @@ const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const AdminJourney = lazy(() => import("./pages/AdminJourney"));
 const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
-const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
+const CoachProfile = lazy(() => import("./pages/PractitionerProfile"));
 const CoachSlugRedirect = lazy(() => import("./components/coach/CoachSlugRedirect"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
@@ -122,7 +122,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Wrapper that injects coach sidebars when user is a practitioner
+// Wrapper that injects coach sidebars when user is a coach
 const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
 
 // Background effect wrapper component
@@ -203,11 +203,17 @@ const App = () => (
                         <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/start" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey/complete" element={<Navigate to="/launchpad/complete" replace />} />
-                        {/* Redirect practitioners and old marketplace to coaches */}
+                        {/* ── Canonical Routes ──
+                         * /p/:slug          → Coach public storefront (CANONICAL)
+                         * /coach/:slug      → Alias, redirects to /p/:slug
+                         * /practitioners    → Alias, redirects to /coaches directory
+                         * /practitioner/*   → Legacy, redirects to /coaches
+                         * /panel/*          → Legacy, all redirect to /admin-hub
+                         */}
                         <Route path="/practitioners" element={<Navigate to="/coaches" replace />} />
                         <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
-                        <Route path="/practitioner/:slug" element={<PractitionerProfile />} />
-                        <Route path="/practitioners/:slug" element={<PractitionerProfile />} />
+                        <Route path="/practitioner/:slug" element={<CoachProfile />} />
+                        <Route path="/practitioners/:slug" element={<CoachProfile />} />
                         {/* Coach slug alias → storefront */}
                         <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
                         {/* Redirect old affiliate dashboard to new panel */}
@@ -300,7 +306,7 @@ const App = () => (
                         {/* Dynamic Landing Pages */}
                         <Route path="/lp/:slug" element={<DynamicLandingPage />} />
                         
-                        {/* Practitioner Storefront Routes */}
+                        {/* Coach Storefront Routes (canonical: /p/:slug) */}
                         <Route path="/p/:practitionerSlug" element={<StorefrontLayout />}>
                           <Route index element={<StorefrontHome />} />
                           <Route path="login" element={<StorefrontLogin />} />

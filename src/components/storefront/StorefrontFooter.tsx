@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { usePractitioner } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Mail, Phone, Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const socialIcons: Record<string, typeof Facebook> = {
 };
 
 const StorefrontFooter = () => {
-  const { practitioner, settings, practitionerSlug } = usePractitioner();
+  const { practitioner, settings, practitionerSlug } = useCoachStorefront();
   const { t, isRTL } = useTranslation();
   
   if (!practitioner) return null;

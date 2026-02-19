@@ -1,4 +1,4 @@
-import { usePractitioner } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const StorefrontHome = () => {
-  const { practitioner, settings, practitionerSlug } = usePractitioner();
+  const { practitioner, settings, practitionerSlug } = useCoachStorefront();
   const { t, language, isRTL } = useTranslation();
   
   const baseUrl = `/p/${practitionerSlug}`;

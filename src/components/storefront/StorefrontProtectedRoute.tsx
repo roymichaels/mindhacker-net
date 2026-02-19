@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { usePractitioner } from '@/contexts/PractitionerContext';
-import { usePractitionerAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
 import { ReactNode } from 'react';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
@@ -9,16 +9,11 @@ interface StorefrontProtectedRouteProps {
 }
 
 const StorefrontProtectedRoute = ({ children }: StorefrontProtectedRouteProps) => {
-  const { practitionerSlug } = usePractitioner();
-  const { isAuthenticated, isLoading } = usePractitionerAuth();
+  const { practitionerSlug } = useCoachStorefront();
+  const { isAuthenticated, isLoading } = useCoachAuth();
   
-  if (isLoading) {
-    return <PageSkeleton />;
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to={`/p/${practitionerSlug}/login`} replace />;
-  }
+  if (isLoading) return <PageSkeleton />;
+  if (!isAuthenticated) return <Navigate to={`/p/${practitionerSlug}/login`} replace />;
   
   return <>{children}</>;
 };

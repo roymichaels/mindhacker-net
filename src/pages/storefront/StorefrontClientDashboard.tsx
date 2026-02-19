@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { usePractitioner } from '@/contexts/PractitionerContext';
-import { usePractitionerAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,8 +12,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
 const StorefrontClientDashboard = () => {
-  const { practitioner, settings, practitionerSlug } = usePractitioner();
-  const { user, clientProfile, isLoading: authLoading, isAuthenticated } = usePractitionerAuth();
+  const { practitioner, settings, practitionerSlug } = useCoachStorefront();
+  const { user, clientProfile, isLoading: authLoading, isAuthenticated } = useCoachAuth();
   const { t, isRTL } = useTranslation();
   
   const baseUrl = `/p/${practitionerSlug}`;
@@ -26,13 +26,9 @@ const StorefrontClientDashboard = () => {
       if (!user || !practitioner) return [];
       const { data } = await supabase
         .from('course_enrollments')
-        .select(`
-          *,
-          product:product_id(id, title, slug, thumbnail_url, description)
-        `)
+        .select(`*, product:product_id(id, title, slug, thumbnail_url, description)`)
         .eq('user_id', user.id);
       
-      // Filter by practitioner's products
       const practitionerProducts = await supabase
         .from('content_products')
         .select('id')
@@ -44,17 +40,13 @@ const StorefrontClientDashboard = () => {
     enabled: !!user && !!practitioner,
   });
   
-  // Fetch client's purchases
   const { data: purchases = [] } = useQuery({
     queryKey: ['client-purchases', user?.id, practitioner?.id],
     queryFn: async () => {
       if (!user || !practitioner) return [];
       const { data } = await supabase
         .from('content_purchases')
-        .select(`
-          *,
-          product:product_id(id, title, slug, thumbnail_url, practitioner_id)
-        `)
+        .select(`*, product:product_id(id, title, slug, thumbnail_url, practitioner_id)`)
         .eq('user_id', user.id);
       
       return (data || []).filter(p => (p.product as any)?.practitioner_id === practitioner.id);
@@ -66,10 +58,7 @@ const StorefrontClientDashboard = () => {
     return <Navigate to={`${baseUrl}/login`} replace />;
   }
   
-  if (authLoading || enrollmentsLoading) {
-    return <PageSkeleton />;
-  }
-  
+  if (authLoading || enrollmentsLoading) return <PageSkeleton />;
   if (!practitioner) return null;
   
   const inProgressCourses = enrollments.filter(e => !e.is_completed);
@@ -77,88 +66,36 @@ const StorefrontClientDashboard = () => {
   
   return (
     <div className="container py-8" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">
           {t('welcomeBack')}, {clientProfile?.display_name || user?.email?.split('@')[0]}!
         </h1>
-        <p className="text-muted-foreground">
-          {t('hereIsYourProgress')}
-        </p>
+        <p className="text-muted-foreground">{t('hereIsYourProgress')}</p>
       </div>
       
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${brandColor}20` }}
-              >
-                <BookOpen className="h-6 w-6" style={{ color: brandColor }} />
+        {[
+          { icon: BookOpen, value: enrollments.length, label: t('enrolledCourses') },
+          { icon: Trophy, value: completedCourses.length, label: t('completed') },
+          { icon: Calendar, value: clientProfile?.total_sessions || 0, label: t('sessions') },
+          { icon: Clock, value: purchases.length, label: t('purchases') },
+        ].map((stat, i) => (
+          <Card key={i}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${brandColor}20` }}>
+                  <stat.icon className="h-6 w-6" style={{ color: brandColor }} />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold">{enrollments.length}</p>
-                <p className="text-sm text-muted-foreground">{t('enrolledCourses')}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${brandColor}20` }}
-              >
-                <Trophy className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{completedCourses.length}</p>
-                <p className="text-sm text-muted-foreground">{t('completed')}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${brandColor}20` }}
-              >
-                <Calendar className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{clientProfile?.total_sessions || 0}</p>
-                <p className="text-sm text-muted-foreground">{t('sessions')}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div 
-                className="h-12 w-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${brandColor}20` }}
-              >
-                <Clock className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{purchases.length}</p>
-                <p className="text-sm text-muted-foreground">{t('purchases')}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
       
-      {/* In Progress Courses */}
       {inProgressCourses.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">{t('continueWatching')}</h2>
@@ -167,11 +104,7 @@ const StorefrontClientDashboard = () => {
               <Card key={enrollment.id} className="overflow-hidden">
                 {(enrollment.product as any)?.thumbnail_url && (
                   <div className="aspect-video overflow-hidden">
-                    <img
-                      src={(enrollment.product as any).thumbnail_url}
-                      alt={(enrollment.product as any).title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={(enrollment.product as any).thumbnail_url} alt={(enrollment.product as any).title} className="w-full h-full object-cover" />
                   </div>
                 )}
                 <CardContent className="pt-4">
@@ -183,14 +116,9 @@ const StorefrontClientDashboard = () => {
                     </div>
                     <Progress value={enrollment.progress_percentage || 0} className="h-2" />
                   </div>
-                  <Button 
-                    className="w-full mt-4" 
-                    asChild
-                    style={{ backgroundColor: brandColor }}
-                  >
+                  <Button className="w-full mt-4" asChild style={{ backgroundColor: brandColor }}>
                     <Link to={`${baseUrl}/courses/${(enrollment.product as any)?.slug}`}>
-                      {t('continue')}
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      {t('continue')}<ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardContent>
@@ -200,7 +128,6 @@ const StorefrontClientDashboard = () => {
         </section>
       )}
       
-      {/* Quick Actions */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">{t('quickActions')}</h2>
         <div className="grid md:grid-cols-3 gap-4">
@@ -213,7 +140,6 @@ const StorefrontClientDashboard = () => {
               </CardContent>
             </Link>
           </Card>
-          
           {settings?.enable_services !== false && (
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <Link to={`${baseUrl}/services`}>
@@ -225,7 +151,6 @@ const StorefrontClientDashboard = () => {
               </Link>
             </Card>
           )}
-          
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <Link to={`${baseUrl}/messages`}>
               <CardContent className="pt-6">
@@ -238,19 +163,14 @@ const StorefrontClientDashboard = () => {
         </div>
       </section>
       
-      {/* Empty State */}
       {enrollments.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <CardTitle className="mb-2">{t('noCoursesYet')}</CardTitle>
-            <CardDescription className="mb-6">
-              {t('startYourJourney')}
-            </CardDescription>
+            <CardDescription className="mb-6">{t('startYourJourney')}</CardDescription>
             <Button asChild style={{ backgroundColor: brandColor }}>
-              <Link to={`${baseUrl}/courses`}>
-                {t('exploreCourses')}
-              </Link>
+              <Link to={`${baseUrl}/courses`}>{t('exploreCourses')}</Link>
             </Button>
           </CardContent>
         </Card>

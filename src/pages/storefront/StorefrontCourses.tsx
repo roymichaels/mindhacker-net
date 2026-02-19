@@ -1,4 +1,4 @@
-import { usePractitioner } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { BookOpen, Clock, Users, Star } from 'lucide-react';
 
 const StorefrontCourses = () => {
-  const { practitioner, settings, practitionerSlug } = usePractitioner();
+  const { practitioner, settings, practitionerSlug } = useCoachStorefront();
   const { t, isRTL } = useTranslation();
   
   const baseUrl = `/p/${practitionerSlug}`;

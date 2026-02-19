@@ -1,9 +1,14 @@
+/**
+ * @module contexts/CoachAuthContext
+ * @purpose Auth context for coach storefront clients.
+ * Renamed from PractitionerAuthContext → CoachAuthContext for vocabulary unification.
+ */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { usePractitioner } from './PractitionerContext';
+import { useCoachStorefront } from './PractitionerContext';
 
-interface PractitionerClientProfile {
+interface CoachClientProfile {
   id: string;
   user_id: string;
   practitioner_id: string;
@@ -18,37 +23,41 @@ interface PractitionerClientProfile {
   status: string;
 }
 
-interface PractitionerAuthContextType {
+interface CoachAuthContextType {
   user: User | null;
   session: Session | null;
-  clientProfile: PractitionerClientProfile | null;
+  clientProfile: CoachClientProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ error: Error | null }>;
   signup: (email: string, password: string, displayName: string) => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
-  updateProfile: (updates: Partial<PractitionerClientProfile>) => Promise<{ error: Error | null }>;
+  updateProfile: (updates: Partial<CoachClientProfile>) => Promise<{ error: Error | null }>;
 }
 
-const PractitionerAuthContext = createContext<PractitionerAuthContextType | null>(null);
+const CoachAuthCtx = createContext<CoachAuthContextType | null>(null);
 
-export const usePractitionerAuth = () => {
-  const context = useContext(PractitionerAuthContext);
+/** Primary hook — use this name going forward */
+export const useCoachAuth = () => {
+  const context = useContext(CoachAuthCtx);
   if (!context) {
-    throw new Error('usePractitionerAuth must be used within PractitionerAuthProvider');
+    throw new Error('useCoachAuth must be used within CoachAuthProvider');
   }
   return context;
 };
 
-interface PractitionerAuthProviderProps {
+/** @deprecated Use useCoachAuth */
+export const usePractitionerAuth = useCoachAuth;
+
+interface CoachAuthProviderProps {
   children: ReactNode;
 }
 
-export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderProps) => {
-  const { practitioner } = usePractitioner();
+export const CoachAuthProvider = ({ children }: CoachAuthProviderProps) => {
+  const { practitioner } = useCoachStorefront();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [clientProfile, setClientProfile] = useState<PractitionerClientProfile | null>(null);
+  const [clientProfile, setClientProfile] = useState<CoachClientProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const fetchClientProfile = async (userId: string, practitionerId: string) => {
@@ -68,7 +77,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
   };
   
   const createClientProfile = async (userId: string, practitionerId: string, displayName?: string) => {
-    // First ensure user exists in profiles
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')
@@ -76,14 +84,12 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       .maybeSingle();
     
     if (!profile) {
-      // Profile should be created by auth trigger, but just in case
       await supabase.from('profiles').insert({
         id: userId,
         full_name: displayName,
       });
     }
     
-    // Create practitioner client profile
     const { data, error } = await supabase
       .from('practitioner_client_profiles')
       .insert({
@@ -100,7 +106,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       return null;
     }
     
-    // Also create practitioner_clients relationship
     await supabase.from('practitioner_clients').upsert({
       practitioner_id: practitionerId,
       client_user_id: userId,
@@ -127,7 +132,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
           setTimeout(async () => {
             let profile = await fetchClientProfile(nextSession.user.id, practitioner.id);
             
-            // If no profile exists, create one
             if (!profile) {
               profile = await createClientProfile(
                 nextSession.user.id, 
@@ -138,7 +142,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
             
             setClientProfile(profile);
             
-            // Update last activity
             if (profile) {
               await supabase
                 .from('practitioner_client_profiles')
@@ -154,7 +157,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       }
     );
     
-    // Check existing session
     supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
@@ -186,7 +188,7 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
   
   const signup = async (email: string, password: string, displayName: string) => {
     if (!practitioner) {
-      return { error: new Error('No practitioner context') };
+      return { error: new Error('No coach context') };
     }
     
     const redirectUrl = `${window.location.origin}/p/${practitioner.slug}/dashboard`;
@@ -207,7 +209,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       return { error: new Error(error.message) };
     }
     
-    // Create client profile immediately if user is confirmed
     if (data.user && data.session) {
       await createClientProfile(data.user.id, practitioner.id, displayName);
     }
@@ -222,7 +223,7 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
     setClientProfile(null);
   };
   
-  const updateProfile = async (updates: Partial<PractitionerClientProfile>) => {
+  const updateProfile = async (updates: Partial<CoachClientProfile>) => {
     if (!clientProfile) {
       return { error: new Error('No client profile') };
     }
@@ -236,7 +237,6 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       return { error: new Error(error.message) };
     }
     
-    // Refetch profile
     if (user && practitioner) {
       const profile = await fetchClientProfile(user.id, practitioner.id);
       setClientProfile(profile);
@@ -246,7 +246,7 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
   };
   
   return (
-    <PractitionerAuthContext.Provider
+    <CoachAuthCtx.Provider
       value={{
         user,
         session,
@@ -260,8 +260,11 @@ export const PractitionerAuthProvider = ({ children }: PractitionerAuthProviderP
       }}
     >
       {children}
-    </PractitionerAuthContext.Provider>
+    </CoachAuthCtx.Provider>
   );
 };
 
-export default PractitionerAuthContext;
+/** @deprecated Use CoachAuthProvider */
+export const PractitionerAuthProvider = CoachAuthProvider;
+
+export default CoachAuthCtx;
