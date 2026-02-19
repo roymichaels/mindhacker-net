@@ -71,11 +71,8 @@ const MessageThread = lazy(() => import("./pages/MessageThread"));
 
 
 
-const Launchpad = lazy(() => import("./pages/Launchpad"));
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
-const Start = lazy(() => import("./pages/Start"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
-// LifePlan route removed — consolidated into PlanTab
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
@@ -98,11 +95,7 @@ const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const CoachClientPlans = lazy(() => import("./pages/panel/CoachClientPlans"));
-const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
-// Free journey redirects handled inline below
-// Practitioner pages
-const Practitioners = lazy(() => import("./pages/Practitioners"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 // Panels
 const AdminPanel = lazy(() => import("./components/panel/AdminPanel"));
