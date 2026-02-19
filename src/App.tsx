@@ -18,6 +18,7 @@ import ConsciousnessField from "@/components/ConsciousnessField";
 import ThemeProvider from "@/components/ThemeProvider";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import AffiliateTracker from "@/components/AffiliateTracker";
+import FlowAuditProvider from "@/components/FlowAuditProvider";
 import { useUTMTracker } from "@/hooks/useUTMTracker";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
@@ -169,6 +170,7 @@ const App = () => (
                   <Sonner />
                 <LanguagePrompt />
                 <BrowserRouter>
+                   <FlowAuditProvider>
                    <AffiliateTracker />
                    <UTMTrackerMount />
                    <AnalyticsProvider>
@@ -711,6 +713,7 @@ const App = () => (
                       
                     </Suspense>
                   </AnalyticsProvider>
+                   </FlowAuditProvider>
                 </BrowserRouter>
                 </TooltipProvider>
                 </CoachesModalProvider>

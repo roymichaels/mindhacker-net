@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { handleError } from "@/lib/errorHandling";
 import { useTranslation } from "@/hooks/useTranslation";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { flowAudit } from "@/lib/flowAudit";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,7 +23,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         setIsAuthenticated(!!user);
-        if (!user) setShowAuthModal(true);
+        if (!user) {
+          flowAudit.redirect(window.location.pathname, '(auth_modal)', 'No authenticated user — showing auth modal');
+          setShowAuthModal(true);
+        }
       } catch (error) {
         handleError(error, t('messages.authCheckError'), "ProtectedRoute", t('common.error'));
         setIsAuthenticated(false);
@@ -62,6 +66,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             setShowAuthModal(open);
             if (!open) {
               // Redirect to homepage when modal is dismissed without logging in
+              flowAudit.redirect(window.location.pathname, '/', 'Auth modal dismissed without login');
               navigate('/', { replace: true });
             }
           }}

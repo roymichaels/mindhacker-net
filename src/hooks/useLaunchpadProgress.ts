@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
+import { flowAudit } from '@/lib/flowAudit';
 
 export interface LaunchpadProgress {
   id: string;
@@ -322,6 +323,15 @@ export function useLaunchpadProgress() {
     },
     enabled: !!user?.id,
   });
+
+  // Flow audit: log launchpad state when query resolves
+  if (!isLoading && user?.id) {
+    flowAudit.launchpad({
+      currentStep: progress?.current_step,
+      isComplete: progress?.launchpad_complete ?? false,
+      isLoading,
+    });
+  }
 
   // Calculate the ACTUAL current step based on what's completed
   // This handles legacy users who completed old steps before new steps were added

@@ -9,8 +9,12 @@ import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
 
+import { flowAudit } from '@/lib/flowAudit';
+
 export default function DashboardLayoutWrapper() {
   const { isLaunchpadComplete } = useLaunchpadProgress();
+
+  flowAudit.redirect('/dashboard', isLaunchpadComplete ? '(full layout)' : '(no sidebars)', `isLaunchpadComplete=${isLaunchpadComplete}`);
 
   // Un-onboarded users: no sidebars (clean intro page)
   if (!isLaunchpadComplete) {

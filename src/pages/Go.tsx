@@ -11,6 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { useConversionEvents } from '@/hooks/useConversionEvents';
 import { cn } from '@/lib/utils';
+import { flowAudit } from '@/lib/flowAudit';
 
 export default function Go() {
   const navigate = useNavigate();
@@ -18,10 +19,11 @@ export default function Go() {
   const { trackLead } = useConversionEvents();
 
   useEffect(() => {
-    // UTM params are captured by the global useUTMTracker hook
+    flowAudit.route('(entry)', '/go');
   }, []);
 
   const handleStart = () => {
+    flowAudit.redirect('/go', '/onboarding', 'CTA clicked — starting onboarding');
     trackLead({ source: 'go_page' });
     navigate('/onboarding');
   };
