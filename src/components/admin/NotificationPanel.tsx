@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { AdminNotification } from "@/hooks/useAdminNotifications";
-import { Bell, CheckCheck, ExternalLink, UserPlus, FileText, Megaphone, Brain, Headphones, Trophy, ShoppingCart, Star, CreditCard, BookOpen, AlertTriangle } from "lucide-react";
+import { Bell, CheckCheck, ExternalLink, UserPlus, FileText, Megaphone, Brain, Headphones, Trophy, ShoppingCart, Star, CreditCard, BookOpen, AlertTriangle, Compass } from "lucide-react";
 
 interface NotificationPanelProps {
   notifications: AdminNotification[];
@@ -39,6 +39,7 @@ const getNotificationIcon = (type: string) => {
     case 'new_lead': return Megaphone;
     case 'new_consciousness_leap_application': return Brain;
     case 'new_personal_hypnosis_order': return Headphones;
+    case 'onboarding_completed': return Compass;
     case 'journey_completion':
     case 'user_milestone': return Trophy;
     case 'new_purchase':
@@ -69,6 +70,8 @@ const resolveNotificationLink = (notification: AdminNotification): string | null
       return '/panel/consciousness-leap';
     case 'new_personal_hypnosis_order':
       return userId ? `/panel/users/${userId}` : '/panel/recordings';
+    case 'onboarding_completed':
+      return userId ? `/panel/users/${userId}/dashboard` : '/panel/users';
     case 'journey_completion':
     case 'user_milestone':
       return userId ? `/panel/users/${userId}/dashboard` : '/panel/users';
