@@ -2,10 +2,14 @@ import { Sparkles, Rocket, Brain, Users, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { PageSkeleton } from '@/components/ui/skeleton';
+
+const CoachHub = lazy(() => import('./CoachHub'));
 
 const FEATURES = [
   {
@@ -33,11 +37,29 @@ const FEATURES = [
 
 export default function Marketplace() {
   const { t, isRTL, language } = useTranslation();
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
+  const { hasRole, loading: rolesLoading } = useUserRoles();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showPromo, setShowPromo] = useState(false);
 
+  const isPractitioner = hasRole('practitioner');
+
+  // Show loading while checking roles
+  if (rolesLoading || profileLoading) {
+    return <PageSkeleton />;
+  }
+
+  // If user is a practitioner, show CoachHub
+  if (user && isPractitioner) {
+    return (
+      <Suspense fallback={<PageSkeleton />}>
+        <CoachHub />
+      </Suspense>
+    );
+  }
+
+  // Otherwise show the landing page
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-10" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Hero */}

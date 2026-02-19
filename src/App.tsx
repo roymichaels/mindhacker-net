@@ -685,41 +685,9 @@ const App = () => (
                           <Route path="settings" element={<Settings />} />
                         </Route>
 
-                        {/* Coach Panel routes */}
-                        <Route
-                          path="/coach"
-                          element={
-                            <RoleRoute allowedRoles={['practitioner']}>
-                              <CoachPanel />
-                            </RoleRoute>
-                          }
-                        >
-                          <Route index element={<CoachDashboard />} />
-                          <Route path="analytics" element={<CoachAnalytics />} />
-                          <Route path="clients" element={<MyClients />} />
-                          <Route path="clients/:clientId" element={<ClientProfile />} />
-                          <Route path="services" element={<MyServices />} />
-                          <Route path="calendar" element={<MyCalendar />} />
-                          <Route path="products" element={<MyProducts />} />
-                          <Route path="content" element={<CoachContent />} />
-                          <Route path="reviews" element={<CoachReviews />} />
-                          <Route path="earnings" element={<MyEarnings />} />
-                          <Route path="storefront" element={<StorefrontSettingsPanel />} />
-                          <Route path="profile" element={<Settings />} />
-                          <Route path="theme" element={<CoachTheme />} />
-                          {/* Synced from admin panel */}
-                          <Route path="testimonials" element={<Testimonials />} />
-                          <Route path="videos" element={<Videos />} />
-                          <Route path="recordings" element={<Recordings />} />
-                          <Route path="forms" element={<Forms />} />
-                          <Route path="leads" element={<Leads />} />
-                          <Route path="newsletter" element={<Newsletter />} />
-                          <Route path="offers" element={<AdminOffers />} />
-                          <Route path="purchases" element={<Purchases />} />
-                          <Route path="manage-products" element={<AdminProducts />} />
-                          <Route path="manage-content" element={<Content />} />
-                          <Route path="client-plans" element={<CoachClientPlans />} />
-                        </Route>
+                        {/* Coach Panel — redirect to /coaches for practitioners */}
+                        <Route path="/coach" element={<Navigate to="/coaches" replace />} />
+                        <Route path="/coach/*" element={<Navigate to="/coaches" replace />} />
 
                         {/* Affiliate Panel routes */}
                         <Route
