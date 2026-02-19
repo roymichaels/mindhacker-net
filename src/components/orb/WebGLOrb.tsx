@@ -51,7 +51,7 @@ function fbm(x: number, y: number, z: number, octaves: number = 4): number {
   return value;
 }
 
-// ===== HSL PARSING (robust, no lightness crush) =====
+// ===== HSL PARSING (robust, bypasses THREE.js color management) =====
 /** Normalize any HSL string format to "H S% L%" */
 function normalizeHsl(input: string): string {
   // "H S% L%" format
@@ -63,28 +63,53 @@ function normalizeHsl(input: string): string {
   return input;
 }
 
+/** Manual HSL→RGB (sRGB, no THREE.js color management which can darken via linearization) */
+function hslToRgbDirect(h: number, s: number, l: number): [number, number, number] {
+  // h in 0-360, s in 0-100, l in 0-100 → returns [r,g,b] each 0-1
+  const hNorm = ((h % 360) + 360) % 360 / 360;
+  const sNorm = Math.max(0, Math.min(1, s / 100));
+  const lNorm = Math.max(0, Math.min(1, l / 100));
+
+  if (sNorm === 0) return [lNorm, lNorm, lNorm];
+
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
+    return p;
+  };
+
+  const q2 = lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm;
+  const p2 = 2 * lNorm - q2;
+  return [
+    hue2rgb(p2, q2, hNorm + 1 / 3),
+    hue2rgb(p2, q2, hNorm),
+    hue2rgb(p2, q2, hNorm - 1 / 3),
+  ];
+}
+
 // Known-good fallback blue
-const FALLBACK_COLOR = new THREE.Color().setHSL(200 / 360, 0.8, 0.5);
+const FALLBACK_RGB: [number, number, number] = hslToRgbDirect(200, 80, 50);
 
 function parseHslToThreeColor(colorStr: string): THREE.Color {
   const normalized = normalizeHsl(colorStr);
   const m = normalized.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
   if (m) {
-    const h = parseFloat(m[1]) / 360;
-    const s = parseFloat(m[2]) / 100;
-    const l = parseFloat(m[3]) / 100;
-    const color = new THREE.Color();
-    color.setHSL(h, s, l); // Faithful conversion, no crushing
+    const [r, g, b] = hslToRgbDirect(parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]));
+    // Set RGB directly, bypassing THREE.js color management entirely
+    const color = new THREE.Color(r, g, b);
     return color;
   }
   // Last resort: try THREE.Color constructor
   try {
     const c = new THREE.Color(colorStr);
     // If near-black, return fallback
-    if (c.r + c.g + c.b < 0.1) return FALLBACK_COLOR.clone();
+    if (c.r + c.g + c.b < 0.1) return new THREE.Color(...FALLBACK_RGB);
     return c;
   } catch {
-    return FALLBACK_COLOR.clone();
+    return new THREE.Color(...FALLBACK_RGB);
   }
 }
 
@@ -92,8 +117,7 @@ function parseHslToVec3(colorStr: string): THREE.Vector3 {
   const c = parseHslToThreeColor(colorStr);
   // Safety: if near-black, substitute fallback
   if (c.r + c.g + c.b < 0.1) {
-    const fb = FALLBACK_COLOR.clone();
-    return new THREE.Vector3(fb.r, fb.g, fb.b);
+    return new THREE.Vector3(...FALLBACK_RGB);
   }
   return new THREE.Vector3(c.r, c.g, c.b);
 }
@@ -339,6 +363,12 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 6. Emissive glow ===
     finalColor += baseColor * u_emissiveIntensity * 0.3;
+
+    // === 7. Brightness floor — NEVER allow pure black ===
+    float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
+    if (brightness < 0.05) {
+      finalColor = max(finalColor, baseColor * 0.15);
+    }
 
     gl_FragColor = vec4(finalColor, 0.92);
   }
