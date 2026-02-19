@@ -1,182 +1,255 @@
 
 
-# Final Tightening Pass: One Organism
-
-## What's Left (the grep truth)
-
-| Smell | Count | Risk |
-|-------|-------|------|
-| UI components calling `.from('practitioner_*')` directly (bypassing domain) | 8 files | Drift guarantee |
-| `src/components/practitioners/` folder still exists (7 files) | 7 files | Vocabulary confusion |
-| `PractitionersModalContext.tsx` still exists (duplicate of CoachesModalContext) | 1 file | Two modal systems |
-| Translation keys using `practitioners.*` / `practitionerLanding.*` | 2 files | User-facing label leak |
-| `PractitionerContext.tsx` / `PractitionerAuthContext.tsx` naming | 2 files | Internal confusion |
-| Panel barrel imports still referenced | 2 files | Dead weight |
+# Launch Readiness Tighten Pass -- Analysis & Patch Plan
 
 ---
 
-## Action 1: Route all coach DB access through domain layer
+## TASK A: Route & Redirect Audit
 
-**Files to update** (move `.from('practitioner_*')` calls into `src/domain/coaches/hooks.ts`):
+### Complete Route Table (from App.tsx)
 
-- `src/components/coach/CoachDashboardOverview.tsx` -- uses `practitioner_reviews` directly. Replace with `useCoachReviews` from domain.
-- `src/components/coach/CoachActivitySidebar.tsx` -- uses `practitioner_clients` and `practitioner_reviews` directly. Create `useCoachActivityFeed` in domain hooks.
-- `src/components/coach/CoachProductsTab.tsx` -- uses `practitioner_services` directly. Replace with `useCoachServices`.
-- `src/components/coach/CoachSettingsTab.tsx` -- uses `practitioners` and `practitioner_settings` directly. Create `useCoachSettings` in domain hooks.
-- `src/components/coach/CoachMarketingTab.tsx` -- uses `practitioner_reviews` directly. Replace with `useCoachReviews`.
-- `src/components/coaches/CoachBookingView.tsx` -- uses `practitioner_availability` directly. Create `useCoachAvailability` in domain hooks.
-- `src/hooks/useCoachClients.ts` -- uses `practitioner_clients` directly. Move query logic into domain layer, re-export from there.
+| Route | Target | Status | Notes |
+|-------|--------|--------|-------|
+| `/` | Index | CANONICAL | |
+| `/signup` | Redirect -> `/` | ALIAS | Auth is modal-based |
+| `/login` | Redirect -> `/` | ALIAS | Auth is modal-based |
+| `/courses` | Courses | CANONICAL | |
+| `/courses/:slug` | CourseDetail | CANONICAL | |
+| `/courses/:slug/watch` | CourseWatch | CANONICAL | |
+| `/subscriptions` | Subscriptions | CANONICAL | |
+| `/install` | Install | CANONICAL | |
+| `/audio/:token` | AudioPlayer | CANONICAL | |
+| `/video/:token` | VideoPlayer | CANONICAL | |
+| `/personal-hypnosis` | PersonalHypnosisLanding | CANONICAL | |
+| `/consciousness-leap` | ConsciousnessLeapLanding | CANONICAL | |
+| `/consciousness-leap/apply/:token` | ConsciousnessLeapApply | CANONICAL | |
+| `/form/:token` | FormView | CANONICAL | |
+| `/privacy-policy` | PrivacyPolicy | CANONICAL | |
+| `/terms-of-service` | TermsOfService | CANONICAL | |
+| `/affiliate-signup` | AffiliateSignup | CANONICAL | |
+| `/onboarding` | Onboarding | CANONICAL | |
+| `/go` | Go | CANONICAL | |
+| `/start` | Redirect -> `/onboarding` | LEGACY | |
+| `/free-journey` | Redirect -> `/onboarding` | LEGACY | |
+| `/free-journey/start` | Redirect -> `/onboarding` | LEGACY | |
+| `/free-journey/complete` | Redirect -> `/launchpad/complete` | LEGACY | |
+| `/practitioners` | Redirect -> `/coaches` | LEGACY | |
+| `/marketplace` | Redirect -> `/coaches` | LEGACY | |
+| `/practitioner/:slug` | CoachProfile (renders directly) | **PROBLEM** | Should redirect to `/p/:slug`, not render |
+| `/practitioners/:slug` | CoachProfile (renders directly) | **PROBLEM** | Should redirect to `/p/:slug`, not render |
+| `/coach/:slug` | CoachSlugRedirect -> `/p/:slug` | ALIAS | Correct behavior |
+| `/affiliate-dashboard` | Redirect -> `/affiliate` | LEGACY | |
+| `/unsubscribe` | Unsubscribe | CANONICAL | |
+| `/community` | Community (protected) | CANONICAL | |
+| `/community/post/:id` | CommunityPost | CANONICAL | |
+| `/community/events` | CommunityEvents | CANONICAL | |
+| `/community/members` | CommunityMembers | CANONICAL | |
+| `/community/leaderboard` | CommunityLeaderboard | CANONICAL | |
+| `/community/profile/:userId` | CommunityProfile | CANONICAL | |
+| `/messages` | Messages (protected) | CANONICAL | |
+| `/messages/ai` | MessageThread | CANONICAL | |
+| `/messages/:conversationId` | MessageThread | CANONICAL | |
+| `/hypnosis` | Redirect -> `/dashboard` | LEGACY | |
+| `/lp/:slug` | DynamicLandingPage | CANONICAL | |
+| `/p/:practitionerSlug` | StorefrontLayout (nested) | CANONICAL | Route param still named `practitionerSlug` |
+| `/p/:practitionerSlug/login` | StorefrontLogin | CANONICAL | |
+| `/p/:practitionerSlug/signup` | StorefrontSignup | CANONICAL | |
+| `/p/:practitionerSlug/courses` | StorefrontCourses | CANONICAL | |
+| `/p/:practitionerSlug/dashboard` | StorefrontClientDashboard | CANONICAL | |
+| `/personal-hypnosis/success` | PersonalHypnosisSuccess | CANONICAL | |
+| `/personal-hypnosis/pending` | PersonalHypnosisPending | CANONICAL | |
+| `/dashboard` | DashboardLayout > UserDashboard | CANONICAL | |
+| `/today` | Redirect -> `/dashboard` | LEGACY | |
+| `/plan` | Redirect -> `/dashboard` | LEGACY | |
+| `/me` | Redirect -> `/dashboard` | LEGACY | |
+| `/projects` | ProjectsLayoutWrapper | CANONICAL | |
+| `/coaches` | CoachesLayoutWrapper | CANONICAL | |
+| `/admin-hub` | AdminLayoutWrapper | CANONICAL | |
+| `/launchpad` | Redirect -> `/onboarding` | LEGACY | |
+| `/launchpad/complete` | LaunchpadComplete | CANONICAL | |
+| `/quests` | Redirect -> `/onboarding` | LEGACY | |
+| `/quests/:pillar` | QuestRunnerPage | CANONICAL | |
+| `/coaching/journey` | CoachingJourney | CANONICAL | |
+| `/coaching/journey/:journeyId` | CoachingJourney | CANONICAL | |
+| `/admin/journey` | AdminJourney | CANONICAL | **Conflict**: `/admin/*` also redirects to `/admin-hub` but this specific route is defined first so it works |
+| `/admin/journey/:journeyId` | AdminJourney | CANONICAL | Same note |
+| `/projects/journey` | ProjectsJourney | CANONICAL | |
+| `/projects/journey/:journeyId` | ProjectsJourney | CANONICAL | |
+| `/business` | Business | CANONICAL | |
+| `/business/journey` | BusinessJourney | CANONICAL | |
+| `/business/journey/:journeyId` | BusinessJourney | CANONICAL | |
+| `/business/:businessId` | BusinessDashboard | CANONICAL | |
+| `/consciousness` | Consciousness | CANONICAL | |
+| `/health` | Health | CANONICAL | |
+| `/health/journey` | HealthJourney | CANONICAL | |
+| `/health/journey/:journeyId` | HealthJourney | CANONICAL | |
+| `/health/plan` | HealthPlan | CANONICAL | |
+| `/relationships` | Relationships | CANONICAL | |
+| `/relationships/journey` | RelationshipsJourney | CANONICAL | |
+| `/relationships/journey/:journeyId` | RelationshipsJourney | CANONICAL | |
+| `/finances` | Finances | CANONICAL | |
+| `/finances/journey` | FinancesJourney | CANONICAL | |
+| `/finances/journey/:journeyId` | FinancesJourney | CANONICAL | |
+| `/learning` | Learning | CANONICAL | |
+| `/learning/journey` | LearningJourney | CANONICAL | |
+| `/learning/journey/:journeyId` | LearningJourney | CANONICAL | |
+| `/purpose` | Purpose | CANONICAL | |
+| `/purpose/journey` | PurposeJourney | CANONICAL | |
+| `/purpose/journey/:journeyId` | PurposeJourney | CANONICAL | |
+| `/hobbies` | Hobbies | CANONICAL | |
+| `/hobbies/journey` | HobbiesJourney | CANONICAL | |
+| `/hobbies/journey/:journeyId` | HobbiesJourney | CANONICAL | |
+| `/success` | Success | CANONICAL | |
+| `/admin` | Redirect -> `/admin-hub` | LEGACY | |
+| `/admin/*` | Redirect -> `/admin-hub` | LEGACY | |
+| `/panel` | Redirect -> `/admin-hub` | LEGACY | |
+| `/panel/*` (16 specific routes) | Redirect -> `/admin-hub?tab=...` | LEGACY | |
+| `/panel/*` (catch-all) | Redirect -> `/admin-hub` | LEGACY | |
+| `/coach` | Redirect -> `/coaches` | LEGACY | |
+| `/coach/*` | Redirect -> `/coaches` | LEGACY | |
+| `/affiliate` | AffiliatePanel (nested) | CANONICAL | Role-gated |
+| `/affiliate/links` | MyLinks | CANONICAL | |
+| `/affiliate/referrals` | MyReferrals | CANONICAL | |
+| `/affiliate/payouts` | MyPayouts | CANONICAL | |
+| `/dev/orb-gallery` | OrbGallery | CANONICAL | Dev only |
+| `*` | NotFound | CANONICAL | Catch-all |
 
-The base `src/hooks/usePractitioners.ts` stays as-is -- it IS the domain data layer. But it gets re-exported only through `src/domain/coaches/hooks.ts`.
+### Issues Found
 
-**New hooks added to `src/domain/coaches/hooks.ts`:**
-- `useCoachReviewStats(coachId)` -- replaces inline review queries
-- `useCoachActivityFeed(coachId)` -- replaces inline activity queries
-- `useCoachSettings()` -- replaces inline settings queries
-- `useCoachAvailability(coachId)` -- replaces inline availability query
+1. **`/practitioner/:slug` and `/practitioners/:slug` render CoachProfile directly** instead of redirecting to `/p/:slug`. This creates duplicate rendering of the same page at 3 different URLs -- bad for SEO and inconsistent with the `/coach/:slug` redirect pattern.
+
+2. **Unused lazy import**: `RolesManager` is imported on line 103 of App.tsx but never used in any `<Route>`. It is only consumed by `src/domain/admin/tabConfig.ts` which has its own lazy import.
+
+3. **Route param naming**: `/p/:practitionerSlug` still uses the old name. This cascades into `PractitionerContext.tsx` and all storefront components reading `practitionerSlug`. This is a medium-risk rename (many files touch it).
+
+4. **Hardcoded links to `/practitioners`**: `PractitionerProfile.tsx` line 84 and `PractitionerProfileHeader.tsx` line 47 link to `/practitioners` (works via redirect, but should point to `/coaches`).
 
 ---
 
-## Action 2: Eliminate duplicate practitioners components/context
+## TASK B: Naming & Domain Boundary Audit
 
-**Delete `src/contexts/PractitionersModalContext.tsx`**
-- Only imported by `FeaturedPractitioners.tsx`
-- `CoachesModalContext.tsx` already re-exports `usePractitionersModal` as deprecated alias
+### Remaining "practitioner" references outside allowed zones
 
-**Update `src/components/practitioners/FeaturedPractitioners.tsx`**
-- Change import from `PractitionersModalContext` to `CoachesModalContext`
-- Rename `openPractitioners` call to `openCoaches`
+| File | What | Classification |
+|------|------|----------------|
+| `src/components/practitioner-landing/` (15 files) | Entire folder with Practitioner-named components | **SHOULD RENAME** to `coach-landing/` or `coach-profile/` |
+| `src/pages/PractitionerProfile.tsx` | Page file + component name | **SHOULD RENAME** to `CoachProfile.tsx` |
+| `src/contexts/PractitionerContext.tsx` | File name (exports already renamed) | **SHOULD RENAME** file to `CoachStorefrontContext.tsx` |
+| `src/contexts/PractitionerAuthContext.tsx` | File name (exports already renamed) | **SHOULD RENAME** file to `CoachAuthContext.tsx` |
+| `src/components/coach/CoachHudSidebar.tsx` | Imports from `practitioner-landing`, calls `usePractitioner` directly, calls `.from('practitioners')` and `.from('practitioner_reviews')` directly | **SHOULD FIX** -- use domain hooks |
+| `src/pages/storefront/StorefrontHome.tsx` | Calls `.from('practitioner_services')` and `.from('practitioner_reviews')` directly | **SHOULD FIX** -- use domain hooks |
+| `src/hooks/useCoachClients.ts` | Calls `.from('practitioner_clients')` directly (4 places) | **SHOULD FIX** -- move to domain hooks |
+| `src/hooks/useCoachClientView.ts` | Calls `.from('practitioners')` directly | **SHOULD FIX** -- use domain hooks |
+| `src/components/coaches/CoachDetailView.tsx` | Uses `t('practitionerLanding.*')` translation keys, prop named `practitioner` | **SHOULD FIX** keys; prop rename is low priority |
+| `src/components/coaches/FeaturedCoaches.tsx` | Deprecated `FeaturedPractitioners` re-export | **DELETE** alias |
+| `src/components/coaches/CoachDetailView.tsx` | Deprecated `PractitionerDetailView` re-export | **DELETE** alias |
+| `src/components/coaches/CoachMiniItemCard.tsx` | Deprecated `PractitionerMiniItemCard` re-export | **DELETE** alias |
+| `src/i18n/translations/en.ts` + `he.ts` | Duplicate keys: `featuredPractitionersTitle`, `featuredPractitionersSubtitle`, `viewAllPractitioners` alongside Coach versions | **DELETE** old keys |
+| Route param `practitionerSlug` | In App.tsx, PractitionerContext, and 10 storefront files | **SHOULD RENAME** to `coachSlug` |
+| `src/pages/Coaches.tsx` | Calls `useMyPractitionerProfile` directly | **SHOULD FIX** -- use `useMyCoachProfile` from domain |
+| `src/components/coach/CoachPlansTab.tsx` | Calls `useMyPractitionerProfile` directly | **SHOULD FIX** -- use domain hook |
 
-**Consolidate `src/components/practitioners/` folder:**
-- These 7 files are legacy duplicates of `src/components/coaches/` equivalents
-- `PractitionersModal.tsx` -> already duplicated by `CoachesModal.tsx`
-- `PractitionerCard.tsx` -> already duplicated by `CoachCard.tsx`
-- `PractitionerDetailView.tsx` -> already duplicated by `CoachDetailView.tsx`
-- `PractitionerBookingView.tsx` -> already duplicated by `CoachBookingView.tsx`
-- `PractitionerReviewSlider.tsx` -> already duplicated by `CoachReviewSlider.tsx`
-- `PractitionerMiniItemCard.tsx` -> check if imported; if only by practitioners folder, delete
-- `FeaturedPractitioners.tsx` -> update imports to use coaches versions, rename to `FeaturedCoaches.tsx`
-- Delete `src/components/practitioners/index.ts`
+### Allowed (DB layer only -- no action needed)
 
-After: the `src/components/practitioners/` folder is deleted entirely.
-
----
-
-## Action 3: Rename storefront contexts (internal naming)
-
-**`src/contexts/PractitionerContext.tsx`:**
-- Rename exports: `usePractitioner` -> `useCoachStorefront`, `PractitionerProvider` -> `CoachStorefrontProvider`
-- Add deprecated re-exports for safety
-- Update all 10 storefront consumers
-
-**`src/contexts/PractitionerAuthContext.tsx`:**
-- Rename exports: `usePractitionerAuth` -> `useCoachAuth`, `PractitionerAuthProvider` -> `CoachAuthProvider`
-- Add deprecated re-exports
-- Update all 6 storefront consumers
-
----
-
-## Action 4: Translation key cleanup
-
-**In both `en.ts` and `he.ts`:**
-
-| Old Key | New Key | Action |
-|---------|---------|--------|
-| `header.practitionerPanel` | `header.coachPanel` | Rename |
-| `practitioners.*` (whole section) | `coaches.*` | Rename section key |
-| `practitionerLanding.*` | `coachLanding.*` | Rename section key |
-| `panel.role.practitioner` | `panel.role.coach` | Rename |
-| `panel.roleDescription.practitioner` | `panel.roleDescription.coach` | Rename |
-| `homepage.featuredPractitionersTitle` | `homepage.featuredCoachesTitle` | Rename |
-| `homepage.featuredPractitionersSubtitle` | `homepage.featuredCoachesSubtitle` | Rename |
-| `homepage.viewAllPractitioners` | `homepage.viewAllCoaches` | Rename |
-| User-facing strings: "Practitioner not found" | "Coach not found" | Update value |
-| User-facing strings: "Featured Practitioners" | "Featured Coaches" | Update value |
-| User-facing strings: "No practitioners found" | "No coaches found" | Update value |
-
-All consumers using `t('practitioners.*')` updated to `t('coaches.*')` (or keep old keys as aliases during transition).
-
----
-
-## Action 5: Canonical route comment block
-
-Add a clear comment block in `App.tsx` routing section:
-
-```text
-/* ── Canonical Routes ──
- * /p/:slug          -> Coach public profile (CANONICAL)
- * /coach/:slug      -> Alias, redirects to /p/:slug
- * /practitioners    -> Alias, redirects to /coaches
- * /panel/*          -> Legacy, all redirect to /admin-hub
- * /coach/*          -> Legacy, all redirect to /coaches
- */
-```
-
-Remove `/practitioner/:slug` if it exists. Only `/p/:slug` (canonical) and `/coach/:slug` (alias) remain.
-
----
-
-## Action 6: Clean deprecated re-exports in coaches barrel
-
-**`src/components/coaches/index.ts`** -- remove deprecated practitioner aliases:
-- Remove `export { default as PractitionerReviewSlider }`
-- Remove `export { default as PractitionerBookingView }`
-- Remove `export { PractitionersModal }`
-
-**`src/domain/coaches/index.ts`** -- ensure clean exports, no practitioner naming leaking.
-
----
-
-## Files Summary
-
-### Created
-| File | Purpose |
-|------|---------|
-| None new -- all changes go into existing files | |
-
-### Modified (~25 files)
-| File | Change |
-|------|--------|
-| `src/domain/coaches/hooks.ts` | Add useCoachReviewStats, useCoachActivityFeed, useCoachSettings, useCoachAvailability |
-| `src/components/coach/CoachDashboardOverview.tsx` | Use domain hooks instead of direct DB |
-| `src/components/coach/CoachActivitySidebar.tsx` | Use domain hooks |
-| `src/components/coach/CoachProductsTab.tsx` | Use domain hooks |
-| `src/components/coach/CoachSettingsTab.tsx` | Use domain hooks |
-| `src/components/coach/CoachMarketingTab.tsx` | Use domain hooks |
-| `src/components/coaches/CoachBookingView.tsx` | Use domain hooks |
-| `src/hooks/useCoachClients.ts` | Move core queries to domain, keep as re-export |
-| `src/contexts/PractitionerContext.tsx` | Rename exports to Coach* |
-| `src/contexts/PractitionerAuthContext.tsx` | Rename exports to Coach* |
-| 6x storefront files | Update imports to new context names |
-| `src/i18n/translations/en.ts` | Rename practitioner keys to coach |
-| `src/i18n/translations/he.ts` | Same |
-| `src/components/coaches/index.ts` | Remove deprecated aliases |
-| `src/App.tsx` | Add canonical route comments, clean aliases |
-
-### Deleted (~9 files)
 | File | Reason |
 |------|--------|
-| `src/contexts/PractitionersModalContext.tsx` | Duplicate of CoachesModalContext |
-| `src/components/practitioners/PractitionersModal.tsx` | Duplicate of CoachesModal |
-| `src/components/practitioners/PractitionerCard.tsx` | Duplicate of CoachCard |
-| `src/components/practitioners/PractitionerDetailView.tsx` | Duplicate of CoachDetailView |
-| `src/components/practitioners/PractitionerBookingView.tsx` | Duplicate of CoachBookingView |
-| `src/components/practitioners/PractitionerReviewSlider.tsx` | Duplicate of CoachReviewSlider |
-| `src/components/practitioners/PractitionerMiniItemCard.tsx` | Unused or duplicate |
-| `src/components/practitioners/FeaturedPractitioners.tsx` | Replaced by FeaturedCoaches (in coaches/) |
-| `src/components/practitioners/index.ts` | Folder deleted |
-
-### NOT Changed
-- Database tables (all stay as `practitioner_*`)
-- `src/hooks/usePractitioners.ts` (stays as base data layer, only accessed via domain)
-- Edge functions
-- Visual layouts / sidebar structure
-- RLS policies
+| `src/hooks/usePractitioners.ts` | Base data layer (accessed only via domain re-exports) |
+| `src/domain/coaches/hooks.ts` | Domain adapter -- calls `.from('practitioner_*')` by design |
+| `src/domain/coaches/types.ts` | Type aliases over Practitioner types |
+| `src/domain/coaches/mappers.ts` | Identity mappers |
 
 ---
 
-## Rule After This Pass
+## TASK C: Dead Code & Unused Exports
 
-> **No file outside `src/domain/coaches/` and `src/hooks/usePractitioners.ts` may call `.from('practitioner_*')`.** All coach data flows through the domain adapter layer.
+| Item | Status | Safety Check |
+|------|--------|--------------|
+| `RolesManager` lazy import in App.tsx (line 103) | **DEAD** -- not used in any Route; admin uses its own lazy import via tabConfig | Confirm no other file imports from App.tsx |
+| Deprecated `FeaturedPractitioners` export in `FeaturedCoaches.tsx` | **DEAD** -- no file imports it (old `src/components/practitioners/` was deleted) | Search confirms 0 external imports |
+| Deprecated `PractitionerDetailView` export in `CoachDetailView.tsx` | **DEAD** | Same |
+| Deprecated `PractitionerMiniItemCard` export in `CoachMiniItemCard.tsx` | **DEAD** | Same |
+| Duplicate translation keys (`featuredPractitionersTitle`, etc.) | **DEAD** -- Coach versions exist | Verify no `t('homepage.featuredPractitionersTitle')` calls remain |
 
-This eliminates the vocabulary split and guarantees the next feature build won't fight legacy naming.
+---
+
+## Patch Plan (Numbered Steps)
+
+### Step 1: Convert `/practitioner/:slug` and `/practitioners/:slug` from render to redirect
+**Files**: `src/App.tsx` (lines 215-216)
+**Change**: Replace `<CoachProfile />` with `<Navigate to={'/p/' + slug} replace />` using a small redirect component (or inline redirect similar to CoachSlugRedirect)
+**Risk**: LOW -- these routes already work; changing to redirect just consolidates to canonical URL
+
+### Step 2: Remove unused `RolesManager` lazy import from App.tsx
+**File**: `src/App.tsx` (line 103)
+**Change**: Delete the line `const RolesManager = lazy(() => import("./pages/panel/RolesManager"));`
+**Risk**: LOW -- it's never referenced in any Route
+
+### Step 3: Move `CoachHudSidebar.tsx` direct DB calls to domain hooks
+**File**: `src/components/coach/CoachHudSidebar.tsx`
+**Change**: Replace `.from('practitioners')` and `.from('practitioner_reviews')` calls with `useMyCoachProfile` and `useCoachReviewStats` from domain. Replace import of `usePractitioner` with `useCoach` from domain. Replace import from `practitioner-landing` with domain-level or re-exported components.
+**Risk**: LOW -- functional behavior unchanged
+
+### Step 4: Move `StorefrontHome.tsx` direct DB calls to domain hooks
+**File**: `src/pages/storefront/StorefrontHome.tsx`
+**Change**: Replace `.from('practitioner_services')` and `.from('practitioner_reviews')` with `useCoachServices` and `useCoachReviews` from domain hooks.
+**Risk**: LOW
+
+### Step 5: Move `useCoachClients.ts` DB calls into domain layer
+**File**: `src/hooks/useCoachClients.ts`
+**Change**: Move the 4 `.from('practitioner_clients')` calls into a new `useCoachClientsData` hook in `src/domain/coaches/hooks.ts`. Keep `useCoachClients.ts` as a thin re-export.
+**Risk**: LOW
+
+### Step 6: Move `useCoachClientView.ts` DB call into domain layer
+**File**: `src/hooks/useCoachClientView.ts`
+**Change**: Replace `.from('practitioners')` call with `useMyCoachProfile` from domain.
+**Risk**: LOW
+
+### Step 7: Fix direct `useMyPractitionerProfile` calls in UI
+**Files**: `src/pages/Coaches.tsx`, `src/components/coach/CoachPlansTab.tsx`
+**Change**: Replace `import { useMyPractitionerProfile } from '@/hooks/usePractitioners'` with `import { useMyCoachProfile } from '@/domain/coaches'`
+**Risk**: LOW
+
+### Step 8: Rename route param `practitionerSlug` -> `coachSlug`
+**Files**: `src/App.tsx` (line 310), `src/contexts/PractitionerContext.tsx` (3 refs), `src/pages/storefront/StorefrontLayout.tsx` (1 ref), all storefront components that destructure `practitionerSlug` from context (10 files)
+**Change**: Rename param in route definition and update all consumers. Context property rename with deprecated alias.
+**Risk**: MEDIUM -- many files touched, but purely mechanical rename. Must be done atomically.
+
+### Step 9: Rename context files (file names only, exports already renamed)
+**Files**: 
+- `src/contexts/PractitionerContext.tsx` -> `src/contexts/CoachStorefrontContext.tsx`
+- `src/contexts/PractitionerAuthContext.tsx` -> `src/contexts/CoachAuthContext.tsx`
+**Change**: Rename files. Update all 10 import paths in storefront components.
+**Risk**: LOW -- purely path renames, no logic change
+
+### Step 10: Rename `src/components/practitioner-landing/` folder
+**Change**: Rename folder to `src/components/coach-landing/`. Rename component files from `Practitioner*` to `Coach*`. Update barrel `index.ts`. Update 2 consumers (`PractitionerProfile.tsx`, `CoachHudSidebar.tsx`).
+**Risk**: MEDIUM -- 15 files renamed, internal cross-references. But no logic change.
+
+### Step 11: Rename `src/pages/PractitionerProfile.tsx` to `CoachProfile.tsx`
+**File**: Rename file + update App.tsx lazy import path (line 95)
+**Change**: Also update internal component name and translation keys (`practitioners.notFound` -> `coaches.notFound`, `practitionerLanding.backToDirectory` -> `coachLanding.backToDirectory`). Fix link from `/practitioners` to `/coaches`.
+**Risk**: LOW
+
+### Step 12: Delete deprecated re-exports and duplicate translation keys
+**Files**: 
+- `src/components/coaches/FeaturedCoaches.tsx` -- remove `FeaturedPractitioners` export
+- `src/components/coaches/CoachDetailView.tsx` -- remove `PractitionerDetailView` export
+- `src/components/coaches/CoachMiniItemCard.tsx` -- remove `PractitionerMiniItemCard` export
+- `src/i18n/translations/en.ts` + `he.ts` -- remove `featuredPractitionersTitle`, `featuredPractitionersSubtitle`, `viewAllPractitioners` duplicate keys
+**Risk**: LOW -- confirmed no consumers
+
+### Step 13: Update translation key references in UI components
+**Files**: `src/components/coaches/CoachDetailView.tsx` and any component using `t('practitionerLanding.*')`
+**Change**: Update to `t('coachLanding.*')` (these keys already exist from previous pass or need to be added as aliases)
+**Risk**: LOW -- verify keys exist before changing
+
+---
+
+### Recommended execution order
+
+**Phase 1 (safe, independent)**:  Steps 1, 2, 7, 12 -- zero risk, no cascading effects
+
+**Phase 2 (domain boundary)**:  Steps 3, 4, 5, 6 -- enforces the adapter rule
+
+**Phase 3 (rename wave, do atomically)**: Steps 8, 9, 10, 11, 13 -- all the `practitioner` -> `coach` naming
+
