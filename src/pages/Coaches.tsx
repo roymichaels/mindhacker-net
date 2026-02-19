@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, lazy, Suspense } from 'react';
 import { PageSkeleton } from '@/components/ui/skeleton';
+import { CoachHudSidebar } from '@/components/coach/CoachHudSidebar';
+import { CoachActivitySidebar } from '@/components/coach/CoachActivitySidebar';
 
 const CoachHub = lazy(() => import('./CoachHub'));
 
@@ -34,6 +36,22 @@ const FEATURES = [
     descEn: 'Sell content, courses & services directly from the platform',
   },
 ];
+
+// Hook to provide coach-specific sidebars when user is a practitioner
+export function useCoachSidebars() {
+  const { hasRole, loading } = useUserRoles();
+  const { user } = useAuth();
+  const isPractitioner = !loading && user && hasRole('practitioner');
+
+  if (!isPractitioner) {
+    return { leftSidebar: undefined, rightSidebar: undefined };
+  }
+
+  return {
+    leftSidebar: <CoachHudSidebar />,
+    rightSidebar: <CoachActivitySidebar />,
+  };
+}
 
 export default function Marketplace() {
   const { t, isRTL, language } = useTranslation();
