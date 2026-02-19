@@ -142,6 +142,60 @@ export type Database = {
           },
         ]
       }
+      admin_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_team: Json | null
+          step_3_branding: Json | null
+          step_4_products: Json | null
+          step_5_content: Json | null
+          step_6_landing: Json | null
+          step_7_marketing: Json | null
+          step_8_operations: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_team?: Json | null
+          step_3_branding?: Json | null
+          step_4_products?: Json | null
+          step_5_content?: Json | null
+          step_6_landing?: Json | null
+          step_7_marketing?: Json | null
+          step_8_operations?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_team?: Json | null
+          step_3_branding?: Json | null
+          step_4_products?: Json | null
+          step_5_content?: Json | null
+          step_6_landing?: Json | null
+          step_7_marketing?: Json | null
+          step_8_operations?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_notifications: {
         Row: {
           created_at: string | null
@@ -5046,6 +5100,60 @@ export type Database = {
           tokens?: number | null
           updated_at?: string | null
           utm_data?: Json | null
+        }
+        Relationships: []
+      }
+      projects_journeys: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          current_step: number
+          id: string
+          journey_complete: boolean
+          step_1_vision: Json | null
+          step_2_first_project: Json | null
+          step_3_goals: Json | null
+          step_4_tasks: Json | null
+          step_5_milestones: Json | null
+          step_6_collaboration: Json | null
+          step_7_tracking: Json | null
+          step_8_aurora: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_first_project?: Json | null
+          step_3_goals?: Json | null
+          step_4_tasks?: Json | null
+          step_5_milestones?: Json | null
+          step_6_collaboration?: Json | null
+          step_7_tracking?: Json | null
+          step_8_aurora?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          journey_complete?: boolean
+          step_1_vision?: Json | null
+          step_2_first_project?: Json | null
+          step_3_goals?: Json | null
+          step_4_tasks?: Json | null
+          step_5_milestones?: Json | null
+          step_6_collaboration?: Json | null
+          step_7_tracking?: Json | null
+          step_8_aurora?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

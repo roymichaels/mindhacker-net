@@ -90,6 +90,8 @@ const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
+const AdminJourney = lazy(() => import("./pages/AdminJourney"));
+const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
@@ -397,6 +399,40 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <CoachingJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Admin Journey */}
+                        <Route
+                          path="/admin/journey"
+                          element={
+                            <ProtectedRoute>
+                              <AdminJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <AdminJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Projects Journey */}
+                        <Route
+                          path="/projects/journey"
+                          element={
+                            <ProtectedRoute>
+                              <ProjectsJourney />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/projects/journey/:journeyId"
+                          element={
+                            <ProtectedRoute>
+                              <ProjectsJourney />
                             </ProtectedRoute>
                           }
                         />
