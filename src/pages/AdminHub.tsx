@@ -1,9 +1,11 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { NotificationBell } from '@/components/admin/NotificationBell';
+import { HeroBanner } from '@/components/aurora-ui/HeroBanner';
+import { PillTabNav, SubTabNav } from '@/components/aurora-ui/PillTabNav';
+import { PageShell } from '@/components/aurora-ui/PageShell';
 import {
   LayoutDashboard,
   Shield,
@@ -12,7 +14,6 @@ import {
   Settings,
   Globe,
 } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 // Lazy load all admin sub-pages
 const PanelDashboard = lazy(() => import('@/components/panel/PanelDashboard'));
@@ -157,72 +158,62 @@ export default function AdminHub() {
     return sub?.component || currentTabConfig.subTabs[0]?.component;
   }, [currentTabConfig, currentSubTab]);
 
+  const pillTabs = ADMIN_TABS.map((tab) => ({
+    id: tab.id,
+    label: isHebrew ? tab.labelHe : tab.labelEn,
+    icon: tab.icon,
+  }));
+
+  const subTabs = currentTabConfig.subTabs.map((sub) => ({
+    id: sub.id,
+    label: isHebrew ? sub.labelHe : sub.labelEn,
+  }));
+
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-4 py-2" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-1">
-        <h1 className="text-xl md:text-2xl font-bold">
-          {isHebrew ? 'מרכז בקרה' : 'Control Center'}
-        </h1>
-        <NotificationBell />
-      </div>
-
-      {/* Primary tabs - category level */}
-      <ScrollArea className="w-full">
-        <div className="flex gap-1 pb-2">
-          {ADMIN_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {isHebrew ? tab.labelHe : tab.labelEn}
-              </button>
-            );
-          })}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-
-      {/* Secondary tabs - sub-page level */}
-      {currentTabConfig.subTabs.length > 1 && (
-        <ScrollArea className="w-full">
-          <div className="flex gap-1 border-b border-border pb-1">
-            {currentTabConfig.subTabs.map((sub) => {
-              const isActive = currentSubTab === sub.id;
-              return (
-                <button
-                  key={sub.id}
-                  onClick={() => setSubTab(sub.id)}
-                  className={`px-3 py-1.5 text-sm whitespace-nowrap transition-colors rounded-t-md ${
-                    isActive
-                      ? 'text-foreground border-b-2 border-primary font-medium'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {isHebrew ? sub.labelHe : sub.labelEn}
-                </button>
-              );
-            })}
+    <PageShell>
+      <div className="space-y-6">
+        {/* Hero Banner */}
+        <HeroBanner
+          gradient="from-emerald-500/15 to-teal-500/15"
+          icon={
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+              <Shield className="h-5 w-5" />
+            </div>
+          }
+          title={isHebrew ? 'מרכז בקרה' : 'Control Center'}
+          subtitle={isHebrew ? 'נהלו את המערכת מכאן' : 'Manage your platform from here'}
+          className="border-emerald-500/20"
+        >
+          <div className="absolute top-4 end-4 z-20">
+            <NotificationBell />
           </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      )}
+        </HeroBanner>
 
-      {/* Content */}
-      <div className="min-h-[60vh]">
-        <Suspense fallback={<PageSkeleton />}>
-          {ActiveSubComponent && <ActiveSubComponent />}
-        </Suspense>
+        {/* Primary Pill Navigation */}
+        <PillTabNav
+          tabs={pillTabs}
+          activeTab={activeTab}
+          onTabChange={setTab}
+          activeGradient="from-emerald-500 to-teal-600"
+        />
+
+        {/* Secondary Sub-tab Navigation */}
+        {currentTabConfig.subTabs.length > 1 && (
+          <SubTabNav
+            tabs={subTabs}
+            activeTab={currentSubTab}
+            onTabChange={setSubTab}
+            accentColor="border-emerald-500"
+          />
+        )}
+
+        {/* Content */}
+        <div className="min-h-[60vh]">
+          <Suspense fallback={<PageSkeleton />}>
+            {ActiveSubComponent && <ActiveSubComponent />}
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

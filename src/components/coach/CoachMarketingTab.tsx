@@ -1,5 +1,4 @@
 import { useTranslation } from '@/hooks/useTranslation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, MessageSquare, ThumbsUp, Clock, CheckCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -78,55 +77,40 @@ const CoachMarketingTab = () => {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'סה"כ ביקורות' : 'Total Reviews'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-12" /> : (
-              <div className="text-2xl font-bold">{reviews.length}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'דירוג ממוצע' : 'Avg Rating'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-12" /> : (
-              <div className="text-2xl font-bold flex items-center gap-1">
-                <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                {averageRating.toFixed(1)}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isHebrew ? 'ממתין לאישור' : 'Pending'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-12" /> : (
-              <div className="text-2xl font-bold text-yellow-500">
-                {reviews.filter(r => !r.is_approved).length}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
+            {isHebrew ? 'סה"כ ביקורות' : 'Total Reviews'}
+          </p>
+          {isLoading ? <Skeleton className="h-8 w-12" /> : (
+            <div className="text-2xl font-bold">{reviews.length}</div>
+          )}
+        </div>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
+            {isHebrew ? 'דירוג ממוצע' : 'Avg Rating'}
+          </p>
+          {isLoading ? <Skeleton className="h-8 w-12" /> : (
+            <div className="text-2xl font-bold flex items-center gap-1">
+              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+              {averageRating.toFixed(1)}
+            </div>
+          )}
+        </div>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
+            {isHebrew ? 'ממתין לאישור' : 'Pending'}
+          </p>
+          {isLoading ? <Skeleton className="h-8 w-12" /> : (
+            <div className="text-2xl font-bold text-yellow-500">
+              {reviews.filter(r => !r.is_approved).length}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Reviews List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{isHebrew ? 'כל הביקורות' : 'All Reviews'}</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
+        <h3 className="text-lg font-semibold mb-4">{isHebrew ? 'כל הביקורות' : 'All Reviews'}</h3>
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
@@ -180,8 +164,7 @@ const CoachMarketingTab = () => {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

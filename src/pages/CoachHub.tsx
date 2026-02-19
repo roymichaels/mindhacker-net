@@ -1,9 +1,11 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, LayoutDashboard, Users, Brain, ShoppingBag, Megaphone, Settings } from 'lucide-react';
+import { ExternalLink, LayoutDashboard, Users, Brain, ShoppingBag, Megaphone, Settings, Briefcase } from 'lucide-react';
+import { HeroBanner } from '@/components/aurora-ui/HeroBanner';
+import { PillTabNav } from '@/components/aurora-ui/PillTabNav';
+import { PageShell } from '@/components/aurora-ui/PageShell';
 import CoachDashboardTab from '@/components/coach/CoachDashboardTab';
 import CoachClientsTab from '@/components/coach/CoachClientsTab';
 import CoachPlansTab from '@/components/coach/CoachPlansTab';
@@ -19,6 +21,15 @@ const TAB_CONFIG = [
   { value: 'marketing', icon: Megaphone, labelHe: 'שיווק', labelEn: 'Marketing' },
   { value: 'settings', icon: Settings, labelHe: 'הגדרות', labelEn: 'Settings' },
 ] as const;
+
+const TAB_COMPONENTS: Record<string, React.ComponentType> = {
+  dashboard: CoachDashboardTab,
+  clients: CoachClientsTab,
+  plans: CoachPlansTab,
+  products: CoachProductsTab,
+  marketing: CoachMarketingTab,
+  settings: CoachSettingsTab,
+};
 
 const CoachHub = () => {
   const { language, isRTL } = useTranslation();
@@ -36,65 +47,44 @@ const CoachHub = () => {
     ? `${window.location.origin}/p/${myProfile.slug}`
     : '';
 
+  const pillTabs = TAB_CONFIG.map((tab) => ({
+    id: tab.value,
+    label: isHebrew ? tab.labelHe : tab.labelEn,
+    icon: tab.icon,
+  }));
+
+  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachDashboardTab;
+
   return (
-    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hub Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
-            {isHebrew ? 'מרכז השליטה' : 'Coach Hub'}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {isHebrew ? 'נהלו את העסק שלכם במקום אחד' : 'Manage your coaching business in one place'}
-          </p>
-        </div>
-        {storefrontUrl && (
-          <Button variant="outline" size="sm" asChild>
-            <a href={storefrontUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 me-2" />
-              {isHebrew ? 'צפה בחנות' : 'View Storefront'}
-            </a>
-          </Button>
-        )}
+    <PageShell>
+      <div className="space-y-6">
+        {/* Hero Banner */}
+        <HeroBanner
+          gradient="from-purple-500/15 to-indigo-500/15"
+          icon={
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg">
+              <Briefcase className="h-5 w-5" />
+            </div>
+          }
+          title={isHebrew ? 'מרכז השליטה' : 'Coach Hub'}
+          subtitle={isHebrew ? 'נהלו את העסק שלכם במקום אחד' : 'Manage your coaching business in one place'}
+          action={storefrontUrl ? () => window.open(storefrontUrl, '_blank') : undefined}
+          actionLabel={storefrontUrl ? (isHebrew ? 'צפה בחנות' : 'View Storefront') : undefined}
+          className="border-purple-500/20"
+        />
+
+        {/* Pill Navigation */}
+        <PillTabNav
+          tabs={pillTabs}
+          activeTab={currentTab}
+          onTabChange={handleTabChange}
+          activeGradient="from-purple-500 to-indigo-600"
+        />
+
+        {/* Tab Content */}
+        <ActiveComponent />
       </div>
-
-      {/* Tabbed Interface */}
-      <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
-          <TabsList className="inline-flex w-auto min-w-full sm:w-full sm:grid sm:grid-cols-6">
-            {TAB_CONFIG.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="gap-1.5 text-xs sm:text-sm whitespace-nowrap"
-              >
-                <tab.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span>{isHebrew ? tab.labelHe : tab.labelEn}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
-
-        <TabsContent value="dashboard">
-          <CoachDashboardTab />
-        </TabsContent>
-        <TabsContent value="clients">
-          <CoachClientsTab />
-        </TabsContent>
-        <TabsContent value="plans">
-          <CoachPlansTab />
-        </TabsContent>
-        <TabsContent value="products">
-          <CoachProductsTab />
-        </TabsContent>
-        <TabsContent value="marketing">
-          <CoachMarketingTab />
-        </TabsContent>
-        <TabsContent value="settings">
-          <CoachSettingsTab />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </PageShell>
   );
 };
 

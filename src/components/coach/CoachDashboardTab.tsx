@@ -1,8 +1,8 @@
 import { useTranslation } from '@/hooks/useTranslation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import { Users, Calendar, TrendingUp } from 'lucide-react';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MetricCard } from '@/components/aurora-ui/MetricCard';
 
 const CoachDashboardTab = () => {
   const { t, language } = useTranslation();
@@ -11,22 +11,19 @@ const CoachDashboardTab = () => {
 
   const statCards = [
     {
-      title: isHebrew ? 'מתאמנים פעילים' : 'Active Clients',
+      label: isHebrew ? 'מתאמנים פעילים' : 'Active Clients',
       value: stats.active,
-      icon: Users,
-      color: 'text-emerald-500',
+      icon: <Users className="h-4 w-4" />,
     },
     {
-      title: isHebrew ? 'סה"כ מתאמנים' : 'Total Clients',
+      label: isHebrew ? 'סה"כ מתאמנים' : 'Total Clients',
       value: stats.total,
-      icon: Calendar,
-      color: 'text-blue-500',
+      icon: <Calendar className="h-4 w-4" />,
     },
     {
-      title: isHebrew ? 'הושלמו' : 'Completed',
+      label: isHebrew ? 'הושלמו' : 'Completed',
       value: stats.completed,
-      icon: TrendingUp,
-      color: 'text-amber-500',
+      icon: <TrendingUp className="h-4 w-4" />,
     },
   ];
 
@@ -35,49 +32,39 @@ const CoachDashboardTab = () => {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
         {statCards.map((stat, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Skeleton className="h-8 w-12" />
-              ) : (
-                <div className="text-2xl font-bold">{stat.value}</div>
-              )}
-            </CardContent>
-          </Card>
+          isLoading ? (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ) : (
+            <MetricCard
+              key={i}
+              icon={stat.icon}
+              label={stat.label}
+              value={stat.value}
+              gradient="from-purple-500 to-indigo-600"
+            />
+          )
         ))}
       </div>
 
       {/* Quick Info Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {isHebrew ? 'פגישות קרובות' : 'Upcoming Sessions'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין פגישות מתוכננות' : 'No scheduled sessions'}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
+          <h3 className="text-lg font-semibold mb-2">
+            {isHebrew ? 'פגישות קרובות' : 'Upcoming Sessions'}
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            {isHebrew ? 'אין פגישות מתוכננות' : 'No scheduled sessions'}
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {isHebrew ? 'פעילות אחרונה' : 'Recent Activity'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              {isHebrew ? 'אין פעילות אחרונה' : 'No recent activity'}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
+          <h3 className="text-lg font-semibold mb-2">
+            {isHebrew ? 'פעילות אחרונה' : 'Recent Activity'}
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            {isHebrew ? 'אין פעילות אחרונה' : 'No recent activity'}
+          </p>
+        </div>
       </div>
     </div>
   );
