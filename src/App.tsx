@@ -34,7 +34,6 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
-// Login and SignUp pages removed — auth is now modal-based
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
 
@@ -69,8 +68,6 @@ const CommunityProfile = lazy(() => import("./pages/CommunityProfile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 
-
-
 const LaunchpadComplete = lazy(() => import("./pages/LaunchpadComplete"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
@@ -80,7 +77,6 @@ const Consciousness = lazy(() => import("./pages/Consciousness"));
 const Health = lazy(() => import("./pages/Health"));
 const HealthJourney = lazy(() => import("./pages/HealthJourney"));
 const HealthPlan = lazy(() => import("./pages/HealthPlan"));
-// New Life OS Pillars
 const Relationships = lazy(() => import("./pages/Relationships"));
 const RelationshipsJourney = lazy(() => import("./pages/RelationshipsJourney"));
 const Finances = lazy(() => import("./pages/Finances"));
@@ -331,7 +327,6 @@ const App = () => (
                           }
                         />
 
-                        {/* Aurora route removed - chat is globally docked */}
 
                         {/* Hypnosis library → redirect to dashboard */}
                         <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
@@ -422,7 +417,6 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* /life-plan route removed — consolidated into PlanTab */}
                         {/* Coaching Journey */}
                         <Route
                           path="/coaching/journey"
