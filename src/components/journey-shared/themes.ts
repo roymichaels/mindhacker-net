@@ -1,7 +1,7 @@
 /**
  * Theme configurations for all journey types
  */
-import { Sparkles, Briefcase, Heart, Users, Wallet, GraduationCap, Palette, UserCheck } from 'lucide-react';
+import { Sparkles, Briefcase, Heart, Users, Wallet, GraduationCap, Palette, UserCheck, ShieldCheck, FolderKanban } from 'lucide-react';
 import type { JourneyTheme, JourneyThemeConfig } from './types';
 
 export const JOURNEY_THEMES: Record<JourneyTheme, JourneyThemeConfig> = {
@@ -116,6 +116,34 @@ export const JOURNEY_THEMES: Record<JourneyTheme, JourneyThemeConfig> = {
     },
     icon: UserCheck,
     title: { he: 'מסע האימון', en: 'Coaching Journey' },
+  },
+  admin: {
+    id: 'admin',
+    colors: {
+      primary: 'emerald-500',
+      secondary: 'teal-400',
+      background: 'from-emerald-950 to-gray-900',
+      border: 'border-emerald-800/30',
+      text: 'text-emerald-400',
+      glow: 'shadow-emerald-500/30',
+      progressBg: 'bg-emerald-500/10',
+    },
+    icon: ShieldCheck,
+    title: { he: 'מסע ניהול הפלטפורמה', en: 'Platform Admin Journey' },
+  },
+  projects: {
+    id: 'projects',
+    colors: {
+      primary: 'amber-500',
+      secondary: 'yellow-400',
+      background: 'from-amber-950 to-gray-900',
+      border: 'border-amber-800/30',
+      text: 'text-amber-400',
+      glow: 'shadow-amber-500/30',
+      progressBg: 'bg-amber-500/10',
+    },
+    icon: FolderKanban,
+    title: { he: 'מסע ניהול פרויקטים', en: 'Projects Journey' },
   },
 };
 

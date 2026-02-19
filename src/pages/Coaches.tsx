@@ -118,6 +118,30 @@ export default function Marketplace({ selectedClientId, onClearClient, activeTab
         ))}
       </div>
 
+      {/* Coaching Journey CTA */}
+      <div className="rounded-xl border bg-card/80 backdrop-blur-sm p-6 text-center space-y-3">
+        <span className="text-2xl">🧭</span>
+        <h3 className="font-semibold text-lg">
+          {language === 'he' ? 'התחל את מסע האימון' : 'Start Coaching Journey'}
+        </h3>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          {language === 'he'
+            ? 'מסע מודרך שיעזור לך לבנות את הפרופיל שלך כמאמן — חזון, נישה, שיטה ותוכנית פעולה'
+            : 'A guided journey to build your coaching profile — vision, niche, methodology, and action plan'}
+        </p>
+        <Button
+          onClick={() => {
+            if (!user) { navigate('/auth'); return; }
+            navigate('/coaching/journey');
+          }}
+          variant="outline"
+          className="border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+        >
+          <Rocket className="h-4 w-4 me-2" />
+          {language === 'he' ? 'התחל מסע' : 'Start Journey'}
+        </Button>
+      </div>
+
       <div className="text-center">
         <Button
           onClick={() => {
