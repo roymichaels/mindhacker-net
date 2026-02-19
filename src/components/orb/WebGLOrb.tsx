@@ -54,13 +54,15 @@ function fbm(x: number, y: number, z: number, octaves: number = 4): number {
 // ===== HSL PARSING (robust, bypasses THREE.js color management) =====
 /** Normalize any HSL string format to "H S% L%" */
 function normalizeHsl(input: string): string {
+  // Guard against NaN in input
+  if (!input || input.includes('NaN')) return '200 80% 50%';
   // "H S% L%" format
   const m1 = input.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
   if (m1) return `${parseFloat(m1[1])} ${parseFloat(m1[2])}% ${parseFloat(m1[3])}%`;
   // "hsl(H, S%, L%)" or "hsl(H S% L%)" format
   const m2 = input.match(/hsl\(?\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)%?[,\s]+(\d+(?:\.\d+)?)%?\s*\)?/i);
   if (m2) return `${parseFloat(m2[1])} ${parseFloat(m2[2])}% ${parseFloat(m2[3])}%`;
-  return input;
+  return '200 80% 50%';
 }
 
 /** Manual HSL→RGB (sRGB, no THREE.js color management which can darken via linearization) */
@@ -102,15 +104,8 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
     const color = new THREE.Color(r, g, b);
     return color;
   }
-  // Last resort: try THREE.Color constructor
-  try {
-    const c = new THREE.Color(colorStr);
-    // If near-black, return fallback
-    if (c.r + c.g + c.b < 0.1) return new THREE.Color(...FALLBACK_RGB);
-    return c;
-  } catch {
-    return new THREE.Color(...FALLBACK_RGB);
-  }
+  // No valid HSL match — return fallback directly (never use THREE.Color constructor with raw strings)
+  return new THREE.Color(...FALLBACK_RGB);
 }
 
 function parseHslToVec3(colorStr: string): THREE.Vector3 {
@@ -367,7 +362,7 @@ const ORB_FRAGMENT_SHADER = `
     // === 7. Brightness floor — NEVER allow pure black ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
     if (brightness < 0.05) {
-      finalColor = max(finalColor, baseColor * 0.15);
+      finalColor = max(finalColor, vec3(0.15, 0.35, 0.55));
     }
 
     gl_FragColor = vec4(finalColor, 0.92);

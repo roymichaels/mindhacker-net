@@ -116,6 +116,16 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   if (!merged.gradientStops || merged.gradientStops.length < 3) {
     merged.gradientStops = VISUAL_DEFAULTS.gradientStops;
   }
+  // Scan gradient stops for NaN and replace broken ones
+  merged.gradientStops = merged.gradientStops.map((stop: string, i: number) => 
+    (!stop || stop.includes('NaN')) ? (VISUAL_DEFAULTS.gradientStops[i] || '200 80% 50%') : stop
+  );
+  // Also validate coreGradient
+  if (merged.coreGradient) {
+    merged.coreGradient = merged.coreGradient.map((stop: string, i: number) =>
+      (!stop || stop.includes('NaN')) ? (VISUAL_DEFAULTS.coreGradient[i] || '200 80% 50%') : stop
+    ) as [string, string];
+  }
   if (merged.materialType !== 'wire' && merged.materialParams) {
     merged.materialParams = { ...merged.materialParams, emissiveIntensity: Math.max(0.05, merged.materialParams.emissiveIntensity) };
   }
