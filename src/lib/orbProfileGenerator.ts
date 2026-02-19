@@ -8,11 +8,14 @@
 import { computeAvatarDNA, type UserDataForDNA, type AvatarDNA } from './avatarDNA';
 import { getArchetype, type ArchetypeId } from './archetypes';
 import { hashUserId, seedHueOffset, seedFloat, seedInt, pickGeometryFamily, seedMorphPhase } from './orbSeed';
+import { buildVisualDNA, type VisualDNAInput } from './visualDNA';
 import type { OrbProfile } from '@/components/orb/types';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
 
 export type { OrbProfile };
 
 export const DEFAULT_ORB_PROFILE: OrbProfile = {
+  ...VISUAL_DEFAULTS,
   primaryColor: '200 80% 50%',
   secondaryColors: ['220 70% 55%', '180 75% 60%'],
   accentColor: '180 75% 60%',
@@ -59,10 +62,12 @@ export interface GenerateOrbProfileInput {
   consciousnessScore?: number;
   transformationReadiness?: number;
   egoState?: string;
-  /** Deterministic seed from user_id */
   seed?: number;
-  /** User ID for seed computation */
   userId?: string;
+  // Visual DNA intake data
+  step1Intention?: Record<string, unknown> | null;
+  step2ProfileData?: Record<string, unknown> | null;
+  summaryRow?: VisualDNAInput['summaryRow'];
 }
 
 /** Apply seed-based hue offset to an HSL color string */
@@ -93,7 +98,19 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   };
   
   const dna = computeAvatarDNA(userData);
-  return dnaToOrbProfile(dna, userData, seed, input.egoState);
+  const baseProfile = dnaToOrbProfile(dna, userData, seed, input.egoState);
+  
+  // Merge Visual DNA from ALL intake signals
+  const visualDNA = buildVisualDNA({
+    step1Intention: input.step1Intention,
+    step2ProfileData: input.step2ProfileData,
+    summaryRow: input.summaryRow,
+    gameState: { level: input.level, sessionStreak: input.streak, experience: input.experience },
+    seed,
+  });
+  
+  // Visual DNA overrides the base archetype profile
+  return { ...baseProfile, ...visualDNA };
 }
 
 /**
@@ -168,6 +185,7 @@ function dnaToOrbProfile(
   ));
 
   return {
+    ...VISUAL_DEFAULTS,
     primaryColor,
     secondaryColors: [secondaryColor, accentColor],
     accentColor,
@@ -256,9 +274,23 @@ export function interpolateOrbProfiles(
     secondaryColors: t < 0.5 ? from.secondaryColors : to.secondaryColors,
     accentColor: t < 0.5 ? from.accentColor : to.accentColor,
     particleColor: t < 0.5 ? from.particleColor : to.particleColor,
-    // Keep the target's geometry/seed during transition
     geometryFamily: t < 0.5 ? from.geometryFamily : to.geometryFamily,
     seed: to.seed,
+    // NEW visual fields - lerp numerics, snap enums at t=0.5
+    bloomStrength: lerp(from.bloomStrength, to.bloomStrength),
+    chromaShift: lerp(from.chromaShift, to.chromaShift),
+    dayNightBias: lerp(from.dayNightBias, to.dayNightBias),
+    patternIntensity: lerp(from.patternIntensity, to.patternIntensity),
+    gradientStops: t < 0.5 ? from.gradientStops : to.gradientStops,
+    gradientMode: t < 0.5 ? from.gradientMode : to.gradientMode,
+    coreGradient: t < 0.5 ? from.coreGradient : to.coreGradient,
+    rimLightColor: t < 0.5 ? from.rimLightColor : to.rimLightColor,
+    materialType: t < 0.5 ? from.materialType : to.materialType,
+    materialParams: t < 0.5 ? from.materialParams : to.materialParams,
+    patternType: t < 0.5 ? from.patternType : to.patternType,
+    particlePalette: t < 0.5 ? from.particlePalette : to.particlePalette,
+    particleMode: t < 0.5 ? from.particleMode : to.particleMode,
+    particleBehavior: t < 0.5 ? from.particleBehavior : to.particleBehavior,
   };
 }
 

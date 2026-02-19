@@ -15,7 +15,10 @@ import {
 import type { OrbProfile } from '@/components/orb/types';
 
 // Default business orb profile
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
+
 export const DEFAULT_BUSINESS_ORB_PROFILE: OrbProfile = {
+  ...VISUAL_DEFAULTS,
   primaryColor: INDUSTRY_PALETTES.other.primary,
   secondaryColors: [INDUSTRY_PALETTES.other.secondary],
   accentColor: INDUSTRY_PALETTES.other.accent,
@@ -47,6 +50,7 @@ export const DEFAULT_BUSINESS_ORB_PROFILE: OrbProfile = {
  */
 function businessToOrbProfile(bp: BusinessOrbProfile): OrbProfile {
   return {
+    ...VISUAL_DEFAULTS,
     primaryColor: bp.primaryColor,
     secondaryColors: bp.secondaryColors,
     accentColor: bp.accentColor,
@@ -155,6 +159,7 @@ export function useBusinessOrbProfile(businessId: string | undefined) {
     if (!storedProfile) return null;
     
     return {
+      ...VISUAL_DEFAULTS,
       primaryColor: storedProfile.primary_color,
       secondaryColors: storedProfile.secondary_colors || [],
       accentColor: storedProfile.accent_color,

@@ -16,6 +16,7 @@ import {
   DEFAULT_ORB_PROFILE as GENERATOR_DEFAULT,
   type GenerateOrbProfileInput,
 } from '@/lib/orbProfileGenerator';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
 import { hashUserId } from '@/lib/orbSeed';
 import type { OrbProfile, DiagnosticState } from '@/components/orb/types';
 import type { ArchetypeId } from '@/lib/archetypes';
@@ -64,6 +65,22 @@ function rowToProfile(row: OrbProfileRow): OrbProfile {
   const cf = row.computed_from as Record<string, unknown>;
   
   return {
+    ...VISUAL_DEFAULTS,
+    // Read new visual fields from computed_from if stored
+    gradientStops: (cf?.gradientStops as string[]) ?? VISUAL_DEFAULTS.gradientStops,
+    gradientMode: (cf?.gradientMode as OrbProfile['gradientMode']) ?? VISUAL_DEFAULTS.gradientMode,
+    coreGradient: (cf?.coreGradient as [string, string]) ?? VISUAL_DEFAULTS.coreGradient,
+    rimLightColor: (cf?.rimLightColor as string) ?? VISUAL_DEFAULTS.rimLightColor,
+    materialType: (cf?.materialType as OrbProfile['materialType']) ?? VISUAL_DEFAULTS.materialType,
+    materialParams: (cf?.materialParams as OrbProfile['materialParams']) ?? VISUAL_DEFAULTS.materialParams,
+    patternType: (cf?.patternType as OrbProfile['patternType']) ?? VISUAL_DEFAULTS.patternType,
+    patternIntensity: (cf?.patternIntensity as number) ?? VISUAL_DEFAULTS.patternIntensity,
+    particlePalette: (cf?.particlePalette as string[]) ?? VISUAL_DEFAULTS.particlePalette,
+    particleMode: (cf?.particleMode as OrbProfile['particleMode']) ?? VISUAL_DEFAULTS.particleMode,
+    particleBehavior: (cf?.particleBehavior as OrbProfile['particleBehavior']) ?? VISUAL_DEFAULTS.particleBehavior,
+    bloomStrength: (cf?.bloomStrength as number) ?? VISUAL_DEFAULTS.bloomStrength,
+    chromaShift: (cf?.chromaShift as number) ?? VISUAL_DEFAULTS.chromaShift,
+    dayNightBias: (cf?.dayNightBias as number) ?? VISUAL_DEFAULTS.dayNightBias,
     primaryColor: row.primary_color,
     secondaryColors: row.secondary_colors || [],
     accentColor: row.accent_color || row.primary_color,
@@ -128,7 +145,6 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
       egoState: profile.computedFrom.egoState,
       topTraitCategories: profile.computedFrom.topTraitCategories,
       orb_profile_version: profile.computedFrom.orb_profile_version,
-      // FIXED: Store all computed fields
       motionSpeed: profile.motionSpeed,
       pulseRate: profile.pulseRate,
       smoothness: profile.smoothness,
@@ -136,6 +152,21 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
       textureIntensity: profile.textureIntensity,
       seed: profile.seed,
       geometryFamily: profile.geometryFamily,
+      // NEW visual uniqueness fields
+      gradientStops: profile.gradientStops,
+      gradientMode: profile.gradientMode,
+      coreGradient: profile.coreGradient,
+      rimLightColor: profile.rimLightColor,
+      materialType: profile.materialType,
+      materialParams: profile.materialParams,
+      patternType: profile.patternType,
+      patternIntensity: profile.patternIntensity,
+      particlePalette: profile.particlePalette,
+      particleMode: profile.particleMode,
+      particleBehavior: profile.particleBehavior,
+      bloomStrength: profile.bloomStrength,
+      chromaShift: profile.chromaShift,
+      dayNightBias: profile.dayNightBias,
     },
   };
 }
@@ -271,6 +302,15 @@ export function useOrbProfile() {
       egoState: summarySignals.egoState || gameState?.activeEgoState,
       seed,
       userId: user.id,
+      // Pass intake data for Visual DNA
+      step1Intention: progress?.step_1_intention as unknown as Record<string, unknown> | null,
+      step2ProfileData: progress?.step_2_profile_data as Record<string, unknown> | null,
+      summaryRow: summaryRow ? {
+        clarity_score: summaryRow.clarity_score,
+        consciousness_score: summaryRow.consciousness_score,
+        transformation_readiness: summaryRow.transformation_readiness,
+        summary_data: summaryRow.summary_data as Record<string, unknown> | null,
+      } : null,
     };
 
     const profile = generateOrbProfile(input);

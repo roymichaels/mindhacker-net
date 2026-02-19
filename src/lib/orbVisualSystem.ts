@@ -5,6 +5,7 @@
  */
 
 import type { OrbProfile } from '@/components/orb/types';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
 
 // ===== COLOR PALETTES =====
 
@@ -218,6 +219,7 @@ export function generateVisualProfile(
 
 export function visualProfileToOrbProfile(vp: OrbVisualProfile): OrbProfile {
   return {
+    ...VISUAL_DEFAULTS,
     primaryColor: vp.palette.primary,
     secondaryColors: [vp.palette.secondary, vp.palette.accent],
     accentColor: vp.palette.accent,
