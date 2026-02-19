@@ -41,7 +41,12 @@ serve(async (req) => {
 
     const tierConfig = TIER_PRICES[requestedTier];
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    if (stripeKey.startsWith("sk_live")) {
+      console.warn("[STRIPE SAFETY] LIVE secret key detected in create-checkout-session. Ensure this is intentional.");
+    }
+
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2025-08-27.basil",
     });
 
