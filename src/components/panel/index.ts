@@ -1,4 +1,4 @@
-export { default as AdminPanel } from './AdminPanel';
+// AdminPanel moved to src/legacy/ — no longer active
 export { default as CoachPanel } from './CoachPanel';
 export { default as AffiliatePanel } from './AffiliatePanel';
 export { default as AdminSidebar } from './AdminSidebar';

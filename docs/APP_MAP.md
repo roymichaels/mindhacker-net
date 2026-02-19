@@ -176,6 +176,7 @@
 
 ## Architecture Created (This Pass)
 - `src/domain/coaches/` — Coach types + hook wrappers over practitioner DB
+- `src/domain/admin/` — Admin types, hooks, and tab config extracted from AdminHub
 - `src/navigation/navConfig.ts` — Single source of truth for tab definitions
 - `src/components/coaches/` — Renamed component folder with backward-compat aliases
 - `src/contexts/CoachesModalContext.tsx` — Renamed context with backward-compat aliases
