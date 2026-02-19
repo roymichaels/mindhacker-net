@@ -5,6 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import RoleSwitcher from './RoleSwitcher';
 import AuroraAccountDropdown from '@/components/aurora/AuroraAccountDropdown';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import {
@@ -123,6 +125,22 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
   const isHebrew = language === 'he';
   const { data: myProfile } = useMyPractitionerProfile();
 
+  // Fallback: fetch first practitioner slug for admin users
+  const { data: fallbackSlug } = useQuery({
+    queryKey: ['fallback-practitioner-slug'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('practitioners')
+        .select('slug')
+        .limit(1)
+        .single();
+      return data?.slug || null;
+    },
+    enabled: !myProfile?.slug,
+  });
+
+  const storeSlug = myProfile?.slug || fallbackSlug;
+
   const handleNavClick = () => {
     onNavigate?.();
   };
@@ -143,7 +161,7 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
       <RoleSwitcher />
       
       {/* View My Page Button */}
-      {myProfile?.slug && (
+      {storeSlug && (
         <div className="px-4 pt-4 space-y-2">
           <Button
             asChild
@@ -151,7 +169,7 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
             size="sm"
             className="w-full justify-between"
           >
-            <Link to={`/p/${myProfile.slug}`} target="_blank">
+            <Link to={`/p/${storeSlug}`} target="_blank">
               {isHebrew ? 'הדף שלי' : 'View Storefront'}
               <ExternalLink className="h-4 w-4" />
             </Link>
