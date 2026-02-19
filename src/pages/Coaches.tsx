@@ -64,7 +64,7 @@ interface CoachesProps {
   activeTab?: string;
 }
 
-export default function Marketplace({ selectedClientId, onClearClient, activeTab = 'marketing' }: CoachesProps) {
+export default function Marketplace({ selectedClientId, onClearClient, activeTab = 'dashboard' }: CoachesProps) {
   const { t, isRTL, language } = useTranslation();
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
   const { hasRole, loading: rolesLoading } = useUserRoles();

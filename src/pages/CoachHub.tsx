@@ -2,10 +2,12 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
 import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
+import CoachDashboardOverview from '@/components/coach/CoachDashboardOverview';
 import ClientProfilePanel from '@/components/coach/ClientProfilePanel';
 import { useCoachClients } from '@/hooks/useCoachClients';
 
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
+  dashboard: CoachDashboardOverview,
   marketing: CoachMarketingTab,
   settings: CoachSettingsTab,
 };
@@ -16,7 +18,7 @@ interface CoachHubProps {
   activeTab?: string;
 }
 
-const CoachHub = ({ selectedClientId, onClearClient, activeTab = 'marketing' }: CoachHubProps) => {
+const CoachHub = ({ selectedClientId, onClearClient, activeTab = 'dashboard' }: CoachHubProps) => {
   const { data: clients } = useCoachClients();
 
   // If a client is selected, show their profile panel
@@ -32,7 +34,7 @@ const CoachHub = ({ selectedClientId, onClearClient, activeTab = 'marketing' }: 
     );
   }
 
-  const ActiveComponent = TAB_COMPONENTS[activeTab] || CoachMarketingTab;
+  const ActiveComponent = TAB_COMPONENTS[activeTab] || CoachDashboardOverview;
 
   return (
     <PageShell>

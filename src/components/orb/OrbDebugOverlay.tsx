@@ -22,7 +22,7 @@ export function OrbDebugOverlay({ profile, userId, seed, missedFields, diagnosti
   const [visible, setVisible] = useState(false);
   
   useEffect(() => {
-    setVisible(isOrbDebug() || diagnosticState === 'missing_data');
+    setVisible(isOrbDebug());
   }, [diagnosticState]);
 
   if (!visible) return null;
