@@ -6,7 +6,7 @@
 import { motion } from 'framer-motion';
 import { MessageCircle, Sparkles, Shield, Heart, Eye, Zap, Flame, Sun, Moon, Crown, Feather, Brain, Clock, Bot } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { CSSOrb } from '@/components/orb';
+import { PresetOrb } from '@/components/orb/PresetOrb';
 import { cn } from '@/lib/utils';
 
 const auroraFeatures = [
@@ -62,7 +62,7 @@ export default function AuroraCoachSection() {
             <div className="relative">
               {/* Main Aurora Orb - Much larger */}
               <div className="relative w-72 h-72 sm:w-80 sm:h-80 mx-auto">
-                <CSSOrb size={320} />
+                <PresetOrb startIndex={3} size={280} />
                 
                 {/* Breathing glow effect */}
                 <motion.div
