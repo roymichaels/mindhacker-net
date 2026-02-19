@@ -165,9 +165,9 @@ export function DailyRoadmap() {
             />
 
             {/* Content */}
-            <div className="flex items-center gap-2 min-w-0 pb-3.5 min-h-[44px]">
-              {iconForType(item.type)}
-              <span className="text-sm truncate">{item.title}</span>
+            <div className="flex items-start gap-2 min-w-0 pb-3.5 min-h-[44px] pt-0.5">
+              <span className="mt-0.5">{iconForType(item.type)}</span>
+              <span className="text-sm break-words">{item.title}</span>
             </div>
           </div>
         ))}
@@ -210,7 +210,7 @@ export function DailyRoadmap() {
                       </button>
                       <div className="flex items-center gap-2 min-w-0">
                         {iconForType(item.type)}
-                        <span className="text-sm line-through text-muted-foreground truncate">{item.title}</span>
+                        <span className="text-sm line-through text-muted-foreground break-words">{item.title}</span>
                       </div>
                     </div>
                   ))}
