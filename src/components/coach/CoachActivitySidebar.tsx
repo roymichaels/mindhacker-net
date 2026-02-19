@@ -148,22 +148,63 @@ export function CoachActivitySidebar() {
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
+          {/* Clients Overview */}
+          <div className="mb-2">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
+              {isHe ? 'הלקוחות שלי' : 'My Clients'}
+            </span>
+            <div className="grid grid-cols-3 gap-1.5 mb-2">
+              <div className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
+                <span className="text-sm font-bold leading-none">{stats.total}</span>
+                <span className="text-[9px] text-muted-foreground">{isHe ? 'סה"כ' : 'Total'}</span>
+              </div>
+              <div className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
+                <span className="text-sm font-bold leading-none text-emerald-400">{stats.active}</span>
+                <span className="text-[9px] text-muted-foreground">{isHe ? 'פעילים' : 'Active'}</span>
+              </div>
+              <div className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
+                <span className="text-sm font-bold leading-none">{stats.completed}</span>
+                <span className="text-[9px] text-muted-foreground">{isHe ? 'הושלמו' : 'Done'}</span>
+              </div>
+            </div>
+
+            {/* Mini client avatars */}
+            {clients && clients.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-1">
+                {clients.slice(0, 6).map((c) => (
+                  <div key={c.id} className="w-7 h-7 rounded-full bg-primary/20 border border-border/30 flex items-center justify-center" title={c.profile?.full_name || ''}>
+                    <span className="text-[10px] font-bold text-primary">
+                      {c.profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+                    </span>
+                  </div>
+                ))}
+                {clients.length > 6 && (
+                  <div className="w-7 h-7 rounded-full bg-muted/40 border border-border/30 flex items-center justify-center">
+                    <span className="text-[9px] font-bold text-muted-foreground">+{clients.length - 6}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-2" />
+
           {/* Progress circle */}
-          <div className="flex flex-col items-center gap-1 mb-3">
-            <div className="w-16 h-16 rounded-full border-3 border-purple-500/40 flex items-center justify-center bg-background/50 relative">
-              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28" fill="none" stroke="hsl(var(--muted)/0.2)" strokeWidth="3" />
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-10 h-10 rounded-full border-2 border-purple-500/40 flex items-center justify-center bg-background/50 relative flex-shrink-0">
+              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="16" fill="none" stroke="hsl(var(--muted)/0.2)" strokeWidth="2.5" />
                 <circle
-                  cx="32" cy="32" r="28" fill="none"
-                  stroke="rgb(168 85 247)" strokeWidth="3"
-                  strokeDasharray={`${completionRate * 1.76} 176`}
+                  cx="20" cy="20" r="16" fill="none"
+                  stroke="rgb(168 85 247)" strokeWidth="2.5"
+                  strokeDasharray={`${completionRate * 1.005} 100.5`}
                   strokeLinecap="round"
                   className="transition-all duration-700"
                 />
               </svg>
-              <span className="text-sm font-bold text-purple-400">{completionRate}%</span>
+              <span className="text-[9px] font-bold text-purple-400">{completionRate}%</span>
             </div>
-            <span className="text-xs text-muted-foreground">{isHe ? 'שיעור השלמת מתאמנים' : 'Client Completion'}</span>
+            <span className="text-[10px] text-muted-foreground">{isHe ? 'שיעור השלמה' : 'Completion'}</span>
           </div>
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-2" />
@@ -180,19 +221,15 @@ export function CoachActivitySidebar() {
               </div>
             ) : (
               <div className="relative flex flex-col gap-0 w-full">
-                {/* Vertical line */}
                 <div className="absolute top-0 bottom-0 w-[2px] bg-purple-500/10 rounded-full ltr:left-[7px] rtl:right-[7px]" />
-
                 {activityFeed.map((event) => (
                   <div key={event.id} className="relative flex items-start gap-2.5 py-1.5 ltr:pl-5 rtl:pr-5">
-                    {/* Node */}
                     <div className={cn(
                       "absolute ltr:left-0 rtl:right-0 top-2.5 w-[16px] h-[16px] rounded-full flex items-center justify-center",
                       "bg-muted/50 border border-purple-500/20"
                     )}>
                       <event.icon className={cn("w-2.5 h-2.5", event.color)} />
                     </div>
-
                     <div className="flex flex-col gap-0">
                       <span className="text-xs font-medium leading-tight">{event.label}</span>
                       <span className="text-[10px] text-muted-foreground">{event.time}</span>

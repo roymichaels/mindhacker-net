@@ -41,49 +41,7 @@ const CoachClientsTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            {t('panel.clientsMgmt.myClients')}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t('panel.clientsMgmt.manageClients')}
-          </p>
-        </div>
-        <Button size="sm">
-          <UserPlus className="h-4 w-4 me-2" />
-          {t('panel.clientsMgmt.addClient')}
-        </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
-          <p className="text-sm font-medium text-muted-foreground pb-2">
-              {t('panel.clientsMgmt.totalClients')}
-          </p>
-          <div className="text-2xl font-bold">
-              {isLoading ? <Skeleton className="h-8 w-12" /> : stats.total}
-          </div>
-        </div>
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
-          <p className="text-sm font-medium text-muted-foreground pb-2">
-              {t('panel.clientsMgmt.activeClients')}
-          </p>
-          <div className="text-2xl font-bold text-green-500">
-              {isLoading ? <Skeleton className="h-8 w-12" /> : stats.active}
-          </div>
-        </div>
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
-          <p className="text-sm font-medium text-muted-foreground pb-2">
-              {t('panel.clientsMgmt.completed')}
-          </p>
-          <div className="text-2xl font-bold">
-              {isLoading ? <Skeleton className="h-8 w-12" /> : stats.completed}
-          </div>
-        </div>
-      </div>
+      {/* Clients List */}
 
       {/* Clients List */}
       <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
