@@ -75,7 +75,7 @@ export function VerticalRoadmap({ onMilestoneClick, forceVertical }: VerticalRoa
         <MapPin className="w-6 h-6 text-muted-foreground/50" />
         <p className="text-sm text-muted-foreground">{t('dashboard.progress.noPlan')}</p>
         <button
-          onClick={() => navigate('/launchpad')}
+          onClick={() => navigate('/onboarding')}
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-rose-400 px-5 py-2.5 text-sm font-bold text-primary-foreground hover:brightness-110 active:brightness-90 transition-all shadow-sm"
         >
           <Rocket className="w-4 h-4" />

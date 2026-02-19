@@ -3,11 +3,12 @@
  * 
  * Unified reveal screen: 6 diagnostic scores, Week 1 protocol, 8-8-8 daily structure preview.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Shield, Activity, Sun, Moon, Dumbbell, BookOpen, Coffee } from 'lucide-react';
@@ -255,6 +256,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
   const navigate = useNavigate();
   const { language } = useTranslation();
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [isLoading, setIsLoading] = useState(false);
   const isHe = language === 'he';
 
@@ -282,8 +284,14 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
   // Daily structure
   const dailyStructure = useMemo(() => getDailyStructure(answers, isHe), [answers, isHe]);
 
-  const handleEnterSystem = async () => {
-    if (!user?.id) return;
+  const handleEnterSystem = useCallback(async () => {
+    if (!user?.id) {
+      openAuthModal('signup', () => {
+        // Re-trigger after successful auth
+        handleEnterSystem();
+      });
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -342,14 +350,14 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
         body: { userId: user.id },
       });
 
-      navigate('/today', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(isHe ? 'שגיאה בשמירה, נסה שוב' : 'Error saving, please try again');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id, openAuthModal, navigate, isHe, answers, pillar, diagnostics]);
 
   const ScoreBar = ({ value, color = 'bg-primary' }: { value: number; color?: string }) => (
     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
@@ -501,14 +509,19 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           </div>
           <button
             onClick={async () => {
+              if (!user?.id) {
+                openAuthModal('signup');
+                return;
+              }
               try {
                 const { data, error } = await supabase.functions.invoke('create-checkout-session', {
                   body: { tier: 'pro' },
                 });
                 if (error) throw error;
-                if (data?.url) window.open(data.url, '_blank');
-              } catch {
-                // fall through to free
+                if (data?.url) window.location.href = data.url;
+              } catch (err) {
+                console.error('Checkout error:', err);
+                toast.error(isHe ? 'שגיאה ביצירת תשלום' : 'Error creating checkout');
               }
             }}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"

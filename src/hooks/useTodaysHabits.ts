@@ -91,6 +91,15 @@ export function useTodaysHabits() {
             completed_at: completed ? new Date().toISOString() : null,
           });
       }
+
+      // Also update the action_items row status to trigger XP via DB trigger
+      await supabase
+        .from('action_items')
+        .update({
+          status: completed ? 'done' : 'todo',
+          completed_at: completed ? new Date().toISOString() : null,
+        })
+        .eq('id', habitId);
     },
     onMutate: async ({ habitId, completed }) => {
       await queryClient.cancelQueries({ queryKey: ['action-items', 'habits', user?.id, today] });

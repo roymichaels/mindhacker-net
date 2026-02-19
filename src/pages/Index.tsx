@@ -26,8 +26,8 @@ const Index = () => {
   // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
-      flowAudit.redirect('/', '/today', 'Authenticated user on Index — redirecting to dashboard');
-      navigate('/today', { replace: true });
+      flowAudit.redirect('/', '/dashboard', 'Authenticated user on Index — redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
   

@@ -302,7 +302,7 @@ export default function TransformationJourneySection() {
         >
           <Button
             size="lg"
-            onClick={() => navigate('/launchpad')}
+            onClick={() => navigate('/onboarding')}
             className="group relative text-lg px-10 py-7 rounded-2xl 
               bg-gradient-to-r from-primary via-primary to-accent
               hover:from-primary/90 hover:to-accent/90

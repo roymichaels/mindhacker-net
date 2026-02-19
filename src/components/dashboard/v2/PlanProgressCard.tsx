@@ -83,7 +83,7 @@ export function PlanProgressCard() {
               ? 'עדיין אין לך תוכנית פעילה' 
               : "You don't have an active plan yet"}
           </p>
-          <Button size="sm" onClick={() => navigate('/launchpad')}>
+          <Button size="sm" onClick={() => navigate('/onboarding')}>
             {language === 'he' ? 'צור תוכנית' : 'Create Plan'}
           </Button>
         </CardContent>

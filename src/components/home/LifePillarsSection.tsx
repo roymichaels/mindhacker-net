@@ -136,7 +136,7 @@ const LifePillarsSection = () => {
 
   const handlePillarClick = (pillarId: string) => {
     if (pillarId === 'consciousness') {
-      navigate('/launchpad');
+      navigate('/onboarding');
       return;
     }
     const pillar = pillars.find(p => p.id === pillarId);
@@ -393,7 +393,7 @@ const LifePillarsSection = () => {
         >
           <Button
             size="lg"
-            onClick={() => navigate('/launchpad')}
+            onClick={() => navigate('/onboarding')}
             className="
               relative overflow-hidden
               bg-gradient-to-r from-primary via-primary to-accent
