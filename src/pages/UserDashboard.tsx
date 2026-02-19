@@ -124,7 +124,7 @@ const UserDashboard = () => {
           transition={{ duration: 0.5 }}
           className="space-y-6 max-w-lg mx-auto"
         >
-          <div className="mx-auto">
+          <div className="flex items-center justify-center w-full">
             <PresetOrb size={80} />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold">
