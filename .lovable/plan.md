@@ -1,130 +1,56 @@
 
+# Fix Coach Sidebar Quick Action Buttons
 
-# Consolidate Coach Hub: Sidebar-First Client Management
+## Problem
+The three quick action buttons in the left Coach HUD Sidebar -- **חנות (Store)**, **תוכנית (Plan)**, and **הוסף (Add)** -- have no click handlers. They render as buttons but do nothing when clicked. This applies to both the collapsed mini-view and the expanded view.
 
-## Current State
-The Coach Hub has 5 tabs: **מתאמנים** (Clients), **תוכניות AI** (Plans), **מוצרים** (Products), **שיווק** (Marketing), **הגדרות** (Settings). Three of these should be absorbed into sidebars or contextual views rather than standalone tabs.
+## Solution
 
-## New Architecture
+### 1. **חנות (Store) Button** -- Open Storefront
+- Navigate to `/p/{slug}` in a new tab using the practitioner's slug (already available via `myProfile?.slug`)
+- The expanded sidebar already has a "View Storefront" link at the bottom doing exactly this -- the quick action button just needs the same `window.open` call
 
-### Right Sidebar becomes the Client Manager
-The right sidebar already shows client stats and mini avatars. It will expand to include a **scrollable client list** with clickable rows. Clicking a client opens a **Client Profile Panel** in the main content area, replacing the current tab content temporarily.
+### 2. **תוכנית (Plan) Button** -- Generate AI Plan
+- Since plans are now tied to individual clients, this button should select the first active client and open their profile panel (where the "Generate Plan" dialog lives)
+- If no clients exist, show a toast message prompting the coach to add a client first
+- This requires the sidebar to receive `onSelectClient` as a prop (passed from `CoachesLayoutWrapper`)
 
-```text
-Right Sidebar (expanded):
-+---------------------------+
-| MY CLIENTS         [+ Add]|
-| Total: 12 | Active: 8     |
-|                           |
-| [Search clients...]       |
-|                           |
-| > Yael Cohen    [Active]  |  <-- clickable
-| > Amit Levy     [Active]  |
-| > Dana Raz      [Done]    |
-| > ...                     |
-|                           |
-| --- ACTIVITY FEED ---     |
-| * New client joined       |
-| * Review received         |
-|                           |
-| --- SESSIONS ---          |
-| No sessions scheduled     |
-+---------------------------+
-```
+### 3. **הוסף (Add) Button** -- Add New Client
+- Create an **Add Client Dialog** directly in the sidebar with an email/name search field
+- The dialog searches existing users by email, then calls the existing `useAddCoachClient` hook to link them
+- This is the standard flow: coach enters an email, system finds the user profile, and creates the `practitioner_clients` record
 
-### Client Profile Panel (main content)
-When a client is clicked in the sidebar, the main content area shows their profile with:
-- Client info (name, join date, status)
-- Their **AI Plan** (auto-generated or manually triggered)
-- Session history
-- Notes area
-- "Generate Plan" button if no plan exists yet
+## Technical Changes
 
-This eliminates both the Clients tab and the AI Plans tab.
+### File: `src/components/coach/CoachHudSidebar.tsx`
+- Add props: `onSelectClient`, `onAddClient` callbacks
+- Add an `AddClientDialog` component (inline or separate) with email input + search + confirm
+- Wire each quick action button's `onClick`:
+  - **Store**: `window.open(/p/${slug}, '_blank')`
+  - **Plan**: call `onSelectClient` with first client ID (or toast if none)
+  - **Add**: open the add-client dialog
+- Apply the same onClick handlers to both collapsed and expanded button variants
+- Import and use `useAddCoachClient` hook for the add flow
+- Import `useCoachClients` to get client list for the "Plan" button logic
 
-### AI Plans: Contextual, Not a Tab
-- Plans are tied to individual clients, viewed from their profile panel
-- When a new client joins, the system can prompt the coach to generate a plan
-- The "Generate Plan" dialog (already built in CoachPlansTab) moves into the client profile panel
-- Existing plans are displayed inline with Markdown rendering
+### File: `src/pages/Coaches.tsx`
+- Update `useCoachSidebars` to pass `onSelectClient` to `CoachHudSidebar`
 
-### Products: Moved to Storefront Route
-Products and services are part of the storefront, not the coach management hub. The "חנות" (Store) quick action in the left sidebar already links to `/p/:slug`. Products management will be accessible from the Settings tab under a "Products" sub-section, or directly on the storefront management page.
+### File: `src/components/coach/CoachesLayoutWrapper.tsx`
+- No changes needed (already manages `selectedClientId` state and passes `setSelectedClientId`)
 
-### Remaining Tabs
-After consolidation, only **2 tabs** remain in the main content:
-1. **שיווק** (Marketing) -- reviews, testimonials
-2. **הגדרות** (Settings) -- storefront config (with products management added as a sub-tab)
+## Add Client Dialog Design
+The dialog will contain:
+- An email input field to search for existing users
+- A search button that queries the `profiles` table by email
+- When a match is found, show the user's name and a "Confirm" button
+- On confirm, call `useAddCoachClient` with the found user's ID
+- Optional: a notes field for the coach to attach initial notes
 
-When no client is selected, the main area defaults to Marketing. When a client is clicked in the sidebar, the main area swaps to show their profile.
+## Button Behavior Summary
 
-## Changes
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/coach/CoachActivitySidebar.tsx` | Add full scrollable client list with search, clickable rows that emit a `selectedClientId` callback, "Add Client" button at top |
-| `src/pages/CoachHub.tsx` | Remove `clients`, `plans`, `products` tabs. Add state for `selectedClientId`. When set, render `ClientProfilePanel` instead of tab content. Default to Marketing tab. |
-| `src/components/coach/CoachSettingsTab.tsx` | Add a "Products & Services" sub-tab incorporating the content from CoachProductsTab |
-| `src/pages/Coaches.tsx` | Pass `selectedClientId` / `setSelectedClientId` through sidebar props |
-| `src/components/coach/CoachesLayoutWrapper.tsx` | Wire the client selection state between sidebar and main content |
-
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/coach/ClientProfilePanel.tsx` | Full client profile view with AI plan display, generate button, session history, notes |
-
-### Files to Remove (code absorbed elsewhere)
-
-| File | Absorbed Into |
-|------|--------------|
-| `src/components/coach/CoachClientsTab.tsx` | Right sidebar (client list) + ClientProfilePanel (detail view) |
-| `src/components/coach/CoachPlansTab.tsx` | ClientProfilePanel (AI plan section) |
-| `src/components/coach/CoachProductsTab.tsx` | CoachSettingsTab (new Products sub-tab) |
-
-## State Flow
-
-```text
-CoachesLayoutWrapper
-  |-- manages: selectedClientId state
-  |
-  |-- CoachHudSidebar (left) -- unchanged
-  |
-  |-- CoachHub (main content)
-  |     |-- if selectedClientId: <ClientProfilePanel />
-  |     |-- else: PillTabNav [Marketing | Settings]
-  |
-  |-- CoachActivitySidebar (right)
-        |-- Client list (clickable)
-        |-- onSelectClient -> sets selectedClientId
-        |-- Activity feed
-        |-- Sessions
-```
-
-## Client Profile Panel Layout
-
-```text
-+------------------------------------------------+
-| <- Back to Hub          [Client Name]  [Status] |
-|                                                 |
-| +-- Client Info Card --+  +-- AI Plan --------+ |
-| | Joined: Jan 2025     |  | [Generate Plan]   | |
-| | Status: Active       |  | or                | |
-| | Sessions: 4          |  | Plan content      | |
-| +----------------------+  | (Markdown render) | |
-|                           +-------------------+ |
-| +-- Notes ---------------------------------+    |
-| | Coach notes for this client...           |    |
-| +------------------------------------------+    |
-+------------------------------------------------+
-```
-
-## Key Behaviors
-- Clicking a client in the sidebar highlights them and shows their profile in main content
-- Clicking "Back" or deselecting returns to the tab view (Marketing/Settings)
-- "Generate Plan" opens the same dialog from the old CoachPlansTab but pre-fills the client name
-- The collapsed sidebar still shows client avatar dots (existing behavior)
-- Products are accessible via Settings > Products sub-tab or via the storefront link
-
+| Button | Expanded Click | Collapsed Click |
+|--------|---------------|-----------------|
+| חנות (Store) | Opens storefront in new tab | Same |
+| תוכנית (Plan) | Selects first client to open profile panel | Same |
+| הוסף (Add) | Opens Add Client dialog | Expands sidebar first, then opens dialog |
