@@ -314,26 +314,32 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
           .delete()
           .in('plan_id', oldPlanIds);
 
-        // Delete action items linked to old plans
-        await supabase
-          .from('action_items')
-          .delete()
-          .in('plan_id', oldPlanIds);
-
-        // Delete aurora checklists linked to old milestones
-        // (milestone_id references are now gone, but clean by user)
-        await supabase
-          .from('aurora_checklists')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('origin', 'plan');
-
         // Delete the old life plans themselves
         await supabase
           .from('life_plans')
           .delete()
           .in('id', oldPlanIds);
       }
+
+      // Delete ALL plan-sourced action items (milestones, habits, tasks from plan)
+      await supabase
+        .from('action_items')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('source', 'plan');
+
+      // Also delete aurora-generated checklists & action items
+      await supabase
+        .from('aurora_checklists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('origin', 'plan');
+
+      await supabase
+        .from('action_items')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('source', 'aurora');
 
       // Also delete old launchpad summaries
       await supabase
