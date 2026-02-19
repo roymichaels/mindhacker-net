@@ -1,17 +1,9 @@
 import { useTranslation } from '@/hooks/useTranslation';
-import { useSearchParams } from 'react-router-dom';
-import { Megaphone, Settings } from 'lucide-react';
-import { PillTabNav } from '@/components/aurora-ui/PillTabNav';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
 import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
 import ClientProfilePanel from '@/components/coach/ClientProfilePanel';
 import { useCoachClients } from '@/hooks/useCoachClients';
-
-const TAB_CONFIG = [
-  { value: 'marketing', icon: Megaphone, labelHe: 'שיווק', labelEn: 'Marketing' },
-  { value: 'settings', icon: Settings, labelHe: 'הגדרות', labelEn: 'Settings' },
-] as const;
 
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
   marketing: CoachMarketingTab,
@@ -21,25 +13,11 @@ const TAB_COMPONENTS: Record<string, React.ComponentType> = {
 interface CoachHubProps {
   selectedClientId?: string | null;
   onClearClient?: () => void;
+  activeTab?: string;
 }
 
-const CoachHub = ({ selectedClientId, onClearClient }: CoachHubProps) => {
-  const { language } = useTranslation();
-  const isHebrew = language === 'he';
-  const [searchParams, setSearchParams] = useSearchParams();
+const CoachHub = ({ selectedClientId, onClearClient, activeTab = 'marketing' }: CoachHubProps) => {
   const { data: clients } = useCoachClients();
-
-  const currentTab = searchParams.get('tab') || 'marketing';
-
-  const handleTabChange = (value: string) => {
-    setSearchParams(value === 'marketing' ? {} : { tab: value }, { replace: true });
-  };
-
-  const pillTabs = TAB_CONFIG.map((tab) => ({
-    id: tab.value,
-    label: isHebrew ? tab.labelHe : tab.labelEn,
-    icon: tab.icon,
-  }));
 
   // If a client is selected, show their profile panel
   const selectedClient = selectedClientId
@@ -54,19 +32,11 @@ const CoachHub = ({ selectedClientId, onClearClient }: CoachHubProps) => {
     );
   }
 
-  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachMarketingTab;
+  const ActiveComponent = TAB_COMPONENTS[activeTab] || CoachMarketingTab;
 
   return (
     <PageShell>
-      <div className="space-y-6">
-        <PillTabNav
-          tabs={pillTabs}
-          activeTab={currentTab}
-          onTabChange={handleTabChange}
-          activeGradient="from-purple-500 to-indigo-600"
-        />
-        <ActiveComponent />
-      </div>
+      <ActiveComponent />
     </PageShell>
   );
 };
