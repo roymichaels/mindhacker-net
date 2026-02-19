@@ -125,10 +125,6 @@ export function HudSidebar() {
               <button onClick={() => setActiveModal('insights')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <Brain className="w-4 h-4 text-chart-3" />
               </button>
-              <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
-              <button onClick={() => setRecalibrateOpen(true)} className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors" title={language === 'he' ? 'כיול מחדש' : 'Recalibrate'}>
-                <RefreshCw className="w-4 h-4 text-primary" />
-              </button>
             </div>
           </div>
         )}
