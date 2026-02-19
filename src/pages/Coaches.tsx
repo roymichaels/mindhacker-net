@@ -48,7 +48,7 @@ export function useCoachSidebars(selectedClientId?: string | null, onSelectClien
   }
 
   return {
-    leftSidebar: <CoachHudSidebar />,
+    leftSidebar: <CoachHudSidebar onSelectClient={onSelectClient} />,
     rightSidebar: <CoachActivitySidebar selectedClientId={selectedClientId} onSelectClient={onSelectClient} />,
   };
 }
