@@ -7,6 +7,7 @@ import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { Button } from '@/components/ui/button';
 import { Plus, FolderKanban, Sparkles, Rocket, Target, Brain } from 'lucide-react';
+import { PresetOrb } from '@/components/orb';
 import { cn } from '@/lib/utils';
 import { UserProject } from '@/hooks/useProjects';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
@@ -53,8 +54,8 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
           transition={{ duration: 0.5 }}
           className="space-y-6 max-w-lg mx-auto"
         >
-          <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
-            <FolderKanban className="w-8 h-8 text-amber-500" />
+          <div className="mx-auto">
+            <PresetOrb size={80} />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold">
             {isHe ? 'השלם את הכיול כדי לפתוח פרויקטים' : 'Complete Calibration to Unlock Projects'}
