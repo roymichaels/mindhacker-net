@@ -1,70 +1,83 @@
 
-# Recalibrate Plan -- Full Recalculation Modal
 
-## Overview
+# Enhance Neural Intake for Better Plan Results
 
-Add a "Recalibrate" button to the bottom of both sidebars (HUD + Roadmap) that opens a single premium modal. This modal shows ALL of the user's original activation answers in an editable form. When they save, it re-runs the `generate-launchpad-summary` edge function to regenerate their entire plan (summary, milestones, identity, commitments, daily anchors) from scratch.
+## Problem Analysis
 
-## User Experience
+The current intake collects wake/sleep times and active work hours, but is missing **critical scheduling anchors** that the AI needs to build a realistic 8-8-8 daily structure. Specifically:
 
-1. User taps the "Recalibrate" button (bottom of HUD sidebar or Roadmap sidebar)
-2. A full-screen Dialog opens showing all 9 activation questions with their current saved answers pre-filled
-3. User edits any answers they want (same UI components as activation flow but in a scrollable single-page layout)
-4. User taps "Recalculate My Plan" button at the bottom
-5. Loading state with a motivational message while the edge function runs
-6. On success: toast notification, modal closes, all dashboard queries invalidate and refresh
-7. Everything updates: summary, life plan, milestones, identity elements, commitments, daily habits
+- No question about **when work/obligations start** (the single most important time anchor)
+- No question about **when work ends** (needed to place training, personal dev, wind-down)
+- No **desired wake time** vs current (to know what to calibrate toward)
+- No **relationship status** (affects evening time architecture heavily)
+- No **stress coping mechanism** (what they default to under pressure -- key for replacing bad habits)
+- No **previous system attempts** (helps calibrate plan aggressiveness and avoid repeating what failed)
+- No **ideal day vision** (gives the AI a north star for structuring)
 
-## Technical Details
+## Proposed New Questions
 
-### New file: `src/components/dashboard/RecalibrateModal.tsx`
+All additions go into existing steps in `onboardingFlowSpec.ts` -- no new steps needed, just new mini-steps inserted at logical places.
 
-- Full-screen Dialog (using Radix Dialog from shadcn)
-- On mount, fetches `launchpad_progress.step_1_intention` for the current user and parses the JSON to pre-fill all 9 fields
-- Renders a scrollable form with sections matching the activation flow:
-  1. Primary Focus (single select grid)
-  2. Primary Pain (dynamic based on focus, single select)
-  3. Desired Outcome (dynamic based on focus, single select)
-  4. Commitment Level (single select)
-  5. Secondary Focus (multi-select, max 2)
-  6. Core Obstacle (single select)
-  7. Peak Productivity (single select)
-  8. Identity Statement (textarea)
-  9. 90-Day Vision (textarea)
-- Each section reuses the option data from `activationFlowSpec.ts` (imported directly)
-- On submit:
-  1. Saves updated answers to `launchpad_progress.step_1_intention` and `step_2_profile_data`
-  2. Deactivates old life plan (`UPDATE life_plans SET status = 'archived'`)
-  3. Calls `generate-launchpad-summary` edge function (which already handles cleanup + full regeneration)
-  4. Invalidates all relevant query keys: `life-plan`, `milestones`, `launchpad-summary`, `current-week-milestone`
-  5. Shows success toast
+### 1. Work/Obligation Start Time (Step 9 - Work Reality)
+**"באיזו שעה אתה חייב להתחיל לעבוד / להיות זמין?"**
+Options: 06:00 / 07:00 / 08:00 / 09:00 / 10:00 / 11:00+ / Flexible / Not working
 
-### Modify: `src/components/dashboard/HudSidebar.tsx`
+This is the **#1 missing variable** -- it determines the morning routine window and therefore the ideal wake time, bedtime, and entire daily arc.
 
-- Add a "Recalibrate" button at the very bottom of both collapsed and expanded views
-- Collapsed: small icon button (RefreshCw icon)
-- Expanded: full-width button with label
-- Opens `RecalibrateModal`
+### 2. Work/Obligation End Time (Step 9 - Work Reality)
+**"באיזו שעה אתה בדרך כלל מסיים לעבוד?"**
+Options: 14:00 / 16:00 / 17:00 / 18:00 / 19:00 / 20:00+ / Varies / Not working
 
-### Modify: `src/components/dashboard/RoadmapSidebar.tsx`
+This determines the evening block: training, family, personal development, wind-down.
 
-- Add same "Recalibrate" button at the bottom of both collapsed and expanded views
-- Consistent styling with HudSidebar
+### 3. Desired Wake Time (Step 5 - Sleep Architecture)
+**"באיזו שעה היית רוצה לקום אם היית יכול לבחור?"**
+Same options as current wake_time.
 
-### No edge function changes needed
+The gap between current vs desired wake time tells the AI how much sleep restructuring is needed.
 
-The existing `generate-launchpad-summary` function already:
-- Reads all data from `launchpad_progress`
-- Generates AI summary and plan
-- Cleans up old data (checklists, commitments, identity elements)
-- Creates new life plan, milestones, and populates all Life Model tables
-- This is exactly what we need for recalculation
+### 4. Relationship Status (Step 10 - Life Load)
+**"מה מצב הזוגיות שלך?"**
+Options: Single / In a relationship / Married / Divorced-Separated / Complicated
 
-### Form UI Pattern
+This affects evening time allocation, emotional load, and accountability structure.
 
-Each question section in the modal will use:
-- A card container with the question title
-- Option buttons matching the activation flow style (grid of selectable cards with icons)
-- Textarea for identity statement and vision
-- Dynamic pain/outcome options that change when primary focus changes
-- Visual feedback for selected state (primary border + background)
+### 5. Stress Default Behavior (Step 12 - Friction Trigger, as second mini-step)
+**"כשאתה בלחץ, מה הדבר הראשון שאתה עושה?"**
+Options: Eat / Scroll phone / Smoke / Sleep / Isolate / Argue / Work more / Exercise
+
+Critical for knowing which **replacement habits** to prescribe in the plan.
+
+### 6. Previous Attempts (Step 11 - Execution Pattern, as second mini-step)
+**"כמה פעמים ניסית לשנות הרגלים ב-12 חודשים האחרונים?"**
+Options: Never tried / 1-2 times / 3-5 times / 6+ times / Lost count
+
+Helps calibrate plan aggressiveness and identify "system hopper" patterns.
+
+### 7. Morning Routine Desire (Step 5 - Sleep Architecture, new mini-step)
+**"כמה זמן בוקר אישי אתה רוצה לפני שמתחיל יום העבודה?"**
+Options: None needed / 15-30 min / 30-60 min / 60-90 min / 90+ min
+
+Directly determines the wake time recommendation relative to work start.
+
+## Changes Summary
+
+### File: `src/flows/onboardingFlowSpec.ts`
+- Add `work_start_time` and `work_end_time` mini-steps to Step 9 (Work Reality)
+- Add `desired_wake_time` and `morning_routine_desire` mini-steps to Step 5 (Sleep Architecture)
+- Add `relationship_status` mini-step to Step 10 (Life Load)
+- Add `stress_default_behavior` mini-step to Step 12 (Friction Trigger)
+- Add `previous_change_attempts` mini-step to Step 11 (Execution Pattern)
+
+### File: `supabase/functions/_shared/launchpad-ai-prompt.ts`
+- Update the INPUT DATA STRUCTURE section to list the 7 new variables
+- Add explicit instruction: "Use work_start_time and work_end_time as the primary anchors for the 8-8-8 structure"
+- Add instruction: "Compare desired_wake_time vs current wake_time to determine sleep restructuring priority"
+- Add instruction: "Use morning_routine_desire to calculate recommended wake time = work_start_time - commute - morning_routine_desire"
+
+### File: `src/components/dashboard/RecalibrateModal.tsx`
+- The recalibrate modal dynamically reads from the flow spec, so the new questions will appear automatically as long as they use the same dbPath pattern
+
+### No DB migration needed
+All new variables store into existing JSON columns (`step_1_intention` / `step_2_profile_data`) via `jsonPath`.
+
