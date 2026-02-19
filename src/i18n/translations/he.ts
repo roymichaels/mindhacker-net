@@ -80,6 +80,7 @@ export const he = {
     brandName: "מיינד OS",
     navigationMenu: "תפריט ניווט",
     adminPanel: "פאנל ניהול",
+    coachPanel: "פאנל מאמן",
     practitionerPanel: "פאנל מאמן",
     myDashboard: "הדאשבורד שלי",
     notifications: "התראות",
@@ -2641,8 +2642,11 @@ export const he = {
     noCardRequired: "לא נדרש כרטיס אשראי",
     
     expertCoaches: "מאמנים מומחים",
+    featuredCoachesTitle: "המומחים שלנו",
     featuredPractitionersTitle: "המומחים שלנו",
+    featuredCoachesSubtitle: "מאמנים ומטפלים מקצועיים שילוו אותך במסע",
     featuredPractitionersSubtitle: "מאמנים ומטפלים מקצועיים שילוו אותך במסע",
+    viewAllCoaches: "ראה את כל המאמנים",
     viewAllPractitioners: "ראה את כל המאמנים",
   },
 

@@ -1,55 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCoachSettings, useSaveCoachSettings } from '@/domain/coaches';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Globe, Palette, Layout, Settings,
   ExternalLink, Copy, CheckCircle, Loader2,
-  Image, Mail, Phone
 } from 'lucide-react';
 
 const CoachSettingsTab = () => {
   const { t, isRTL, language } = useTranslation();
   const isHebrew = language === 'he';
   const { user } = useAuth();
-  const queryClient = useQueryClient();
 
-  const { data: practitioner } = useQuery({
-    queryKey: ['my-practitioner', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from('practitioners')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!user,
-  });
-
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['practitioner-settings', practitioner?.id],
-    queryFn: async () => {
-      if (!practitioner) return null;
-      const { data } = await supabase
-        .from('practitioner_settings')
-        .select('*')
-        .eq('practitioner_id', practitioner.id)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!practitioner,
-  });
+  const { practitioner, settings, isLoading } = useCoachSettings(user?.id);
+  const saveMutation = useSaveCoachSettings();
 
   const [formData, setFormData] = useState({
     subdomain: '', custom_domain: '',
@@ -90,21 +61,13 @@ const CoachSettingsTab = () => {
     }
   }, [settings]);
 
-  const saveMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      if (!practitioner || !settings) throw new Error('No practitioner');
-      const { error } = await supabase
-        .from('practitioner_settings')
-        .update({ ...data, updated_at: new Date().toISOString() })
-        .eq('id', settings.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success(t('settingsSaved'));
-      queryClient.invalidateQueries({ queryKey: ['practitioner-settings'] });
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const handleSave = () => {
+    if (!settings) return;
+    saveMutation.mutate(
+      { settingsId: settings.id, data: formData },
+      { onSuccess: () => toast.success(t('settingsSaved')), onError: (e) => toast.error(e.message) }
+    );
+  };
 
   const previewUrl = practitioner?.slug ? `${window.location.origin}/p/${practitioner.slug}` : '';
   const copyUrl = () => {
@@ -136,7 +99,7 @@ const CoachSettingsTab = () => {
               </a>
             </Button>
           )}
-          <Button size="sm" onClick={() => saveMutation.mutate(formData)} disabled={saveMutation.isPending}>
+          <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending}>
             {saveMutation.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <CheckCircle className="me-2 h-4 w-4" />}
             {isHebrew ? 'שמור' : 'Save'}
           </Button>

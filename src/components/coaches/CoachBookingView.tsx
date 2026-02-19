@@ -1,7 +1,7 @@
 /**
  * @tab Coaches
  * @purpose Booking flow for coach services — service selection, date, time, confirm
- * @data practitioner_availability, bookings, practitioner_services
+ * All data flows through domain hooks — no direct DB calls for practitioner tables.
  */
 import { useState, useMemo } from 'react';
 import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Check, Loader2 } from 'lucide-react';
@@ -10,6 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCoachAvailability } from '@/domain/coaches';
 import type { CoachService } from '@/domain/coaches';
 import { cn } from '@/lib/utils';
 import { format, addDays, isBefore, startOfDay } from 'date-fns';
@@ -44,18 +45,7 @@ const CoachBookingView = ({
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
 
-  const { data: availability } = useQuery({
-    queryKey: ['practitioner-availability', practitionerId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('practitioner_availability')
-        .select('*')
-        .eq('practitioner_id', practitionerId)
-        .eq('is_active', true);
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: availability } = useCoachAvailability(practitionerId);
 
   const { data: existingBookings } = useQuery({
     queryKey: ['bookings-for-date', practitionerId, selectedDate?.toISOString()],
@@ -304,5 +294,3 @@ const CoachBookingView = ({
 };
 
 export default CoachBookingView;
-/** @deprecated Use CoachBookingView */
-export { CoachBookingView as PractitionerBookingView };

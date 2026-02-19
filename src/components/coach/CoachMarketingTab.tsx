@@ -1,50 +1,17 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, ThumbsUp, Clock, CheckCircle } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { Star, MessageSquare, Clock, CheckCircle } from 'lucide-react';
+import { useMyCoachProfile, useCoachReviewsWithNames } from '@/domain/coaches';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 const CoachMarketingTab = () => {
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
   const isHebrew = language === 'he';
-  const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
+  const { data: myProfile, isLoading: profileLoading } = useMyCoachProfile();
 
-  interface ReviewWithName {
-    created_at: string; id: string; is_approved: boolean;
-    rating: number; review_text: string; user_id: string;
-    reviewer_name: string | null;
-  }
-
-  const { data: practitionerReviews, isLoading: reviewsLoading } = useQuery<ReviewWithName[]>({
-    queryKey: ['coach-practitioner-reviews', myProfile?.id],
-    queryFn: async (): Promise<ReviewWithName[]> => {
-      if (!myProfile?.id) return [];
-      const { data, error } = await supabase
-        .from('practitioner_reviews')
-        .select('id, rating, review_text, is_approved, created_at, user_id')
-        .eq('practitioner_id', myProfile.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      if (!data || data.length === 0) return [];
-
-      const userIds = data.map(r => r.user_id);
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', userIds);
-      const profileMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
-
-      return data.map(review => ({
-        ...review,
-        reviewer_name: profileMap.get(review.user_id) ?? null,
-      }));
-    },
-    enabled: !!myProfile?.id,
-  });
+  const { data: practitionerReviews, isLoading: reviewsLoading } = useCoachReviewsWithNames(myProfile?.id);
 
   const isLoading = profileLoading || reviewsLoading;
   const reviews = practitionerReviews || [];

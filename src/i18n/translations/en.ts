@@ -82,6 +82,7 @@ export const en: TranslationKeys = {
     brandName: "MindOS",
     navigationMenu: "Navigation Menu",
     adminPanel: "Admin Panel",
+    coachPanel: "Coach Panel",
     practitionerPanel: "Coach Panel",
     myDashboard: "My Dashboard",
     notifications: "Notifications",
@@ -2587,8 +2588,11 @@ export const en: TranslationKeys = {
     noCardRequired: "No credit card required",
     
     expertCoaches: "Expert Coaches",
+    featuredCoachesTitle: "Our Experts",
     featuredPractitionersTitle: "Our Experts",
+    featuredCoachesSubtitle: "Professional coaches to guide you on your journey",
     featuredPractitionersSubtitle: "Professional coaches to guide you on your journey",
+    viewAllCoaches: "View All Coaches",
     viewAllPractitioners: "View All Coaches",
   },
 

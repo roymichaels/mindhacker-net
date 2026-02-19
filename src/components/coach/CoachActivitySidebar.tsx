@@ -1,30 +1,18 @@
 /**
  * CoachActivitySidebar - Right sidebar for client list, pipeline, activity feed & quick actions.
- * Now includes Plan/Add buttons (moved from left sidebar).
+ * All data flows through domain hooks — no direct DB calls.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelLeftClose, PanelLeftOpen, UserPlus, MessageSquare, Calendar, Search, Brain, Loader2 } from 'lucide-react';
 import { useCoachClients, useCoachClientStats, useAddCoachClient, PractitionerClient } from '@/hooks/useCoachClients';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
-import { useQuery } from '@tanstack/react-query';
+import { useMyCoachProfile, useCoachActivityFeed } from '@/domain/coaches';
 import { supabase } from '@/integrations/supabase/client';
-import { formatDistanceToNow } from 'date-fns';
-import { he, enUS } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-
-interface ActivityEvent {
-  id: string;
-  type: 'new_client' | 'plan_completed' | 'review_received' | 'session_scheduled';
-  label: string;
-  time: string;
-  icon: typeof UserPlus;
-  color: string;
-}
 
 interface CoachActivitySidebarProps {
   selectedClientId?: string | null;
@@ -38,7 +26,7 @@ export function CoachActivitySidebar({ selectedClientId, onSelectClient }: Coach
   const isHe = language === 'he';
   const { stats } = useCoachClientStats();
   const { data: clients } = useCoachClients();
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
 
   // Add client dialog state
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -52,60 +40,18 @@ export function CoachActivitySidebar({ selectedClientId, onSelectClient }: Coach
     return c.profile?.full_name?.toLowerCase().includes(search.toLowerCase());
   });
 
-  // Build activity feed
-  const { data: activityFeed = [] } = useQuery({
-    queryKey: ['coach-activity-feed', myProfile?.id],
-    queryFn: async (): Promise<ActivityEvent[]> => {
-      if (!myProfile?.id) return [];
-      const events: ActivityEvent[] = [];
-      const locale = isHe ? he : enUS;
-
-      const { data: recentClients } = await supabase
-        .from('practitioner_clients')
-        .select('id, created_at, client_user_id')
-        .eq('practitioner_id', myProfile.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      for (const c of recentClients || []) {
-        events.push({
-          id: `client-${c.id}`,
-          type: 'new_client',
-          label: isHe ? 'מתאמן חדש הצטרף' : 'New client joined',
-          time: formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale }),
-          icon: UserPlus,
-          color: 'text-purple-400',
-        });
-      }
-
-      const { data: recentReviews } = await supabase
-        .from('practitioner_reviews')
-        .select('id, created_at, rating')
-        .eq('practitioner_id', myProfile.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      for (const r of recentReviews || []) {
-        events.push({
-          id: `review-${r.id}`,
-          type: 'review_received',
-          label: isHe ? `ביקורת חדשה (${r.rating}⭐)` : `Review received (${r.rating}⭐)`,
-          time: formatDistanceToNow(new Date(r.created_at), { addSuffix: true, locale }),
-          icon: MessageSquare,
-          color: 'text-amber-400',
-        });
-      }
-
-      return events.sort((a, b) => 0).slice(0, 8);
-    },
-    enabled: !!myProfile?.id,
-  });
+  // Activity feed from domain hook
+  const { data: rawActivity = [] } = useCoachActivityFeed(myProfile?.id);
+  const activityFeed = rawActivity.map(event => ({
+    ...event,
+    icon: event.type === 'new_client' ? UserPlus : MessageSquare,
+    color: event.type === 'new_client' ? 'text-purple-400' : 'text-amber-400',
+  }));
 
   const handleClientClick = (client: PractitionerClient) => {
     onSelectClient?.(selectedClientId === client.id ? null : client.id);
   };
 
-  // --- Quick Action Handlers ---
   const handlePlan = () => {
     const activeClients = clients?.filter(c => c.status === 'active') || [];
     if (activeClients.length > 0 && onSelectClient) {
@@ -225,7 +171,6 @@ export function CoachActivitySidebar({ selectedClientId, onSelectClient }: Coach
 
               <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-1" />
 
-              {/* Quick action icons (Plan/Add) */}
               {quickActions.map((a, i) => (
                 <button
                   key={i}
@@ -247,7 +192,6 @@ export function CoachActivitySidebar({ selectedClientId, onSelectClient }: Coach
         {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
           <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-            {/* Header with title + quick actions */}
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                 {isHe ? 'הלקוחות שלי' : 'My Clients'}
