@@ -1,103 +1,87 @@
 
+# Restructure Coach Hub and Admin Hub to Match Projects UI/UX
 
-# Coach Pro: Unified In-Tab Experience
+## Goal
+Redesign both the Coach Hub and Admin Hub pages to follow the same premium visual language used in the Projects tab -- gradient hero banners, glassmorphic cards, Aurora OS components, and polished navigation. Currently both hubs use plain text headers and flat unstyled tab bars that feel disconnected from the rest of the app.
 
-## Overview
+## Design Pattern (from Projects)
+The Projects page establishes this visual hierarchy:
+1. **Gradient Hero Banner** -- rounded-2xl container with gradient background, decorative blur orbs, icon badge, title with gradient text, and a CTA button
+2. **Section Headers** -- uppercase tracking-wider muted text
+3. **Glassmorphic Cards** -- rounded-2xl, backdrop-blur, border-border/50, hover shadows
+4. **Brand Color Identity** -- Projects uses amber/gold; Coach will use purple/indigo; Admin will use emerald/teal
 
-Transform the "מאמנים" (Coaches) tab from a static landing page into a **dual-purpose view**:
-- **Non-coaches** see the current landing/enrollment page (no change)
-- **Active coaches** see their full Coach Panel directly inside the tab -- no more navigating to a separate `/coach` route
+## Changes
 
-This eliminates the context switch between the main app and the coach panel, making coaching tools feel native to the platform rather than a separate admin area.
+### 1. Coach Hub (`src/pages/CoachHub.tsx`)
+- Replace the plain text header with a **HeroBanner** component featuring a purple-to-indigo gradient
+- Add a gradient icon badge (Briefcase icon in a rounded-xl gradient container)
+- Title with `bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-600`
+- "View Storefront" button gets gradient styling matching the coach color theme
+- Tab bar gets **pill-style navigation** (rounded-lg buttons with gradient active state) instead of the default shadcn TabsList, matching the scrollable pill pattern from Admin Hub but with the gradient treatment
+- Wrap content in `PageShell` for consistent max-width and padding
 
-## Current Problems
-1. The Coach Panel lives at `/coach` -- a completely separate layout with its own sidebar, header, and navigation. Coaches must leave their dashboard to manage their business.
-2. Many panel pages are placeholder stubs (MyServices, MyCalendar, MyEarnings) with no real functionality.
-3. The AI Plan Builder UI is minimal -- just a name + textarea, no rich plan viewing.
-4. The `/coaches` landing page shows the same content to coaches who are already subscribed.
+### 2. Coach Dashboard Tab (`src/components/coach/CoachDashboardTab.tsx`)
+- Replace plain `Card` stat cards with **MetricCard** from aurora-ui (with purple gradient)
+- "Upcoming Sessions" and "Recent Activity" cards get glassmorphic styling: `bg-card/80 backdrop-blur-sm rounded-2xl border-border/50`
 
-## Architecture
+### 3. Admin Hub (`src/pages/AdminHub.tsx`)
+- Replace the plain text header with a **HeroBanner** featuring an emerald-to-teal gradient
+- Add a gradient icon badge (Shield icon in a rounded-xl gradient container)
+- Title with `bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600`
+- Primary tab bar gets the same **pill-style navigation** with emerald active gradient
+- Secondary sub-tab bar gets a refined underline treatment with emerald accent color
+- NotificationBell moves into the hero banner area (top-right of banner)
+- Wrap in `PageShell`
 
-The `/coaches` route will conditionally render based on the user's practitioner status:
+### 4. Shared Tab Navigation Component (`src/components/aurora-ui/PillTabNav.tsx`)
+- Create a reusable pill-style tab navigation component both hubs can share
+- Props: `tabs`, `activeTab`, `onTabChange`, `accentColor` (gradient class)
+- Each tab is a rounded-lg button with: icon, label, gradient active state, muted hover state
+- Horizontal scroll on mobile with hidden scrollbar
+
+## Visual Summary
 
 ```text
-/coaches route
-  |
-  +-- User has practitioner role?
-  |     YES --> CoachHub (tabbed panel inside DashboardLayout)
-  |     NO  --> Current landing page (Coaches.tsx)
++----------------------------------------------------------+
+| [Icon Badge]  Title (gradient text)          [CTA Button] |
+|  Subtitle text                                            |
+|  (decorative blur orbs in background)                     |
++----------------------------------------------------------+
+|                                                          |
+| [ Tab 1 ]  [ Tab 2 ]  [ Tab 3 ]  ... (pill navigation)  |
+|                                                          |
+| +--- Sub-tabs (underlined) ---------------------------+  |
+| | Sub A  |  Sub B  |  Sub C  |                        |  |
+| +----------------------------------------------------|  |
+|                                                          |
+|  Content area with glassmorphic cards                    |
+|  (rounded-2xl, backdrop-blur, hover shadows)             |
++----------------------------------------------------------+
 ```
-
-### Phase 1: Embed Coach Panel in the Coaches Tab
-
-**What changes:**
-- Create a new `CoachHub.tsx` component that replaces the full-page CoachPanel with a tabbed interface that fits inside `DashboardLayout`
-- The hub uses horizontal tabs (not a sidebar) for navigation: **Dashboard, Clients, Plans, Services, Content, Settings**
-- Update `/coaches` route to conditionally render `CoachHub` for practitioners or the landing page for non-practitioners
-- Remove or redirect the standalone `/coach/*` routes to `/coaches` for practitioners
-
-**Tabs inside CoachHub:**
-1. **Dashboard** -- Overview stats (clients, sessions, earnings, satisfaction) + quick actions
-2. **Clients** -- Full client management (existing MyClients + add client flow)
-3. **AI Plans** -- AI Plan Builder with rich plan viewer (markdown rendering instead of raw JSON)
-4. **Products** -- Services, courses, and digital products management
-5. **Marketing** -- Testimonials, reviews, leads, newsletter (consolidated)
-6. **Settings** -- Profile, storefront, theme, domain (consolidated)
-
-### Phase 2: Upgrade Stub Pages to Real Functionality
-
-**Clients page improvements:**
-- Add "Invite Client" flow: generate a unique invite link the coach can share
-- Client search and filtering
-- Quick-action buttons that actually work (send message, schedule session)
-
-**AI Plan Builder improvements:**
-- Add coaching niche and methodology context (auto-populated from coach profile)
-- Rich plan viewer with collapsible phases, session cards, and progress tracking
-- Render plan_data as structured cards instead of raw JSON/pre blocks
-- Add "Duplicate Plan" and "Edit Plan" actions
-- Client background field in the generation dialog
-
-**Services page:**
-- Create/edit service form (title, description, price, duration, type)
-- Toggle active/inactive
-- Drag-to-reorder
-
-**Earnings page:**
-- Connect to actual purchase/payment data from `practitioner_clients` and any payment records
-- Show real revenue charts instead of hardcoded zeros
-
-### Phase 3: Polish and Edge Cases
-
-- Smooth tab transitions with preserved scroll position
-- Mobile: tabs become a horizontal scrollable strip
-- "View Storefront" button accessible from the hub header
-- Deep-linking support: `/coaches?tab=clients` 
-- Keep `/coach` routes working as redirects to `/coaches?tab=...` for backward compatibility
 
 ## Technical Details
 
-### New/Modified Files
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `src/components/aurora-ui/PillTabNav.tsx` | Reusable pill-style tab navigation with gradient active states |
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/pages/CoachHub.tsx` | Create | Main tabbed coach interface inside DashboardLayout |
-| `src/pages/Coaches.tsx` | Modify | Conditionally render CoachHub vs landing page |
-| `src/App.tsx` | Modify | Update routing -- `/coaches` handles both views, `/coach/*` redirects |
-| `src/components/coach/CoachDashboardTab.tsx` | Create | Dashboard overview tab content |
-| `src/components/coach/CoachClientsTab.tsx` | Create | Clients management tab (refactored from MyClients) |
-| `src/components/coach/CoachPlansTab.tsx` | Create | Enhanced AI Plans tab with rich viewer |
-| `src/components/coach/CoachProductsTab.tsx` | Create | Consolidated products/services tab |
-| `src/components/coach/CoachMarketingTab.tsx` | Create | Consolidated marketing tools |
-| `src/components/coach/CoachSettingsTab.tsx` | Create | Consolidated settings |
-| `src/components/coach/PlanCard.tsx` | Create | Rich plan rendering component |
+### Files to Modify
+| File | Changes |
+|------|---------|
+| `src/pages/CoachHub.tsx` | Replace header with HeroBanner, replace TabsList with PillTabNav, wrap in PageShell, purple/indigo gradient theme |
+| `src/pages/AdminHub.tsx` | Replace header with HeroBanner, replace tab bars with PillTabNav, wrap in PageShell, emerald/teal gradient theme |
+| `src/components/coach/CoachDashboardTab.tsx` | Replace Card stats with MetricCard, add glassmorphic card styling |
+| `src/components/coach/CoachClientsTab.tsx` | Add glassmorphic card styling to containers |
+| `src/components/coach/CoachPlansTab.tsx` | Add glassmorphic card styling |
+| `src/components/coach/CoachProductsTab.tsx` | Add glassmorphic card styling |
+| `src/components/coach/CoachMarketingTab.tsx` | Add glassmorphic card styling |
+| `src/components/coach/CoachSettingsTab.tsx` | Add glassmorphic card styling |
 
-### Routing Changes
-- `/coaches` -- dual-purpose (landing or hub)
-- `/coach` -- redirect to `/coaches`
-- `/coach/clients` -- redirect to `/coaches?tab=clients`
-- All other `/coach/*` sub-routes follow the same redirect pattern
+### Color Themes
+- **Projects**: amber-500/yellow-600 (gold tier)
+- **Coach Hub**: purple-500/indigo-600 (professional coaching)
+- **Admin Hub**: emerald-500/teal-600 (authority/system)
 
-### No Database Changes Required
-All existing tables (`practitioner_clients`, `coach_client_plans`, `practitioner_services`, `practitioner_settings`, `content_products`) already support the needed functionality. The edge function `generate-coach-plan` is already deployed and working.
-
+Each hub gets its own gradient identity while sharing the same structural layout and component library, creating a cohesive but distinct visual experience across all three management interfaces.
