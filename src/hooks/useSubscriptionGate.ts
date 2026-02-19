@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useCallback } from "react";
 import { SubscriptionTier, productIdToTier, tierIncludes } from "@/lib/subscriptionTiers";
+import { flowAudit } from "@/lib/flowAudit";
 
 export interface SubscriptionGate {
   tier: SubscriptionTier;
@@ -101,6 +102,9 @@ export const useSubscriptionGate = (): SubscriptionGate => {
 
   const tier: SubscriptionTier = subData ? productIdToTier(subData.product_id) : "free";
   const isPaid = tier !== "free";
+
+  // Flow audit: log subscription state
+  flowAudit.subscription({ tier, isPro: isPaid, isLoading: subLoading, subscriptionEnd: subData?.end_date ?? null });
   const dailyCount = messageData ?? 0;
   const messagesRemaining = isPaid ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
 

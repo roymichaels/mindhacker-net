@@ -7,6 +7,7 @@ import { getOrganizationSchema, getWebsiteSchema, BrandSettings } from "@/lib/se
 import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { flowAudit } from "@/lib/flowAudit";
 import { 
   GameHeroSection,
   AuroraCoachSection,
@@ -25,6 +26,7 @@ const Index = () => {
   // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
+      flowAudit.redirect('/', '/today', 'Authenticated user on Index — redirecting to dashboard');
       navigate('/today', { replace: true });
     }
   }, [user, loading, navigate]);

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { flowAudit } from "@/lib/flowAudit";
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +26,10 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  useEffect(() => {
+    flowAudit.context('AuthProvider', 'mount');
+    return () => flowAudit.context('AuthProvider', 'unmount');
+  }, []);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, nextSession) => {
         // IMPORTANT: keep this callback synchronous to avoid auth deadlocks.
+        flowAudit.auth(_event, nextSession?.user?.id ?? null, !!nextSession);
         setSession(nextSession);
         setUser(nextSession?.user ?? null);
 

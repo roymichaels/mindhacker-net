@@ -8,6 +8,7 @@ import {
 } from '@/lib/achievements';
 import { debug } from '@/lib/debug';
 import { showLevelUp, showEnergyEarned, showWarning } from '@/lib/feedback';
+import { flowAudit } from '@/lib/flowAudit';
 
 export interface UserGameState {
   level: number;
@@ -68,6 +69,11 @@ interface GameStateProviderProps {
 
 export function GameStateProvider({ children }: GameStateProviderProps) {
   const { user } = useAuth();
+
+  useEffect(() => {
+    flowAudit.context('GameStateProvider', 'mount');
+    return () => flowAudit.context('GameStateProvider', 'unmount');
+  }, []);
   const [gameState, setGameState] = useState<UserGameState | null>(null);
   const [sessionStats, setSessionStats] = useState<SessionStats | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
@@ -143,6 +149,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       setError('Failed to load game state');
     } finally {
       setLoading(false);
+      flowAudit.gamestate({ level: gameState?.level, tokens: gameState?.tokens, loading: false, error });
     }
   }, [user?.id]);
 
