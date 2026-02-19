@@ -371,17 +371,19 @@ export function useOrbProfile() {
   // Auto-save when profile changes significantly
   useEffect(() => {
     if (!user?.id || isLoading) return;
-    
+
+    // Force re-save if stored profile lacks visual DNA fields (raw DB had null gradientStops)
+    const storedLacksVisualDNA = storedProfile && !(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })._rawHasVisualDNA;
+
+    // If stored profile exists but lacks visual DNA, always allow save regardless of data gates
     const hasSignificantData = 
+      storedLacksVisualDNA ||
       profileData.hobbies.length > 0 ||
       (gameState?.level || 1) > 1 ||
       isLaunchpadComplete ||
       !!summaryRow;
     
     if (!hasSignificantData) return;
-
-    // Force re-save if stored profile lacks visual DNA fields (raw DB had null gradientStops)
-    const storedLacksVisualDNA = storedProfile && !(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })._rawHasVisualDNA;
 
     const needsUpdate =
       !storedProfile ||
