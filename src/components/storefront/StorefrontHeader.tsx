@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { usePractitioner } from '@/contexts/PractitionerContext';
-import { usePractitionerAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Menu, X, User, LogOut, BookOpen, Calendar, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -15,8 +15,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const StorefrontHeader = () => {
-  const { practitioner, settings, practitionerSlug } = usePractitioner();
-  const { user, clientProfile, logout, isAuthenticated } = usePractitionerAuth();
+  const { practitioner, settings, practitionerSlug } = useCoachStorefront();
+  const { user, clientProfile, logout, isAuthenticated } = useCoachAuth();
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,51 +43,32 @@ const StorefrontHeader = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
         <Link to={baseUrl} className="flex items-center gap-3">
           {settings?.logo_url ? (
-            <img 
-              src={settings.logo_url} 
-              alt={practitioner.display_name} 
-              className="h-10 w-auto"
-            />
+            <img src={settings.logo_url} alt={practitioner.display_name} className="h-10 w-auto" />
           ) : (
-            <div 
-              className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
-              style={{ backgroundColor: brandColor }}
-            >
+            <div className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: brandColor }}>
               {practitioner.display_name.charAt(0)}
             </div>
           )}
-          <span className="font-semibold text-lg hidden sm:inline">
-            {practitioner.display_name}
-          </span>
+          <span className="font-semibold text-lg hidden sm:inline">{practitioner.display_name}</span>
         </Link>
         
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Link key={item.href} to={item.href} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {item.label}
             </Link>
           ))}
         </nav>
         
-        {/* Auth Section */}
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage 
-                      src={clientProfile?.avatar_url || user?.user_metadata?.avatar_url} 
-                      alt={clientProfile?.display_name || ''} 
-                    />
+                    <AvatarImage src={clientProfile?.avatar_url || user?.user_metadata?.avatar_url} alt={clientProfile?.display_name || ''} />
                     <AvatarFallback style={{ backgroundColor: brandColor, color: 'white' }}>
                       {(clientProfile?.display_name || user?.email || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -98,34 +79,28 @@ const StorefrontHeader = () => {
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
                     <p className="font-medium">{clientProfile?.display_name || user?.email}</p>
-                    <p className="w-[200px] truncate text-sm text-muted-foreground">
-                      {user?.email}
-                    </p>
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">{user?.email}</p>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to={`${baseUrl}/dashboard`} className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    {t('dashboard')}
+                    <User className="mr-2 h-4 w-4" />{t('dashboard')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to={`${baseUrl}/courses`} className="cursor-pointer">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    {t('myCourses')}
+                    <BookOpen className="mr-2 h-4 w-4" />{t('myCourses')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to={`${baseUrl}/messages`} className="cursor-pointer">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    {t('messages')}
+                    <MessageCircle className="mr-2 h-4 w-4" />{t('messages')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {t('logout')}
+                  <LogOut className="mr-2 h-4 w-4" />{t('logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -140,29 +115,17 @@ const StorefrontHeader = () => {
             </div>
           )}
           
-          {/* Mobile Menu Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
       
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t">
           <nav className="container py-4 flex flex-col gap-2">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
+              <Link key={item.href} to={item.href} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors" onClick={() => setMobileMenuOpen(false)}>
                 {item.label}
               </Link>
             ))}

@@ -1,8 +1,13 @@
+/**
+ * @module contexts/CoachStorefrontContext
+ * @purpose Detects and provides coach storefront context from URL (path, subdomain, custom domain).
+ * Renamed from PractitionerContext → CoachStorefrontContext for vocabulary unification.
+ */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation, useParams } from 'react-router-dom';
 
-interface PractitionerSettings {
+interface CoachStorefrontSettings {
   id: string;
   practitioner_id: string;
   custom_domain: string | null;
@@ -32,7 +37,7 @@ interface PractitionerSettings {
   contact_phone: string | null;
 }
 
-interface Practitioner {
+interface CoachStorefrontData {
   id: string;
   user_id: string;
   slug: string;
@@ -45,12 +50,12 @@ interface Practitioner {
   is_featured?: boolean;
   is_verified?: boolean;
   status: string;
-  settings?: PractitionerSettings | null;
+  settings?: CoachStorefrontSettings | null;
 }
 
-interface PractitionerContextType {
-  practitioner: Practitioner | null;
-  settings: PractitionerSettings | null;
+interface CoachStorefrontContextType {
+  practitioner: CoachStorefrontData | null;
+  settings: CoachStorefrontSettings | null;
   isLoading: boolean;
   isStandalone: boolean;
   practitionerSlug: string | null;
@@ -58,7 +63,7 @@ interface PractitionerContextType {
   refetch: () => void;
 }
 
-const PractitionerContext = createContext<PractitionerContextType>({
+const CoachStorefrontCtx = createContext<CoachStorefrontContextType>({
   practitioner: null,
   settings: null,
   isLoading: true,
@@ -68,41 +73,41 @@ const PractitionerContext = createContext<PractitionerContextType>({
   refetch: () => {},
 });
 
-export const usePractitioner = () => {
-  const context = useContext(PractitionerContext);
+/** Primary hook — use this name going forward */
+export const useCoachStorefront = () => {
+  const context = useContext(CoachStorefrontCtx);
   if (!context) {
-    throw new Error('usePractitioner must be used within PractitionerProvider');
+    throw new Error('useCoachStorefront must be used within CoachStorefrontProvider');
   }
   return context;
 };
 
+/** @deprecated Use useCoachStorefront */
+export const usePractitioner = useCoachStorefront;
+
 /**
- * Detects practitioner context from:
+ * Detects coach context from:
  * 1. Custom domain (e.g., coach-dana.com)
  * 2. Subdomain (e.g., dana.mindos.app)
  * 3. Path-based routing (e.g., /p/dana/*)
  */
-const detectPractitionerFromEnvironment = (): { 
+const detectCoachFromEnvironment = (): { 
   type: 'domain' | 'subdomain' | 'path' | null; 
   value: string | null 
 } => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // Check for path-based routing first: /p/:slug/*
   const pathMatch = pathname.match(/^\/p\/([^/]+)/);
   if (pathMatch) {
     return { type: 'path', value: pathMatch[1] };
   }
   
-  // Check for subdomain (e.g., dean.mindos.app or dean.lovable.app)
   const parts = hostname.split('.');
   if (parts.length >= 2) {
     const subdomain = parts[0];
-    // Exclude common non-practitioner subdomains
     const excludedSubdomains = ['www', 'app', 'api', 'admin', 'id-preview--6edc83df-25e0-44e9-b5db-cd1d60befc7c'];
     if (!excludedSubdomains.includes(subdomain) && subdomain !== 'mindhacker-net') {
-      // Check if it's a known platform domain
       const baseDomain = parts.slice(1).join('.');
       if (baseDomain.includes('mindos') || baseDomain.includes('mindhacker') || baseDomain.includes('lovable.app')) {
         return { type: 'subdomain', value: subdomain };
@@ -110,7 +115,6 @@ const detectPractitionerFromEnvironment = (): {
     }
   }
   
-  // Check for custom domain (not mindos/mindhacker or lovable)
   if (!hostname.includes('mindos') && 
       !hostname.includes('mindhacker') && 
       !hostname.includes('lovable') && 
@@ -121,14 +125,14 @@ const detectPractitionerFromEnvironment = (): {
   return { type: null, value: null };
 };
 
-interface PractitionerProviderProps {
+interface CoachStorefrontProviderProps {
   children: ReactNode;
-  slug?: string; // Optional manual override
+  slug?: string;
 }
 
-export const PractitionerProvider = ({ children, slug: manualSlug }: PractitionerProviderProps) => {
-  const [practitioner, setPractitioner] = useState<Practitioner | null>(null);
-  const [settings, setSettings] = useState<PractitionerSettings | null>(null);
+export const CoachStorefrontProvider = ({ children, slug: manualSlug }: CoachStorefrontProviderProps) => {
+  const [practitioner, setPractitioner] = useState<CoachStorefrontData | null>(null);
+  const [settings, setSettings] = useState<CoachStorefrontSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [detectedSlug, setDetectedSlug] = useState<string | null>(null);
@@ -136,16 +140,14 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
   
   const location = useLocation();
   const params = useParams();
-  
-  // Get slug from path params if available
   const pathSlug = params.practitionerSlug || null;
   
-  const fetchPractitioner = async () => {
+  const fetchCoach = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const detection = detectPractitionerFromEnvironment();
+      const detection = detectCoachFromEnvironment();
       let slug = manualSlug || pathSlug;
       let standalone = false;
       
@@ -153,7 +155,6 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
         if (detection.type === 'path') {
           slug = detection.value;
         } else if (detection.type === 'subdomain') {
-          // Lookup by subdomain
           const { data: settingsData } = await supabase
             .from('practitioner_settings')
             .select('practitioner_id')
@@ -170,7 +171,6 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
             standalone = true;
           }
         } else if (detection.type === 'domain') {
-          // Lookup by custom domain
           const { data: settingsData } = await supabase
             .from('practitioner_settings')
             .select('practitioner_id')
@@ -199,7 +199,6 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
         return;
       }
       
-      // Fetch practitioner by slug
       const { data: practitionerData, error: practitionerError } = await supabase
         .from('practitioners')
         .select('*')
@@ -216,7 +215,6 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
         return;
       }
       
-      // Fetch settings
       const { data: settingsData, error: settingsError } = await supabase
         .from('practitioner_settings')
         .select('*')
@@ -232,7 +230,7 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
       setSettings(settingsData);
       
     } catch (err) {
-      console.error('Error fetching practitioner:', err);
+      console.error('Error fetching coach storefront:', err);
       setError(err as Error);
     } finally {
       setIsLoading(false);
@@ -240,11 +238,11 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
   };
   
   useEffect(() => {
-    fetchPractitioner();
+    fetchCoach();
   }, [manualSlug, pathSlug, location.pathname]);
   
   return (
-    <PractitionerContext.Provider
+    <CoachStorefrontCtx.Provider
       value={{
         practitioner,
         settings,
@@ -252,12 +250,15 @@ export const PractitionerProvider = ({ children, slug: manualSlug }: Practitione
         isStandalone,
         practitionerSlug: detectedSlug,
         error,
-        refetch: fetchPractitioner,
+        refetch: fetchCoach,
       }}
     >
       {children}
-    </PractitionerContext.Provider>
+    </CoachStorefrontCtx.Provider>
   );
 };
 
-export default PractitionerContext;
+/** @deprecated Use CoachStorefrontProvider */
+export const PractitionerProvider = CoachStorefrontProvider;
+
+export default CoachStorefrontCtx;
