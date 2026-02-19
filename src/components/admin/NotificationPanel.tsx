@@ -221,7 +221,7 @@ export const NotificationPanel = ({
             variant="ghost"
             className="w-full text-sm"
             onClick={() => {
-              navigate('/admin/notifications');
+              navigate('/admin-hub?tab=overview&sub=notifications');
               onClose();
             }}
           >
