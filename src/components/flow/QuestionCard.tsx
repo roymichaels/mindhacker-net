@@ -104,6 +104,26 @@ export function QuestionCard({
     setLocalValue(value);
   }, [value, miniStep.id]);
 
+  // Auto-set default for time_picker so Continue is immediately enabled
+  useEffect(() => {
+    if (miniStep.inputType === 'time_picker' && (value === undefined || value === null || value === '')) {
+      // Pick a sensible default within the allowed range
+      const min = miniStep.minHour ?? 0;
+      const max = miniStep.maxHour ?? 23;
+      let defaultH = 7; // universal fallback
+      // Check if 7 is in range; if not use minHour
+      if (min <= max) {
+        defaultH = (defaultH >= min && defaultH <= max) ? defaultH : min;
+      } else {
+        // wrap-around range (e.g. 18..3): check if 7 is valid (it's not for sleep), use min
+        defaultH = min;
+      }
+      const defaultTime = `${String(defaultH).padStart(2, '0')}:00`;
+      setLocalValue(defaultTime);
+      onChange(defaultTime);
+    }
+  }, [miniStep.id]);
+
   // Initialize ranked items when miniStep changes
   useEffect(() => {
     if (miniStep.inputType === 'priority_rank' && miniStep.options) {
