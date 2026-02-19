@@ -100,7 +100,7 @@ export function HudSidebar() {
             <div className="flex flex-col items-center gap-1 w-full px-0.5">
               <div className="w-8 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-1" />
               {[
-                { icon: ZapIcon, value: tokens.balance, label: language === 'he' ? 'אנרגיה' : 'Energy', color: 'text-accent-foreground' },
+                { icon: ZapIcon, value: tokens.balance, label: language === 'he' ? 'אנרגיה' : 'Energy', color: 'text-amber-400' },
                 { icon: Flame, value: streak.streak, label: language === 'he' ? 'רצף' : 'Streak', color: 'text-destructive' },
                 { icon: Brain, value: consciousnessVal, label: language === 'he' ? 'תודעה' : 'Aware', color: 'text-chart-5' },
                 { icon: Eye, value: `${clarityVal}%`, label: language === 'he' ? 'בהירות' : 'Clarity', color: 'text-chart-2' },
@@ -135,9 +135,9 @@ export function HudSidebar() {
 
         {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
-        <div className="flex flex-col items-center gap-4 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
-          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-[140px] h-[140px] overflow-visible cursor-pointer">
-            <PersonalizedOrb size={140} state="idle" />
+        <div className="flex flex-col items-center gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+          <button onClick={() => setOrbDNAOpen(true)} className="flex items-center justify-center w-[100px] h-[100px] overflow-visible cursor-pointer">
+            <PersonalizedOrb size={100} state="idle" />
           </button>
 
           {identityTitle && (
@@ -153,7 +153,7 @@ export function HudSidebar() {
             <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
               <Star className="h-2.5 w-2.5" />Lv.{xp.level}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent-foreground border border-accent/20">
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
               <ZapIcon className="h-2.5 w-2.5" />{tokens.balance}
             </span>
             <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
@@ -201,7 +201,7 @@ export function HudSidebar() {
               {[
                 { icon: Target, label: language === 'he' ? 'סשנים' : 'Sessions', value: String(sessionStats?.totalSessions || 0), color: 'text-chart-3' },
                 { icon: Clock, label: language === 'he' ? 'דקות' : 'Minutes', value: String(sessionStats?.totalDurationSeconds ? Math.floor(sessionStats.totalDurationSeconds / 60) : 0), color: 'text-chart-1' },
-                { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-chart-2' },
+                { icon: ZapIcon, label: language === 'he' ? 'אנרגיה' : 'Energy', value: String(tokens.balance), color: 'text-amber-400' },
               ].map((m) => (
                 <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
                   <m.icon className={cn("w-3.5 h-3.5", m.color)} />
