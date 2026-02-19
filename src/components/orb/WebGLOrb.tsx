@@ -1,6 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import type { OrbRef, OrbProps, OrbState, OrbProfile, VISUAL_DEFAULTS } from './types';
+import type { OrbRef, OrbProps, OrbState, OrbProfile } from './types';
+import { VISUAL_DEFAULTS } from './types';
 import { 
   COLOR_PALETTES, 
   MORPHOLOGY_PROFILES,
