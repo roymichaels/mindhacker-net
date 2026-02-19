@@ -361,8 +361,8 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 7. Brightness floor — NEVER allow pure black ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
-    if (brightness < 0.05) {
-      finalColor = max(finalColor, vec3(0.15, 0.35, 0.55));
+    if (brightness < 0.12) {
+      finalColor = max(finalColor, vec3(0.18, 0.38, 0.58));
     }
 
     gl_FragColor = vec4(finalColor, 0.92);

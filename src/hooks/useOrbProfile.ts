@@ -61,11 +61,12 @@ function extractProfileData(profileData: Record<string, unknown> | null) {
 /**
  * Convert database row to OrbProfile - FIXED: preserve motion/texture fields
  */
-function rowToProfile(row: OrbProfileRow): OrbProfile {
+function rowToProfile(row: OrbProfileRow): OrbProfile & { _rawHasVisualDNA: boolean } {
   const cf = row.computed_from as Record<string, unknown>;
   
-  // Validate gradient stops from DB
+  // Track whether DB actually had visual DNA (not just defaults)
   const rawStops = (cf?.gradientStops as string[]);
+  const rawHasVisualDNA = !!(rawStops && rawStops.length >= 3 && cf?.materialType);
   const gradientStops = (rawStops && rawStops.length >= 3) ? rawStops : VISUAL_DEFAULTS.gradientStops;
   
   // Validate material params
@@ -111,6 +112,7 @@ function rowToProfile(row: OrbProfileRow): OrbProfile {
     seed: (cf?.seed as number) ?? undefined,
     geometryFamily: (cf?.geometryFamily as OrbProfile['geometryFamily']) ?? undefined,
     diagnosticState: 'ok',
+    _rawHasVisualDNA: rawHasVisualDNA,
     computedFrom: {
       dominantArchetype: ((cf?.dominantArchetype as string) || 'explorer') as ArchetypeId,
       secondaryArchetype: (cf?.secondaryArchetype as ArchetypeId | null) || null,
@@ -378,8 +380,8 @@ export function useOrbProfile() {
     
     if (!hasSignificantData) return;
 
-    // Force re-save if stored profile lacks visual DNA fields (null gradientStops)
-    const storedLacksVisualDNA = storedProfile && (!storedProfile.gradientStops || storedProfile.gradientStops.length < 3 || !storedProfile.materialType || storedProfile.materialType === 'glass' && !storedProfile.gradientStops.some((s: string) => !s.includes('NaN')));
+    // Force re-save if stored profile lacks visual DNA fields (raw DB had null gradientStops)
+    const storedLacksVisualDNA = storedProfile && !(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })._rawHasVisualDNA;
 
     const needsUpdate =
       !storedProfile ||
