@@ -116,6 +116,31 @@ Deno.serve(async (req) => {
 
     console.log('Summary saved:', summaryRecord.id);
 
+    // Delete old life plans, milestones, and related data before creating new ones
+    const { data: oldPlans } = await supabase
+      .from('life_plans')
+      .select('id')
+      .eq('user_id', userId);
+
+    const oldPlanIds = (oldPlans || []).map((p: any) => p.id);
+    if (oldPlanIds.length > 0) {
+      await supabase.from('life_plan_milestones').delete().in('plan_id', oldPlanIds);
+      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'plan');
+      await supabase.from('action_items').delete().eq('user_id', userId).eq('source', 'aurora');
+      await supabase.from('life_plans').delete().in('id', oldPlanIds);
+    }
+
+    // Delete old aurora checklists and their items
+    const { data: oldChecklists } = await supabase
+      .from('aurora_checklists')
+      .select('id')
+      .eq('user_id', userId);
+    const oldChecklistIds = (oldChecklists || []).map((c: any) => c.id);
+    if (oldChecklistIds.length > 0) {
+      await supabase.from('aurora_checklist_items').delete().in('checklist_id', oldChecklistIds);
+      await supabase.from('aurora_checklists').delete().in('id', oldChecklistIds);
+    }
+
     // Create life plan
     const startDate = new Date();
     const endDate = new Date();
