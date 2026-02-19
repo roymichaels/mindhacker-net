@@ -34,8 +34,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
-const UserDashboard = lazy(() => import("./pages/UserDashboard"));
-const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
+const DashboardLayoutWrapper = lazy(() => import("./components/dashboard/DashboardLayoutWrapper"));
 
 const Courses = lazy(() => import("./pages/Courses"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
@@ -337,9 +336,7 @@ const App = () => (
                           path="/dashboard"
                           element={
                             <ProtectedRoute>
-                              <DashboardLayout>
-                                <UserDashboard />
-                              </DashboardLayout>
+                              <DashboardLayoutWrapper />
                             </ProtectedRoute>
                           }
                         />

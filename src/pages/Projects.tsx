@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
 import { Button } from '@/components/ui/button';
-import { Plus, FolderKanban, Sparkles } from 'lucide-react';
+import { Plus, FolderKanban, Sparkles, Rocket, Target, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserProject } from '@/hooks/useProjects';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import ProGateOverlay from '@/components/subscription/ProGateOverlay';
+import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { motion } from 'framer-motion';
+import { PageShell } from '@/components/aurora-ui/PageShell';
 
 interface ProjectsProps {
   openWizardTrigger?: number;
@@ -17,8 +21,10 @@ interface ProjectsProps {
 
 const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { language, isRTL } = useTranslation();
+  const navigate = useNavigate();
   const { projects, isLoading } = useProjects();
   const { canAccessProjects } = useSubscriptionGate();
+  const { isLaunchpadComplete } = useLaunchpadProgress();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<UserProject | null>(null);
 
@@ -29,6 +35,63 @@ const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
 
   const activeProjects = projects.filter(p => p.status === 'active');
   const otherProjects = projects.filter(p => p.status !== 'active');
+
+  const isHe = language === 'he';
+
+  // Gate: un-onboarded users
+  if (!isLaunchpadComplete) {
+    const features = [
+      { icon: Target, he: 'תוכנית 90 יום מותאמת אישית', en: 'Personalized 90-day plan' },
+      { icon: Sparkles, he: 'אימון AI יומי עם אורורה', en: 'Daily AI coaching with Aurora' },
+      { icon: Brain, he: 'כלי התבוננות וצמיחה', en: 'Introspection & growth tools' },
+    ];
+    return (
+      <PageShell className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-6 max-w-lg mx-auto"
+        >
+          <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
+            <FolderKanban className="w-8 h-8 text-amber-500" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold">
+            {isHe ? 'השלם את הכיול כדי לפתוח פרויקטים' : 'Complete Calibration to Unlock Projects'}
+          </h2>
+          <p className="text-muted-foreground">
+            {isHe
+              ? 'מודול הפרויקטים מתחבר לתוכנית ה-90 יום שלך. השלם את הכיול כדי להתחיל.'
+              : 'The Projects module connects to your 90-day plan. Complete calibration to get started.'}
+          </p>
+          <div className="grid gap-3 text-start">
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: isHe ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + i * 0.1 }}
+                className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-3"
+              >
+                <div className="rounded-full bg-amber-500/10 p-2">
+                  <f.icon className="w-4 h-4 text-amber-500" />
+                </div>
+                <span className="text-sm font-medium">{isHe ? f.he : f.en}</span>
+              </motion.div>
+            ))}
+          </div>
+          <Button
+            onClick={() => navigate('/onboarding')}
+            size="lg"
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
+          >
+            <Rocket className="w-5 h-5 me-2" />
+            {isHe ? 'התחל את המסע' : 'Start Your Journey'}
+          </Button>
+        </motion.div>
+      </PageShell>
+    );
+  }
 
   if (!canAccessProjects) {
     return (
