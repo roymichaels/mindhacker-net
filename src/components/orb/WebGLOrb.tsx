@@ -325,21 +325,20 @@ const ORB_FRAGMENT_SHADER = `
     vec3 finalColor = baseColor;
 
     if (u_materialType == 1) { // metal
-      finalColor = baseColor * (0.3 + NdotL * 0.4) + spec * baseColor * u_metalness * 1.5;
-      finalColor += fresnel * baseColor * 0.3;
+      finalColor = baseColor * (0.4 + NdotL * 0.5) + spec * baseColor * u_metalness * 1.5;
+      finalColor += fresnel * baseColor * 0.4;
     } else if (u_materialType == 2) { // glass
       float glassRefract = mix(0.8, 1.0, fresnel);
-      finalColor = baseColor * glassRefract * (0.5 + NdotL * 0.3);
+      finalColor = baseColor * glassRefract * (0.6 + NdotL * 0.4);
       finalColor += fresnel * vec3(1.0) * u_transmission * 0.5;
       finalColor += spec * vec3(1.0) * 0.6;
     } else if (u_materialType == 3) { // plasma
       float plasma = sin(vPosition.x * 8.0 + u_time * 2.0) * sin(vPosition.y * 6.0 + u_time * 1.5) * 0.5 + 0.5;
-      finalColor = baseColor * (0.6 + plasma * 0.6);
+      finalColor = baseColor * (0.7 + plasma * 0.5);
       finalColor += baseColor * u_emissiveIntensity * (0.5 + plasma * 0.5);
     } else if (u_materialType == 4) { // iridescent
       float iriAngle = dot(normal, viewDir);
       float hueShift = u_chromaShift * (1.0 - iriAngle) + u_time * 0.05;
-      // Shift hue via rotation in RGB space (simplified)
       float cosH = cos(hueShift * 6.2831);
       float sinH = sin(hueShift * 6.2831);
       vec3 iriColor = vec3(
@@ -347,22 +346,25 @@ const ORB_FRAGMENT_SHADER = `
         baseColor.r * (0.333 * (1.0 - cosH) + 0.577 * sinH) + baseColor.g * (0.667 + cosH * 0.333) + baseColor.b * (0.333 * (1.0 - cosH) - 0.577 * sinH),
         baseColor.r * (0.333 * (1.0 - cosH) - 0.577 * sinH) + baseColor.g * (0.333 * (1.0 - cosH) + 0.577 * sinH) + baseColor.b * (0.667 + cosH * 0.333)
       );
-      finalColor = iriColor * (0.4 + NdotL * 0.4) + spec * vec3(1.0) * 0.4;
+      finalColor = iriColor * (0.5 + NdotL * 0.4) + spec * vec3(1.0) * 0.4;
       finalColor += fresnel * iriColor * 0.5;
-    } else { // wire (default) - simple lighting
-      finalColor = baseColor * (0.5 + NdotL * 0.3);
+    } else { // wire (default)
+      finalColor = baseColor * (0.6 + NdotL * 0.3);
     }
 
     // === 5. Rim light ===
     finalColor += fresnel * u_rimLightColor * 0.6;
 
-    // === 6. Emissive glow ===
-    finalColor += baseColor * u_emissiveIntensity * 0.3;
+    // === 6. Emissive glow (guaranteed minimum) ===
+    float effectiveEmissive = max(u_emissiveIntensity, 0.25);
+    finalColor += baseColor * effectiveEmissive * 0.4;
 
-    // === 7. Brightness floor — NEVER allow pure black ===
+    // === 7. Brightness floor — NEVER allow dark orbs ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
-    if (brightness < 0.12) {
-      finalColor = max(finalColor, vec3(0.18, 0.38, 0.58));
+    if (brightness < 0.25) {
+      // Boost toward base color to maintain hue, not just inject blue
+      finalColor = mix(finalColor, baseColor * 0.8, (0.25 - brightness) / 0.25);
+      finalColor = max(finalColor, baseColor * 0.35);
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
@@ -418,8 +420,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const gradientMode = profile?.gradientMode ?? 'vertical';
   const materialType = profile?.materialType ?? 'glass';
   const _rawParams = profile?.materialParams ?? { metalness: 0.1, roughness: 0.4, clearcoat: 0.3, transmission: 0.2, ior: 1.5, emissiveIntensity: 0.3 };
-  // Clamp emissiveIntensity so the orb can never go fully dark (except wire)
-  const materialParams = { ..._rawParams, emissiveIntensity: materialType === 'wire' ? _rawParams.emissiveIntensity : Math.max(0.05, _rawParams.emissiveIntensity) };
+  // Clamp emissiveIntensity — minimum 0.25 so the orb is always visibly bright
+  const materialParams = { ..._rawParams, emissiveIntensity: Math.max(0.25, _rawParams.emissiveIntensity ?? 0.3) };
   const patternType = profile?.patternType ?? 'fractal';
   const patternIntensity = Math.max(0, Math.min(1, profile?.patternIntensity ?? 0.4));
   const chromaShift = Math.max(0, Math.min(0.8, profile?.chromaShift ?? 0.1));
