@@ -1,56 +1,33 @@
 
-# Fix Coach Sidebar Quick Action Buttons
+# Fix "צפה בחנות" (View Storefront) Button
 
 ## Problem
-The three quick action buttons in the left Coach HUD Sidebar -- **חנות (Store)**, **תוכנית (Plan)**, and **הוסף (Add)** -- have no click handlers. They render as buttons but do nothing when clicked. This applies to both the collapsed mini-view and the expanded view.
+The Store button does nothing when clicked because `handleStoreClick` requires `myProfile?.slug` to exist. If the logged-in user is an **admin** (not a practitioner), `useMyPractitionerProfile` returns `null`, so the button silently fails. Since this app was built for a single coach, admins should still be able to view the storefront.
 
 ## Solution
 
-### 1. **חנות (Store) Button** -- Open Storefront
-- Navigate to `/p/{slug}` in a new tab using the practitioner's slug (already available via `myProfile?.slug`)
-- The expanded sidebar already has a "View Storefront" link at the bottom doing exactly this -- the quick action button just needs the same `window.open` call
-
-### 2. **תוכנית (Plan) Button** -- Generate AI Plan
-- Since plans are now tied to individual clients, this button should select the first active client and open their profile panel (where the "Generate Plan" dialog lives)
-- If no clients exist, show a toast message prompting the coach to add a client first
-- This requires the sidebar to receive `onSelectClient` as a prop (passed from `CoachesLayoutWrapper`)
-
-### 3. **הוסף (Add) Button** -- Add New Client
-- Create an **Add Client Dialog** directly in the sidebar with an email/name search field
-- The dialog searches existing users by email, then calls the existing `useAddCoachClient` hook to link them
-- This is the standard flow: coach enters an email, system finds the user profile, and creates the `practitioner_clients` record
-
-## Technical Changes
-
 ### File: `src/components/coach/CoachHudSidebar.tsx`
-- Add props: `onSelectClient`, `onAddClient` callbacks
-- Add an `AddClientDialog` component (inline or separate) with email input + search + confirm
-- Wire each quick action button's `onClick`:
-  - **Store**: `window.open(/p/${slug}, '_blank')`
-  - **Plan**: call `onSelectClient` with first client ID (or toast if none)
-  - **Add**: open the add-client dialog
-- Apply the same onClick handlers to both collapsed and expanded button variants
-- Import and use `useAddCoachClient` hook for the add flow
-- Import `useCoachClients` to get client list for the "Plan" button logic
 
-### File: `src/pages/Coaches.tsx`
-- Update `useCoachSidebars` to pass `onSelectClient` to `CoachHudSidebar`
+1. **Add a fallback query** to fetch the first practitioner's slug when `myProfile` is null (admin case):
+   - Query `practitioners` table for the first record's slug
+   - Use it as fallback: `const storeSlug = myProfile?.slug || fallbackSlug`
 
-### File: `src/components/coach/CoachesLayoutWrapper.tsx`
-- No changes needed (already manages `selectedClientId` state and passes `setSelectedClientId`)
+2. **Fix `handleStoreClick`** to use the resolved slug and show a toast if no slug is found at all (edge case)
 
-## Add Client Dialog Design
-The dialog will contain:
-- An email input field to search for existing users
-- A search button that queries the `profiles` table by email
-- When a match is found, show the user's name and a "Confirm" button
-- On confirm, call `useAddCoachClient` with the found user's ID
-- Optional: a notes field for the coach to attach initial notes
+3. **Remove the silent `if` guard** so the button always attempts to navigate and gives feedback if it can't
 
-## Button Behavior Summary
+### File: `src/components/panel/CoachSidebar.tsx` (legacy panel)
 
-| Button | Expanded Click | Collapsed Click |
-|--------|---------------|-----------------|
-| חנות (Store) | Opens storefront in new tab | Same |
-| תוכנית (Plan) | Selects first client to open profile panel | Same |
-| הוסף (Add) | Opens Add Client dialog | Expands sidebar first, then opens dialog |
+4. Apply the same fallback logic so the "הדף שלי" button in `/panel` also works for admins
+
+## What Changes
+
+| Component | Before | After |
+|-----------|--------|-------|
+| CoachHudSidebar Store btn | Silent no-op for admins | Opens first practitioner's storefront, or shows toast if none exist |
+| CoachSidebar (legacy) | Hidden for admins | Shows with fallback slug |
+
+## Technical Detail
+- Add a simple `useQuery` that fetches `practitioners.slug` with `limit 1` as a fallback when `myProfile` is null
+- The resolved slug is used in both collapsed and expanded Store button variants
+- A toast notification is shown if no practitioner exists at all ("No storefront available")
