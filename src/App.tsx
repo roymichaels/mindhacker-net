@@ -162,6 +162,9 @@ const queryClient = new QueryClient({
   },
 });
 
+// Wrapper that injects coach sidebars when user is a practitioner
+const CoachesLayoutWrapper = lazy(() => import('./components/coach/CoachesLayoutWrapper'));
+
 // Background effect wrapper component
 const BackgroundEffect = () => {
   const { theme } = useThemeSettings();
@@ -392,9 +395,7 @@ const App = () => (
                           path="/coaches"
                           element={
                             <ProtectedRoute>
-                              <DashboardLayout>
-                                <Coaches />
-                              </DashboardLayout>
+                              <CoachesLayoutWrapper />
                             </ProtectedRoute>
                           }
                         />

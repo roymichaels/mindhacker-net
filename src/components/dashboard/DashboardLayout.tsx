@@ -16,12 +16,14 @@ import { AuroraActionsProvider } from '@/contexts/AuroraActionsContext';
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  leftSidebar?: ReactNode;
+  rightSidebar?: ReactNode;
   currentConversationId?: string | null;
   onNewChat?: () => void | Promise<boolean>;
   onSelectConversation?: (id: string) => void;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children, leftSidebar, rightSidebar }: DashboardLayoutProps) => {
   const { isRTL } = useTranslation();
   const isMobile = useIsMobile();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -42,13 +44,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           )}
 
           <div className="flex-1 min-h-0 flex">
-            <HudSidebar />
+            {leftSidebar || <HudSidebar />}
 
             <main className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-28 md:pb-14 flex flex-col">
               {children}
             </main>
 
-            <RoadmapSidebar />
+            {rightSidebar || <RoadmapSidebar />}
           </div>
 
           <AuroraDock />
