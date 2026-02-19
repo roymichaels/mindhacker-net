@@ -293,12 +293,47 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
 
       if (updateErr) throw updateErr;
 
-      // 2. Archive old life plans
-      await supabase
+      // 2. Get old life plan IDs, then delete all related data
+      const { data: oldPlans } = await supabase
         .from('life_plans')
-        .update({ status: 'archived' })
-        .eq('user_id', user.id)
-        .neq('status', 'archived');
+        .select('id')
+        .eq('user_id', user.id);
+
+      const oldPlanIds = (oldPlans || []).map(p => p.id);
+
+      if (oldPlanIds.length > 0) {
+        // Delete milestones for old plans
+        await supabase
+          .from('life_plan_milestones')
+          .delete()
+          .in('plan_id', oldPlanIds);
+
+        // Delete action items linked to old plans
+        await supabase
+          .from('action_items')
+          .delete()
+          .in('plan_id', oldPlanIds);
+
+        // Delete aurora checklists linked to old milestones
+        // (milestone_id references are now gone, but clean by user)
+        await supabase
+          .from('aurora_checklists')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('origin', 'plan');
+
+        // Delete the old life plans themselves
+        await supabase
+          .from('life_plans')
+          .delete()
+          .in('id', oldPlanIds);
+      }
+
+      // Also delete old launchpad summaries
+      await supabase
+        .from('launchpad_summaries')
+        .delete()
+        .eq('user_id', user.id);
 
       // 3. Call generate-launchpad-summary edge function
       const { data: { session } } = await supabase.auth.getSession();
