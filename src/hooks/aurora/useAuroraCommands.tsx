@@ -60,7 +60,7 @@ export const useAuroraCommands = () => {
     health: () => navigate('/health'),
     business: () => navigate('/business'),
     life_plan: () => navigate('/plan'),
-    launchpad: () => navigate('/launchpad'),
+    launchpad: () => navigate('/onboarding'),
     community: () => navigate('/community'),
     settings: () => navigate('/settings'),
     profile: () => navigate('/profile'),

@@ -35,19 +35,30 @@ export function DailyRoadmap() {
   const { hasLoggedToday } = useDailyPulse();
   const { currentMilestone } = useLifePlanWithMilestones();
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayEnd = `${todayStr}T23:59:59`;
+
   const { data: taskItems = [] } = useQuery({
-    queryKey: ['daily-roadmap-tasks', user?.id],
+    queryKey: ['daily-roadmap-tasks', user?.id, todayStr],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase
         .from('action_items')
-        .select('id, title, status')
+        .select('id, title, status, due_at, completed_at')
         .eq('user_id', user.id)
         .eq('type', 'task')
         .neq('status', 'archived')
+        .or(`due_at.is.null,due_at.lte.${todayEnd}`)
         .order('order_index', { ascending: true })
         .limit(10);
-      return (data || []).map(t => ({ id: t.id, title: t.title, done: t.status === 'done' }));
+      // Filter out tasks completed before today (unless they're not done)
+      return (data || [])
+        .filter(t => {
+          if (t.status !== 'done') return true;
+          if (!t.completed_at) return true;
+          return t.completed_at.slice(0, 10) === todayStr;
+        })
+        .map(t => ({ id: t.id, title: t.title, done: t.status === 'done' }));
     },
     enabled: !!user?.id,
   });
@@ -96,7 +107,7 @@ export function DailyRoadmap() {
     } else if (item.type === 'task') {
       const newDone = !item.done;
       await supabase.from('action_items').update({
-        status: newDone ? 'done' : 'pending',
+        status: newDone ? 'done' : 'todo',
         completed_at: newDone ? new Date().toISOString() : null,
       }).eq('id', item.id);
       queryClient.invalidateQueries({ queryKey: ['daily-roadmap-tasks'] });

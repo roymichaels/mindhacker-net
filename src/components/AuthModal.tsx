@@ -163,7 +163,7 @@ export const AuthModal = ({
         const safeRedirect = validateRedirectPath(redirectTo);
         navigate(safeRedirect);
       } else {
-        navigate('/today');
+        navigate('/dashboard');
       }
     }
   };
@@ -221,7 +221,7 @@ export const AuthModal = ({
         const safeRedirect = validateRedirectPath(redirectTo);
         navigate(safeRedirect);
       } else {
-        navigate('/today');
+        navigate('/dashboard');
       }
     }
   };

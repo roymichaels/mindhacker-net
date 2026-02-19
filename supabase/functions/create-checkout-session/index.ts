@@ -59,8 +59,8 @@ serve(async (req) => {
       client_reference_id: user.id,
       line_items: [{ price: tierConfig.priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${origin}/today?checkout=success`,
-      cancel_url: `${origin}/subscriptions`,
+      success_url: `${origin}/success?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard`,
       metadata: { user_id: user.id },
     };
 

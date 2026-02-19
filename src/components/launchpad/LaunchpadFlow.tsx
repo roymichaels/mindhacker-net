@@ -179,7 +179,7 @@ export function LaunchpadFlow({ className, onComplete, onClose }: LaunchpadFlowP
     if (onClose) {
       onClose();
     } else {
-      navigate('/today');
+      navigate('/dashboard');
     }
   };
 

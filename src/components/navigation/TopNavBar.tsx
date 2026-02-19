@@ -50,10 +50,11 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                 <button
                   key={tab.id}
                   onClick={() => !isComingSoon && navigate(tab.path)}
+                  disabled={isComingSoon}
                   className={cn(
                     "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isComingSoon
-                      ? "text-muted-foreground/40 opacity-60 grayscale cursor-default"
+                      ? "text-muted-foreground/40 opacity-60 grayscale cursor-default pointer-events-none"
                       : active
                         ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"

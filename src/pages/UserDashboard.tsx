@@ -92,7 +92,7 @@ const UserDashboard = () => {
       toast(language === 'he' ? 'יש להשלים את מסע התודעה לפני שימוש בהיפנוזה' : 'Complete the Consciousness Journey before using Hypnosis', {
         action: {
           label: language === 'he' ? 'התחל מסע' : 'Start Journey',
-          onClick: () => navigate('/launchpad'),
+          onClick: () => navigate('/onboarding'),
         },
       });
       return;

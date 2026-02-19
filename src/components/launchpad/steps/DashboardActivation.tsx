@@ -86,7 +86,7 @@ export function DashboardActivation({ onComplete, isCompleting, rewards }: Dashb
       console.error('Error:', err);
     } finally {
       setIsGenerating(false);
-      navigate('/launchpad/complete');
+      navigate('/dashboard');
     }
   };
 

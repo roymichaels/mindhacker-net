@@ -29,7 +29,7 @@ export function LaunchpadProgress({ className, compact = false, onClick }: Launc
     if (onClick) {
       onClick();
     } else {
-      navigate('/launchpad');
+      navigate('/onboarding');
     }
   };
 

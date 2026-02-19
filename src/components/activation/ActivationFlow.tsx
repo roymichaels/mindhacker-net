@@ -140,7 +140,7 @@ export function ActivationFlow() {
       }
 
       toast.success(language === 'he' ? 'ברוכים הבאים ל-MindOS!' : 'Welcome to MindOS!');
-      navigate('/today');
+      navigate('/dashboard');
     } catch (e) {
       console.error('Completion error:', e);
       toast.error(language === 'he' ? 'שגיאה' : 'Error');

@@ -346,6 +346,8 @@ const App = () => (
                         <Route path="/today" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
+                        {/* Aurora → Messages AI */}
+                        <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
                         {/* Projects - sidebar-driven layout */}
                         <Route
                           path="/projects"

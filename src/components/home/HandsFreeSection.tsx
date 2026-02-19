@@ -288,7 +288,7 @@ const HandsFreeSection = () => {
             {/* CTA */}
             <Button
               size="lg"
-              onClick={() => navigate('/launchpad')}
+              onClick={() => navigate('/onboarding')}
               className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-6 text-lg shadow-lg shadow-primary/25"
             >
               <span>{isRTL ? 'נסה את החוויה הקולית' : 'Try the Voice Experience'}</span>

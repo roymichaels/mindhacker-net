@@ -59,7 +59,7 @@ export function PlanProgressHero() {
               <h3 className="text-sm font-bold">{language === 'he' ? 'צור תוכנית 90 יום' : 'Create 90-Day Plan'}</h3>
               <p className="text-[10px] text-muted-foreground">{language === 'he' ? 'השלם את מסע התודעה' : 'Complete the journey first'}</p>
             </div>
-            <Button size="sm" onClick={() => navigate('/launchpad')} className="gap-1 h-7 text-[11px] shrink-0">
+            <Button size="sm" onClick={() => navigate('/onboarding')} className="gap-1 h-7 text-[11px] shrink-0">
               <Rocket className="h-3 w-3" />{language === 'he' ? 'התחל' : 'Start'}
             </Button>
           </CardContent>
