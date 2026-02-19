@@ -218,12 +218,11 @@ Deno.serve(async (req) => {
     // 2. Create identity elements from summary (traits, values)
     console.log('Populating aurora_identity_elements...');
     
-    // Clear existing launchpad-generated elements to avoid duplicates
+    // Clear ALL existing identity elements for this user to avoid duplicates on recalibration
     await supabase
       .from('aurora_identity_elements')
       .delete()
-      .eq('user_id', userId)
-      .like('metadata->source', '%launchpad%');
+      .eq('user_id', userId);
 
     // Insert dominant traits (using 'character_trait' as per constraint)
     if (summary.identity_profile?.dominant_traits?.length) {

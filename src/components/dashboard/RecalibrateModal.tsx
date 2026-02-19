@@ -293,7 +293,13 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
 
       if (updateErr) throw updateErr;
 
-      // 2. Get old life plan IDs, then delete all related data
+      // 2. Clear identity elements (they'll be regenerated)
+      await supabase
+        .from('aurora_identity_elements')
+        .delete()
+        .eq('user_id', user.id);
+
+      // 3. Get old life plan IDs, then delete all related data
       const { data: oldPlans } = await supabase
         .from('life_plans')
         .select('id')
