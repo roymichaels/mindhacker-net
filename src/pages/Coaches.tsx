@@ -38,7 +38,7 @@ const FEATURES = [
 ];
 
 // Hook to provide coach-specific sidebars when user is a practitioner
-export function useCoachSidebars() {
+export function useCoachSidebars(selectedClientId?: string | null, onSelectClient?: (id: string | null) => void) {
   const { hasRole, loading } = useUserRoles();
   const { user } = useAuth();
   const isPractitioner = !loading && user && hasRole('practitioner');
@@ -49,11 +49,16 @@ export function useCoachSidebars() {
 
   return {
     leftSidebar: <CoachHudSidebar />,
-    rightSidebar: <CoachActivitySidebar />,
+    rightSidebar: <CoachActivitySidebar selectedClientId={selectedClientId} onSelectClient={onSelectClient} />,
   };
 }
 
-export default function Marketplace() {
+interface CoachesProps {
+  selectedClientId?: string | null;
+  onClearClient?: () => void;
+}
+
+export default function Marketplace({ selectedClientId, onClearClient }: CoachesProps) {
   const { t, isRTL, language } = useTranslation();
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
   const { hasRole, loading: rolesLoading } = useUserRoles();
@@ -63,30 +68,26 @@ export default function Marketplace() {
 
   const isPractitioner = hasRole('practitioner');
 
-  // Show loading while checking roles
   if (rolesLoading || profileLoading) {
     return <PageSkeleton />;
   }
 
-  // If user is a practitioner, show CoachHub
   if (user && isPractitioner) {
     return (
       <Suspense fallback={<PageSkeleton />}>
-        <CoachHub />
+        <CoachHub selectedClientId={selectedClientId} onClearClient={onClearClient} />
       </Suspense>
     );
   }
 
-  // Otherwise show the landing page
+  // Landing page for non-coaches
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-10" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Hero */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-full">
           <Sparkles className="h-4 w-4" />
-          <span className="text-sm font-medium">
-            {language === 'he' ? 'Coach Pro' : 'Coach Pro'}
-          </span>
+          <span className="text-sm font-medium">Coach Pro</span>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold">
           {language === 'he' ? 'בנו את העסק שלכם כמאמנים' : 'Build Your Coaching Business'}
@@ -101,10 +102,7 @@ export default function Marketplace() {
       {/* Feature Cards */}
       <div className="grid sm:grid-cols-3 gap-4">
         {FEATURES.map((f) => (
-          <div
-            key={f.titleEn}
-            className="rounded-xl border bg-card p-5 space-y-3 text-center"
-          >
+          <div key={f.titleEn} className="rounded-xl border bg-card p-5 space-y-3 text-center">
             <div className="mx-auto w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
               <f.icon className="h-6 w-6 text-amber-500" />
             </div>

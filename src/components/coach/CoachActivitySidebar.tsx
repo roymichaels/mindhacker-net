@@ -1,17 +1,17 @@
 /**
- * CoachActivitySidebar - Right sidebar for client pipeline & activity feed.
- * Mirrors RoadmapSidebar structure with purple/indigo coach theme.
+ * CoachActivitySidebar - Right sidebar for client list, pipeline & activity feed.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelLeftClose, PanelLeftOpen, UserPlus, FileCheck, CalendarCheck, MessageSquare, Calendar } from 'lucide-react';
-import { useCoachClients, useCoachClientStats } from '@/hooks/useCoachClients';
+import { PanelLeftClose, PanelLeftOpen, UserPlus, MessageSquare, Calendar, Search } from 'lucide-react';
+import { useCoachClients, useCoachClientStats, PractitionerClient } from '@/hooks/useCoachClients';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { he, enUS } from 'date-fns/locale';
+import { Input } from '@/components/ui/input';
 
 interface ActivityEvent {
   id: string;
@@ -22,15 +22,26 @@ interface ActivityEvent {
   color: string;
 }
 
-export function CoachActivitySidebar() {
+interface CoachActivitySidebarProps {
+  selectedClientId?: string | null;
+  onSelectClient?: (clientId: string | null) => void;
+}
+
+export function CoachActivitySidebar({ selectedClientId, onSelectClient }: CoachActivitySidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
+  const [search, setSearch] = useState('');
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { stats } = useCoachClientStats();
   const { data: clients } = useCoachClients();
   const { data: myProfile } = useMyPractitionerProfile();
 
-  // Build activity feed from clients + reviews
+  const filteredClients = (clients || []).filter((c) => {
+    if (!search) return true;
+    return c.profile?.full_name?.toLowerCase().includes(search.toLowerCase());
+  });
+
+  // Build activity feed
   const { data: activityFeed = [] } = useQuery({
     queryKey: ['coach-activity-feed', myProfile?.id],
     queryFn: async (): Promise<ActivityEvent[]> => {
@@ -38,7 +49,6 @@ export function CoachActivitySidebar() {
       const events: ActivityEvent[] = [];
       const locale = isHe ? he : enUS;
 
-      // Recent clients
       const { data: recentClients } = await supabase
         .from('practitioner_clients')
         .select('id, created_at, client_user_id')
@@ -57,7 +67,6 @@ export function CoachActivitySidebar() {
         });
       }
 
-      // Recent reviews
       const { data: recentReviews } = await supabase
         .from('practitioner_reviews')
         .select('id, created_at, rating')
@@ -76,7 +85,6 @@ export function CoachActivitySidebar() {
         });
       }
 
-      // Sort by most recent
       return events.sort((a, b) => 0).slice(0, 8);
     },
     enabled: !!myProfile?.id,
@@ -85,6 +93,10 @@ export function CoachActivitySidebar() {
   const completionRate = stats.total > 0
     ? Math.round((stats.completed / stats.total) * 100)
     : 0;
+
+  const handleClientClick = (client: PractitionerClient) => {
+    onSelectClient?.(selectedClientId === client.id ? null : client.id);
+  };
 
   return (
     <aside
@@ -117,28 +129,35 @@ export function CoachActivitySidebar() {
       {collapsed && (
         <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center gap-1 w-full">
-            {/* Progress circle */}
             <div className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
               <div className="w-9 h-9 rounded-full border-2 border-purple-500/40 flex items-center justify-center bg-background/50">
-                <span className="text-[9px] font-bold text-purple-400">{completionRate}%</span>
+                <span className="text-[9px] font-bold text-purple-400">{stats.total}</span>
               </div>
-              <span className="text-[8px] text-muted-foreground leading-none">{isHe ? 'השלמה' : 'Done'}</span>
+              <span className="text-[8px] text-muted-foreground leading-none">{isHe ? 'לקוחות' : 'Clients'}</span>
             </div>
 
             <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
-            {/* Event dots */}
+            {/* Client avatar dots */}
             <div className="flex flex-col items-center gap-1.5">
-              {activityFeed.slice(0, 5).map((event) => (
-                <div key={event.id} className="w-3 h-3 rounded-full bg-purple-500/30 border border-purple-500/20" title={event.label} />
+              {(clients || []).slice(0, 5).map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setCollapsed(false); handleClientClick(c); }}
+                  className={cn(
+                    "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors",
+                    selectedClientId === c.id
+                      ? "bg-primary text-primary-foreground ring-2 ring-primary/50"
+                      : "bg-primary/20 text-primary border border-border/30 hover:bg-primary/30"
+                  )}
+                  title={c.profile?.full_name || ''}
+                >
+                  {c.profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+                </button>
               ))}
-              {activityFeed.length === 0 && (
-                <span className="text-[8px] text-muted-foreground">{isHe ? 'אין' : 'None'}</span>
-              )}
             </div>
           </div>
 
-          {/* Calendar mini icon */}
           <button className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-colors" title={isHe ? 'פגישות' : 'Sessions'}>
             <Calendar className="w-4 h-4 text-purple-400" />
           </button>
@@ -148,11 +167,14 @@ export function CoachActivitySidebar() {
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-          {/* Clients Overview */}
+          {/* Client Stats */}
           <div className="mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
-              {isHe ? 'הלקוחות שלי' : 'My Clients'}
-            </span>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                {isHe ? 'הלקוחות שלי' : 'My Clients'}
+              </span>
+              <span className="text-xs font-bold text-primary">{stats.total}</span>
+            </div>
             <div className="grid grid-cols-3 gap-1.5 mb-2">
               <div className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
                 <span className="text-sm font-bold leading-none">{stats.total}</span>
@@ -167,90 +189,91 @@ export function CoachActivitySidebar() {
                 <span className="text-[9px] text-muted-foreground">{isHe ? 'הושלמו' : 'Done'}</span>
               </div>
             </div>
-
-            {/* Mini client avatars */}
-            {clients && clients.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-1">
-                {clients.slice(0, 6).map((c) => (
-                  <div key={c.id} className="w-7 h-7 rounded-full bg-primary/20 border border-border/30 flex items-center justify-center" title={c.profile?.full_name || ''}>
-                    <span className="text-[10px] font-bold text-primary">
-                      {c.profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
-                    </span>
-                  </div>
-                ))}
-                {clients.length > 6 && (
-                  <div className="w-7 h-7 rounded-full bg-muted/40 border border-border/30 flex items-center justify-center">
-                    <span className="text-[9px] font-bold text-muted-foreground">+{clients.length - 6}</span>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-2" />
+          {/* Search */}
+          <div className="relative mb-2">
+            <Search className="absolute ltr:left-2 rtl:right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={isHe ? 'חפש מתאמן...' : 'Search client...'}
+              className="h-8 text-xs ltr:pl-7 rtl:pr-7 bg-muted/30 border-border/30"
+            />
+          </div>
 
-          {/* Progress circle */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-full border-2 border-purple-500/40 flex items-center justify-center bg-background/50 relative flex-shrink-0">
-              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="none" stroke="hsl(var(--muted)/0.2)" strokeWidth="2.5" />
-                <circle
-                  cx="20" cy="20" r="16" fill="none"
-                  stroke="rgb(168 85 247)" strokeWidth="2.5"
-                  strokeDasharray={`${completionRate * 1.005} 100.5`}
-                  strokeLinecap="round"
-                  className="transition-all duration-700"
-                />
-              </svg>
-              <span className="text-[9px] font-bold text-purple-400">{completionRate}%</span>
-            </div>
-            <span className="text-[10px] text-muted-foreground">{isHe ? 'שיעור השלמה' : 'Completion'}</span>
+          {/* Scrollable Client List */}
+          <div className="flex-1 overflow-y-auto scrollbar-hide space-y-1 mb-2">
+            {filteredClients.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-xs text-muted-foreground">{isHe ? 'אין מתאמנים' : 'No clients'}</p>
+              </div>
+            ) : (
+              filteredClients.map((client) => (
+                <button
+                  key={client.id}
+                  onClick={() => handleClientClick(client)}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 p-2 rounded-xl text-start transition-all",
+                    selectedClientId === client.id
+                      ? "bg-primary/10 border border-primary/30 shadow-sm"
+                      : "hover:bg-muted/40 border border-transparent"
+                  )}
+                >
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold",
+                    selectedClientId === client.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/20 text-primary"
+                  )}>
+                    {client.profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">
+                      {client.profile?.full_name || (isHe ? 'מתאמן' : 'Client')}
+                    </p>
+                    <p className={cn(
+                      "text-[10px]",
+                      client.status === 'active' ? 'text-emerald-400' : 'text-muted-foreground'
+                    )}>
+                      {client.status === 'active' ? (isHe ? 'פעיל' : 'Active') :
+                       client.status === 'completed' ? (isHe ? 'הושלם' : 'Done') : client.status}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-2" />
 
           {/* Activity Feed */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 block">
+          <div className="max-h-[160px] overflow-y-auto scrollbar-hide">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
               {isHe ? 'פעילות אחרונה' : 'Recent Activity'}
             </span>
 
             {activityFeed.length === 0 ? (
-              <div className="text-center py-4">
-                <p className="text-xs text-muted-foreground">{isHe ? 'אין פעילות עדיין' : 'No activity yet'}</p>
-              </div>
+              <p className="text-xs text-muted-foreground text-center py-2">{isHe ? 'אין פעילות' : 'No activity'}</p>
             ) : (
               <div className="relative flex flex-col gap-0 w-full">
                 <div className="absolute top-0 bottom-0 w-[2px] bg-purple-500/10 rounded-full ltr:left-[7px] rtl:right-[7px]" />
-                {activityFeed.map((event) => (
-                  <div key={event.id} className="relative flex items-start gap-2.5 py-1.5 ltr:pl-5 rtl:pr-5">
+                {activityFeed.slice(0, 4).map((event) => (
+                  <div key={event.id} className="relative flex items-start gap-2.5 py-1 ltr:pl-5 rtl:pr-5">
                     <div className={cn(
-                      "absolute ltr:left-0 rtl:right-0 top-2.5 w-[16px] h-[16px] rounded-full flex items-center justify-center",
+                      "absolute ltr:left-0 rtl:right-0 top-2 w-[14px] h-[14px] rounded-full flex items-center justify-center",
                       "bg-muted/50 border border-purple-500/20"
                     )}>
-                      <event.icon className={cn("w-2.5 h-2.5", event.color)} />
+                      <event.icon className={cn("w-2 h-2", event.color)} />
                     </div>
                     <div className="flex flex-col gap-0">
-                      <span className="text-xs font-medium leading-tight">{event.label}</span>
-                      <span className="text-[10px] text-muted-foreground">{event.time}</span>
+                      <span className="text-[11px] font-medium leading-tight">{event.label}</span>
+                      <span className="text-[9px] text-muted-foreground">{event.time}</span>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-2" />
-
-          {/* Upcoming Sessions */}
-          <div className="pb-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
-              {isHe ? 'פגישות קרובות' : 'Upcoming Sessions'}
-            </span>
-            <div className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-3 text-center">
-              <Calendar className="w-5 h-5 text-muted-foreground/40 mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">{isHe ? 'אין פגישות מתוכננות' : 'No sessions scheduled'}</p>
-            </div>
           </div>
         </div>
       )}

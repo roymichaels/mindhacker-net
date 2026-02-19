@@ -1,39 +1,38 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSearchParams } from 'react-router-dom';
-import { Users, Brain, ShoppingBag, Megaphone, Settings } from 'lucide-react';
+import { Megaphone, Settings } from 'lucide-react';
 import { PillTabNav } from '@/components/aurora-ui/PillTabNav';
 import { PageShell } from '@/components/aurora-ui/PageShell';
-import CoachClientsTab from '@/components/coach/CoachClientsTab';
-import CoachPlansTab from '@/components/coach/CoachPlansTab';
-import CoachProductsTab from '@/components/coach/CoachProductsTab';
 import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
 import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
+import ClientProfilePanel from '@/components/coach/ClientProfilePanel';
+import { useCoachClients } from '@/hooks/useCoachClients';
 
 const TAB_CONFIG = [
-  { value: 'clients', icon: Users, labelHe: 'מתאמנים', labelEn: 'Clients' },
-  { value: 'plans', icon: Brain, labelHe: 'תוכניות AI', labelEn: 'AI Plans' },
-  { value: 'products', icon: ShoppingBag, labelHe: 'מוצרים', labelEn: 'Products' },
   { value: 'marketing', icon: Megaphone, labelHe: 'שיווק', labelEn: 'Marketing' },
   { value: 'settings', icon: Settings, labelHe: 'הגדרות', labelEn: 'Settings' },
 ] as const;
 
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
-  clients: CoachClientsTab,
-  plans: CoachPlansTab,
-  products: CoachProductsTab,
   marketing: CoachMarketingTab,
   settings: CoachSettingsTab,
 };
 
-const CoachHub = () => {
+interface CoachHubProps {
+  selectedClientId?: string | null;
+  onClearClient?: () => void;
+}
+
+const CoachHub = ({ selectedClientId, onClearClient }: CoachHubProps) => {
   const { language } = useTranslation();
   const isHebrew = language === 'he';
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  const currentTab = searchParams.get('tab') || 'clients';
-  
+  const { data: clients } = useCoachClients();
+
+  const currentTab = searchParams.get('tab') || 'marketing';
+
   const handleTabChange = (value: string) => {
-    setSearchParams(value === 'clients' ? {} : { tab: value }, { replace: true });
+    setSearchParams(value === 'marketing' ? {} : { tab: value }, { replace: true });
   };
 
   const pillTabs = TAB_CONFIG.map((tab) => ({
@@ -42,20 +41,30 @@ const CoachHub = () => {
     icon: tab.icon,
   }));
 
-  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachClientsTab;
+  // If a client is selected, show their profile panel
+  const selectedClient = selectedClientId
+    ? clients?.find((c) => c.id === selectedClientId)
+    : null;
+
+  if (selectedClient) {
+    return (
+      <PageShell>
+        <ClientProfilePanel client={selectedClient} onBack={() => onClearClient?.()} />
+      </PageShell>
+    );
+  }
+
+  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachMarketingTab;
 
   return (
     <PageShell>
       <div className="space-y-6">
-        {/* Pill Navigation */}
         <PillTabNav
           tabs={pillTabs}
           activeTab={currentTab}
           onTabChange={handleTabChange}
           activeGradient="from-purple-500 to-indigo-600"
         />
-
-        {/* Tab Content */}
         <ActiveComponent />
       </div>
     </PageShell>
