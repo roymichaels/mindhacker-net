@@ -10,6 +10,8 @@ import { handleError } from "@/lib/errorHandling";
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { formatPrice } from "@/lib/currency";
+import { useConversionEvents } from "@/hooks/useConversionEvents";
+import { flowAudit } from "@/lib/flowAudit";
 
 interface Purchase {
   id: string;
@@ -28,14 +30,32 @@ const Success = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const purchaseId = searchParams.get("purchaseId");
+  const checkoutSuccess = searchParams.get("checkout") === "success";
+  const sessionId = searchParams.get("session_id");
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [calendlyLink, setCalendlyLink] = useState<string>("");
   const { t, isRTL, language } = useTranslation();
+  const { trackPurchase } = useConversionEvents();
 
   const locale = language === 'he' ? 'he-IL' : 'en-US';
+
+  // Subscription checkout success: fire conversion event + auto-redirect
+  useEffect(() => {
+    if (checkoutSuccess && sessionId) {
+      trackPurchase({ session_id: sessionId });
+      flowAudit.markFlag('checkoutUrlReceived', true);
+
+      const timer = setTimeout(() => {
+        flowAudit.markFlag('reachedDashboard', true);
+        navigate('/dashboard');
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [checkoutSuccess, sessionId]);
 
   useEffect(() => {
     fetchCalendlyLink();
@@ -139,6 +159,38 @@ const Success = () => {
         <Header />
         <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
           <div className="h-96 w-full max-w-2xl animate-pulse bg-muted rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  // Subscription checkout success branch
+  if (checkoutSuccess && sessionId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]" dir={isRTL ? 'rtl' : 'ltr'}>
+          <Card className="max-w-md w-full glass-panel">
+            <CardHeader className="space-y-4">
+              <div className="flex justify-center">
+                <div className="rounded-full bg-primary/20 p-4">
+                  <CheckCircle2 className="h-16 w-16 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl text-center cyber-glow">
+                {isRTL ? 'המנוי הופעל בהצלחה!' : 'Subscription Confirmed!'}
+              </CardTitle>
+              <CardDescription className="text-center">
+                {isRTL ? 'מעביר אותך לדאשבורד...' : 'Redirecting to your dashboard...'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Button onClick={() => navigate("/dashboard")} className="w-full">
+                <LayoutDashboard className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('common.dashboard')}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
