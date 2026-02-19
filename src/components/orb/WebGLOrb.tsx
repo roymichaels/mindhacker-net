@@ -405,6 +405,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const timeRef = useRef(0);
   const morphPhaseRef = useRef(profile?.seed ? (profile.seed % 1000) / 1000 * Math.PI * 2 : 0);
   const fitScaleRef = useRef<number>(1);
+  const [sceneVersion, setSceneVersion] = useState(0);
 
   const [internalState, setInternalState] = useState<OrbState>('idle');
   const [internalAudioLevel, setInternalAudioLevel] = useState(0);
@@ -571,8 +572,9 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     scene.add(wireOverlay);
     wireOverlayRef.current = wireOverlay;
 
+    // Signal uniform update effect to re-run with current values
+    setSceneVersion(v => v + 1);
     onReady?.();
-
     return () => {
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
@@ -608,7 +610,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       const wireMat = wireOverlayRef.current.material as THREE.ShaderMaterial;
       wireMat.uniforms.u_wireColor.value = parseHslToVec3(activePalette.accent);
     }
-  }, [gradientColorVecs, gradientModeInt, materialTypeInt, patternTypeInt, patternIntensity, chromaShift, rimLightColor, materialParams, activePalette.accent]);
+  }, [sceneVersion, gradientColorVecs, gradientModeInt, materialTypeInt, patternTypeInt, patternIntensity, chromaShift, rimLightColor, materialParams, activePalette.accent]);
 
   // ===== ANIMATION LOOP =====
   useEffect(() => {
