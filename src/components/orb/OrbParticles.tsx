@@ -1,276 +1,219 @@
 /**
- * Particle system for personalized orb
- * Creates floating particles around the orb based on user's streak and traits
+ * Multi-behavior particle system for personalized orb
+ * Supports 5 behaviors: orbit, spiral, halo, burst, drift
+ * Supports multi-color palettes with different modes
  */
 
-import React, { useRef, useMemo } from 'react';
 import * as THREE from 'three';
+import type { ParticleBehavior, ParticleMode } from './types';
 
-interface OrbParticlesProps {
-  count: number;
-  color: string;
-  orbRadius: number;
-  audioLevel?: number;
-  time: number;
-}
-
-/**
- * Parse HSL color string to components - handles multiple formats
- */
-function parseHslColor(hsl: string): { h: number; s: number; l: number } {
-  // Format: hsl(270, 80%, 60%) or hsl(270 80% 60%)
-  const hslFuncMatch = hsl.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/);
-  if (hslFuncMatch) {
-    return {
-      h: parseInt(hslFuncMatch[1]) / 360,
-      s: parseInt(hslFuncMatch[2]) / 100,
-      l: parseInt(hslFuncMatch[3]) / 100,
-    };
+// ===== HSL Parsing =====
+function parseHslToColor(hsl: string): THREE.Color {
+  const m = hsl.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
+  if (m) {
+    const color = new THREE.Color();
+    color.setHSL(parseInt(m[1]) / 360, parseInt(m[2]) / 100, parseInt(m[3]) / 100);
+    return color;
   }
-  
-  // Format: "270 80% 60%" (space-separated without hsl wrapper)
-  const spaceMatch = hsl.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
-  if (spaceMatch) {
-    return {
-      h: parseInt(spaceMatch[1]) / 360,
-      s: parseInt(spaceMatch[2]) / 100,
-      l: parseInt(spaceMatch[3]) / 100,
-    };
-  }
-  
-  return { h: 0.8, s: 0.8, l: 0.6 }; // Default purple-pink
+  return new THREE.Color(0.5, 0.5, 0.7);
 }
 
 /**
- * Generate particle positions - some inside, some outside for energy being effect
- */
-export function generateParticlePositions(
-  count: number,
-  innerRadius: number,
-  outerRadius: number
-): Float32Array {
-  const positions = new Float32Array(count * 3);
-  
-  for (let i = 0; i < count; i++) {
-    // Random point on sphere shell - mix of inner and outer particles
-    const phi = Math.random() * Math.PI * 2;
-    const theta = Math.acos(2 * Math.random() - 1);
-    
-    // Some particles start inside the orb (30%), some outside (70%)
-    const isInner = Math.random() < 0.3;
-    const baseRadius = isInner 
-      ? innerRadius * 0.3 + Math.random() * innerRadius * 0.5
-      : innerRadius + Math.random() * (outerRadius - innerRadius);
-    
-    positions[i * 3] = baseRadius * Math.sin(theta) * Math.cos(phi);
-    positions[i * 3 + 1] = baseRadius * Math.sin(theta) * Math.sin(phi);
-    positions[i * 3 + 2] = baseRadius * Math.cos(theta);
-  }
-  
-  return positions;
-}
-
-/**
- * Update particle positions - DRAMATIC ENERGY BEING pulsating in/out effect
- * Particles actively merge with and eject from the orb
- */
-export function updateParticlePositions(
-  positions: Float32Array,
-  basePositions: Float32Array,
-  time: number,
-  audioLevel: number
-): void {
-  const count = positions.length / 3;
-  
-  for (let i = 0; i < count; i++) {
-    const idx = i * 3;
-    const baseX = basePositions[idx];
-    const baseY = basePositions[idx + 1];
-    const baseZ = basePositions[idx + 2];
-    
-    // Distance from center
-    const baseDist = Math.sqrt(baseX * baseX + baseY * baseY + baseZ * baseZ);
-    const nx = baseX / baseDist;
-    const ny = baseY / baseDist;
-    const nz = baseZ / baseDist;
-    
-    // Each particle has unique timing
-    const particleId = i / count;
-    const particlePhase = i * 0.25 + particleId * Math.PI * 2;
-    
-    // === DRAMATIC PULSATION - Main in/out breathing ===
-    // Fast breathing cycle - particles rush in and out
-    const fastBreath = Math.sin(time * 1.5 + particlePhase) * 0.6;
-    const slowBreath = Math.sin(time * 0.4 + particlePhase * 0.5) * 0.3;
-    
-    // === ENERGY BURSTS - Periodic ejection waves ===
-    const burstPhase = time * 0.8 + particlePhase * 0.3;
-    const burst = Math.pow(Math.max(0, Math.sin(burstPhase)), 2) * 0.8;
-    
-    // === MERGING EFFECT - Particles dive deep into orb ===
-    // Some particles periodically merge completely into the orb
-    const mergeCycle = Math.sin(time * 0.5 + i * 0.4);
-    const mergeDepth = mergeCycle > 0.6 ? (mergeCycle - 0.6) * 2.5 : 0; // Deep dive
-    
-    // === SPIRAL ORBIT around orb ===
-    const spiralSpeed = 0.8 + particleId * 0.4;
-    const spiralAngle = time * spiralSpeed + particlePhase + baseDist * 3;
-    const spiralRadius = 0.15 + Math.sin(time * 0.9 + i) * 0.1;
-    
-    // === WAVE MOTION ===
-    const waveX = Math.sin(time * 1.2 + particlePhase) * 0.12;
-    const waveY = Math.cos(time * 0.8 + particlePhase * 1.3) * 0.15;
-    const waveZ = Math.sin(time * 1.0 + particlePhase * 0.7) * 0.12;
-    
-    // === RANDOM JITTER for organic feel ===
-    const jitterX = Math.sin(time * 3 + i * 7.3) * 0.03;
-    const jitterY = Math.cos(time * 2.7 + i * 5.1) * 0.03;
-    const jitterZ = Math.sin(time * 2.3 + i * 6.7) * 0.03;
-    
-    // === COMBINE ALL EFFECTS ===
-    // Radial movement: breathe + burst - merge
-    const radialOffset = fastBreath + slowBreath + burst - mergeDepth * 0.6;
-    
-    // Audio makes particles expand dramatically
-    const audioExpansion = 1 + audioLevel * 1.2;
-    
-    // Final radial distance - can go inside the orb!
-    const minDist = 0.2; // Allow particles to get very close to center
-    const finalDist = Math.max(minDist, (baseDist * 0.7 + radialOffset * 0.5)) * audioExpansion;
-    
-    // Orbital position
-    const orbitalX = Math.cos(spiralAngle) * spiralRadius;
-    const orbitalY = Math.sin(spiralAngle * 0.7) * spiralRadius * 0.8;
-    const orbitalZ = Math.sin(spiralAngle) * spiralRadius;
-    
-    // Final position
-    positions[idx] = nx * finalDist + orbitalX + waveX + jitterX;
-    positions[idx + 1] = ny * finalDist + orbitalY + waveY + jitterY;
-    positions[idx + 2] = nz * finalDist + orbitalZ + waveZ + jitterZ;
-  }
-}
-
-/**
- * Create particle material - ENERGY BEING glow effect
- */
-export function createParticleMaterial(color: string): THREE.PointsMaterial {
-  const hsl = parseHslColor(color);
-  const threeColor = new THREE.Color();
-  // Bright, saturated colors for energy effect
-  threeColor.setHSL(hsl.h, Math.min(1, hsl.s * 1.3), Math.min(0.9, hsl.l * 1.4));
-  
-  return new THREE.PointsMaterial({
-    color: threeColor,
-    size: 0.08,          // Larger particles
-    transparent: true,
-    opacity: 0.9,
-    sizeAttenuation: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,   // Better blending with orb
-  });
-}
-
-/**
- * Particle system component for Three.js scene
+ * Multi-behavior particle system
  */
 export class ParticleSystem {
   private points: THREE.Points;
-  private basePositions: Float32Array;
   private geometry: THREE.BufferGeometry;
   private material: THREE.PointsMaterial;
   private count: number;
-  
+  private behavior: ParticleBehavior;
+  private paletteColors: THREE.Color[];
+  private particleMode: ParticleMode;
+  private baseAngles: Float32Array;   // per-particle random angle
+  private baseRadii: Float32Array;    // per-particle random radius
+  private baseSpeeds: Float32Array;   // per-particle speed factor
+  private basePhases: Float32Array;   // per-particle phase offset
+
   constructor(
     count: number,
-    color: string,
-    innerRadius: number = 0.5,  // Start closer to orb
-    outerRadius: number = 2.2   // Extend further out
+    palette: string[],
+    behavior: ParticleBehavior = 'orbit',
+    mode: ParticleMode = 'cycle',
+    orbRadius: number = 0.5
   ) {
-    this.count = Math.max(120, count); // Minimum 120 particles for energy effect
+    this.count = Math.max(40, Math.min(120, count));
+    this.behavior = behavior;
+    this.particleMode = mode;
+    this.paletteColors = palette.map(parseHslToColor);
+    if (this.paletteColors.length === 0) this.paletteColors = [new THREE.Color(0.5, 0.5, 0.7)];
+
     this.geometry = new THREE.BufferGeometry();
-    this.material = createParticleMaterial(color);
     
-    // Generate initial positions - mix of inner and outer
-    this.basePositions = generateParticlePositions(this.count, innerRadius, outerRadius);
-    const positions = new Float32Array(this.basePositions);
-    
-    // Add size variation for each particle - creates depth
-    const sizes = new Float32Array(this.count);
+    // Use first palette color for material (will animate via vertex colors)
+    this.material = new THREE.PointsMaterial({
+      size: 0.04,
+      transparent: true,
+      opacity: 0.8,
+      vertexColors: true,
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    // Generate per-particle parameters (deterministic from index)
+    this.baseAngles = new Float32Array(this.count);
+    this.baseRadii = new Float32Array(this.count);
+    this.baseSpeeds = new Float32Array(this.count);
+    this.basePhases = new Float32Array(this.count);
+
+    const positions = new Float32Array(this.count * 3);
+    const colors = new Float32Array(this.count * 3);
+
     for (let i = 0; i < this.count; i++) {
-      sizes[i] = 0.3 + Math.random() * 1.0; // Wide size variation
+      const t = i / this.count;
+      this.baseAngles[i] = t * Math.PI * 2;
+      this.baseRadii[i] = orbRadius * (1.2 + this.pseudoRandom(i, 0) * 1.0);
+      this.baseSpeeds[i] = 0.5 + this.pseudoRandom(i, 1) * 1.0;
+      this.basePhases[i] = this.pseudoRandom(i, 2) * Math.PI * 2;
+
+      // Initial positions
+      positions[i * 3] = 0;
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = 0;
+
+      // Assign colors based on mode
+      const color = this.getParticleColor(i, 0);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
     }
-    
-    this.geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(positions, 3)
-    );
-    this.geometry.setAttribute(
-      'size',
-      new THREE.BufferAttribute(sizes, 1)
-    );
-    
+
+    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     this.points = new THREE.Points(this.geometry, this.material);
   }
-  
-  get mesh(): THREE.Points {
-    return this.points;
+
+  private pseudoRandom(i: number, offset: number): number {
+    const x = Math.sin((i + 1) * 127.1 + offset * 311.7) * 43758.5453;
+    return x - Math.floor(x);
   }
-  
-  update(time: number, audioLevel: number = 0): void {
+
+  private getParticleColor(index: number, time: number): THREE.Color {
+    const p = this.paletteColors;
+    if (p.length === 1) return p[0];
+    
+    switch (this.particleMode) {
+      case 'single': return p[0];
+      case 'cycle': {
+        const t = (time * 0.3 + index * 0.1) % p.length;
+        const idx = Math.floor(t);
+        const frac = t - idx;
+        return p[idx].clone().lerp(p[(idx + 1) % p.length], frac);
+      }
+      case 'random': return p[Math.floor(this.pseudoRandom(index, 3) * p.length) % p.length];
+      case 'byRadius': {
+        const t = (this.baseRadii[index] - 0.5) / 1.2;
+        const idx = Math.min(Math.floor(t * (p.length - 1)), p.length - 2);
+        return p[idx].clone().lerp(p[idx + 1], t * (p.length - 1) - idx);
+      }
+      case 'byVelocity': {
+        const t = (this.baseSpeeds[index] - 0.5) / 1.0;
+        const idx = Math.min(Math.floor(t * (p.length - 1)), p.length - 2);
+        return p[idx].clone().lerp(p[idx + 1], t * (p.length - 1) - idx);
+      }
+      default: return p[0];
+    }
+  }
+
+  get mesh(): THREE.Points { return this.points; }
+
+  update(time: number, audioLevel: number = 0, pulseRate: number = 1): void {
     const positions = this.geometry.attributes.position.array as Float32Array;
-    updateParticlePositions(positions, this.basePositions, time, audioLevel);
+    const colors = this.geometry.attributes.color.array as Float32Array;
+
+    for (let i = 0; i < this.count; i++) {
+      const angle = this.baseAngles[i];
+      const radius = this.baseRadii[i] * (1 + audioLevel * 0.3);
+      const speed = this.baseSpeeds[i];
+      const phase = this.basePhases[i];
+
+      let x = 0, y = 0, z = 0;
+
+      switch (this.behavior) {
+        case 'orbit': {
+          const a = time * speed * 0.5 + angle;
+          const tilt = phase * 0.3;
+          x = Math.cos(a) * radius;
+          y = Math.sin(a + tilt) * radius * 0.3;
+          z = Math.sin(a) * radius;
+          break;
+        }
+        case 'spiral': {
+          const a = time * speed * 0.4 + angle;
+          const heightT = ((time * speed * 0.2 + phase) % 2) - 1; // -1 to 1
+          x = Math.cos(a) * radius * 0.8;
+          y = heightT * radius;
+          z = Math.sin(a) * radius * 0.8;
+          break;
+        }
+        case 'halo': {
+          const a = time * speed * 0.3 + angle;
+          const wobble = Math.sin(time * 1.5 + phase) * 0.05;
+          x = Math.cos(a) * radius;
+          y = wobble * radius;
+          z = Math.sin(a) * radius;
+          break;
+        }
+        case 'burst': {
+          const burstCycle = (time * pulseRate * 0.5 + phase) % (Math.PI * 2);
+          const burstFactor = Math.pow(Math.max(0, Math.sin(burstCycle)), 3);
+          const effectiveRadius = radius * (0.3 + burstFactor * 1.5);
+          const phi = angle;
+          const theta = Math.acos(2 * this.pseudoRandom(i, 4) - 1);
+          x = effectiveRadius * Math.sin(theta) * Math.cos(phi);
+          y = effectiveRadius * Math.sin(theta) * Math.sin(phi);
+          z = effectiveRadius * Math.cos(theta);
+          break;
+        }
+        case 'drift': {
+          const driftX = Math.sin(time * 0.3 * speed + phase) * radius;
+          const driftY = Math.cos(time * 0.2 * speed + phase * 1.3) * radius * 0.5;
+          const driftZ = Math.sin(time * 0.25 * speed + phase * 0.7) * radius;
+          x = driftX;
+          y = driftY;
+          z = driftZ;
+          break;
+        }
+      }
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+
+      // Update colors for cycle mode
+      if (this.particleMode === 'cycle') {
+        const color = this.getParticleColor(i, time);
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+      }
+    }
+
     this.geometry.attributes.position.needsUpdate = true;
-    
-    // Rotate entire particle cloud for added dynamism
-    this.points.rotation.y = time * 0.12;
-    this.points.rotation.x = Math.sin(time * 0.2) * 0.15;
-    this.points.rotation.z = Math.cos(time * 0.15) * 0.08;
-    
-    // Pulsating size for energy effect
-    this.material.size = 0.06 + Math.sin(time * 2) * 0.025;
-    
-    // Pulsating opacity - breathing glow
-    this.material.opacity = 0.75 + Math.sin(time * 1.5) * 0.2;
+    if (this.particleMode === 'cycle') this.geometry.attributes.color.needsUpdate = true;
+
+    // Subtle overall rotation
+    this.points.rotation.y = time * 0.08;
+
+    // Pulsating opacity
+    this.material.opacity = 0.6 + Math.sin(time * 1.5) * 0.2;
   }
-  
-  setColor(color: string): void {
-    const hsl = parseHslColor(color);
-    this.material.color.setHSL(hsl.h, hsl.s, hsl.l);
-  }
-  
-  setCount(newCount: number): void {
-    if (newCount === this.count) return;
-    
-    this.count = newCount;
-    this.basePositions = generateParticlePositions(newCount, 0.9, 1.3);
-    const positions = new Float32Array(this.basePositions);
-    
-    this.geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(positions, 3)
-    );
-  }
-  
+
   dispose(): void {
     this.geometry.dispose();
     this.material.dispose();
   }
 }
 
-/**
- * React component wrapper for particle system
- * Note: This is a utility export, actual particles are managed in WebGLOrb
- */
-export const OrbParticles: React.FC<OrbParticlesProps> = ({
-  count,
-  color,
-  orbRadius,
-  audioLevel = 0,
-  time,
-}) => {
-  // This component is primarily for type exports
-  // Actual rendering is done in WebGLOrb via ParticleSystem class
-  return null;
-};
-
-export default OrbParticles;
+// React component wrapper (rendering done via ParticleSystem class in WebGLOrb)
+export default function OrbParticles() { return null; }

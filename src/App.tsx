@@ -57,6 +57,7 @@ const PersonalHypnosisPending = lazy(() => import("./pages/PersonalHypnosisPendi
 const ConsciousnessLeapLanding = lazy(() => import("./pages/ConsciousnessLeapLanding"));
 const ConsciousnessLeapApply = lazy(() => import("./pages/ConsciousnessLeapApply"));
 const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
+const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Go = lazy(() => import("./pages/Go"));
@@ -747,6 +748,9 @@ const App = () => (
                           <Route path="referrals" element={<MyReferrals />} />
                           <Route path="payouts" element={<MyPayouts />} />
                         </Route>
+
+                        {/* Dev routes */}
+                        <Route path="/dev/orb-gallery" element={<OrbGallery />} />
 
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />

@@ -31,7 +31,7 @@ export function OrbDebugOverlay({ profile, userId, seed, missedFields, diagnosti
 
   return (
     <div 
-      className="absolute top-0 right-0 z-50 max-w-[220px] max-h-[320px] overflow-auto rounded-lg border border-border/50 bg-background/90 backdrop-blur-sm p-2 text-[9px] font-mono leading-tight shadow-lg"
+      className="absolute top-0 right-0 z-50 max-w-[240px] max-h-[420px] overflow-auto rounded-lg border border-border/50 bg-background/90 backdrop-blur-sm p-2 text-[9px] font-mono leading-tight shadow-lg"
       style={{ pointerEvents: 'auto' }}
     >
       <div className="flex items-center justify-between mb-1">
@@ -58,6 +58,49 @@ export function OrbDebugOverlay({ profile, userId, seed, missedFields, diagnosti
       ))}
 
       <div className="border-t border-border/30 my-1" />
+      <div className="font-bold text-foreground/70 mb-0.5">Gradient Stops</div>
+      <div className="flex gap-0.5 flex-wrap mb-1">
+        {(profile.gradientStops || []).map((stop, i) => (
+          <div key={i} className="flex items-center gap-0.5">
+            <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: `hsl(${stop})` }} />
+            <span className="text-foreground/60 text-[8px]">{i}</span>
+          </div>
+        ))}
+      </div>
+      <Row label="mode" value={profile.gradientMode || 'vertical'} />
+
+      <div className="border-t border-border/30 my-1" />
+      <div className="font-bold text-foreground/70 mb-0.5">Material</div>
+      <Row label="type" value={profile.materialType || 'glass'} />
+      <Row label="metalness" value={(profile.materialParams?.metalness ?? 0).toFixed(2)} />
+      <Row label="roughness" value={(profile.materialParams?.roughness ?? 0).toFixed(2)} />
+      <Row label="clearcoat" value={(profile.materialParams?.clearcoat ?? 0).toFixed(2)} />
+      <Row label="transmission" value={(profile.materialParams?.transmission ?? 0).toFixed(2)} />
+      <Row label="emissive" value={(profile.materialParams?.emissiveIntensity ?? 0).toFixed(2)} />
+
+      <div className="border-t border-border/30 my-1" />
+      <div className="font-bold text-foreground/70 mb-0.5">Pattern</div>
+      <Row label="type" value={profile.patternType || 'fractal'} />
+      <Row label="intensity" value={(profile.patternIntensity ?? 0).toFixed(2)} />
+
+      <div className="border-t border-border/30 my-1" />
+      <div className="font-bold text-foreground/70 mb-0.5">Effects</div>
+      <Row label="bloom" value={(profile.bloomStrength ?? 0).toFixed(2)} />
+      <Row label="chromaShift" value={(profile.chromaShift ?? 0).toFixed(2)} />
+      <Row label="dayNight" value={(profile.dayNightBias ?? 0.5).toFixed(2)} />
+      <ColorRow label="rimLight" hsl={profile.rimLightColor || '40 80% 65%'} />
+
+      <div className="border-t border-border/30 my-1" />
+      <div className="font-bold text-foreground/70 mb-0.5">Particles</div>
+      <Row label="behavior" value={profile.particleBehavior || 'orbit'} />
+      <Row label="mode" value={profile.particleMode || 'cycle'} />
+      <div className="flex gap-0.5 flex-wrap mb-1">
+        {(profile.particlePalette || []).map((stop, i) => (
+          <div key={i} className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: `hsl(${stop})` }} />
+        ))}
+      </div>
+
+      <div className="border-t border-border/30 my-1" />
       <div className="font-bold text-foreground/70 mb-0.5">Colors</div>
       <ColorRow label="primary" hsl={profile.primaryColor} />
       <ColorRow label="secondary" hsl={profile.secondaryColors[0]} />
@@ -77,11 +120,6 @@ export function OrbDebugOverlay({ profile, userId, seed, missedFields, diagnosti
       <Row label="pulse" value={(profile.pulseRate ?? 1).toFixed(2)} />
       <Row label="smooth" value={(profile.smoothness ?? 0.6).toFixed(2)} />
 
-      <div className="border-t border-border/30 my-1" />
-      <div className="font-bold text-foreground/70 mb-0.5">Particles</div>
-      <Row label="count" value={String(profile.particleCount)} />
-      <Row label="enabled" value={String(profile.particleEnabled)} />
-
       {missedFields && missedFields.length > 0 && (
         <>
           <div className="border-t border-border/30 my-1" />
@@ -96,7 +134,6 @@ export function OrbDebugOverlay({ profile, userId, seed, missedFields, diagnosti
       <Row label="level" value={String(cf.level)} />
       <Row label="streak" value={String(cf.streak)} />
       <Row label="clarity" value={String(cf.clarityScore)} />
-      <Row label="hobbies" value={(cf.dominantHobbies || []).join(', ') || '-'} />
     </div>
   );
 }
