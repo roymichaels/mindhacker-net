@@ -94,6 +94,7 @@ const AdminJourney = lazy(() => import("./pages/AdminJourney"));
 const ProjectsJourney = lazy(() => import("./pages/ProjectsJourney"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
+const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
@@ -337,14 +338,12 @@ const App = () => (
                         <Route path="/today" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
-                        {/* Projects */}
+                        {/* Projects - sidebar-driven layout */}
                         <Route
                           path="/projects"
                           element={
                             <ProtectedRoute>
-                              <DashboardLayout>
-                                <Projects />
-                              </DashboardLayout>
+                              <ProjectsLayoutWrapper />
                             </ProtectedRoute>
                           }
                         />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectCard } from '@/components/projects/ProjectCard';
@@ -9,11 +9,20 @@ import { Plus, FolderKanban, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserProject } from '@/hooks/useProjects';
 
-const Projects = () => {
+interface ProjectsProps {
+  openWizardTrigger?: number;
+}
+
+const Projects = ({ openWizardTrigger = 0 }: ProjectsProps) => {
   const { language, isRTL } = useTranslation();
   const { projects, isLoading } = useProjects();
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<UserProject | null>(null);
+
+  // Open wizard when triggered from sidebar
+  useEffect(() => {
+    if (openWizardTrigger > 0) setWizardOpen(true);
+  }, [openWizardTrigger]);
 
   const activeProjects = projects.filter(p => p.status === 'active');
   const otherProjects = projects.filter(p => p.status !== 'active');
