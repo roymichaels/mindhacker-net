@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Zap, Lock, Loader2, Crown, Briefcase, Users, X } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { TIER_CONFIGS, TIER_FEATURES, type SubscriptionTier, tierIncludes } from "@/lib/subscriptionTiers";
+import { useAuthModal } from "@/contexts/AuthModalContext";
+import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from "@/lib/guards";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const TIER_ORDER: SubscriptionTier[] = ["free", "pro", "coach", "business"];
@@ -70,31 +71,20 @@ const SubscriptionsModal = () => {
   const { tier: userTier, subscriptionEnd, isLoading } = useSubscriptionGate();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const { openAuthModal } = useAuthModal();
 
   const handleCheckout = async (tier: SubscriptionTier) => {
-    if (!user) {
-      toast({
-        title: isRTL ? "נדרשת התחברות" : "Login required",
-        description: isRTL ? "אנא התחבר כדי להירשם למנוי" : "Please log in to subscribe",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!requireAuthOrOpenModal(user, openAuthModal, {
+      reason: 'subscription_checkout',
+      nextActionName: 'subscriptions_modal_checkout',
+    })) return;
     setLoadingTier(tier);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+      const result = await supabase.functions.invoke("create-checkout-session", {
         body: { tier },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } catch (err: any) {
-      toast({
-        title: isRTL ? "שגיאה" : "Error",
-        description: err.message || "Something went wrong",
-        variant: "destructive",
-      });
+      const url = requireCheckoutUrlOrToast(result, isRTL);
+      if (url) window.location.href = url;
     } finally {
       setLoadingTier(null);
     }
@@ -103,17 +93,9 @@ const SubscriptionsModal = () => {
   const handleManageSubscription = async () => {
     setPortalLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } catch (err: any) {
-      toast({
-        title: isRTL ? "שגיאה" : "Error",
-        description: err.message || "Something went wrong",
-        variant: "destructive",
-      });
+      const result = await supabase.functions.invoke("customer-portal");
+      const url = requireCheckoutUrlOrToast(result, isRTL);
+      if (url) window.location.href = url;
     } finally {
       setPortalLoading(false);
     }

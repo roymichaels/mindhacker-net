@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles, Zap, Crown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { toast } from "@/hooks/use-toast";
+import { requireCheckoutUrlOrToast } from "@/lib/guards";
 
 interface PromoUpgradeModalProps {
   open: boolean;
@@ -20,20 +20,14 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
   const handleClaim = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+      const result = await supabase.functions.invoke("create-checkout-session", {
         body: { tier: "coach" },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
+      const url = requireCheckoutUrlOrToast(result, isHe);
+      if (url) {
         onDismiss();
+        window.location.href = url;
       }
-    } catch (err: any) {
-      toast({
-        title: isHe ? "שגיאה" : "Error",
-        description: err.message || "Something went wrong",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
