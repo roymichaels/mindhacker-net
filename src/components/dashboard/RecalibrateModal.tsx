@@ -62,6 +62,8 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
   const { language } = useTranslation();
   const isHe = language === 'he';
 
+  const CACHE_KEY = `recalibrate_answers_${user?.id}`;
+
   const [answers, setAnswers] = useState<FlowAnswers>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -173,6 +175,17 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
           flat['non_negotiable_constraint'] = commitments.map(c => c.title).join(', ');
         }
 
+        // Merge cached answers on top (user's unsaved clicks take priority)
+        try {
+          const cached = localStorage.getItem(CACHE_KEY);
+          if (cached) {
+            const cachedAnswers = JSON.parse(cached);
+            for (const [k, v] of Object.entries(cachedAnswers)) {
+              if (v !== undefined && v !== null) flat[k] = v as string | string[] | number;
+            }
+          }
+        } catch { /* ignore parse errors */ }
+
         setAnswers(flat);
       } catch (e) {
         console.error('Failed to load answers:', e);
@@ -188,18 +201,33 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
     []
   );
 
+  // Persist answers to localStorage immediately on every change
+  const saveToCache = (updated: FlowAnswers) => {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
+    } catch { /* quota exceeded — silently ignore */ }
+  };
+
   const setAnswer = (key: string, value: string | string[] | number) => {
-    setAnswers(prev => ({ ...prev, [key]: value }));
+    setAnswers(prev => {
+      const next = { ...prev, [key]: value };
+      saveToCache(next);
+      return next;
+    });
   };
 
   const toggleMultiSelect = (key: string, value: string, maxSelected?: number) => {
     setAnswers(prev => {
       const current = (prev[key] as string[]) || [];
+      let next: FlowAnswers;
       if (current.includes(value)) {
-        return { ...prev, [key]: current.filter(v => v !== value) };
+        next = { ...prev, [key]: current.filter(v => v !== value) };
+      } else {
+        if (maxSelected && current.length >= maxSelected) return prev;
+        next = { ...prev, [key]: [...current, value] };
       }
-      if (maxSelected && current.length >= maxSelected) return prev;
-      return { ...prev, [key]: [...current, value] };
+      saveToCache(next);
+      return next;
     });
   };
 
@@ -277,6 +305,9 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
         queryClient.invalidateQueries({ queryKey: ['daily-roadmap'] }),
         queryClient.invalidateQueries({ queryKey: ['action-items'] }),
       ]);
+
+      // Clear cache on success
+      try { localStorage.removeItem(CACHE_KEY); } catch {}
 
       toast.success(isHe ? '✨ התוכנית שלך חושבה מחדש בהצלחה!' : '✨ Your plan has been recalculated!');
       onOpenChange(false);
