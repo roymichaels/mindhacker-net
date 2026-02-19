@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
-import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
+import { useCoachAuth } from '@/contexts/CoachAuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Menu, X, User, LogOut, BookOpen, Calendar, MessageCircle } from 'lucide-react';
 import { useState } from 'react';

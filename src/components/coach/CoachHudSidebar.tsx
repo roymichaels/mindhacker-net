@@ -2,19 +2,18 @@
  * CoachHudSidebar - Left sidebar for coach business stats, quick actions & nav.
  * Now includes Marketing/Settings navigation (moved from main content tabs).
  */
-import { useState, lazy, Suspense } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useMyCoachProfile, useCoach, useCoachReviewStats, useFirstCoachSlug } from '@/domain/coaches';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
-import { usePractitioner } from '@/hooks/usePractitioners';
 
 
 interface CoachHudSidebarProps {
@@ -27,48 +26,22 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
   const [profileOpen, setProfileOpen] = useState(false);
   const { language, isRTL } = useTranslation();
   const { stats } = useCoachClientStats();
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
   const isHe = language === 'he';
 
-  // Fallback: fetch first practitioner slug for admin users
-  const { data: fallbackSlug } = useQuery({
-    queryKey: ['fallback-practitioner-slug'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('practitioners')
-        .select('slug')
-        .limit(1)
-        .single();
-      return data?.slug || null;
-    },
-    enabled: !myProfile?.slug,
-  });
+  // Fallback: fetch first coach slug for admin users
+  const { data: fallbackSlug } = useFirstCoachSlug(!myProfile?.slug);
 
   const storeSlug = myProfile?.slug || fallbackSlug;
 
-  // Fetch average rating
-  const { data: reviewStats } = useQuery({
-    queryKey: ['coach-review-stats', myProfile?.id],
-    queryFn: async () => {
-      if (!myProfile?.id) return { avgRating: 0, pendingCount: 0 };
-      const { data } = await supabase
-        .from('practitioner_reviews')
-        .select('rating')
-        .eq('practitioner_id', myProfile.id);
-      const reviews = data || [];
-      const avg = reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
-      return { avgRating: Math.round(avg * 10) / 10, pendingCount: 0 };
-    },
-    enabled: !!myProfile?.id,
-  });
+  // Fetch average rating via domain hook
+  const { data: reviewStats } = useCoachReviewStats(myProfile?.id);
 
   const statItems = [
     { icon: Users, value: stats.active, label: isHe ? 'פעילים' : 'Active', color: 'text-purple-400' },
-    { icon: Star, value: reviewStats?.avgRating || 0, label: isHe ? 'דירוג' : 'Rating', color: 'text-amber-400' },
+    { icon: Star, value: reviewStats?.avg || 0, label: isHe ? 'דירוג' : 'Rating', color: 'text-amber-400' },
     { icon: DollarSign, value: '—', label: isHe ? 'הכנסות' : 'Revenue', color: 'text-emerald-400' },
-    { icon: MessageSquare, value: reviewStats?.pendingCount || 0, label: isHe ? 'ביקורות' : 'Reviews', color: 'text-indigo-400' },
+    { icon: MessageSquare, value: reviewStats?.count || 0, label: isHe ? 'ביקורות' : 'Reviews', color: 'text-indigo-400' },
   ];
 
   const navItems = [
@@ -85,8 +58,8 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
     }
   };
 
-  // Fetch practitioner data for modal
-  const { data: profilePractitioner } = usePractitioner(profileOpen ? storeSlug : undefined);
+  // Fetch practitioner data for modal via domain hook
+  const { data: profilePractitioner } = useCoach(profileOpen ? storeSlug : undefined);
 
   const { data: profilePostsCount = 0 } = useQuery({
     queryKey: ['practitioner-posts-count', profilePractitioner?.user_id],

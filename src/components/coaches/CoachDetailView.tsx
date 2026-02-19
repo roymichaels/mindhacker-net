@@ -277,5 +277,3 @@ const CoachDetailView = ({ practitioner: basicPractitioner, onBack }: CoachDetai
 };
 
 export default CoachDetailView;
-/** @deprecated Use CoachDetailView */
-export { CoachDetailView as PractitionerDetailView };

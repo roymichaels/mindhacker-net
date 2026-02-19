@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useMyCoachProfile } from '@/domain/coaches';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label';
 import ReactMarkdown from 'react-markdown';
 
 const CoachPlansTab = () => {
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
   const { language } = useTranslation();
   const isHebrew = language === 'he';
   const queryClient = useQueryClient();

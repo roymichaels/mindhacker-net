@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Mail, Phone, Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 

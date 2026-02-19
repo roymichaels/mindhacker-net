@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
-import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
+import { useCoachAuth } from '@/contexts/CoachAuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

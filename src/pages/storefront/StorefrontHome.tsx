@@ -1,10 +1,11 @@
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, Star, Users, CheckCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCoachServices, useCoachReviewsWithProfiles } from '@/domain/coaches';
 
 const StorefrontHome = () => {
   const { practitioner, settings, practitionerSlug } = useCoachStorefront();
@@ -30,38 +31,11 @@ const StorefrontHome = () => {
     enabled: !!practitioner,
   });
   
-  // Fetch practitioner's services
-  const { data: services = [] } = useQuery({
-    queryKey: ['storefront-services', practitioner?.id],
-    queryFn: async () => {
-      if (!practitioner) return [];
-      const { data } = await supabase
-        .from('practitioner_services')
-        .select('*')
-        .eq('practitioner_id', practitioner.id)
-        .eq('is_active', true)
-        .limit(3);
-      return data || [];
-    },
-    enabled: !!practitioner,
-  });
+  // Fetch practitioner's services via domain hook
+  const { data: services = [] } = useCoachServices(practitioner?.id);
   
-  // Fetch reviews
-  const { data: reviews = [] } = useQuery({
-    queryKey: ['storefront-reviews', practitioner?.id],
-    queryFn: async () => {
-      if (!practitioner) return [];
-      const { data } = await supabase
-        .from('practitioner_reviews')
-        .select('*, profiles:user_id(full_name, avatar_url)')
-        .eq('practitioner_id', practitioner.id)
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false })
-        .limit(6);
-      return data || [];
-    },
-    enabled: !!practitioner,
-  });
+  // Fetch reviews via domain hook
+  const { data: reviews = [] } = useCoachReviewsWithProfiles(practitioner?.id);
   
   if (!practitioner) return null;
   

@@ -1,7 +1,7 @@
 import { Sparkles, Rocket, Brain, Users, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useMyCoachProfile } from '@/domain/coaches';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 import { useNavigate } from 'react-router-dom';
@@ -66,7 +66,7 @@ interface CoachesProps {
 
 export default function Marketplace({ selectedClientId, onClearClient, activeTab = 'dashboard' }: CoachesProps) {
   const { t, isRTL, language } = useTranslation();
-  const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
+  const { data: myProfile, isLoading: profileLoading } = useMyCoachProfile();
   const { hasRole, loading: rolesLoading } = useUserRoles();
   const { user } = useAuth();
   const navigate = useNavigate();

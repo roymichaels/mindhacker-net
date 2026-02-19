@@ -293,4 +293,40 @@ export const useCoachOffers = (coachId: string | undefined) => {
   });
 };
 
+/** Fetch first available coach slug (admin fallback) */
+export const useFirstCoachSlug = (enabled: boolean) => {
+  return useQuery({
+    queryKey: ['first-coach-slug'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('practitioners')
+        .select('slug')
+        .limit(1)
+        .single();
+      return data?.slug || null;
+    },
+    enabled,
+  });
+};
+
+/** Coach reviews with profile data (for storefronts) */
+export const useCoachReviewsWithProfiles = (coachId: string | undefined) => {
+  return useQuery({
+    queryKey: ['coach-reviews-profiles', coachId],
+    queryFn: async () => {
+      if (!coachId) return [];
+      const { data, error } = await supabase
+        .from('practitioner_reviews')
+        .select('*, profiles:user_id(full_name, avatar_url)')
+        .eq('practitioner_id', coachId)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!coachId,
+  });
+};
+
 // Domain types are exported from ./types.ts via barrel index

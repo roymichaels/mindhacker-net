@@ -1,4 +1,4 @@
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';

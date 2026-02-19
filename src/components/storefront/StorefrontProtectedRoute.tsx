@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useCoachStorefront } from '@/contexts/PractitionerContext';
-import { useCoachAuth } from '@/contexts/PractitionerAuthContext';
+import { useCoachStorefront } from '@/contexts/CoachStorefrontContext';
+import { useCoachAuth } from '@/contexts/CoachAuthContext';
 import { ReactNode } from 'react';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
