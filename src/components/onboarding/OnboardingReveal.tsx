@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Shield, Activity, Sun, Moon, Dumbbell, BookOpen, Coffee } from 'lucide-react';
 import { FRICTION_PILLAR_MAP, PILLAR_LABELS } from '@/flows/onboardingFlowSpec';
 import type { FlowAnswers } from '@/lib/flow/types';
+import { flowAudit } from '@/lib/flowAudit';
 
 interface OnboardingRevealProps {
   answers: FlowAnswers;
@@ -290,6 +291,7 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
         // Re-trigger after successful auth
         handleEnterSystem();
       });
+      flowAudit.markFlag('authModalOpened', true);
       return;
     }
     setIsLoading(true);
@@ -518,7 +520,10 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
                   body: { tier: 'pro' },
                 });
                 if (error) throw error;
-                if (data?.url) window.location.href = data.url;
+                if (data?.url) {
+                  flowAudit.markFlag('checkoutUrlReceived', true);
+                  window.location.href = data.url;
+                }
               } catch (err) {
                 console.error('Checkout error:', err);
                 toast.error(isHe ? 'שגיאה ביצירת תשלום' : 'Error creating checkout');

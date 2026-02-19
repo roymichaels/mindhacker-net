@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { SubscriptionTier, productIdToTier, tierIncludes } from "@/lib/subscriptionTiers";
 import { flowAudit } from "@/lib/flowAudit";
 
@@ -76,6 +76,24 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   const dismissUpgrade = useCallback(() => {
     setUpgradeFeature(null);
   }, []);
+
+  // Stuck-loading detection for scenario audit (must be before early return)
+  const subStuckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (subLoading) {
+      subStuckTimer.current = setTimeout(() => {
+        flowAudit.recordError('Subscription loading stuck > 10s');
+      }, 10_000);
+    } else {
+      if (subStuckTimer.current) {
+        clearTimeout(subStuckTimer.current);
+        subStuckTimer.current = null;
+      }
+    }
+    return () => {
+      if (subStuckTimer.current) clearTimeout(subStuckTimer.current);
+    };
+  }, [subLoading]);
 
   // Admins bypass all gates (after all hooks)
   if (isAdmin) {
