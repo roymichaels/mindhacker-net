@@ -81,7 +81,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="relative bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden"
+              className="relative bg-background text-foreground overflow-hidden border border-border rounded-3xl"
             >
               {/* Glow effects */}
               <div className="absolute -top-20 -end-20 w-60 h-60 rounded-full bg-primary/30 blur-3xl pointer-events-none" />
@@ -91,7 +91,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
               <motion.div
                 animate={{ y: [0, -8, 0], rotate: [0, 15, 0] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                className="absolute top-6 end-8 text-yellow-400/70"
+                className="absolute top-6 end-8 text-amber-500/70"
               >
                 <Sparkles className="w-5 h-5" />
               </motion.div>
@@ -109,7 +109,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.15 }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-950 font-extrabold text-sm px-5 py-2 rounded-full shadow-lg shadow-yellow-500/30"
+                  className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-background font-extrabold text-sm px-5 py-2 rounded-full shadow-lg shadow-amber-500/30"
                 >
                   <Zap className="w-4 h-4" />
                   {isHe ? "70% הנחה — לזמן מוגבל" : "70% OFF — LIMITED TIME"}
@@ -149,7 +149,7 @@ const PromoUpgradeModal = ({ open, onDismiss }: PromoUpgradeModalProps) => {
                       className="flex items-center gap-2.5 text-sm"
                     >
                       <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-emerald-400" />
+                        <Check className="w-3 h-3 text-emerald-500" />
                       </div>
                       {f}
                     </motion.div>
