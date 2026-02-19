@@ -16,13 +16,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { JourneyResetDialogProps } from './types';
 
-const journeyTypeLabels = {
+const journeyTypeLabels: Record<string, { he: string; en: string }> = {
   launchpad: { he: 'הטרנספורמציה', en: 'transformation' },
   business: { he: 'העסקי', en: 'business' },
   health: { he: 'הבריאות', en: 'health' },
   relationships: { he: 'הקשרים', en: 'relationships' },
   finances: { he: 'הפיננסי', en: 'financial' },
   learning: { he: 'הלמידה', en: 'learning' },
+  admin: { he: 'הניהולי', en: 'admin' },
+  projects: { he: 'הפרויקטים', en: 'projects' },
+  coaching: { he: 'האימון', en: 'coaching' },
 };
 
 export function JourneyResetDialog({
