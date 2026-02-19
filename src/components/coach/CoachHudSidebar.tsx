@@ -11,6 +11,7 @@ import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface CoachHudSidebarProps {
   activeTab?: string;
@@ -23,6 +24,22 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
   const { stats } = useCoachClientStats();
   const { data: myProfile } = useMyPractitionerProfile();
   const isHe = language === 'he';
+
+  // Fallback: fetch first practitioner slug for admin users
+  const { data: fallbackSlug } = useQuery({
+    queryKey: ['fallback-practitioner-slug'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('practitioners')
+        .select('slug')
+        .limit(1)
+        .single();
+      return data?.slug || null;
+    },
+    enabled: !myProfile?.slug,
+  });
+
+  const storeSlug = myProfile?.slug || fallbackSlug;
 
   // Fetch average rating
   const { data: reviewStats } = useQuery({
@@ -56,8 +73,10 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
   ];
 
   const handleStoreClick = () => {
-    if (myProfile?.slug) {
-      window.open(`/p/${myProfile.slug}`, '_blank');
+    if (storeSlug) {
+      window.open(`/p/${storeSlug}`, '_blank');
+    } else {
+      toast.error(isHe ? 'אין חנות זמינה' : 'No storefront available');
     }
   };
 
