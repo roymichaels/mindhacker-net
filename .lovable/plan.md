@@ -1,108 +1,130 @@
 
 
-# Coach-Specific Sidebars for the Coaches Tab
+# Consolidate Coach Hub: Sidebar-First Client Management
 
-## The Idea
+## Current State
+The Coach Hub has 5 tabs: **מתאמנים** (Clients), **תוכניות AI** (Plans), **מוצרים** (Products), **שיווק** (Marketing), **הגדרות** (Settings). Three of these should be absorbed into sidebars or contextual views rather than standalone tabs.
 
-Right now, when you're on the Coaches tab, you still see the personal dashboard sidebars (your Orb/XP on the left, your 90-day roadmap on the right). These are irrelevant when you're managing your coaching business. Instead, the sidebars should swap to show **coaching-specific content** that mirrors the same glassmorphic, collapsible sidebar pattern.
+## New Architecture
 
-## What Goes in Each Sidebar
+### Right Sidebar becomes the Client Manager
+The right sidebar already shows client stats and mini avatars. It will expand to include a **scrollable client list** with clickable rows. Clicking a client opens a **Client Profile Panel** in the main content area, replacing the current tab content temporarily.
 
-### Left Sidebar: "Coach HUD" (Business Pulse)
-Instead of your personal Orb and XP stats, this shows your **business health at a glance**:
+```text
+Right Sidebar (expanded):
++---------------------------+
+| MY CLIENTS         [+ Add]|
+| Total: 12 | Active: 8     |
+|                           |
+| [Search clients...]       |
+|                           |
+| > Yael Cohen    [Active]  |  <-- clickable
+| > Amit Levy     [Active]  |
+| > Dana Raz      [Done]    |
+| > ...                     |
+|                           |
+| --- ACTIVITY FEED ---     |
+| * New client joined       |
+| * Review received         |
+|                           |
+| --- SESSIONS ---          |
+| No sessions scheduled     |
++---------------------------+
+```
 
-- **Coach Avatar/Logo** -- your practitioner profile image or storefront logo (clickable to preview storefront)
-- **Quick Stats** (collapsed = icons + numbers, expanded = labeled cards):
-  - Active Clients count
-  - Average Rating (stars)
-  - Total Revenue / Earnings
-  - Pending Reviews count
-- **Divider**
-- **Quick Actions** (3 buttons in a grid, same style as Identity/Direction/Insights on the dashboard):
-  - "Add Client" (UserPlus icon)
-  - "New Plan" (Brain icon)  
-  - "View Storefront" (ExternalLink icon)
-- **Collapsed mini view**: Just the avatar + stat numbers stacked vertically with icons
+### Client Profile Panel (main content)
+When a client is clicked in the sidebar, the main content area shows their profile with:
+- Client info (name, join date, status)
+- Their **AI Plan** (auto-generated or manually triggered)
+- Session history
+- Notes area
+- "Generate Plan" button if no plan exists yet
 
-### Right Sidebar: "Client Pipeline" (Activity Feed)
-Instead of the 90-day roadmap, this shows your **client activity and pipeline**:
+This eliminates both the Clients tab and the AI Plans tab.
 
-- **Progress circle** at top showing overall client completion rate (same style as roadmap progress %)
-- **Mini Client Timeline** -- vertical list of recent client events:
-  - New client joined
-  - Plan completed
-  - Session scheduled
-  - Review received
-- Each event is a small node on a vertical line (same visual language as the roadmap milestones)
-- **Upcoming Sessions** section at the bottom (next 3 scheduled sessions)
-- **Collapsed mini view**: Progress circle + event count dots
+### AI Plans: Contextual, Not a Tab
+- Plans are tied to individual clients, viewed from their profile panel
+- When a new client joins, the system can prompt the coach to generate a plan
+- The "Generate Plan" dialog (already built in CoachPlansTab) moves into the client profile panel
+- Existing plans are displayed inline with Markdown rendering
 
-## How It Works Technically
+### Products: Moved to Storefront Route
+Products and services are part of the storefront, not the coach management hub. The "חנות" (Store) quick action in the left sidebar already links to `/p/:slug`. Products management will be accessible from the Settings tab under a "Products" sub-section, or directly on the storefront management page.
 
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/components/coach/CoachHudSidebar.tsx` | Left sidebar -- business stats, quick actions, coach avatar |
-| `src/components/coach/CoachActivitySidebar.tsx` | Right sidebar -- client pipeline, activity feed, upcoming sessions |
+### Remaining Tabs
+After consolidation, only **2 tabs** remain in the main content:
+1. **שיווק** (Marketing) -- reviews, testimonials
+2. **הגדרות** (Settings) -- storefront config (with products management added as a sub-tab)
+
+When no client is selected, the main area defaults to Marketing. When a client is clicked in the sidebar, the main area swaps to show their profile.
+
+## Changes
 
 ### Files to Modify
+
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/DashboardLayout.tsx` | Accept optional `leftSidebar` and `rightSidebar` props to swap sidebars. Default to HudSidebar/RoadmapSidebar |
-| `src/App.tsx` | Pass coach sidebars to DashboardLayout when rendering the `/coaches` route |
-| `src/pages/Coaches.tsx` | Export a flag or wrap CoachHub with sidebar context |
+| `src/components/coach/CoachActivitySidebar.tsx` | Add full scrollable client list with search, clickable rows that emit a `selectedClientId` callback, "Add Client" button at top |
+| `src/pages/CoachHub.tsx` | Remove `clients`, `plans`, `products` tabs. Add state for `selectedClientId`. When set, render `ClientProfilePanel` instead of tab content. Default to Marketing tab. |
+| `src/components/coach/CoachSettingsTab.tsx` | Add a "Products & Services" sub-tab incorporating the content from CoachProductsTab |
+| `src/pages/Coaches.tsx` | Pass `selectedClientId` / `setSelectedClientId` through sidebar props |
+| `src/components/coach/CoachesLayoutWrapper.tsx` | Wire the client selection state between sidebar and main content |
 
-### Architecture
+### Files to Create
 
-The `DashboardLayout` gets two new optional props:
+| File | Purpose |
+|------|---------|
+| `src/components/coach/ClientProfilePanel.tsx` | Full client profile view with AI plan display, generate button, session history, notes |
 
-```text
-DashboardLayout
-  props:
-    leftSidebar?:  ReactNode  (defaults to <HudSidebar />)
-    rightSidebar?: ReactNode  (defaults to <RoadmapSidebar />)
-```
+### Files to Remove (code absorbed elsewhere)
 
-In `App.tsx`, the `/coaches` route passes the coach sidebars:
+| File | Absorbed Into |
+|------|--------------|
+| `src/components/coach/CoachClientsTab.tsx` | Right sidebar (client list) + ClientProfilePanel (detail view) |
+| `src/components/coach/CoachPlansTab.tsx` | ClientProfilePanel (AI plan section) |
+| `src/components/coach/CoachProductsTab.tsx` | CoachSettingsTab (new Products sub-tab) |
 
-```text
-<DashboardLayout
-  leftSidebar={isPractitioner ? <CoachHudSidebar /> : undefined}
-  rightSidebar={isPractitioner ? <CoachActivitySidebar /> : undefined}
->
-  <Coaches />
-</DashboardLayout>
-```
-
-Non-practitioners still see the landing page with default sidebars.
-
-### Visual Structure (matches dashboard pattern exactly)
+## State Flow
 
 ```text
-+--[ Coach HUD ]--+-----[ Main Content ]-----+--[ Activity ]--+
-| [Avatar/Logo]   |  HeroBanner              | [Progress %]   |
-| Lv.Pro          |  PillTabNav              | [Event dots]   |
-|                 |                           |                |
-| Active: 12      |  Tab Content              | * New client   |
-| Rating: 4.8     |  (Clients, Plans, etc.)   | * Plan done    |
-| Revenue: $2.4k  |                           | * Review       |
-| Pending: 3      |                           | * Session      |
-|                 |                           |                |
-| [Add] [Plan]    |                           | Next Sessions: |
-| [Storefront]    |                           | - Mon 10am     |
-+-----------------+---------------------------+----------------+
+CoachesLayoutWrapper
+  |-- manages: selectedClientId state
+  |
+  |-- CoachHudSidebar (left) -- unchanged
+  |
+  |-- CoachHub (main content)
+  |     |-- if selectedClientId: <ClientProfilePanel />
+  |     |-- else: PillTabNav [Marketing | Settings]
+  |
+  |-- CoachActivitySidebar (right)
+        |-- Client list (clickable)
+        |-- onSelectClient -> sets selectedClientId
+        |-- Activity feed
+        |-- Sessions
 ```
 
-### Styling
-- Both sidebars use the exact same glassmorphic backdrop-blur styling as HudSidebar/RoadmapSidebar
-- Same collapse/expand behavior (collapsed on screens < 1024px, toggle button in same position)
-- Same width transitions (collapsed: 64px left / 54px right, expanded: 280-300px)
-- Purple/indigo accent colors (matching Coach Hub theme) instead of the default primary color
-- Same mini card styling for collapsed stats
+## Client Profile Panel Layout
 
-### Data Sources
-- Client stats: reuse existing `useCoachClientStats` and `useCoachClients` hooks
-- Reviews/Rating: query `practitioner_reviews` (already done in CoachMarketingTab)
-- Activity feed: query recent entries from `coach_clients` + `practitioner_reviews` ordered by `created_at`
-- Upcoming sessions: placeholder for now (no sessions table yet), show "No sessions scheduled"
+```text
++------------------------------------------------+
+| <- Back to Hub          [Client Name]  [Status] |
+|                                                 |
+| +-- Client Info Card --+  +-- AI Plan --------+ |
+| | Joined: Jan 2025     |  | [Generate Plan]   | |
+| | Status: Active       |  | or                | |
+| | Sessions: 4          |  | Plan content      | |
+| +----------------------+  | (Markdown render) | |
+|                           +-------------------+ |
+| +-- Notes ---------------------------------+    |
+| | Coach notes for this client...           |    |
+| +------------------------------------------+    |
++------------------------------------------------+
+```
+
+## Key Behaviors
+- Clicking a client in the sidebar highlights them and shows their profile in main content
+- Clicking "Back" or deselecting returns to the tab view (Marketing/Settings)
+- "Generate Plan" opens the same dialog from the old CoachPlansTab but pre-fills the client name
+- The collapsed sidebar still shows client avatar dots (existing behavior)
+- Products are accessible via Settings > Products sub-tab or via the storefront link
 
