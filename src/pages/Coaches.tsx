@@ -132,7 +132,7 @@ export default function Marketplace({ selectedClientId, onClearClient, activeTab
         <Button
           onClick={() => {
             if (!user) { navigate('/auth'); return; }
-            navigate('/coaching/journey');
+            setShowPromo(true);
           }}
           variant="outline"
           className="border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
