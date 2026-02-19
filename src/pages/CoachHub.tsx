@@ -1,12 +1,10 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSearchParams } from 'react-router-dom';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
-import { Button } from '@/components/ui/button';
-import { ExternalLink, LayoutDashboard, Users, Brain, ShoppingBag, Megaphone, Settings, Briefcase } from 'lucide-react';
+import { Users, Brain, ShoppingBag, Megaphone, Settings, Briefcase } from 'lucide-react';
 import { HeroBanner } from '@/components/aurora-ui/HeroBanner';
 import { PillTabNav } from '@/components/aurora-ui/PillTabNav';
 import { PageShell } from '@/components/aurora-ui/PageShell';
-import CoachDashboardTab from '@/components/coach/CoachDashboardTab';
 import CoachClientsTab from '@/components/coach/CoachClientsTab';
 import CoachPlansTab from '@/components/coach/CoachPlansTab';
 import CoachProductsTab from '@/components/coach/CoachProductsTab';
@@ -14,7 +12,6 @@ import CoachMarketingTab from '@/components/coach/CoachMarketingTab';
 import CoachSettingsTab from '@/components/coach/CoachSettingsTab';
 
 const TAB_CONFIG = [
-  { value: 'dashboard', icon: LayoutDashboard, labelHe: 'סקירה', labelEn: 'Dashboard' },
   { value: 'clients', icon: Users, labelHe: 'מתאמנים', labelEn: 'Clients' },
   { value: 'plans', icon: Brain, labelHe: 'תוכניות AI', labelEn: 'AI Plans' },
   { value: 'products', icon: ShoppingBag, labelHe: 'מוצרים', labelEn: 'Products' },
@@ -23,7 +20,6 @@ const TAB_CONFIG = [
 ] as const;
 
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
-  dashboard: CoachDashboardTab,
   clients: CoachClientsTab,
   plans: CoachPlansTab,
   products: CoachProductsTab,
@@ -37,10 +33,10 @@ const CoachHub = () => {
   const { data: myProfile } = useMyPractitionerProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const currentTab = searchParams.get('tab') || 'dashboard';
+  const currentTab = searchParams.get('tab') || 'clients';
   
   const handleTabChange = (value: string) => {
-    setSearchParams(value === 'dashboard' ? {} : { tab: value }, { replace: true });
+    setSearchParams(value === 'clients' ? {} : { tab: value }, { replace: true });
   };
 
   const storefrontUrl = myProfile?.slug
@@ -53,7 +49,7 @@ const CoachHub = () => {
     icon: tab.icon,
   }));
 
-  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachDashboardTab;
+  const ActiveComponent = TAB_COMPONENTS[currentTab] || CoachClientsTab;
 
   return (
     <PageShell>
