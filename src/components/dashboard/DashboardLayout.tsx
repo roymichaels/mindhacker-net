@@ -44,13 +44,13 @@ const DashboardLayout = ({ children, leftSidebar, rightSidebar }: DashboardLayou
           )}
 
           <div className="flex-1 min-h-0 flex">
-            {leftSidebar || <HudSidebar />}
+            {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
 
             <main className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-28 md:pb-14 flex flex-col">
               {children}
             </main>
 
-            {rightSidebar || <RoadmapSidebar />}
+            {rightSidebar !== null ? (rightSidebar || <RoadmapSidebar />) : null}
           </div>
 
           <AuroraDock />
