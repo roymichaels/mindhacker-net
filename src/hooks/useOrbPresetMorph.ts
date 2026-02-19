@@ -1,5 +1,6 @@
 /**
  * Cycles through orb presets with smooth morphing via requestAnimationFrame.
+ * Uses smooth HSL color lerping and eased transitions.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { OrbProfile } from '@/components/orb/types';
@@ -9,19 +10,25 @@ import type { OrbPreset } from '@/lib/orbPresets';
 
 interface UseOrbPresetMorphOptions {
   presets?: OrbPreset[];
+  /** Duration of each morph transition in ms */
   durationMs?: number;
+  /** How long to hold a preset before morphing to next */
   holdMs?: number;
+  /** Starting preset index offset (so multiple orbs desync) */
   startIndex?: number;
 }
 
-function smoothstep(t: number): number {
-  return t * t * (3 - 2 * t);
+/** Attempt smoother easing than basic smoothstep */
+function easeInOutCubic(t: number): number {
+  return t < 0.5
+    ? 4 * t * t * t
+    : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
 export function useOrbPresetMorph({
   presets = ORB_PRESETS,
-  durationMs = 2500,
-  holdMs = 600,
+  durationMs = 3500,
+  holdMs = 1200,
   startIndex = 0,
 }: UseOrbPresetMorphOptions = {}): OrbProfile {
   const count = presets.length;
@@ -50,31 +57,27 @@ export function useOrbPresetMorph({
           s.phase = 'morph';
           s.phaseStart = now;
         }
-        // During hold, profile stays as the current preset (already set)
         return;
       }
 
       // Morph phase
       const rawT = Math.min(elapsed / durationMs, 1);
-      const t = smoothstep(rawT);
+      const t = easeInOutCubic(rawT);
 
       const from = presets[s.fromIndex].profile;
       const to = presets[s.toIndex].profile;
       const interpolated = interpolateOrbProfiles(from, to, t);
 
-      // Snap geometry only at t=1
-      if (t < 1) {
-        interpolated.geometryFamily = from.geometryFamily;
-      }
-
       setProfile(interpolated);
 
       if (rawT >= 1) {
-        // Transition complete — advance
+        // Transition complete — advance indices
         s.fromIndex = s.toIndex;
         s.toIndex = (s.toIndex + 1) % count;
         s.phase = 'hold';
         s.phaseStart = now;
+        // Set final profile exactly to avoid drift
+        setProfile({ ...presets[s.fromIndex].profile });
       }
     },
     [presets, count, durationMs, holdMs]

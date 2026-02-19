@@ -247,7 +247,56 @@ export function egoStateToArchetype(egoState: string): ArchetypeId {
 }
 
 /**
- * Interpolate between two orb profiles for smooth transitions
+ * Lerp an HSL string "H S% L%" component-wise
+ */
+function lerpHsl(a: string, b: string, t: number): string {
+  const parseHsl = (s: string) => {
+    const m = s.match(/(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?/);
+    if (!m) return [200, 80, 50];
+    return [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3])];
+  };
+  const [h1, s1, l1] = parseHsl(a);
+  const [h2, s2, l2] = parseHsl(b);
+  // Shortest-path hue interpolation
+  let dh = h2 - h1;
+  if (dh > 180) dh -= 360;
+  if (dh < -180) dh += 360;
+  const h = ((h1 + dh * t) % 360 + 360) % 360;
+  const s = s1 + (s2 - s1) * t;
+  const l = l1 + (l2 - l1) * t;
+  return `${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%`;
+}
+
+function lerpHslArray(a: string[], b: string[], t: number): string[] {
+  const maxLen = Math.max(a.length, b.length);
+  const result: string[] = [];
+  for (let i = 0; i < maxLen; i++) {
+    const ca = a[Math.min(i, a.length - 1)];
+    const cb = b[Math.min(i, b.length - 1)];
+    result.push(lerpHsl(ca, cb, t));
+  }
+  return result;
+}
+
+function lerpMaterialParams(
+  a: OrbProfile['materialParams'],
+  b: OrbProfile['materialParams'],
+  t: number
+): OrbProfile['materialParams'] {
+  const lerp = (x: number, y: number) => x + (y - x) * t;
+  return {
+    metalness: lerp(a.metalness, b.metalness),
+    roughness: lerp(a.roughness, b.roughness),
+    clearcoat: lerp(a.clearcoat, b.clearcoat),
+    transmission: lerp(a.transmission, b.transmission),
+    ior: lerp(a.ior, b.ior),
+    emissiveIntensity: lerp(a.emissiveIntensity, b.emissiveIntensity),
+  };
+}
+
+/**
+ * Interpolate between two orb profiles for smooth transitions.
+ * Colors are lerped in HSL space; enums snap at t=0.5; geometry snaps at t=1.
  */
 export function interpolateOrbProfiles(
   from: OrbProfile,
@@ -270,25 +319,33 @@ export function interpolateOrbProfiles(
     pulseRate: lerp(from.pulseRate ?? 1, to.pulseRate ?? 1),
     smoothness: lerp(from.smoothness ?? 0.6, to.smoothness ?? 0.6),
     textureIntensity: lerp(from.textureIntensity ?? 0.5, to.textureIntensity ?? 0.5),
-    primaryColor: t < 0.5 ? from.primaryColor : to.primaryColor,
-    secondaryColors: t < 0.5 ? from.secondaryColors : to.secondaryColors,
-    accentColor: t < 0.5 ? from.accentColor : to.accentColor,
-    particleColor: t < 0.5 ? from.particleColor : to.particleColor,
-    geometryFamily: t < 0.5 ? from.geometryFamily : to.geometryFamily,
+    // Smooth HSL color lerping
+    primaryColor: lerpHsl(from.primaryColor, to.primaryColor, t),
+    secondaryColors: lerpHslArray(from.secondaryColors, to.secondaryColors, t),
+    accentColor: lerpHsl(from.accentColor, to.accentColor, t),
+    particleColor: lerpHsl(from.particleColor, to.particleColor, t),
+    // Geometry snaps at end of transition (handled by morph hook)
+    geometryFamily: t < 1 ? from.geometryFamily : to.geometryFamily,
     seed: to.seed,
-    // NEW visual fields - lerp numerics, snap enums at t=0.5
+    // Smooth numeric lerp
     bloomStrength: lerp(from.bloomStrength, to.bloomStrength),
     chromaShift: lerp(from.chromaShift, to.chromaShift),
     dayNightBias: lerp(from.dayNightBias, to.dayNightBias),
     patternIntensity: lerp(from.patternIntensity, to.patternIntensity),
-    gradientStops: t < 0.5 ? from.gradientStops : to.gradientStops,
+    // Smooth color lerps
+    gradientStops: lerpHslArray(from.gradientStops, to.gradientStops, t),
+    coreGradient: [
+      lerpHsl(from.coreGradient[0], to.coreGradient[0], t),
+      lerpHsl(from.coreGradient[1], to.coreGradient[1], t),
+    ] as [string, string],
+    rimLightColor: lerpHsl(from.rimLightColor, to.rimLightColor, t),
+    // Smooth material params lerp
+    materialParams: lerpMaterialParams(from.materialParams, to.materialParams, t),
+    // Enums snap at 0.5
     gradientMode: t < 0.5 ? from.gradientMode : to.gradientMode,
-    coreGradient: t < 0.5 ? from.coreGradient : to.coreGradient,
-    rimLightColor: t < 0.5 ? from.rimLightColor : to.rimLightColor,
     materialType: t < 0.5 ? from.materialType : to.materialType,
-    materialParams: t < 0.5 ? from.materialParams : to.materialParams,
     patternType: t < 0.5 ? from.patternType : to.patternType,
-    particlePalette: t < 0.5 ? from.particlePalette : to.particlePalette,
+    particlePalette: lerpHslArray(from.particlePalette, to.particlePalette, t),
     particleMode: t < 0.5 ? from.particleMode : to.particleMode,
     particleBehavior: t < 0.5 ? from.particleBehavior : to.particleBehavior,
   };
