@@ -55,6 +55,13 @@ const getTypeLabel = (type: string) => {
     high_value_purchase: 'רכישה גבוהה',
     payment_failed: 'תשלום נכשל',
     content_uploaded: 'תוכן חדש',
+    onboarding_completed: 'השלמת כיול',
+    new_lead: 'ליד חדש',
+    journey_completion: 'השלמת מסע',
+    user_milestone: 'אבן דרך',
+    new_consciousness_leap_application: 'בקשת קפיצת תודעה',
+    new_personal_hypnosis_order: 'הזמנת היפנוזה',
+    affiliate_referral: 'הפניית שותף',
   };
   return labels[type] || type;
 };
@@ -174,6 +181,8 @@ const NotificationCenter = () => {
             <SelectContent>
               <SelectItem value="all">כל הסוגים</SelectItem>
               <SelectItem value="new_user">משתמש חדש</SelectItem>
+              <SelectItem value="onboarding_completed">השלמת כיול</SelectItem>
+              <SelectItem value="new_lead">ליד חדש</SelectItem>
               <SelectItem value="new_purchase">רכישה</SelectItem>
               <SelectItem value="new_subscription">מנוי חדש</SelectItem>
               <SelectItem value="subscription_cancelled">ביטול מנוי</SelectItem>
