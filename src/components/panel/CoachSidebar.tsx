@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -8,7 +9,10 @@ import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { usePractitioner } from '@/hooks/usePractitioners';
+import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
 import {
   LayoutDashboard,
   Users,
@@ -24,7 +28,7 @@ import {
   Star,
   BarChart3,
   Globe,
-  Store,
+  Eye,
   Video,
   Mic,
   FileText,
@@ -121,9 +125,10 @@ interface CoachSidebarProps {
 }
 
 const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) => {
-  const { language } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
   const { data: myProfile } = useMyPractitionerProfile();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Fallback: fetch first practitioner slug for admin users
   const { data: fallbackSlug } = useQuery({
@@ -140,6 +145,21 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
   });
 
   const storeSlug = myProfile?.slug || fallbackSlug;
+
+  const { data: profilePractitioner } = usePractitioner(profileOpen ? storeSlug : undefined);
+
+  const { data: profilePostsCount = 0 } = useQuery({
+    queryKey: ['practitioner-posts-count-sidebar', profilePractitioner?.user_id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('community_posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', profilePractitioner!.user_id);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!profilePractitioner?.user_id,
+  });
 
   const handleNavClick = () => {
     onNavigate?.();
@@ -160,19 +180,17 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
 
       <RoleSwitcher />
       
-      {/* View My Page Button */}
+      {/* View Profile Button */}
       {storeSlug && (
         <div className="px-4 pt-4 space-y-2">
           <Button
-            asChild
             variant="outline"
             size="sm"
             className="w-full justify-between"
+            onClick={() => setProfileOpen(true)}
           >
-            <Link to={`/p/${storeSlug}`} target="_blank">
-              {isHebrew ? 'הדף שלי' : 'View Storefront'}
-              <ExternalLink className="h-4 w-4" />
-            </Link>
+            {isHebrew ? 'צפה בפרופיל' : 'View Profile'}
+            <Eye className="h-4 w-4" />
           </Button>
         </div>
       )}
@@ -216,6 +234,18 @@ const CoachSidebar = ({ onNavigate, isMobileSheet = false }: CoachSidebarProps) 
       <div className="border-t border-border p-3 mt-auto">
         <AuroraAccountDropdown showBackToAurora />
       </div>
+
+      {/* Profile Preview Modal */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          {profilePractitioner && (
+            <div dir={isRTL ? 'rtl' : 'ltr'}>
+              <PractitionerProfileHeader practitioner={profilePractitioner} postsCount={profilePostsCount} />
+              <PractitionerFeedTabs practitioner={profilePractitioner} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 };

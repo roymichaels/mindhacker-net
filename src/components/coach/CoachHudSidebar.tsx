@@ -2,16 +2,20 @@
  * CoachHudSidebar - Left sidebar for coach business stats, quick actions & nav.
  * Now includes Marketing/Settings navigation (moved from main content tabs).
  */
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, Store } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, User } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import { PractitionerProfileHeader, PractitionerFeedTabs } from '@/components/practitioner-landing';
+import { usePractitioner } from '@/hooks/usePractitioners';
+
 
 interface CoachHudSidebarProps {
   activeTab?: string;
@@ -20,6 +24,7 @@ interface CoachHudSidebarProps {
 
 export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachHudSidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { language, isRTL } = useTranslation();
   const { stats } = useCoachClientStats();
   const { data: myProfile } = useMyPractitionerProfile();
@@ -72,13 +77,29 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
     { id: 'settings', icon: Settings, label: isHe ? 'הגדרות' : 'Settings', color: 'text-indigo-400' },
   ];
 
-  const handleStoreClick = () => {
+  const handleProfileClick = () => {
     if (storeSlug) {
-      window.open(`/p/${storeSlug}`, '_blank');
+      setProfileOpen(true);
     } else {
-      toast.error(isHe ? 'אין חנות זמינה' : 'No storefront available');
+      toast.error(isHe ? 'אין פרופיל זמין' : 'No profile available');
     }
   };
+
+  // Fetch practitioner data for modal
+  const { data: profilePractitioner } = usePractitioner(profileOpen ? storeSlug : undefined);
+
+  const { data: profilePostsCount = 0 } = useQuery({
+    queryKey: ['practitioner-posts-count', profilePractitioner?.user_id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('community_posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', profilePractitioner!.user_id);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!profilePractitioner?.user_id,
+  });
 
   const handleNavClick = (tabId: string) => {
     onTabChange?.(tabId);
@@ -154,13 +175,13 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
             ))}
           </div>
 
-          {/* Store link */}
+          {/* Profile preview */}
           <button
-            onClick={handleStoreClick}
+            onClick={handleProfileClick}
             className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors mt-auto"
-            title={isHe ? 'חנות' : 'Store'}
+            title={isHe ? 'פרופיל' : 'Profile'}
           >
-            <Store className="w-4 h-4 text-violet-400" />
+            <User className="w-4 h-4 text-violet-400" />
           </button>
         </div>
       )}
@@ -242,16 +263,28 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
 
-          {/* View Storefront CTA */}
+          {/* View Profile CTA */}
           <button
-            onClick={handleStoreClick}
+            onClick={handleProfileClick}
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-purple-400 text-sm font-semibold"
           >
-            <Store className="w-4 h-4" />
-            <span>{isHe ? 'צפה בחנות' : 'View Storefront'}</span>
+            <User className="w-4 h-4" />
+            <span>{isHe ? 'צפה בפרופיל' : 'View Profile'}</span>
           </button>
         </div>
       )}
+
+      {/* Profile Preview Modal */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          {profilePractitioner && (
+            <div dir={isRTL ? 'rtl' : 'ltr'}>
+              <PractitionerProfileHeader practitioner={profilePractitioner} postsCount={profilePostsCount} />
+              <PractitionerFeedTabs practitioner={profilePractitioner} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }
