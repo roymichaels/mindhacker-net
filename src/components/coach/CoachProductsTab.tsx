@@ -1,51 +1,19 @@
 import { useTranslation } from '@/hooks/useTranslation';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMyCoachProfile, useCoachServices, useCoachOffers } from '@/domain/coaches';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ShoppingBag, Package, Eye } from 'lucide-react';
+import { ShoppingBag, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getOfferColors } from '@/lib/productColors';
-import { Link } from 'react-router-dom';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 
 const CoachProductsTab = () => {
   const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
-  const { data: practitionerProfile, isLoading: loadingProfile } = useMyPractitionerProfile();
+  const { data: practitionerProfile, isLoading: loadingProfile } = useMyCoachProfile();
 
-  const { data: offers, isLoading: loadingOffers } = useQuery({
-    queryKey: ['my-offers', practitionerProfile?.id],
-    queryFn: async () => {
-      if (!practitionerProfile?.id) return [];
-      const { data, error } = await supabase
-        .from('offers')
-        .select('*')
-        .eq('practitioner_id', practitionerProfile.id)
-        .order('homepage_order', { ascending: true });
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!practitionerProfile?.id,
-  });
-
-  const { data: services, isLoading: loadingServices } = useQuery({
-    queryKey: ['my-services', practitionerProfile?.id],
-    queryFn: async () => {
-      if (!practitionerProfile?.id) return [];
-      const { data, error } = await supabase
-        .from('practitioner_services')
-        .select('*')
-        .eq('practitioner_id', practitionerProfile.id)
-        .order('order_index');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!practitionerProfile?.id,
-  });
+  const { data: offers, isLoading: loadingOffers } = useCoachOffers(practitionerProfile?.id);
+  const { data: services, isLoading: loadingServices } = useCoachServices(practitionerProfile?.id);
 
   const isLoading = loadingProfile || loadingOffers || loadingServices;
 
@@ -94,7 +62,7 @@ const CoachProductsTab = () => {
             {isHebrew ? 'השירותים שלי' : 'My Services'}
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
+            {services.map((service: any) => (
               <Card key={service.id} className="bg-card/80 backdrop-blur-sm rounded-2xl border-border/50 hover:shadow-md transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
@@ -128,7 +96,7 @@ const CoachProductsTab = () => {
             {isHebrew ? 'ההצעות שלי' : 'My Offers'}
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {offers.map((offer) => {
+            {offers.map((offer: any) => {
               const colors = getOfferColors(offer.brand_color);
               const title = isHebrew ? offer.title : (offer.title_en || offer.title);
               return (

@@ -2,14 +2,13 @@
  * @module coach/CoachDashboardOverview
  * @purpose Coach Command Center — default main content for the Coach Hub
  * Shows key stats, next sessions, revenue snapshot, and quick action shortcuts.
+ * All data flows through domain hooks — no direct DB calls.
  */
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
-import { useMyCoachProfile } from '@/domain/coaches';
+import { useMyCoachProfile, useCoachReviewStats, useCoachUpcomingBookings, useCoachPlansCount } from '@/domain/coaches';
 import { Users, Star, Calendar, TrendingUp, Sparkles, DollarSign, FileText } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import AutoPlanEngineModal from './AutoPlanEngineModal';
 
 const CoachDashboardOverview = () => {
@@ -19,54 +18,9 @@ const CoachDashboardOverview = () => {
   const { data: myProfile } = useMyCoachProfile();
   const [showPlanEngine, setShowPlanEngine] = useState(false);
 
-  // Review stats
-  const { data: reviewStats } = useQuery({
-    queryKey: ['coach-overview-reviews', myProfile?.id],
-    queryFn: async () => {
-      if (!myProfile?.id) return { avg: 0, count: 0 };
-      const { data } = await supabase
-        .from('practitioner_reviews')
-        .select('rating')
-        .eq('practitioner_id', myProfile.id);
-      const reviews = data || [];
-      const avg = reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
-      return { avg: Math.round(avg * 10) / 10, count: reviews.length };
-    },
-    enabled: !!myProfile?.id,
-  });
-
-  // Upcoming bookings count
-  const { data: upcomingCount } = useQuery({
-    queryKey: ['coach-upcoming-bookings', myProfile?.id],
-    queryFn: async () => {
-      if (!myProfile?.id) return 0;
-      const { count } = await supabase
-        .from('bookings')
-        .select('id', { count: 'exact', head: true })
-        .eq('practitioner_id', myProfile.id)
-        .gte('booking_date', new Date().toISOString().split('T')[0])
-        .in('status', ['pending', 'confirmed']);
-      return count || 0;
-    },
-    enabled: !!myProfile?.id,
-  });
-
-  // Plans count
-  const { data: plansCount } = useQuery({
-    queryKey: ['coach-plans-count', myProfile?.id],
-    queryFn: async () => {
-      if (!myProfile?.id) return 0;
-      const { count } = await supabase
-        .from('coach_client_plans')
-        .select('id', { count: 'exact', head: true })
-        .eq('coach_id', myProfile.id)
-        .eq('status', 'active');
-      return count || 0;
-    },
-    enabled: !!myProfile?.id,
-  });
+  const { data: reviewStats } = useCoachReviewStats(myProfile?.id);
+  const { data: upcomingCount } = useCoachUpcomingBookings(myProfile?.id);
+  const { data: plansCount } = useCoachPlansCount(myProfile?.id);
 
   const overviewStats = [
     { icon: Users, value: stats.active, label: isHe ? 'מתאמנים פעילים' : 'Active Clients', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
@@ -166,7 +120,6 @@ const CoachDashboardOverview = () => {
         </ul>
       </div>
 
-      {/* Auto Plan Engine Modal */}
       <AutoPlanEngineModal open={showPlanEngine} onOpenChange={setShowPlanEngine} />
     </div>
   );
