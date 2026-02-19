@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -617,6 +618,7 @@ function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSlider
   const isTextarea = mini.inputType === 'textarea';
   const isSlider = mini.inputType === 'slider';
   const isPriorityRank = mini.inputType === 'priority_rank';
+  const isTimePicker = mini.inputType === 'time_picker';
   const hasAnswer = answer !== undefined && answer !== null && answer !== '' && (!Array.isArray(answer) || answer.length > 0);
 
   // Priority rank state
@@ -707,8 +709,52 @@ function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSlider
         </DndContext>
       )}
 
+      {/* Time Picker */}
+      {isTimePicker && (
+        <div className="flex flex-col items-center gap-3">
+          {(!answer || (typeof answer === 'string' && /^\d{2}:\d{2}$/.test(answer))) && (
+            <MobileTimePicker
+              value={typeof answer === 'string' && /^\d{2}:\d{2}$/.test(answer) ? answer : '07:00'}
+              onChange={(time) => onSelect(time)}
+              minHour={mini.minHour}
+              maxHour={mini.maxHour}
+            />
+          )}
+          {/* Fallback options like "Flexible" / "Not working" */}
+          {mini.options && mini.options.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1.5 w-full">
+              {mini.options.map(opt => {
+                const selected = answer === opt.value;
+                const label = isHe ? opt.label_he : opt.label_en;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      if (selected) {
+                        onSelect('07:00');
+                      } else {
+                        onSelect(opt.value);
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all",
+                      selected
+                        ? "bg-primary/10 border-primary/40 text-foreground"
+                        : "bg-background/40 border-border/20 text-muted-foreground hover:border-border/40"
+                    )}
+                  >
+                    {opt.icon && <span className="text-sm">{opt.icon}</span>}
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Select options (single/multi) */}
-      {!isSlider && !isTextarea && !isPriorityRank && (
+      {!isSlider && !isTextarea && !isPriorityRank && !isTimePicker && (
         <div className="grid grid-cols-2 gap-1.5">
           {mini.options?.map(opt => {
             const selected = isMulti
