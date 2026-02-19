@@ -115,7 +115,7 @@ export function HudSidebar() {
             </div>
 
             {/* Bottom: Modal triggers */}
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 -mt-1">
               <button onClick={() => setActiveModal('identity')} className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors">
                 <UserCircle className="w-4 h-4 text-chart-5" />
               </button>
