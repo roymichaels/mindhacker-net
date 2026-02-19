@@ -46,7 +46,7 @@ export function BottomTabBar() {
               <Icon className="h-5 w-5" />
               <span className="text-[10px] font-medium">{language === 'he' ? tab.labelHe : tab.labelEn}</span>
               {isComingSoon && (
-                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[7px] font-bold px-1 py-px rounded-full leading-tight">
+                <span className="absolute -top-1 -right-1 text-[7px] font-bold px-1 py-px rounded-full leading-tight" style={{ backgroundColor: 'hsl(0, 84%, 50%)', color: 'white' }}>
                   Soon
                 </span>
               )}
