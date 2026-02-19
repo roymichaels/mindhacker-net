@@ -7,7 +7,7 @@ const Coaches = lazy(() => import('@/pages/Coaches'));
 
 export default function CoachesLayoutWrapper() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('marketing');
+  const [activeTab, setActiveTab] = useState('dashboard');
   
   const handleTabChange = (tab: string) => {
     setSelectedClientId(null); // clear client selection when switching tabs

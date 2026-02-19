@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Users, Star, DollarSign, MessageSquare, ExternalLink, Briefcase, Megaphone, Settings, LayoutDashboard, Store } from 'lucide-react';
 import { useCoachClientStats } from '@/hooks/useCoachClients';
 import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +17,7 @@ interface CoachHudSidebarProps {
   onTabChange?: (tab: string) => void;
 }
 
-export function CoachHudSidebar({ activeTab = 'marketing', onTabChange }: CoachHudSidebarProps) {
+export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachHudSidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const { stats } = useCoachClientStats();
@@ -50,9 +50,16 @@ export function CoachHudSidebar({ activeTab = 'marketing', onTabChange }: CoachH
   ];
 
   const navItems = [
+    { id: 'dashboard', icon: LayoutDashboard, label: isHe ? 'סקירה' : 'Overview', color: 'text-emerald-400' },
     { id: 'marketing', icon: Megaphone, label: isHe ? 'שיווק' : 'Marketing', color: 'text-purple-400' },
     { id: 'settings', icon: Settings, label: isHe ? 'הגדרות' : 'Settings', color: 'text-indigo-400' },
   ];
+
+  const handleStoreClick = () => {
+    if (myProfile?.slug) {
+      window.open(`/p/${myProfile.slug}`, '_blank');
+    }
+  };
 
   const handleNavClick = (tabId: string) => {
     onTabChange?.(tabId);
@@ -129,17 +136,13 @@ export function CoachHudSidebar({ activeTab = 'marketing', onTabChange }: CoachH
           </div>
 
           {/* Store link */}
-          {myProfile?.slug && (
-            <a
-              href={`/p/${myProfile.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors mt-auto"
-              title={isHe ? 'חנות' : 'Store'}
-            >
-              <ExternalLink className="w-4 h-4 text-violet-400" />
-            </a>
-          )}
+          <button
+            onClick={handleStoreClick}
+            className="p-2 rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10 transition-colors mt-auto"
+            title={isHe ? 'חנות' : 'Store'}
+          >
+            <Store className="w-4 h-4 text-violet-400" />
+          </button>
         </div>
       )}
 
@@ -221,17 +224,13 @@ export function CoachHudSidebar({ activeTab = 'marketing', onTabChange }: CoachH
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
 
           {/* View Storefront CTA */}
-          {myProfile?.slug && (
-            <a
-              href={`/p/${myProfile.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-purple-400 text-sm font-semibold"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>{isHe ? 'צפה בחנות' : 'View Storefront'}</span>
-            </a>
-          )}
+          <button
+            onClick={handleStoreClick}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-purple-400 text-sm font-semibold"
+          >
+            <Store className="w-4 h-4" />
+            <span>{isHe ? 'צפה בחנות' : 'View Storefront'}</span>
+          </button>
         </div>
       )}
     </aside>

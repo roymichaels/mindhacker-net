@@ -349,14 +349,14 @@ export function useOrbProfile() {
     profile.diagnosticState = diagnosticInfo.state;
     profile.missedFields = diagnosticInfo.missedFields;
     
-    // If missing data, apply grayscale + low particles
+    // If missing data, show a basic colorful orb instead of grayscale
     if (diagnosticInfo.state === 'missing_data') {
-      profile.primaryColor = '0 0% 45%';
-      profile.secondaryColors = ['0 0% 55%', '0 0% 35%'];
-      profile.accentColor = '0 0% 60%';
-      profile.particleColor = '0 0% 50%';
-      profile.particleCount = Math.min(5, profile.particleCount);
-      profile.particleEnabled = profile.particleCount > 0;
+      profile.primaryColor = '260 70% 55%';
+      profile.secondaryColors = ['220 60% 50%', '280 65% 45%'];
+      profile.accentColor = '200 80% 60%';
+      profile.particleColor = '260 60% 60%';
+      profile.particleCount = Math.min(8, profile.particleCount);
+      profile.particleEnabled = true;
     }
 
     // Debug logging
