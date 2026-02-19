@@ -62,13 +62,39 @@ export function OrbDNACard() {
   const { profile } = useOrbProfile();
   const { progress } = useLaunchpadProgress();
 
+  // Sanitize all visual DNA values to prevent NaN display
+  const safeNum = (v: unknown, fallback: number) => (typeof v === 'number' && !isNaN(v)) ? v : fallback;
+  const safeStr = (v: unknown, fallback: string) => (typeof v === 'string' && !v.includes('NaN')) ? v : fallback;
+  const safeStops = (arr: string[] | undefined, fallback: string[]) =>
+    (arr && arr.length >= 3) ? arr.map((s, i) => safeStr(s, fallback[i] || '200 80% 50%')) : fallback;
+
+  const bloomStrength = safeNum(profile.bloomStrength, VISUAL_DEFAULTS.bloomStrength);
+  const chromaShift = safeNum(profile.chromaShift, VISUAL_DEFAULTS.chromaShift);
+  const patternIntensity = safeNum(profile.patternIntensity, VISUAL_DEFAULTS.patternIntensity);
+  const morphIntensity = safeNum(profile.morphIntensity, 0.5);
+  const morphSpeed = safeNum(profile.morphSpeed, 0.8);
+  const pulseRate = safeNum(profile.pulseRate, 1.0);
+  const smoothness = safeNum(profile.smoothness, 0.6);
+  const motionSpeed = safeNum(profile.motionSpeed, 1.0);
+  const gradientStops = safeStops(profile.gradientStops, VISUAL_DEFAULTS.gradientStops);
+  const coreGradient = [
+    safeStr(profile.coreGradient?.[0], VISUAL_DEFAULTS.coreGradient[0]),
+    safeStr(profile.coreGradient?.[1], VISUAL_DEFAULTS.coreGradient[1]),
+  ] as [string, string];
+  const rimLightColor = safeStr(profile.rimLightColor, VISUAL_DEFAULTS.rimLightColor);
+  const materialType = profile.materialType || VISUAL_DEFAULTS.materialType;
+  const patternType = profile.patternType || VISUAL_DEFAULTS.patternType;
+  const layerCount = safeNum(profile.layerCount, 2);
+  const geometryDetail = safeNum(profile.geometryDetail, 4);
+  const fractalOctaves = safeNum(profile.fractalOctaves, 3);
+
   const archetypeWeights = profile.computedFrom.archetypeWeights || [];
   const topArchetypes = archetypeWeights.slice(0, 4);
   const maxWeight = topArchetypes[0]?.weight || 1;
   const hasData = topArchetypes.length > 0;
 
   // Check if using defaults
-  const isDefaults = JSON.stringify(profile.gradientStops) === JSON.stringify(VISUAL_DEFAULTS.gradientStops);
+  const isDefaults = JSON.stringify(gradientStops) === JSON.stringify(VISUAL_DEFAULTS.gradientStops);
 
   // Build "why" explanations
   const explanations = useMemo(() => {
@@ -129,7 +155,7 @@ export function OrbDNACard() {
         <div className="mb-3">
           <p className="text-xs text-muted-foreground mb-1.5">{isHe ? 'גרדיאנט' : 'Gradient'}</p>
           <div className="flex items-center gap-1.5 flex-wrap">
-            {profile.gradientStops.map((stop, i) => (
+            {gradientStops.map((stop, i) => (
               <div key={i} className="flex flex-col items-center gap-0.5">
                 <div className="w-8 h-8 rounded-full border border-border shadow-sm" style={{ backgroundColor: `hsl(${stop})` }} />
                 <span className="text-[9px] text-muted-foreground">{i + 1}</span>
@@ -139,26 +165,26 @@ export function OrbDNACard() {
         </div>
         {/* Material + Pattern badges */}
         <div className="flex flex-wrap gap-2 mb-3">
-          <Badge label={isHe ? 'חומר' : 'Material'} value={`${MATERIAL_LABELS[profile.materialType]?.icon || ''} ${isHe ? MATERIAL_LABELS[profile.materialType]?.he : MATERIAL_LABELS[profile.materialType]?.en}`} />
-          <Badge label={isHe ? 'דפוס' : 'Pattern'} value={isHe ? PATTERN_LABELS[profile.patternType]?.he : PATTERN_LABELS[profile.patternType]?.en} />
+          <Badge label={isHe ? 'חומר' : 'Material'} value={`${MATERIAL_LABELS[materialType]?.icon || ''} ${isHe ? MATERIAL_LABELS[materialType]?.he : MATERIAL_LABELS[materialType]?.en}`} />
+          <Badge label={isHe ? 'דפוס' : 'Pattern'} value={isHe ? PATTERN_LABELS[patternType]?.he : PATTERN_LABELS[patternType]?.en} />
         </div>
         {/* Rim Light + Core Gradient */}
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">{isHe ? 'שוליים' : 'Rim'}:</span>
-            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.rimLightColor})` }} />
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${rimLightColor})` }} />
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">{isHe ? 'ליבה' : 'Core'}:</span>
-            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.coreGradient[0]})` }} />
-            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.coreGradient[1]})` }} />
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${coreGradient[0]})` }} />
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${coreGradient[1]})` }} />
           </div>
         </div>
         {/* Meters */}
         <div className="grid grid-cols-2 gap-2">
-          <Meter label={isHe ? 'זוהר' : 'Bloom'} value={profile.bloomStrength} max={1.5} />
-          <Meter label={isHe ? 'הסטת צבע' : 'Chroma'} value={profile.chromaShift} max={0.8} />
-          <Meter label={isHe ? 'עוצמת דפוס' : 'Pattern'} value={profile.patternIntensity} max={1} />
+          <Meter label={isHe ? 'זוהר' : 'Bloom'} value={bloomStrength} max={1.5} />
+          <Meter label={isHe ? 'הסטת צבע' : 'Chroma'} value={chromaShift} max={0.8} />
+          <Meter label={isHe ? 'עוצמת דפוס' : 'Pattern'} value={patternIntensity} max={1} />
         </div>
       </Section>
 
@@ -166,22 +192,22 @@ export function OrbDNACard() {
       <Section title={isHe ? 'חתימת תנועה' : 'Motion Signature'} icon="🌊">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs text-muted-foreground">{isHe ? 'תחושת אנרגיה' : 'Energy feel'}:</span>
-          <span className="text-sm font-semibold text-foreground">{getEnergyFeel(profile, isHe)}</span>
+          <span className="text-sm font-semibold text-foreground">{getEnergyFeel({ morphIntensity, pulseRate, morphSpeed, smoothness }, isHe)}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Meter label={isHe ? 'מורפינג' : 'Morph'} value={profile.morphIntensity} max={1} />
-          <Meter label={isHe ? 'מהירות' : 'Speed'} value={profile.morphSpeed} max={2} />
-          <Meter label={isHe ? 'פעימה' : 'Pulse'} value={profile.pulseRate} max={3} />
-          <Meter label={isHe ? 'חלקות' : 'Smooth'} value={profile.smoothness} max={1} />
+          <Meter label={isHe ? 'מורפינג' : 'Morph'} value={morphIntensity} max={1} />
+          <Meter label={isHe ? 'מהירות' : 'Speed'} value={morphSpeed} max={2} />
+          <Meter label={isHe ? 'פעימה' : 'Pulse'} value={pulseRate} max={3} />
+          <Meter label={isHe ? 'חלקות' : 'Smooth'} value={smoothness} max={1} />
         </div>
       </Section>
 
       {/* 4. Complexity */}
       <Section title={isHe ? 'מורכבות' : 'Complexity'} icon="⚡">
         <div className="grid grid-cols-2 gap-2">
-          <StatChip icon={<Layers className="w-3.5 h-3.5" />} label={isHe ? 'שכבות' : 'Layers'} value={String(profile.layerCount)} />
-          <StatChip icon={<Zap className="w-3.5 h-3.5" />} label={isHe ? 'פירוט' : 'Detail'} value={String(profile.geometryDetail)} />
-          <StatChip icon={<Sparkles className="w-3.5 h-3.5" />} label={isHe ? 'אוקטבות' : 'Octaves'} value={String(profile.fractalOctaves)} />
+          <StatChip icon={<Layers className="w-3.5 h-3.5" />} label={isHe ? 'שכבות' : 'Layers'} value={String(layerCount)} />
+          <StatChip icon={<Zap className="w-3.5 h-3.5" />} label={isHe ? 'פירוט' : 'Detail'} value={String(geometryDetail)} />
+          <StatChip icon={<Sparkles className="w-3.5 h-3.5" />} label={isHe ? 'אוקטבות' : 'Octaves'} value={String(fractalOctaves)} />
           <StatChip icon={<Wind className="w-3.5 h-3.5" />} label={isHe ? 'גיאומטריה' : 'Geometry'} value={
             profile.geometryFamily ? (isHe ? GEOMETRY_LABELS[profile.geometryFamily]?.he : GEOMETRY_LABELS[profile.geometryFamily]?.en) || profile.geometryFamily : '—'
           } />
@@ -211,7 +237,7 @@ export function OrbDNACard() {
       {/* 6. Full Color Palette */}
       <Section title={isHe ? 'פלטת צבעים' : 'Color Palette'} icon="🎨">
         <div className="flex items-center gap-2 flex-wrap">
-          {profile.gradientStops.map((c, i) => (
+          {gradientStops.map((c, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
               <div className="w-10 h-10 rounded-full border-2 border-border shadow-sm" style={{ backgroundColor: `hsl(${c})` }} />
               <span className="text-[9px] text-muted-foreground">{i + 1}</span>
