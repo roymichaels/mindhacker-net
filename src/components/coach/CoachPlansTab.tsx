@@ -162,7 +162,7 @@ const CoachPlansTab = () => {
       ) : plans && plans.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-4">
           {plans.map((plan: any) => (
-            <Card key={plan.id} className="hover:shadow-md transition-shadow">
+            <Card key={plan.id} className="bg-card/80 backdrop-blur-sm rounded-2xl border-border/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{plan.client_name || (isHebrew ? 'לקוח' : 'Client')}</CardTitle>
@@ -189,7 +189,7 @@ const CoachPlansTab = () => {
           ))}
         </div>
       ) : (
-        <Card className="text-center py-12">
+        <Card className="text-center py-12 bg-card/80 backdrop-blur-sm rounded-2xl border-border/50">
           <CardContent>
             <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">

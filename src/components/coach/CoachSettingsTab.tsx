@@ -145,7 +145,7 @@ const CoachSettingsTab = () => {
 
       {/* URL Card */}
       {previewUrl && (
-        <Card>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
           <CardContent className="pt-4">
             <div className="flex items-center gap-3">
               <Globe className="h-6 w-6 text-primary shrink-0" />
@@ -158,7 +158,7 @@ const CoachSettingsTab = () => {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </div>
       )}
 
       <Tabs defaultValue="branding" className="space-y-4">

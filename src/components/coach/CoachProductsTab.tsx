@@ -76,18 +76,14 @@ const CoachProductsTab = () => {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{isHebrew ? 'הצעות' : 'Offers'}</CardDescription>
-            <CardTitle className="text-2xl">{totalOffers}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{isHebrew ? 'שירותים' : 'Services'}</CardDescription>
-            <CardTitle className="text-2xl">{totalServices}</CardTitle>
-          </CardHeader>
-        </Card>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm text-muted-foreground">{isHebrew ? 'הצעות' : 'Offers'}</p>
+          <p className="text-2xl font-bold">{totalOffers}</p>
+        </div>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm text-muted-foreground">{isHebrew ? 'שירותים' : 'Services'}</p>
+          <p className="text-2xl font-bold">{totalServices}</p>
+        </div>
       </div>
 
       {/* Services */}
@@ -99,7 +95,7 @@ const CoachProductsTab = () => {
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
-              <Card key={service.id}>
+              <Card key={service.id} className="bg-card/80 backdrop-blur-sm rounded-2xl border-border/50 hover:shadow-md transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base truncate">

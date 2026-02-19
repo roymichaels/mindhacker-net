@@ -59,51 +59,39 @@ const CoachClientsTab = () => {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
               {t('panel.clientsMgmt.totalClients')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          </p>
+          <div className="text-2xl font-bold">
               {isLoading ? <Skeleton className="h-8 w-12" /> : stats.total}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          </div>
+        </div>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
               {t('panel.clientsMgmt.activeClients')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">
+          </p>
+          <div className="text-2xl font-bold text-green-500">
               {isLoading ? <Skeleton className="h-8 w-12" /> : stats.active}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          </div>
+        </div>
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-4 hover:shadow-md transition-shadow">
+          <p className="text-sm font-medium text-muted-foreground pb-2">
               {t('panel.clientsMgmt.completed')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          </p>
+          <div className="text-2xl font-bold">
               {isLoading ? <Skeleton className="h-8 w-12" /> : stats.completed}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Clients List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('panel.clientsMgmt.clientList')}</CardTitle>
-          <CardDescription>{t('panel.clientsMgmt.allClientsLinked')}</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-5 hover:shadow-md transition-shadow">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold">{t('panel.clientsMgmt.clientList')}</h3>
+          <p className="text-sm text-muted-foreground">{t('panel.clientsMgmt.allClientsLinked')}</p>
+        </div>
+        <div>
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full" />)}
@@ -174,8 +162,8 @@ const CoachClientsTab = () => {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
