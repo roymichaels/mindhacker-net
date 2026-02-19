@@ -15,6 +15,7 @@ import { Loader2, ArrowRight, Zap, Brain, Heart, Clock, Target, Shield, Activity
 import { FRICTION_PILLAR_MAP, PILLAR_LABELS } from '@/flows/onboardingFlowSpec';
 import type { FlowAnswers } from '@/lib/flow/types';
 import { flowAudit } from '@/lib/flowAudit';
+import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from '@/lib/guards';
 
 interface OnboardingRevealProps {
   answers: FlowAnswers;
@@ -286,11 +287,11 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
   const dailyStructure = useMemo(() => getDailyStructure(answers, isHe), [answers, isHe]);
 
   const handleEnterSystem = useCallback(async () => {
-    if (!user?.id) {
-      openAuthModal('signup', () => {
-        // Re-trigger after successful auth
-        handleEnterSystem();
-      });
+    if (!requireAuthOrOpenModal(user, openAuthModal, {
+      reason: 'start_free',
+      nextActionName: 'onboarding_start_free',
+      onSuccess: () => handleEnterSystem(),
+    })) {
       flowAudit.markFlag('authModalOpened', true);
       return;
     }
@@ -511,23 +512,15 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           </div>
           <button
             onClick={async () => {
-              if (!user?.id) {
-                openAuthModal('signup');
-                return;
-              }
-              try {
-                const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-                  body: { tier: 'pro' },
-                });
-                if (error) throw error;
-                if (data?.url) {
-                  flowAudit.markFlag('checkoutUrlReceived', true);
-                  window.location.href = data.url;
-                }
-              } catch (err) {
-                console.error('Checkout error:', err);
-                toast.error(isHe ? 'שגיאה ביצירת תשלום' : 'Error creating checkout');
-              }
+              if (!requireAuthOrOpenModal(user, openAuthModal, {
+                reason: 'upgrade_pro',
+                nextActionName: 'onboarding_upgrade',
+              })) return;
+              const result = await supabase.functions.invoke('create-checkout-session', {
+                body: { tier: 'pro' },
+              });
+              const url = requireCheckoutUrlOrToast(result, isHe);
+              if (url) window.location.href = url;
             }}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
           >

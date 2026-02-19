@@ -11,6 +11,8 @@ import { Slider } from '@/components/ui/slider';
 import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
+import { requireAuthOrOpenModal } from '@/lib/guards';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -75,6 +77,7 @@ const PHASE_GROUPS = [
 
 export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) {
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const { language } = useTranslation();
   const isHe = language === 'he';
@@ -258,7 +261,10 @@ export function RecalibrateModal({ open, onOpenChange }: RecalibrateModalProps) 
   };
 
   const handleSubmit = async () => {
-    if (!user?.id) return;
+    if (!requireAuthOrOpenModal(user, openAuthModal, {
+      reason: 'recalibrate_submit',
+      nextActionName: 'recalibrate_submit',
+    })) return;
     setSubmitting(true);
     setMotivationalIdx(0);
 

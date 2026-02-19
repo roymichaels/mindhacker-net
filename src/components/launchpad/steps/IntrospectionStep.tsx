@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils';
 import { debug } from '@/lib/debug';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthModal } from '@/contexts/AuthModalContext';
+import { requireAuthOrOpenModal } from '@/lib/guards';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Gift, ChevronDown, ChevronUp, Loader2, Brain } from 'lucide-react';
@@ -90,6 +92,7 @@ const INTROSPECTION_FORM_ID = '45dfc6a5-6f98-444b-a3dd-2c0dd1ca3308';
 export function IntrospectionStep({ onComplete, isCompleting, rewards, savedFormSubmissionId }: IntrospectionStepProps) {
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     // Load saved answers from localStorage on mount
     try {
@@ -253,7 +256,10 @@ export function IntrospectionStep({ onComplete, isCompleting, rewards, savedForm
   const isValid = completedCount >= 3;
 
   const handleSubmit = async () => {
-    if (!user?.id) return;
+    if (!requireAuthOrOpenModal(user, openAuthModal, {
+      reason: 'introspection_submit',
+      nextActionName: 'introspection_submit',
+    })) return;
 
     if (!isValid) {
       const missingTitles = QUESTIONS
