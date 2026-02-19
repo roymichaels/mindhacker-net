@@ -7,12 +7,28 @@ const Coaches = lazy(() => import('@/pages/Coaches'));
 
 export default function CoachesLayoutWrapper() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const { leftSidebar, rightSidebar } = useCoachSidebars(selectedClientId, setSelectedClientId);
+  const [activeTab, setActiveTab] = useState('marketing');
+  
+  const handleTabChange = (tab: string) => {
+    setSelectedClientId(null); // clear client selection when switching tabs
+    setActiveTab(tab);
+  };
+
+  const { leftSidebar, rightSidebar } = useCoachSidebars(
+    selectedClientId,
+    setSelectedClientId,
+    activeTab,
+    handleTabChange,
+  );
 
   return (
     <Suspense fallback={<PageSkeleton />}>
       <DashboardLayout leftSidebar={leftSidebar} rightSidebar={rightSidebar}>
-        <Coaches selectedClientId={selectedClientId} onClearClient={() => setSelectedClientId(null)} />
+        <Coaches
+          selectedClientId={selectedClientId}
+          onClearClient={() => setSelectedClientId(null)}
+          activeTab={activeTab}
+        />
       </DashboardLayout>
     </Suspense>
   );

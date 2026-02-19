@@ -38,7 +38,12 @@ const FEATURES = [
 ];
 
 // Hook to provide coach-specific sidebars when user is a practitioner
-export function useCoachSidebars(selectedClientId?: string | null, onSelectClient?: (id: string | null) => void) {
+export function useCoachSidebars(
+  selectedClientId?: string | null,
+  onSelectClient?: (id: string | null) => void,
+  activeTab?: string,
+  onTabChange?: (tab: string) => void,
+) {
   const { hasRole, loading } = useUserRoles();
   const { user } = useAuth();
   const isPractitioner = !loading && user && hasRole('practitioner');
@@ -48,7 +53,7 @@ export function useCoachSidebars(selectedClientId?: string | null, onSelectClien
   }
 
   return {
-    leftSidebar: <CoachHudSidebar onSelectClient={onSelectClient} />,
+    leftSidebar: <CoachHudSidebar activeTab={activeTab} onTabChange={onTabChange} />,
     rightSidebar: <CoachActivitySidebar selectedClientId={selectedClientId} onSelectClient={onSelectClient} />,
   };
 }
@@ -56,9 +61,10 @@ export function useCoachSidebars(selectedClientId?: string | null, onSelectClien
 interface CoachesProps {
   selectedClientId?: string | null;
   onClearClient?: () => void;
+  activeTab?: string;
 }
 
-export default function Marketplace({ selectedClientId, onClearClient }: CoachesProps) {
+export default function Marketplace({ selectedClientId, onClearClient, activeTab = 'marketing' }: CoachesProps) {
   const { t, isRTL, language } = useTranslation();
   const { data: myProfile, isLoading: profileLoading } = useMyPractitionerProfile();
   const { hasRole, loading: rolesLoading } = useUserRoles();
@@ -75,7 +81,7 @@ export default function Marketplace({ selectedClientId, onClearClient }: Coaches
   if (user && isPractitioner) {
     return (
       <Suspense fallback={<PageSkeleton />}>
-        <CoachHub selectedClientId={selectedClientId} onClearClient={onClearClient} />
+        <CoachHub selectedClientId={selectedClientId} onClearClient={onClearClient} activeTab={activeTab} />
       </Suspense>
     );
   }
@@ -83,7 +89,6 @@ export default function Marketplace({ selectedClientId, onClearClient }: Coaches
   // Landing page for non-coaches
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-10" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hero */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-full">
           <Sparkles className="h-4 w-4" />
@@ -99,7 +104,6 @@ export default function Marketplace({ selectedClientId, onClearClient }: Coaches
         </p>
       </div>
 
-      {/* Feature Cards */}
       <div className="grid sm:grid-cols-3 gap-4">
         {FEATURES.map((f) => (
           <div key={f.titleEn} className="rounded-xl border bg-card p-5 space-y-3 text-center">
@@ -114,7 +118,6 @@ export default function Marketplace({ selectedClientId, onClearClient }: Coaches
         ))}
       </div>
 
-      {/* CTA */}
       <div className="text-center">
         <Button
           onClick={() => {
