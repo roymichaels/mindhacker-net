@@ -14,6 +14,7 @@ export default function FlowAuditProvider({ children }: { children: React.ReactN
   // Log mount/unmount
   useEffect(() => {
     flowAudit.context('FlowAuditProvider', 'mount');
+    flowAudit.startScenario();
     return () => flowAudit.context('FlowAuditProvider', 'unmount');
   }, []);
 
