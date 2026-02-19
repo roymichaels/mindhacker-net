@@ -62,7 +62,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                   <Icon className="h-4 w-4" />
                   <span>{language === 'he' ? tab.labelHe : tab.labelEn}</span>
                   {isComingSoon && (
-                    <span className="bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-tight">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-tight" style={{ backgroundColor: 'hsl(0, 84%, 50%)', color: 'white' }}>
                       Soon
                     </span>
                   )}

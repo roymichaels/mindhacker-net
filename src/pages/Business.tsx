@@ -29,45 +29,60 @@ const Business = () => {
   };
 
   return (
-    <PillarHubLayout
-      colors={colors}
-      icon={Briefcase}
-      title={{ he: 'עסקים', en: 'Business' }}
-      description={{ he: t('business.subtitle'), en: t('business.subtitle') }}
-      journeyPath="/business/journey"
-      onJourneyClick={() => true}
-      seoPath="/business"
-      isLoading={isLoading}
-    >
-      {/* Coming Soon Banner */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-        <Card className="bg-muted/50 border-border/50 backdrop-blur-xl">
-          <CardContent className="p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted-foreground/10 mb-4">
-              <Clock className="h-8 w-8 text-muted-foreground/60" />
-            </div>
-            <h3 className="text-xl font-bold text-muted-foreground mb-2">
-              {language === 'he' ? 'בקרוב...' : 'Coming Soon...'}
-            </h3>
-            <p className="text-sm text-muted-foreground/70 max-w-md mx-auto">
-              {language === 'he'
-                ? 'אנחנו עובדים קשה כדי להביא לך את הכלים העסקיים הטובים ביותר. הישארו מעודכנים!'
-                : 'We\'re working hard to bring you the best business tools. Stay tuned!'}
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+    <div className="relative overflow-hidden">
+      {/* Diagonal COMING SOON watermark */}
+      <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center overflow-hidden">
+        <span
+          className="select-none whitespace-nowrap text-[6rem] md:text-[10rem] font-black uppercase tracking-widest opacity-10"
+          style={{
+            color: 'hsl(0, 84%, 50%)',
+            transform: 'rotate(-30deg)',
+          }}
+        >
+          COMING SOON
+        </span>
+      </div>
 
-      {/* Grayed-out Business Tools Grid */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
-          {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
-        </h2>
-        <div className="opacity-40 grayscale pointer-events-none select-none">
-          <BusinessToolsGrid onOpenModal={() => {}} />
-        </div>
-      </motion.div>
-    </PillarHubLayout>
+      <PillarHubLayout
+        colors={colors}
+        icon={Briefcase}
+        title={{ he: 'עסקים', en: 'Business' }}
+        description={{ he: t('business.subtitle'), en: t('business.subtitle') }}
+        journeyPath="/business/journey"
+        onJourneyClick={() => true}
+        seoPath="/business"
+        isLoading={isLoading}
+      >
+        {/* Coming Soon Banner */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <Card className="bg-muted/50 border-border/50 backdrop-blur-xl">
+            <CardContent className="p-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted-foreground/10 mb-4">
+                <Clock className="h-8 w-8 text-muted-foreground/60" />
+              </div>
+              <h3 className="text-xl font-bold text-muted-foreground mb-2">
+                {language === 'he' ? 'בקרוב...' : 'Coming Soon...'}
+              </h3>
+              <p className="text-sm text-muted-foreground/70 max-w-md mx-auto">
+                {language === 'he'
+                  ? 'אנחנו עובדים קשה כדי להביא לך את הכלים העסקיים הטובים ביותר. הישארו מעודכנים!'
+                  : 'We\'re working hard to bring you the best business tools. Stay tuned!'}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Grayed-out Business Tools Grid */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
+            {language === 'he' ? 'כלים עסקיים' : 'Business Tools'}
+          </h2>
+          <div className="opacity-40 grayscale pointer-events-none select-none">
+            <BusinessToolsGrid onOpenModal={() => {}} />
+          </div>
+        </motion.div>
+      </PillarHubLayout>
+    </div>
   );
 };
 
