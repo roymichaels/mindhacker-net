@@ -35,7 +35,6 @@ const getPriorityLabel = (priority: string) => {
 const getNotificationIcon = (type: string) => {
   switch (type) {
     case 'new_user': return UserPlus;
-    case 'new_form_submission': return FileText;
     case 'new_lead': return Megaphone;
     case 'new_consciousness_leap_application': return Brain;
     case 'new_personal_hypnosis_order': return Headphones;
@@ -56,47 +55,44 @@ const getNotificationIcon = (type: string) => {
 };
 
 const resolveNotificationLink = (notification: AdminNotification): string | null => {
+  const link = notification.link;
+
+  // If the stored link already points to /admin-hub, use it directly
+  if (link && link.startsWith('/admin-hub')) {
+    return link;
+  }
+
+  // Fallback mapping for older notifications with /panel/* links
   const meta = notification.metadata || {};
   const userId = meta.user_id as string | undefined;
 
   switch (notification.type) {
     case 'new_user':
-      return userId ? `/panel/users/${userId}` : '/panel/users';
-    case 'new_form_submission':
-      return '/panel/forms';
-    case 'new_lead':
-      return '/panel/leads';
-    case 'new_consciousness_leap_application':
-      return '/panel/consciousness-leap';
-    case 'new_personal_hypnosis_order':
-      return userId ? `/panel/users/${userId}` : '/panel/recordings';
     case 'onboarding_completed':
-      return userId ? `/panel/users/${userId}/dashboard` : '/panel/users';
     case 'journey_completion':
     case 'user_milestone':
-      return userId ? `/panel/users/${userId}/dashboard` : '/panel/users';
+    case 'new_personal_hypnosis_order':
+    case 'new_subscription':
+    case 'subscription_cancelled':
     case 'new_purchase':
     case 'high_value_purchase':
     case 'payment_failed':
-      return userId ? `/panel/users/${userId}` : '/panel/purchases';
+      return '/admin-hub?tab=admin&sub=users';
+    case 'new_lead':
+      return '/admin-hub?tab=admin&sub=leads';
+    case 'new_consciousness_leap_application':
+      return '/admin-hub?tab=campaigns&sub=consciousness-leap';
     case 'new_enrollment':
     case 'course_completed':
-      return userId ? `/panel/users/${userId}` : '/panel/content';
-    case 'new_subscription':
-    case 'subscription_cancelled':
-      return userId ? `/panel/users/${userId}` : '/panel/users';
     case 'content_uploaded':
-      return '/panel/content';
     case 'new_review':
-      return '/panel/content';
-    default: {
-      // Fallback: replace /admin/ with /panel/ in stored link
-      const link = notification.link;
-      if (link && link.startsWith('/admin/')) {
-        return link.replace('/admin/', '/panel/');
+      return '/admin-hub?tab=content&sub=courses';
+    default:
+      // Any remaining /panel/ or /admin/ links -> admin-hub
+      if (link && (link.startsWith('/panel/') || link.startsWith('/admin/'))) {
+        return '/admin-hub';
       }
       return link;
-    }
   }
 };
 
