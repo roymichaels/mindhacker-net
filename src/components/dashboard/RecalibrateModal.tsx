@@ -712,14 +712,12 @@ function QuestionSection({ mini, answer, isHe, onSelect, onToggleMulti, onSlider
       {/* Time Picker */}
       {isTimePicker && (
         <div className="flex flex-col items-center gap-3">
-          {(!answer || (typeof answer === 'string' && /^\d{2}:\d{2}$/.test(answer))) && (
-            <MobileTimePicker
-              value={typeof answer === 'string' && /^\d{2}:\d{2}$/.test(answer) ? answer : '07:00'}
-              onChange={(time) => onSelect(time)}
-              minHour={mini.minHour}
-              maxHour={mini.maxHour}
-            />
-          )}
+          <MobileTimePicker
+            value={typeof answer === 'string' && /^\d{2}:\d{2}$/.test(answer) ? answer : '07:00'}
+            onChange={(time) => onSelect(time)}
+            minHour={mini.minHour}
+            maxHour={mini.maxHour}
+          />
           {/* Fallback options like "Flexible" / "Not working" */}
           {mini.options && mini.options.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1.5 w-full">

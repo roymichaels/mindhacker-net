@@ -278,15 +278,12 @@ export function QuestionCard({
 
       {miniStep.inputType === 'time_picker' && (
         <div className="flex flex-col items-center gap-4">
-          {/* Show time picker only if not selecting a non-time option */}
-          {(!localValue || (typeof localValue === 'string' && /^\d{2}:\d{2}$/.test(localValue))) && (
-            <MobileTimePicker
-              value={typeof localValue === 'string' && /^\d{2}:\d{2}$/.test(localValue) ? localValue : '07:00'}
-              onChange={handleTimeChange}
-              minHour={miniStep.minHour}
-              maxHour={miniStep.maxHour}
-            />
-          )}
+          <MobileTimePicker
+            value={typeof localValue === 'string' && /^\d{2}:\d{2}$/.test(localValue) ? localValue : '07:00'}
+            onChange={handleTimeChange}
+            minHour={miniStep.minHour}
+            maxHour={miniStep.maxHour}
+          />
           {/* Render fallback options (e.g. "Flexible", "Not working") below the picker */}
           {miniStep.options && miniStep.options.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 w-full">
