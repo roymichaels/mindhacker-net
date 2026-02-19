@@ -442,7 +442,22 @@ export function useOrbProfile() {
   }, [user?.id, isLoading, storedProfile, computedProfile, profileData.hobbies, gameState?.level, isLaunchpadComplete, summaryRow]);
 
   const hasPersonalizationSignals = profileData.hobbies.length > 0 || isLaunchpadComplete || !!summaryRow;
-  const profile = hasPersonalizationSignals ? computedProfile : (storedProfile || computedProfile);
+  
+  // Always prefer computedProfile when storedProfile lacks visual DNA
+  const computedHasVisualDNA =
+    (computedProfile.gradientStops?.length ?? 0) >= 3 &&
+    !!computedProfile.materialType;
+  const storedHasVisualDNA =
+    (storedProfile?.gradientStops?.length ?? 0) >= 3 &&
+    !!storedProfile?.materialType &&
+    !!(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })?._rawHasVisualDNA;
+
+  // Use computedProfile if: has personalization signals, OR stored is missing visual DNA
+  const profile = hasPersonalizationSignals
+    ? computedProfile
+    : (computedHasVisualDNA && !storedHasVisualDNA)
+      ? computedProfile
+      : (storedProfile || computedProfile);
 
   return {
     profile,
