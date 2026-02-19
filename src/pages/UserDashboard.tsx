@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Rocket, Sparkles, Target, Brain } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -103,6 +106,64 @@ const UserDashboard = () => {
   const handleOpenChat = () => {
     navigate('/aurora');
   };
+
+  // Gate: un-onboarded users see intro CTA
+  if (!isLaunchpadComplete) {
+    const isHe = language === 'he';
+    const features = [
+      { icon: Target, he: 'תוכנית 90 יום מותאמת אישית', en: 'Personalized 90-day plan' },
+      { icon: Sparkles, he: 'אימון AI יומי עם אורורה', en: 'Daily AI coaching with Aurora' },
+      { icon: Brain, he: 'כלי התבוננות וצמיחה', en: 'Introspection & growth tools' },
+    ];
+    return (
+      <PageShell className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-6 max-w-lg mx-auto"
+        >
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <Rocket className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold">
+            {isHe ? 'המסע שלך מתחיל כאן' : 'Your Journey Starts Here'}
+          </h2>
+          <p className="text-muted-foreground">
+            {isHe
+              ? 'השלם את תהליך הכיול כדי לפתוח את הדאשבורד המלא — תוכנית 90 יום, אימון יומי וכלי צמיחה מותאמים אישית.'
+              : 'Complete the calibration to unlock your full dashboard — a 90-day plan, daily coaching, and personalized growth tools.'}
+          </p>
+
+          <div className="grid gap-3 text-start">
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: isHe ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + i * 0.1 }}
+                className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-3"
+              >
+                <div className="rounded-full bg-primary/10 p-2">
+                  <f.icon className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium">{isHe ? f.he : f.en}</span>
+              </motion.div>
+            ))}
+          </div>
+
+          <Button
+            onClick={() => navigate('/onboarding')}
+            size="lg"
+            className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
+          >
+            <Rocket className="w-5 h-5 me-2" />
+            {isHe ? 'התחל את המסע' : 'Start Your Journey'}
+          </Button>
+        </motion.div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4 !py-0 md:!py-4 overflow-y-auto">
