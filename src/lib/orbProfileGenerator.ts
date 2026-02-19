@@ -332,22 +332,26 @@ export function interpolateOrbProfiles(
   to: OrbProfile,
   t: number
 ): OrbProfile {
-  const lerp = (a: number, b: number) => a + (b - a) * t;
+  const lerp = (a: number | undefined | null, b: number | undefined | null, fallback = 0) => {
+    const sa = typeof a === 'number' && !isNaN(a) ? a : fallback;
+    const sb = typeof b === 'number' && !isNaN(b) ? b : fallback;
+    return sa + (sb - sa) * t;
+  };
   
   return {
     ...to,
     morphIntensity: lerp(from.morphIntensity, to.morphIntensity),
     morphSpeed: lerp(from.morphSpeed, to.morphSpeed),
-    fractalOctaves: Math.round(lerp(from.fractalOctaves, to.fractalOctaves)),
-    coreIntensity: lerp(from.coreIntensity, to.coreIntensity),
-    coreSize: lerp(from.coreSize, to.coreSize),
-    layerCount: Math.round(lerp(from.layerCount, to.layerCount)),
-    geometryDetail: Math.round(lerp(from.geometryDetail, to.geometryDetail)),
-    particleCount: Math.round(lerp(from.particleCount, to.particleCount)),
-    motionSpeed: lerp(from.motionSpeed ?? 1, to.motionSpeed ?? 1),
-    pulseRate: lerp(from.pulseRate ?? 1, to.pulseRate ?? 1),
-    smoothness: lerp(from.smoothness ?? 0.6, to.smoothness ?? 0.6),
-    textureIntensity: lerp(from.textureIntensity ?? 0.5, to.textureIntensity ?? 0.5),
+    fractalOctaves: Math.round(lerp(from.fractalOctaves, to.fractalOctaves, 4)),
+    coreIntensity: lerp(from.coreIntensity, to.coreIntensity, 1),
+    coreSize: lerp(from.coreSize, to.coreSize, 0.3),
+    layerCount: Math.round(lerp(from.layerCount, to.layerCount, 3)),
+    geometryDetail: Math.round(lerp(from.geometryDetail, to.geometryDetail, 4)),
+    particleCount: Math.round(lerp(from.particleCount, to.particleCount, 20)),
+    motionSpeed: lerp(from.motionSpeed, to.motionSpeed, 1),
+    pulseRate: lerp(from.pulseRate, to.pulseRate, 1),
+    smoothness: lerp(from.smoothness, to.smoothness, 0.6),
+    textureIntensity: lerp(from.textureIntensity, to.textureIntensity, 0.5),
     // Smooth HSL color lerping
     primaryColor: lerpHsl(from.primaryColor, to.primaryColor, t),
     secondaryColors: lerpHslArray(from.secondaryColors, to.secondaryColors, t),
@@ -356,11 +360,11 @@ export function interpolateOrbProfiles(
     // Geometry snaps at end of transition (handled by morph hook)
     geometryFamily: t < 1 ? from.geometryFamily : to.geometryFamily,
     seed: to.seed,
-    // Smooth numeric lerp
-    bloomStrength: lerp(from.bloomStrength, to.bloomStrength),
-    chromaShift: lerp(from.chromaShift, to.chromaShift),
-    dayNightBias: lerp(from.dayNightBias, to.dayNightBias),
-    patternIntensity: lerp(from.patternIntensity, to.patternIntensity),
+    // Smooth numeric lerp — NaN-safe with fallbacks
+    bloomStrength: lerp(from.bloomStrength, to.bloomStrength, 0.4),
+    chromaShift: lerp(from.chromaShift, to.chromaShift, 0.1),
+    dayNightBias: lerp(from.dayNightBias, to.dayNightBias, 0.5),
+    patternIntensity: lerp(from.patternIntensity, to.patternIntensity, 0.4),
     // Smooth color lerps
     gradientStops: lerpHslArray(from.gradientStops, to.gradientStops, t),
     coreGradient: [
