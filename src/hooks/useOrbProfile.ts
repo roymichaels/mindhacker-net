@@ -64,15 +64,23 @@ function extractProfileData(profileData: Record<string, unknown> | null) {
 function rowToProfile(row: OrbProfileRow): OrbProfile {
   const cf = row.computed_from as Record<string, unknown>;
   
+  // Validate gradient stops from DB
+  const rawStops = (cf?.gradientStops as string[]);
+  const gradientStops = (rawStops && rawStops.length >= 3) ? rawStops : VISUAL_DEFAULTS.gradientStops;
+  
+  // Validate material params
+  const rawMatParams = (cf?.materialParams as OrbProfile['materialParams']);
+  const materialParams = rawMatParams ? { ...rawMatParams, emissiveIntensity: Math.max(0.05, rawMatParams.emissiveIntensity ?? 0.3) } : VISUAL_DEFAULTS.materialParams;
+  
   return {
     ...VISUAL_DEFAULTS,
     // Read new visual fields from computed_from if stored
-    gradientStops: (cf?.gradientStops as string[]) ?? VISUAL_DEFAULTS.gradientStops,
+    gradientStops,
     gradientMode: (cf?.gradientMode as OrbProfile['gradientMode']) ?? VISUAL_DEFAULTS.gradientMode,
     coreGradient: (cf?.coreGradient as [string, string]) ?? VISUAL_DEFAULTS.coreGradient,
     rimLightColor: (cf?.rimLightColor as string) ?? VISUAL_DEFAULTS.rimLightColor,
     materialType: (cf?.materialType as OrbProfile['materialType']) ?? VISUAL_DEFAULTS.materialType,
-    materialParams: (cf?.materialParams as OrbProfile['materialParams']) ?? VISUAL_DEFAULTS.materialParams,
+    materialParams,
     patternType: (cf?.patternType as OrbProfile['patternType']) ?? VISUAL_DEFAULTS.patternType,
     patternIntensity: (cf?.patternIntensity as number) ?? VISUAL_DEFAULTS.patternIntensity,
     particlePalette: (cf?.particlePalette as string[]) ?? VISUAL_DEFAULTS.particlePalette,

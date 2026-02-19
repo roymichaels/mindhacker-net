@@ -51,26 +51,50 @@ function fbm(x: number, y: number, z: number, octaves: number = 4): number {
   return value;
 }
 
-// ===== HSL PARSING =====
+// ===== HSL PARSING (robust, no lightness crush) =====
+/** Normalize any HSL string format to "H S% L%" */
+function normalizeHsl(input: string): string {
+  // "H S% L%" format
+  const m1 = input.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%?\s+(\d+(?:\.\d+)?)%?$/);
+  if (m1) return `${parseFloat(m1[1])} ${parseFloat(m1[2])}% ${parseFloat(m1[3])}%`;
+  // "hsl(H, S%, L%)" or "hsl(H S% L%)" format
+  const m2 = input.match(/hsl\(?\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)%?[,\s]+(\d+(?:\.\d+)?)%?\s*\)?/i);
+  if (m2) return `${parseFloat(m2[1])} ${parseFloat(m2[2])}% ${parseFloat(m2[3])}%`;
+  return input;
+}
+
+// Known-good fallback blue
+const FALLBACK_COLOR = new THREE.Color().setHSL(200 / 360, 0.8, 0.5);
+
 function parseHslToThreeColor(colorStr: string): THREE.Color {
-  let h = 0, s = 0, l = 0, matched = false;
-  const m1 = colorStr.match(/^(\d+)\s+(\d+)%\s+(\d+)%$/);
-  if (m1) { h = parseInt(m1[1]) / 360; s = parseInt(m1[2]) / 100; l = parseInt(m1[3]) / 100; matched = true; }
-  if (!matched) { const m2 = colorStr.match(/hsl\((\d+),?\s*(\d+)%,?\s*(\d+)%\)/); if (m2) { h = parseInt(m2[1]) / 360; s = parseInt(m2[2]) / 100; l = parseInt(m2[3]) / 100; matched = true; } }
-  if (!matched) { const m3 = colorStr.match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/); if (m3) { h = parseInt(m3[1]) / 360; s = parseInt(m3[2]) / 100; l = parseInt(m3[3]) / 100; matched = true; } }
-  if (matched) {
+  const normalized = normalizeHsl(colorStr);
+  const m = normalized.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
+  if (m) {
+    const h = parseFloat(m[1]) / 360;
+    const s = parseFloat(m[2]) / 100;
+    const l = parseFloat(m[3]) / 100;
     const color = new THREE.Color();
-    let adjustedL = l;
-    if (l >= 0.55) adjustedL = 0.35 + (l - 0.55) * 0.5;
-    else if (l >= 0.4) adjustedL = 0.35 + (l - 0.4) * 0.67;
-    color.setHSL(h, s, adjustedL);
+    color.setHSL(h, s, l); // Faithful conversion, no crushing
     return color;
   }
-  return new THREE.Color(colorStr);
+  // Last resort: try THREE.Color constructor
+  try {
+    const c = new THREE.Color(colorStr);
+    // If near-black, return fallback
+    if (c.r + c.g + c.b < 0.1) return FALLBACK_COLOR.clone();
+    return c;
+  } catch {
+    return FALLBACK_COLOR.clone();
+  }
 }
 
 function parseHslToVec3(colorStr: string): THREE.Vector3 {
   const c = parseHslToThreeColor(colorStr);
+  // Safety: if near-black, substitute fallback
+  if (c.r + c.g + c.b < 0.1) {
+    const fb = FALLBACK_COLOR.clone();
+    return new THREE.Vector3(fb.r, fb.g, fb.b);
+  }
   return new THREE.Vector3(c.r, c.g, c.b);
 }
 
@@ -363,16 +387,19 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const audioLevel = externalAudioLevel ?? internalAudioLevel;
   const isTunnel = tunnelMode ?? internalTunnelMode;
 
-  // Get profile visual params with defaults
-  const gradientStops = profile?.gradientStops ?? ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
+  // Get profile visual params with defaults + validation
+  const _rawStops = profile?.gradientStops ?? ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
+  const gradientStops = _rawStops.length >= 3 ? _rawStops : ['200 80% 50%', '220 70% 55%', '180 75% 60%'];
   const gradientMode = profile?.gradientMode ?? 'vertical';
   const materialType = profile?.materialType ?? 'glass';
-  const materialParams = profile?.materialParams ?? { metalness: 0.1, roughness: 0.4, clearcoat: 0.3, transmission: 0.2, ior: 1.5, emissiveIntensity: 0.3 };
+  const _rawParams = profile?.materialParams ?? { metalness: 0.1, roughness: 0.4, clearcoat: 0.3, transmission: 0.2, ior: 1.5, emissiveIntensity: 0.3 };
+  // Clamp emissiveIntensity so the orb can never go fully dark (except wire)
+  const materialParams = { ..._rawParams, emissiveIntensity: materialType === 'wire' ? _rawParams.emissiveIntensity : Math.max(0.05, _rawParams.emissiveIntensity) };
   const patternType = profile?.patternType ?? 'fractal';
-  const patternIntensity = profile?.patternIntensity ?? 0.4;
-  const chromaShift = profile?.chromaShift ?? 0.1;
-  const rimLightColor = profile?.rimLightColor ?? '40 80% 65%';
-  const bloomStrength = profile?.bloomStrength ?? 0.4;
+  const patternIntensity = Math.max(0, Math.min(1, profile?.patternIntensity ?? 0.4));
+  const chromaShift = Math.max(0, Math.min(0.8, profile?.chromaShift ?? 0.1));
+  const rimLightColor = normalizeHsl(profile?.rimLightColor ?? '40 80% 65%');
+  const bloomStrength = Math.max(0, Math.min(1.5, profile?.bloomStrength ?? 0.4));
 
   const geometryDetail = Math.max(2, Math.min(6, profile?.geometryDetail ?? 4));
   const morphIntensity = Math.max(0.15, Math.min(0.95, (profile?.morphIntensity ?? 0.4) * 1.3));

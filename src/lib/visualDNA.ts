@@ -292,42 +292,46 @@ export function buildVisualDNA(input: VisualDNAInput): Partial<OrbProfile> {
 
 /**
  * Generate "why you got this look" explanatory bullets.
+ * Supports bilingual output (en/he).
  */
-export function getVisualDNAExplanations(input: VisualDNAInput): string[] {
+export function getVisualDNAExplanations(input: VisualDNAInput, lang: 'en' | 'he' = 'en'): string[] {
   const { step1Intention, step2ProfileData } = input;
   const s1 = step1Intention || {};
   const s2 = step2ProfileData || {};
   const explanations: string[] = [];
+  const isHe = lang === 'he';
+
+  const push = (en: string, he: string) => explanations.push(isHe ? he : en);
 
   const motivationDriver = get<string>(s1, 'motivation_driver', '');
-  if (motivationDriver === 'status') explanations.push('Status-driven → metallic, high specular material');
-  else if (motivationDriver === 'freedom') explanations.push('Freedom-driven → flowing plasma material');
-  else if (motivationDriver === 'identity_upgrade') explanations.push('Identity upgrade → iridescent, chromatic shift');
+  if (motivationDriver === 'status') push('Status-driven → metallic, high specular material', 'מוטיבציה מסטטוס → חומר מתכתי, ספקולרי גבוה');
+  else if (motivationDriver === 'freedom') push('Freedom-driven → flowing plasma material', 'מוטיבציה מחופש → חומר פלזמה זורם');
+  else if (motivationDriver === 'identity_upgrade') push('Identity upgrade → iridescent, chromatic shift', 'שדרוג זהות → אירידסנטי, הסטת צבע');
 
   const pressureZone = get<string>(s1, 'pressure_zone', '');
-  if (pressureZone === 'cognitive_overload') explanations.push('Cognitive overload → sharp shard patterns');
-  else if (pressureZone === 'direction_fog' || pressureZone === 'direction_confusion') explanations.push('Direction fog → swirl pattern');
+  if (pressureZone === 'cognitive_overload') push('Cognitive overload → sharp shard patterns', 'עומס קוגניטיבי → דפוסי שברים חדים');
+  else if (pressureZone === 'direction_fog' || pressureZone === 'direction_confusion') push('Direction fog → swirl pattern', 'ערפל כיוון → דפוס מערבולת');
 
   const sleepQuality = get<number>(s2, 'sleep_quality', 3);
-  if (sleepQuality <= 2) explanations.push('Low sleep quality → higher roughness, reduced bloom');
-  else if (sleepQuality >= 4) explanations.push('High sleep quality → smoother, glass-like surface');
+  if (sleepQuality <= 2) push('Low sleep quality → higher roughness, reduced bloom', 'שינה נמוכה → מרקם גס יותר, פחות זוהר');
+  else if (sleepQuality >= 4) push('High sleep quality → smoother, glass-like surface', 'שינה טובה → חלק יותר, משטח זכוכיתי');
 
   const dopamineLoad = clamp((get<number>(s2, 'daily_screen_time', 4) / 10 + 
     (get<string>(s2, 'shorts_reels', '') === 'always' ? 0.9 : 0.3)) / 2, 0, 1);
-  if (dopamineLoad > 0.6) explanations.push('High dopamine load → neon palette, stronger bloom');
+  if (dopamineLoad > 0.6) push('High dopamine load → neon palette, stronger bloom', 'עומס דופמין גבוה → פלטת ניאון, זוהר חזק');
 
   const sunlight = get<string>(s2, 'sunlight_after_waking', 'no');
-  if (sunlight === 'yes') explanations.push('Morning sunlight → warm gold rim light');
-  else explanations.push('No morning sunlight → cool cyan rim light');
+  if (sunlight === 'yes') push('Morning sunlight → warm gold rim light', 'שמש בוקר → אור שוליים זהוב חם');
+  else push('No morning sunlight → cool cyan rim light', 'ללא שמש בוקר → אור שוליים ציאן קר');
 
   const coldExposure = get<string>(s2, 'cold_exposure', 'no');
-  if (coldExposure === 'yes') explanations.push('Cold exposure → crystalline pattern, higher clearcoat');
+  if (coldExposure === 'yes') push('Cold exposure → crystalline pattern, higher clearcoat', 'חשיפה לקור → דפוס קריסטלי, ציפוי שקוף גבוה');
 
   const restructure = get<number>(s1, 'restructure_willingness', 5);
-  if (restructure >= 7) explanations.push('High restructure willingness → more gradient stops, richer material');
+  if (restructure >= 7) push('High restructure willingness → more gradient stops, richer material', 'מוכנות גבוהה לשינוי → יותר עצירות גרדיאנט, חומר עשיר');
   
   const urgency = get<number>(s1, 'urgency_scale', 5);
-  if (urgency >= 7) explanations.push('High urgency → faster pulse, brighter emissive');
+  if (urgency >= 7) push('High urgency → faster pulse, brighter emissive', 'דחיפות גבוהה → פעימה מהירה, זוהר בהיר');
 
   return explanations;
 }
