@@ -378,15 +378,21 @@ export function useOrbProfile() {
     
     if (!hasSignificantData) return;
 
+    // Force re-save if stored profile lacks visual DNA fields (null gradientStops)
+    const storedLacksVisualDNA = storedProfile && (!storedProfile.gradientStops || storedProfile.gradientStops.length < 3 || !storedProfile.materialType || storedProfile.materialType === 'glass' && !storedProfile.gradientStops.some((s: string) => !s.includes('NaN')));
+
     const needsUpdate =
       !storedProfile ||
+      storedLacksVisualDNA ||
       storedProfile.primaryColor !== computedProfile.primaryColor ||
       storedProfile.accentColor !== computedProfile.accentColor ||
       JSON.stringify(storedProfile.secondaryColors) !== JSON.stringify(computedProfile.secondaryColors) ||
       storedProfile.layerCount !== computedProfile.layerCount ||
       storedProfile.geometryDetail !== computedProfile.geometryDetail ||
       storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
-      storedProfile.seed !== computedProfile.seed;
+      storedProfile.seed !== computedProfile.seed ||
+      (storedProfile.gradientStops?.length || 0) !== (computedProfile.gradientStops?.length || 0) ||
+      storedProfile.materialType !== computedProfile.materialType;
 
     if (!needsUpdate) return;
 

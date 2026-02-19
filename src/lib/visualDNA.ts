@@ -55,7 +55,11 @@ function shiftHue(hsl: string, degrees: number): string {
 }
 
 function makeHSL(h: number, s: number, l: number): string {
-  return `${Math.round(h % 360)} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%`;
+  // Guard against NaN from undefined/null arithmetic
+  if (isNaN(h)) h = 200;
+  if (isNaN(s)) s = 70;
+  if (isNaN(l)) l = 50;
+  return `${Math.round(((h % 360) + 360) % 360)} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%`;
 }
 
 /**
