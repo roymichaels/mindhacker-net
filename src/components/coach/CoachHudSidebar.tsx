@@ -117,11 +117,21 @@ export function CoachHudSidebar() {
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col items-center gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+          {/* Hub Title */}
+          <div className="w-full rounded-xl bg-gradient-to-br from-purple-500/15 to-indigo-500/15 border border-purple-500/20 p-3 text-center">
+            <span className="text-sm font-bold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
+              {isHe ? 'מרכז השליטה' : 'Coach Hub'}
+            </span>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {isHe ? 'נהלו את העסק שלכם' : 'Manage your business'}
+            </p>
+          </div>
+
           {/* Coach Avatar & Name */}
-          <Avatar className="w-20 h-20 border-2 border-purple-500/30">
+          <Avatar className="w-16 h-16 border-2 border-purple-500/30">
             <AvatarImage src={myProfile?.avatar_url || ''} />
             <AvatarFallback className="bg-purple-500/20 text-purple-400 text-2xl">
-              <Briefcase className="w-8 h-8" />
+              <Briefcase className="w-7 h-7" />
             </AvatarFallback>
           </Avatar>
 
