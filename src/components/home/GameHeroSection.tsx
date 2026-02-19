@@ -22,9 +22,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { PresetOrb } from '@/components/orb/PresetOrb';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
+
 import { cn } from '@/lib/utils';
 
 // 8 Life Pillars for orbital visualization
@@ -43,18 +43,7 @@ export default function GameHeroSection() {
   const { t, isRTL } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [orbState, setOrbState] = useState<'idle' | 'speaking' | 'thinking'>('idle');
   
-  useEffect(() => {
-    const states: Array<'idle' | 'speaking' | 'thinking'> = ['idle', 'speaking', 'thinking'];
-    let index = 0;
-    const interval = setInterval(() => {
-      index = (index + 1) % states.length;
-      setOrbState(states[index]);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   const scrollToContent = () => {
     window.scrollTo({ top: window.innerHeight - 100, behavior: 'smooth' });
   };
@@ -297,9 +286,9 @@ export default function GameHeroSection() {
                     </motion.div>
                   ))}
                   
-                  <PersonalizedOrb 
-                    size={140}
-                    state={orbState}
+                  <PresetOrb 
+                    startIndex={0}
+                    size={180}
                     className="relative z-10"
                   />
                 </div>
