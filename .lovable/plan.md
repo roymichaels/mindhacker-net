@@ -1,33 +1,88 @@
 
-# Fix "צפה בחנות" (View Storefront) Button
 
-## Problem
-The Store button does nothing when clicked because `handleStoreClick` requires `myProfile?.slug` to exist. If the logged-in user is an **admin** (not a practitioner), `useMyPractitionerProfile` returns `null`, so the button silently fails. Since this app was built for a single coach, admins should still be able to view the storefront.
+# Instagram-Style Coach Profile Page
 
-## Solution
+## Overview
+Redesign the `/practitioner/:slug` profile page to follow Instagram's proven profile layout pattern, replacing the current vertical landing-page style with a compact header + tabbed feed grid.
 
-### File: `src/components/coach/CoachHudSidebar.tsx`
+## Layout Structure
 
-1. **Add a fallback query** to fetch the first practitioner's slug when `myProfile` is null (admin case):
-   - Query `practitioners` table for the first record's slug
-   - Use it as fallback: `const storeSlug = myProfile?.slug || fallbackSlug`
-
-2. **Fix `handleStoreClick`** to use the resolved slug and show a toast if no slug is found at all (edge case)
-
-3. **Remove the silent `if` guard** so the button always attempts to navigate and gives feedback if it can't
-
-### File: `src/components/panel/CoachSidebar.tsx` (legacy panel)
-
-4. Apply the same fallback logic so the "הדף שלי" button in `/panel` also works for admins
+```text
++---------------------------------------+
+|  <- Back                  [Follow/CTA] |
++---------------------------------------+
+|  [Avatar]  |  Posts  Followers  Rating |
+|   Name     |   12      48       4.9   |
+|   Title    |                           |
+|   Bio (2 lines, "...more")            |
+|   [Book] [WhatsApp] [Instagram] [Web] |
++---------------------------------------+
+| [Posts]  [Products]  [Reviews]         |  <-- Tab bar
++---------------------------------------+
+|  Grid / List content based on tab      |
+|  +---------+  +---------+             |
+|  |         |  |         |             |
+|  |  Card   |  |  Card   |             |
+|  |         |  |         |             |
+|  +---------+  +---------+             |
++---------------------------------------+
+```
 
 ## What Changes
 
-| Component | Before | After |
-|-----------|--------|-------|
-| CoachHudSidebar Store btn | Silent no-op for admins | Opens first practitioner's storefront, or shows toast if none exist |
-| CoachSidebar (legacy) | Hidden for admins | Shows with fallback slug |
+### 1. Profile Header (replaces PractitionerHero + PractitionerAbout)
+- **Compact avatar** (80px circle, not the current 200px)
+- **Stats row** next to avatar: posts count, clients/followers count, rating
+- **Name + title + bio** below, truncated with "more" expand
+- **Action buttons row**: Book / WhatsApp / Instagram / Website as icon buttons
+- **Verified badge** inline with name (blue checkmark like IG)
+- Remove the massive gradient hero section
 
-## Technical Detail
-- Add a simple `useQuery` that fetches `practitioners.slug` with `limit 1` as a fallback when `myProfile` is null
-- The resolved slug is used in both collapsed and expanded Store button variants
-- A toast notification is shown if no practitioner exists at all ("No storefront available")
+### 2. Tab Bar (replaces separate full-width sections)
+Three tabs with icons:
+
+| Tab | Icon | Content | Data Source |
+|-----|------|---------|-------------|
+| Posts | Grid | Community posts by this coach | `community_posts` filtered by `user_id` |
+| Products | ShoppingBag | Offers/courses catalog | `offers` filtered by `practitioner_id` |
+| Reviews | Star | Client testimonials | `testimonials` + `practitioner_reviews` |
+
+### 3. Feed Content per Tab
+
+**Posts Tab (default)**
+- 3-column square grid (like IG) showing post thumbnails
+- Posts with `media_urls` show the first image as thumbnail
+- Text-only posts show a styled text preview card
+- Click opens post detail modal
+- *Requires no new DB table* -- uses existing `community_posts`
+
+**Products Tab**
+- 2-column grid of offer cards (reuse existing `OfferCard` component)
+- Uses existing `offers` table with `practitioner_id` filter
+
+**Reviews Tab**
+- List layout with review cards (existing testimonial card style)
+- Uses existing `testimonials` and `practitioner_reviews` data
+
+## Files to Create/Modify
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/practitioner-landing/PractitionerProfileHeader.tsx` | Create | IG-style compact header with stats |
+| `src/components/practitioner-landing/PractitionerFeedTabs.tsx` | Create | Tab bar + content switcher |
+| `src/components/practitioner-landing/PostsGrid.tsx` | Create | 3-column grid of community posts |
+| `src/components/practitioner-landing/PostDetailModal.tsx` | Create | Full post view on click |
+| `src/pages/PractitionerProfile.tsx` | Modify | Replace sections with new header + tabs |
+| `src/hooks/usePractitioners.ts` | Modify | Add posts count to practitioner query |
+
+## Technical Details
+
+- **PractitionerProfileHeader**: Single component combining avatar, stats, bio, and action buttons. Uses `practitioners` table data. Bio truncation with useState toggle.
+- **PractitionerFeedTabs**: Uses Radix Tabs component. Each tab lazy-loads its content.
+- **PostsGrid**: Queries `community_posts` where `user_id = practitioner.user_id`. Renders as aspect-square grid items. Falls back to gradient+text preview for posts without images.
+- **PostDetailModal**: Radix Dialog showing full post with images, text, likes, and comments count.
+- **No DB migration needed** -- all data sources already exist (`community_posts`, `offers`, `testimonials`).
+- Follows the existing React Native aesthetic (rounded-2xl, backdrop-blur, gap-4).
+- Fully RTL-aware using existing `useTranslation` patterns.
+- Mobile-first: header stacks vertically on small screens, grid adapts from 3 to 2 columns.
+
