@@ -1,163 +1,207 @@
 
+# Package & Unify: ONE Integrated OS
 
-# Tab-Specific Setup Journeys: Admin, Coaches & Projects
-
-## Vision
-Each tab (Admin, Coaches, Projects) gets its own guided setup journey — mirroring the proven 8-10 step pattern from the Dashboard's Launchpad and the existing Business/Health/Coaching journeys. These journeys act as "first-time setup wizards" that teach the user how to master each area, collect configuration data, and feed outcomes into the unified 90-day plan.
-
-The key insight from the Dashboard screenshot: **you always know the next step**. Each tab should replicate this — when you land on Coaches for the first time, a journey guides you. Same for Admin and Projects.
+## Overview
+This is a structural tightening pass -- no visual redesign, no DB changes. We unify navigation into a single source of truth, clean up dead code, strengthen the Coach domain adapter, and add the "Auto Plan Engine" modal as the one WOW feature using entirely existing infrastructure.
 
 ---
 
-## Architecture Overview
+## PHASE 1 -- Single Source of Truth: `osNav.ts`
 
-Each journey follows the exact same proven pattern:
-1. A DB table (`admin_journeys`, `projects_journeys`) to persist progress
-2. A progress hook (`useAdminJourneyProgress`, `useProjectsJourneyProgress`)
-3. Step definitions (STEPS + PHASES constants)
-4. A `*JourneyFlow` component using the shared `JourneyHeader`, `JourneyResetDialog`, `JourneyLoadingState`
-5. Individual step components (8 steps each)
-6. A page component at a dedicated route
-7. Integration into the tab's landing page (show journey CTA if not complete)
+### Create `src/navigation/osNav.ts`
+A unified navigation manifest replacing the current split between `navConfig.ts` (top tabs) and `domain/admin/tabConfig.ts` (admin sub-tabs).
 
-The Coaching Journey already exists and just needs to be surfaced more prominently in the Coaches tab.
+```text
+osNav.ts defines:
+- 5 top-level tabs: dashboard, projects, coaches, business, admin
+- Each tab: id, path, icon, labelEn, labelHe, requiredRole?, comingSoon?
+- Sub-routes per tab (for sidebars to consume)
+- Role gating: admin tab requires 'admin', coaches hub requires 'practitioner'
+```
+
+### Consumers updated to import from `osNav.ts`:
+- `TopNavBar.tsx` -- replace `APP_TABS` / `ADMIN_TAB` imports
+- `BottomTabBar.tsx` -- same
+- `navConfig.ts` -- delete (replaced by osNav)
+- Admin/Coach/Projects sidebars can optionally import sub-routes from osNav
+
+### Create `docs/APP_MAP.md`
+Auto-maintained route map grouped by tab with route, component, role gate, and status.
 
 ---
 
-## 1. Admin Journey (8 steps)
+## PHASE 2 -- Domain Naming Unification (Coaches)
 
-### Steps & Phases
+### Expand `src/domain/coaches/`
 
-**Phase 1: Platform Basics (Steps 1-3)**
-1. Platform Vision -- What is the platform's purpose and audience?
-2. Team & Roles -- Set up admin roles and permissions
-3. Branding & Theme -- Configure colors, logo, site identity
+**`types.ts`** -- already done (Coach = Practitioner aliases). No change needed.
 
-**Phase 2: Content & Products (Steps 4-6)**
-4. Product Catalog -- Set up initial products/services
-5. Content Strategy -- Plan content types (videos, articles, courses)
-6. Landing Pages -- Configure key landing pages and homepage
+**`hooks.ts`** -- already exports useCoaches/useCoach/useMyCoachProfile. Add:
+- `useCoachBySlug(slug)` -- wrapper around `usePractitioner(slug)`
+- `useCoachServices(coachId)` -- wrapper if not already exposed
+- `useCoachReviews(coachId)` -- wrapper
 
-**Phase 3: Growth & Operations (Steps 7-8)**
-7. Marketing Setup -- Campaigns, newsletter, affiliates
-8. Operations Checklist -- Notifications, analytics, system settings
+**`mappers.ts`** (new) -- thin identity mappers for future extensibility:
+- `toCoach(practitioner)` / `toCoachService(practitionerService)` etc.
+- Currently just pass-through, but provides the seam for future domain divergence.
 
-### Database
-- New table: `admin_journeys` (same structure as `coaching_journeys`)
-- 8 step_data columns + current_step + journey_complete
-- RLS: user_id = auth.uid()
+### UI Label Updates
+- All user-facing strings: "Practitioner" -> "Coach", "מתקשר" -> "מאמן"
+- File `PractitionerProfile.tsx` keeps its filename but the exported page component renders with "Coach" labels
+- Translation keys updated in `he.ts` and `en.ts`
 
-### Files to Create
+### `/coach/:slug` alias route
+Add in `App.tsx`:
+```
+<Route path="/coach/:slug" element={<Navigate to={`/p/${slug}`} replace />} />
+```
+Uses a tiny wrapper component that reads `useParams().slug` and redirects.
+
+---
+
+## PHASE 3 -- Dead Code Cleanup
+
+### Files to DELETE (no imports found anywhere):
+| File | Reason |
+|------|--------|
+| `src/pages/panel/CoachDashboard.tsx` | Legacy -- replaced by CoachHub |
+| `src/pages/panel/CoachAnalytics.tsx` | Legacy -- no route, no import |
+| `src/pages/panel/CoachContent.tsx` | Legacy -- no route, no import |
+| `src/pages/panel/CoachReviews.tsx` | Legacy -- no route, no import |
+| `src/pages/panel/CoachTheme.tsx` | Legacy -- no route, no import |
+| `src/pages/panel/MyClients.tsx` | Legacy -- replaced by CoachActivitySidebar |
+| `src/pages/panel/ClientProfile.tsx` | Legacy -- replaced by ClientProfilePanel |
+| `src/pages/panel/CoachClientPlans.tsx` | Legacy -- replaced by CoachPlansTab |
+| `src/pages/panel/MyCalendar.tsx` | Legacy -- no route |
+| `src/pages/panel/MyEarnings.tsx` | Legacy -- no route |
+| `src/pages/panel/MyProducts.tsx` | Legacy -- no route |
+| `src/pages/panel/MyServices.tsx` | Legacy -- no route |
+| `src/pages/panel/StorefrontSettings.tsx` | Legacy -- no route |
+| `src/pages/panel/UserProfile.tsx` | Legacy -- no route |
+| `src/pages/panel/UserDashboardView.tsx` | Legacy -- no route |
+| `src/components/panel/CoachPanel.tsx` | Legacy layout shell -- /coach/* redirects to /coaches |
+| `src/components/panel/CoachSidebar.tsx` | Legacy nav -- replaced by CoachHudSidebar |
+| `src/components/panel/AdminSidebar.tsx` | Partially used in Header mobile menu -- needs replacement |
+| `src/components/panel/RoleSwitcher.tsx` | Check if imported -- if not, delete |
+
+### Files to MOVE to `src/legacy/`:
+- `src/components/panel/AdminSidebar.tsx` -- still imported by Header.tsx for mobile admin nav. Replace with AdminHudSidebar usage first, then move.
+
+### Community routes
+Community pages (`/community/*`) ARE routed in App.tsx and reachable. Keep them. They are a valid feature even if not in the main 5 tabs.
+
+### `src/components/panel/index.ts`
+Update to only export what's still used (AffiliatePanel, AffiliateSidebar).
+
+### Output: `docs/CLEANUP_REPORT.md`
+Lists every deleted/moved file with rationale.
+
+---
+
+## PHASE 4 -- Coaches Tab "WOW Packaging"
+
+### A) Coach Command Center (CoachDashboardOverview upgrade)
+
+Enhance the existing `CoachDashboardOverview.tsx` (center content when dashboard tab is active) to show:
+- **Leads count** -- query `practitioner_clients` where status = 'pending'
+- **Active clients** -- already have via `useCoachClientStats`
+- **Next sessions** -- query `bookings` filtered by practitioner, upcoming
+- **Revenue snapshot** -- query `content_purchases` or show placeholder "$--"
+- **"Create Offer" shortcut** -- button that opens a modal (offers table exists)
+- **"Generate Plan" shortcut** -- button opening the Auto Plan Engine modal
+
+All cards use the existing glassmorphic card pattern. No new pages -- everything opens modals.
+
+### B) Auto Plan Engine Modal
+
+The infrastructure already exists (`generate-coach-plan` edge function + `coach_client_plans` table + `ClientProfilePanel` already has the generate flow). 
+
+Create a standalone modal component `AutoPlanEngineModal.tsx` that:
+1. Lets coach select a client from dropdown (from `useCoachClients`)
+2. Choose coaching style (from `coaching_journeys` step data or freeform)
+3. Enter client goals/background
+4. Calls `generate-coach-plan` edge function
+5. Saves to `coach_client_plans`
+6. **NEW**: On success, converts plan phases into `action_items` (tasks + milestones) assigned to the client user -- this makes the plan "playable" on the client's dashboard
+
+This modal is accessible from:
+- CoachDashboardOverview "Generate Plan" card
+- CoachActivitySidebar "Plan" quick action
+- ClientProfilePanel (already exists there)
+
+### C) Coach Public Profile Enhancement
+
+In `PractitionerProfileHeader` (used by both `/p/:slug` and the profile modal):
+- Add a "Coach Signature" mini-section: 2-3 line summary pulled from `practitioner_settings.methodology` or `coaching_journeys` completion data
+- Add "Best For" tags from `practitioner_specialties`
+- "Results" section already exists (reviews/testimonials)
+- CTAs already exist (Book / Message / Buy)
+
+Minimal changes -- mostly rearranging existing data blocks.
+
+### D) Messaging Integration
+
+The messaging system already exists (`/messages`, conversations table). Add a "Message Coach" button to the public profile that:
+- Creates or finds existing conversation between viewer and coach
+- Opens `/messages/:conversationId` or a modal
+
+---
+
+## PHASE 5 -- Admin Tab Cleanup
+
+Minimal changes:
+- `/admin-hub` route already uses `AdminRoute` -- verify it checks `admin` role
+- Remove the catch-all `<Route path="/admin/*">` redirect that could conflict with `/admin/journey`
+- Replace `AdminSidebar` usage in `Header.tsx` mobile menu with a simplified admin nav or reuse `AdminHudSidebar`
+- Keep all `/panel/*` redirects (they work correctly)
+
+---
+
+## PHASE 6 -- Translations
+
+Add/update keys in `he.ts` and `en.ts`:
+- `coaches.commandCenter` / `coaches.autoPlan` / `coaches.generatePlan`
+- `coaches.leadsCount` / `coaches.revenue` / `coaches.nextSessions`
+- `coaches.coachSignature` / `coaches.bestFor`
+- `nav.dashboard` / `nav.projects` / `nav.coaches` / `nav.business` / `nav.admin`
+- Remove `practitionerPanel` references, replace with `coachHub`
+
+---
+
+## Technical Summary
+
+### Files Created
 | File | Purpose |
 |------|---------|
-| `src/hooks/useAdminJourneyProgress.ts` | Progress hook + ADMIN_JOURNEY_STEPS/PHASES |
-| `src/components/admin-journey/AdminJourneyFlow.tsx` | Flow container (same pattern as BusinessJourneyFlow) |
-| `src/components/admin-journey/steps/PlatformVisionStep.tsx` | Step 1 |
-| `src/components/admin-journey/steps/TeamRolesStep.tsx` | Step 2 |
-| `src/components/admin-journey/steps/BrandingStep.tsx` | Step 3 |
-| `src/components/admin-journey/steps/ProductCatalogStep.tsx` | Step 4 |
-| `src/components/admin-journey/steps/ContentStrategyStep.tsx` | Step 5 |
-| `src/components/admin-journey/steps/LandingPagesStep.tsx` | Step 6 |
-| `src/components/admin-journey/steps/MarketingSetupStep.tsx` | Step 7 |
-| `src/components/admin-journey/steps/OperationsStep.tsx` | Step 8 |
-| `src/pages/AdminJourney.tsx` | Route page |
+| `src/navigation/osNav.ts` | Single source of truth for all 5 tabs + sub-routes |
+| `src/domain/coaches/mappers.ts` | Identity mappers (future extensibility seam) |
+| `src/components/coach/AutoPlanEngineModal.tsx` | Standalone plan generation modal |
+| `src/components/coach/CoachSlugRedirect.tsx` | Tiny component for /coach/:slug -> /p/:slug |
+| `docs/APP_MAP.md` | Route map |
+| `docs/CLEANUP_REPORT.md` | Deletion/move report |
 
-### Integration
-- Add route `/admin-journey/:journeyId?` in App.tsx
-- In `PanelDashboard.tsx` (admin dashboard): show a "Start Admin Setup Journey" banner if journey not complete, similar to how the Dashboard shows the Launchpad CTA
-- Journey theme: emerald/teal (matching admin color scheme)
-- Add `'admin'` to the `JourneyTheme` type
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/navigation/navConfig.ts` | Delete (replaced by osNav) |
+| `src/components/navigation/TopNavBar.tsx` | Import from osNav |
+| `src/components/navigation/BottomTabBar.tsx` | Import from osNav |
+| `src/domain/coaches/hooks.ts` | Add useCoachBySlug, useCoachServices, useCoachReviews |
+| `src/components/coach/CoachDashboardOverview.tsx` | Add command center cards |
+| `src/App.tsx` | Add /coach/:slug redirect, clean admin/* route |
+| `src/components/Header.tsx` | Replace AdminSidebar with simplified admin nav |
+| `src/components/panel/index.ts` | Remove dead exports |
+| `src/i18n/translations/he.ts` | Coach naming + new keys |
+| `src/i18n/translations/en.ts` | Coach naming + new keys |
+| `src/pages/PractitionerProfile.tsx` | Update labels to "Coach" |
 
----
+### Files Deleted (~15 dead panel pages)
+All legacy `/coach/*` panel pages that have no routes and no imports.
 
-## 2. Projects Journey (8 steps)
-
-### Steps & Phases
-
-**Phase 1: Foundation (Steps 1-3)**
-1. Project Management Vision -- How do you want to organize your projects?
-2. First Project Setup -- Create or review your first project
-3. Goals Alignment -- Map projects to life pillars and 90-day goals
-
-**Phase 2: Execution (Steps 4-6)**
-4. Task Breakdown -- Learn to decompose projects into actionable tasks
-5. Milestones & Timeline -- Set key milestones and deadlines
-6. Collaboration -- Define stakeholders and resources
-
-**Phase 3: Mastery (Steps 7-8)**
-7. Progress Tracking -- Set up review cadence and metrics
-8. Aurora Integration -- Configure AI coaching for project accountability
-
-### Database
-- New table: `projects_journeys` (same structure)
-- 8 step_data columns + current_step + journey_complete
-- RLS: user_id = auth.uid()
-
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/hooks/useProjectsJourneyProgress.ts` | Progress hook + PROJECTS_JOURNEY_STEPS/PHASES |
-| `src/components/projects-journey/ProjectsJourneyFlow.tsx` | Flow container |
-| `src/components/projects-journey/steps/` (8 files) | Individual step components |
-| `src/pages/ProjectsJourney.tsx` | Route page |
-
-### Integration
-- Add route `/projects-journey/:journeyId?` in App.tsx
-- In `Projects.tsx`: show "Start Projects Setup" banner when no journey completed
-- Journey theme: amber/gold (matching projects color scheme)
-- Add `'projects'` to the `JourneyTheme` type
-
----
-
-## 3. Coaches Journey (already exists -- surface it)
-
-The Coaching Journey (`CoachingJourneyFlow`) already exists with 10 steps. It just needs better integration:
-
-### Changes
-- In `Coaches.tsx` landing page: add a prominent "Start Coaching Journey" CTA for non-practitioners
-- In `CoachHub.tsx` (for practitioners): show journey progress banner if coaching journey not complete
-- Ensure the coaching journey completion triggers unlock of Coach Pro features
-
----
-
-## 4. Shared Infrastructure Updates
-
-### JourneyTheme type
-Add `'admin'` and `'projects'` to the existing type in `src/components/journey-shared/types.ts`
-
-### Theme config
-Add admin (emerald) and projects (amber) theme configs in `src/components/journey-shared/themes.ts`
-
-### JourneyResetDialog
-Add `'admin'` and `'projects'` to the `journeyType` union
-
----
-
-## 5. 90-Day Plan Integration
-
-Each journey's completion data feeds into the unified Life Analysis:
-- Update `useLifeAnalysis.ts` to also check `admin_journeys` and `projects_journeys` completion status
-- Journey action plans (final step of each) generate tasks/goals that appear in the Dashboard's Daily Roadmap
-- Aurora context builder gets access to journey completion data for proactive coaching
-
----
-
-## Implementation Order
-
-1. DB migrations (2 new tables: `admin_journeys`, `projects_journeys`)
-2. Shared infrastructure updates (theme types, colors)
-3. Admin Journey (hook + flow + 8 steps + page + route)
-4. Projects Journey (hook + flow + 8 steps + page + route)
-5. Surface Coaching Journey in Coaches tab
-6. Integration points (Life Analysis, Dashboard banners)
-7. Smoke test all 3 journeys
-
----
-
-## What Does NOT Change
-- Existing Dashboard / Launchpad journey
-- Existing Business / Health / other pillar journeys
-- UI layout of any tab
-- Database schema for existing tables
-- Navigation structure
-
+### No Changes To
+- Database schema (no migrations)
+- Existing RLS policies
+- DashboardLayout / sidebar architecture
+- Storefront routes (`/p/:slug`)
+- Edge functions
+- Journey system
