@@ -1,19 +1,26 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, Store, Briefcase } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Store, Briefcase, Shield } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 
-const tabs = [
+const baseTabs = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
   { id: 'coaches', path: '/coaches', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
   { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים', comingSoon: true },
 ];
 
+const adminTab = { id: 'admin', path: '/admin-hub', icon: Shield, labelEn: 'Admin', labelHe: 'ניהול' };
+
 export function BottomTabBar() {
   const { language } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { hasRole, loading } = useUserRoles();
+
+  const isAdmin = !loading && hasRole('admin');
+  const tabs = isAdmin ? [...baseTabs, adminTab] : baseTabs;
 
   const isActive = (path: string) => {
     if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';

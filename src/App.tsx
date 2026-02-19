@@ -93,6 +93,7 @@ const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
 const CoachClientPlans = lazy(() => import("./pages/panel/CoachClientPlans"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
+const AdminHub = lazy(() => import("./pages/AdminHub"));
 // Panels
 const AdminPanel = lazy(() => import("./components/panel/AdminPanel"));
 const CoachPanel = lazy(() => import("./components/panel/CoachPanel"));
@@ -397,7 +398,17 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Launchpad redirects to onboarding */}
+                        {/* Admin Hub - embedded in dashboard */}
+                        <Route
+                          path="/admin-hub"
+                          element={
+                            <ProtectedRoute>
+                              <DashboardLayout>
+                                <AdminHub />
+                              </DashboardLayout>
+                            </ProtectedRoute>
+                          }
+                        />
                         <Route path="/launchpad" element={<Navigate to="/onboarding" replace />} />
                         <Route
                           path="/launchpad/complete"
@@ -640,50 +651,37 @@ const App = () => (
                           }
                         />
 
-                        {/* Admin routes redirect to /panel */}
-                        <Route path="/admin" element={<Navigate to="/panel" replace />} />
-                        <Route path="/admin/*" element={<Navigate to="/panel" replace />} />
+                        {/* Admin routes redirect to /admin-hub */}
+                        <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
+                        <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />
 
-                        {/* Admin Panel routes */}
-                        <Route
-                          path="/panel"
-                          element={
-                            <RoleRoute allowedRoles={['admin']}>
-                              <AdminPanel />
-                            </RoleRoute>
-                          }
-                        >
-                          <Route index element={<PanelDashboard />} />
-                          <Route path="analytics" element={<Analytics />} />
-                          <Route path="notifications" element={<NotificationCenter />} />
-                          <Route path="roles" element={<RolesManager />} />
-                          <Route path="users" element={<Users />} />
-                          <Route path="users/:userId" element={<UserProfile />} />
-                          <Route path="users/:userId/dashboard" element={<UserDashboardView />} />
-                          <Route path="practitioners" element={<Users />} />
-                          <Route path="leads" element={<Leads />} />
-                          <Route path="businesses" element={<Businesses />} />
-                          <Route path="aurora-insights" element={<AuroraInsights />} />
-                          <Route path="affiliates" element={<AdminAffiliates />} />
-                          <Route path="newsletter" element={<Newsletter />} />
-                          <Route path="offers" element={<AdminOffers />} />
-                          <Route path="purchases" element={<Purchases />} />
-                          <Route path="products" element={<AdminProducts />} />
-                          <Route path="content" element={<Content />} />
-                          <Route path="videos" element={<Videos />} />
-                          <Route path="recordings" element={<Recordings />} />
-                          <Route path="forms" element={<Forms />} />
-                          <Route path="landing-pages" element={<LandingPages />} />
-                          <Route path="landing-pages/new" element={<LandingPageBuilder />} />
-                          <Route path="landing-pages/edit/:id" element={<LandingPageBuilder />} />
-                          <Route path="homepage" element={<HomepageSections />} />
-                          <Route path="theme" element={<AdminTheme />} />
-                          <Route path="faqs" element={<FAQs />} />
-                          <Route path="testimonials" element={<Testimonials />} />
-                          <Route path="chat-assistant" element={<ChatAssistant />} />
-                          <Route path="bug-reports" element={<BugReports />} />
-                          <Route path="settings" element={<Settings />} />
-                        </Route>
+                        {/* Legacy /panel routes redirect to /admin-hub */}
+                        <Route path="/panel" element={<Navigate to="/admin-hub" replace />} />
+                        <Route path="/panel/analytics" element={<Navigate to="/admin-hub?tab=overview&sub=analytics" replace />} />
+                        <Route path="/panel/notifications" element={<Navigate to="/admin-hub?tab=overview&sub=notifications" replace />} />
+                        <Route path="/panel/users" element={<Navigate to="/admin-hub?tab=admin&sub=users" replace />} />
+                        <Route path="/panel/roles" element={<Navigate to="/admin-hub?tab=admin&sub=roles" replace />} />
+                        <Route path="/panel/leads" element={<Navigate to="/admin-hub?tab=admin&sub=leads" replace />} />
+                        <Route path="/panel/businesses" element={<Navigate to="/admin-hub?tab=admin&sub=businesses" replace />} />
+                        <Route path="/panel/aurora-insights" element={<Navigate to="/admin-hub?tab=admin&sub=aurora-insights" replace />} />
+                        <Route path="/panel/affiliates" element={<Navigate to="/admin-hub?tab=campaigns&sub=affiliates" replace />} />
+                        <Route path="/panel/newsletter" element={<Navigate to="/admin-hub?tab=campaigns&sub=newsletter" replace />} />
+                        <Route path="/panel/offers" element={<Navigate to="/admin-hub?tab=campaigns&sub=offers" replace />} />
+                        <Route path="/panel/purchases" element={<Navigate to="/admin-hub?tab=campaigns&sub=purchases" replace />} />
+                        <Route path="/panel/products" element={<Navigate to="/admin-hub?tab=content&sub=products" replace />} />
+                        <Route path="/panel/content" element={<Navigate to="/admin-hub?tab=content&sub=content-mgmt" replace />} />
+                        <Route path="/panel/videos" element={<Navigate to="/admin-hub?tab=content&sub=videos" replace />} />
+                        <Route path="/panel/recordings" element={<Navigate to="/admin-hub?tab=content&sub=recordings" replace />} />
+                        <Route path="/panel/forms" element={<Navigate to="/admin-hub?tab=content&sub=forms" replace />} />
+                        <Route path="/panel/landing-pages" element={<Navigate to="/admin-hub?tab=site&sub=landing-pages" replace />} />
+                        <Route path="/panel/homepage" element={<Navigate to="/admin-hub?tab=site&sub=homepage" replace />} />
+                        <Route path="/panel/theme" element={<Navigate to="/admin-hub?tab=site&sub=theme" replace />} />
+                        <Route path="/panel/faqs" element={<Navigate to="/admin-hub?tab=site&sub=faqs" replace />} />
+                        <Route path="/panel/testimonials" element={<Navigate to="/admin-hub?tab=site&sub=testimonials" replace />} />
+                        <Route path="/panel/bug-reports" element={<Navigate to="/admin-hub?tab=system&sub=bug-reports" replace />} />
+                        <Route path="/panel/chat-assistant" element={<Navigate to="/admin-hub?tab=system&sub=chat-assistant" replace />} />
+                        <Route path="/panel/settings" element={<Navigate to="/admin-hub?tab=system&sub=settings" replace />} />
+                        <Route path="/panel/*" element={<Navigate to="/admin-hub" replace />} />
 
                         {/* Coach Panel — redirect to /coaches for practitioners */}
                         <Route path="/coach" element={<Navigate to="/coaches" replace />} />
