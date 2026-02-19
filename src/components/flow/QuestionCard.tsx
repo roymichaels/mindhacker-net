@@ -1,6 +1,6 @@
 /**
  * QuestionCard — Generic renderer for a single MiniStep
- * Supports: single_select, multi_select, slider, time_picker, textarea
+ * Supports: single_select, multi_select, slider, time_picker, textarea, priority_rank
  */
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -10,8 +10,69 @@ import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { MobileTimePicker } from '@/components/ui/mobile-time-picker';
 import { motion } from 'framer-motion';
-import type { MiniStep } from '@/lib/flow/types';
+import { GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import type { MiniStep, FlowOption } from '@/lib/flow/types';
 import { isMiniStepValid } from '@/lib/flow/flowSpec';
+
+// ─── Sortable Item for priority_rank ───
+function SortableRankItem({ item, index, language }: { item: FlowOption; index: number; language: string }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.value });
+
+  const style: React.CSSProperties = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const label = language === 'he' ? item.label_he : item.label_en;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all select-none",
+        isDragging
+          ? "border-primary bg-primary/15 shadow-lg scale-[1.02]"
+          : "border-border bg-card hover:border-primary/40"
+      )}
+    >
+      <span className="text-lg font-bold text-primary/70 min-w-[24px] text-center">{index + 1}</span>
+      {item.icon && <span className="text-lg shrink-0">{item.icon}</span>}
+      <span className="text-sm leading-tight flex-1">{label}</span>
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="w-5 h-5" />
+      </button>
+    </div>
+  );
+}
 
 interface QuestionCardProps {
   miniStep: MiniStep;
@@ -35,9 +96,32 @@ export function QuestionCard({
   const { language, isRTL } = useTranslation();
   const [localValue, setLocalValue] = useState(value);
 
+  // For priority_rank: maintain ordered items
+  const [rankedItems, setRankedItems] = useState<FlowOption[]>([]);
+
   useEffect(() => {
     setLocalValue(value);
   }, [value, miniStep.id]);
+
+  // Initialize ranked items when miniStep changes
+  useEffect(() => {
+    if (miniStep.inputType === 'priority_rank' && miniStep.options) {
+      if (Array.isArray(value) && value.length === miniStep.options.length) {
+        // Restore from saved order
+        const ordered = value
+          .map(v => miniStep.options!.find(o => o.value === v))
+          .filter(Boolean) as FlowOption[];
+        setRankedItems(ordered);
+      } else {
+        // Default order
+        setRankedItems([...miniStep.options]);
+        // Auto-set initial value
+        const initial = miniStep.options.map(o => o.value);
+        setLocalValue(initial);
+        onChange(initial);
+      }
+    }
+  }, [miniStep.id]);
 
   const title = language === 'he' ? miniStep.title_he : miniStep.title_en;
   const prompt = language === 'he' ? miniStep.prompt_he : miniStep.prompt_en;
@@ -86,6 +170,25 @@ export function QuestionCard({
   const handleTimeChange = (time: string) => {
     setLocalValue(time);
     onChange(time);
+  };
+
+  // DnD sensors
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
+  const sensors = useSensors(pointerSensor, touchSensor);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = rankedItems.findIndex(i => i.value === active.id);
+    const newIndex = rankedItems.findIndex(i => i.value === over.id);
+    const reordered = arrayMove(rankedItems, oldIndex, newIndex);
+    setRankedItems(reordered);
+
+    const values = reordered.map(i => i.value);
+    setLocalValue(values);
+    onChange(values);
   };
 
   return (
@@ -143,6 +246,19 @@ export function QuestionCard({
         </div>
       )}
 
+      {/* Priority Rank — Drag to reorder */}
+      {miniStep.inputType === 'priority_rank' && rankedItems.length > 0 && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={rankedItems.map(i => i.value)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {rankedItems.map((item, index) => (
+                <SortableRankItem key={item.value} item={item} index={index} language={language} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
       {miniStep.inputType === 'slider' && (
         <div className="space-y-4 px-2">
           <Slider
@@ -194,7 +310,7 @@ export function QuestionCard({
           </Button>
         )}
 
-        {/* Show continue button for multi_select, slider, textarea, time_picker */}
+        {/* Show continue button for non-single_select types */}
         {miniStep.inputType !== 'single_select' && (
           <Button
             onClick={onNext}
