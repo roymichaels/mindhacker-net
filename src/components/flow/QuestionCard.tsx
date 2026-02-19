@@ -26,6 +26,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { MiniStep, FlowOption } from '@/lib/flow/types';
 import { isMiniStepValid } from '@/lib/flow/flowSpec';
 
@@ -41,7 +42,7 @@ function SortableRankItem({ item, index, language }: { item: FlowOption; index: 
   } = useSortable({ id: item.value });
 
   const style: React.CSSProperties = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 50 : undefined,
   };
