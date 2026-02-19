@@ -1,127 +1,111 @@
 
 
-# Golden Flow Audit Runner
+# Launch Hardening: Auth/Payment Guard Utilities
 
 ## Overview
-Extend the existing `flowAudit.ts` singleton with scenario-aware tracking and a PASS/FAIL summary system. No UI changes, no DB changes, no new features -- just structured diagnostic output layered onto the existing instrumentation.
+Create three reusable guard functions that eliminate silent failures across the codebase. No UI redesign, no new features, no DB changes.
 
-## How It Works
+## What Gets Created
 
-The user activates a scenario via the browser console:
+### `src/lib/guards.ts` -- Three Guard Utilities
 
-```javascript
-localStorage.FLOW_AUDIT = "true";
-localStorage.FLOW_AUDIT_SCENARIO = "free_anon"; // or paid_anon, returning_user, coach_storefront
-```
+**1. `requireAuthOrOpenModal(user, openAuthModal, options)`**
 
-Then walks the flow. At any time, they call `flowAudit.summary()` in the console to get a structured PASS/FAIL report. A 60-second auto-timeout also prints the summary automatically if the scenario hasn't completed.
+Returns `true` if user is authenticated, otherwise opens the auth modal, logs a FLOW_AUDIT breakpoint, and returns `false`.
 
-## Changes
-
-### File 1: `src/lib/flowAudit.ts`
-
-Add scenario tracking on top of the existing class (no existing methods changed):
-
-**New types:**
 ```typescript
-type ScenarioId = 'free_anon' | 'paid_anon' | 'returning_user' | 'coach_storefront';
-
-interface ScenarioSummary {
-  scenario: ScenarioId | null;
-  reachedDashboard: boolean;
-  onboardingSaved: boolean;
-  authStateStable: boolean;
-  subscriptionResolved: boolean;
-  xpChangedOnFirstAction: boolean;
-  errors: string[];
-  pass: boolean;
+export function requireAuthOrOpenModal(
+  user: User | null,
+  openAuthModal: (view?: 'login' | 'signup', onSuccess?: () => void) => void,
+  options?: { reason?: string; nextActionName?: string; onSuccess?: () => void }
+): boolean {
+  if (user?.id) return true;
+  
+  flowAudit.breakpoint(
+    options?.nextActionName ?? 'unknown_cta',
+    'session_lost',
+    `Auth required for: ${options?.reason ?? 'action'} — opening auth modal`
+  );
+  openAuthModal('signup', options?.onSuccess);
+  return false;
 }
 ```
 
-**New private state** (added to the class):
-- `activeScenario: ScenarioId | null` -- read from `localStorage.FLOW_AUDIT_SCENARIO`
-- `scenarioErrors: string[]` -- accumulated error strings
-- `flags` object tracking: `reachedDashboard`, `onboardingSaved`, `authStateStable`, `subscriptionResolved`, `xpChangedOnFirstAction`, `authModalOpened`, `checkoutUrlReceived`, `initialXp`
-- `scenarioTimer` -- 60s auto-summary timeout
+**2. `requireCheckoutUrlOrToast(result, isHe)`**
 
-**New methods:**
-- `startScenario()` -- reads localStorage, resets flags, starts timer. Called automatically on first `isEnabled()` check.
-- `summary(): ScenarioSummary` -- evaluates all flags, prints a formatted PASS/FAIL table, returns the object. Also exposed on `window.__flowAudit` for console access.
-- `markFlag(key, value)` -- internal helper to set boolean flags
-- `recordError(msg)` -- pushes to `scenarioErrors[]`
+Validates checkout response. If URL is present, navigates to it and returns `true`. If missing, shows a toast and logs error. Replaces empty catch blocks and missing-URL silent failures.
 
-**Modifications to existing methods** (logging additions only, no logic changes):
-- `route()` -- when `to === '/dashboard'`, set `reachedDashboard = true`. When scenario is `returning_user` and route goes `/dashboard -> /onboarding`, record error "Onboarding loop detected for returning user".
-- `auth()` -- track `authStateStable` (set false on `session_lost` breakpoint). Track auth modal opening.
-- `subscription()` -- when `isLoading === false` and `tier` is defined, set `subscriptionResolved = true`. If `isLoading` stays true for 10s+, record error "Subscription loading stuck".
-- `launchpad()` -- when `isComplete === true`, set `onboardingSaved = true`.
-- `gamestate()` -- capture `initialXp` on first call. On subsequent calls, if XP changed, set `xpChangedOnFirstAction = true`.
-- `breakpoint()` -- also push to `scenarioErrors[]`.
-
-**New detections** (added inside existing methods):
-- `redirect()` -- if `to` contains `/aurora` and no `/aurora` route exists (detected via `missing_route_target` in breakpoints), record error.
-- `auth()` -- if scenario requires auth (`free_anon`, `paid_anon`) and no `SIGNED_IN` event received after 30s, record error "Auth modal may not have opened".
-
-**Console access:**
 ```typescript
-// At the bottom of the file
-if (typeof window !== 'undefined') {
-  (window as any).__flowAudit = flowAudit;
+export function requireCheckoutUrlOrToast(
+  result: { data?: { url?: string }; error?: any },
+  isHe: boolean
+): string | null {
+  if (result.error) {
+    const msg = result.error.message || 'Checkout failed';
+    toast.error(isHe ? 'שגיאה ביצירת תשלום' : msg);
+    flowAudit.recordError(`Checkout failed: ${msg}`);
+    return null;
+  }
+  if (!result.data?.url) {
+    toast.error(isHe ? 'שגיאה ביצירת תשלום' : 'No checkout URL received');
+    flowAudit.recordError('Checkout response missing URL');
+    return null;
+  }
+  flowAudit.markFlag('checkoutUrlReceived', true);
+  return result.data.url;
 }
 ```
 
-### File 2: `src/components/FlowAuditProvider.tsx`
+**3. `safeNavigate(navigate, target, fallback)`**
 
-Add one line in the mount effect to call `flowAudit.startScenario()` which reads the localStorage scenario key. No other changes.
+Wraps `navigate()` with route validation. Logs to FLOW_AUDIT if the target looks suspicious (not in allowed list) and falls back to `/dashboard`.
 
-### File 3: `src/components/onboarding/OnboardingReveal.tsx`
-
-Add two `flowAudit` calls (logging only):
-- After `openAuthModal` is called for anonymous users: `flowAudit.markFlag('authModalOpened', true)`
-- After checkout URL is received: `flowAudit.markFlag('checkoutUrlReceived', true)`
-
-### File 4: `src/hooks/useSubscriptionGate.ts`
-
-Add a stuck-loading detection: if `subLoading` has been true for 10+ seconds, call `flowAudit.recordError('Subscription loading stuck > 10s')`. This is a ref-based timer alongside the existing `flowAudit.subscription()` call.
-
-## Summary Output Format
-
-When `flowAudit.summary()` is called (or auto-fires at 60s):
-
-```
-[FLOW_AUDIT] ═══ GOLDEN FLOW SUMMARY ═══
-  Scenario:             free_anon
-  Reached Dashboard:    PASS
-  Onboarding Saved:     PASS
-  Auth State Stable:    PASS
-  Subscription Resolved: PASS
-  XP Changed on Action: FAIL
-  Errors (1):
-    - xpChangedOnFirstAction never triggered
-  ─────────────────────────
-  RESULT: FAIL
-═════════════════════════════
+```typescript
+export function safeNavigate(
+  navigate: NavigateFunction,
+  target: string,
+  fallback: string = '/dashboard'
+): void {
+  const KNOWN_ROUTES = ['/dashboard', '/onboarding', '/messages', '/messages/ai', ...];
+  const isKnown = KNOWN_ROUTES.some(r => target === r || target.startsWith(r + '/'));
+  if (!isKnown) {
+    flowAudit.recordError(`safeNavigate: unknown target "${target}", using fallback "${fallback}"`);
+    navigate(fallback, { replace: true });
+    return;
+  }
+  navigate(target);
+}
 ```
 
-## PASS/FAIL Logic Per Scenario
+## Where Guards Get Applied
 
-| Check | free_anon | paid_anon | returning_user | coach_storefront |
-|-------|-----------|-----------|----------------|------------------|
-| reachedDashboard | Required | Required | Required | Required |
-| onboardingSaved | Required | Required | Skip (already done) | Skip |
-| authStateStable | Required | Required | Required | Required |
-| subscriptionResolved | Required | Required (must be paid tier) | Required | Skip |
-| xpChangedOnFirstAction | Required | Optional | Required | Skip |
+### File 1: `src/components/onboarding/OnboardingReveal.tsx`
+- **"Start Free" CTA** (line 288-296): Already uses `openAuthModal` -- replace with `requireAuthOrOpenModal` for consistent logging.
+- **"Upgrade" CTA** (line 513-530): Wrap checkout result with `requireCheckoutUrlOrToast`. Replace inline `if (data?.url)` and catch block.
 
-## Files Changed Summary
+### File 2: `src/components/subscription/SubscriptionsModal.tsx`
+- **`handleCheckout`** (line 74-101): Replace the toast-only auth check with `requireAuthOrOpenModal`. Replace `window.open(data.url, "_blank")` with `requireCheckoutUrlOrToast` + `window.location.href`.
+- **`handleManageSubscription`** (line 103-120): Wrap with `requireCheckoutUrlOrToast` for the portal URL.
 
-| File | What's Added |
-|------|-------------|
-| `src/lib/flowAudit.ts` | ScenarioId type, ScenarioSummary interface, scenario state fields, `startScenario()`, `summary()`, `markFlag()`, `recordError()`, flag-setting inside existing methods, `window.__flowAudit` export |
-| `src/components/FlowAuditProvider.tsx` | One `flowAudit.startScenario()` call in mount effect |
-| `src/components/onboarding/OnboardingReveal.tsx` | Two `flowAudit.markFlag()` calls (auth modal opened, checkout URL received) |
-| `src/hooks/useSubscriptionGate.ts` | Stuck-loading timer detection (ref-based, alongside existing audit call) |
+### File 3: `src/components/subscription/PromoUpgradeModal.tsx`
+- **`handleClaim`** (line 20-39): Replace `window.open(data.url, "_blank")` with `requireCheckoutUrlOrToast` + `window.location.href`.
+
+### File 4: `src/components/dashboard/RecalibrateModal.tsx`
+- **`handleSubmit`** (line 260): Currently `if (!user?.id) return;` -- replace with `requireAuthOrOpenModal`.
+
+### File 5: `src/components/launchpad/steps/IntrospectionStep.tsx`
+- **`handleSubmit`** (line 256): Currently `if (!user?.id) return;` -- replace with `requireAuthOrOpenModal`.
+
+## Diff Summary
+
+| File | Change |
+|------|--------|
+| `src/lib/guards.ts` | **NEW** -- 3 guard functions (~60 lines) |
+| `src/components/onboarding/OnboardingReveal.tsx` | Replace inline auth check with `requireAuthOrOpenModal`; wrap checkout with `requireCheckoutUrlOrToast` |
+| `src/components/subscription/SubscriptionsModal.tsx` | Replace toast-only auth check with `requireAuthOrOpenModal`; wrap checkout with `requireCheckoutUrlOrToast`; change `window.open` to `window.location.href` |
+| `src/components/subscription/PromoUpgradeModal.tsx` | Wrap checkout with `requireCheckoutUrlOrToast`; change `window.open` to `window.location.href` |
+| `src/components/dashboard/RecalibrateModal.tsx` | Replace silent `return` with `requireAuthOrOpenModal` |
+| `src/components/launchpad/steps/IntrospectionStep.tsx` | Replace silent `return` with `requireAuthOrOpenModal` |
 
 ## Risk Assessment
-- **LOW** across all changes. Only logging/diagnostic code is added. No control flow, no rendering, no DB queries modified.
-
+- **LOW** for all changes. Each guard replaces an existing pattern (silent return or empty catch) with a user-visible fallback + logging. No control flow or rendering logic is altered beyond the early-return points.
