@@ -46,6 +46,12 @@ export function isMiniStepValid(miniStep: MiniStep, answer: string | string[] | 
     return false;
   }
 
+  // priority_rank: valid if the array has all options
+  if (miniStep.inputType === 'priority_rank') {
+    if (!Array.isArray(answer)) return false;
+    return answer.length === (miniStep.options?.length ?? 0);
+  }
+
   if (Array.isArray(answer)) {
     const { minSelected, maxSelected } = miniStep.validation;
     if (minSelected && answer.length < minSelected) return false;

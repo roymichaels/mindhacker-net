@@ -40,7 +40,7 @@ export interface MiniStep {
   title_en: string;
   prompt_he?: string;
   prompt_en?: string;
-  inputType: 'single_select' | 'multi_select' | 'slider' | 'time_picker' | 'textarea' | 'chat';
+  inputType: 'single_select' | 'multi_select' | 'slider' | 'time_picker' | 'textarea' | 'chat' | 'priority_rank';
   options?: FlowOption[];
   validation: FlowValidation;
   branching?: FlowBranching;
