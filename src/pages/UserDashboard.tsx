@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Rocket, Sparkles, Target, Brain } from 'lucide-react';
+import { PresetOrb } from '@/components/orb';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,8 +124,8 @@ const UserDashboard = () => {
           transition={{ duration: 0.5 }}
           className="space-y-6 max-w-lg mx-auto"
         >
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Rocket className="w-8 h-8 text-primary" />
+          <div className="mx-auto">
+            <PresetOrb size={80} />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold">
             {isHe ? 'המסע שלך מתחיל כאן' : 'Your Journey Starts Here'}
