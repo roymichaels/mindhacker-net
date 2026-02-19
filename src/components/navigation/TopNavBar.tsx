@@ -1,20 +1,17 @@
+/**
+ * @module navigation/TopNavBar
+ * @tab Global
+ * @purpose Desktop top navigation bar with tabs
+ * @data navConfig (APP_TABS, ADMIN_TAB), useUserRoles, HeaderActions
+ */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, Store, Briefcase, Shield } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
-
-const baseTabs = [
-  { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
-  { id: 'projects', path: '/projects', icon: FolderKanban, labelEn: 'Projects', labelHe: 'פרויקטים' },
-  { id: 'coaches', path: '/coaches', icon: Store, labelEn: 'Coaches', labelHe: 'מאמנים' },
-  { id: 'business', path: '/business', icon: Briefcase, labelEn: 'Business', labelHe: 'עסקים', comingSoon: true },
-];
-
-const adminTab = { id: 'admin', path: '/admin-hub', icon: Shield, labelEn: 'Admin', labelHe: 'ניהול' };
+import { APP_TABS, ADMIN_TAB } from '@/navigation/navConfig';
 
 interface TopNavBarProps {
   onOpenSettings: () => void;
@@ -28,7 +25,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
   const { hasRole, loading } = useUserRoles();
 
   const isAdmin = !loading && hasRole('admin');
-  const tabs = isAdmin ? [...baseTabs, adminTab] : baseTabs;
+  const tabs = isAdmin ? [...APP_TABS, ADMIN_TAB] : APP_TABS;
 
   const isTabActive = (path: string) => {
     if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';

@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { PractitionersModalProvider } from "@/contexts/PractitionersModalContext";
+import { CoachesModalProvider } from "@/contexts/CoachesModalContext";
 import { AuroraChatProvider } from "@/contexts/AuroraChatContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { SubscriptionsModalProvider } from "@/contexts/SubscriptionsModalContext";
@@ -90,14 +90,16 @@ const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
-const CoachClientPlans = lazy(() => import("./pages/panel/CoachClientPlans"));
-const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 const PractitionerProfile = lazy(() => import("./pages/PractitionerProfile"));
 const AdminHub = lazy(() => import("./pages/AdminHub"));
-// Panels
-const AdminPanel = lazy(() => import("./components/panel/AdminPanel"));
-const CoachPanel = lazy(() => import("./components/panel/CoachPanel"));
+const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
+// Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
+const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
+const RolesManager = lazy(() => import("./pages/panel/RolesManager"));
+const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
+const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
+const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
 // Storefront
 const StorefrontLayout = lazy(() => import("./pages/storefront/StorefrontLayout"));
 const StorefrontHome = lazy(() => import("./pages/storefront/StorefrontHome"));
@@ -105,52 +107,6 @@ const StorefrontLogin = lazy(() => import("./pages/storefront/StorefrontLogin"))
 const StorefrontSignup = lazy(() => import("./pages/storefront/StorefrontSignup"));
 const StorefrontCourses = lazy(() => import("./pages/storefront/StorefrontCourses"));
 const StorefrontClientDashboard = lazy(() => import("./pages/storefront/StorefrontClientDashboard"));
-const PanelDashboard = lazy(() => import("./components/panel/PanelDashboard"));
-const CoachDashboard = lazy(() => import("./pages/panel/CoachDashboard"));
-const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
-const CoachTheme = lazy(() => import("./pages/panel/CoachTheme"));
-const RolesManager = lazy(() => import("./pages/panel/RolesManager"));
-const MyClients = lazy(() => import("./pages/panel/MyClients"));
-const MyServices = lazy(() => import("./pages/panel/MyServices"));
-const MyCalendar = lazy(() => import("./pages/panel/MyCalendar"));
-const MyEarnings = lazy(() => import("./pages/panel/MyEarnings"));
-const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
-const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
-const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
-const MyProducts = lazy(() => import("./pages/panel/MyProducts"));
-const CoachContent = lazy(() => import("./pages/panel/CoachContent"));
-const StorefrontSettingsPanel = lazy(() => import("./pages/panel/StorefrontSettings"));
-const CoachReviews = lazy(() => import("./pages/panel/CoachReviews"));
-const CoachAnalytics = lazy(() => import("./pages/panel/CoachAnalytics"));
-const UserProfile = lazy(() => import("./pages/panel/UserProfile"));
-const UserDashboardView = lazy(() => import("./pages/panel/UserDashboardView"));
-const ClientProfile = lazy(() => import("./pages/panel/ClientProfile"));
-// Admin pages
-const Analytics = lazy(() => import("./pages/admin/Analytics"));
-const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
-const Settings = lazy(() => import("./pages/admin/Settings"));
-const FAQs = lazy(() => import("./pages/admin/FAQs"));
-const AdminOffers = lazy(() => import("./pages/admin/Offers"));
-const Testimonials = lazy(() => import("./pages/admin/Testimonials"));
-const Purchases = lazy(() => import("./pages/admin/Purchases"));
-const Users = lazy(() => import("./pages/admin/Users"));
-const Leads = lazy(() => import("./pages/admin/Leads"));
-const Content = lazy(() => import("./pages/admin/Content"));
-const MenuManagement = lazy(() => import("./pages/admin/Menu"));
-const Recordings = lazy(() => import("./pages/admin/Recordings"));
-const Forms = lazy(() => import("./pages/admin/Forms"));
-const Newsletter = lazy(() => import("./pages/admin/Newsletter"));
-const HomepageSections = lazy(() => import("./pages/admin/HomepageSections"));
-const ChatAssistant = lazy(() => import("./pages/admin/ChatAssistant"));
-const Videos = lazy(() => import("./pages/admin/Videos"));
-const AdminProducts = lazy(() => import("./pages/admin/Products"));
-const AdminAffiliates = lazy(() => import("./pages/admin/Affiliates"));
-const AdminTheme = lazy(() => import("./pages/admin/Theme"));
-const LandingPages = lazy(() => import("./pages/admin/LandingPages"));
-const LandingPageBuilder = lazy(() => import("./pages/admin/LandingPageBuilder"));
-const AuroraInsights = lazy(() => import("./pages/admin/AuroraInsights"));
-const BugReports = lazy(() => import("./pages/admin/BugReports"));
-const Businesses = lazy(() => import("./pages/admin/Businesses"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -204,7 +160,7 @@ const App = () => (
                <AuthModalProvider>
                 <GameStateProvider>
                 <SubscriptionsModalProvider>
-                 <PractitionersModalProvider>
+                 <CoachesModalProvider>
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
@@ -718,7 +674,7 @@ const App = () => (
                   </AnalyticsProvider>
                 </BrowserRouter>
                 </TooltipProvider>
-                </PractitionersModalProvider>
+                </CoachesModalProvider>
                 </SubscriptionsModalProvider>
               </GameStateProvider>
              </AuthModalProvider>
