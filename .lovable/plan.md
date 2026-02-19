@@ -1,83 +1,298 @@
 
 
-# Enhance Neural Intake for Better Plan Results
+# Orb Visual Uniqueness Overhaul -- Full Rendering Pipeline Upgrade
 
-## Problem Analysis
+## The Problem
 
-The current intake collects wake/sleep times and active work hours, but is missing **critical scheduling anchors** that the AI needs to build a realistic 8-8-8 daily structure. Specifically:
+The orb currently renders using `THREE.LineSegments` with `LineBasicMaterial` (wireframe). Even though the DNA system computes 3 colors (primary, secondary, accent), the renderer only applies them as vertex-color tints on wireframe lines. The result: every orb looks like a single-color wireframe with minor hue variations. Additionally, only ~15 of ~65 onboarding variables influence the orb.
 
-- No question about **when work/obligations start** (the single most important time anchor)
-- No question about **when work ends** (needed to place training, personal dev, wind-down)
-- No **desired wake time** vs current (to know what to calibrate toward)
-- No **relationship status** (affects evening time architecture heavily)
-- No **stress coping mechanism** (what they default to under pressure -- key for replacing bad habits)
-- No **previous system attempts** (helps calibrate plan aggressiveness and avoid repeating what failed)
-- No **ideal day vision** (gives the AI a north star for structuring)
+## What Changes
 
-## Proposed New Questions
+The orb will become a solid 3D mesh with custom GLSL shaders that display multi-stop gradients, material styles, surface patterns, and rim lighting. All ~65 onboarding variables will drive distinct visual parameters.
 
-All additions go into existing steps in `onboardingFlowSpec.ts` -- no new steps needed, just new mini-steps inserted at logical places.
+---
 
-### 1. Work/Obligation Start Time (Step 9 - Work Reality)
-**"באיזו שעה אתה חייב להתחיל לעבוד / להיות זמין?"**
-Options: 06:00 / 07:00 / 08:00 / 09:00 / 10:00 / 11:00+ / Flexible / Not working
+## Phase A -- Extend OrbProfile Type + Defaults
 
-This is the **#1 missing variable** -- it determines the morning routine window and therefore the ideal wake time, bedtime, and entire daily arc.
+**File: `src/components/orb/types.ts`**
 
-### 2. Work/Obligation End Time (Step 9 - Work Reality)
-**"באיזו שעה אתה בדרך כלל מסיים לעבוד?"**
-Options: 14:00 / 16:00 / 17:00 / 18:00 / 19:00 / 20:00+ / Varies / Not working
+Add 15 new fields to the `OrbProfile` interface:
 
-This determines the evening block: training, family, personal development, wind-down.
+| Field | Type | Range |
+|-------|------|-------|
+| `gradientStops` | `string[]` | 3-7 HSL strings |
+| `gradientMode` | enum | `'vertical' \| 'radial' \| 'noise' \| 'rim'` |
+| `coreGradient` | `[string, string]` | Two HSL strings |
+| `rimLightColor` | `string` | HSL |
+| `materialType` | enum | `'wire' \| 'metal' \| 'glass' \| 'plasma' \| 'iridescent'` |
+| `materialParams` | object | `{ metalness, roughness, clearcoat, transmission, ior, emissiveIntensity }` |
+| `patternType` | enum | `'voronoi' \| 'cellular' \| 'fractal' \| 'shards' \| 'swirl' \| 'strata'` |
+| `patternIntensity` | `number` | 0-1 |
+| `particlePalette` | `string[]` | 3-5 HSL strings |
+| `particleMode` | enum | `'single' \| 'cycle' \| 'random' \| 'byVelocity' \| 'byRadius'` |
+| `particleBehavior` | enum | `'orbit' \| 'spiral' \| 'halo' \| 'burst' \| 'drift'` |
+| `bloomStrength` | `number` | 0-1.5 |
+| `chromaShift` | `number` | 0-0.8 |
+| `dayNightBias` | `number` | 0-1 |
 
-### 3. Desired Wake Time (Step 5 - Sleep Architecture)
-**"באיזו שעה היית רוצה לקום אם היית יכול לבחור?"**
-Same options as current wake_time.
+All stored inside the existing `computed_from` JSON column -- no DB schema changes.
 
-The gap between current vs desired wake time tells the AI how much sleep restructuring is needed.
+**Files: `src/lib/orbProfileGenerator.ts`, `src/hooks/useOrbProfile.ts`**
 
-### 4. Relationship Status (Step 10 - Life Load)
-**"מה מצב הזוגיות שלך?"**
-Options: Single / In a relationship / Married / Divorced-Separated / Complicated
+- Update `DEFAULT_ORB_PROFILE` with defaults for all new fields
+- Update `rowToProfile()` and `profileToRow()` to serialize/deserialize new fields from `computed_from` JSON
+- Update `interpolateOrbProfiles()` to lerp numeric fields and snap enum fields at t=0.5
 
-This affects evening time allocation, emotional load, and accountability structure.
+---
 
-### 5. Stress Default Behavior (Step 12 - Friction Trigger, as second mini-step)
-**"כשאתה בלחץ, מה הדבר הראשון שאתה עושה?"**
-Options: Eat / Scroll phone / Smoke / Sleep / Isolate / Argue / Work more / Exercise
+## Phase B -- Visual DNA from ALL Intake Variables
 
-Critical for knowing which **replacement habits** to prescribe in the plan.
+**New file: `src/lib/visualDNA.ts`**
 
-### 6. Previous Attempts (Step 11 - Execution Pattern, as second mini-step)
-**"כמה פעמים ניסית לשנות הרגלים ב-12 חודשים האחרונים?"**
-Options: Never tried / 1-2 times / 3-5 times / 6+ times / Lost count
+A single pure function:
 
-Helps calibrate plan aggressiveness and identify "system hopper" patterns.
+```
+buildVisualDNA({ step1Intention, step2ProfileData, summaryRow, gameState, seed }): Partial<OrbProfile>
+```
 
-### 7. Morning Routine Desire (Step 5 - Sleep Architecture, new mini-step)
-**"כמה זמן בוקר אישי אתה רוצה לפני שמתחיל יום העבודה?"**
-Options: None needed / 15-30 min / 30-60 min / 60-90 min / 90+ min
+This function maps all ~65 onboarding variables to the new visual fields using deterministic `seedFloat`/`seedInt` (no `Math.random`).
 
-Directly determines the wake time recommendation relative to work start.
+### Key Mappings
 
-## Changes Summary
+**Pressure Zone -> Pattern + Motion:**
+- `cognitive_overload` -> `shards` pattern, high jitter, `electric` texture
+- `energy_instability` -> pulsing brightness, `plasma` pattern
+- `direction_fog` -> `swirl` pattern, rotating axis drift
+- `lack_of_structure` -> `strata` pattern, more symmetry
 
-### File: `src/flows/onboardingFlowSpec.ts`
-- Add `work_start_time` and `work_end_time` mini-steps to Step 9 (Work Reality)
-- Add `desired_wake_time` and `morning_routine_desire` mini-steps to Step 5 (Sleep Architecture)
-- Add `relationship_status` mini-step to Step 10 (Life Load)
-- Add `stress_default_behavior` mini-step to Step 12 (Friction Trigger)
-- Add `previous_change_attempts` mini-step to Step 11 (Execution Pattern)
+**Functional Signals -> Morph + Particles:**
+- `racing_thoughts` -> higher noise frequency, faster pulseRate
+- `doom_scrolling` -> higher particle count, chaotic drift
+- `afternoon_crash` -> darker dayNightBias, lower coreIntensity
 
-### File: `supabase/functions/_shared/launchpad-ai-prompt.ts`
-- Update the INPUT DATA STRUCTURE section to list the 7 new variables
-- Add explicit instruction: "Use work_start_time and work_end_time as the primary anchors for the 8-8-8 structure"
-- Add instruction: "Compare desired_wake_time vs current wake_time to determine sleep restructuring priority"
-- Add instruction: "Use morning_routine_desire to calculate recommended wake time = work_start_time - commute - morning_routine_desire"
+**Execution Pattern -> Particle Behavior + Bloom:**
+- `start_and_quit` -> `burst` particle behavior
+- `overplan_and_delay` -> low motion, "contained energy"
+- `burn_out_quickly` -> high bloom + fast morph + periodic dim
+- `consistent_but_plateaued` -> stable symmetry, subtle `swirl`
 
-### File: `src/components/dashboard/RecalibrateModal.tsx`
-- The recalibrate modal dynamically reads from the flow spec, so the new questions will appear automatically as long as they use the same dbPath pattern
+**Motivation Driver -> Material + Gradient:**
+- `status` -> `metal` material, crisp rim, high specular
+- `freedom` -> `plasma` material, wide gradients, `drift` particles
+- `stability` -> low jitter, strong symmetry, muted palette
+- `identity_upgrade` -> `iridescent` material, high chromaShift
 
-### No DB migration needed
-All new variables store into existing JSON columns (`step_1_intention` / `step_2_profile_data`) via `jsonPath`.
+**Sleep Quality (1-5) -> Material + Smoothness:**
+- Low (1-2) -> higher roughness, lower bloom, matte
+- High (4-5) -> `glass`/`iridescent`, smoother motion
+
+**Screen Before Bed -> Chroma + Rim:**
+- `yes` -> stronger chromaShift + brighter rimLight
+
+**Dopamine Load (screen time + reels + porn) -> Neon + Bloom:**
+- High load -> neon particlePalette, `burst`/`halo` behavior, high bloomStrength
+- Low load -> calmer palette, fewer particles, `orbit`
+
+**Body Fat + Activity -> Core + Speed:**
+- Higher fat + low activity -> heavier coreSize, slower morphSpeed
+- High activity -> sharper geometryDetail, faster morphSpeed
+
+**Sunlight After Waking -> Rim Warmth:**
+- `yes` -> warm gold rim light
+- `no` -> cool cyan rim light
+
+**Cold Exposure -> Pattern + Specular:**
+- `yes` -> crystalline `shards` pattern, higher clearcoat
+
+**Caffeine -> Micro-Jitter:**
+- 3+ cups -> subtle micro-oscillation on morph
+
+**Stress Default Behavior -> Particle + Pattern:**
+- `eat` -> organic/`cellular` pattern, `drift`
+- `isolate` -> inward `drift`, darker palette
+- `exercise` -> `sparks`/`orbit`
+
+**Friction Trigger -> Edge Sharpness:**
+- `perfectionism` -> high symmetry
+- `reactivity` -> sharp edges, higher noise frequency
+
+**Urgency Scale (1-10) -> Pulse + Emissive:**
+- High -> faster pulse, brighter emissive, aggressive rim
+
+**Restructure Willingness (1-10) -> Complexity:**
+- High -> more layers, more gradient stops (up to 7), richer material
+- Low -> fewer stops (3), simpler visuals
+
+**Additional mappings:** age bracket (saturation), gender (subtle hue temp), dependents (extra layer), relationship status (warmer secondaries), alcohol/weed frequency (smoother/dreamlike motion).
+
+**File: `src/hooks/useOrbProfile.ts`**
+
+- Update `extractProfileData()` to also read `step_1_intention` data from `launchpad_progress` (pressure_zone, functional_signals, urgency_scale, restructure_willingness)
+- Pass both step_1 + step_2 data to `buildVisualDNA()`
+- Merge result into the computed profile
+
+**File: `src/lib/orbProfileGenerator.ts`**
+
+- Import and call `buildVisualDNA()` inside `generateOrbProfile()`
+- Archetype sets the base palette/geometry; `buildVisualDNA` overrides/enriches material, pattern, gradient, particles
+
+---
+
+## Phase C -- Shader-Based Rendering (Core Change)
+
+**File: `src/components/orb/WebGLOrb.tsx`** (major rewrite)
+
+### Current State (the problem)
+Lines 396-431: Creates `WireframeGeometry` + `LineBasicMaterial` with vertex colors. This is why the orb is monochrome wireframe.
+
+### New Rendering Architecture
+
+**Dual-layer approach:**
+
+1. **Outer Solid Mesh** -- `THREE.Mesh` with custom `THREE.ShaderMaterial`
+   - Receives all gradient/material/pattern uniforms
+   - This is where multi-color gradients, materials, and patterns render
+
+2. **Inner Wireframe Overlay** -- `THREE.LineSegments` at 15-25% opacity
+   - Keeps the geometric DNA vibe
+   - Uses vertex colors from current system
+
+### New GLSL Fragment Shader
+
+Uniforms:
+- `u_colors[7]` (vec3 array) -- gradient stop colors
+- `u_colorCount` (int) -- active stop count
+- `u_gradientMode` (int) -- 0=vertical, 1=radial, 2=noise, 3=rim
+- `u_materialType` (int) -- 0=wire, 1=metal, 2=glass, 3=plasma, 4=iridescent
+- `u_patternType` (int) -- 0=voronoi, 1=cellular, 2=fractal, 3=shards, 4=swirl, 5=strata
+- `u_patternIntensity`, `u_chromaShift`, `u_bloomStrength`, `u_time`
+- `u_rimLightColor`, `u_emissiveIntensity`
+- `u_metalness`, `u_roughness`, `u_clearcoat`, `u_transmission`, `u_ior`
+
+Fragment shader pipeline:
+1. Compute gradient blend factor from `gradientMode` (normal.y / distance / fbm / fresnel)
+2. Sample multi-stop gradient using blend factor
+3. Apply pattern overlay (voronoi/cellular/fractal/shards/swirl/strata) mixed by `patternIntensity`
+4. Apply material lighting model (metal = high specular; glass = fresnel rim + refraction tint; plasma = animated emissive + noise; iridescent = hue shift by view angle)
+5. Add rim light using `rimLightColor`
+6. Write emissive channel for bloom pre-pass
+
+### Pattern Functions (GLSL)
+- **Voronoi**: Cell noise with hash-based random points
+- **Cellular**: Worley noise variant
+- **Fractal**: Existing fbm repurposed
+- **Shards**: Angular Voronoi with hard edges
+- **Swirl**: Polar coordinate distortion
+- **Strata**: Horizontal bands with noise displacement
+
+### Post-Processing (Conditional)
+- Add `EffectComposer` + `UnrealBloomPass` from Three.js examples
+- Controlled by `bloomStrength`
+- **Disabled** when orb size <= 120px (HUD) for performance
+- Runs at half resolution on mobile
+
+### Morph Animation
+- Keep existing deformation logic (fbm + wave layers)
+- Apply to the solid mesh geometry (same as current wireframe)
+- Wireframe overlay tracks the same deformation
+
+---
+
+## Phase D -- Particle System
+
+**New file: `src/components/orb/OrbParticles.ts`**
+
+A particle system using `THREE.Points` with a custom shader.
+
+### 5 Behaviors
+
+| Behavior | Description |
+|----------|-------------|
+| `orbit` | Stable circular paths at varying radii |
+| `spiral` | Helix paths wrapping the orb |
+| `halo` | Concentrated ring at equator |
+| `burst` | Periodic outward explosions synced to pulseRate |
+| `drift` | Slow Brownian motion / random walk |
+
+### Multi-Color Palette
+
+Each particle gets a color from `particlePalette` based on `particleMode`:
+- `single` -- all use palette[0]
+- `cycle` -- colors rotate over time
+- `random` -- each particle gets random palette color at spawn
+- `byVelocity` -- faster = later palette colors
+- `byRadius` -- farther = later palette colors
+
+### Integration
+- Runs in the same Three.js scene
+- Shares the animation loop timing
+- Count and speed driven by dopamine load + execution pattern signals
+
+---
+
+## Phase E -- Debug Overlay + Dev Gallery
+
+### Update `src/components/orb/OrbDebugOverlay.tsx`
+
+Add sections for:
+- Gradient stop swatches (visual color dots, all 3-7)
+- Material type + key materialParams
+- Pattern type + intensity
+- Particle palette swatches + behavior
+- Bloom + chromaShift values
+- "Randomize Seed" toggle button (only when ORB_DEBUG=true)
+
+### Update `src/components/gamification/OrbDNACard.tsx`
+
+Add a "Visual Signature" section:
+- Gradient stop swatches row
+- Material type badge (metal/glass/plasma/iridescent)
+- Pattern type badge with intensity bar
+- Rim light color swatch
+- "Why you got this look" explanatory bullets (generated from the same mapping table in `buildVisualDNA`)
+
+### New `src/pages/dev/OrbGallery.tsx`
+
+A grid page at `/dev/orb-gallery` showing 12 orbs from hardcoded fake profiles with diverse intake combinations:
+- Each cell: 150x150 orb + label (archetype + material + pattern)
+- Covers all 5 material types, all 6 pattern types, varied archetypes
+- Visually confirms diversity
+
+### Route addition in `src/App.tsx`
+- Add `/dev/orb-gallery` route (lazy-loaded)
+
+---
+
+## Files Summary
+
+| File | Action |
+|------|--------|
+| `src/components/orb/types.ts` | Add ~15 new OrbProfile fields + sub-types |
+| `src/lib/visualDNA.ts` | **NEW** -- maps all ~65 intake vars to visual params |
+| `src/lib/orbProfileGenerator.ts` | Integrate visualDNA, update defaults + interpolation |
+| `src/hooks/useOrbProfile.ts` | Read step_1_intention, pass to generator, store new fields |
+| `src/components/orb/WebGLOrb.tsx` | Major rewrite: Mesh + ShaderMaterial + patterns + bloom |
+| `src/components/orb/OrbParticles.ts` | **NEW** -- particle system with 5 behaviors |
+| `src/components/orb/OrbDebugOverlay.tsx` | Add new fields + randomize seed toggle |
+| `src/components/gamification/OrbDNACard.tsx` | Add Visual Signature section + "why" bullets |
+| `src/pages/dev/OrbGallery.tsx` | **NEW** -- 12-orb diversity test page |
+| `src/App.tsx` | Add dev route |
+
+---
+
+## Performance Safeguards
+
+- Bloom disabled for orb size <= 120px (HUD mode)
+- Bloom runs at half resolution on all devices
+- Pattern GLSL uses simple hash functions (no texture lookups)
+- Particle count still capped at 120
+- CSS fallback orb (`CSSOrb.tsx`) unchanged -- graceful degradation
+- `wire` materialType preserved as an option for backward compatibility
+
+## Migration Safety
+
+- All new fields are optional with sensible defaults
+- Existing stored profiles load fine (missing fields get defaults via `rowToProfile`)
+- No database schema changes -- everything in `computed_from` JSON
+- `interpolateOrbProfiles` handles new fields for smooth 800ms transitions
 
