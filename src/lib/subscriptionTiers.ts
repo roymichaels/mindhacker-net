@@ -96,19 +96,18 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "Dashboard & 90-day plan",
       "5 Aurora messages/day",
       "3 active habits",
-      "Basic progress tracking",
     ],
     he: [
       "דאשבורד ותוכנית 90 יום",
       "5 הודעות יומיות לאורורה",
       "3 הרגלים פעילים",
-      "מעקב התקדמות בסיסי",
     ],
   },
   pro: {
     en: [
       "Everything in Free",
       "Unlimited Aurora messages",
+      "Projects module",
       "1 personalized AI hypnosis/day",
       "Proactive coaching nudges",
       "Unlimited habits & checklists",
@@ -116,6 +115,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     he: [
       "הכל מ-Free",
       "הודעות ללא הגבלה לאורורה",
+      "מודול פרויקטים",
       "היפנוזה AI מותאמת אישית יומית",
       "נאדג׳ים פרואקטיביים",
       "הרגלים ורשימות ללא הגבלה",
