@@ -1,6 +1,6 @@
 import { Outlet, useParams } from 'react-router-dom';
-import { CoachStorefrontProvider, useCoachStorefront } from '@/contexts/PractitionerContext';
-import { CoachAuthProvider } from '@/contexts/PractitionerAuthContext';
+import { CoachStorefrontProvider, useCoachStorefront } from '@/contexts/CoachStorefrontContext';
+import { CoachAuthProvider } from '@/contexts/CoachAuthContext';
 import StorefrontHeader from '@/components/storefront/StorefrontHeader';
 import StorefrontFooter from '@/components/storefront/StorefrontFooter';
 import { useEffect } from 'react';

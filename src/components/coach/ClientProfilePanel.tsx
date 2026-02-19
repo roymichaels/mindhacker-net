@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useMyPractitionerProfile } from '@/hooks/usePractitioners';
+import { useMyCoachProfile } from '@/domain/coaches';
 import { PractitionerClient } from '@/hooks/useCoachClients';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +33,7 @@ interface ClientProfilePanelProps {
 const ClientProfilePanel = ({ client, onBack }: ClientProfilePanelProps) => {
   const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
   const queryClient = useQueryClient();
 
   const [generateOpen, setGenerateOpen] = useState(false);

@@ -70,5 +70,3 @@ const CoachMiniItemCard = ({ item, onClick }: CoachMiniItemCardProps) => {
 };
 
 export default CoachMiniItemCard;
-/** @deprecated Use CoachMiniItemCard */
-export { CoachMiniItemCard as PractitionerMiniItemCard };

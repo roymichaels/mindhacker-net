@@ -2643,11 +2643,8 @@ export const he = {
     
     expertCoaches: "מאמנים מומחים",
     featuredCoachesTitle: "המומחים שלנו",
-    featuredPractitionersTitle: "המומחים שלנו",
     featuredCoachesSubtitle: "מאמנים ומטפלים מקצועיים שילוו אותך במסע",
-    featuredPractitionersSubtitle: "מאמנים ומטפלים מקצועיים שילוו אותך במסע",
     viewAllCoaches: "ראה את כל המאמנים",
-    viewAllPractitioners: "ראה את כל המאמנים",
   },
 
   home: {

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useMyPractitionerProfile } from './usePractitioners';
+import { useMyCoachProfile } from '@/domain/coaches';
 import { toast } from 'sonner';
 
 export interface PractitionerClient {
@@ -19,7 +19,7 @@ export interface PractitionerClient {
 }
 
 export const useCoachClients = () => {
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
 
   return useQuery({
     queryKey: ['coach-clients', myProfile?.id],
@@ -70,7 +70,7 @@ export const useCoachClientStats = () => {
 
 export const useAddCoachClient = () => {
   const queryClient = useQueryClient();
-  const { data: myProfile } = useMyPractitionerProfile();
+  const { data: myProfile } = useMyCoachProfile();
 
   return useMutation({
     mutationFn: async ({

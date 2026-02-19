@@ -2589,11 +2589,8 @@ export const en: TranslationKeys = {
     
     expertCoaches: "Expert Coaches",
     featuredCoachesTitle: "Our Experts",
-    featuredPractitionersTitle: "Our Experts",
     featuredCoachesSubtitle: "Professional coaches to guide you on your journey",
-    featuredPractitionersSubtitle: "Professional coaches to guide you on your journey",
     viewAllCoaches: "View All Coaches",
-    viewAllPractitioners: "View All Coaches",
   },
 
   home: {

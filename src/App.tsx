@@ -100,7 +100,7 @@ const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
 const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashboard"));
-const RolesManager = lazy(() => import("./pages/panel/RolesManager"));
+
 const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
 const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
@@ -212,8 +212,8 @@ const App = () => (
                          */}
                         <Route path="/practitioners" element={<Navigate to="/coaches" replace />} />
                         <Route path="/marketplace" element={<Navigate to="/coaches" replace />} />
-                        <Route path="/practitioner/:slug" element={<CoachProfile />} />
-                        <Route path="/practitioners/:slug" element={<CoachProfile />} />
+                        <Route path="/practitioner/:slug" element={<CoachSlugRedirect />} />
+                        <Route path="/practitioners/:slug" element={<CoachSlugRedirect />} />
                         {/* Coach slug alias → storefront */}
                         <Route path="/coach/:slug" element={<CoachSlugRedirect />} />
                         {/* Redirect old affiliate dashboard to new panel */}

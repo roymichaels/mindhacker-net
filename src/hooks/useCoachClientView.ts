@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRoles } from './useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyCoachProfile } from '@/domain/coaches';
 
 export interface CoachClientData {
   id: string;
@@ -73,6 +74,7 @@ interface UseCoachClientViewReturn {
 export const useCoachClientView = (clientId: string): UseCoachClientViewReturn => {
   const { hasRole } = useUserRoles();
   const { user } = useAuth();
+  const { data: myCoachProfile } = useMyCoachProfile();
   const [clientData, setClientData] = useState<CoachClientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,13 +93,8 @@ export const useCoachClientView = (clientId: string): UseCoachClientViewReturn =
       setLoading(true);
       setError(null);
 
-      // First, verify this client has purchased from this practitioner
-      // Get the practitioner's ID
-      const { data: practitionerData } = await supabase
-        .from('practitioners')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+      // Get the practitioner's ID from domain hook
+      const practitionerData = myCoachProfile;
 
       if (!practitionerData) {
         setError('Not a registered practitioner');
@@ -240,7 +237,7 @@ export const useCoachClientView = (clientId: string): UseCoachClientViewReturn =
     } finally {
       setLoading(false);
     }
-  }, [clientId, isPractitioner, user]);
+  }, [clientId, isPractitioner, user, myCoachProfile]);
 
   useEffect(() => {
     fetchClientData();

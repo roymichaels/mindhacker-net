@@ -67,5 +67,3 @@ const FeaturedCoaches = () => {
 };
 
 export default FeaturedCoaches;
-/** @deprecated Use FeaturedCoaches */
-export { FeaturedCoaches as FeaturedPractitioners };
