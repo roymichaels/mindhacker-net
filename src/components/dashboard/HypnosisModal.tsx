@@ -38,7 +38,41 @@ interface HypnosisModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type SessionState = 'generating' | 'synthesizing' | 'playing' | 'paused' | 'complete';
+type SessionState = 'intro' | 'generating' | 'synthesizing' | 'playing' | 'paused' | 'complete';
+
+const INTRO_SEEN_KEY = 'hypnosis_intro_seen';
+
+interface IntroSlide {
+  icon: string;
+  title_he: string;
+  title_en: string;
+  body_he: string;
+  body_en: string;
+}
+
+const INTRO_SLIDES: IntroSlide[] = [
+  {
+    icon: '🧠',
+    title_he: 'מה זה בעצם היפנוזה?',
+    title_en: 'What is Hypnosis, Really?',
+    body_he: 'היפנוזה היא מצב טבעי של ריכוז עמוק ורגיעה — דומה לרגע שבו אתה שקוע בספר טוב או בנסיעה ממש ארוכה. זה לא שינה ולא איבוד שליטה. המוח שלך פשוט נכנס למצב פתוח יותר לשינוי.',
+    body_en: 'Hypnosis is a natural state of deep focus and relaxation — similar to being absorbed in a great book or a long drive. It\'s not sleep and not losing control. Your brain simply enters a state more open to positive change.',
+  },
+  {
+    icon: '🛡️',
+    title_he: 'אתה תמיד בשליטה מלאה',
+    title_en: 'You Are Always in Full Control',
+    body_he: 'אף אחד לא יכול לגרום לך לעשות משהו שאתה לא רוצה. אתה יכול לפתוח את העיניים, לעצור, או לצאת בכל רגע. ההיפנוזה עובדת איתך, לא עליך — אתה השותף הפעיל בתהליך.',
+    body_en: 'Nobody can make you do anything you don\'t want. You can open your eyes, stop, or leave at any moment. Hypnosis works with you, not on you — you are the active partner in this process.',
+  },
+  {
+    icon: '✨',
+    title_he: 'איך להפיק את המקסימום',
+    title_en: 'How to Get the Most Out of It',
+    body_he: 'מצא מקום שקט ונוח. שב או שכב בנוחות. הרשה לעצמך פשוט להקשיב בלי לנתח — תן למילים לעשות את העבודה. ככל שתתרגל יותר, כך ההשפעה תהיה עמוקה יותר.',
+    body_en: 'Find a quiet, comfortable place. Sit or lie down comfortably. Allow yourself to just listen without analyzing — let the words do the work. The more you practice, the deeper the effect becomes.',
+  },
+];
 
 export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const { t, isRTL, language } = useTranslation();
@@ -64,6 +98,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs');
   const [voiceStarted, setVoiceStarted] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0); // 0-1 for karaoke effect
+  const [introStep, setIntroStep] = useState(0);
 
   const startTimeRef = useRef<number>(0);
   const playingRef = useRef<boolean>(false);
@@ -139,11 +174,28 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         onOpenChange(false);
         return;
       }
+
+      // Show intro if user hasn't seen it yet
+      const introSeen = localStorage.getItem(INTRO_SEEN_KEY);
+      if (!introSeen) {
+        setState('intro');
+        setIntroStep(0);
+        return;
+      }
+
       const sessionGoal = suggestedGoal || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
       setGoal(sessionGoal);
       startSession(sessionGoal);
     }
   }, [open, isLoadingContext, canAccessHypnosis]);
+
+  const finishIntro = () => {
+    localStorage.setItem(INTRO_SEEN_KEY, 'true');
+    setState('generating');
+    const sessionGoal = suggestedGoal || currentMilestone?.title || (language === 'he' ? 'רגיעה עמוקה ושלווה' : 'Deep relaxation and peace');
+    setGoal(sessionGoal);
+    startSession(sessionGoal);
+  };
 
   // Reset state when modal closes
   useEffect(() => {
@@ -158,6 +210,7 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
       setVoiceStarted(false);
       setCachedAudioUrl(null);
       setAudioProgress(0);
+      setIntroStep(0);
       // Reset meaningful audio tracking
       badCachedAudioRef.current = false;
     }
@@ -749,6 +802,70 @@ export function HypnosisModal({ open, onOpenChange }: HypnosisModalProps) {
         </Button>
 
         <AnimatePresence mode="wait">
+
+          {/* Intro State — 3-step walkthrough */}
+          {state === 'intro' && (
+            <motion.div
+              key={`intro-${introStep}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 space-y-6 text-center"
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              {/* Icon */}
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center"
+              >
+                <span className="text-5xl">{INTRO_SLIDES[introStep].icon}</span>
+              </motion.div>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold leading-tight">
+                {language === 'he' ? INTRO_SLIDES[introStep].title_he : INTRO_SLIDES[introStep].title_en}
+              </h2>
+
+              {/* Body */}
+              <p className="text-muted-foreground leading-relaxed max-w-md text-sm sm:text-base">
+                {language === 'he' ? INTRO_SLIDES[introStep].body_he : INTRO_SLIDES[introStep].body_en}
+              </p>
+
+              {/* Dots */}
+              <div className="flex gap-2">
+                {INTRO_SLIDES.map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "w-2.5 h-2.5 rounded-full transition-all",
+                      i === introStep ? "bg-primary scale-110" : "bg-muted-foreground/30"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Button */}
+              <Button
+                size="lg"
+                onClick={() => {
+                  if (introStep < INTRO_SLIDES.length - 1) {
+                    setIntroStep(introStep + 1);
+                  } else {
+                    finishIntro();
+                  }
+                }}
+                className="min-w-[200px] h-12 rounded-xl font-bold bg-gradient-to-r from-primary to-accent text-primary-foreground"
+              >
+                {introStep < INTRO_SLIDES.length - 1
+                  ? (language === 'he' ? 'הבא' : 'Next')
+                  : (language === 'he' ? 'אני מוכן, בוא נתחיל' : "I'm ready, let's begin")
+                }
+              </Button>
+            </motion.div>
+          )}
 
           {/* Generating State */}
           {state === 'generating' && (
