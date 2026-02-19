@@ -110,7 +110,26 @@ export function generateOrbProfile(input: GenerateOrbProfileInput): OrbProfile {
   });
   
   // Visual DNA overrides the base archetype profile
-  return { ...baseProfile, ...visualDNA };
+  const merged = { ...baseProfile, ...visualDNA };
+  
+  // === Validate merged profile: prevent black orb ===
+  if (!merged.gradientStops || merged.gradientStops.length < 3) {
+    merged.gradientStops = VISUAL_DEFAULTS.gradientStops;
+  }
+  if (merged.materialType !== 'wire' && merged.materialParams) {
+    merged.materialParams = { ...merged.materialParams, emissiveIntensity: Math.max(0.05, merged.materialParams.emissiveIntensity) };
+  }
+  if (merged.bloomStrength !== undefined) {
+    merged.bloomStrength = Math.max(0, Math.min(1.5, merged.bloomStrength));
+  }
+  if (merged.chromaShift !== undefined) {
+    merged.chromaShift = Math.max(0, Math.min(0.8, merged.chromaShift));
+  }
+  if (merged.patternIntensity !== undefined) {
+    merged.patternIntensity = Math.max(0, Math.min(1, merged.patternIntensity));
+  }
+  
+  return merged as OrbProfile;
 }
 
 /**

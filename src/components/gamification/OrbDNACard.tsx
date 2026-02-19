@@ -1,60 +1,60 @@
 /**
- * OrbDNACard – Visual DNA Breakdown
- * Shows which traits, hobbies, and behaviors influence the orb's appearance.
+ * OrbDNACard – Visual Resume / DNA Breakdown
+ * Shows the full visual signature, motion, complexity, and "why" explanations.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOrbProfile } from '@/hooks/useOrbProfile';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { getArchetypeName, getArchetypeIcon } from '@/lib/orbProfileGenerator';
-import { HOBBY_MAPPINGS } from '@/lib/avatarDNA';
-import { PillChips } from '@/components/aurora-ui/PillChips';
+import { getVisualDNAExplanations, type VisualDNAInput } from '@/lib/visualDNA';
+import { VISUAL_DEFAULTS } from '@/components/orb/types';
 import { Progress } from '@/components/ui/progress';
-import { Layers, Sparkles, Zap, Wind } from 'lucide-react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { Layers, Sparkles, Zap, Wind, ChevronDown, Bug } from 'lucide-react';
 import type { ArchetypeId } from '@/lib/archetypes';
 
+// ===== Constants =====
 const ARCHETYPE_COLORS: Record<ArchetypeId, string> = {
-  warrior: 'bg-orange-500',
-  mystic: 'bg-violet-500',
-  creator: 'bg-pink-500',
-  sage: 'bg-cyan-500',
-  healer: 'bg-emerald-500',
-  explorer: 'bg-amber-500',
+  warrior: 'bg-orange-500', mystic: 'bg-violet-500', creator: 'bg-pink-500',
+  sage: 'bg-cyan-500', healer: 'bg-emerald-500', explorer: 'bg-amber-500',
 };
 
-const ARCHETYPE_BADGE_COLORS: Record<ArchetypeId, string> = {
-  warrior: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-  mystic: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-  creator: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
-  sage: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
-  healer: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-500/20',
-  explorer: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+const MATERIAL_LABELS: Record<string, { en: string; he: string; icon: string }> = {
+  wire: { en: 'Wire', he: 'חוט', icon: '🔗' },
+  metal: { en: 'Metal', he: 'מתכת', icon: '⚙️' },
+  glass: { en: 'Glass', he: 'זכוכית', icon: '💎' },
+  plasma: { en: 'Plasma', he: 'פלזמה', icon: '⚡' },
+  iridescent: { en: 'Iridescent', he: 'אירידסנטי', icon: '🌈' },
 };
 
-// Labels for behavioral styles
-const DECISION_LABELS: Record<string, { en: string; he: string }> = {
-  'gut-feeling': { en: 'Gut Feeling', he: 'תחושת בטן' },
-  'pros-cons': { en: 'Pros & Cons', he: 'שיקולים' },
-  'seek-advice': { en: 'Seek Advice', he: 'התייעצות' },
-  'sleep-on-it': { en: 'Sleep On It', he: 'ישון על זה' },
-  'quick-decision': { en: 'Quick Decision', he: 'החלטה מהירה' },
+const PATTERN_LABELS: Record<string, { en: string; he: string }> = {
+  voronoi: { en: 'Voronoi', he: 'ורונוי' },
+  cellular: { en: 'Cellular', he: 'תאי' },
+  fractal: { en: 'Fractal', he: 'פרקטלי' },
+  shards: { en: 'Shards', he: 'שברים' },
+  swirl: { en: 'Swirl', he: 'מערבולת' },
+  strata: { en: 'Strata', he: 'שכבות' },
 };
 
-const CONFLICT_LABELS: Record<string, { en: string; he: string }> = {
-  'direct': { en: 'Direct', he: 'ישיר' },
-  'avoid': { en: 'Avoidant', he: 'נמנע' },
-  'diplomatic': { en: 'Diplomatic', he: 'דיפלומטי' },
-  'compromise': { en: 'Compromise', he: 'פשרה' },
+const GEOMETRY_LABELS: Record<string, { en: string; he: string }> = {
+  sphere: { en: 'Sphere', he: 'כדור' },
+  torus: { en: 'Torus', he: 'טורוס' },
+  dodeca: { en: 'Dodecahedron', he: 'דודקהדרון' },
+  icosa: { en: 'Icosahedron', he: 'איקוסהדרון' },
+  octa: { en: 'Octahedron', he: 'אוקטהדרון' },
+  spiky: { en: 'Spiky', he: 'קוצני' },
 };
 
-const PROBLEM_LABELS: Record<string, { en: string; he: string }> = {
-  'solve-immediately': { en: 'Act Fast', he: 'פעולה מהירה' },
-  'research-first': { en: 'Research First', he: 'מחקר קודם' },
-  'calm-then-solve': { en: 'Calm First', he: 'רגיעה קודם' },
-  'delegate': { en: 'Delegate', he: 'האצלה' },
-};
+function getEnergyFeel(profile: { morphIntensity: number; pulseRate: number; morphSpeed: number; smoothness: number }, isHe: boolean): string {
+  const energy = (profile.morphIntensity + profile.pulseRate + profile.morphSpeed) / 3;
+  if (profile.smoothness > 0.7 && energy < 0.8) return isHe ? 'רגוע' : 'Calm';
+  if (energy > 1.5) return isHe ? 'כאוטי' : 'Chaotic';
+  if (profile.morphIntensity > 0.7 && profile.smoothness < 0.4) return isHe ? 'חד' : 'Sharp';
+  return isHe ? 'יציב' : 'Steady';
+}
 
 export function OrbDNACard() {
   const { language } = useTranslation();
@@ -62,41 +62,29 @@ export function OrbDNACard() {
   const { profile } = useOrbProfile();
   const { progress } = useLaunchpadProgress();
 
-  const profileData = useMemo(() => {
-    const pd = progress?.step_2_profile_data as Record<string, unknown> | null;
-    if (!pd) return null;
-    return {
-      hobbies: (pd.hobbies as string[]) || [],
-      decisionStyle: pd.decision_style as string | undefined,
-      conflictStyle: pd.conflict_handling as string | undefined,
-      problemSolvingStyle: pd.problem_approach as string | undefined,
-    };
-  }, [progress?.step_2_profile_data]);
-
-  const { computedFrom } = profile;
-  const archetypeWeights = computedFrom.archetypeWeights || [];
+  const archetypeWeights = profile.computedFrom.archetypeWeights || [];
   const topArchetypes = archetypeWeights.slice(0, 4);
   const maxWeight = topArchetypes[0]?.weight || 1;
-
-  // Map hobbies to their archetype
-  const hobbyArchetypeMap = useMemo(() => {
-    const map: { hobby: string; archetype: ArchetypeId }[] = [];
-    for (const hobby of profileData?.hobbies || []) {
-      const mapping = HOBBY_MAPPINGS[hobby];
-      if (mapping) {
-        map.push({ hobby, archetype: mapping.archetype });
-      } else {
-        map.push({ hobby, archetype: computedFrom.dominantArchetype });
-      }
-    }
-    return map;
-  }, [profileData?.hobbies, computedFrom.dominantArchetype]);
-
-  const colors = [profile.primaryColor, ...(profile.secondaryColors || []), profile.accentColor]
-    .filter(Boolean)
-    .filter((v, i, a) => a.indexOf(v) === i);
-
   const hasData = topArchetypes.length > 0;
+
+  // Check if using defaults
+  const isDefaults = JSON.stringify(profile.gradientStops) === JSON.stringify(VISUAL_DEFAULTS.gradientStops);
+
+  // Build "why" explanations
+  const explanations = useMemo(() => {
+    const input: VisualDNAInput = {
+      step1Intention: progress?.step_1_intention as unknown as Record<string, unknown> | null,
+      step2ProfileData: progress?.step_2_profile_data as unknown as Record<string, unknown> | null,
+      summaryRow: null,
+      seed: profile.seed || 0,
+    };
+    return getVisualDNAExplanations(input, isHe ? 'he' : 'en');
+  }, [progress?.step_1_intention, progress?.step_2_profile_data, profile.seed, isHe]);
+
+  // Debug mode
+  const showDebug = useMemo(() => {
+    try { return localStorage.getItem('ORB_DEBUG') === 'true'; } catch { return false; }
+  }, []);
 
   if (!hasData) {
     return (
@@ -119,96 +107,145 @@ export function OrbDNACard() {
             return (
               <div key={id} className="flex items-center gap-2.5">
                 <span className="text-base w-6 text-center">{getArchetypeIcon(id)}</span>
-                <span className="text-sm font-medium w-20 truncate">
-                  {getArchetypeName(id, isHe)}
-                </span>
+                <span className="text-sm font-medium w-20 truncate">{getArchetypeName(id, isHe)}</span>
                 <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={cn('h-full rounded-full transition-all', ARCHETYPE_COLORS[id])}
-                    style={{ width: `${pct}%` }}
-                  />
+                  <div className={cn('h-full rounded-full transition-all', ARCHETYPE_COLORS[id])} style={{ width: `${pct}%` }} />
                 </div>
-                <span className="text-xs text-muted-foreground w-10 text-end">
-                  {Math.round(weight * 100)}%
-                </span>
+                <span className="text-xs text-muted-foreground w-10 text-end">{Math.round(weight * 100)}%</span>
               </div>
             );
           })}
         </div>
       </Section>
 
-      {/* 2. Influencing Hobbies */}
-      {hobbyArchetypeMap.length > 0 && (
-        <Section title={isHe ? 'תחביבים משפיעים' : 'Influencing Hobbies'} icon="🎯">
-          <div className="flex flex-wrap gap-2">
-            {hobbyArchetypeMap.map(({ hobby, archetype }) => (
-              <span
-                key={hobby}
-                className={cn(
-                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border',
-                  ARCHETYPE_BADGE_COLORS[archetype]
-                )}
-              >
-                <span className="text-xs">{getArchetypeIcon(archetype)}</span>
-                {hobby}
-              </span>
+      {/* 2. Visual Signature */}
+      <Section title={isHe ? 'חתימה ויזואלית' : 'Visual Signature'} icon="🎨">
+        {isDefaults && (
+          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full mb-2 inline-block">
+            {isHe ? '(ברירת מחדל)' : '(defaults)'}
+          </span>
+        )}
+        {/* Gradient Swatches */}
+        <div className="mb-3">
+          <p className="text-xs text-muted-foreground mb-1.5">{isHe ? 'גרדיאנט' : 'Gradient'}</p>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {profile.gradientStops.map((stop, i) => (
+              <div key={i} className="flex flex-col items-center gap-0.5">
+                <div className="w-8 h-8 rounded-full border border-border shadow-sm" style={{ backgroundColor: `hsl(${stop})` }} />
+                <span className="text-[9px] text-muted-foreground">{i + 1}</span>
+              </div>
             ))}
           </div>
-        </Section>
-      )}
-
-      {/* 3. Behavioral Signature */}
-      {(profileData?.decisionStyle || profileData?.conflictStyle || profileData?.problemSolvingStyle) && (
-        <Section title={isHe ? 'חתימה התנהגותית' : 'Behavioral Signature'} icon="🧠">
-          <div className="flex flex-wrap gap-2">
-            {profileData?.decisionStyle && DECISION_LABELS[profileData.decisionStyle] && (
-              <BehaviorChip
-                label={isHe ? 'החלטות' : 'Decisions'}
-                value={isHe ? DECISION_LABELS[profileData.decisionStyle].he : DECISION_LABELS[profileData.decisionStyle].en}
-              />
-            )}
-            {profileData?.conflictStyle && CONFLICT_LABELS[profileData.conflictStyle] && (
-              <BehaviorChip
-                label={isHe ? 'עימות' : 'Conflict'}
-                value={isHe ? CONFLICT_LABELS[profileData.conflictStyle].he : CONFLICT_LABELS[profileData.conflictStyle].en}
-              />
-            )}
-            {profileData?.problemSolvingStyle && PROBLEM_LABELS[profileData.problemSolvingStyle] && (
-              <BehaviorChip
-                label={isHe ? 'בעיות' : 'Problems'}
-                value={isHe ? PROBLEM_LABELS[profileData.problemSolvingStyle].he : PROBLEM_LABELS[profileData.problemSolvingStyle].en}
-              />
-            )}
+        </div>
+        {/* Material + Pattern badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge label={isHe ? 'חומר' : 'Material'} value={`${MATERIAL_LABELS[profile.materialType]?.icon || ''} ${isHe ? MATERIAL_LABELS[profile.materialType]?.he : MATERIAL_LABELS[profile.materialType]?.en}`} />
+          <Badge label={isHe ? 'דפוס' : 'Pattern'} value={isHe ? PATTERN_LABELS[profile.patternType]?.he : PATTERN_LABELS[profile.patternType]?.en} />
+        </div>
+        {/* Rim Light + Core Gradient */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">{isHe ? 'שוליים' : 'Rim'}:</span>
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.rimLightColor})` }} />
           </div>
-        </Section>
-      )}
-
-      {/* 4. Orb Stats */}
-      <Section title={isHe ? 'סטטיסטיקות אורב' : 'Orb Stats'} icon="⚡">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">{isHe ? 'ליבה' : 'Core'}:</span>
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.coreGradient[0]})` }} />
+            <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: `hsl(${profile.coreGradient[1]})` }} />
+          </div>
+        </div>
+        {/* Meters */}
         <div className="grid grid-cols-2 gap-2">
-          <StatChip icon={<Layers className="w-3.5 h-3.5" />} label={isHe ? 'שכבות' : 'Layers'} value={String(profile.layerCount)} />
-          <StatChip icon={<Sparkles className="w-3.5 h-3.5" />} label={isHe ? 'חלקיקים' : 'Particles'} value={String(profile.particleCount)} />
-          <StatChip icon={<Zap className="w-3.5 h-3.5" />} label={isHe ? 'פירוט' : 'Detail'} value={String(profile.geometryDetail)} />
-          <StatChip icon={<Wind className="w-3.5 h-3.5" />} label={isHe ? 'טקסטורה' : 'Texture'} value={profile.textureType} />
+          <Meter label={isHe ? 'זוהר' : 'Bloom'} value={profile.bloomStrength} max={1.5} />
+          <Meter label={isHe ? 'הסטת צבע' : 'Chroma'} value={profile.chromaShift} max={0.8} />
+          <Meter label={isHe ? 'עוצמת דפוס' : 'Pattern'} value={profile.patternIntensity} max={1} />
         </div>
       </Section>
 
-      {/* 5. Color Preview */}
+      {/* 3. Motion Signature */}
+      <Section title={isHe ? 'חתימת תנועה' : 'Motion Signature'} icon="🌊">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs text-muted-foreground">{isHe ? 'תחושת אנרגיה' : 'Energy feel'}:</span>
+          <span className="text-sm font-semibold text-foreground">{getEnergyFeel(profile, isHe)}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Meter label={isHe ? 'מורפינג' : 'Morph'} value={profile.morphIntensity} max={1} />
+          <Meter label={isHe ? 'מהירות' : 'Speed'} value={profile.morphSpeed} max={2} />
+          <Meter label={isHe ? 'פעימה' : 'Pulse'} value={profile.pulseRate} max={3} />
+          <Meter label={isHe ? 'חלקות' : 'Smooth'} value={profile.smoothness} max={1} />
+        </div>
+      </Section>
+
+      {/* 4. Complexity */}
+      <Section title={isHe ? 'מורכבות' : 'Complexity'} icon="⚡">
+        <div className="grid grid-cols-2 gap-2">
+          <StatChip icon={<Layers className="w-3.5 h-3.5" />} label={isHe ? 'שכבות' : 'Layers'} value={String(profile.layerCount)} />
+          <StatChip icon={<Zap className="w-3.5 h-3.5" />} label={isHe ? 'פירוט' : 'Detail'} value={String(profile.geometryDetail)} />
+          <StatChip icon={<Sparkles className="w-3.5 h-3.5" />} label={isHe ? 'אוקטבות' : 'Octaves'} value={String(profile.fractalOctaves)} />
+          <StatChip icon={<Wind className="w-3.5 h-3.5" />} label={isHe ? 'גיאומטריה' : 'Geometry'} value={
+            profile.geometryFamily ? (isHe ? GEOMETRY_LABELS[profile.geometryFamily]?.he : GEOMETRY_LABELS[profile.geometryFamily]?.en) || profile.geometryFamily : '—'
+          } />
+        </div>
+        <div className="mt-2">
+          <Badge
+            label={isHe ? 'חלקיקים' : 'Particles'}
+            value={profile.particleEnabled ? `${isHe ? 'פעיל' : 'On'} (${profile.particleCount})` : (isHe ? 'כבוי' : 'Off')}
+          />
+        </div>
+      </Section>
+
+      {/* 5. Why You Look Like This */}
+      {explanations.length > 0 && (
+        <Section title={isHe ? 'למה ככה נראה?' : 'Why You Look Like This'} icon="💡">
+          <ul className="space-y-1.5">
+            {explanations.map((exp, i) => (
+              <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                <span className="text-[10px] mt-0.5">•</span>
+                <span>{exp}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {/* 6. Full Color Palette */}
       <Section title={isHe ? 'פלטת צבעים' : 'Color Palette'} icon="🎨">
-        <div className="flex items-center gap-2">
-          {colors.map((c, i) => (
+        <div className="flex items-center gap-2 flex-wrap">
+          {profile.gradientStops.map((c, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
-              <div
-                className="w-10 h-10 rounded-full border-2 border-border shadow-sm"
-                style={{ backgroundColor: `hsl(${c})` }}
-              />
-              <span className="text-[9px] text-muted-foreground">
-                {i === 0 ? (isHe ? 'ראשי' : 'Primary') : i === colors.length - 1 ? (isHe ? 'הדגשה' : 'Accent') : (isHe ? 'משני' : 'Secondary')}
-              </span>
+              <div className="w-10 h-10 rounded-full border-2 border-border shadow-sm" style={{ backgroundColor: `hsl(${c})` }} />
+              <span className="text-[9px] text-muted-foreground">{i + 1}</span>
             </div>
           ))}
         </div>
       </Section>
+
+      {/* 7. Dev Debug (conditional) */}
+      {showDebug && (
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full">
+            <Bug className="w-3.5 h-3.5" />
+            <span>Debug Info</span>
+            <ChevronDown className="w-3 h-3 ms-auto" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <div className="text-[10px] font-mono bg-muted/50 rounded-lg p-3 space-y-1 overflow-auto max-h-48 border border-border/50">
+              <p>gradientStops: {profile.gradientStops.length} stops</p>
+              <p>materialType: {profile.materialType}</p>
+              <p>patternType: {profile.patternType}</p>
+              <p>bloomStrength: {profile.bloomStrength?.toFixed(2)}</p>
+              <p>chromaShift: {profile.chromaShift?.toFixed(2)}</p>
+              <p>emissiveIntensity: {profile.materialParams?.emissiveIntensity?.toFixed(2)}</p>
+              <p>geometryFamily: {profile.geometryFamily || 'default'}</p>
+              <p>seed: {profile.seed}</p>
+              <p>diagnosticState: {profile.diagnosticState}</p>
+              <p className="pt-1 border-t border-border/50">stops: {profile.gradientStops.join(' | ')}</p>
+              <p>rimLight: {profile.rimLightColor}</p>
+              <p>coreGradient: {profile.coreGradient?.join(' → ')}</p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
@@ -227,12 +264,25 @@ function Section({ title, icon, children }: { title: string; icon: string; child
   );
 }
 
-function BehaviorChip({ label, value }: { label: string; value: string }) {
+function Badge({ label, value }: { label: string; value: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border bg-muted/50 border-border">
       <span className="text-xs text-muted-foreground">{label}:</span>
       <span className="font-medium text-foreground">{value}</span>
     </span>
+  );
+}
+
+function Meter({ label, value, max }: { label: string; value: number; max: number }) {
+  const pct = Math.round(Math.min(value / max, 1) * 100);
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-[10px] font-mono text-muted-foreground">{value.toFixed(2)}</span>
+      </div>
+      <Progress value={pct} className="h-1.5" />
+    </div>
   );
 }
 
