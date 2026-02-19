@@ -274,12 +274,13 @@ function Badge({ label, value }: { label: string; value: string }) {
 }
 
 function Meter({ label, value, max }: { label: string; value: number; max: number }) {
-  const pct = Math.round(Math.min(value / max, 1) * 100);
+  const safeValue = (typeof value === 'number' && !isNaN(value)) ? value : 0;
+  const pct = Math.round(Math.min(safeValue / max, 1) * 100);
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{label}</span>
-        <span className="text-[10px] font-mono text-muted-foreground">{value.toFixed(2)}</span>
+        <span className="text-[10px] font-mono text-muted-foreground">{safeValue.toFixed(2)}</span>
       </div>
       <Progress value={pct} className="h-1.5" />
     </div>
