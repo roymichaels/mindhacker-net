@@ -71,10 +71,6 @@ export function useEnergy() {
   };
 }
 
-/**
- * @deprecated Use useEnergy() instead
- */
-export const useTokens = useEnergy;
 
 /**
  * Hook for ego state management
