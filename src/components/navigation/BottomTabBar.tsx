@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { cn } from '@/lib/utils';
-import { APP_TABS, ADMIN_TAB } from '@/navigation/navConfig';
+import { getVisibleTabs } from '@/navigation/osNav';
 
 export function BottomTabBar() {
   const { language } = useTranslation();
@@ -16,8 +16,7 @@ export function BottomTabBar() {
   const navigate = useNavigate();
   const { hasRole, loading } = useUserRoles();
 
-  const isAdmin = !loading && hasRole('admin');
-  const tabs = isAdmin ? [...APP_TABS, ADMIN_TAB] : APP_TABS;
+  const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isActive = (path: string) => {
     if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';

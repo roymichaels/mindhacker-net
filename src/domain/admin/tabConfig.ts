@@ -19,7 +19,8 @@ import type { AdminTabConfig } from './types';
 
 // ─── Lazy-loaded Admin Sub-Pages ────────────────────────────────────────────
 
-const PanelDashboard    = lazy(() => import('@/components/panel/PanelDashboard'));
+// PanelDashboard was removed — admin overview now uses Analytics as default
+const AdminDashboardOverview = lazy(() => import('@/pages/admin/Analytics'));
 const Analytics         = lazy(() => import('@/pages/admin/Analytics'));
 const NotificationCenter = lazy(() => import('@/pages/admin/NotificationCenter'));
 const Users             = lazy(() => import('@/pages/admin/Users'));
@@ -54,7 +55,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     labelEn: 'Overview',
     icon: LayoutDashboard,
     subTabs: [
-      { id: 'dashboard', labelHe: 'דאשבורד', labelEn: 'Dashboard', component: PanelDashboard },
+      { id: 'dashboard', labelHe: 'דאשבורד', labelEn: 'Dashboard', component: AdminDashboardOverview },
       { id: 'analytics', labelHe: 'אנליטיקס', labelEn: 'Analytics', component: Analytics },
       { id: 'notifications', labelHe: 'התראות', labelEn: 'Notifications', component: NotificationCenter },
     ],

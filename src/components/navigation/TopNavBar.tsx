@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { HeaderActions } from '@/components/navigation/HeaderActions';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AppNameDropdown } from '@/components/navigation/AppNameDropdown';
-import { APP_TABS, ADMIN_TAB } from '@/navigation/navConfig';
+import { getVisibleTabs } from '@/navigation/osNav';
 
 interface TopNavBarProps {
   onOpenSettings: () => void;
@@ -24,8 +24,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
   const { theme: brandTheme } = useThemeSettings();
   const { hasRole, loading } = useUserRoles();
 
-  const isAdmin = !loading && hasRole('admin');
-  const tabs = isAdmin ? [...APP_TABS, ADMIN_TAB] : APP_TABS;
+  const tabs = loading ? [] : getVisibleTabs({ hasRole });
 
   const isTabActive = (path: string) => {
     if (path === '/dashboard') return location.pathname === '/today' || location.pathname === '/dashboard';
