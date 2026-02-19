@@ -73,9 +73,13 @@ function rowToProfile(row: OrbProfileRow): OrbProfile & { _rawHasVisualDNA: bool
   };
   const safeNum = (v: unknown, fb: number) => (typeof v === 'number' && !isNaN(v)) ? v : fb;
   
-  // Track whether DB actually had visual DNA stored
+  // Track whether DB actually had COMPLETE visual DNA stored (not just partial with nulls)
   const rawStops = (vdBucket.gradientStops ?? cf?.gradientStops) as string[] | undefined;
-  const rawHasVisualDNA = !!(rawStops && rawStops.length >= 3 && (vdBucket.materialType ?? cf?.materialType));
+  const rawMaterialType = vdBucket.materialType ?? cf?.materialType;
+  const rawBloom = vdBucket.bloomStrength ?? cf?.bloomStrength;
+  const rawPattern = vdBucket.patternIntensity ?? cf?.patternIntensity;
+  // Must have stops + materialType + no null numeric fields to count as "complete"
+  const rawHasVisualDNA = !!(rawStops && rawStops.length >= 3 && rawMaterialType && typeof rawBloom === 'number' && typeof rawPattern === 'number');
   
   const gradientStops = (rawStops && rawStops.length >= 3) ? rawStops : VISUAL_DEFAULTS.gradientStops;
   
@@ -176,22 +180,22 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
       textureIntensity: profile.textureIntensity,
       seed: profile.seed,
       geometryFamily: profile.geometryFamily,
-      // ✅ Dedicated visual DNA bucket — this is what was missing
+      // ✅ Dedicated visual DNA bucket with guaranteed non-null values
       visualDNA: {
-        gradientStops: profile.gradientStops,
-        gradientMode: profile.gradientMode,
-        coreGradient: profile.coreGradient,
-        rimLightColor: profile.rimLightColor,
-        materialType: profile.materialType,
-        materialParams: profile.materialParams,
-        patternType: profile.patternType,
-        patternIntensity: profile.patternIntensity,
-        particlePalette: profile.particlePalette,
-        particleMode: profile.particleMode,
-        particleBehavior: profile.particleBehavior,
-        bloomStrength: profile.bloomStrength,
-        chromaShift: profile.chromaShift,
-        dayNightBias: profile.dayNightBias,
+        gradientStops: profile.gradientStops ?? VISUAL_DEFAULTS.gradientStops,
+        gradientMode: profile.gradientMode ?? VISUAL_DEFAULTS.gradientMode,
+        coreGradient: profile.coreGradient ?? VISUAL_DEFAULTS.coreGradient,
+        rimLightColor: profile.rimLightColor ?? VISUAL_DEFAULTS.rimLightColor,
+        materialType: profile.materialType ?? VISUAL_DEFAULTS.materialType,
+        materialParams: profile.materialParams ?? VISUAL_DEFAULTS.materialParams,
+        patternType: profile.patternType ?? VISUAL_DEFAULTS.patternType,
+        patternIntensity: typeof profile.patternIntensity === 'number' ? profile.patternIntensity : VISUAL_DEFAULTS.patternIntensity,
+        particlePalette: profile.particlePalette ?? VISUAL_DEFAULTS.particlePalette,
+        particleMode: profile.particleMode ?? VISUAL_DEFAULTS.particleMode,
+        particleBehavior: profile.particleBehavior ?? VISUAL_DEFAULTS.particleBehavior,
+        bloomStrength: typeof profile.bloomStrength === 'number' ? profile.bloomStrength : VISUAL_DEFAULTS.bloomStrength,
+        chromaShift: typeof profile.chromaShift === 'number' ? profile.chromaShift : VISUAL_DEFAULTS.chromaShift,
+        dayNightBias: typeof profile.dayNightBias === 'number' ? profile.dayNightBias : VISUAL_DEFAULTS.dayNightBias,
       },
     },
   };
