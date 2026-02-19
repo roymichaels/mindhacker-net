@@ -33,11 +33,11 @@ export function BottomTabBar() {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(tab.path)}
+              onClick={() => !isComingSoon && navigate(tab.path)}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[64px]",
+                "relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[64px]",
                 isComingSoon
-                  ? "text-muted-foreground/40 opacity-50 grayscale"
+                  ? "text-muted-foreground/40 opacity-60 grayscale cursor-default"
                   : active
                     ? "text-amber-500 dark:text-amber-400"
                     : "text-muted-foreground"
@@ -45,6 +45,11 @@ export function BottomTabBar() {
             >
               <Icon className="h-5 w-5" />
               <span className="text-[10px] font-medium">{language === 'he' ? tab.labelHe : tab.labelEn}</span>
+              {isComingSoon && (
+                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[7px] font-bold px-1 py-px rounded-full leading-tight">
+                  Soon
+                </span>
+              )}
             </button>
           );
         })}

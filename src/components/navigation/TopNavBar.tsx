@@ -49,11 +49,11 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => !isComingSoon && navigate(tab.path)}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isComingSoon
-                      ? "text-muted-foreground/40 opacity-50 grayscale"
+                      ? "text-muted-foreground/40 opacity-60 grayscale cursor-default"
                       : active
                         ? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -61,6 +61,11 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
                 >
                   <Icon className="h-4 w-4" />
                   <span>{language === 'he' ? tab.labelHe : tab.labelEn}</span>
+                  {isComingSoon && (
+                    <span className="bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-tight">
+                      Soon
+                    </span>
+                  )}
                 </button>
               );
             })}
