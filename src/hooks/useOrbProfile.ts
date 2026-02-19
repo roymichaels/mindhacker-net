@@ -64,32 +64,45 @@ function extractProfileData(profileData: Record<string, unknown> | null) {
 function rowToProfile(row: OrbProfileRow): OrbProfile & { _rawHasVisualDNA: boolean } {
   const cf = row.computed_from as Record<string, unknown>;
   
-  // Track whether DB actually had visual DNA (not just defaults)
-  const rawStops = (cf?.gradientStops as string[]);
-  const rawHasVisualDNA = !!(rawStops && rawStops.length >= 3 && cf?.materialType);
+  // Read visual DNA from the dedicated bucket (new) OR flat keys (legacy)
+  const vdBucket = (cf?.visualDNA as Record<string, unknown>) ?? {};
+  // Helper: try bucket first, then flat cf, then default
+  const vd = <T>(key: string, fallback: T): T => {
+    const val = vdBucket[key] ?? cf?.[key];
+    return (val !== undefined && val !== null) ? (val as T) : fallback;
+  };
+  const safeNum = (v: unknown, fb: number) => (typeof v === 'number' && !isNaN(v)) ? v : fb;
+  
+  // Track whether DB actually had visual DNA stored
+  const rawStops = (vdBucket.gradientStops ?? cf?.gradientStops) as string[] | undefined;
+  const rawHasVisualDNA = !!(rawStops && rawStops.length >= 3 && (vdBucket.materialType ?? cf?.materialType));
+  
   const gradientStops = (rawStops && rawStops.length >= 3) ? rawStops : VISUAL_DEFAULTS.gradientStops;
   
   // Validate material params
-  const rawMatParams = (cf?.materialParams as OrbProfile['materialParams']);
-  const materialParams = rawMatParams ? { ...rawMatParams, emissiveIntensity: Math.max(0.05, rawMatParams.emissiveIntensity ?? 0.3) } : VISUAL_DEFAULTS.materialParams;
+  const rawMatParams = vd<OrbProfile['materialParams'] | null>('materialParams', null);
+  const materialParams = rawMatParams 
+    ? { ...rawMatParams, emissiveIntensity: Math.max(0.05, rawMatParams.emissiveIntensity ?? 0.3) } 
+    : VISUAL_DEFAULTS.materialParams;
   
   return {
     ...VISUAL_DEFAULTS,
-    // Read new visual fields from computed_from if stored
+    // Visual DNA fields – read from bucket with fallbacks
     gradientStops,
-    gradientMode: (cf?.gradientMode as OrbProfile['gradientMode']) ?? VISUAL_DEFAULTS.gradientMode,
-    coreGradient: (cf?.coreGradient as [string, string]) ?? VISUAL_DEFAULTS.coreGradient,
-    rimLightColor: (cf?.rimLightColor as string) ?? VISUAL_DEFAULTS.rimLightColor,
-    materialType: (cf?.materialType as OrbProfile['materialType']) ?? VISUAL_DEFAULTS.materialType,
+    gradientMode: vd('gradientMode', VISUAL_DEFAULTS.gradientMode),
+    coreGradient: vd('coreGradient', VISUAL_DEFAULTS.coreGradient),
+    rimLightColor: vd('rimLightColor', VISUAL_DEFAULTS.rimLightColor),
+    materialType: vd('materialType', VISUAL_DEFAULTS.materialType),
     materialParams,
-    patternType: (cf?.patternType as OrbProfile['patternType']) ?? VISUAL_DEFAULTS.patternType,
-    patternIntensity: (cf?.patternIntensity as number) ?? VISUAL_DEFAULTS.patternIntensity,
-    particlePalette: (cf?.particlePalette as string[]) ?? VISUAL_DEFAULTS.particlePalette,
-    particleMode: (cf?.particleMode as OrbProfile['particleMode']) ?? VISUAL_DEFAULTS.particleMode,
-    particleBehavior: (cf?.particleBehavior as OrbProfile['particleBehavior']) ?? VISUAL_DEFAULTS.particleBehavior,
-    bloomStrength: (cf?.bloomStrength as number) ?? VISUAL_DEFAULTS.bloomStrength,
-    chromaShift: (cf?.chromaShift as number) ?? VISUAL_DEFAULTS.chromaShift,
-    dayNightBias: (cf?.dayNightBias as number) ?? VISUAL_DEFAULTS.dayNightBias,
+    patternType: vd('patternType', VISUAL_DEFAULTS.patternType),
+    patternIntensity: safeNum(vd('patternIntensity', null), VISUAL_DEFAULTS.patternIntensity),
+    particlePalette: vd('particlePalette', VISUAL_DEFAULTS.particlePalette),
+    particleMode: vd('particleMode', VISUAL_DEFAULTS.particleMode),
+    particleBehavior: vd('particleBehavior', VISUAL_DEFAULTS.particleBehavior),
+    bloomStrength: safeNum(vd('bloomStrength', null), VISUAL_DEFAULTS.bloomStrength),
+    chromaShift: safeNum(vd('chromaShift', null), VISUAL_DEFAULTS.chromaShift),
+    dayNightBias: safeNum(vd('dayNightBias', null), VISUAL_DEFAULTS.dayNightBias),
+    // Standard row fields
     primaryColor: row.primary_color,
     secondaryColors: row.secondary_colors || [],
     accentColor: row.accent_color || row.primary_color,
@@ -103,12 +116,11 @@ function rowToProfile(row: OrbProfileRow): OrbProfile & { _rawHasVisualDNA: bool
     particleEnabled: row.particle_enabled,
     particleCount: row.particle_count,
     particleColor: row.secondary_colors?.[0] || row.primary_color,
-    // FIXED: Read from computed_from instead of hardcoding
-    motionSpeed: (cf?.motionSpeed as number) ?? 1.0,
-    pulseRate: (cf?.pulseRate as number) ?? 1.0,
-    smoothness: (cf?.smoothness as number) ?? 0.6,
+    motionSpeed: safeNum(cf?.motionSpeed, 1.0),
+    pulseRate: safeNum(cf?.pulseRate, 1.0),
+    smoothness: safeNum(cf?.smoothness, 0.6),
     textureType: (cf?.textureType as string) ?? 'flowing',
-    textureIntensity: (cf?.textureIntensity as number) ?? 0.5,
+    textureIntensity: safeNum(cf?.textureIntensity, 0.5),
     seed: (cf?.seed as number) ?? undefined,
     geometryFamily: (cf?.geometryFamily as OrbProfile['geometryFamily']) ?? undefined,
     diagnosticState: 'ok',
@@ -145,6 +157,7 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
     particle_count: profile.particleCount,
     geometry_detail: profile.geometryDetail,
     computed_from: {
+      // Metadata
       dominantArchetype: profile.computedFrom.dominantArchetype,
       secondaryArchetype: profile.computedFrom.secondaryArchetype,
       archetypeWeights: profile.computedFrom.archetypeWeights,
@@ -155,6 +168,7 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
       egoState: profile.computedFrom.egoState,
       topTraitCategories: profile.computedFrom.topTraitCategories,
       orb_profile_version: profile.computedFrom.orb_profile_version,
+      // Motion/texture (flat for backward compat)
       motionSpeed: profile.motionSpeed,
       pulseRate: profile.pulseRate,
       smoothness: profile.smoothness,
@@ -162,21 +176,23 @@ function profileToRow(profile: OrbProfile, userId: string): Record<string, unkno
       textureIntensity: profile.textureIntensity,
       seed: profile.seed,
       geometryFamily: profile.geometryFamily,
-      // NEW visual uniqueness fields
-      gradientStops: profile.gradientStops,
-      gradientMode: profile.gradientMode,
-      coreGradient: profile.coreGradient,
-      rimLightColor: profile.rimLightColor,
-      materialType: profile.materialType,
-      materialParams: profile.materialParams,
-      patternType: profile.patternType,
-      patternIntensity: profile.patternIntensity,
-      particlePalette: profile.particlePalette,
-      particleMode: profile.particleMode,
-      particleBehavior: profile.particleBehavior,
-      bloomStrength: profile.bloomStrength,
-      chromaShift: profile.chromaShift,
-      dayNightBias: profile.dayNightBias,
+      // ✅ Dedicated visual DNA bucket — this is what was missing
+      visualDNA: {
+        gradientStops: profile.gradientStops,
+        gradientMode: profile.gradientMode,
+        coreGradient: profile.coreGradient,
+        rimLightColor: profile.rimLightColor,
+        materialType: profile.materialType,
+        materialParams: profile.materialParams,
+        patternType: profile.patternType,
+        patternIntensity: profile.patternIntensity,
+        particlePalette: profile.particlePalette,
+        particleMode: profile.particleMode,
+        particleBehavior: profile.particleBehavior,
+        bloomStrength: profile.bloomStrength,
+        chromaShift: profile.chromaShift,
+        dayNightBias: profile.dayNightBias,
+      },
     },
   };
 }
@@ -370,14 +386,29 @@ export function useOrbProfile() {
 
   // Auto-save when profile changes significantly
   useEffect(() => {
-    if (!user?.id || isLoading) return;
+    if (!user?.id || isLoading || saveProfileMutation.isPending) return;
 
-    // Force re-save if stored profile lacks visual DNA fields (raw DB had null gradientStops)
-    const storedLacksVisualDNA = storedProfile && !(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })._rawHasVisualDNA;
+    // Check RAW DB data for visualDNA bucket — the key detection
+    const rawHasVisualDNA = !!(storedProfile as OrbProfile & { _rawHasVisualDNA?: boolean })?._rawHasVisualDNA;
+    const storedLacksVisualDNA = !!storedProfile && !rawHasVisualDNA;
 
-    // If stored profile exists but lacks visual DNA, always allow save regardless of data gates
+    // Debug: log what the DB actually has
+    if (isOrbDebug()) {
+      console.log('[ORB_DB_CHECK] rawHasVisualDNA:', rawHasVisualDNA, 'storedLacksVisualDNA:', storedLacksVisualDNA);
+      console.log('[ORB_DB_CHECK] computedProfile.gradientStops:', computedProfile.gradientStops);
+      console.log('[ORB_DB_CHECK] computedProfile.materialType:', computedProfile.materialType);
+    }
+
+    // If stored profile exists but lacks visual DNA, force-save immediately (bypass all gates)
+    if (storedLacksVisualDNA) {
+      if (isOrbDebug()) console.log('[ORB_DB_FIX] Force-saving visual DNA to DB');
+      lastSavedRef.current = { signature: 'force-visual-dna', at: Date.now() };
+      saveProfileMutation.mutate(computedProfile);
+      return;
+    }
+
+    // Normal save logic: check if significant data exists
     const hasSignificantData = 
-      storedLacksVisualDNA ||
       profileData.hobbies.length > 0 ||
       (gameState?.level || 1) > 1 ||
       isLaunchpadComplete ||
@@ -387,23 +418,20 @@ export function useOrbProfile() {
 
     const needsUpdate =
       !storedProfile ||
-      storedLacksVisualDNA ||
       storedProfile.primaryColor !== computedProfile.primaryColor ||
       storedProfile.accentColor !== computedProfile.accentColor ||
       JSON.stringify(storedProfile.secondaryColors) !== JSON.stringify(computedProfile.secondaryColors) ||
       storedProfile.layerCount !== computedProfile.layerCount ||
       storedProfile.geometryDetail !== computedProfile.geometryDetail ||
       storedProfile.computedFrom.level !== computedProfile.computedFrom.level ||
-      storedProfile.seed !== computedProfile.seed ||
-      (storedProfile.gradientStops?.length || 0) !== (computedProfile.gradientStops?.length || 0) ||
-      storedProfile.materialType !== computedProfile.materialType;
+      storedProfile.seed !== computedProfile.seed;
 
     if (!needsUpdate) return;
 
     const signature = profileSignature(computedProfile);
     const now = Date.now();
     const last = lastSavedRef.current;
-    if ((!!last && last.signature === signature) || (!!last && now - last.at < 3000 && saveProfileMutation.isPending)) return;
+    if (last && last.signature === signature && now - last.at < 5000) return;
 
     lastSavedRef.current = { signature, at: now };
     saveProfileMutation.mutate(computedProfile);
