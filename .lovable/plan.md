@@ -1,88 +1,78 @@
 
-# Homepage Orb Showcase + Content Refresh
 
-## Overview
+# Fix Black Orb Bug + Upgrade DNA Modal to Visual Resume
 
-Update the homepage to feature 10 visually distinct orb presets that continuously morph in 3 locations (Hero, Aurora Coach, Final CTA). Each orb cycles through presets independently with smooth interpolation, showcasing the new shader system (gradients, materials, patterns). The homepage content will also be refreshed to better reflect the app's current capabilities.
+## Goal A: Fix Black Orb After Onboarding
 
-## New Files
+### Root Cause
+The `parseHslToThreeColor` function in `WebGLOrb.tsx` only handles specific HSL string formats, and applies an aggressive lightness adjustment (lines 63-66) that can crush colors to near-black. Additionally, when `gradientStops` contains values that fail parsing, the fallback is `new THREE.Color(colorStr)` which often produces black. There is also no safety net: if `emissiveIntensity` is low and the lighting path multiplies everything down, the orb goes dark.
 
-### 1. `src/lib/orbPresets.ts`
+### Fixes
 
-Define 10 hardcoded `OrbProfile` presets, each differing in at least 2 major visual axes:
+**File: `src/components/orb/WebGLOrb.tsx`**
+1. Rewrite `parseHslToThreeColor` to remove the aggressive lightness adjustment that crushes colors to dark values. Keep a simple, faithful HSL-to-RGB conversion.
+2. Add a `normalizeHsl` helper that handles both `"hsl(210, 80%, 60%)"` and `"210 80% 60%"` formats, always outputting `"H S% L%"`.
+3. Add a fallback in `parseHslToVec3`: if the parsed color is near-black (r+g+b < 0.1), substitute a known-good blue.
+4. In the gradient color uniform builder, ensure `gradientStops.length >= 3` before building uniforms -- if fewer, pad with VISUAL_DEFAULTS stops.
+5. Clamp `emissiveIntensity` to at least 0.05 for non-wire materials in the uniform setup, so the shader always has some light.
 
-| Preset | Material | Gradient Mode | Pattern | Geometry | Bloom | Chroma |
-|--------|----------|---------------|---------|----------|-------|--------|
-| Abyss Glass | glass | radial | cellular | sphere | 0.6 | 0.15 |
-| Solar Metal | metal | rim | shards | octa | 0.25 | 0.05 |
-| Violet Iridescence | iridescent | noise | voronoi | dodeca | 0.9 | 0.55 |
-| Emerald Plasma | plasma | vertical | swirl | spiky | 1.0 | 0.25 |
-| Arctic Stone | metal | vertical | strata | icosa | 0.1 | 0.0 |
-| Neon Reactor | plasma | noise | fractal | torus | 1.2 | 0.35 |
-| Rose Quartz | glass | rim | voronoi | sphere | 0.55 | 0.12 |
-| Obsidian Wire | wire | radial | shards | octa | 0.2 | 0.08 |
-| Aurora Skin | iridescent | vertical | cellular | dodeca | 0.8 | 0.6 |
-| Sunset Marble | metal | noise | strata | icosa | 0.35 | 0.1 |
+**File: `src/hooks/useOrbProfile.ts`**
+6. In `rowToProfile()`, add a validation pass after building the profile: if `gradientStops` is empty or has fewer than 3 entries, replace with `VISUAL_DEFAULTS.gradientStops`. Same for `materialParams` fields (ensure emissiveIntensity >= 0.05).
 
-Each preset includes full `OrbProfile` with 3-7 gradient stops in distinct color palettes, appropriate material params, and motion signatures.
+**File: `src/lib/orbProfileGenerator.ts`**
+7. After merging Visual DNA overrides (`{ ...baseProfile, ...visualDNA }`), validate the merged result: ensure `gradientStops.length >= 3`, `materialParams.emissiveIntensity >= 0.05`, and all HSL strings are in correct format.
 
-### 2. `src/hooks/useOrbPresetMorph.ts`
+## Goal B: Upgrade DNA Modal to Visual Resume
 
-A React hook that cycles through presets with smooth morphing:
+**File: `src/components/gamification/OrbDNACard.tsx`** (rewrite)
 
-- **Inputs**: `presets[]`, `durationMs` (morph time, e.g. 2500), `holdMs` (hold time, e.g. 600), `startIndex`
-- **Output**: `currentProfile: OrbProfile` (the interpolated result)
-- Uses `requestAnimationFrame` for smooth updates
-- Easing: smoothstep (ease in-out)
-- Uses existing `interpolateOrbProfiles()` for lerp/snap logic
-- Geometry family changes: snap at transition boundary (t=1), not mid-morph
-- Deterministic: no `Math.random`, just index cycling
+Replace the current 5-section layout (Archetype Blend, Hobbies, Behavioral Signature, Orb Stats, Color Palette) with a richer "Visual Resume" layout:
 
-## Homepage Section Updates
+### New Sections
 
-### 3. `GameHeroSection.tsx` (Hero)
+1. **Archetype Blend** (keep existing) -- archetype bars with percentages
 
-- Replace `<PersonalizedOrb>` with a new `<PresetOrb>` that uses `useOrbPresetMorph` with `startIndex=0`, size 180, bloom enabled
-- Keep the orbiting 8 life pillars, 90-day arc, and CTA buttons
-- Update size from 140 to 180 for more visual impact
+2. **Visual Signature** (NEW)
+   - Gradient stops swatches row (3-7 colored circles with "Stop 1..N" labels)
+   - Material badge (metal/glass/plasma/iridescent/wire) with icon
+   - Pattern badge (voronoi/cellular/fractal/shards/swirl/strata) with intensity meter bar
+   - Rim light color swatch + core gradient 2-swatch display
+   - Bloom strength + ChromaShift shown as small progress meters
+   - If fields are defaults, show subtle "(defaults)" tag
 
-### 4. `AuroraCoachSection.tsx` (Mid-page)
+3. **Motion Signature** (NEW)
+   - Small meters for: morphIntensity, morphSpeed, pulseRate, smoothness
+   - "Energy feel" label derived from these values (e.g., "Calm", "Sharp", "Chaotic", "Steady")
 
-- Replace `<CSSOrb size={320}>` with `<PresetOrb>` using `useOrbPresetMorph` with `startIndex=3`, size 280
-- This ensures the Aurora orb cycles through different presets than the hero, so they look distinct at any moment
+4. **Complexity** (NEW)
+   - layerCount, geometryDetail, fractalOctaves as stat chips
+   - Geometry family badge
+   - particleEnabled status ("Particles: On/Off")
 
-### 5. `FinalCTASection.tsx` (Bottom)
+5. **Why You Look Like This** (NEW)
+   - 4-8 bullets from `getVisualDNAExplanations()` (already implemented in visualDNA.ts)
+   - Each bullet explains which intake variable drove which visual parameter
+   - Hebrew translations for each bullet
 
-- Replace `<PersonalizedOrb size={120} disablePersonalization>` with `<PresetOrb>` using `useOrbPresetMorph` with `startIndex=7`, size 160
-- Slightly larger for better visual
+6. **Color Palette** (keep existing but expand to show all gradientStops, not just primary/secondary/accent)
 
-### 6. `PresetOrb` Component
+7. **Dev Debug** (conditional: only when `localStorage.ORB_DEBUG === 'true'`)
+   - Collapsed raw profile JSON section
+   - Shows gradientStops count, materialType, patternType, normalized HSL strings
 
-A lightweight wrapper: `src/components/orb/PresetOrb.tsx`
+### Hebrew Support
+All new section headers and labels get Hebrew translations. The "why" bullets need bilingual versions (the current `getVisualDNAExplanations` returns English only -- add Hebrew support).
 
-```
-<PresetOrb startIndex={0} size={180} />
-```
-
-Internally:
-- Imports `ORB_PRESETS` and `useOrbPresetMorph`
-- Renders `<Orb profile={currentProfile} size={size} state="breathing" />`
-- No personalization, no auth dependency -- pure showcase
-
-## Performance
-
-- Bloom is enabled for all 3 homepage orbs (sizes 160-280, all above 120px threshold)
-- Only 3 WebGL canvases on the page (same as current 2 orbs + 1 CSSOrb)
-- `requestAnimationFrame` is shared per orb instance (already how WebGLOrb works)
-- No particles on homepage orbs (particles disabled in presets)
+**File: `src/lib/visualDNA.ts`**
+- Update `getVisualDNAExplanations` to accept a `language` parameter and return bilingual explanations.
 
 ## Files Summary
 
 | File | Action |
 |------|--------|
-| `src/lib/orbPresets.ts` | NEW -- 10 preset profiles |
-| `src/hooks/useOrbPresetMorph.ts` | NEW -- morph cycling hook |
-| `src/components/orb/PresetOrb.tsx` | NEW -- lightweight preset orb wrapper |
-| `src/components/home/GameHeroSection.tsx` | Update: use PresetOrb |
-| `src/components/home/AuroraCoachSection.tsx` | Update: use PresetOrb |
-| `src/components/home/FinalCTASection.tsx` | Update: use PresetOrb |
+| `src/components/orb/WebGLOrb.tsx` | Fix HSL parsing, add validation, clamp emissive |
+| `src/hooks/useOrbProfile.ts` | Add profile validation in rowToProfile |
+| `src/lib/orbProfileGenerator.ts` | Validate merged profile after Visual DNA merge |
+| `src/components/gamification/OrbDNACard.tsx` | Full upgrade to Visual Resume layout |
+| `src/lib/visualDNA.ts` | Add Hebrew support to getVisualDNAExplanations |
+
