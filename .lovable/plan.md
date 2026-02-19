@@ -1,114 +1,163 @@
 
 
-# Admin Hub: Sidebar-Driven Architecture (Like Coaches & Dashboard)
+# Tab-Specific Setup Journeys: Admin, Coaches & Projects
 
-## The Problem
-The Admin page currently renders its navigation (6 pill tabs + sub-tabs) inline in the main content area, while Dashboard and Coaches both use the sidebar-driven pattern. This creates visual clutter and inconsistency -- the HeroBanner, pill tabs, sub-tabs, AND the content all compete for space in the center column.
+## Vision
+Each tab (Admin, Coaches, Projects) gets its own guided setup journey — mirroring the proven 8-10 step pattern from the Dashboard's Launchpad and the existing Business/Health/Coaching journeys. These journeys act as "first-time setup wizards" that teach the user how to master each area, collect configuration data, and feed outcomes into the unified 90-day plan.
 
-## The Solution
-Move all admin navigation into sidebars, matching the Coach and Dashboard pattern exactly:
+The key insight from the Dashboard screenshot: **you always know the next step**. Each tab should replicate this — when you land on Coaches for the first time, a journey guides you. Same for Admin and Projects.
 
-```text
-+------------------+-----------------------------+------------------+
-|  AdminHudSidebar |     Main Content Area       | AdminActivity    |
-|  (LEFT)          |  (active sub-page only,     |  Sidebar (RIGHT) |
-|                  |   clean & focused)          |                  |
-|  - Overview      |                             |  - Stats cards   |
-|    > Dashboard   |   e.g. Users page renders   |  - Notifications |
-|    > Analytics   |   here without any extra    |  - Quick actions  |
-|    > Notifications|  nav chrome                |  - Recent activity|
-|  - Admin         |                             |                  |
-|    > Users       |                             |                  |
-|    > Roles       |                             |                  |
-|  - Campaigns     |                             |                  |
-|  - Content       |                             |                  |
-|  - Site          |                             |                  |
-|  - System        |                             |                  |
-+------------------+-----------------------------+------------------+
-```
+---
 
-## What Changes
+## Architecture Overview
 
-### 1. Create `AdminHudSidebar` (Left Sidebar)
-**File**: `src/components/admin/AdminHudSidebar.tsx`
+Each journey follows the exact same proven pattern:
+1. A DB table (`admin_journeys`, `projects_journeys`) to persist progress
+2. A progress hook (`useAdminJourneyProgress`, `useProjectsJourneyProgress`)
+3. Step definitions (STEPS + PHASES constants)
+4. A `*JourneyFlow` component using the shared `JourneyHeader`, `JourneyResetDialog`, `JourneyLoadingState`
+5. Individual step components (8 steps each)
+6. A page component at a dedicated route
+7. Integration into the tab's landing page (show journey CTA if not complete)
 
-Same glassmorphic collapsible pattern as `CoachHudSidebar`:
-- **Collapsed**: Show icons for the 6 main categories (Overview, Admin, Campaigns, Content, Site, System)
-- **Expanded**: Show category groups with expandable sub-items (Dashboard, Analytics, Users, Roles, etc.)
-- Active item highlighted with emerald gradient (matching admin theme)
-- Emerald/teal color scheme instead of purple/indigo
-- "Control Center" header badge (like Coach Hub has "Coach Hub")
-- NotificationBell integrated into sidebar header
+The Coaching Journey already exists and just needs to be surfaced more prominently in the Coaches tab.
 
-Navigation is driven by `ADMIN_TABS` from `src/domain/admin/tabConfig.ts` -- no duplication.
+---
 
-### 2. Create `AdminActivitySidebar` (Right Sidebar)
-**File**: `src/components/admin/AdminActivitySidebar.tsx`
+## 1. Admin Journey (8 steps)
 
-Same collapsible pattern as `CoachActivitySidebar` / `RoadmapSidebar`:
-- **Stats cards**: Total users, unread notifications, new leads, purchases (pulled from the same query `PanelDashboard` uses)
-- **Recent activity feed**: Latest admin notifications
-- **Quick action buttons**: Jump to Users, Products, Analytics (replacing the current PanelDashboard quick-action cards)
-- Emerald/teal color scheme
+### Steps & Phases
 
-### 3. Create `AdminLayoutWrapper`
-**File**: `src/components/admin/AdminLayoutWrapper.tsx`
+**Phase 1: Platform Basics (Steps 1-3)**
+1. Platform Vision -- What is the platform's purpose and audience?
+2. Team & Roles -- Set up admin roles and permissions
+3. Branding & Theme -- Configure colors, logo, site identity
 
-Follows the exact `CoachesLayoutWrapper` pattern:
-- Manages `activeTab` and `activeSubTab` state
-- Creates `AdminHudSidebar` and `AdminActivitySidebar` with the right props
-- Passes them as `leftSidebar` / `rightSidebar` to `DashboardLayout`
-- Renders `AdminHub` as children with the active sub-tab info
+**Phase 2: Content & Products (Steps 4-6)**
+4. Product Catalog -- Set up initial products/services
+5. Content Strategy -- Plan content types (videos, articles, courses)
+6. Landing Pages -- Configure key landing pages and homepage
 
-### 4. Simplify `AdminHub.tsx`
-Remove from `AdminHub`:
-- HeroBanner (admin identity moves to left sidebar header)
-- PillTabNav (moved to left sidebar)
-- SubTabNav (moved to left sidebar sub-items)
-- All nav logic (managed by wrapper)
+**Phase 3: Growth & Operations (Steps 7-8)**
+7. Marketing Setup -- Campaigns, newsletter, affiliates
+8. Operations Checklist -- Notifications, analytics, system settings
 
-`AdminHub` becomes a thin shell that receives `activeTab` + `activeSubTab` as props and renders only the active sub-page component via Suspense. Exactly like `CoachHub`.
+### Database
+- New table: `admin_journeys` (same structure as `coaching_journeys`)
+- 8 step_data columns + current_step + journey_complete
+- RLS: user_id = auth.uid()
 
-### 5. Update Route in `App.tsx`
-Change the `/admin-hub` route from:
-```
-<DashboardLayout>
-  <AdminHub />
-</DashboardLayout>
-```
-To:
-```
-<AdminLayoutWrapper />
-```
-(which internally wraps `DashboardLayout` with admin-specific sidebars)
-
-### 6. Update `PanelDashboard.tsx`
-Remove the "Quick Actions" cards section (those links now live in the right sidebar). Keep the welcome message and stats overview cards as the clean dashboard content.
-
-## Technical Details
-
-### Files Created
+### Files to Create
 | File | Purpose |
 |------|---------|
-| `src/components/admin/AdminHudSidebar.tsx` | Left sidebar with tab/sub-tab navigation |
-| `src/components/admin/AdminActivitySidebar.tsx` | Right sidebar with stats + activity |
-| `src/components/admin/AdminLayoutWrapper.tsx` | Wrapper passing sidebars to DashboardLayout |
+| `src/hooks/useAdminJourneyProgress.ts` | Progress hook + ADMIN_JOURNEY_STEPS/PHASES |
+| `src/components/admin-journey/AdminJourneyFlow.tsx` | Flow container (same pattern as BusinessJourneyFlow) |
+| `src/components/admin-journey/steps/PlatformVisionStep.tsx` | Step 1 |
+| `src/components/admin-journey/steps/TeamRolesStep.tsx` | Step 2 |
+| `src/components/admin-journey/steps/BrandingStep.tsx` | Step 3 |
+| `src/components/admin-journey/steps/ProductCatalogStep.tsx` | Step 4 |
+| `src/components/admin-journey/steps/ContentStrategyStep.tsx` | Step 5 |
+| `src/components/admin-journey/steps/LandingPagesStep.tsx` | Step 6 |
+| `src/components/admin-journey/steps/MarketingSetupStep.tsx` | Step 7 |
+| `src/components/admin-journey/steps/OperationsStep.tsx` | Step 8 |
+| `src/pages/AdminJourney.tsx` | Route page |
 
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/pages/AdminHub.tsx` | Remove HeroBanner, PillTabNav, SubTabNav; accept tab/sub props |
-| `src/App.tsx` | Use `AdminLayoutWrapper` instead of inline `DashboardLayout + AdminHub` |
-| `src/components/panel/PanelDashboard.tsx` | Remove quick-action cards (now in sidebar) |
+### Integration
+- Add route `/admin-journey/:journeyId?` in App.tsx
+- In `PanelDashboard.tsx` (admin dashboard): show a "Start Admin Setup Journey" banner if journey not complete, similar to how the Dashboard shows the Launchpad CTA
+- Journey theme: emerald/teal (matching admin color scheme)
+- Add `'admin'` to the `JourneyTheme` type
 
-### No Changes To
-- Database / RLS
-- `src/domain/admin/tabConfig.ts` (sidebar reads from it)
-- Any admin sub-pages (`src/pages/admin/*.tsx`)
-- Routes or URLs
-- Translations
+---
 
-### Color Theme
-- Emerald-500 / Teal-600 gradient (matching existing admin identity)
-- `border-emerald-500/30`, `bg-emerald-500/15`, `text-emerald-400`
+## 2. Projects Journey (8 steps)
+
+### Steps & Phases
+
+**Phase 1: Foundation (Steps 1-3)**
+1. Project Management Vision -- How do you want to organize your projects?
+2. First Project Setup -- Create or review your first project
+3. Goals Alignment -- Map projects to life pillars and 90-day goals
+
+**Phase 2: Execution (Steps 4-6)**
+4. Task Breakdown -- Learn to decompose projects into actionable tasks
+5. Milestones & Timeline -- Set key milestones and deadlines
+6. Collaboration -- Define stakeholders and resources
+
+**Phase 3: Mastery (Steps 7-8)**
+7. Progress Tracking -- Set up review cadence and metrics
+8. Aurora Integration -- Configure AI coaching for project accountability
+
+### Database
+- New table: `projects_journeys` (same structure)
+- 8 step_data columns + current_step + journey_complete
+- RLS: user_id = auth.uid()
+
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `src/hooks/useProjectsJourneyProgress.ts` | Progress hook + PROJECTS_JOURNEY_STEPS/PHASES |
+| `src/components/projects-journey/ProjectsJourneyFlow.tsx` | Flow container |
+| `src/components/projects-journey/steps/` (8 files) | Individual step components |
+| `src/pages/ProjectsJourney.tsx` | Route page |
+
+### Integration
+- Add route `/projects-journey/:journeyId?` in App.tsx
+- In `Projects.tsx`: show "Start Projects Setup" banner when no journey completed
+- Journey theme: amber/gold (matching projects color scheme)
+- Add `'projects'` to the `JourneyTheme` type
+
+---
+
+## 3. Coaches Journey (already exists -- surface it)
+
+The Coaching Journey (`CoachingJourneyFlow`) already exists with 10 steps. It just needs better integration:
+
+### Changes
+- In `Coaches.tsx` landing page: add a prominent "Start Coaching Journey" CTA for non-practitioners
+- In `CoachHub.tsx` (for practitioners): show journey progress banner if coaching journey not complete
+- Ensure the coaching journey completion triggers unlock of Coach Pro features
+
+---
+
+## 4. Shared Infrastructure Updates
+
+### JourneyTheme type
+Add `'admin'` and `'projects'` to the existing type in `src/components/journey-shared/types.ts`
+
+### Theme config
+Add admin (emerald) and projects (amber) theme configs in `src/components/journey-shared/themes.ts`
+
+### JourneyResetDialog
+Add `'admin'` and `'projects'` to the `journeyType` union
+
+---
+
+## 5. 90-Day Plan Integration
+
+Each journey's completion data feeds into the unified Life Analysis:
+- Update `useLifeAnalysis.ts` to also check `admin_journeys` and `projects_journeys` completion status
+- Journey action plans (final step of each) generate tasks/goals that appear in the Dashboard's Daily Roadmap
+- Aurora context builder gets access to journey completion data for proactive coaching
+
+---
+
+## Implementation Order
+
+1. DB migrations (2 new tables: `admin_journeys`, `projects_journeys`)
+2. Shared infrastructure updates (theme types, colors)
+3. Admin Journey (hook + flow + 8 steps + page + route)
+4. Projects Journey (hook + flow + 8 steps + page + route)
+5. Surface Coaching Journey in Coaches tab
+6. Integration points (Life Analysis, Dashboard banners)
+7. Smoke test all 3 journeys
+
+---
+
+## What Does NOT Change
+- Existing Dashboard / Launchpad journey
+- Existing Business / Health / other pillar journeys
+- UI layout of any tab
+- Database schema for existing tables
+- Navigation structure
 
