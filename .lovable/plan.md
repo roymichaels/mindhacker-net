@@ -1,52 +1,71 @@
 
-# Presence Cleanup — Remove Manual Inputs, Update Subscores, Re-tier Fixes
 
-Exact changes as specified, nothing more.
+# Homepage Redesign -- High-Conversion, Feature-Honest Landing Page
 
-## 1. Delete File
-- `src/components/presence/ManualInputs.tsx` — removed entirely
+## Goal
+Rebuild the homepage to authentically showcase everything the app offers, use Aurora's HoloOrb as the visual anchor, and maximize sign-up conversion -- without fabricated claims.
 
-## 2. PresenceHome cleanup
-**File:** `src/pages/presence/PresenceHome.tsx`
-- Remove line 10 (`import ManualInputs`)
-- Remove line 56 (`<ManualInputs />`)
-- No other changes
+---
 
-## 3. Types updates
-**File:** `src/lib/presence/types.ts`
-- Delete `ManualInputs` interface (lines 8-14)
-- Replace `SubScoreKey` union with: `facial_structure`, `posture_alignment`, `body_composition`, `frame_development`, `inflammation_puffiness`
-- Remove `manual_inputs` from `PresenceDomainConfig`
-- Add `tier: 1 | 2 | 3` to `FixItem` interface
+## New Section Flow (7 sections)
 
-## 4. Scoring updates
-**File:** `src/lib/presence/scoring.ts`
-- Remove `ManualInputs` from imports
-- Rewrite `mapRawScoresToPresence` to output the 5 new keys with new labels
-- Delete `enrichWithManualInputs` function entirely
-- Remove manual input check from `generateFindings` (the `skincare_routine === 'none'` check, and update `facial_definition` refs to `facial_structure`, `grooming_baseline` refs to `frame_development`)
-- Update `selectTopPriorities` references from old keys to new keys
-- Update `buildScanResult`: remove `manual` parameter, remove `enrichWithManualInputs` call, update index weights to use new 5 keys
+| # | Section | Purpose |
+|---|---------|---------|
+| 1 | **Hero** | Aurora HoloOrb center-stage (large, ~200px), orbiting domain icons (all 11 domains). Headline: "Your Life, Upgraded by AI." Clear value prop subtitle. Single primary CTA. |
+| 2 | **Two Worlds** (Core + Arena) | Side-by-side cards showing the 6 Core domains (Image, Power, Vitality, Focus, Combat, Expansion) and 5 Arena domains (Wealth, Influence, Relationships, Business, Projects). Each domain gets its icon + one-liner. Communicates breadth. |
+| 3 | **Aurora Coach** | Redesigned with AuroraHoloOrb (replacing PresetOrb). Chat preview showing cross-pillar intelligence. Feature bullets: 24/7 coaching, voice-to-text, personalized memory, hypnosis sessions. |
+| 4 | **How It Works** (3 steps) | Simple 3-step flow: 1) Take the Assessment (5 min) -> 2) Get Your 90-Day Plan -> 3) Execute Daily with Aurora. Clean, no fluff. |
+| 5 | **Feature Showcase Grid** | 6 cards: AI Coaching, Custom Hypnosis, Gamification (XP/Levels/Badges), Progress Dashboard, Personalized Orb Avatar, Combat Training. Each with icon + short description. |
+| 6 | **Before vs After** | Keep existing TransformationProofSection (authentic, no fake numbers). Minor polish. |
+| 7 | **Final CTA** | Aurora HoloOrb, strong headline, feature checklist, single CTA button. Remove countdown timer (felt manipulative). |
 
-## 5. Fix library tiers
-**File:** `src/lib/presence/levers.ts`
-- Add `tier` field to every entry
-- Reorder: Tier 1 (body_fat_lever, chin_tuck_drills, tongue_posture, resistance_training, sleep_depuff, walking_neat), Tier 2 (grooming_optimization, beard_shaping NEW, hair_optimization NEW), Tier 3 (skincare_baseline)
-- Remove `nasal_breathing`, `posture_reset`, `hydration_sodium` (not in spec) OR keep and tier appropriately — the spec lists exactly which items go where, so we match it precisely
-- Add `beard_shaping` and `hair_optimization` entries
+---
 
-## 6. Hook cleanup
-**File:** `src/hooks/usePresenceCoach.ts`
-- Remove `saveManualInputs` function (lines 47-52)
-- Remove `ManualInputs` from import
-- Remove `saveManualInputs` from return object
+## Key Changes
 
-## 7. Results page updates
-**File:** `src/pages/presence/PresenceResultsPage.tsx`
-- Update `SUB_SCORE_ORDER` to: `facial_structure`, `posture_alignment`, `body_composition`, `frame_development`, `inflammation_puffiness`
-- Add low-confidence warning banner after the Presence Index card, shown only when `latest.confidence === 'low'`, with exact text: "Lighting or angle reduced confidence. Re-scan recommended."
+### Visual Identity
+- Replace all `PresetOrb` instances in homepage with `AuroraHoloOrb` (larger sizes: 120-200px)
+- Aurora HoloOrb becomes the hero visual -- no more generic WebGL orb
+- Keep orbiting domain icons but use all 11 domains from `CORE_DOMAINS` + `ARENA_DOMAINS`
 
-## 8. FixLibrary UI grouping
-**File:** `src/components/presence/FixLibrary.tsx`
-- Group fixes by `tier` with section headers: "Tier 1 — High Impact", "Tier 2 — Refinement", "Tier 3 — Optional"
-- No card design changes, selection behavior unchanged
+### Sections Removed
+- `FearOfMissingOutSection` (countdown timer to midnight -- feels dishonest)
+- `SystemArchitectureSection` (too technical)
+- `LifePillarsSection` (merged into "Two Worlds")
+- `FreeJourneyBannerSection` (no subscription/pricing talk)
+- `HandsFreeSection` (voice features folded into Aurora Coach section)
+
+### Sections Added/Replaced
+- **"Two Worlds"** -- new component showing Core + Arena split with all domain icons
+- **"How It Works"** -- simple 3-step onboarding flow
+- **"Feature Showcase"** -- grid highlighting key platform capabilities
+
+### Conversion Tactics (honest)
+- Single, repeated CTA: "Start Your Assessment" (links to `/onboarding`)
+- Trust signals: "5 minutes to start", "Cancel anytime", "Personalized from day 1"
+- Before/After section stays (authentic pain/gain framing)
+- No fake user counts, no fake testimonials, no countdown timers
+
+---
+
+## Technical Plan
+
+### Files to Create
+1. `src/components/home/TwoWorldsSection.tsx` -- Core + Arena domain showcase
+2. `src/components/home/HowItWorksSection.tsx` -- 3-step flow
+3. `src/components/home/FeatureShowcaseSection.tsx` -- 6-card feature grid
+
+### Files to Edit
+4. `src/components/home/GameHeroSection.tsx` -- Replace PresetOrb with large AuroraHoloOrb, use all 11 domains, simplify copy
+5. `src/components/home/AuroraCoachSection.tsx` -- Replace PresetOrb with AuroraHoloOrb, remove ego-state orbit (too esoteric for landing), keep chat preview
+6. `src/components/home/FinalCTASection.tsx` -- Replace PresetOrb with AuroraHoloOrb, remove "what you get" grid (moved to Feature Showcase), streamline
+7. `src/components/home/TransformationProofSection.tsx` -- Minor copy polish only
+8. `src/components/home/index.ts` -- Update exports
+9. `src/pages/Index.tsx` -- New section order: Hero -> TwoWorlds -> HowItWorks -> AuroraCoach -> FeatureShowcase -> TransformationProof -> FinalCTA
+
+### Translation Keys
+- Will add inline bilingual strings (HE/EN) directly in components, following the existing pattern used in TransformationProofSection and FinalCTASection
+
+### No Database Changes
+- Purely frontend redesign
+
