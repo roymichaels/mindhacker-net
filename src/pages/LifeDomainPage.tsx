@@ -118,7 +118,7 @@ export default function LifeDomainPage() {
               if (isArena) {
                 navigate(`/arena/${domain.id}/assess`);
               } else {
-                setIntakeOpen(true);
+                navigate(`/life/${domain.id}/assess`);
               }
             }} size="lg" className="mt-2">
               <Play className="w-4 h-4 mr-2" />

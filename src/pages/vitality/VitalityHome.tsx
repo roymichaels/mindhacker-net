@@ -133,7 +133,7 @@ export default function VitalityHome() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">{t('vitality.startIntakeDesc')}</p>
             <Button
-              onClick={() => navigate('/life/vitality/intake')}
+              onClick={() => navigate('/life/vitality/assess')}
               className="w-full bg-amber-600 hover:bg-amber-700"
               size="lg"
             >
