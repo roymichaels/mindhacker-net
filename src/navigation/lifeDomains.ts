@@ -28,12 +28,12 @@ export interface LifeDomain {
 
 /** Core domains — personal transformation (displayed in Core/ליבה hub) */
 export const CORE_DOMAINS: LifeDomain[] = [
-  { id: 'presence',  labelEn: 'Image',     labelHe: 'תדמית',    icon: Eye,        color: 'rose',    description: 'Face, body aesthetics, grooming, posture, style' },
-  { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',    icon: Dumbbell,   color: 'red',     description: 'Strength, calisthenics, skill progressions' },
-  { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',   description: 'Sleep, nutrition, recovery, hormones' },
-  { id: 'focus',     labelEn: 'Focus',     labelHe: 'מיקוד',    icon: Crosshair,  color: 'violet',  description: 'Dopamine control, deep work, meditation' },
-  { id: 'combat',    labelEn: 'Combat',    labelHe: 'לחימה',    icon: Swords,     color: 'slate',   description: 'Technical exposure, sparring, live pressure, reaction' },
-  { id: 'expansion', labelEn: 'Expansion', labelHe: 'התרחבות',  icon: Brain,      color: 'indigo',  description: 'Learning, creativity, languages, philosophy' },
+  { id: 'presence',  labelEn: 'Image',     labelHe: 'תדמית',    icon: Eye,        color: 'fuchsia',  description: 'Face, body aesthetics, grooming, posture, style' },
+  { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',    icon: Dumbbell,   color: 'red',      description: 'Strength, calisthenics, skill progressions' },
+  { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',    description: 'Sleep, nutrition, recovery, hormones' },
+  { id: 'focus',     labelEn: 'Focus',     labelHe: 'מיקוד',    icon: Crosshair,  color: 'cyan',     description: 'Dopamine control, deep work, meditation' },
+  { id: 'combat',    labelEn: 'Combat',    labelHe: 'לחימה',    icon: Swords,     color: 'slate',    description: 'Technical exposure, sparring, live pressure, reaction' },
+  { id: 'expansion', labelEn: 'Expansion', labelHe: 'התרחבות',  icon: Brain,      color: 'indigo',   description: 'Learning, creativity, languages, philosophy' },
 ];
 
 /** Arena domains — external impact (displayed in Arena/זירה hub alongside Projects) */
