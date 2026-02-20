@@ -1,45 +1,47 @@
 /**
- * CoreHudSidebar - Left sidebar for Core System navigation.
- * Rose/pink color scheme matching Core identity.
+ * ArenaHudSidebar - Left sidebar for Arena navigation.
+ * Amber/orange color scheme. Shows arena domains + projects nav.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
-import { PanelRightClose, PanelRightOpen, Flame } from 'lucide-react';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { PanelRightClose, PanelRightOpen, Swords, Plus, FolderKanban } from 'lucide-react';
+import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { useProjects } from '@/hooks/useProjects';
 
-export function LifeHudSidebar() {
+interface ArenaHudSidebarProps {
+  onNewProject?: () => void;
+}
+
+export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
+  const { projects } = useProjects();
 
   const domainColorMap: Record<string, string> = {
-    rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
-    violet: 'text-violet-400', emerald: 'text-emerald-400', slate: 'text-slate-400',
-    indigo: 'text-indigo-400', orange: 'text-orange-400',
+    emerald: 'text-emerald-400', orange: 'text-orange-400', sky: 'text-sky-400', amber: 'text-amber-400',
   };
 
   const activeColorMap: Record<string, string> = {
-    rose: 'bg-rose-500/15 border-rose-500/30',
-    red: 'bg-red-500/15 border-red-500/30',
-    amber: 'bg-amber-500/15 border-amber-500/30',
-    violet: 'bg-violet-500/15 border-violet-500/30',
     emerald: 'bg-emerald-500/15 border-emerald-500/30',
-    slate: 'bg-slate-500/15 border-slate-500/30',
-    indigo: 'bg-indigo-500/15 border-indigo-500/30',
     orange: 'bg-orange-500/15 border-orange-500/30',
+    sky: 'bg-sky-500/15 border-sky-500/30',
+    amber: 'bg-amber-500/15 border-amber-500/30',
   };
+
+  const activeProjects = projects.filter(p => p.status === 'active');
 
   return (
     <aside className={cn(
       "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
       "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
       "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-      "ltr:border-s rtl:border-e border-border/50 dark:border-rose-500/15",
+      "ltr:border-s rtl:border-e border-border/50 dark:border-amber-500/15",
       collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
     )}>
       {/* Collapse toggle */}
@@ -63,18 +65,19 @@ export function LifeHudSidebar() {
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
           <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white shadow-lg">
-              <Flame className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-white shadow-lg">
+              <Swords className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-              {isHe ? 'ליבה' : 'Core'}
+            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+              {isHe ? 'זירה' : 'Arena'}
             </span>
           </div>
 
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent my-1" />
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
 
+          {/* Arena domain icons */}
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {CORE_DOMAINS.map((domain) => {
+            {ARENA_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               return (
                 <button
@@ -93,6 +96,16 @@ export function LifeHudSidebar() {
               );
             })}
           </div>
+
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
+
+          <button
+            onClick={onNewProject}
+            className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 transition-colors"
+            title={isHe ? 'פרויקט חדש' : 'New Project'}
+          >
+            <Plus className="w-4 h-4 text-amber-400" />
+          </button>
         </div>
       )}
 
@@ -100,22 +113,25 @@ export function LifeHudSidebar() {
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
           {/* Header badge */}
-          <div className="w-full rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/20 p-3 flex items-center justify-between">
+          <div className="w-full rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
-              <span className="text-sm font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-                {isHe ? 'ליבה' : 'Core'}
+              <span className="text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                {isHe ? 'זירה' : 'Arena'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? `${CORE_DOMAINS.length} תחומי ביצוע` : `${CORE_DOMAINS.length} execution domains`}
+                {isHe ? 'עושר, השפעה, קשרים ופרויקטים' : 'Wealth, influence, relationships & projects'}
               </p>
             </div>
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
 
-          {/* Domain nav items */}
+          {/* Arena domain nav items */}
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            {isHe ? 'תחומים' : 'Domains'}
+          </span>
           <div className="flex flex-col gap-1 w-full">
-            {CORE_DOMAINS.map((domain) => {
+            {ARENA_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const isActive = status === 'active';
               return (
@@ -147,6 +163,34 @@ export function LifeHudSidebar() {
               );
             })}
           </div>
+
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+
+          {/* Projects section */}
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            {isHe ? `פרויקטים (${activeProjects.length})` : `Projects (${activeProjects.length})`}
+          </span>
+          <div className="flex flex-col gap-1">
+            {activeProjects.slice(0, 5).map((project) => (
+              <div key={project.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project.cover_color || '#f59e0b' }} />
+                  <span className="text-[11px] font-medium leading-tight truncate">{project.title}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+
+          {/* New Project button */}
+          <button
+            onClick={onNewProject}
+            className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white p-2.5 flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="text-xs font-semibold">{isHe ? 'פרויקט חדש' : 'New Project'}</span>
+          </button>
         </div>
       )}
     </aside>

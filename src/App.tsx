@@ -95,6 +95,7 @@ const CoachProfile = lazy(() => import("./pages/PractitionerProfile"));
 const CoachSlugRedirect = lazy(() => import("./components/coach/CoachSlugRedirect"));
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
+const ArenaLayoutWrapper = lazy(() => import("./components/arena/ArenaLayoutWrapper"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
@@ -441,15 +442,17 @@ const App = () => (
                         <Route path="/me" element={<Navigate to="/dashboard" replace />} />
                         {/* Aurora → Messages AI */}
                         <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        {/* Projects - sidebar-driven layout */}
+                        {/* Arena - sidebar-driven layout (replaces Projects) */}
                         <Route
-                          path="/projects"
+                          path="/arena"
                           element={
                             <ProtectedRoute>
-                              <ProjectsLayoutWrapper />
+                              <ArenaLayoutWrapper />
                             </ProtectedRoute>
                           }
                         />
+                        {/* Legacy /projects redirect to Arena */}
+                        <Route path="/projects" element={<Navigate to="/arena" replace />} />
                         {/* Coaches */}
                         <Route
                           path="/coaches"
