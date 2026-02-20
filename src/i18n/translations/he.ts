@@ -4440,6 +4440,11 @@ export const he = {
       markComplete: "סמן כהושלם",
       lowConfidenceBanner: "חסר מידע או שיש סתירות. כדאי לסרוק שוב.",
       freetext_placeholder: "כתוב מה שבא לך...",
+      chatPlaceholder: "כתוב את התשובה שלך...",
+      assessSaving: "מעבד את התוצאות...",
+      exchanges: "תשובות",
+      mirrorTitle: "מה אני רואה בך",
+      oneNextStep: "דבר אחד לעשות עכשיו",
       // Chips
       chip_soul: "כוונה",
       chip_masks: "מסכות",

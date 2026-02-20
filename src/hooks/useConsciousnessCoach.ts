@@ -34,7 +34,6 @@ export function useConsciousnessCoach() {
       await saveConfig({
         latest_assessment: result,
         history,
-        draft_answers: undefined,
       });
     },
     [config, saveConfig],
@@ -60,13 +59,6 @@ export function useConsciousnessCoach() {
     [saveConfig],
   );
 
-  const saveDraft = useCallback(
-    async (answers: Record<string, any>) => {
-      await saveConfig({ draft_answers: answers });
-    },
-    [saveConfig],
-  );
-
   return {
     config,
     isLoading,
@@ -75,6 +67,5 @@ export function useConsciousnessCoach() {
     saveFocusItems,
     markComplete,
     saveConfig,
-    saveDraft,
   };
 }

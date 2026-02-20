@@ -1,7 +1,7 @@
 /**
  * @page ConsciousnessResults (/life/consciousness/results)
  * @tab Life
- * @purpose Displays consciousness index, subscores, findings, calibration library
+ * @purpose Displays consciousness assessment results — mirror, scores, findings, toolkit
  * @data useConsciousnessCoach, life_domains
  */
 import { useState, useMemo } from 'react';
@@ -16,7 +16,7 @@ import { CONSCIOUSNESS_LEVERS, autoPickLevers } from '@/lib/consciousness/levers
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowRight, Check, AlertTriangle,
-  ChevronDown, ChevronUp, Trophy, Waves, AlertCircle,
+  ChevronDown, ChevronUp, Trophy, Waves, AlertCircle, Sparkles, Target,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ConsciousnessAssessmentResult, ConsciousnessSubsystemId } from '@/lib/consciousness/types';
@@ -37,7 +37,7 @@ function scoreColor(v: number): string {
 
 export default function ConsciousnessResults() {
   const navigate = useNavigate();
-  const { t, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { config, saveFocusItems, markComplete, isSaving } = useConsciousnessCoach();
   const [searchParams] = useSearchParams();
 
@@ -69,6 +69,8 @@ export default function ConsciousnessResults() {
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
+
+  const lang = language === 'he' ? 'he' : 'en';
 
   if (!assessment) {
     return (
@@ -104,16 +106,26 @@ export default function ConsciousnessResults() {
           <Card className="p-6 bg-gradient-to-b from-violet-500/10 to-transparent border-violet-500/30 text-center">
             <p className="text-5xl font-black text-foreground">{assessment.consciousness_index}</p>
             <p className="text-sm text-muted-foreground mt-1">{t('consciousness.overallIndex')}</p>
-            <div className="flex items-center justify-center gap-3 mt-3">
-              <Badge variant={assessment.confidence === 'high' ? 'default' : 'secondary'}>
-                {t(`consciousness.confidence_${assessment.confidence}`)}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {assessment.completeness_pct}% {t('consciousness.complete')}
-              </span>
-            </div>
+            <Badge variant={assessment.confidence === 'high' ? 'default' : 'secondary'} className="mt-2">
+              {t(`consciousness.confidence_${assessment.confidence}`)}
+            </Badge>
           </Card>
         </motion.div>
+
+        {/* Mirror Statement */}
+        {assessment.mirror_statement && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <Card className="p-5 border-violet-500/20 bg-violet-500/5">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+                <h3 className="text-sm font-semibold text-violet-400">{t('consciousness.mirrorTitle')}</h3>
+              </div>
+              <p className="text-sm text-foreground leading-relaxed">
+                {assessment.mirror_statement[lang]}
+              </p>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Subscores grid */}
         <div>
@@ -145,13 +157,24 @@ export default function ConsciousnessResults() {
                     f.severity === 'high' ? 'text-red-400' : f.severity === 'med' ? 'text-amber-400' : 'text-muted-foreground'
                   )} />
                   <div>
-                    <p className="text-sm text-foreground">{t(f.text_key)}</p>
+                    <p className="text-sm text-foreground">{lang === 'he' ? f.text_he : f.text_en}</p>
                     <span className="text-xs text-muted-foreground">{t(`consciousness.sub_${f.subsystem}`)}</span>
                   </div>
                 </Card>
               ))}
             </div>
           </div>
+        )}
+
+        {/* One Next Step */}
+        {assessment.one_next_step && (
+          <Card className="p-4 border-emerald-500/30 bg-emerald-500/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-semibold text-emerald-400">{t('consciousness.oneNextStep')}</h3>
+            </div>
+            <p className="text-sm text-foreground">{assessment.one_next_step[lang]}</p>
+          </Card>
         )}
 
         {/* Top 3 Auto-Picks */}
