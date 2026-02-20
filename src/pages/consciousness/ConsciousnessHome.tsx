@@ -1,7 +1,7 @@
 /**
  * @page ConsciousnessHome (/life/consciousness)
  * @tab Life
- * @purpose Entry point for Consciousness (תודעה) Soul Frequency Engine
+ * @purpose Entry point for Consciousness (תודעה) Engine
  * @data useConsciousnessCoach, life_domains
  */
 import { useNavigate } from 'react-router-dom';
@@ -19,12 +19,9 @@ import {
 import { motion } from 'framer-motion';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
-  soul_intent_clarity: '🔮',
-  mask_awareness: '🎭',
-  frequency_stability: '〰️',
-  alignment_integrity: '🧭',
-  inner_signal_access: '👁️',
-  field_coherence: '🌀',
+  soul_intent_clarity: '🔮', mask_awareness: '🎭',
+  frequency_stability: '〰️', alignment_integrity: '🧭',
+  inner_signal_access: '👁️', field_coherence: '🌀',
 };
 
 export default function ConsciousnessHome() {
@@ -69,14 +66,9 @@ export default function ConsciousnessHome() {
                     <p className="text-3xl font-black text-foreground">{latest.consciousness_index}</p>
                     <p className="text-xs text-muted-foreground">{t('consciousness.overallIndex')}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge variant={latest.confidence === 'high' ? 'default' : 'secondary'} className="text-xs">
-                      {t(`consciousness.confidence_${latest.confidence}`)}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {latest.completeness_pct}% {t('consciousness.complete')}
-                    </span>
-                  </div>
+                  <Badge variant={latest.confidence === 'high' ? 'default' : 'secondary'} className="text-xs">
+                    {t(`consciousness.confidence_${latest.confidence}`)}
+                  </Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mb-4">
@@ -118,7 +110,7 @@ export default function ConsciousnessHome() {
                 <div className="space-y-2">
                   {history.slice(0, 3).map((h, i) => (
                     <Card key={i} className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => navigate(`/life/consciousness/history?idx=${i}`)}>
+                      onClick={() => navigate(`/life/consciousness/results?idx=${i}`)}>
                       <div>
                         <p className="text-sm font-medium">{h.consciousness_index}/100</p>
                         <p className="text-xs text-muted-foreground">{new Date(h.assessed_at).toLocaleDateString(isRTL ? 'he-IL' : 'en-US')}</p>

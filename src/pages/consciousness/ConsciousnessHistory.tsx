@@ -53,7 +53,7 @@ export default function ConsciousnessHistory() {
                     <Badge variant="secondary" className="text-xs">
                       {t(`consciousness.confidence_${h.confidence}`)}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{h.completeness_pct}%</span>
+                    <ForwardIcon className="w-4 h-4 text-muted-foreground" />
                     <ForwardIcon className="w-4 h-4 text-muted-foreground" />
                   </div>
                 </div>
