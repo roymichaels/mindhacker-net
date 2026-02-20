@@ -62,16 +62,6 @@ export function LifeHudSidebar() {
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white shadow-lg">
-              <Flame className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-              {isHe ? 'ליבה' : 'Core'}
-            </span>
-          </div>
-
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent my-1" />
 
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
             {CORE_DOMAINS.map((domain) => {

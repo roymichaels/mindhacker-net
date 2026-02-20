@@ -68,16 +68,6 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-white shadow-lg">
-              <Swords className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-              {isHe ? 'זירה' : 'Arena'}
-            </span>
-          </div>
-
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent my-1" />
 
           {/* Arena domain icons */}
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
