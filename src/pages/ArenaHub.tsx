@@ -173,7 +173,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
           </div>
         </div>
 
-        {/* ── Arena Domain Grid ── */}
+        {/* ── Arena Grid (Domains + Projects + Businesses) ── */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -181,6 +181,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
             </h3>
           </div>
           <div className="grid grid-cols-3 gap-3">
+            {/* Domain cards */}
             {ARENA_DOMAINS.map((domain, i) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const badge = statusBadge[status] ?? statusBadge.unconfigured;
@@ -211,119 +212,59 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
                 </motion.button>
               );
             })}
-          </div>
-        </div>
 
-        {/* ── Projects Section ── */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isHe ? 'פרויקטים' : 'Projects'}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
+            {/* Projects card */}
+            <motion.button
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: ARENA_DOMAINS.length * 0.04, duration: 0.3 }}
               onClick={() => setWizardOpen(true)}
-              className="text-amber-400 hover:text-amber-300 gap-1 h-7 text-xs"
+              className={cn(
+                'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
+                colorMap.amber
+              )}
             >
-              <Plus className="w-3.5 h-3.5" />
-              {isHe ? 'חדש' : 'New'}
-            </Button>
-          </div>
-
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[1, 2].map(i => (
-                <div key={i} className="h-24 rounded-2xl bg-muted/50 animate-pulse" />
-              ))}
-            </div>
-          ) : activeProjects.length === 0 ? (
-            <button
-              onClick={() => setWizardOpen(true)}
-              className="w-full text-center py-6 rounded-2xl border border-dashed border-amber-500/20 hover:border-amber-500/40 bg-gradient-to-br from-amber-500/5 to-transparent transition-colors group"
-            >
-              <FolderKanban className="h-5 w-5 text-amber-400/50 group-hover:text-amber-400 mx-auto mb-2 transition-colors" />
-              <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                {isHe ? 'צור פרויקט ראשון' : 'Create first project'}
+              <FolderKanban className="w-7 h-7 transition-transform group-hover:scale-110 text-amber-400" />
+              <span className="font-semibold text-foreground text-sm">
+                {isHe ? 'פרויקטים' : 'Projects'}
+              </span>
+              <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
+                {isHe ? 'ניהול פרויקטים ויעדים' : 'Manage projects & goals'}
               </p>
-            </button>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {activeProjects.map(project => (
-                <button
-                  key={project.id}
-                  onClick={() => setSelectedProject(project)}
-                  className="w-full rounded-xl border border-border/30 hover:border-amber-500/30 bg-card/40 hover:bg-card/60 p-3 flex items-center gap-3 transition-all text-start group"
-                >
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: project.cover_color || '#f59e0b' }} />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium truncate block">{project.title}</span>
-                    {project.description && (
-                      <span className="text-[10px] text-muted-foreground truncate block">{project.description}</span>
-                    )}
-                  </div>
-                  <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors shrink-0" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+              <Badge variant={activeProjects.length > 0 ? 'default' : 'outline'} className="text-[9px]">
+                {activeProjects.length > 0
+                  ? (isHe ? `${activeProjects.length} פעילים` : `${activeProjects.length} Active`)
+                  : (isHe ? 'התחל' : 'Start')}
+              </Badge>
+              <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
+            </motion.button>
 
-        {/* ── Businesses Section ── */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isHe ? 'עסקים' : 'Businesses'}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
+            {/* Businesses card */}
+            <motion.button
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: (ARENA_DOMAINS.length + 1) * 0.04, duration: 0.3 }}
               onClick={() => navigate('/business/journey')}
-              className="text-amber-400 hover:text-amber-300 gap-1 h-7 text-xs"
+              className={cn(
+                'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
+                colorMap.orange
+              )}
             >
-              <Plus className="w-3.5 h-3.5" />
-              {isHe ? 'חדש' : 'New'}
-            </Button>
-          </div>
-
-          {businessesLoading ? (
-            <div className="flex flex-col gap-2">
-              {[1, 2].map(i => (
-                <div key={i} className="h-14 rounded-xl bg-muted/50 animate-pulse" />
-              ))}
-            </div>
-          ) : businesses.length === 0 ? (
-            <button
-              onClick={() => navigate('/business/journey')}
-              className="w-full text-center py-6 rounded-2xl border border-dashed border-amber-500/20 hover:border-amber-500/40 bg-gradient-to-br from-amber-500/5 to-transparent transition-colors group"
-            >
-              <Briefcase className="h-5 w-5 text-amber-400/50 group-hover:text-amber-400 mx-auto mb-2 transition-colors" />
-              <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                {isHe ? 'צור עסק ראשון' : 'Start your first business'}
+              <Briefcase className="w-7 h-7 transition-transform group-hover:scale-110 text-orange-400" />
+              <span className="font-semibold text-foreground text-sm">
+                {isHe ? 'עסקים' : 'Business'}
+              </span>
+              <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
+                {isHe ? 'בניית וניהול עסקים' : 'Build & manage businesses'}
               </p>
-            </button>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {businesses.map(biz => (
-                <button
-                  key={biz.id}
-                  onClick={() => navigate(`/business/journey/${biz.id}`)}
-                  className="w-full rounded-xl border border-border/30 hover:border-amber-500/30 bg-card/40 hover:bg-card/60 p-3 flex items-center gap-3 transition-all text-start group"
-                >
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-amber-400" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium truncate block">{biz.business_name || (isHe ? 'עסק ללא שם' : 'Unnamed Business')}</span>
-                    <span className="text-[10px] text-muted-foreground truncate block">
-                      {biz.journey_complete
-                        ? (isHe ? 'הושלם' : 'Complete')
-                        : (isHe ? `שלב ${biz.current_step} מתוך 10` : `Step ${biz.current_step} of 10`)}
-                    </span>
-                  </div>
-                  <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors shrink-0" />
-                </button>
-              ))}
-            </div>
-          )}
+              <Badge variant={businesses.length > 0 ? 'default' : 'outline'} className="text-[9px]">
+                {businesses.length > 0
+                  ? (isHe ? `${businesses.length} עסקים` : `${businesses.length} Active`)
+                  : (isHe ? 'התחל' : 'Start')}
+              </Badge>
+              <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
+            </motion.button>
+          </div>
         </div>
 
         {/* ── Quick Insights Row ── */}
