@@ -25,7 +25,7 @@ function DomainCard({ domain, index, isRTL }: { domain: typeof CORE_DOMAINS[0]; 
       </div>
       <div className="min-w-0">
         <p className="font-semibold text-sm text-foreground">{isRTL ? domain.labelHe : domain.labelEn}</p>
-        <p className="text-xs text-muted-foreground truncate">{domain.description}</p>
+        <p className="text-xs text-muted-foreground truncate">{isRTL ? domain.descriptionHe : domain.description}</p>
       </div>
     </motion.div>
   );
