@@ -98,6 +98,10 @@ const CombatHome = lazy(() => import("./pages/combat/CombatHome"));
 const CombatAssess = lazy(() => import("./pages/combat/CombatAssess"));
 const CombatResults = lazy(() => import("./pages/combat/CombatResults"));
 const CombatHistory = lazy(() => import("./pages/combat/CombatHistory"));
+const ExpansionHome = lazy(() => import("./pages/expansion/ExpansionHome"));
+const ExpansionAssess = lazy(() => import("./pages/expansion/ExpansionAssess"));
+const ExpansionResults = lazy(() => import("./pages/expansion/ExpansionResults"));
+const ExpansionHistory = lazy(() => import("./pages/expansion/ExpansionHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -536,6 +540,39 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <CombatHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Expansion pillar routes */}
+                        <Route
+                          path="/life/expansion"
+                          element={
+                            <ProtectedRoute>
+                              <ExpansionHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/expansion/assess"
+                          element={
+                            <ProtectedRoute>
+                              <ExpansionAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/expansion/results"
+                          element={
+                            <ProtectedRoute>
+                              <ExpansionResults />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/expansion/history"
+                          element={
+                            <ProtectedRoute>
+                              <ExpansionHistory />
                             </ProtectedRoute>
                           }
                         />
