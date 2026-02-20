@@ -109,6 +109,7 @@ export default function VitalityIntake() {
         </Button>
 
         <FlowRenderer
+          key={currentStep.id}
           step={currentStep}
           stepNumber={currentStepIdx + 1}
           totalSteps={steps.length}
