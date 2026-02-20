@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Swords, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Zap, TrendingUp, Crown, Users, Plus, FolderKanban, Briefcase } from 'lucide-react';
+import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
@@ -106,6 +107,8 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
       <div className="flex flex-col gap-4 flex-1 px-1">
         <div className="pt-1" />
 
+        {/* ── Analysis Progress Bar ── */}
+        <AnalysisProgressBar completionPct={completionPct} isHe={isHe} accentColor="amber" />
 
         {/* ── Motivational Banner ── */}
         <div
