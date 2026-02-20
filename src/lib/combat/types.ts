@@ -54,8 +54,18 @@ export interface CombatDomainConfig {
 
 /* ─── Intake answer shapes ─── */
 
+export type CombatDiscipline =
+  | 'boxing' | 'muay_thai' | 'kickboxing'
+  | 'bjj' | 'wrestling' | 'judo'
+  | 'krav_maga' | 'kung_fu' | 'military_training'
+  | 'mma' | 'none';
+
+export const GRAPPLING_DISCIPLINES: CombatDiscipline[] = ['bjj', 'wrestling', 'judo', 'mma'];
+
 export interface ProfileAnswers {
   warrior_mode: WarriorMode;
+  disciplines?: CombatDiscipline[];
+  years_training?: string; // 'none' | '<1' | '1_3' | '3_5' | '5_plus'
 }
 
 export interface RealityAnswers {
