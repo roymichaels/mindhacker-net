@@ -30,24 +30,31 @@ export function useVitalityEngine() {
     },
   });
 
-  // Extract all vitality-relevant fields from onboarding data
-  const rawInputs = useMemo(() => {
-    if (!launchpadQuery.data) return {};
-    const s1 = (launchpadQuery.data.step_1_intention as Record<string, any>) ?? {};
-    const s2 = (launchpadQuery.data.step_2_profile_data as Record<string, any>) ?? {};
-    const out: Record<string, any> = {};
-    for (const field of VITALITY_DATA_MAP) {
-      const source = field.sourceColumn === 'step_1_intention' ? s1 : s2;
-      if (source[field.internalKey] !== undefined) {
-        out[field.internalKey] = source[field.internalKey];
-      }
-    }
-    return out;
-  }, [launchpadQuery.data]);
-
   // Get existing vitality domain config
   const domainRow = getDomain('vitality');
   const config = (domainRow?.domain_config ?? { history: [], completed: false, completed_at: null }) as unknown as VitalityDomainConfig;
+
+  // Extract all vitality-relevant fields from onboarding data + standalone intake
+  const rawInputs = useMemo(() => {
+    const out: Record<string, any> = {};
+    // First pull from onboarding
+    if (launchpadQuery.data) {
+      const s1 = (launchpadQuery.data.step_1_intention as Record<string, any>) ?? {};
+      const s2 = (launchpadQuery.data.step_2_profile_data as Record<string, any>) ?? {};
+      for (const field of VITALITY_DATA_MAP) {
+        const source = field.sourceColumn === 'step_1_intention' ? s1 : s2;
+        if (source[field.internalKey] !== undefined) {
+          out[field.internalKey] = source[field.internalKey];
+        }
+      }
+    }
+    // Override with standalone intake answers if available
+    const intakeAnswers = (domainRow?.domain_config as any)?.intake_answers;
+    if (intakeAnswers && typeof intakeAnswers === 'object') {
+      Object.assign(out, intakeAnswers);
+    }
+    return out;
+  }, [launchpadQuery.data, domainRow?.domain_config]);
 
   // Compute a fresh assessment from current onboarding data
   const computeAssessment = useCallback((): VitalityAssessment | null => {
@@ -86,6 +93,29 @@ export function useVitalityEngine() {
     return assessment;
   }, [computeAssessment, saveAssessment]);
 
+  // Save assessment from standalone intake form
+  const saveAssessmentFromIntake = useCallback(async (assessment: VitalityAssessment, intakeAnswers: Record<string, any>) => {
+    const history = [...(config.history ?? [])];
+    if (config.latest_assessment) {
+      history.unshift(config.latest_assessment);
+    }
+    const trimmedHistory = history.slice(0, 20);
+
+    const newConfig: VitalityDomainConfig & { intake_answers: Record<string, any> } = {
+      latest_assessment: assessment,
+      history: trimmedHistory,
+      completed: true,
+      completed_at: new Date().toISOString(),
+      intake_answers: intakeAnswers,
+    };
+
+    await upsertDomain.mutateAsync({
+      domainId: 'vitality',
+      config: newConfig as unknown as Record<string, any>,
+      status: 'configured',
+    });
+  }, [config, upsertDomain]);
+
   // Mark complete
   const markComplete = useCallback(async () => {
     const newConfig: VitalityDomainConfig = {
@@ -108,6 +138,7 @@ export function useVitalityEngine() {
     hasData: Object.keys(rawInputs).length > 0,
     computeAssessment,
     runAssessment,
+    saveAssessmentFromIntake,
     markComplete,
     isSaving: upsertDomain.isPending,
   };

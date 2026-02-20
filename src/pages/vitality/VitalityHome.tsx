@@ -5,7 +5,7 @@
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useNavigate } from 'react-router-dom';
-import { Sun, ArrowLeft, ArrowRight, ChevronRight, ChevronLeft, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Sun, ArrowLeft, ArrowRight, ChevronRight, ChevronLeft, AlertTriangle, RefreshCw, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useVitalityEngine } from '@/hooks/useVitalityEngine';
@@ -127,29 +127,32 @@ export default function VitalityHome() {
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                 <Sun className="w-5 h-5 text-amber-500" />
               </div>
-              <h2 className="text-lg font-bold text-foreground">{t('vitality.computeTitle')}</h2>
+              <h2 className="text-lg font-bold text-foreground">{t('vitality.startIntakeTitle')}</h2>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">{t('vitality.computeDesc')}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t('vitality.startIntakeDesc')}</p>
             <Button
-              onClick={handleCompute}
-              disabled={computing || !hasData}
+              onClick={() => navigate('/life/vitality/intake')}
               className="w-full bg-amber-600 hover:bg-amber-700"
               size="lg"
             >
-              {computing ? t('common.loading') : t('vitality.runDiagnostic')}
+              <ClipboardList className="w-4 h-4 me-2" />
+              {t('vitality.startIntake')}
             </Button>
-            {!hasData && (
-              <p className="text-xs text-muted-foreground text-center mt-2">{t('vitality.noOnboardingData')}</p>
-            )}
           </div>
         )}
 
         {/* Recompute button */}
         {latestAssessment && (
-          <Button variant="outline" className="w-full" onClick={handleCompute} disabled={computing}>
-            <RefreshCw className={cn('w-4 h-4 me-2', computing && 'animate-spin')} />
-            {t('vitality.recompute')}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={handleCompute} disabled={computing}>
+              <RefreshCw className={cn('w-4 h-4 me-2', computing && 'animate-spin')} />
+              {t('vitality.recompute')}
+            </Button>
+            <Button variant="outline" className="flex-1" onClick={() => navigate('/life/vitality/intake')}>
+              <ClipboardList className="w-4 h-4 me-2" />
+              {t('vitality.retakeIntake')}
+            </Button>
+          </div>
         )}
 
         {/* Last assessed */}
