@@ -54,17 +54,6 @@ export function AdminHudSidebar({ activeTab = 'overview', activeSubTab, onTabCha
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
-          {/* Admin badge */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg">
-              <Shield className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              Admin
-            </span>
-          </div>
-
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent my-1" />
 
           {/* Tab icons */}
           <div className="flex flex-col items-center gap-1">
