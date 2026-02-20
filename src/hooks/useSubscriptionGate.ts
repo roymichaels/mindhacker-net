@@ -8,6 +8,7 @@ import { flowAudit } from "@/lib/flowAudit";
 export interface SubscriptionGate {
   tier: SubscriptionTier;
   isPro: boolean;
+  isPlus: boolean;
   isLoading: boolean;
   canSendMessage: boolean;
   messagesRemaining: number;
@@ -15,8 +16,8 @@ export interface SubscriptionGate {
   canAccessProjects: boolean;
   canAccessHypnosis: boolean;
   canAccessNudges: boolean;
-  canBeCoach: boolean;
-  canAccessBusiness: boolean;
+  canAccessCore: boolean;
+  canAccessArena: boolean;
   maxHabits: number;
   subscriptionEnd: string | null;
   showUpgradePrompt: (feature: string) => void;
@@ -68,7 +69,6 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     staleTime: 30 * 1000,
   });
 
-  // All hooks must be called before any early return
   const showUpgradePrompt = useCallback((feature: string) => {
     setUpgradeFeature(feature);
   }, []);
@@ -77,7 +77,6 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     setUpgradeFeature(null);
   }, []);
 
-  // Stuck-loading detection for scenario audit (must be before early return)
   const subStuckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (subLoading) {
@@ -95,11 +94,12 @@ export const useSubscriptionGate = (): SubscriptionGate => {
     };
   }, [subLoading]);
 
-  // Admins bypass all gates (after all hooks)
+  // Admins bypass all gates
   if (isAdmin) {
     return {
-      tier: "business",
+      tier: "pro",
       isPro: true,
+      isPlus: true,
       isLoading: false,
       canSendMessage: true,
       messagesRemaining: Infinity,
@@ -107,8 +107,8 @@ export const useSubscriptionGate = (): SubscriptionGate => {
       canAccessProjects: true,
       canAccessHypnosis: true,
       canAccessNudges: true,
-      canBeCoach: true,
-      canAccessBusiness: true,
+      canAccessCore: true,
+      canAccessArena: true,
       maxHabits: Infinity,
       subscriptionEnd: null,
       showUpgradePrompt,
@@ -119,26 +119,27 @@ export const useSubscriptionGate = (): SubscriptionGate => {
   }
 
   const tier: SubscriptionTier = subData ? productIdToTier(subData.product_id) : "free";
-  const isPaid = tier !== "free";
+  const isPlus = tierIncludes(tier, "plus");
+  const isPro = tierIncludes(tier, "pro");
 
-  // Flow audit: log subscription state
-  flowAudit.subscription({ tier, isPro: isPaid, isLoading: subLoading, subscriptionEnd: subData?.end_date ?? null });
+  flowAudit.subscription({ tier, isPro: isPlus, isLoading: subLoading, subscriptionEnd: subData?.end_date ?? null });
   const dailyCount = messageData ?? 0;
-  const messagesRemaining = isPaid ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
+  const messagesRemaining = isPlus ? Infinity : Math.max(0, FREE_DAILY_MESSAGES - dailyCount);
 
   return {
     tier,
-    isPro: isPaid,
+    isPro,
+    isPlus,
     isLoading: subLoading,
-    canSendMessage: isPaid || messagesRemaining > 0,
+    canSendMessage: isPlus || messagesRemaining > 0,
     messagesRemaining,
     canAccessPlan: true,
     canAccessProjects: tierIncludes(tier, "pro"),
-    canAccessHypnosis: tierIncludes(tier, "pro"),
-    canAccessNudges: tierIncludes(tier, "pro"),
-    canBeCoach: tierIncludes(tier, "coach"),
-    canAccessBusiness: tierIncludes(tier, "business"),
-    maxHabits: isPaid ? Infinity : FREE_MAX_HABITS,
+    canAccessHypnosis: tierIncludes(tier, "plus"),
+    canAccessNudges: tierIncludes(tier, "plus"),
+    canAccessCore: tierIncludes(tier, "pro"),
+    canAccessArena: tierIncludes(tier, "pro"),
+    maxHabits: isPlus ? Infinity : FREE_MAX_HABITS,
     subscriptionEnd: subData?.end_date ?? null,
     showUpgradePrompt,
     upgradeFeature,

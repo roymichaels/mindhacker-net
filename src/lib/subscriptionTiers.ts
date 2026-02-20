@@ -1,9 +1,10 @@
 /**
  * Subscription Tier Configuration
  * Central source of truth for all tier-related data
+ * Tiers: Free → Plus → Pro
  */
 
-export type SubscriptionTier = "free" | "pro" | "coach" | "business";
+export type SubscriptionTier = "free" | "plus" | "pro";
 
 export interface TierConfig {
   tier: SubscriptionTier;
@@ -29,6 +30,19 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
       he: "דאשבורד, תוכנית 90 יום ו-5 הודעות יומיות לאורורה",
     },
   },
+  plus: {
+    tier: "plus",
+    productId: "prod_U0uQqUiCnxGgpB",
+    priceId: "price_1T2sbYL9lVJ44TbRzI0K3mzx",
+    priceUSD: 49,
+    priceILS: 149,
+    label: { en: "Plus", he: "Plus" },
+    description: {
+      en: "Unlimited Aurora, daily AI hypnosis, proactive coaching",
+      he: "אורורה ללא הגבלה, היפנוזה AI יומית, אימון פרואקטיבי",
+    },
+    trial: 7,
+  },
   pro: {
     tier: "pro",
     productId: "prod_U0tv7nZ9CPMMgt",
@@ -37,33 +51,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     priceILS: 549,
     label: { en: "Pro", he: "Pro" },
     description: {
-      en: "Unlimited coaching, daily AI hypnosis, proactive nudges",
-      he: "אימון ללא הגבלה, היפנוזה יומית, נאדג׳ים פרואקטיביים",
-    },
-    trial: 7,
-  },
-  coach: {
-    tier: "coach",
-    productId: "prod_U00qb2VULzdvYx",
-    priceId: "price_1T20oXL9lVJ44TbR60Ny0vdt",
-    priceUSD: 79,
-    priceILS: 289,
-    label: { en: "Coach", he: "מאמן" },
-    description: {
-      en: "All Pro features + Coach AI tools & marketplace listing",
-      he: "כל פיצ׳רי Pro + כלי AI למאמנים ונוכחות בשוק",
-    },
-  },
-  business: {
-    tier: "business",
-    productId: "prod_U00oHca1mJzxl1",
-    priceId: "price_1T20nDL9lVJ44TbRJh4CiTNn",
-    priceUSD: 129,
-    priceILS: 469,
-    label: { en: "Business", he: "עסקי" },
-    description: {
-      en: "All Coach features + business hub, website builder & e-commerce",
-      he: "כל פיצ׳רי Coach + מרכז עסקי, בניית אתר ואי-קומרס",
+      en: "Everything in Plus + Core, Arena, Projects & advanced tools",
+      he: "הכל מ-Plus + ליבה, זירה, פרויקטים וכלים מתקדמים",
     },
   },
 };
@@ -80,9 +69,8 @@ export function productIdToTier(productId: string | null): SubscriptionTier {
 /** Tier hierarchy for comparison (higher = more features) */
 const TIER_RANK: Record<SubscriptionTier, number> = {
   free: 0,
-  pro: 1,
-  coach: 2,
-  business: 3,
+  plus: 1,
+  pro: 2,
 };
 
 export function tierIncludes(userTier: SubscriptionTier, requiredTier: SubscriptionTier): boolean {
@@ -103,11 +91,10 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
       "3 הרגלים פעילים",
     ],
   },
-  pro: {
+  plus: {
     en: [
       "Everything in Free",
       "Unlimited Aurora messages",
-      "Projects module",
       "1 personalized AI hypnosis/day",
       "Proactive coaching nudges",
       "Unlimited habits & checklists",
@@ -115,38 +102,27 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     he: [
       "הכל מ-Free",
       "הודעות ללא הגבלה לאורורה",
-      "מודול פרויקטים",
       "היפנוזה AI מותאמת אישית יומית",
       "נאדג׳ים פרואקטיביים",
       "הרגלים ורשימות ללא הגבלה",
     ],
   },
-  coach: {
+  pro: {
     en: [
-      "Everything in Pro",
-      "Coach AI Plan Builder",
-      "Marketplace listing",
-      "Client management tools",
+      "Everything in Plus",
+      "Core hub (6 development pillars)",
+      "Arena hub (Wealth, Influence, Relationships)",
+      "Projects module",
+      "Advanced AI coaching & analysis",
+      "Full Life OS access",
     ],
     he: [
-      "הכל מ-Pro",
-      "בונה תוכניות AI למאמנים",
-      "נוכחות בשוק המאמנים",
-      "כלי ניהול לקוחות",
-    ],
-  },
-  business: {
-    en: [
-      "Everything in Coach",
-      "Business hub & analytics",
-      "Website builder",
-      "E-commerce & Shopify tools",
-    ],
-    he: [
-      "הכל מ-Coach",
-      "מרכז עסקי ואנליטיקות",
-      "בניית אתר",
-      "כלי אי-קומרס ו-Shopify",
+      "הכל מ-Plus",
+      "ליבה (6 עמודי פיתוח)",
+      "זירה (עושר, השפעה, קשרים)",
+      "מודול פרויקטים",
+      "אימון AI מתקדם וניתוח",
+      "גישה מלאה ל-Life OS",
     ],
   },
 };

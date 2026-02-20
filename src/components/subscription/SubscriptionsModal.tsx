@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Zap, Lock, Loader2, Crown, Briefcase, Users, X } from "lucide-react";
+import { CheckCircle2, Zap, Loader2, Crown, Sparkles, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +14,8 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from "@/lib/guards";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const TIER_ORDER: SubscriptionTier[] = ["free", "pro", "coach", "business"];
+const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "pro"];
 
-// Per-tier color tokens (Tailwind classes)
 const TIER_COLORS: Record<SubscriptionTier, {
   icon: string; iconBg: string; text: string; price: string;
   border: string; ring: string; badge: string; badgeText: string;
@@ -30,6 +29,14 @@ const TIER_COLORS: Record<SubscriptionTier, {
     button: "bg-emerald-500 hover:bg-emerald-600 text-white",
     check: "text-emerald-500",
   },
+  plus: {
+    icon: "text-amber-500", iconBg: "bg-amber-500/10",
+    text: "text-amber-500", price: "text-amber-600 dark:text-amber-400",
+    border: "border-amber-500", ring: "ring-amber-500/30",
+    badge: "bg-amber-500", badgeText: "text-white",
+    button: "bg-amber-500 hover:bg-amber-600 text-white",
+    check: "text-amber-500",
+  },
   pro: {
     icon: "text-primary", iconBg: "bg-primary/10",
     text: "text-primary", price: "text-primary",
@@ -38,29 +45,12 @@ const TIER_COLORS: Record<SubscriptionTier, {
     button: "bg-primary hover:bg-primary/90 text-primary-foreground",
     check: "text-primary",
   },
-  coach: {
-    icon: "text-blue-500", iconBg: "bg-blue-500/10",
-    text: "text-blue-500", price: "text-blue-600 dark:text-blue-400",
-    border: "border-blue-500", ring: "ring-blue-500/30",
-    badge: "bg-blue-500", badgeText: "text-white",
-    button: "bg-blue-500 hover:bg-blue-600 text-white",
-    check: "text-blue-500",
-  },
-  business: {
-    icon: "text-amber-500", iconBg: "bg-amber-500/10",
-    text: "text-amber-500", price: "text-amber-600 dark:text-amber-400",
-    border: "border-amber-500", ring: "ring-amber-500/30",
-    badge: "bg-amber-500", badgeText: "text-white",
-    button: "bg-amber-500 hover:bg-amber-600 text-white",
-    check: "text-amber-500",
-  },
 };
 
 const TIER_ICONS: Record<SubscriptionTier, React.ReactNode> = {
   free: <Zap className="h-7 w-7" />,
+  plus: <Sparkles className="h-7 w-7" />,
   pro: <Crown className="h-7 w-7" />,
-  coach: <Users className="h-7 w-7" />,
-  business: <Briefcase className="h-7 w-7" />,
 };
 
 const SubscriptionsModal = () => {
@@ -106,10 +96,9 @@ const SubscriptionsModal = () => {
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && closeSubscriptions()}>
       <DialogContent
-        className="max-w-5xl w-[95vw] max-h-[90vh] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-2xl overflow-hidden [&>button]:hidden"
+        className="max-w-4xl w-[95vw] max-h-[90vh] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-2xl overflow-hidden [&>button]:hidden"
         dir={isRTL ? "rtl" : "ltr"}
       >
-        {/* Close button */}
         <button
           onClick={closeSubscriptions}
           className="absolute top-4 end-4 z-50 rounded-full bg-muted/80 p-2 hover:bg-muted transition-colors"
@@ -126,8 +115,8 @@ const SubscriptionsModal = () => {
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 {isRTL
-                  ? "מהתפתחות אישית ועד לבניית עסק — יש לנו תוכנית בשבילך"
-                  : "From personal growth to building a business — we have a plan for you"}
+                  ? "מהתפתחות אישית ועד לשליטה מלאה במערכת — יש לנו תוכנית בשבילך"
+                  : "From personal growth to full system mastery — we have a plan for you"}
               </p>
             </div>
 
@@ -161,26 +150,22 @@ const SubscriptionsModal = () => {
               </Card>
             )}
 
-            {/* Tier Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Tier Grid — 3 columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {TIER_ORDER.map((tierKey) => {
                 const config = TIER_CONFIGS[tierKey];
                 const features = TIER_FEATURES[tierKey];
                 const isCurrent = userTier === tierKey;
                 const isUpgrade = !tierIncludes(userTier, tierKey) && tierKey !== "free";
-                const isPopular = tierKey === "pro";
-                const isComingSoon = tierKey === "business";
-
-              const tierColor = TIER_COLORS[tierKey];
+                const isPopular = tierKey === "plus";
+                const tierColor = TIER_COLORS[tierKey];
 
                 return (
                   <Card
                     key={tierKey}
                     className={`relative flex flex-col rounded-2xl border bg-card/60 transition-all ${
                       isCurrent ? `${tierColor.border} ring-1 ${tierColor.ring}` : ""
-                    } ${isPopular && !isCurrent ? `ring-1 ${tierColor.ring}` : ""} ${
-                      isComingSoon ? "opacity-50 grayscale pointer-events-none" : ""
-                    }`}
+                    } ${isPopular && !isCurrent ? `ring-1 ${tierColor.ring}` : ""}`}
                   >
                     {isCurrent && (
                       <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
@@ -194,14 +179,6 @@ const SubscriptionsModal = () => {
                         <Badge className={`${tierColor.badge} ${tierColor.badgeText} px-3 py-0.5 text-xs whitespace-nowrap`}>
                           <Zap className="w-3 h-3 me-1" />
                           {isRTL ? "הכי פופולרי" : "Most Popular"}
-                        </Badge>
-                      </div>
-                    )}
-                    {isComingSoon && (
-                      <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
-                        <Badge variant="secondary" className="px-3 py-0.5 text-xs whitespace-nowrap">
-                          <Lock className="w-3 h-3 me-1" />
-                          {isRTL ? "בקרוב" : "Coming Soon"}
                         </Badge>
                       </div>
                     )}
@@ -255,7 +232,7 @@ const SubscriptionsModal = () => {
                           {portalLoading && <Loader2 className="h-4 w-4 animate-spin me-2" />}
                           {isRTL ? "ניהול מנוי" : "Manage"}
                         </Button>
-                      ) : isUpgrade && !isComingSoon ? (
+                      ) : isUpgrade ? (
                         <Button
                           className={`w-full ${tierColor.button}`}
                           size="sm"
@@ -274,8 +251,8 @@ const SubscriptionsModal = () => {
                           )}
                         </Button>
                       ) : (
-                        <Button variant="outline" className="w-full" size="sm" disabled={isComingSoon}>
-                          {isComingSoon ? (isRTL ? "בקרוב" : "Coming Soon") : (isRTL ? "שנה תוכנית" : "Change Plan")}
+                        <Button variant="outline" className="w-full" size="sm" disabled>
+                          {isRTL ? "שנה תוכנית" : "Change Plan"}
                         </Button>
                       )}
                     </CardFooter>

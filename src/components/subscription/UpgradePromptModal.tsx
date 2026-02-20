@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSubscriptionsModal } from "@/contexts/SubscriptionsModalContext";
+import { TIER_CONFIGS } from "@/lib/subscriptionTiers";
 
 interface UpgradePromptModalProps {
   feature: string | null;
@@ -12,73 +13,50 @@ interface UpgradePromptModalProps {
 interface FeatureMessage {
   he: string;
   en: string;
-  /** Which tier is needed to unlock this feature */
-  targetTier?: "pro" | "coach" | "business";
+  targetTier?: "plus" | "pro";
 }
 
 const featureMessages: Record<string, FeatureMessage> = {
   aurora_limit: {
     he: "ניצלת את 5 ההודעות היומיות שלך לאורורה",
     en: "You've used your 5 daily Aurora messages",
-    targetTier: "pro",
-  },
-  plan: {
-    he: "מנוע התכנון ל-90 יום הוא פיצ'ר Pro",
-    en: "The 90-day plan engine is a Pro feature",
-    targetTier: "pro",
+    targetTier: "plus",
   },
   hypnosis: {
-    he: "היפנוזה AI מותאמת אישית היא פיצ'ר Pro",
-    en: "Personalized AI hypnosis is a Pro feature",
-    targetTier: "pro",
+    he: "היפנוזה AI מותאמת אישית היא פיצ'ר Plus",
+    en: "Personalized AI hypnosis is a Plus feature",
+    targetTier: "plus",
   },
   habits: {
     he: "הגעת למקסימום ההרגלים בתוכנית החינמית",
     en: "You've reached the max habits on the free plan",
-    targetTier: "pro",
+    targetTier: "plus",
   },
   nudges: {
-    he: "נאדג'ים פרואקטיביים הם פיצ'ר Pro",
-    en: "Proactive nudges are a Pro feature",
+    he: "נאדג'ים פרואקטיביים הם פיצ'ר Plus",
+    en: "Proactive nudges are a Plus feature",
+    targetTier: "plus",
+  },
+  core: {
+    he: "הליבה זמינה למנויי Pro",
+    en: "The Core hub requires a Pro subscription",
     targetTier: "pro",
   },
-  coach: {
-    he: "כלי המאמן זמינים למנויי Coach ומעלה",
-    en: "Coaching tools require a Coach subscription or higher",
-    targetTier: "coach",
+  arena: {
+    he: "הזירה זמינה למנויי Pro",
+    en: "The Arena hub requires a Pro subscription",
+    targetTier: "pro",
   },
-  coaches: {
-    he: "נוכחות בשוק המאמנים דורשת מנוי Coach",
-    en: "Coach listing requires a Coach subscription",
-    targetTier: "coach",
-  },
-  business: {
-    he: "המרכז העסקי זמין למנויי Business",
-    en: "The business hub requires a Business subscription",
-    targetTier: "business",
-  },
-  website_builder: {
-    he: "בונה האתרים זמין למנויי Business",
-    en: "Website builder requires a Business subscription",
-    targetTier: "business",
+  projects: {
+    he: "מודול הפרויקטים זמין למנויי Pro",
+    en: "The Projects module requires a Pro subscription",
+    targetTier: "pro",
   },
   default: {
     he: "פיצ'ר זה זמין למנויים בתשלום",
     en: "This feature is available for paid subscribers",
-    targetTier: "pro",
+    targetTier: "plus",
   },
-};
-
-const tierPricing: Record<string, { en: string; he: string }> = {
-  pro: { en: "$49/month", he: "₪179/חודש" },
-  coach: { en: "$79/month", he: "₪289/חודש" },
-  business: { en: "$129/month", he: "₪469/חודש" },
-};
-
-const tierLabels: Record<string, { en: string; he: string }> = {
-  pro: { en: "Pro", he: "Pro" },
-  coach: { en: "Coach", he: "מאמן" },
-  business: { en: "Business", he: "עסקי" },
 };
 
 const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => {
@@ -90,9 +68,10 @@ const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => 
 
   const config = featureMessages[feature] || featureMessages.default;
   const message = isRTL ? config.he : config.en;
-  const target = config.targetTier || "pro";
-  const pricing = tierPricing[target];
-  const label = tierLabels[target];
+  const target = config.targetTier || "plus";
+  const tierConfig = TIER_CONFIGS[target];
+  const pricing = isRTL ? `₪${tierConfig.priceILS}/חודש` : `$${tierConfig.priceUSD}/month`;
+  const label = tierConfig.label;
 
   const handleUpgrade = () => {
     onDismiss();
@@ -119,9 +98,7 @@ const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => 
         <div className="flex flex-col gap-3 mt-4">
           <Button onClick={handleUpgrade} className="w-full" size="lg">
             <Zap className="h-4 w-4 mr-2" />
-            {isRTL
-              ? `שדרג עכשיו — ${pricing.he}`
-              : `Upgrade now — ${pricing.en}`}
+            {isRTL ? `שדרג עכשיו — ${pricing}` : `Upgrade now — ${pricing}`}
           </Button>
           <Button variant="ghost" onClick={onDismiss} className="w-full">
             {isRTL ? "אחר כך" : "Maybe later"}
