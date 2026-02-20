@@ -4022,6 +4022,12 @@ export const he = {
       opt_average: "ממוצע",
       opt_weak: "חלש",
       opt_basic: "בסיסי",
+      opt_none: "ללא",
+      opt_rolling_1_10: "1–10 שעות",
+      opt_rolling_10_50: "10–50 שעות",
+      opt_rolling_50_200: "50–200 שעות",
+      opt_rolling_200_plus: "200+ שעות",
+      opt_2x_weekly: "פעמיים בשבוע",
       // Boxing
       disc_sec_boxing: "אגרוף",
       boxing_q_combo: "שליטה בקומבינציות",

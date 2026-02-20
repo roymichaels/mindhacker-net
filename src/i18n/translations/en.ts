@@ -3956,6 +3956,12 @@ export const en: TranslationKeys = {
       opt_average: "Average",
       opt_weak: "Weak",
       opt_basic: "Basic",
+      opt_none: "None",
+      opt_rolling_1_10: "1–10 hours",
+      opt_rolling_10_50: "10–50 hours",
+      opt_rolling_50_200: "50–200 hours",
+      opt_rolling_200_plus: "200+ hours",
+      opt_2x_weekly: "2x/week",
       // Boxing
       disc_sec_boxing: "Boxing",
       boxing_q_combo: "Combination fluency",
