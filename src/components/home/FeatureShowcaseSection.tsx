@@ -1,6 +1,5 @@
 /**
- * FeatureShowcaseSection — Tabbed feature overview with "See More" links
- * Reference: horizontal tab bar at top, card list below, each with hook + desc + CTA
+ * FeatureShowcaseSection — Sidebar navigation + detail card for 13 features
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +23,7 @@ export default function FeatureShowcaseSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
             {isRTL ? 'כל מה שבפנים' : 'Everything Inside'}
@@ -36,78 +35,71 @@ export default function FeatureShowcaseSection() {
           </p>
         </motion.div>
 
-        {/* Tab bar — horizontal scroll */}
-        <div className="relative mb-8">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {FEATURES.map((f, i) => (
-              <button
-                key={f.slug}
-                onClick={() => setActiveIdx(i)}
-                className={cn(
-                  "shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
-                  i === activeIdx
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <span className="mr-1.5">{f.icon}</span>
-                {isRTL ? f.titleHe.split('—')[0].trim() : f.titleEn.split('—')[0].trim()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Active feature card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active.slug}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            className="rounded-2xl border border-border/60 bg-card p-8 md:p-10 space-y-6"
-          >
-            {/* Icon + Title */}
-            <div className="flex items-center gap-4">
-              <span className="text-4xl">{active.icon}</span>
-              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                {isRTL ? active.titleHe : active.titleEn}
-              </h3>
+        {/* Sidebar + Content layout */}
+        <div className="flex flex-col md:flex-row gap-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
+          {/* Sidebar */}
+          <nav className="md:w-64 lg:w-72 shrink-0 border-b md:border-b-0 md:border-e border-border/60 bg-muted/30">
+            <div className="flex md:flex-col overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:max-h-[520px] scrollbar-hide">
+              {FEATURES.map((f, i) => (
+                <button
+                  key={f.slug}
+                  onClick={() => setActiveIdx(i)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap md:whitespace-normal text-start w-full shrink-0",
+                    i === activeIdx
+                      ? "bg-primary/10 text-primary border-s-2 border-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground border-s-2 border-transparent"
+                  )}
+                >
+                  <span className="text-lg shrink-0">{f.icon}</span>
+                  <span className="hidden md:inline">
+                    {isRTL ? f.titleHe.split('—')[0].trim() : f.titleEn.split('—')[0].trim()}
+                  </span>
+                </button>
+              ))}
             </div>
+          </nav>
 
-            {/* Hook */}
-            <p className="text-lg font-semibold text-primary">
-              {isRTL ? active.hookHe : active.hookEn}
-            </p>
+          {/* Content area */}
+          <div className="flex-1 min-h-[400px] md:min-h-[520px] flex items-start">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active.slug}
+                initial={{ opacity: 0, x: isRTL ? -16 : 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isRTL ? 16 : -16 }}
+                transition={{ duration: 0.2 }}
+                className="p-8 md:p-10 space-y-6 w-full"
+              >
+                {/* Icon + Title */}
+                <div className="flex items-center gap-4">
+                  <span className="text-4xl">{active.icon}</span>
+                  <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                    {isRTL ? active.titleHe : active.titleEn}
+                  </h3>
+                </div>
 
-            {/* Description */}
-            <p className="text-muted-foreground leading-relaxed text-base max-w-3xl">
-              {isRTL ? active.descHe : active.descEn}
-            </p>
+                {/* Hook */}
+                <p className="text-lg font-semibold text-primary">
+                  {isRTL ? active.hookHe : active.hookEn}
+                </p>
 
-            {/* See More CTA */}
-            <button
-              onClick={() => navigate(`/features/${active.slug}`)}
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline transition-colors"
-            >
-              {isRTL ? 'קרא עוד' : 'See More'}
-              {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-            </button>
-          </motion.div>
-        </AnimatePresence>
+                {/* Description */}
+                <p className="text-muted-foreground leading-relaxed text-base max-w-2xl">
+                  {isRTL ? active.descHe : active.descEn}
+                </p>
 
-        {/* Quick nav dots for mobile */}
-        <div className="flex justify-center gap-1.5 mt-6 md:hidden">
-          {FEATURES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveIdx(i)}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                i === activeIdx ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30"
-              )}
-            />
-          ))}
+                {/* See More CTA */}
+                <button
+                  onClick={() => navigate(`/features/${active.slug}`)}
+                  className="inline-flex items-center gap-2 text-primary font-semibold hover:underline transition-colors"
+                >
+                  {isRTL ? 'קרא עוד' : 'See More'}
+                  {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                </button>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
