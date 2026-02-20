@@ -1,6 +1,6 @@
 /**
  * @page CombatAssess (/life/combat/assess)
- * Hybrid warrior capability intake — multi-section guided flow.
+ * Hybrid warrior capability intake — per-discipline questionnaires.
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,28 +16,18 @@ import { buildCombatAssessment } from '@/lib/combat/scoring';
 import { cn } from '@/lib/utils';
 import type {
   CombatIntakeAnswers, WarriorMode, CombatDiscipline, ProfileAnswers,
-  RealityAnswers, ShadowAnswers, LiveAnswers, GrapplingAnswers,
+  RealityAnswers, LiveAnswers,
   ReactionAnswers, ConditioningAnswers, DurabilityAnswers,
 } from '@/lib/combat/types';
 import { GRAPPLING_DISCIPLINES } from '@/lib/combat/types';
+import { getActiveDisciplineSpecs, type DisciplineSpec } from '@/lib/combat/disciplines';
 import {
   ArrowLeft, ArrowRight, Swords, ChevronRight, ChevronLeft,
   Zap, Shield, Target, Flame, Brain, Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type SectionId = 'intro' | 'profile' | 'reality' | 'shadow' | 'live' | 'grappling' | 'reaction' | 'conditioning' | 'durability';
-
-const SECTION_ICONS: Record<string, any> = {
-  profile: Target,
-  reality: Activity,
-  shadow: Zap,
-  live: Flame,
-  grappling: Shield,
-  reaction: Brain,
-  conditioning: Flame,
-  durability: Shield,
-};
+type SectionId = string; // 'intro' | 'profile' | 'reality' | 'live' | 'disc_<id>' | 'reaction' | 'conditioning' | 'durability'
 
 export default function CombatAssess() {
   const navigate = useNavigate();
@@ -54,19 +44,20 @@ export default function CombatAssess() {
   const [isSaving, setIsSaving] = useState(false);
 
   const mode = answers.profile?.warrior_mode;
-  const disciplines = answers.profile?.disciplines ?? [];
-  const hasGrappling = disciplines.some(d => GRAPPLING_DISCIPLINES.includes(d));
+  const disciplines = answers.profile?.disciplines?.filter(d => d !== 'none') ?? [];
   const showLive = mode === 'gym' || mode === 'hybrid';
+  const activeSpecs = getActiveDisciplineSpecs(disciplines as CombatDiscipline[]);
 
   const sections: SectionId[] = (() => {
-    const s: SectionId[] = ['intro', 'profile', 'reality', 'shadow'];
+    const s: SectionId[] = ['intro', 'profile', 'reality'];
     if (showLive) s.push('live');
-    if (hasGrappling) s.push('grappling');
+    for (const spec of activeSpecs) {
+      s.push(`disc_${spec.id}`);
+    }
     s.push('reaction', 'conditioning', 'durability');
     return s;
   })();
 
-  
   const currentIdx = sections.indexOf(currentSection);
   const totalSections = sections.filter(s => s !== 'intro').length;
   const progressIdx = Math.max(0, currentIdx - 1);
@@ -75,11 +66,23 @@ export default function CombatAssess() {
     setAnswers(prev => ({ ...prev, [key]: { ...(prev[key] as any ?? {}), ...value } }));
   };
 
+  const patchDiscipline = (discId: string, questionId: string, value: any) => {
+    setAnswers(prev => ({
+      ...prev,
+      disciplines_answers: {
+        ...(prev.disciplines_answers ?? {}),
+        [discId]: {
+          ...(prev.disciplines_answers?.[discId] ?? {}),
+          [questionId]: value,
+        },
+      },
+    }));
+  };
+
   const goNext = async () => {
     const nextIdx = currentIdx + 1;
     if (nextIdx < sections.length) {
       setCurrentSection(sections[nextIdx]);
-      // Debounced draft save
       try { await saveDraft(answers); } catch { /* silent */ }
     }
   };
@@ -100,6 +103,11 @@ export default function CombatAssess() {
   };
 
   const isLast = currentIdx === sections.length - 1;
+
+  // Find discipline spec for current section
+  const currentDiscSpec = currentSection.startsWith('disc_')
+    ? activeSpecs.find(s => `disc_${s.id}` === currentSection)
+    : null;
 
   return (
     <PageShell>
@@ -138,9 +146,18 @@ export default function CombatAssess() {
             {currentSection === 'intro' && <IntroSection t={t} onBegin={goNext} ForwardIcon={ForwardIcon} />}
             {currentSection === 'profile' && <ProfileSection t={t} answers={answers} patch={patch} onNext={goNext} />}
             {currentSection === 'reality' && <RealitySection t={t} answers={answers} patch={patch} onNext={goNext} isRTL={isRTL} />}
-            {currentSection === 'shadow' && <ShadowSection t={t} answers={answers} patch={patch} onNext={goNext} />}
             {currentSection === 'live' && <LiveSection t={t} answers={answers} patch={patch} onNext={goNext} />}
-            {currentSection === 'grappling' && <GrapplingSection t={t} answers={answers} patch={patch} onNext={goNext} />}
+            {currentDiscSpec && (
+              <DisciplineSection
+                t={t}
+                spec={currentDiscSpec}
+                answers={answers.disciplines_answers?.[currentDiscSpec.id] ?? {}}
+                onAnswer={(qId, val) => patchDiscipline(currentDiscSpec.id, qId, val)}
+                onNext={isLast ? handleSubmit : goNext}
+                isLast={isLast}
+                isSaving={isSaving}
+              />
+            )}
             {currentSection === 'reaction' && <ReactionSection t={t} answers={answers} patch={patch} onNext={goNext} />}
             {currentSection === 'conditioning' && <ConditioningSection t={t} answers={answers} patch={patch} onNext={goNext} />}
             {currentSection === 'durability' && (
@@ -156,10 +173,10 @@ export default function CombatAssess() {
 
 /* ─── Shared UI helpers ─── */
 
-function SectionHeader({ icon: Icon, titleKey, t }: { icon: any; titleKey: string; t: (k: string) => string }) {
+function SectionHeader({ icon: Icon, titleKey, t, emoji }: { icon?: any; titleKey: string; t: (k: string) => string; emoji?: string }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <Icon className="w-5 h-5 text-primary" />
+      {emoji ? <span className="text-xl">{emoji}</span> : Icon && <Icon className="w-5 h-5 text-primary" />}
       <h2 className="text-base font-bold text-foreground">{t(titleKey)}</h2>
     </div>
   );
@@ -179,33 +196,6 @@ function OptionButton({ selected, label, onClick }: { selected: boolean; label: 
     >
       {label}
     </button>
-  );
-}
-
-function MultiSelectChips({ options, selected, onToggle, t }: {
-  options: { id: string; labelKey: string }[];
-  selected: string[];
-  onToggle: (id: string) => void;
-  t: (k: string) => string;
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {options.map(o => (
-        <button
-          key={o.id}
-          type="button"
-          onClick={() => onToggle(o.id)}
-          className={cn(
-            "px-3 py-1.5 rounded-full border text-xs font-medium transition-all",
-            selected.includes(o.id)
-              ? "bg-primary/15 border-primary/50 text-primary"
-              : "bg-background border-border/50 text-muted-foreground hover:bg-muted/50"
-          )}
-        >
-          {t(o.labelKey)}
-        </button>
-      ))}
-    </div>
   );
 }
 
@@ -299,7 +289,6 @@ function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => strin
     <Card className="p-5 border-border/40">
       <SectionHeader icon={Target} titleKey="combat.sec_profile" t={t} />
 
-      {/* Warrior mode */}
       <QuestionLabel text={t('combat.q_warrior_mode')} />
       <div className="space-y-2 mb-5">
         {modes.map(m => (
@@ -320,7 +309,6 @@ function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => strin
         ))}
       </div>
 
-      {/* Disciplines */}
       <QuestionLabel text={t('combat.q_disciplines')} />
       <div className="flex flex-wrap gap-2 mb-5">
         {allDisciplines.map(d => (
@@ -340,7 +328,6 @@ function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => strin
         ))}
       </div>
 
-      {/* Years of training */}
       <QuestionLabel text={t('combat.q_years_training')} />
       <div className="grid grid-cols-2 gap-2 mb-4">
         {yearsOptions.map(y => (
@@ -408,123 +395,7 @@ function RealitySection({ t, answers, patch, onNext, isRTL }: { t: (k: string) =
   );
 }
 
-/* ─── Shadow / Solo Engine (Section 2) ─── */
-
-function ShadowSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
-  const sh = answers.shadow ?? {};
-  const format = sh.shadow_format;
-
-  return (
-    <Card className="p-5 border-border/40">
-      <SectionHeader icon={Zap} titleKey="combat.sec_shadow" t={t} />
-
-      <div className="space-y-5">
-        <div>
-          <QuestionLabel text={t('combat.q_shadow_format')} />
-          <div className="grid grid-cols-3 gap-2">
-            {['structured', 'continuous', 'mixed'].map(o => (
-              <OptionButton key={o} selected={format === o} label={t(`combat.opt_${o}`)}
-                onClick={() => patch('shadow', { ...sh, shadow_format: o })} />
-            ))}
-          </div>
-        </div>
-
-        {format === 'structured' && (
-          <>
-            <div>
-              <QuestionLabel text={t('combat.q_round_length')} />
-              <div className="flex gap-2">
-                {['2min', '3min', '5min'].map(o => (
-                  <OptionButton key={o} selected={sh.round_length === o} label={o}
-                    onClick={() => patch('shadow', { ...sh, round_length: o })} />
-                ))}
-              </div>
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_rest_length')} />
-              <div className="flex gap-2">
-                {['0:30', '1:00', '2:00'].map(o => (
-                  <OptionButton key={o} selected={sh.rest_length === o} label={o}
-                    onClick={() => patch('shadow', { ...sh, rest_length: o })} />
-                ))}
-              </div>
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_rounds_per_session')} />
-              <NumericInput value={sh.rounds_per_session} onChange={v => patch('shadow', { ...sh, rounds_per_session: v })} />
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_rpe_last_2')} />
-              <div className="flex items-center gap-3">
-                <Slider value={[sh.rpe_last_2 ?? 5]} onValueChange={([v]) => patch('shadow', { ...sh, rpe_last_2: v })}
-                  min={1} max={10} step={1} className="flex-1" />
-                <span className="text-sm font-bold text-foreground w-6 text-center">{sh.rpe_last_2 ?? 5}</span>
-              </div>
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_tech_complexity')} />
-              <div className="grid grid-cols-2 gap-2">
-                {['basic', '3_4_combo', 'angles_defense', 'fluid_freestyle'].map(o => (
-                  <OptionButton key={o} selected={sh.tech_complexity_fatigue === o}
-                    label={t(`combat.opt_${o}`)} onClick={() => patch('shadow', { ...sh, tech_complexity_fatigue: o })} />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {format === 'continuous' && (
-          <>
-            <div>
-              <QuestionLabel text={t('combat.q_minutes_degrade')} />
-              <NumericInput value={sh.minutes_before_degrade} onChange={v => patch('shadow', { ...sh, minutes_before_degrade: v })} />
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_continuous_rpe')} />
-              <div className="flex items-center gap-3">
-                <Slider value={[sh.continuous_rpe ?? 5]} onValueChange={([v]) => patch('shadow', { ...sh, continuous_rpe: v })}
-                  min={1} max={10} step={1} className="flex-1" />
-                <span className="text-sm font-bold text-foreground w-6 text-center">{sh.continuous_rpe ?? 5}</span>
-              </div>
-            </div>
-            <div>
-              <QuestionLabel text={t('combat.q_continuous_complexity')} />
-              <div className="grid grid-cols-2 gap-2">
-                {['basic', '3_4_combo', 'angles_defense', 'fluid_freestyle'].map(o => (
-                  <OptionButton key={o} selected={sh.continuous_complexity === o}
-                    label={t(`combat.opt_${o}`)} onClick={() => patch('shadow', { ...sh, continuous_complexity: o })} />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Common shadow questions */}
-        <div className="space-y-3 pt-2 border-t border-border/30">
-          {[
-            { key: 'uses_bands', qKey: 'combat.q_bands' },
-            { key: 'films_self', qKey: 'combat.q_films' },
-            { key: 'trains_defense_shadow', qKey: 'combat.q_defense_shadow' },
-          ].map(({ key, qKey }) => (
-            <div key={key} className="flex items-center justify-between">
-              <p className="text-sm text-foreground">{t(qKey)}</p>
-              <div className="flex gap-2">
-                <OptionButton selected={(sh as any)[key] === true} label={t('common.yes')}
-                  onClick={() => patch('shadow', { ...sh, [key]: true })} />
-                <OptionButton selected={(sh as any)[key] === false} label={t('common.no')}
-                  onClick={() => patch('shadow', { ...sh, [key]: false })} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Button className="w-full mt-4" onClick={onNext}>{t('common.next')}</Button>
-    </Card>
-  );
-}
-
-/* ─── Live Experience (Section 3) ─── */
+/* ─── Live Experience ─── */
 
 function LiveSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
   const l = answers.live ?? {};
@@ -573,62 +444,55 @@ function LiveSection({ t, answers, patch, onNext }: { t: (k: string) => string; 
   );
 }
 
-/* ─── Grappling (Section 4) ─── */
+/* ─── Generic Discipline Section (data-driven) ─── */
 
-function GrapplingSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
-  const g = answers.grappling ?? {};
-
+function DisciplineSection({ t, spec, answers, onAnswer, onNext, isLast, isSaving }: {
+  t: (k: string) => string;
+  spec: DisciplineSpec;
+  answers: Record<string, string | string[] | number | undefined>;
+  onAnswer: (qId: string, val: any) => void;
+  onNext: () => void;
+  isLast: boolean;
+  isSaving: boolean;
+}) {
   return (
     <Card className="p-5 border-border/40">
-      <SectionHeader icon={Shield} titleKey="combat.sec_grappling" t={t} />
+      <SectionHeader titleKey={spec.titleKey} t={t} emoji={spec.iconEmoji} />
 
       <div className="space-y-5">
-        <div>
-          <QuestionLabel text={t('combat.q_lifetime_rolling')} />
-          <div className="grid grid-cols-2 gap-2">
-            {['0', '1_10', '10_50', '50_200', '200_plus'].map(o => (
-              <OptionButton key={o} selected={g.lifetime_rolling_hours === o}
-                label={t(`combat.opt_rolling_${o}`)} onClick={() => patch('grappling', { ...g, lifetime_rolling_hours: o })} />
-            ))}
+        {spec.questions.map(q => (
+          <div key={q.id}>
+            <QuestionLabel text={t(q.labelKey)} />
+            {q.type === 'single_select' && q.options && (
+              <div className="grid grid-cols-2 gap-2">
+                {q.options.map(o => (
+                  <OptionButton
+                    key={o.id}
+                    selected={answers[q.id] === o.id}
+                    label={t(o.labelKey)}
+                    onClick={() => onAnswer(q.id, o.id)}
+                  />
+                ))}
+              </div>
+            )}
+            {q.type === 'numeric' && (
+              <NumericInput
+                value={answers[q.id] as number | undefined}
+                onChange={v => onAnswer(q.id, v)}
+              />
+            )}
           </div>
-        </div>
-        <div>
-          <QuestionLabel text={t('combat.q_rolling_freq')} />
-          <div className="grid grid-cols-2 gap-2">
-            {['none', 'monthly', 'weekly', '2x_weekly'].map(o => (
-              <OptionButton key={o} selected={g.rolling_freq_12mo === o}
-                label={t(`combat.opt_${o}`)} onClick={() => patch('grappling', { ...g, rolling_freq_12mo: o })} />
-            ))}
-          </div>
-        </div>
-        <div>
-          <QuestionLabel text={t('combat.q_mount_escape')} />
-          <div className="grid grid-cols-3 gap-2">
-            {['yes', 'sometimes', 'no'].map(o => (
-              <OptionButton key={o} selected={g.escape_mount === o}
-                label={t(`common.${o === 'sometimes' ? 'yes' : o}`) || t(`combat.opt_${o}`)}
-                onClick={() => patch('grappling', { ...g, escape_mount: o })} />
-            ))}
-          </div>
-        </div>
-        <div>
-          <QuestionLabel text={t('combat.q_sprawl')} />
-          <div className="grid grid-cols-3 gap-2">
-            {['yes', 'sometimes', 'no'].map(o => (
-              <OptionButton key={o} selected={g.sprawl_instinct === o}
-                label={t(`combat.opt_${o}`)}
-                onClick={() => patch('grappling', { ...g, sprawl_instinct: o })} />
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
 
-      <Button className="w-full mt-4" onClick={onNext}>{t('common.next')}</Button>
+      <Button className="w-full mt-4" onClick={onNext} disabled={isLast && isSaving}>
+        {isLast ? (isSaving ? t('common.loading') : t('combat.submitAssessment')) : t('common.next')}
+      </Button>
     </Card>
   );
 }
 
-/* ─── Reaction (Section 5) ─── */
+/* ─── Reaction ─── */
 
 function ReactionSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
   const r = answers.reaction ?? {};
@@ -672,7 +536,7 @@ function ReactionSection({ t, answers, patch, onNext }: { t: (k: string) => stri
   );
 }
 
-/* ─── Conditioning (Section 6) ─── */
+/* ─── Conditioning ─── */
 
 function ConditioningSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
   const c = answers.conditioning ?? {};
@@ -721,7 +585,7 @@ function ConditioningSection({ t, answers, patch, onNext }: { t: (k: string) => 
   );
 }
 
-/* ─── Durability (Section 7 — last) ─── */
+/* ─── Durability (last) ─── */
 
 function DurabilitySection({ t, answers, patch, onSubmit, isSaving }: {
   t: (k: string) => string; answers: CombatIntakeAnswers; patch: any;

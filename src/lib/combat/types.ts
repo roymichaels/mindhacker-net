@@ -65,29 +65,29 @@ export const GRAPPLING_DISCIPLINES: CombatDiscipline[] = ['bjj', 'wrestling', 'j
 export interface ProfileAnswers {
   warrior_mode: WarriorMode;
   disciplines?: CombatDiscipline[];
-  years_training?: string; // 'none' | '<1' | '1_3' | '3_5' | '5_plus'
+  years_training?: string;
 }
 
 export interface RealityAnswers {
   sessions_per_week?: number;
   sessions_last_30?: number;
-  solo_vs_live_pct?: number; // 0 = all live, 100 = all solo
-  sparring_depth_freq?: string; // only if live > 0
+  solo_vs_live_pct?: number;
+  sparring_depth_freq?: string;
 }
 
+/** Answers for each discipline, keyed by discipline id */
+export type DisciplineAnswers = Record<string, Record<string, string | string[] | number | undefined>>;
+
 export interface ShadowAnswers {
-  shadow_format?: string; // structured | continuous | mixed
-  // structured
+  shadow_format?: string;
   round_length?: string;
   rest_length?: string;
   rounds_per_session?: number;
   rpe_last_2?: number;
   tech_complexity_fatigue?: string;
-  // continuous
   minutes_before_degrade?: number;
   continuous_rpe?: number;
   continuous_complexity?: string;
-  // common
   uses_bands?: boolean;
   films_self?: boolean;
   trains_defense_shadow?: boolean;
@@ -132,6 +132,7 @@ export interface CombatIntakeAnswers {
   shadow?: ShadowAnswers;
   live?: LiveAnswers;
   grappling?: GrapplingAnswers;
+  disciplines_answers?: DisciplineAnswers;
   reaction?: ReactionAnswers;
   conditioning?: ConditioningAnswers;
   durability?: DurabilityAnswers;
