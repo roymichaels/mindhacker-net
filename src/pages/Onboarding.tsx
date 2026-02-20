@@ -1,11 +1,24 @@
 /**
  * Onboarding — Route page for /onboarding
- * Full-screen identity calibration flow.
+ * Aurora-powered conversational calibration flow.
  */
-import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
+import { lazy, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+
+const OnboardingChat = lazy(() => import('@/components/launchpad/OnboardingChat'));
 
 const Onboarding = () => {
-  return <OnboardingFlow />;
+  return (
+    <div className="min-h-screen bg-background">
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }>
+        <OnboardingChat />
+      </Suspense>
+    </div>
+  );
 };
 
 export default Onboarding;
