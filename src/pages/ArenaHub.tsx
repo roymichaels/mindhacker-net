@@ -106,15 +106,6 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
       <div className="flex flex-col gap-4 flex-1 px-1">
         <div className="pt-1" />
 
-        {/* ── Greeting ── */}
-        <div className="text-center px-3 mb-0">
-          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            <span>{greeting.emoji} </span>
-            {firstName && <span className="font-semibold text-foreground">{firstName}</span>}
-            {firstName && <span className="text-muted-foreground">, </span>}
-            <span>{greeting.text}</span>
-          </p>
-        </div>
 
         {/* ── Motivational Banner ── */}
         <div
