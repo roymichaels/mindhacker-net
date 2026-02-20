@@ -122,6 +122,7 @@ const CoachSlugRedirect = lazy(() => import("./components/coach/CoachSlugRedirec
 const AdminLayoutWrapper = lazy(() => import("./components/admin/AdminLayoutWrapper"));
 const ProjectsLayoutWrapper = lazy(() => import("./components/projects/ProjectsLayoutWrapper"));
 const ArenaLayoutWrapper = lazy(() => import("./components/arena/ArenaLayoutWrapper"));
+const ArenaDomainPage = lazy(() => import("./pages/ArenaDomainPage"));
 const QuestRunnerPage = lazy(() => import("./pages/QuestRunnerPage"));
 // Panel pages still actively used by /affiliate route
 const AffiliatePanel = lazy(() => import("./components/panel/AffiliatePanel"));
@@ -619,14 +620,19 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        {/* Arena domain AI assessment routes */}
+                        {/* Arena domain AI assessment routes (specific before catch-all) */}
                         <Route path="/arena/wealth/assess" element={<ProtectedRoute><WealthAssess /></ProtectedRoute>} />
                         <Route path="/arena/wealth/results" element={<ProtectedRoute><WealthResults /></ProtectedRoute>} />
                         <Route path="/arena/influence/assess" element={<ProtectedRoute><InfluenceAssess /></ProtectedRoute>} />
                         <Route path="/arena/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
                         <Route path="/arena/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
                         <Route path="/arena/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
+                        {/* Arena domain page (catch-all) */}
+                        <Route path="/arena/:domainId" element={<ProtectedRoute><ArenaDomainPage /></ProtectedRoute>} />
                         {/* Legacy /life arena redirects */}
+                        <Route path="/life/wealth" element={<Navigate to="/arena/wealth" replace />} />
+                        <Route path="/life/influence" element={<Navigate to="/arena/influence" replace />} />
+                        <Route path="/life/relationships" element={<Navigate to="/arena/relationships" replace />} />
                         <Route path="/life/wealth/assess" element={<Navigate to="/arena/wealth/assess" replace />} />
                         <Route path="/life/influence/assess" element={<Navigate to="/arena/influence/assess" replace />} />
                         <Route path="/life/relationships/assess" element={<Navigate to="/arena/relationships/assess" replace />} />
