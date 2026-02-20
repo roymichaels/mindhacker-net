@@ -153,7 +153,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.3 }}
-                  onClick={() => navigate(`/life/${domain.id}`)}
+                  onClick={() => navigate(`/arena/${domain.id}`)}
                   className={cn(
                     'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
                     colorMap[domain.color] ?? colorMap.amber
