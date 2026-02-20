@@ -15,6 +15,8 @@ import {
   ChevronRight, ChevronLeft, BarChart3, RefreshCw,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 
 const SUBSYSTEM_ICONS: Record<string, string> = {
   learning_depth: '📚',
@@ -27,11 +29,16 @@ export default function ExpansionHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useExpansionCoach();
+  const [assessOpen, setAssessOpen] = useState(false);
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
   const latest = config.latest_assessment;
   const history = config.history ?? [];
+
+  useEffect(() => {
+    if (!isLoading && !latest) setAssessOpen(true);
+  }, [isLoading, latest]);
 
   if (isLoading) {
     return (
@@ -91,7 +98,7 @@ export default function ExpansionHome() {
                   <Button onClick={() => navigate('/life/expansion/results')} className="flex-1 bg-indigo-600 hover:bg-indigo-700">
                     <BarChart3 className="w-4 h-4 me-1" /> {t('expansion.viewResults')}
                   </Button>
-                  <Button onClick={() => navigate('/life/expansion/assess')} variant="outline" className="border-indigo-500/40">
+                  <Button onClick={() => setAssessOpen(true)} variant="outline" className="border-indigo-500/40">
                     <RefreshCw className="w-4 h-4 me-1" /> {t('expansion.reassess')}
                   </Button>
                 </div>
@@ -132,7 +139,7 @@ export default function ExpansionHome() {
               <Brain className="w-10 h-10 text-indigo-500 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-foreground mb-1">{t('expansion.startTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t('expansion.startDesc')}</p>
-              <Button onClick={() => navigate('/life/expansion/assess')} className="bg-indigo-600 hover:bg-indigo-700" size="lg">
+              <Button onClick={() => setAssessOpen(true)} className="bg-indigo-600 hover:bg-indigo-700" size="lg">
                 {t('expansion.beginScan')} <ForwardIcon className="w-4 h-4 ms-1" />
               </Button>
               <p className="text-[10px] text-muted-foreground mt-3">{t('expansion.noPlanNote')}</p>
@@ -146,6 +153,7 @@ export default function ExpansionHome() {
           </Badge>
         )}
       </div>
+      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="expansion" />
     </PageShell>
   );
 }
