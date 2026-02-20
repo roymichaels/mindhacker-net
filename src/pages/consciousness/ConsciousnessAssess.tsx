@@ -98,7 +98,6 @@ export default function ConsciousnessAssess() {
     setSaving(true);
     try {
       await saveAssessment(result);
-      await markComplete();
       navigate('/life/consciousness/results');
     } catch (err) {
       console.error('Failed to save assessment:', err);
