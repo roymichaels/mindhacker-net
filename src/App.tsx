@@ -82,6 +82,10 @@ const PresenceScan = lazy(() => import("./pages/presence/PresenceScan"));
 const PresenceAnalyzing = lazy(() => import("./pages/presence/PresenceAnalyzing"));
 const PresenceResultsPage = lazy(() => import("./pages/presence/PresenceResultsPage"));
 const PresenceHistory = lazy(() => import("./pages/presence/PresenceHistory"));
+const PowerHome = lazy(() => import("./pages/power/PowerHome"));
+const PowerAssess = lazy(() => import("./pages/power/PowerAssess"));
+const PowerResultsPage = lazy(() => import("./pages/power/PowerResultsPage"));
+const PowerHistory = lazy(() => import("./pages/power/PowerHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -387,6 +391,39 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <PresenceHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Power pillar routes */}
+                        <Route
+                          path="/life/power"
+                          element={
+                            <ProtectedRoute>
+                              <PowerHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/power/assess"
+                          element={
+                            <ProtectedRoute>
+                              <PowerAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/power/results"
+                          element={
+                            <ProtectedRoute>
+                              <PowerResultsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/power/history"
+                          element={
+                            <ProtectedRoute>
+                              <PowerHistory />
                             </ProtectedRoute>
                           }
                         />
