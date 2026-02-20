@@ -3269,6 +3269,7 @@ export const he = {
       yourLastScan: "הסריקה האחרונה שלך",
       confidence: "רמת ביטחון",
       rescan: "חישוב מחדש",
+      recalculateSuccess: "חישוב מחדש הושלם בהצלחה.",
       viewResults: "צפה בתוצאות",
       assessmentComplete: "✓ הערכת נוכחות הושלמה",
       plansNote: "תוכניות נוצרות לאחר הערכת כל עמודי התווך.",

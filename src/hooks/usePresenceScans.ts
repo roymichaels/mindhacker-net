@@ -84,11 +84,20 @@ export function usePresenceScans() {
     },
   });
 
+  // Recalculate: re-analyze using existing images from the latest scan
+  const recalculate = async (): Promise<PresenceScan> => {
+    if (!latestScan?.scan_images || Object.keys(latestScan.scan_images).length === 0) {
+      throw new Error("No existing scan images to recalculate from");
+    }
+    return analyzeMutation.mutateAsync(latestScan.scan_images);
+  };
+
   return {
     scans: scansQuery.data ?? [],
     latestScan,
     isLoading: scansQuery.isLoading,
     analyze: analyzeMutation.mutateAsync,
+    recalculate,
     isAnalyzing: analyzeMutation.isPending,
     deleteScan: deleteScanMutation.mutateAsync,
   };
