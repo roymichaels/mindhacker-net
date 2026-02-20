@@ -55,8 +55,9 @@ export default function PowerAssess() {
   const [gymInput, setGymInput] = useState<GymStrengthInput>({ repScheme: '1rm' });
   const [calCondInput, setCalCondInput] = useState<CalConditioningInput>({ weightedCalisthenics: false });
   const [calSkillInput, setCalSkillInput] = useState<CalSkillsInput>({
-    handstand: 0, planche: 0, frontLever: 0, backLever: 0, humanFlag: 0,
-    muscleUp: 0, pistolSquat: 0, vSit: 0, dragonFlag: 0, ringMuscleUp: 0, elbowLever: 0,
+    handstand: 0, hspu: 0, planche: 0, frontLever: 0, backLever: 0, humanFlag: 0,
+    muscleUp: 0, ringMuscleUp: 0, pistolSquat: 0, shrimpSquat: 0, nordicCurl: 0,
+    vSit: 0, dragonFlag: 0, bridge: 0, elbowLever: 0,
   });
   const [explosiveInput, setExplosiveInput] = useState<ExplosivePowerInput>({});
 
@@ -372,6 +373,7 @@ function CalSkillsForm({ input, setInput, t, language }: {
 }) {
   const skills: { key: SkillName; field: keyof CalSkillsInput }[] = [
     { key: 'handstand', field: 'handstand' },
+    { key: 'hspu', field: 'hspu' },
     { key: 'planche', field: 'planche' },
     { key: 'frontLever', field: 'frontLever' },
     { key: 'backLever', field: 'backLever' },
@@ -379,8 +381,11 @@ function CalSkillsForm({ input, setInput, t, language }: {
     { key: 'muscleUp', field: 'muscleUp' },
     { key: 'ringMuscleUp', field: 'ringMuscleUp' },
     { key: 'pistolSquat', field: 'pistolSquat' },
+    { key: 'shrimpSquat', field: 'shrimpSquat' },
+    { key: 'nordicCurl', field: 'nordicCurl' },
     { key: 'vSit', field: 'vSit' },
     { key: 'dragonFlag', field: 'dragonFlag' },
+    { key: 'bridge', field: 'bridge' },
     { key: 'elbowLever', field: 'elbowLever' },
   ];
 

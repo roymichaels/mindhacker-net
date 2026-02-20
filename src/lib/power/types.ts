@@ -42,15 +42,19 @@ export type SkillLevel = number; // 0 = not training, 1–N = ladder position
 
 export interface CalSkillsInput {
   handstand: SkillLevel;
+  hspu: SkillLevel;
   planche: SkillLevel;
   frontLever: SkillLevel;
   backLever: SkillLevel;
   humanFlag: SkillLevel;
   muscleUp: SkillLevel;
+  ringMuscleUp: SkillLevel;
   pistolSquat: SkillLevel;
+  shrimpSquat: SkillLevel;
+  nordicCurl: SkillLevel;
   vSit: SkillLevel;
   dragonFlag: SkillLevel;
-  ringMuscleUp: SkillLevel;
+  bridge: SkillLevel;
   elbowLever: SkillLevel;
 }
 
