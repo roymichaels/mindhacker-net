@@ -1,10 +1,10 @@
 /**
  * @tab Life > Power
- * @purpose Power Pillar Home — Assessment CTA + Last assessment summary. Bilingual + RTL.
+ * PowerHome — Assessment CTA + Last assessment summary. Bilingual + RTL.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, ArrowLeft, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Dumbbell, ArrowLeft, ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
@@ -17,10 +17,10 @@ export default function PowerHome() {
 
   const row = getDomain('power');
   const config = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
-  const latest = config.latest_assessment;
+  const latest = config.latest;
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
-  const BackIcon = isRTL ? ChevronRight : ArrowLeft;
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
   if (isLoading) {
     return (
@@ -50,7 +50,7 @@ export default function PowerHome() {
             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
               <Dumbbell className="w-5 h-5 text-red-500" />
             </div>
-            <h2 className="text-lg font-bold text-foreground">{t('power.assessment')}</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('power.startAssessment')}</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             {t('power.assessmentDesc')}
@@ -60,7 +60,7 @@ export default function PowerHome() {
           </Button>
         </div>
 
-        {/* Last Assessment */}
+        {/* Last Assessment Summary */}
         {latest && (
           <div className="p-4 rounded-2xl border border-border bg-card">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('power.lastAssessment')}</p>
@@ -71,9 +71,14 @@ export default function PowerHome() {
                 </span>
                 <span className="text-sm text-muted-foreground">{t('power.powerIndex')}</span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {new Date(latest.assessedAt).toLocaleDateString()}
-              </p>
+              <div className="text-end">
+                <p className="text-xs text-muted-foreground">
+                  {new Date(latest.assessedAt).toLocaleDateString()}
+                </p>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  {t(`power.conf_${latest.confidence}`)}
+                </span>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => navigate('/life/power/results')} className="flex-1">
@@ -86,7 +91,7 @@ export default function PowerHome() {
           </div>
         )}
 
-        {/* History link */}
+        {/* History */}
         {config.history && config.history.length > 0 && (
           <Button variant="ghost" className="w-full justify-between" onClick={() => navigate('/life/power/history')}>
             <span>{t('power.assessmentHistory')}</span>
@@ -94,7 +99,7 @@ export default function PowerHome() {
           </Button>
         )}
 
-        {/* Completion badge */}
+        {/* Completion */}
         {config.completed && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
             <p className="text-sm font-medium text-emerald-600">{t('power.assessmentComplete')}</p>

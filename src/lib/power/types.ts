@@ -1,67 +1,76 @@
 /**
  * @module lib/power/types
- * Power Pillar assessment types.
+ * Power Pillar – Elite Strength & Skill Assessment Engine types.
  */
 
-export type PowerModuleId =
-  | 'max_strength'
-  | 'relative_bodyweight'
-  | 'static_skill_strength'
+/* ─── Track IDs (goal-based, not abstract) ─── */
+export type PowerTrackId =
+  | 'gym_strength'
+  | 'calisthenics_conditioning'
+  | 'calisthenics_skills'
   | 'explosive_power'
-  | 'structural_strength';
+  | 'general_athleticism';
 
-export interface MaxStrengthInput {
-  bench1rm?: number;
-  squat1rm?: number;
-  deadlift1rm?: number;
-  bodyweight: number;
+/* ─── Rep estimation method for gym lifts ─── */
+export type RepScheme = '1rm' | '5rm' | '8_12rm';
+
+/* ─── Gym Strength ─── */
+export interface GymStrengthInput {
+  repScheme: RepScheme;
+  bodyweight?: number;
+  squat?: { weight: number; reps: number };
+  deadlift?: { weight: number; reps: number };
+  bench?: { weight: number; reps: number };
+  ohp?: { weight: number; reps: number };
 }
 
-export interface RelativeBodyweightInput {
+/* ─── Calisthenics Conditioning ─── */
+export interface CalConditioningInput {
   maxPushups?: number;
   maxPullups?: number;
   maxDips?: number;
-  lSitHoldSeconds?: number;
+  maxBwSquats?: number;
+  weightedCalisthenics: boolean;
+  weightedDipWeight?: number;
+  weightedDipReps?: number;
+  weightedPullupWeight?: number;
+  weightedPullupReps?: number;
 }
 
-export type PlancheTier = 'none' | 'tuck' | 'adv_tuck' | 'straddle' | 'half_lay' | 'full';
-export type FrontLeverTier = 'none' | 'tuck' | 'adv_tuck' | 'straddle' | 'half_lay' | 'full';
+/* ─── Calisthenics Skills (progression ladders) ─── */
+export type SkillLevel = number; // 0 = not training, 1–N = ladder position
 
-export interface StaticSkillInput {
-  plancheProgression: PlancheTier;
-  frontLeverProgression: FrontLeverTier;
-  handstandHoldSeconds?: number;
+export interface CalSkillsInput {
+  handstand: SkillLevel;
+  planche: SkillLevel;
+  frontLever: SkillLevel;
+  backLever: SkillLevel;
+  humanFlag: SkillLevel;
 }
 
+export interface SkillLadderStep {
+  level: number;
+  key: string; // i18n key suffix
+}
+
+/* ─── Explosive Power ─── */
 export interface ExplosivePowerInput {
-  sprint30mSeconds?: number;
   verticalJumpCm?: number;
   broadJumpCm?: number;
-  clapPushups?: number;
+  sprint20mSeconds?: number;
+  sprint40mSeconds?: number;
 }
 
-export interface StructuralStrengthInput {
-  deadHangSeconds?: number;
-  sidePlankSeconds?: number;
-  singleLegBalanceSeconds?: number;
-  deepSquatHoldSeconds?: number;
-}
-
-export type ModuleInputMap = {
-  max_strength: MaxStrengthInput;
-  relative_bodyweight: RelativeBodyweightInput;
-  static_skill_strength: StaticSkillInput;
-  explosive_power: ExplosivePowerInput;
-  structural_strength: StructuralStrengthInput;
-};
-
+/* ─── Module Score ─── */
 export interface ModuleScore {
-  moduleId: PowerModuleId;
-  score: number; // 0–100
+  trackId: PowerTrackId;
+  score: number; // 0–100, -1 = unassessed
   subScores: Record<string, number>;
   label: string;
+  confidence: 'low' | 'med' | 'high';
 }
 
+/* ─── Finding ─── */
 export interface PowerFinding {
   id: string;
   severity: 'notable' | 'moderate' | 'minor';
@@ -69,27 +78,34 @@ export interface PowerFinding {
   textHe: string;
 }
 
-export interface PowerLever {
+/* ─── Fix Library Item ─── */
+export interface FixItem {
   id: string;
-  name: string;
-  nameHe: string;
+  title: string;
+  titleHe: string;
   why: string;
   whyHe: string;
-  moduleId: PowerModuleId;
+  tier: 1 | 2 | 3;
+  impact: 'low' | 'med' | 'high';
+  difficulty: 'easy' | 'med' | 'hard';
+  tags: PowerTrackId[];
 }
 
+/* ─── Assessment ─── */
 export interface PowerAssessment {
-  selectedModules: PowerModuleId[];
+  selectedTracks: PowerTrackId[];
   moduleScores: Record<string, ModuleScore>;
   powerIndex: number;
+  confidence: 'low' | 'med' | 'high';
   findings: PowerFinding[];
-  levers: PowerLever[];
+  focusItems: FixItem[];
   assessedAt: string;
 }
 
+/* ─── Domain Config stored in life_domains ─── */
 export interface PowerDomainConfig {
-  selected_modules: PowerModuleId[];
-  latest_assessment: PowerAssessment | null;
+  latest: PowerAssessment | null;
   history: PowerAssessment[];
   completed: boolean;
+  completed_at: string | null;
 }
