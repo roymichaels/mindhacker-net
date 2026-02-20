@@ -56,7 +56,7 @@ export default function PowerAssess() {
   const [calCondInput, setCalCondInput] = useState<CalConditioningInput>({ weightedCalisthenics: false });
   const [calSkillInput, setCalSkillInput] = useState<CalSkillsInput>({
     handstand: 0, planche: 0, frontLever: 0, backLever: 0, humanFlag: 0,
-    muscleUp: 0, pistolSquat: 0, vSit: 0,
+    muscleUp: 0, pistolSquat: 0, vSit: 0, dragonFlag: 0, ringMuscleUp: 0, elbowLever: 0,
   });
   const [explosiveInput, setExplosiveInput] = useState<ExplosivePowerInput>({});
 
@@ -377,8 +377,11 @@ function CalSkillsForm({ input, setInput, t, language }: {
     { key: 'backLever', field: 'backLever' },
     { key: 'humanFlag', field: 'humanFlag' },
     { key: 'muscleUp', field: 'muscleUp' },
+    { key: 'ringMuscleUp', field: 'ringMuscleUp' },
     { key: 'pistolSquat', field: 'pistolSquat' },
     { key: 'vSit', field: 'vSit' },
+    { key: 'dragonFlag', field: 'dragonFlag' },
+    { key: 'elbowLever', field: 'elbowLever' },
   ];
 
   return (
