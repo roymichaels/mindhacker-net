@@ -430,7 +430,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const rimLightColor = normalizeHsl(profile?.rimLightColor ?? '40 80% 65%');
   const bloomStrength = Math.max(0, Math.min(1.5, profile?.bloomStrength ?? 0.4));
 
-  const geometryDetail = Math.max(2, Math.min(6, profile?.geometryDetail ?? 4));
+  const geometryDetail = Math.round(Math.max(2, Math.min(6, profile?.geometryDetail ?? 4)));
   const morphIntensity = Math.max(0.15, Math.min(0.95, (profile?.morphIntensity ?? 0.4) * 1.3));
   const morphSpeed = profile?.morphSpeed ?? 1.0;
   const fractalOctaves = Math.max(2, Math.min(6, profile?.fractalOctaves ?? 4));
@@ -576,7 +576,16 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     // Signal uniform update effect to re-run with current values
     setSceneVersion(v => v + 1);
     onReady?.();
+
+    // Start initial render loop immediately (don't wait for sceneVersion state update)
+    const initialFrame = requestAnimationFrame(function initialRender() {
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+    });
+
     return () => {
+      cancelAnimationFrame(initialFrame);
       cancelAnimationFrame(frameRef.current);
       renderer.dispose();
       solidMesh.geometry.dispose();

@@ -346,7 +346,7 @@ export function interpolateOrbProfiles(
     coreIntensity: lerp(from.coreIntensity, to.coreIntensity, 1),
     coreSize: lerp(from.coreSize, to.coreSize, 0.3),
     layerCount: Math.round(lerp(from.layerCount, to.layerCount, 3)),
-    geometryDetail: Math.round(lerp(from.geometryDetail, to.geometryDetail, 4)),
+    geometryDetail: t < 1 ? from.geometryDetail : to.geometryDetail, // Snap — scene rebuild is destructive
     particleCount: Math.round(lerp(from.particleCount, to.particleCount, 20)),
     motionSpeed: lerp(from.motionSpeed, to.motionSpeed, 1),
     pulseRate: lerp(from.pulseRate, to.pulseRate, 1),
