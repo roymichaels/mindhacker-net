@@ -65,7 +65,7 @@ function getGreeting(language: string): { emoji: string; text: string } {
 
 export default function LifeHub() {
   const navigate = useNavigate();
-  const { statusMap } = useLifeDomains();
+  const { statusMap, getDomain } = useLifeDomains();
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
   const isHe = language === 'he';
@@ -142,11 +142,16 @@ export default function LifeHub() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={(statusMap['consciousness'] ?? 'unconfigured') === 'active' ? 'default' : (statusMap['consciousness'] ?? 'unconfigured') === 'configured' ? 'secondary' : 'outline'} className="text-[9px]">
-              {isHe
-                ? (statusBadge[statusMap['consciousness'] ?? 'unconfigured']?.labelHe ?? 'לא הוגדר')
-                : (statusBadge[statusMap['consciousness'] ?? 'unconfigured']?.label ?? 'Not Set Up')}
-            </Badge>
+            {(() => {
+              const cRow = getDomain('consciousness');
+              const cStatus = cRow?.status ?? 'unconfigured';
+              const cBadge = statusBadge[cStatus] ?? statusBadge.unconfigured;
+              return (
+                <Badge variant={cBadge.variant} className="text-[9px]">
+                  {isHe ? cBadge.labelHe : cBadge.label}
+                </Badge>
+              );
+            })()}
             <ChevronIcon className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
           </div>
         </motion.button>
