@@ -116,6 +116,18 @@ const BusinessAssess = lazy(() => import("./pages/arena/BusinessAssess"));
 const BusinessResults = lazy(() => import("./pages/arena/BusinessResults"));
 const ProjectsAssess = lazy(() => import("./pages/arena/ProjectsAssess"));
 const ProjectsResults = lazy(() => import("./pages/arena/ProjectsResults"));
+const PresenceChatAssess = lazy(() => import("./pages/life/PresenceChatAssess"));
+const PresenceChatResults = lazy(() => import("./pages/life/PresenceChatResults"));
+const PowerChatAssess = lazy(() => import("./pages/life/PowerChatAssess"));
+const PowerChatResults = lazy(() => import("./pages/life/PowerChatResults"));
+const VitalityChatAssess = lazy(() => import("./pages/life/VitalityChatAssess"));
+const VitalityChatResults = lazy(() => import("./pages/life/VitalityChatResults"));
+const FocusChatAssess = lazy(() => import("./pages/life/FocusChatAssess"));
+const FocusChatResults = lazy(() => import("./pages/life/FocusChatResults"));
+const CombatChatAssess = lazy(() => import("./pages/life/CombatChatAssess"));
+const CombatChatResults = lazy(() => import("./pages/life/CombatChatResults"));
+const ExpansionChatAssess = lazy(() => import("./pages/life/ExpansionChatAssess"));
+const ExpansionChatResults = lazy(() => import("./pages/life/ExpansionChatResults"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -414,10 +426,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/presence/assess"
-                          element={<Navigate to="/life/presence" replace />}
-                        />
+                        <Route path="/life/presence/assess" element={<ProtectedRoute><PresenceChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/presence/chat-results" element={<ProtectedRoute><PresenceChatResults /></ProtectedRoute>} />
                         <Route
                           path="/life/presence/history"
                           element={
@@ -435,14 +445,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/power/assess"
-                          element={
-                            <ProtectedRoute>
-                              <PowerAssess />
-                            </ProtectedRoute>
-                          }
-                        />
+                        <Route path="/life/power/assess" element={<ProtectedRoute><PowerChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/power/chat-results" element={<ProtectedRoute><PowerChatResults /></ProtectedRoute>} />
                         <Route
                           path="/life/power/results"
                           element={
@@ -468,14 +472,9 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/vitality/intake"
-                          element={
-                            <ProtectedRoute>
-                              <VitalityIntake />
-                            </ProtectedRoute>
-                          }
-                        />
+                        <Route path="/life/vitality/assess" element={<ProtectedRoute><VitalityChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/vitality/chat-results" element={<ProtectedRoute><VitalityChatResults /></ProtectedRoute>} />
+                        <Route path="/life/vitality/intake" element={<ProtectedRoute><VitalityIntake /></ProtectedRoute>} />
                         <Route
                           path="/life/vitality/results"
                           element={
@@ -501,14 +500,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/focus/assess"
-                          element={
-                            <ProtectedRoute>
-                              <FocusAssess />
-                            </ProtectedRoute>
-                          }
-                        />
+                        <Route path="/life/focus/assess" element={<ProtectedRoute><FocusChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/focus/chat-results" element={<ProtectedRoute><FocusChatResults /></ProtectedRoute>} />
                         <Route
                           path="/life/focus/results"
                           element={
@@ -534,14 +527,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/combat/assess"
-                          element={
-                            <ProtectedRoute>
-                              <CombatAssess />
-                            </ProtectedRoute>
-                          }
-                        />
+                        <Route path="/life/combat/assess" element={<ProtectedRoute><CombatChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/combat/chat-results" element={<ProtectedRoute><CombatChatResults /></ProtectedRoute>} />
                         <Route
                           path="/life/combat/results"
                           element={
@@ -567,14 +554,8 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/life/expansion/assess"
-                          element={
-                            <ProtectedRoute>
-                              <ExpansionAssess />
-                            </ProtectedRoute>
-                          }
-                        />
+                        <Route path="/life/expansion/assess" element={<ProtectedRoute><ExpansionChatAssess /></ProtectedRoute>} />
+                        <Route path="/life/expansion/chat-results" element={<ProtectedRoute><ExpansionChatResults /></ProtectedRoute>} />
                         <Route
                           path="/life/expansion/results"
                           element={

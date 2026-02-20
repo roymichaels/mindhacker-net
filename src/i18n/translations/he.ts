@@ -4651,15 +4651,41 @@ export const he = {
       sub_growth_capacity: 'יכולת צמיחה',
       sub_founder_resilience: 'חוסן יזמי',
     },
-    projectsAssess: {
-      assessTitle: 'אבחון פרויקטים',
-      assessSubtitle: 'שיחה קצרה שתחשוף את יכולת הביצוע שלך, סדרי עדיפויות, ולמה דברים לא מסתיימים.',
-      sub_vision_clarity: 'בהירות חזון',
-      sub_execution_discipline: 'משמעת ביצוע',
-      sub_resource_management: 'ניהול משאבים',
-      sub_priority_focus: 'מיקוד סדר עדיפויות',
-      sub_obstacle_navigation: 'ניווט מכשולים',
-      sub_completion_rate: 'אחוז סיום',
+    presenceAssess: {
+      assessTitle: 'אבחון תדמית',
+      assessSubtitle: 'שיחה קצרה שתחשוף את המבנה, הסגנון, היציבה והמודעות העצמית שלך.',
+      sub_facial_structure: 'מבנה פנים', sub_body_composition: 'הרכב גוף', sub_grooming_discipline: 'משמעת טיפוח',
+      sub_style_coherence: 'קוהרנטיות סגנון', sub_posture_presence: 'יציבה ונוכחות', sub_image_awareness: 'מודעות לתדמית',
+    },
+    powerAssess: {
+      assessTitle: 'אבחון עוצמה',
+      assessSubtitle: 'שיחה קצרה שתחשוף את הכוח הפיזי שלך — מספרים, לא סיפורים.',
+      sub_max_strength: 'כוח מקסימלי', sub_relative_strength: 'כוח יחסי', sub_skill_strength: 'כוח מיומנות',
+      sub_explosive_power: 'כוח פיצוצי', sub_structural_strength: 'כוח מבני', sub_training_consistency: 'עקביות אימונים',
+    },
+    vitalityAssess: {
+      assessTitle: 'אבחון חיוניות',
+      assessSubtitle: 'שיחה קצרה שתחשוף את איכות השינה, התזונה, האנרגיה וההרגלים שלך.',
+      sub_sleep_quality: 'איכות שינה', sub_circadian_stability: 'יציבות צירקדיאנית', sub_nutrition_quality: 'איכות תזונה',
+      sub_substance_load: 'עומס חומרים', sub_recovery_capacity: 'יכולת התאוששות', sub_energy_stability: 'יציבות אנרגיה',
+    },
+    focusAssess: {
+      assessTitle: 'אבחון מיקוד',
+      assessSubtitle: 'שיחה קצרה שתחשוף את יכולת הריכוז, שליטה בדופמין ומשמעת קשב.',
+      sub_deep_work_capacity: 'עבודה עמוקה', sub_dopamine_control: 'שליטה בדופמין', sub_attention_span: 'טווח קשב',
+      sub_meditation_practice: 'תרגול מדיטציה', sub_distraction_resistance: 'עמידות בהסחות', sub_cognitive_endurance: 'סיבולת קוגניטיבית',
+    },
+    combatAssess: {
+      assessTitle: 'אבחון לחימה',
+      assessSubtitle: 'שיחה קצרה שתחשוף את יכולות הלחימה, הניסיון והמוכנות שלך.',
+      sub_striking_ability: 'יכולת הכאה', sub_grappling_skill: 'כישורי היאבקות', sub_reaction_speed: 'מהירות תגובה',
+      sub_combat_conditioning: 'כושר לחימה', sub_pressure_handling: 'התמודדות עם לחץ', sub_tactical_awareness: 'מודעות טקטית',
+    },
+    expansionAssess: {
+      assessTitle: 'אבחון התרחבות',
+      assessSubtitle: 'שיחה קצרה שתחשוף את סקרנותך, יצירתיותך ויכולת הלמידה שלך.',
+      sub_learning_drive: 'דחף למידה', sub_creative_output: 'תפוקה יצירתית', sub_intellectual_range: 'רוחב אינטלקטואלי',
+      sub_language_skill: 'כישורי שפה', sub_growth_mindset: 'חשיבת צמיחה', sub_knowledge_application: 'יישום ידע',
     },
 };
 
