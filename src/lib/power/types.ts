@@ -46,6 +46,9 @@ export interface CalSkillsInput {
   frontLever: SkillLevel;
   backLever: SkillLevel;
   humanFlag: SkillLevel;
+  muscleUp: SkillLevel;
+  pistolSquat: SkillLevel;
+  vSit: SkillLevel;
 }
 
 export interface SkillLadderStep {

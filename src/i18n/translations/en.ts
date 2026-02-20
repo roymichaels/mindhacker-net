@@ -3339,6 +3339,9 @@ export const en: TranslationKeys = {
       skill_frontLever: "Front Lever",
       skill_backLever: "Back Lever",
       skill_humanFlag: "Human Flag",
+      skill_muscleUp: "Muscle Up",
+      skill_pistolSquat: "Pistol Squat",
+      skill_vSit: "V-Sit",
       // Handstand ladder
       ladder_wall_hold_60s: "Wall hold (60s)",
       ladder_wall_shoulder_taps: "Wall shoulder taps",
@@ -3374,6 +3377,28 @@ export const en: TranslationKeys = {
       ladder_one_leg_flag: "One-leg flag",
       ladder_straddle_flag: "Straddle flag",
       ladder_full_flag: "Full human flag",
+      // Muscle up ladder
+      ladder_high_pullup: "High pull-up (chest to bar)",
+      ladder_negative_mu: "Negative muscle up",
+      ladder_kipping_mu: "Kipping muscle up",
+      ladder_strict_mu_1: "Strict muscle up (1 rep)",
+      ladder_strict_mu_3: "Strict muscle up (3 reps)",
+      ladder_strict_mu_5: "Strict muscle up (5 reps)",
+      ladder_weighted_mu: "Weighted muscle up",
+      // Pistol squat ladder
+      ladder_assisted_pistol: "Assisted pistol squat",
+      ladder_box_pistol: "Box pistol squat",
+      ladder_full_pistol: "Full pistol squat (1 rep)",
+      ladder_pistol_3_reps: "Pistol squat (3 reps each leg)",
+      ladder_pistol_5_reps: "Pistol squat (5 reps each leg)",
+      ladder_weighted_pistol: "Weighted pistol squat",
+      // V-sit ladder
+      ladder_tucked_lsit: "Tucked L-sit",
+      ladder_full_lsit: "Full L-sit",
+      ladder_adv_lsit: "Advanced L-sit (elevated legs)",
+      ladder_tucked_vsit: "Tucked V-sit",
+      ladder_straddle_vsit: "Straddle V-sit",
+      ladder_full_vsit: "Full V-sit",
       // Explosive
       explosiveNote: "Enter whichever measurements you know.",
       verticalJump: "Vertical Jump (cm)",
