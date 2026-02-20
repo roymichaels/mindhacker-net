@@ -75,6 +75,24 @@ export const RELATIONSHIPS_SUBSYSTEMS: SubsystemMeta[] = [
   { id: 'reciprocity_balance', icon: '⚖️', nameKey: 'relationships.sub_reciprocity_balance', weight: 0.15 },
 ];
 
+export const BUSINESS_SUBSYSTEMS: SubsystemMeta[] = [
+  { id: 'business_clarity', icon: '🎯', nameKey: 'businessAssess.sub_business_clarity', weight: 0.20 },
+  { id: 'revenue_engine', icon: '💰', nameKey: 'businessAssess.sub_revenue_engine', weight: 0.20 },
+  { id: 'operational_maturity', icon: '⚙️', nameKey: 'businessAssess.sub_operational_maturity', weight: 0.15 },
+  { id: 'market_positioning', icon: '📍', nameKey: 'businessAssess.sub_market_positioning', weight: 0.15 },
+  { id: 'growth_capacity', icon: '📈', nameKey: 'businessAssess.sub_growth_capacity', weight: 0.15 },
+  { id: 'founder_resilience', icon: '🔥', nameKey: 'businessAssess.sub_founder_resilience', weight: 0.15 },
+];
+
+export const PROJECTS_SUBSYSTEMS: SubsystemMeta[] = [
+  { id: 'vision_clarity', icon: '🔭', nameKey: 'projectsAssess.sub_vision_clarity', weight: 0.20 },
+  { id: 'execution_discipline', icon: '⚡', nameKey: 'projectsAssess.sub_execution_discipline', weight: 0.20 },
+  { id: 'resource_management', icon: '📊', nameKey: 'projectsAssess.sub_resource_management', weight: 0.15 },
+  { id: 'priority_focus', icon: '🎯', nameKey: 'projectsAssess.sub_priority_focus', weight: 0.15 },
+  { id: 'obstacle_navigation', icon: '🧭', nameKey: 'projectsAssess.sub_obstacle_navigation', weight: 0.15 },
+  { id: 'completion_rate', icon: '✅', nameKey: 'projectsAssess.sub_completion_rate', weight: 0.15 },
+];
+
 export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
   wealth: {
     domainId: 'wealth',
@@ -96,5 +114,19 @@ export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
     introTitleKey: 'relationships.assessTitle',
     introSubtitleKey: 'relationships.assessSubtitle',
     subsystems: RELATIONSHIPS_SUBSYSTEMS,
+  },
+  business: {
+    domainId: 'business',
+    color: 'rose',
+    introTitleKey: 'businessAssess.assessTitle',
+    introSubtitleKey: 'businessAssess.assessSubtitle',
+    subsystems: BUSINESS_SUBSYSTEMS,
+  },
+  projects: {
+    domainId: 'projects',
+    color: 'amber',
+    introTitleKey: 'projectsAssess.assessTitle',
+    introSubtitleKey: 'projectsAssess.assessSubtitle',
+    subsystems: PROJECTS_SUBSYSTEMS,
   },
 };

@@ -112,6 +112,10 @@ const InfluenceAssess = lazy(() => import("./pages/arena/InfluenceAssess"));
 const InfluenceResults = lazy(() => import("./pages/arena/InfluenceResults"));
 const RelationshipsAssess = lazy(() => import("./pages/arena/RelationshipsAssess"));
 const RelationshipsResults = lazy(() => import("./pages/arena/RelationshipsResults"));
+const BusinessAssess = lazy(() => import("./pages/arena/BusinessAssess"));
+const BusinessResults = lazy(() => import("./pages/arena/BusinessResults"));
+const ProjectsAssess = lazy(() => import("./pages/arena/ProjectsAssess"));
+const ProjectsResults = lazy(() => import("./pages/arena/ProjectsResults"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -627,6 +631,10 @@ const App = () => (
                         <Route path="/arena/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
                         <Route path="/arena/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
                         <Route path="/arena/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
+                        <Route path="/arena/business/assess" element={<ProtectedRoute><BusinessAssess /></ProtectedRoute>} />
+                        <Route path="/arena/business/results" element={<ProtectedRoute><BusinessResults /></ProtectedRoute>} />
+                        <Route path="/arena/projects/assess" element={<ProtectedRoute><ProjectsAssess /></ProtectedRoute>} />
+                        <Route path="/arena/projects/results" element={<ProtectedRoute><ProjectsResults /></ProtectedRoute>} />
                         {/* Arena domain page (catch-all) */}
                         <Route path="/arena/:domainId" element={<ProtectedRoute><ArenaDomainPage /></ProtectedRoute>} />
                         {/* Legacy /life arena redirects */}

@@ -28,6 +28,8 @@ const COLOR_MAP: Record<string, { bg: string; text: string; bubble: string; btn:
   emerald: { bg: 'from-emerald-500/10', text: 'text-emerald-500', bubble: 'bg-emerald-600', btn: 'bg-emerald-600 hover:bg-emerald-700', icon: 'text-emerald-500' },
   purple:  { bg: 'from-purple-500/10',  text: 'text-purple-500',  bubble: 'bg-purple-600',  btn: 'bg-purple-600 hover:bg-purple-700',  icon: 'text-purple-500' },
   sky:     { bg: 'from-sky-500/10',     text: 'text-sky-500',     bubble: 'bg-sky-600',     btn: 'bg-sky-600 hover:bg-sky-700',     icon: 'text-sky-500' },
+  rose:    { bg: 'from-rose-500/10',    text: 'text-rose-500',    bubble: 'bg-rose-600',    btn: 'bg-rose-600 hover:bg-rose-700',    icon: 'text-rose-500' },
+  amber:   { bg: 'from-amber-500/10',   text: 'text-amber-500',   bubble: 'bg-amber-600',   btn: 'bg-amber-600 hover:bg-amber-700',   icon: 'text-amber-500' },
 };
 
 interface Props {
