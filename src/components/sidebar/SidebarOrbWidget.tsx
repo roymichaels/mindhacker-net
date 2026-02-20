@@ -2,10 +2,12 @@
  * SidebarOrbWidget - Full identity card for sidebar with orb, title, stats, XP bar.
  * Matches the gamified profile card design.
  */
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useTranslation } from '@/hooks/useTranslation';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { OrbFullscreenViewer } from '@/components/orb/OrbFullscreenViewer';
 import { Star, Flame, Zap } from 'lucide-react';
 
 interface SidebarOrbWidgetProps {
@@ -16,6 +18,7 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
   const dashboard = useUnifiedDashboard();
   const { language } = useTranslation();
   const isHe = language === 'he';
+  const [orbViewerOpen, setOrbViewerOpen] = useState(false);
 
   const level = dashboard.level;
   const tokens = dashboard.tokens;
@@ -25,9 +28,14 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
 
   if (collapsed) {
     return (
+      <>
+      <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
       <div className="flex flex-col items-center gap-1.5 px-1">
-        <div className="relative w-10 h-10 flex items-center justify-center">
-          <PersonalizedOrb size={36} />
+        <div
+          className="relative w-12 h-12 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+          onClick={() => setOrbViewerOpen(true)}
+        >
+          <PersonalizedOrb size={44} />
         </div>
         <span className="text-[9px] font-bold text-muted-foreground">
           Lv.{level}
@@ -40,16 +48,22 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
           />
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    <OrbFullscreenViewer open={orbViewerOpen} onClose={() => setOrbViewerOpen(false)} />
     <div className="flex flex-col items-center gap-3 w-full px-2">
       {/* Orb */}
-      <div className="relative w-20 h-20 flex items-center justify-center">
+      <div
+        className="relative w-24 h-24 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+        onClick={() => setOrbViewerOpen(true)}
+      >
         <div className="absolute inset-[-30%] rounded-full bg-gradient-radial from-primary/30 via-primary/10 to-transparent blur-xl pointer-events-none" />
         <div className="relative z-10">
-          <PersonalizedOrb size={72} state="idle" />
+          <PersonalizedOrb size={88} state="idle" />
         </div>
       </div>
 
@@ -92,5 +106,6 @@ export function SidebarOrbWidget({ collapsed = false }: SidebarOrbWidgetProps) {
         </p>
       </div>
     </div>
+    </>
   );
 }
