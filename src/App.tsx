@@ -94,6 +94,10 @@ const FocusHome = lazy(() => import("./pages/focus/FocusHome"));
 const FocusAssess = lazy(() => import("./pages/focus/FocusAssess"));
 const FocusResults = lazy(() => import("./pages/focus/FocusResults"));
 const FocusHistory = lazy(() => import("./pages/focus/FocusHistory"));
+const CombatHome = lazy(() => import("./pages/combat/CombatHome"));
+const CombatAssess = lazy(() => import("./pages/combat/CombatAssess"));
+const CombatResults = lazy(() => import("./pages/combat/CombatResults"));
+const CombatHistory = lazy(() => import("./pages/combat/CombatHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -499,6 +503,39 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <FocusHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Combat pillar routes */}
+                        <Route
+                          path="/life/combat"
+                          element={
+                            <ProtectedRoute>
+                              <CombatHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/combat/assess"
+                          element={
+                            <ProtectedRoute>
+                              <CombatAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/combat/results"
+                          element={
+                            <ProtectedRoute>
+                              <CombatResults />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/combat/history"
+                          element={
+                            <ProtectedRoute>
+                              <CombatHistory />
                             </ProtectedRoute>
                           }
                         />

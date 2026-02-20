@@ -1,7 +1,7 @@
 /**
  * @module lib/combat/types
  * Type definitions for the Combat (לחימה) Warrior Capability Assessment Engine.
- * Diagnostic only — no plans, no routines.
+ * Hybrid warrior model — supports solo, live, and mixed training profiles.
  */
 
 export type CombatSubsystemId =
@@ -14,6 +14,8 @@ export type CombatSubsystemId =
 
 export type Confidence = 'low' | 'med' | 'high';
 export type Severity = 'low' | 'med' | 'high';
+
+export type WarriorMode = 'solo' | 'gym' | 'hybrid' | 'tactical';
 
 export interface CombatFinding {
   id: string;
@@ -39,6 +41,7 @@ export interface CombatAssessmentResult {
   subscores: CombatSubscores;
   findings: CombatFinding[];
   selected_focus_items: string[];
+  warrior_mode: WarriorMode;
 }
 
 export interface CombatDomainConfig {
@@ -51,58 +54,76 @@ export interface CombatDomainConfig {
 
 /* ─── Intake answer shapes ─── */
 
-export interface BackgroundAnswers {
-  disciplines: string[];
-  years_training: string;
-  training_mode: string;
+export interface ProfileAnswers {
+  warrior_mode: WarriorMode;
 }
 
-export interface StrikingAnswers {
-  combo_fluency: string;
-  training_tools: string;
-  defensive_awareness: string;
-  technique_under_fatigue: string;
+export interface RealityAnswers {
+  sessions_per_week?: number;
+  sessions_last_30?: number;
+  solo_vs_live_pct?: number; // 0 = all live, 100 = all solo
+  sparring_depth_freq?: string; // only if live > 0
+}
+
+export interface ShadowAnswers {
+  shadow_format?: string; // structured | continuous | mixed
+  // structured
+  round_length?: string;
+  rest_length?: string;
+  rounds_per_session?: number;
+  rpe_last_2?: number;
+  tech_complexity_fatigue?: string;
+  // continuous
+  minutes_before_degrade?: number;
+  continuous_rpe?: number;
+  continuous_complexity?: string;
+  // common
+  uses_bands?: boolean;
+  films_self?: boolean;
+  trains_defense_shadow?: boolean;
+}
+
+export interface LiveAnswers {
+  sparring_sessions_30d?: number;
+  intensity_level?: string;
+  panic_under_pressure?: string;
+  breath_through_rounds?: string;
 }
 
 export interface GrapplingAnswers {
-  live_sparring: string;
-  ground_comfort: string;
-  mount_escape: string;
-  takedown_exp: string;
+  lifetime_rolling_hours?: string;
+  rolling_freq_12mo?: string;
+  escape_mount?: string;
+  sprawl_instinct?: string;
 }
 
 export interface ReactionAnswers {
-  reaction_drills: string;
-  reflex_catch: string;
-  surprise_response: string;
+  surprise_response?: string;
+  reaction_drill_freq?: string;
+  scans_environment?: string;
 }
 
 export interface ConditioningAnswers {
   max_pushups?: number;
   max_pullups?: number;
-  sprint_ability: string;
-  shadowbox_rounds: string;
+  max_air_squats?: number;
+  six_rounds_shadow?: string;
+  sprint_capacity?: string;
 }
 
 export interface DurabilityAnswers {
-  conditioning_body: string;
-  pain_tolerance: string;
-  injury_history?: string;
-}
-
-export interface TacticalAnswers {
-  situational_awareness: string;
-  scenario_drills: string;
-  confrontation_response: string;
+  impact_conditioning?: string; // shin | knuckle | none
+  injury_flags?: string[];
 }
 
 export interface CombatIntakeAnswers {
-  background?: BackgroundAnswers;
-  striking?: StrikingAnswers;
+  profile?: ProfileAnswers;
+  reality?: RealityAnswers;
+  shadow?: ShadowAnswers;
+  live?: LiveAnswers;
   grappling?: GrapplingAnswers;
   reaction?: ReactionAnswers;
   conditioning?: ConditioningAnswers;
   durability?: DurabilityAnswers;
-  tactical?: TacticalAnswers;
   skipped_subsystems?: CombatSubsystemId[];
 }

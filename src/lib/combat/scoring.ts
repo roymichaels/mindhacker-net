@@ -1,278 +1,244 @@
 /**
  * @module lib/combat/scoring
- * Deterministic scoring engine for Combat (לחימה) Warrior Capability Assessment.
- * Rule-based only — no AI.
+ * Deterministic scoring for Combat — hybrid warrior model.
  */
 import type {
-  CombatIntakeAnswers, CombatSubscores, CombatFinding, CombatAssessmentResult,
-  Confidence, CombatSubsystemId, BackgroundAnswers, StrikingAnswers,
-  GrapplingAnswers, ReactionAnswers, ConditioningAnswers, DurabilityAnswers, TacticalAnswers,
+  CombatIntakeAnswers, CombatSubscores, CombatFinding,
+  CombatAssessmentResult, Confidence, CombatSubsystemId, WarriorMode,
 } from './types';
-
-/* ─── Background context modifier ─── */
-function yearsBonus(years?: string): number {
-  switch (years) {
-    case '5_plus': return 15;
-    case '3_5': return 10;
-    case '1_3': return 5;
-    case 'under_1': return 2;
-    default: return 0;
-  }
-}
 
 /* ─── Subsystem scoring ─── */
 
-function scoreStriking(s?: StrikingAnswers, bg?: BackgroundAnswers): number {
-  if (!s) return 0;
-  let score = 0;
+function scoreStriking(a: CombatIntakeAnswers): number {
+  let s = 0;
+  const sh = a.shadow;
+  const re = a.reality;
 
-  // Combo fluency
-  switch (s.combo_fluency) {
-    case 'fluent': score += 30; break;
-    case 'moderate': score += 18; break;
-    case 'basic': score += 8; break;
+  // Shadow quality
+  if (sh?.shadow_format === 'structured') {
+    // Round volume
+    const rounds = sh.rounds_per_session ?? 0;
+    s += Math.min(rounds * 3, 15);
+    // RPE
+    const rpe = sh.rpe_last_2 ?? 0;
+    if (rpe >= 8) s += 10; else if (rpe >= 6) s += 5;
+    // Tech complexity
+    switch (sh.tech_complexity_fatigue) {
+      case 'fluid_freestyle': s += 20; break;
+      case 'angles_defense': s += 15; break;
+      case '3_4_combo': s += 10; break;
+      case 'basic': s += 4; break;
+    }
+  } else if (sh?.shadow_format === 'continuous') {
+    const mins = sh.minutes_before_degrade ?? 0;
+    if (mins >= 15) s += 20; else if (mins >= 10) s += 14; else if (mins >= 5) s += 8;
+    const rpe = sh.continuous_rpe ?? 0;
+    if (rpe >= 8) s += 8; else if (rpe >= 6) s += 4;
+    switch (sh.continuous_complexity) {
+      case 'fluid_freestyle': s += 15; break;
+      case 'angles_defense': s += 10; break;
+      case '3_4_combo': s += 6; break;
+    }
   }
 
-  // Training tools
-  switch (s.training_tools) {
-    case 'heavy_bag': score += 15; break;
-    case 'pads': score += 20; break;
-    case 'shadow_only': score += 8; break;
-  }
+  // Training modifiers
+  if (sh?.uses_bands) s += 5;
+  if (sh?.films_self) s += 5;
+  if (sh?.trains_defense_shadow) s += 10;
 
-  // Defensive awareness
-  switch (s.defensive_awareness) {
-    case 'head_movement': score += 25; break;
-    case 'guard_only': score += 12; break;
-    case 'minimal': score += 3; break;
-  }
+  // Session volume
+  const weekly = re?.sessions_per_week ?? 0;
+  if (weekly >= 5) s += 10; else if (weekly >= 3) s += 6; else if (weekly >= 1) s += 3;
 
-  // Technique under fatigue
-  switch (s.technique_under_fatigue) {
-    case 'yes': score += 20; break;
-    case 'partially': score += 10; break;
-  }
+  // Live sparring bonus
+  if (a.live?.sparring_sessions_30d && a.live.sparring_sessions_30d >= 4) s += 10;
+  else if (a.live?.sparring_sessions_30d && a.live.sparring_sessions_30d >= 1) s += 5;
 
-  // Background bonus
-  const strikingDisciplines = ['boxing', 'muay_thai', 'kickboxing', 'krav_maga'];
-  const hasStriking = bg?.disciplines?.some(d => strikingDisciplines.includes(d)) ?? false;
-  if (hasStriking) score += yearsBonus(bg?.years_training) * 0.5;
-
-  return Math.min(Math.round(score), 100);
+  return Math.min(Math.round(s), 100);
 }
 
-function scoreGrappling(g?: GrapplingAnswers, bg?: BackgroundAnswers): number {
+function scoreGrappling(a: CombatIntakeAnswers): number {
+  const g = a.grappling;
   if (!g) return 0;
-  let score = 0;
+  let s = 0;
 
-  switch (g.live_sparring) {
-    case 'regularly': score += 30; break;
-    case 'occasionally': score += 15; break;
+  switch (g.lifetime_rolling_hours) {
+    case '200_plus': s += 30; break;
+    case '50_200': s += 22; break;
+    case '10_50': s += 14; break;
+    case '1_10': s += 6; break;
   }
 
-  switch (g.ground_comfort) {
-    case 'very_comfortable': score += 25; break;
-    case 'moderate': score += 12; break;
-    case 'panic': score += 0; break;
+  switch (g.rolling_freq_12mo) {
+    case '2x_weekly': s += 25; break;
+    case 'weekly': s += 18; break;
+    case 'monthly': s += 8; break;
   }
 
-  switch (g.mount_escape) {
-    case 'yes': score += 25; break;
-    case 'sometimes': score += 12; break;
-  }
+  if (g.escape_mount === 'yes') s += 20;
+  else if (g.escape_mount === 'sometimes') s += 10;
 
-  switch (g.takedown_exp) {
-    case 'trained': score += 20; break;
-    case 'limited': score += 8; break;
-  }
+  if (g.sprawl_instinct === 'yes') s += 25;
+  else if (g.sprawl_instinct === 'sometimes') s += 12;
 
-  const grapplingDisciplines = ['bjj', 'wrestling', 'judo'];
-  const hasGrappling = bg?.disciplines?.some(d => grapplingDisciplines.includes(d)) ?? false;
-  if (hasGrappling) score += yearsBonus(bg?.years_training) * 0.5;
-
-  return Math.min(Math.round(score), 100);
+  return Math.min(Math.round(s), 100);
 }
 
-function scoreReaction(r?: ReactionAnswers): number {
+function scoreReaction(a: CombatIntakeAnswers): number {
+  const r = a.reaction;
   if (!r) return 0;
-  let score = 0;
-
-  switch (r.reaction_drills) {
-    case 'weekly': score += 35; break;
-    case 'sometimes': score += 18; break;
-  }
-
-  switch (r.reflex_catch) {
-    case 'strong': score += 35; break;
-    case 'average': score += 18; break;
-    case 'slow': score += 5; break;
-  }
+  let s = 0;
 
   switch (r.surprise_response) {
-    case 'composed': score += 30; break;
-    case 'tense': score += 12; break;
-    case 'freeze': score += 0; break;
+    case 'composed': s += 35; break;
+    case 'tense': s += 15; break;
   }
 
-  return Math.min(Math.round(score), 100);
+  switch (r.reaction_drill_freq) {
+    case '5_plus': s += 30; break;
+    case '3_4': s += 22; break;
+    case '1_2': s += 12; break;
+  }
+
+  switch (r.scans_environment) {
+    case 'yes_always': s += 35; break;
+    case 'sometimes': s += 18; break;
+    case 'rarely': s += 5; break;
+  }
+
+  return Math.min(Math.round(s), 100);
 }
 
-function scoreConditioning(c?: ConditioningAnswers): number {
+function scoreConditioning(a: CombatIntakeAnswers): number {
+  const c = a.conditioning;
   if (!c) return 0;
-  let score = 0;
+  let s = 0;
 
   // Push-ups
-  if (c.max_pushups != null) {
-    if (c.max_pushups >= 50) score += 25;
-    else if (c.max_pushups >= 30) score += 18;
-    else if (c.max_pushups >= 15) score += 10;
-    else if (c.max_pushups > 0) score += 4;
-  }
+  const pu = c.max_pushups ?? 0;
+  if (pu >= 50) s += 15; else if (pu >= 30) s += 10; else if (pu >= 15) s += 6; else if (pu > 0) s += 2;
 
   // Pull-ups
-  if (c.max_pullups != null) {
-    if (c.max_pullups >= 15) score += 25;
-    else if (c.max_pullups >= 8) score += 18;
-    else if (c.max_pullups >= 3) score += 10;
-    else if (c.max_pullups > 0) score += 4;
+  const pl = c.max_pullups ?? 0;
+  if (pl >= 15) s += 15; else if (pl >= 8) s += 10; else if (pl >= 3) s += 6; else if (pl > 0) s += 2;
+
+  // Air squats
+  const sq = c.max_air_squats ?? 0;
+  if (sq >= 60) s += 15; else if (sq >= 40) s += 10; else if (sq >= 20) s += 6; else if (sq > 0) s += 2;
+
+  // 6x3:00 rounds
+  switch (c.six_rounds_shadow) {
+    case 'yes': s += 30; break;
+    case 'barely': s += 15; break;
   }
 
   // Sprint
-  switch (c.sprint_ability) {
-    case 'explosive': score += 25; break;
-    case 'moderate': score += 15; break;
-    case 'slow': score += 5; break;
+  switch (c.sprint_capacity) {
+    case 'explosive': s += 25; break;
+    case 'moderate': s += 15; break;
+    case 'slow': s += 5; break;
   }
 
-  // Shadowbox rounds
-  switch (c.shadowbox_rounds) {
-    case 'yes': score += 25; break;
-    case 'barely': score += 12; break;
-  }
-
-  return Math.min(Math.round(score), 100);
+  return Math.min(Math.round(s), 100);
 }
 
-function scoreDurability(d?: DurabilityAnswers): number {
+function scoreDurability(a: CombatIntakeAnswers): number {
+  const d = a.durability;
   if (!d) return 0;
-  let score = 0;
+  let s = 0;
 
-  switch (d.conditioning_body) {
-    case 'regularly': score += 40; break;
-    case 'lightly': score += 20; break;
+  switch (d.impact_conditioning) {
+    case 'shin': s += 35; break;
+    case 'knuckle': s += 35; break;
+    case 'none': s += 5; break;
   }
 
-  switch (d.pain_tolerance) {
-    case 'high': score += 40; break;
-    case 'moderate': score += 20; break;
-    case 'low': score += 5; break;
-  }
+  // Fewer injury flags = more durable
+  const flags = d.injury_flags ?? [];
+  if (flags.includes('none') || flags.length === 0) s += 65;
+  else if (flags.length === 1) s += 40;
+  else if (flags.length === 2) s += 25;
+  else s += 10;
 
-  // Injury awareness bonus (acknowledged history = not in denial)
-  if (d.injury_history && d.injury_history.trim().length > 0) score += 20;
-  else score += 10; // no injuries is neutral
-
-  return Math.min(Math.round(score), 100);
-}
-
-function scoreTactical(t?: TacticalAnswers): number {
-  if (!t) return 0;
-  let score = 0;
-
-  switch (t.situational_awareness) {
-    case 'always_scanning': score += 35; break;
-    case 'sometimes': score += 18; break;
-    case 'unaware': score += 3; break;
-  }
-
-  switch (t.scenario_drills) {
-    case 'yes': score += 35; break;
-    case 'limited': score += 15; break;
-  }
-
-  switch (t.confrontation_response) {
-    case 'de_escalate': score += 30; break;
-    case 'escalate': score += 10; break;
-    case 'freeze': score += 0; break;
-  }
-
-  return Math.min(Math.round(score), 100);
+  return Math.min(Math.round(s), 100);
 }
 
 /* ─── Contradiction detection ─── */
 
-function detectContradictions(answers: CombatIntakeAnswers): string[] {
+function detectContradictions(a: CombatIntakeAnswers): string[] {
   const flags: string[] = [];
+  const mode = a.profile?.warrior_mode;
 
-  // No disciplines but high combo fluency
-  if (
-    (answers.background?.disciplines?.includes('none') || answers.background?.disciplines?.length === 0) &&
-    answers.striking?.combo_fluency === 'fluent'
-  ) {
-    flags.push('no_discipline_high_striking');
+  // Solo-only but claims high sparring
+  if (mode === 'solo' && (a.live?.sparring_sessions_30d ?? 0) > 0) {
+    flags.push('solo_but_sparring');
   }
 
-  // No training but claims regular sparring
-  if (answers.background?.years_training === 'none' && answers.grappling?.live_sparring === 'regularly') {
-    flags.push('no_years_but_regular_sparring');
+  // Zero sessions but high RPE
+  if ((a.reality?.sessions_per_week ?? 0) === 0 && (a.shadow?.rpe_last_2 ?? 0) >= 8) {
+    flags.push('zero_sessions_high_rpe');
   }
 
-  // High background, low current mode (potential skill decay)
+  // High lifetime grappling but zero recent
   if (
-    (answers.background?.years_training === '5_plus' || answers.background?.years_training === '3_5') &&
-    answers.background?.training_mode === 'solo_shadow'
+    (a.grappling?.lifetime_rolling_hours === '200_plus' || a.grappling?.lifetime_rolling_hours === '50_200') &&
+    a.grappling?.rolling_freq_12mo === 'none'
   ) {
-    flags.push('skill_decay_risk');
+    flags.push('grappling_skill_decay');
   }
 
   return flags;
 }
 
-/* ─── Findings generation (max 6) ─── */
+/* ─── Findings ─── */
 
 function generateFindings(
-  answers: CombatIntakeAnswers,
+  a: CombatIntakeAnswers,
   subscores: CombatSubscores,
   contradictions: string[]
 ): CombatFinding[] {
   const findings: CombatFinding[] = [];
+  const mode = a.profile?.warrior_mode;
+  const monthly = a.reality?.sessions_last_30 ?? 0;
 
-  // Structural imbalance: striking vs grappling
-  if (subscores.striking_skill >= 50 && subscores.grappling_skill < 25) {
-    findings.push({ id: 'striking_grappling_imbalance', text_key: 'combat.finding_strike_grapple_imbalance', severity: 'high', subsystem: 'grappling_skill' });
-  }
-  if (subscores.grappling_skill >= 50 && subscores.striking_skill < 25) {
-    findings.push({ id: 'grappling_striking_imbalance', text_key: 'combat.finding_grapple_strike_imbalance', severity: 'high', subsystem: 'striking_skill' });
-  }
-
-  // Strong conditioning, low tactical
-  if (subscores.conditioning >= 50 && subscores.tactical_awareness < 25) {
-    findings.push({ id: 'fit_but_unaware', text_key: 'combat.finding_fit_unaware', severity: 'med', subsystem: 'tactical_awareness' });
+  // High solo, zero live
+  if (mode === 'solo' && monthly >= 8) {
+    findings.push({ id: 'high_solo_zero_live', text_key: 'combat.finding_high_solo_zero_live', severity: 'med', subsystem: 'striking_skill' });
   }
 
-  // Skill decay
-  if (contradictions.includes('skill_decay_risk')) {
-    findings.push({ id: 'skill_decay', text_key: 'combat.finding_skill_decay', severity: 'med', subsystem: 'striking_skill' });
+  // Strong solo engine
+  if (subscores.striking_skill >= 60 && (mode === 'solo' || mode === 'hybrid')) {
+    findings.push({ id: 'strong_solo_engine', text_key: 'combat.finding_strong_solo_engine', severity: 'low', subsystem: 'striking_skill' });
   }
 
-  // Solo training only
-  if (answers.background?.training_mode === 'solo_shadow' && answers.grappling?.live_sparring === 'never') {
-    findings.push({ id: 'sparring_deficit', text_key: 'combat.finding_sparring_deficit', severity: 'high', subsystem: 'grappling_skill' });
+  // Grappling skill decay
+  if (contradictions.includes('grappling_skill_decay')) {
+    findings.push({ id: 'grappling_decay', text_key: 'combat.finding_grappling_decay', severity: 'high', subsystem: 'grappling_skill' });
   }
 
-  // Low reaction
-  if (subscores.reaction_speed < 20) {
-    findings.push({ id: 'low_reaction', text_key: 'combat.finding_low_reaction', severity: 'high', subsystem: 'reaction_speed' });
+  // Freeze response
+  if (a.reaction?.surprise_response === 'freeze') {
+    findings.push({ id: 'freeze_response', text_key: 'combat.finding_freeze_response', severity: 'high', subsystem: 'reaction_speed' });
   }
 
-  // Low durability
-  if (subscores.durability < 20) {
-    findings.push({ id: 'low_durability', text_key: 'combat.finding_low_durability', severity: 'med', subsystem: 'durability' });
+  // Panic under pressure
+  if (a.live?.panic_under_pressure === 'often') {
+    findings.push({ id: 'panic_pressure', text_key: 'combat.finding_panic_pressure', severity: 'high', subsystem: 'reaction_speed' });
   }
 
-  // Contradiction findings
-  if (contradictions.includes('no_discipline_high_striking')) {
-    findings.push({ id: 'inconsistent_striking', text_key: 'combat.finding_inconsistent_striking', severity: 'med', subsystem: 'striking_skill' });
+  // Low conditioning
+  if (subscores.conditioning < 25) {
+    findings.push({ id: 'low_conditioning', text_key: 'combat.finding_low_conditioning', severity: 'high', subsystem: 'conditioning' });
+  }
+
+  // Imbalance: striking vs grappling
+  if (subscores.striking_skill >= 50 && subscores.grappling_skill < 20) {
+    findings.push({ id: 'strike_grapple_gap', text_key: 'combat.finding_strike_grapple_gap', severity: 'med', subsystem: 'grappling_skill' });
+  }
+
+  // Breath loss in live
+  if (a.live?.breath_through_rounds === 'lose_control') {
+    findings.push({ id: 'breath_loss_live', text_key: 'combat.finding_breath_loss_live', severity: 'high', subsystem: 'conditioning' });
   }
 
   return findings.slice(0, 6);
@@ -282,25 +248,42 @@ function generateFindings(
 
 export function buildCombatAssessment(answers: CombatIntakeAnswers): CombatAssessmentResult {
   const skipped = answers.skipped_subsystems ?? [];
+  const mode = answers.profile?.warrior_mode ?? 'solo';
 
   const subscores: CombatSubscores = {
-    striking_skill: skipped.includes('striking_skill') ? 0 : scoreStriking(answers.striking, answers.background),
-    grappling_skill: skipped.includes('grappling_skill') ? 0 : scoreGrappling(answers.grappling, answers.background),
-    reaction_speed: skipped.includes('reaction_speed') ? 0 : scoreReaction(answers.reaction),
-    conditioning: skipped.includes('conditioning') ? 0 : scoreConditioning(answers.conditioning),
-    durability: skipped.includes('durability') ? 0 : scoreDurability(answers.durability),
-    tactical_awareness: skipped.includes('tactical_awareness') ? 0 : scoreTactical(answers.tactical),
+    striking_skill: skipped.includes('striking_skill') ? 0 : scoreStriking(answers),
+    grappling_skill: skipped.includes('grappling_skill') ? 0 : scoreGrappling(answers),
+    reaction_speed: skipped.includes('reaction_speed') ? 0 : scoreReaction(answers),
+    conditioning: skipped.includes('conditioning') ? 0 : scoreConditioning(answers),
+    durability: skipped.includes('durability') ? 0 : scoreDurability(answers),
+    tactical_awareness: 0, // Rolled into reaction for this version
   };
 
-  // Weighted average — skill 40%, conditioning 20%, reaction 15%, durability 10%, tactical 15%
+  // Tactical = reaction subscore echo (combined section)
+  subscores.tactical_awareness = subscores.reaction_speed;
+
+  // Weights — redistribute Live weight for solo-only
   const baseWeights: Record<CombatSubsystemId, number> = {
-    striking_skill: 0.2,
-    grappling_skill: 0.2,
-    reaction_speed: 0.15,
-    conditioning: 0.2,
-    durability: 0.1,
-    tactical_awareness: 0.15,
+    striking_skill: 0.35,
+    grappling_skill: 0.15,
+    reaction_speed: 0.10,
+    conditioning: 0.20,
+    durability: 0.10,
+    tactical_awareness: 0.10,
   };
+
+  if (mode === 'solo') {
+    // Redistribute live depth (20%) into skill + conditioning
+    baseWeights.striking_skill += 0.10;
+    baseWeights.conditioning += 0.10;
+  }
+
+  // No grappling history in tactical mode — don't punish
+  if (mode === 'tactical' && subscores.grappling_skill === 0) {
+    const gw = baseWeights.grappling_skill;
+    baseWeights.grappling_skill = 0;
+    baseWeights.tactical_awareness += gw;
+  }
 
   const weights: Record<CombatSubsystemId, number> = {} as any;
   for (const k of Object.keys(baseWeights) as CombatSubsystemId[]) {
@@ -314,50 +297,62 @@ export function buildCombatAssessment(answers: CombatIntakeAnswers): CombatAsses
     )
     : 0;
 
-  // Completeness — background (3) + 6 sections × ~4 questions avg = ~27 fields, use 30 as total
-  const totalFields = 30;
+  // Completeness
+  const totalFields = 28;
   let answered = 0;
 
-  if (answers.background) {
-    if (answers.background.disciplines?.length) answered++;
-    if (answers.background.years_training) answered++;
-    if (answers.background.training_mode) answered++;
+  if (answers.profile?.warrior_mode) answered++;
+  if (answers.reality) {
+    if (answers.reality.sessions_per_week != null) answered++;
+    if (answers.reality.sessions_last_30 != null) answered++;
+    if (answers.reality.solo_vs_live_pct != null) answered++;
   }
-  if (answers.striking && !skipped.includes('striking_skill')) {
-    if (answers.striking.combo_fluency) answered++;
-    if (answers.striking.training_tools) answered++;
-    if (answers.striking.defensive_awareness) answered++;
-    if (answers.striking.technique_under_fatigue) answered++;
+  if (answers.shadow) {
+    if (answers.shadow.shadow_format) answered++;
+    if (answers.shadow.uses_bands != null) answered++;
+    if (answers.shadow.films_self != null) answered++;
+    if (answers.shadow.trains_defense_shadow != null) answered++;
+    if (answers.shadow.shadow_format === 'structured') {
+      if (answers.shadow.round_length) answered++;
+      if (answers.shadow.rounds_per_session != null) answered++;
+      if (answers.shadow.rpe_last_2 != null) answered++;
+      if (answers.shadow.tech_complexity_fatigue) answered++;
+    } else if (answers.shadow.shadow_format === 'continuous') {
+      if (answers.shadow.minutes_before_degrade != null) answered++;
+      if (answers.shadow.continuous_rpe != null) answered++;
+      if (answers.shadow.continuous_complexity) answered++;
+    }
   }
-  if (answers.grappling && !skipped.includes('grappling_skill')) {
-    if (answers.grappling.live_sparring) answered++;
-    if (answers.grappling.ground_comfort) answered++;
-    if (answers.grappling.mount_escape) answered++;
-    if (answers.grappling.takedown_exp) answered++;
+  if (answers.live && mode !== 'solo') {
+    if (answers.live.sparring_sessions_30d != null) answered++;
+    if (answers.live.intensity_level) answered++;
+    if (answers.live.panic_under_pressure) answered++;
+    if (answers.live.breath_through_rounds) answered++;
   }
-  if (answers.reaction && !skipped.includes('reaction_speed')) {
-    if (answers.reaction.reaction_drills) answered++;
-    if (answers.reaction.reflex_catch) answered++;
+  if (answers.grappling) {
+    if (answers.grappling.lifetime_rolling_hours) answered++;
+    if (answers.grappling.rolling_freq_12mo) answered++;
+    if (answers.grappling.escape_mount) answered++;
+    if (answers.grappling.sprawl_instinct) answered++;
+  }
+  if (answers.reaction) {
     if (answers.reaction.surprise_response) answered++;
+    if (answers.reaction.reaction_drill_freq) answered++;
+    if (answers.reaction.scans_environment) answered++;
   }
-  if (answers.conditioning && !skipped.includes('conditioning')) {
+  if (answers.conditioning) {
     if (answers.conditioning.max_pushups != null) answered++;
     if (answers.conditioning.max_pullups != null) answered++;
-    if (answers.conditioning.sprint_ability) answered++;
-    if (answers.conditioning.shadowbox_rounds) answered++;
+    if (answers.conditioning.max_air_squats != null) answered++;
+    if (answers.conditioning.six_rounds_shadow) answered++;
+    if (answers.conditioning.sprint_capacity) answered++;
   }
-  if (answers.durability && !skipped.includes('durability')) {
-    if (answers.durability.conditioning_body) answered++;
-    if (answers.durability.pain_tolerance) answered++;
-    if (answers.durability.injury_history != null) answered++;
-  }
-  if (answers.tactical && !skipped.includes('tactical_awareness')) {
-    if (answers.tactical.situational_awareness) answered++;
-    if (answers.tactical.scenario_drills) answered++;
-    if (answers.tactical.confrontation_response) answered++;
+  if (answers.durability) {
+    if (answers.durability.impact_conditioning) answered++;
+    if (answers.durability.injury_flags?.length) answered++;
   }
 
-  const completeness_pct = Math.round((answered / totalFields) * 100);
+  const completeness_pct = Math.min(Math.round((answered / totalFields) * 100), 100);
 
   const contradictions = detectContradictions(answers);
 
@@ -375,5 +370,6 @@ export function buildCombatAssessment(answers: CombatIntakeAnswers): CombatAsses
     subscores,
     findings,
     selected_focus_items: [],
+    warrior_mode: mode,
   };
 }
