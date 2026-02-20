@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, ArrowRight, Send, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { getDomainById } from '@/navigation/lifeDomains';
+import { getDomainById, CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import type { DomainAssessmentResult, DomainAssessMeta, Confidence } from '@/lib/domain-assess/types';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
 
@@ -25,12 +25,25 @@ interface ChatMessage {
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/domain-assess`;
 
 const COLOR_MAP: Record<string, { bg: string; text: string; bubble: string; btn: string; icon: string }> = {
-  emerald: { bg: 'from-emerald-500/10', text: 'text-emerald-500', bubble: 'bg-emerald-600', btn: 'bg-emerald-600 hover:bg-emerald-700', icon: 'text-emerald-500' },
-  purple:  { bg: 'from-purple-500/10',  text: 'text-purple-500',  bubble: 'bg-purple-600',  btn: 'bg-purple-600 hover:bg-purple-700',  icon: 'text-purple-500' },
-  sky:     { bg: 'from-sky-500/10',     text: 'text-sky-500',     bubble: 'bg-sky-600',     btn: 'bg-sky-600 hover:bg-sky-700',     icon: 'text-sky-500' },
-  rose:    { bg: 'from-rose-500/10',    text: 'text-rose-500',    bubble: 'bg-rose-600',    btn: 'bg-rose-600 hover:bg-rose-700',    icon: 'text-rose-500' },
-  amber:   { bg: 'from-amber-500/10',   text: 'text-amber-500',   bubble: 'bg-amber-600',   btn: 'bg-amber-600 hover:bg-amber-700',   icon: 'text-amber-500' },
+  emerald:  { bg: 'from-emerald-500/10',  text: 'text-emerald-500',  bubble: 'bg-emerald-600',  btn: 'bg-emerald-600 hover:bg-emerald-700',  icon: 'text-emerald-500' },
+  purple:   { bg: 'from-purple-500/10',   text: 'text-purple-500',   bubble: 'bg-purple-600',   btn: 'bg-purple-600 hover:bg-purple-700',   icon: 'text-purple-500' },
+  sky:      { bg: 'from-sky-500/10',      text: 'text-sky-500',      bubble: 'bg-sky-600',      btn: 'bg-sky-600 hover:bg-sky-700',      icon: 'text-sky-500' },
+  rose:     { bg: 'from-rose-500/10',     text: 'text-rose-500',     bubble: 'bg-rose-600',     btn: 'bg-rose-600 hover:bg-rose-700',     icon: 'text-rose-500' },
+  amber:    { bg: 'from-amber-500/10',    text: 'text-amber-500',    bubble: 'bg-amber-600',    btn: 'bg-amber-600 hover:bg-amber-700',    icon: 'text-amber-500' },
+  fuchsia:  { bg: 'from-fuchsia-500/10',  text: 'text-fuchsia-500',  bubble: 'bg-fuchsia-600',  btn: 'bg-fuchsia-600 hover:bg-fuchsia-700',  icon: 'text-fuchsia-500' },
+  red:      { bg: 'from-red-500/10',      text: 'text-red-500',      bubble: 'bg-red-600',      btn: 'bg-red-600 hover:bg-red-700',      icon: 'text-red-500' },
+  cyan:     { bg: 'from-cyan-500/10',     text: 'text-cyan-500',     bubble: 'bg-cyan-600',     btn: 'bg-cyan-600 hover:bg-cyan-700',     icon: 'text-cyan-500' },
+  slate:    { bg: 'from-slate-500/10',    text: 'text-slate-400',    bubble: 'bg-slate-600',    btn: 'bg-slate-600 hover:bg-slate-700',    icon: 'text-slate-400' },
+  indigo:   { bg: 'from-indigo-500/10',   text: 'text-indigo-500',   bubble: 'bg-indigo-600',   btn: 'bg-indigo-600 hover:bg-indigo-700',   icon: 'text-indigo-500' },
 };
+
+function isCoreDomain(domainId: string): boolean {
+  return CORE_DOMAINS.some(d => d.id === domainId);
+}
+
+function getBasePath(domainId: string): string {
+  return isCoreDomain(domainId) ? '/life' : '/arena';
+}
 
 interface Props {
   domainId: string;
@@ -84,7 +97,7 @@ export default function DomainAssessChat({ domainId }: Props) {
     setSaving(true);
     try {
       await saveAssessment(result);
-      navigate(`/arena/${domainId}/results`);
+      navigate(`${getBasePath(domainId)}/${domainId}/results`);
     } catch (err) {
       console.error('Failed to save:', err);
       setSaving(false);
@@ -241,7 +254,7 @@ export default function DomainAssessChat({ domainId }: Props) {
       <div className="flex flex-col h-[calc(100vh-120px)]" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3 py-3 shrink-0">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/arena')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">

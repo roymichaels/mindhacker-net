@@ -12,16 +12,24 @@ import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, ArrowRight, AlertTriangle, AlertCircle, Sparkles, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getDomainById } from '@/navigation/lifeDomains';
+import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
 
 const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = {
-  emerald: { border: 'border-emerald-500/30', bg: 'from-emerald-500/10', text: 'text-emerald-400' },
-  purple:  { border: 'border-purple-500/30',  bg: 'from-purple-500/10',  text: 'text-purple-400' },
-  sky:     { border: 'border-sky-500/30',     bg: 'from-sky-500/10',     text: 'text-sky-400' },
-  rose:    { border: 'border-rose-500/30',    bg: 'from-rose-500/10',    text: 'text-rose-400' },
-  amber:   { border: 'border-amber-500/30',   bg: 'from-amber-500/10',   text: 'text-amber-400' },
+  emerald:  { border: 'border-emerald-500/30',  bg: 'from-emerald-500/10',  text: 'text-emerald-400' },
+  purple:   { border: 'border-purple-500/30',   bg: 'from-purple-500/10',   text: 'text-purple-400' },
+  sky:      { border: 'border-sky-500/30',      bg: 'from-sky-500/10',      text: 'text-sky-400' },
+  rose:     { border: 'border-rose-500/30',     bg: 'from-rose-500/10',     text: 'text-rose-400' },
+  amber:    { border: 'border-amber-500/30',    bg: 'from-amber-500/10',    text: 'text-amber-400' },
+  fuchsia:  { border: 'border-fuchsia-500/30',  bg: 'from-fuchsia-500/10',  text: 'text-fuchsia-400' },
+  red:      { border: 'border-red-500/30',      bg: 'from-red-500/10',      text: 'text-red-400' },
+  cyan:     { border: 'border-cyan-500/30',     bg: 'from-cyan-500/10',     text: 'text-cyan-400' },
+  slate:    { border: 'border-slate-500/30',    bg: 'from-slate-500/10',    text: 'text-slate-400' },
+  indigo:   { border: 'border-indigo-500/30',   bg: 'from-indigo-500/10',   text: 'text-indigo-400' },
 };
+
+function isCoreDomain(id: string) { return CORE_DOMAINS.some(d => d.id === id); }
+function getBasePath(id: string) { return isCoreDomain(id) ? '/life' : '/arena'; }
 
 function scoreColor(v: number): string {
   if (v >= 70) return 'text-emerald-400';
@@ -52,7 +60,7 @@ export default function DomainAssessResults({ domainId }: Props) {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{isHe ? 'אין תוצאות עדיין' : 'No results yet'}</p>
-          <Button onClick={() => navigate(`/arena/${domainId}/assess`)} className="mt-4">
+          <Button onClick={() => navigate(`${getBasePath(domainId)}/${domainId}/assess`)} className="mt-4">
             {isHe ? 'התחל אבחון' : 'Start Assessment'}
           </Button>
         </div>
@@ -174,11 +182,11 @@ export default function DomainAssessResults({ domainId }: Props) {
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => navigate(`/arena/${domainId}/assess`)} className="flex-1">
+          <Button variant="outline" onClick={() => navigate(`${getBasePath(domainId)}/${domainId}/assess`)} className="flex-1">
             {isHe ? 'עשה שוב' : 'Retake'}
           </Button>
-          <Button onClick={() => navigate('/arena')} className="flex-1">
-            {isHe ? 'חזור לזירה' : 'Back to Arena'}
+          <Button onClick={() => navigate(getBasePath(domainId))} className="flex-1">
+            {isHe ? (isCoreDomain(domainId) ? 'חזור לליבה' : 'חזור לזירה') : (isCoreDomain(domainId) ? 'Back to Core' : 'Back to Arena')}
           </Button>
         </div>
       </div>
