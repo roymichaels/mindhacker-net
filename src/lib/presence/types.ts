@@ -1,129 +1,78 @@
 /**
  * @module lib/presence/types
- * @purpose All Presence Coach Engine types — assessment, scores, levers, routines.
+ * @purpose All Presence bio-scan types — scan results, findings, fixes, focus items.
  */
 
-// ── Assessment ──
-
-export type AssessmentMode = 'quick' | 'full' | 'deep';
 export type ConfidenceLevel = 'low' | 'med' | 'high';
-export type Gender = 'male' | 'female' | 'other';
-export type StylePreference = 'minimal' | 'classic' | 'street' | 'athletic' | 'formal';
-export type RoutineIntensity = 'minimal' | 'standard' | 'full';
 
-export type PresenceGoal =
-  | 'jawline'
-  | 'skin'
-  | 'hair'
-  | 'leanness'
-  | 'style'
-  | 'posture'
-  | 'grooming';
+// ── Manual Inputs (optional enrichment) ──
 
-export interface PresencePreferences {
-  gender: Gender;
-  age_bracket: string;
-  height_cm?: number;
-  weight_kg?: number;
-  body_fat_range?: string;
-  activity_level?: string;
-  daily_steps?: string;
-  style_preference: StylePreference;
-  grooming_baseline: {
-    has_beard?: boolean;
-    hair_length?: string;
-    skincare_routine?: string;
-  };
-  posture_self_check: {
-    neck_forward?: boolean;
-    rounded_shoulders?: boolean;
-    low_back_pain?: boolean;
-  };
-  goals: PresenceGoal[];
+export interface ManualInputs {
+  has_beard: boolean;
+  hair_length: 'buzz' | 'short' | 'medium' | 'long';
+  skincare_routine: 'none' | 'basic' | 'full';
 }
 
 // ── Sub-Scores ──
 
 export type SubScoreKey =
-  | 'face_structure'
-  | 'posture_frame'
+  | 'facial_definition'
+  | 'posture_alignment'
   | 'body_composition'
-  | 'skin_routine'
-  | 'hair_grooming'
-  | 'style_fit'
-  | 'dental_smile';
+  | 'grooming_baseline'
+  | 'style_signal';
 
 export interface SubScore {
   score: number;
   confidence: ConfidenceLevel;
-  keyObservations: string[];
-  topLevers: LeverRecommendation[];
-}
-
-export interface LeverRecommendation {
-  leverId: string;
-  title: string;
-  impact: number; // 1-5
-  effort: number; // 1-5
-  why: string;
-  steps: string[];
+  label: string;
 }
 
 export type PresenceScores = Record<SubScoreKey, SubScore>;
 
-// ── Assessment Result ──
+// ── Structural Potential ──
 
-export interface PresenceDiagnosisActions {
-  today: string[];
-  this_week: string[];
-  ninety_day_phases: {
-    phase1: { label: string; weeks: string; actions: string[] };
-    phase2: { label: string; weeks: string; actions: string[] };
-    phase3: { label: string; weeks: string; actions: string[] };
-  };
-}
+export type StructuralPotential = 'low' | 'med' | 'high';
 
-export interface PresenceAssessmentResult {
-  mode: AssessmentMode;
-  scores: PresenceScores;
-  total_score: number;
-  confidence: ConfidenceLevel;
-  top_levers: LeverRecommendation[];
-  diagnosis: PresenceDiagnosisActions;
-  assessed_at: string;
-}
+// ── Findings ──
 
-// ── Routine ──
-
-export interface RoutineItem {
+export interface Finding {
   id: string;
-  leverId: string;
-  title: string;
-  block: 'morning' | 'daytime' | 'evening';
-  duration_min: number;
-  instructions: string;
+  text: string;
+  severity: 'mild' | 'moderate' | 'notable';
 }
 
-export interface ActiveRoutine {
-  intensity: RoutineIntensity;
-  levers: string[];
-  items: RoutineItem[];
+// ── Fix Items ──
+
+export interface FixItem {
+  id: string;
+  name: string;
+  why: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  impact: 'low' | 'med' | 'high';
+  category: string;
 }
 
-export interface RoutineLog {
-  date: string;
-  completed_items: string[];
-  completion_rate: number;
+// ── Scan Result ──
+
+export interface PresenceScanResult {
+  presence_index: number;
+  confidence: ConfidenceLevel;
+  scores: PresenceScores;
+  structural_potential: StructuralPotential;
+  findings: Finding[];
+  top_priorities: FixItem[];
+  assessed_at: string;
+  scan_id?: string;
 }
 
-// ── Domain Config Shape ──
+// ── Domain Config Shape (stored in life_domains.domain_config) ──
 
 export interface PresenceDomainConfig {
-  latest_assessment?: PresenceAssessmentResult;
-  history?: PresenceAssessmentResult[];
-  active_routine?: ActiveRoutine;
-  routine_logs?: RoutineLog[];
-  preferences?: PresencePreferences;
-  next_reassess?: string;
-  reassess_cadence?: 7 | 14 | 30;
+  latest_scan?: PresenceScanResult;
+  scan_history?: PresenceScanResult[];
+  manual_inputs?: ManualInputs;
+  focus_items_selected?: string[];
+  completed?: boolean;
+  completed_at?: string | null;
 }
