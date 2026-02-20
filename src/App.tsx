@@ -73,20 +73,8 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Business = lazy(() => import("./pages/Business"));
 const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
-const Consciousness = lazy(() => import("./pages/Consciousness"));
-const Health = lazy(() => import("./pages/Health"));
-const HealthJourney = lazy(() => import("./pages/HealthJourney"));
-const HealthPlan = lazy(() => import("./pages/HealthPlan"));
-const Relationships = lazy(() => import("./pages/Relationships"));
-const RelationshipsJourney = lazy(() => import("./pages/RelationshipsJourney"));
-const Finances = lazy(() => import("./pages/Finances"));
-const FinancesJourney = lazy(() => import("./pages/FinancesJourney"));
-const LearningJourney = lazy(() => import("./pages/LearningJourney"));
-const Learning = lazy(() => import("./pages/Learning"));
-const Purpose = lazy(() => import("./pages/Purpose"));
-const PurposeJourney = lazy(() => import("./pages/PurposeJourney"));
-const Hobbies = lazy(() => import("./pages/Hobbies"));
-const HobbiesJourney = lazy(() => import("./pages/HobbiesJourney"));
+const LifeHub = lazy(() => import("./pages/LifeHub"));
+const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -342,6 +330,23 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        {/* Life System */}
+                        <Route
+                          path="/life"
+                          element={
+                            <ProtectedRoute>
+                              <LifeHub />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/:domainId"
+                          element={
+                            <ProtectedRoute>
+                              <LifeDomainPage />
+                            </ProtectedRoute>
+                          }
+                        />
                         {/* Legacy tab routes → redirect to dashboard */}
                         <Route path="/today" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
@@ -477,171 +482,27 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/consciousness"
-                          element={
-                            <ProtectedRoute>
-                              <Consciousness />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/health"
-                          element={
-                            <ProtectedRoute>
-                              <Health />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/health/journey"
-                          element={
-                            <ProtectedRoute>
-                              <HealthJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/health/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <HealthJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/health/plan"
-                          element={
-                            <ProtectedRoute>
-                              <HealthPlan />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Relationships Hub */}
-                        <Route
-                          path="/relationships"
-                          element={
-                            <ProtectedRoute>
-                              <Relationships />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/relationships/journey"
-                          element={
-                            <ProtectedRoute>
-                              <RelationshipsJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/relationships/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <RelationshipsJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Finances Hub */}
-                        <Route
-                          path="/finances"
-                          element={
-                            <ProtectedRoute>
-                              <Finances />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/finances/journey"
-                          element={
-                            <ProtectedRoute>
-                              <FinancesJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/finances/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <FinancesJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Learning Hub */}
-                        <Route
-                          path="/learning"
-                          element={
-                            <ProtectedRoute>
-                              <Learning />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/learning/journey"
-                          element={
-                            <ProtectedRoute>
-                              <LearningJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/learning/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <LearningJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Purpose Hub */}
-                        <Route
-                          path="/purpose"
-                          element={
-                            <ProtectedRoute>
-                              <Purpose />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/purpose/journey"
-                          element={
-                            <ProtectedRoute>
-                              <PurposeJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/purpose/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <PurposeJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Hobbies Hub */}
-                        <Route
-                          path="/hobbies"
-                          element={
-                            <ProtectedRoute>
-                              <Hobbies />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/hobbies/journey"
-                          element={
-                            <ProtectedRoute>
-                              <HobbiesJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/hobbies/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <HobbiesJourney />
-                            </ProtectedRoute>
-                          }
-                        />
+                        {/* Old pillar routes → redirect to /life */}
+                        <Route path="/consciousness" element={<Navigate to="/life" replace />} />
+                        <Route path="/health" element={<Navigate to="/life" replace />} />
+                        <Route path="/health/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/health/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/health/plan" element={<Navigate to="/life" replace />} />
+                        <Route path="/relationships" element={<Navigate to="/life" replace />} />
+                        <Route path="/relationships/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/relationships/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/finances" element={<Navigate to="/life" replace />} />
+                        <Route path="/finances/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/finances/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/learning" element={<Navigate to="/life" replace />} />
+                        <Route path="/learning/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/learning/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/purpose" element={<Navigate to="/life" replace />} />
+                        <Route path="/purpose/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/purpose/journey/:id" element={<Navigate to="/life" replace />} />
+                        <Route path="/hobbies" element={<Navigate to="/life" replace />} />
+                        <Route path="/hobbies/journey" element={<Navigate to="/life" replace />} />
+                        <Route path="/hobbies/journey/:id" element={<Navigate to="/life" replace />} />
                         <Route
                           path="/success"
                           element={
