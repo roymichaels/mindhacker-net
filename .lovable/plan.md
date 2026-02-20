@@ -1,164 +1,217 @@
 
-# Phase 1: Life Tab -- Navigation, DB, Domain Grid, Domain Page
+# Presence: Elite Visual Diagnostic Engine
 
-## What This Phase Delivers
+This is a large system spanning DB schema, private storage, an AI vision edge function, a deterministic scoring engine, multi-step capture UI, results dashboard, delta tracking, and plan generation. It will be delivered in sub-phases within this single implementation pass, but scoped to what is buildable now.
 
-The Life tab as a new primary navigation item with 8 fixed outcome-based domains. Each domain stores its configuration as structured JSON. Old pillar routes redirect to Life. No Aurora conversation engine yet (Phase 2), no daily execution engine (Phase 3), no content curator (Phase 4).
-
-## Architecture
+## Architecture Overview
 
 ```text
-/life                    --> LifeHub (domain grid)
-/life/:domainId          --> LifeDomainPage (config viewer + actions)
-/health, /consciousness, --> Redirect to /life
-  /relationships, etc.
+User Flow:
+/life/presence --> PresenceDashboard
+  |
+  +--> "Start Scan" --> GuidedCapture (5 steps: face front, face L/R, body front, body side, back optional)
+  |                        |
+  |                        +--> Upload to private bucket 'presence-scans'
+  |                        +--> Call edge function 'analyze-presence'
+  |                        +--> AI returns structured metrics JSON
+  |                        +--> Deterministic scoring engine computes composite scores
+  |                        +--> Save to presence_scans table
+  |
+  +--> Results Screen --> Presence Index + Component Breakdown + Leverage Points + 90-Day Projection
+  |
+  +--> Delta Engine --> Compare with previous scan --> Show improvement/regression
+  |
+  +--> "Direct Mode" toggle --> Sharper clinical language
 ```
 
-## Database
+## What Gets Built
 
-### New Table: `life_domains`
+### Database (3 tables + 1 bucket)
+
+**Table: `presence_scans`**
 
 | Column | Type | Notes |
 |--------|------|-------|
-| id | uuid PK | default gen_random_uuid() |
+| id | uuid PK | |
 | user_id | uuid NOT NULL | references profiles(id) |
-| domain_id | text NOT NULL | e.g. 'presence', 'power' |
-| domain_config | jsonb | structured intake data (current_level, available_time_per_day, tools_available, goal_description, intensity_preference, constraints, sub_focus_areas) |
-| status | text | 'unconfigured' / 'configured' / 'active' |
-| configured_at | timestamptz | null until Aurora intake complete |
-| created_at | timestamptz | default now() |
-| updated_at | timestamptz | default now() |
-| UNIQUE(user_id, domain_id) | | one row per user per domain |
+| scan_images | jsonb | paths to images in storage: { face_front, face_left, face_right, body_front, body_side, body_back? } |
+| derived_metrics | jsonb | raw AI extraction: facial symmetry, jaw index, body fat band, posture scores, etc. |
+| scores | jsonb | deterministic computed scores: structural_integrity, aesthetic_symmetry, composition, posture_alignment, projection_potential, presence_index, confidence_band |
+| delta_metrics | jsonb | compared to previous scan: { metric_key: { previous, current, change } } |
+| direct_mode_notes | jsonb | blunt language version of feedback |
+| scan_number | integer | sequential per user |
+| created_at | timestamptz | |
 
-RLS: Users can only read/write their own rows. Admins can read all.
+RLS: user can CRUD own rows only.
 
-No changes to existing tables. The `action_items` table already supports `pillar` (text) which will hold the domain_id for domain-generated tasks in future phases.
+**Table: `presence_scan_events`** (energy ledger integration)
 
-## Navigation Changes
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| user_id | uuid NOT NULL | |
+| scan_id | uuid | references presence_scans |
+| event_type | text | 'full_scan', 'rescan', 'score_refresh' |
+| energy_cost | integer | |
+| created_at | timestamptz | |
 
-### `src/navigation/osNav.ts`
-- Add Life tab to `OS_TABS` array (between Dashboard and Projects)
-- Icon: `Flame` from lucide-react
-- Path: `/life`
-- Labels: 'Life' / 'חיים'
-- Remove `comingSoon` from Business tab (or keep -- not changing that)
+**Table: `presence_training_dataset`** (future model hook, Phase 4 prep)
 
-### `src/navigation/lifeDomains.ts` (NEW)
-Single source of truth for the 8 fixed domains:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| derived_metrics | jsonb | anonymized metrics only |
+| scores | jsonb | computed scores |
+| self_perception_rating | integer | optional 1-10 |
+| improvement_outcome | jsonb | delta after 90 days, filled later |
+| consented | boolean | explicit opt-in |
+| created_at | timestamptz | |
 
-```typescript
-export const LIFE_DOMAINS = [
-  { id: 'presence',  labelEn: 'Presence',  labelHe: 'נוכחות',  icon: Eye,       color: 'rose',    description: 'Face, body aesthetics, grooming, posture, style' },
-  { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',   icon: Dumbbell,  color: 'red',     description: 'Strength, calisthenics, skill progressions' },
-  { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות', icon: Sun,       color: 'amber',   description: 'Sleep, nutrition, recovery, hormones' },
-  { id: 'focus',     labelEn: 'Focus',     labelHe: 'מיקוד',   icon: Crosshair, color: 'violet',  description: 'Dopamine control, deep work, meditation' },
-  { id: 'wealth',    labelEn: 'Wealth',    labelHe: 'עושר',    icon: TrendingUp,color: 'emerald', description: 'Income, business, career, monetization' },
-  { id: 'edge',      labelEn: 'Edge',      labelHe: 'קצה',     icon: Sword,     color: 'slate',   description: 'Combat, self-protection, stress response' },
-  { id: 'expansion', labelEn: 'Expansion', labelHe: 'התרחבות', icon: Brain,     color: 'indigo',  description: 'Learning, creativity, languages, philosophy' },
-  { id: 'influence', labelEn: 'Influence', labelHe: 'השפעה',   icon: Crown,     color: 'orange',  description: 'Communication, leadership, relationships, charisma' },
-];
-```
+No user_id stored -- anonymized by design.
 
-## New Files
+**Storage Bucket: `presence-scans`**
+- Private bucket (public = false)
+- Allowed MIME: image/jpeg, image/png, image/webp
+- Max file size: 10MB
+- RLS: users can only access their own folder (`user_id/`)
+- Users can delete their scans at any time
 
-### 1. `src/navigation/lifeDomains.ts`
-Domain manifest (8 entries with id, labels, icon, color, description).
+### Edge Function: `analyze-presence`
 
-### 2. `src/pages/LifeHub.tsx`
-- Grid of 8 domain cards
-- Each card shows: icon, name, status badge (unconfigured/configured/active)
-- Click navigates to `/life/:domainId`
-- Gated behind onboarding completion (redirects to `/onboarding` if not complete)
-- Uses `DashboardLayout` wrapper (consistent with other hub pages)
+Calls Lovable AI Gateway with `google/gemini-2.5-pro` (vision-capable model).
 
-### 3. `src/pages/LifeDomainPage.tsx`
-- Shows domain header (icon, name, description)
-- If unconfigured: prominent "Start Configuration" button (placeholder -- will open Aurora in Phase 2)
-- If configured: shows domain_config data in a clean read-only card (current level, time, goals, etc.)
-- Action buttons: "Reconfigure Domain" (costs Energy, placeholder), "View Roadmap" (placeholder), "View Today's Execution" (placeholder)
-- Uses `DashboardLayout` wrapper
+**Input:** Base64 images or signed URLs for the uploaded scan images.
 
-### 4. `src/hooks/useLifeDomains.ts`
-- Fetches all `life_domains` rows for the current user
-- Returns domain status map and individual domain getter
-- Insert mutation for initial domain creation (upsert on first visit)
+**System prompt:** Structured extraction request for facial metrics (symmetry band, jaw definition index, facial thirds balance, cheek fat distribution, eye fatigue probability, skin clarity band, hairline maturity, mandible prominence, zygomatic projection), body metrics (body fat band, shoulder-to-waist ratio, neck thickness, upper/lower balance, abdominal definition, chest projection), and posture metrics (forward head, rounded shoulders, pelvic tilt, thoracic curvature).
 
-### 5. `src/lib/guards.ts`
-- Add `/life` and `/life/` prefix to `KNOWN_ROUTES` in `safeNavigate`
+**Output:** Structured JSON with all metrics as bands/indices.
 
-## Modified Files
+**Important:** The AI returns raw metrics only. It does NOT compute composite scores. Scoring is deterministic server-side.
 
-### `src/navigation/osNav.ts`
-- Import `Flame` icon
-- Add Life tab to `OS_TABS` at index 1 (after Dashboard)
+**Deterministic scoring** happens inside the same edge function after AI extraction:
+- Structural Integrity Score = weighted(jaw_definition, mandible, zygomatic, shoulder_waist_ratio)
+- Aesthetic Symmetry Score = weighted(facial_symmetry, facial_thirds, upper_lower_balance)
+- Composition Score = weighted(body_fat_band, abdominal_definition, chest_projection)
+- Posture Alignment Score = weighted(forward_head, rounded_shoulders, pelvic_tilt, thoracic_curvature)
+- Projection Potential Score = weighted(neck_thickness, chest_projection, mandible, posture_alignment)
+- Presence Index = weighted composite of above 5 scores
+- Confidence Band = based on image quality and metric extraction confidence
 
-### `src/App.tsx`
-- Import `LifeHub` and `LifeDomainPage` (lazy)
-- Add routes: `/life` and `/life/:domainId` (ProtectedRoute)
-- Replace old pillar routes (`/health`, `/consciousness`, `/relationships`, `/finances`, `/learning`, `/purpose`, `/hobbies` and their `/journey` sub-routes) with `Navigate to="/life" replace`
+All weights are hardcoded constants, not AI-determined.
 
-### `src/lib/energyCosts.ts`
-- Add `DOMAIN_RECONFIGURE: 15` to `ENERGY_COSTS`
+**Delta computation:** If previous scan exists, compute per-metric deltas and store in `delta_metrics`.
 
-## Old Pillar Cleanup
+**Direct Mode notes:** Generate a second pass of blunt clinical language feedback per weak component.
 
-All old pillar routes become redirects to `/life`:
-- `/health`, `/health/journey`, `/health/journey/:id`, `/health/plan`
-- `/consciousness`
-- `/relationships`, `/relationships/journey`, `/relationships/journey/:id`
-- `/finances`, `/finances/journey`, `/finances/journey/:id`
-- `/learning`, `/learning/journey`, `/learning/journey/:id`
-- `/purpose`, `/purpose/journey`, `/purpose/journey/:id`
-- `/hobbies`, `/hobbies/journey`, `/hobbies/journey/:id`
+### Frontend Components
 
-Old page files and components are NOT deleted in this phase (they become dead code). Cleanup is a follow-up task.
+**1. `src/pages/PresencePage.tsx`**
+Replaces generic LifeDomainPage for the `presence` route. Three states:
+- No scan: shows "Start Your First Scan" with privacy consent
+- Scan in progress: shows GuidedCapture
+- Has scan: shows Results Dashboard
 
-## What Is NOT in Phase 1
+**2. `src/components/presence/PrivacyConsent.tsx`**
+- Explains what images are used for
+- Private, encrypted, deletable anytime
+- No public comparison or ranking
+- Checkbox consent required before proceeding
 
-- Aurora domain conversation engine (Phase 2)
-- 90-day plan generation from domain config (Phase 2)
-- Daily execution engine / midnight task generation (Phase 3)
-- External content curator / YouTube embed (Phase 4)
-- Energy spend integration for reconfiguration (Phase 5)
-- Old pillar file deletion (cleanup sprint)
+**3. `src/components/presence/GuidedCapture.tsx`**
+5-step capture flow:
+1. Face Front (neutral expression)
+2. Face Profile (left + right in one step, or two separate uploads)
+3. Body Front
+4. Body Side
+5. Back (optional, skip button)
 
-## Technical Details
+Each step shows:
+- Silhouette overlay guide (SVG outline for positioning)
+- Upload button (camera/file input)
+- Retake option
+- Step progress indicator
+
+**4. `src/components/presence/PresenceResults.tsx`**
+Results dashboard with 5 sections:
+- Section 1: Presence Index (large circular display, 0-100, confidence band)
+- Section 2: Component Breakdown (5 cards: Structural Integrity, Aesthetic Symmetry, Composition, Posture Alignment, Projection Potential -- each with score, explanation, improvement lever)
+- Section 3: Top 3 Leverage Points (auto-generated from lowest component scores)
+- Section 4: 90-Day Projection (estimated improvement range based on addressable components)
+- Section 5: Generate Plan CTA (triggers domain plan generation)
+
+**5. `src/components/presence/DeltaView.tsx`**
+Shows improvement/regression vs previous scan:
+- Per-metric comparison bars
+- Overall delta indicator
+- Clinical language: "Improvement detected" or "Regression detected -- protocol adherence adjustment needed"
+
+**6. `src/components/presence/DirectModeToggle.tsx`**
+Toggle switch. When enabled, language becomes more blunt throughout results.
+Stored in localStorage (user preference, not DB).
+
+### Routing
+
+`/life/presence` renders `PresencePage` instead of the generic `LifeDomainPage`.
+
+### Energy Costs
+
+| Action | Cost |
+|--------|------|
+| Full scan (first or new) | 10 |
+| Re-scan (new photos) | 15 |
+| Score refresh (no new photos) | 5 |
+
+Added to `ENERGY_COSTS` in `src/lib/energyCosts.ts`.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/pages/PresencePage.tsx` | Main presence page with state machine |
+| `src/components/presence/PrivacyConsent.tsx` | Consent screen |
+| `src/components/presence/GuidedCapture.tsx` | 5-step image capture |
+| `src/components/presence/PresenceResults.tsx` | Results dashboard |
+| `src/components/presence/ComponentCard.tsx` | Individual score card |
+| `src/components/presence/PresenceIndex.tsx` | Large circular score display |
+| `src/components/presence/LeveragePoints.tsx` | Top 3 weak areas |
+| `src/components/presence/DeltaView.tsx` | Improvement delta |
+| `src/components/presence/DirectModeToggle.tsx` | Blunt language toggle |
+| `src/hooks/usePresenceScans.ts` | Query/mutation hook for scans |
+| `supabase/functions/analyze-presence/index.ts` | AI vision + scoring engine |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/App.tsx` | Add `/life/presence` route pointing to PresencePage |
+| `src/lib/energyCosts.ts` | Add PRESENCE_SCAN, PRESENCE_RESCAN, PRESENCE_REFRESH |
+| `supabase/config.toml` | Add `[functions.analyze-presence]` |
 
 ### Migration SQL
-```sql
-CREATE TABLE public.life_domains (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  domain_id TEXT NOT NULL,
-  domain_config JSONB DEFAULT '{}'::jsonb,
-  status TEXT NOT NULL DEFAULT 'unconfigured',
-  configured_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE(user_id, domain_id)
-);
 
-ALTER TABLE public.life_domains ENABLE ROW LEVEL SECURITY;
+Creates `presence_scans`, `presence_scan_events`, `presence_training_dataset` tables with RLS, plus the `presence-scans` private storage bucket with user-folder-scoped policies.
 
-CREATE POLICY "Users can read own domains"
-  ON public.life_domains FOR SELECT
-  USING (auth.uid() = user_id);
+## What Is NOT in This Phase
 
-CREATE POLICY "Users can insert own domains"
-  ON public.life_domains FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+- Actual plan generation from weak components (uses existing domain plan system from Phase 3)
+- Automatic track activation (cervical protocol, recomp track, etc.) -- future sprint
+- Hypnosis reinforcement integration -- future sprint
+- Weekly recalibration engine -- future sprint
+- Custom model training pipeline -- table structure only, no training logic
 
-CREATE POLICY "Users can update own domains"
-  ON public.life_domains FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+## Tone Guidelines (Enforced in AI Prompt + UI Copy)
 
-CREATE TRIGGER update_life_domains_updated_at
-  BEFORE UPDATE ON public.life_domains
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-```
+- Clinical, direct, no hype
+- "Private Structural Assessment" not "Hotness Score"
+- "Regression detected" not "You look worse"
+- "Protocol adherence adjustment needed" not "You failed"
+- No population percentile, no comparison to others
+- Score reflects internal structural coherence only
+- Users compete with their previous self
 
-### Risk Assessment
-- LOW for navigation changes (additive)
-- LOW for DB table (new table, no existing data affected)
-- MEDIUM for pillar redirects (users with bookmarked pillar URLs will land on /life instead)
+## Risk Assessment
+
+- **MEDIUM**: AI vision extraction quality depends on image quality and model capability. Confidence band addresses this.
+- **LOW**: Deterministic scoring is fully controlled server-side.
+- **LOW**: Privacy -- images in private bucket, user-deletable, training dataset anonymized and opt-in only.
+- **MEDIUM**: File upload UX on mobile may need iteration for camera integration.
