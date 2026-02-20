@@ -1,15 +1,19 @@
 /**
  * Onboarding — Route page for /onboarding
- * Manual card-based LaunchpadFlow (not chat).
+ * Simple splash + basic info collection.
  */
-import { LaunchpadFlow } from '@/components/launchpad';
+import { OnboardingIntro } from '@/components/onboarding/OnboardingIntro';
+import { useNavigate } from 'react-router-dom';
 
 const Onboarding = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <LaunchpadFlow />
-    </div>
-  );
+  const navigate = useNavigate();
+
+  const handleComplete = (basicInfo: { name: string; gender: string; ageBracket: string }) => {
+    console.log('Onboarding complete:', basicInfo);
+    navigate('/today');
+  };
+
+  return <OnboardingIntro onComplete={handleComplete} />;
 };
 
 export default Onboarding;
