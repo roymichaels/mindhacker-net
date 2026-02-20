@@ -14,7 +14,7 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { requireAuthOrOpenModal, requireCheckoutUrlOrToast } from "@/lib/guards";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "pro"];
+const TIER_ORDER: SubscriptionTier[] = ["free", "plus", "apex"];
 
 const TIER_COLORS: Record<SubscriptionTier, {
   icon: string; iconBg: string; text: string; price: string;
@@ -37,7 +37,7 @@ const TIER_COLORS: Record<SubscriptionTier, {
     button: "bg-amber-500 hover:bg-amber-600 text-white",
     check: "text-amber-500",
   },
-  pro: {
+  apex: {
     icon: "text-primary", iconBg: "bg-primary/10",
     text: "text-primary", price: "text-primary",
     border: "border-primary", ring: "ring-primary/30",
@@ -50,7 +50,7 @@ const TIER_COLORS: Record<SubscriptionTier, {
 const TIER_ICONS: Record<SubscriptionTier, React.ReactNode> = {
   free: <Zap className="h-7 w-7" />,
   plus: <Sparkles className="h-7 w-7" />,
-  pro: <Crown className="h-7 w-7" />,
+  apex: <Crown className="h-7 w-7" />,
 };
 
 const SubscriptionsModal = () => {
@@ -111,12 +111,12 @@ const SubscriptionsModal = () => {
             {/* Hero */}
             <div className="text-center space-y-3 pt-2">
               <h2 className="text-2xl md:text-3xl font-bold">
-                {isRTL ? "בחר את המסלול שלך" : "Choose Your Path"}
+                {isRTL ? "בחר את רמת השליטה שלך" : "Choose Your Level of Command"}
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 {isRTL
-                  ? "מהתפתחות אישית ועד לשליטה מלאה במערכת — יש לנו תוכנית בשבילך"
-                  : "From personal growth to full system mastery — we have a plan for you"}
+                  ? "מודעות → אופטימיזציה → שליטה מוחלטת"
+                  : "Awareness → Optimization → Sovereign Command"}
               </p>
             </div>
 
@@ -190,7 +190,10 @@ const SubscriptionsModal = () => {
                         </div>
                       </div>
                       <CardTitle className="text-xl">{config.label[isRTL ? "he" : "en"]}</CardTitle>
-                      <CardDescription className="text-xs min-h-[32px]">
+                      <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold mt-0.5">
+                        {config.subtitle[isRTL ? "he" : "en"]}
+                      </p>
+                      <CardDescription className="text-xs min-h-[32px] mt-1">
                         {config.description[isRTL ? "he" : "en"]}
                       </CardDescription>
                       <div className="mt-3">

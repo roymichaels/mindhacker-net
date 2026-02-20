@@ -2,27 +2,29 @@ import { Lock, Zap, Crown, Check, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import { useSubscriptionsModal } from '@/contexts/SubscriptionsModalContext';
-import { TIER_FEATURES, TIER_CONFIGS } from '@/lib/subscriptionTiers';
+import { TIER_FEATURES, TIER_CONFIGS, type SubscriptionTier } from '@/lib/subscriptionTiers';
 import { motion } from 'framer-motion';
 
 interface ProGateOverlayProps {
   feature: string;
   className?: string;
+  /** Which tier to upsell — defaults to "apex" */
+  targetTier?: SubscriptionTier;
 }
 
-const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
+const ProGateOverlay = ({ feature, className, targetTier = "apex" }: ProGateOverlayProps) => {
   const { openSubscriptions } = useSubscriptionsModal();
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
   const contextMessages: Record<string, { he: string; en: string }> = {
     projects: {
-      he: 'מודול הפרויקטים הוא חלק מחבילת Pro',
-      en: 'The Projects module is part of the Pro package',
+      he: 'מודול הפרויקטים הוא חלק מחבילת Apex',
+      en: 'The Projects module is part of the Apex package',
     },
     core: {
-      he: 'הליבה — מנוע הפיתוח הפנימי שלך',
-      en: 'Core — Your internal development engine',
+      he: 'שחרר את עומק הפילרים המלא',
+      en: 'Unlock full pillar depth',
     },
     arena: {
       he: 'הזירה — מנוע ההשפעה החיצונית שלך',
@@ -32,15 +34,27 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
       he: 'היפנוזה AI מותאמת אישית כל יום',
       en: 'Personalized AI hypnosis every day',
     },
+    proactive: {
+      he: 'מנוע האינטליגנציה הפרואקטיבית המלא',
+      en: 'Full proactive intelligence engine',
+    },
+    business: {
+      he: 'עסקים מתקדם עם תוכניות AI',
+      en: 'Business Advanced with AI plans',
+    },
     default: {
       he: 'שחרר את הפוטנציאל המלא של המערכת',
       en: 'Unlock the full potential of the system',
     },
   };
 
+  const config = TIER_CONFIGS[targetTier];
   const msg = contextMessages[feature] || contextMessages.default;
-  const features = isHe ? TIER_FEATURES.pro.he : TIER_FEATURES.pro.en;
-  const proFeatures = features.filter(f => f !== (isHe ? 'הכל מ-Free' : 'Everything in Free'));
+  const features = isHe ? TIER_FEATURES[targetTier].he : TIER_FEATURES[targetTier].en;
+  const filteredFeatures = features.filter(f =>
+    f !== (isHe ? 'הכל מ-Awakening' : 'Everything in Awakening') &&
+    f !== (isHe ? 'הכל מ-Plus' : 'Everything in Plus')
+  );
 
   return (
     <div
@@ -75,8 +89,11 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
               <Crown className="w-7 h-7 text-white" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-white">
-              {isHe ? 'שדרג ל-Pro' : 'Upgrade to Pro'}
+              {isHe ? `שדרג ל-${config.label.he}` : `Upgrade to ${config.label.en}`}
             </h2>
+            <p className="text-xs text-white/40 font-medium uppercase tracking-widest">
+              {isHe ? config.subtitle.he : config.subtitle.en}
+            </p>
             <p className="text-sm text-white/60 max-w-xs mx-auto">
               {isHe ? msg.he : msg.en}
             </p>
@@ -89,7 +106,7 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
             transition={{ delay: 0.15 }}
             className="space-y-2"
           >
-            {proFeatures.map((feat, i) => (
+            {filteredFeatures.map((feat, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: isRTL ? 8 : -8 }}
@@ -118,15 +135,15 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
               <span className="text-3xl font-black text-transparent bg-clip-text"
                 style={{ backgroundImage: 'linear-gradient(135deg, hsl(270 70% 65%), hsl(40 80% 65%))' }}
               >
-                {isHe ? `₪${TIER_CONFIGS.pro.priceILS}` : `$${TIER_CONFIGS.pro.priceUSD}`}
+                {isHe ? `₪${config.priceILS}` : `$${config.priceUSD}`}
               </span>
               <span className="text-sm text-white/40">/{isHe ? 'חודש' : 'mo'}</span>
             </div>
-            {TIER_CONFIGS.pro.trial && (
+            {config.trial && (
               <p className="text-xs font-medium text-transparent bg-clip-text"
                 style={{ backgroundImage: 'linear-gradient(90deg, hsl(270 70% 65%), hsl(40 80% 65%))' }}
               >
-                {isHe ? `${TIER_CONFIGS.pro.trial} ימי ניסיון חינם` : `${TIER_CONFIGS.pro.trial}-day free trial`}
+                {isHe ? `${config.trial} ימי ניסיון חינם` : `${config.trial}-day free trial`}
               </p>
             )}
           </motion.div>

@@ -1,10 +1,15 @@
 /**
  * Subscription Tier Configuration
  * Central source of truth for all tier-related data
- * Tiers: Free → Plus → Pro
+ * Tiers: Free (Awakening) → Plus (Optimization) → Apex (Command)
+ * 
+ * Philosophy:
+ *   Free  = Self Awareness
+ *   Plus  = Self Optimization
+ *   Apex  = Self Mastery + Execution Power
  */
 
-export type SubscriptionTier = "free" | "plus" | "pro";
+export type SubscriptionTier = "free" | "plus" | "apex";
 
 export interface TierConfig {
   tier: SubscriptionTier;
@@ -13,6 +18,7 @@ export interface TierConfig {
   priceUSD: number;
   priceILS: number;
   label: { en: string; he: string };
+  subtitle: { en: string; he: string };
   description: { en: string; he: string };
   trial?: number; // days
 }
@@ -24,35 +30,38 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     priceId: null,
     priceUSD: 0,
     priceILS: 0,
-    label: { en: "Free", he: "חינם" },
+    label: { en: "Awakening", he: "התעוררות" },
+    subtitle: { en: "Self Awareness", he: "מודעות עצמית" },
     description: {
-      en: "Dashboard, 90-day plan, and 5 daily Aurora messages",
-      he: "דאשבורד, תוכנית 90 יום ו-5 הודעות יומיות לאורורה",
+      en: "See your life clearly. Core assessments, daily structure & Aurora basics",
+      he: "ראה את חייך בבהירות. אבחונים, מבנה יומי ואורורה בסיסית",
     },
   },
   plus: {
     tier: "plus",
-    productId: "prod_U0uQqUiCnxGgpB",
-    priceId: "price_1T2sbYL9lVJ44TbRzI0K3mzx",
-    priceUSD: 49,
-    priceILS: 149,
+    productId: "prod_U12Wn9F03FrDpf",
+    priceId: "price_1T30RDL9lVJ44TbRPRLAICE8",
+    priceUSD: 69,
+    priceILS: 249,
     label: { en: "Plus", he: "Plus" },
+    subtitle: { en: "Self Optimization", he: "אופטימיזציה עצמית" },
     description: {
-      en: "Unlimited Aurora, daily AI hypnosis, proactive coaching",
-      he: "אורורה ללא הגבלה, היפנוזה AI יומית, אימון פרואקטיבי",
+      en: "Full pillars, unlimited Aurora, AI hypnosis, proactive coaching & Arena",
+      he: "כל הפילרים, אורורה ללא הגבלה, היפנוזה AI, אימון פרואקטיבי וזירה",
     },
     trial: 7,
   },
-  pro: {
-    tier: "pro",
-    productId: "prod_U0tv7nZ9CPMMgt",
-    priceId: "price_1T2s7ZL9lVJ44TbRrZhs4rA5",
-    priceUSD: 150,
-    priceILS: 549,
-    label: { en: "Pro", he: "Pro" },
+  apex: {
+    tier: "apex",
+    productId: "prod_U12iPHqxPjZmYN",
+    priceId: "price_1T30dML9lVJ44TbRYgjf56K9",
+    priceUSD: 199,
+    priceILS: 749,
+    label: { en: "Apex", he: "Apex" },
+    subtitle: { en: "Self Mastery + Execution Power", he: "שליטה עצמית + כוח ביצוע" },
     description: {
-      en: "Everything in Plus + Core, Arena, Projects & advanced tools",
-      he: "הכל מ-Plus + ליבה, זירה, פרויקטים וכלים מתקדמים",
+      en: "Full proactive intelligence, Projects, Business Advanced & Orb DNA",
+      he: "אינטליגנציה פרואקטיבית מלאה, פרויקטים, עסקים מתקדם ו-Orb DNA",
     },
   },
 };
@@ -70,7 +79,7 @@ export function productIdToTier(productId: string | null): SubscriptionTier {
 const TIER_RANK: Record<SubscriptionTier, number> = {
   free: 0,
   plus: 1,
-  pro: 2,
+  apex: 2,
 };
 
 export function tierIncludes(userTier: SubscriptionTier, requiredTier: SubscriptionTier): boolean {
@@ -81,48 +90,74 @@ export function tierIncludes(userTier: SubscriptionTier, requiredTier: Subscript
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "Dashboard & 90-day plan",
+      "6 Core pillar assessments",
+      "Dashboard & 90-day overview",
       "5 Aurora messages/day",
       "3 active habits",
+      "XP, leveling & streaks",
+      "Basic Orb",
+      "Arena overview (view-only)",
     ],
     he: [
-      "דאשבורד ותוכנית 90 יום",
+      "6 אבחוני פילרים",
+      "דאשבורד וסקירת 90 יום",
       "5 הודעות יומיות לאורורה",
       "3 הרגלים פעילים",
+      "XP, רמות ורצפים",
+      "אורב בסיסי",
+      "סקירת זירה (צפייה בלבד)",
     ],
   },
   plus: {
     en: [
-      "Everything in Free",
-      "Unlimited Aurora messages",
-      "1 personalized AI hypnosis/day",
-      "Proactive coaching nudges",
+      "Everything in Awakening",
+      "Full 6 Core pillars + Combat",
+      "Unlimited Aurora with memory",
+      "AI hypnosis & daily scripts",
+      "Basic proactive nudges",
+      "Full Arena access",
+      "Business module (basic)",
+      "Full 90-day plan + recalibration",
       "Unlimited habits & checklists",
+      "Community & leaderboards",
     ],
     he: [
-      "הכל מ-Free",
-      "הודעות ללא הגבלה לאורורה",
-      "היפנוזה AI מותאמת אישית יומית",
-      "נאדג׳ים פרואקטיביים",
+      "הכל מ-Awakening",
+      "6 פילרים מלאים + לחימה",
+      "אורורה ללא הגבלה עם זיכרון",
+      "היפנוזה AI ותסריטים יומיים",
+      "נאדג׳ים פרואקטיביים בסיסיים",
+      "גישה מלאה לזירה",
+      "מודול עסקים (בסיסי)",
+      "תוכנית 90 יום מלאה + כיול מחדש",
       "הרגלים ורשימות ללא הגבלה",
+      "קהילה ולוחות מובילים",
     ],
   },
-  pro: {
+  apex: {
     en: [
       "Everything in Plus",
-      "Core hub (6 development pillars)",
-      "Arena hub (Wealth, Influence, Relationships)",
-      "Projects module",
-      "Advanced AI coaching & analysis",
-      "Full Life OS access",
+      "Full proactive intelligence engine",
+      "Morning briefings & mid-day checks",
+      "Behavioral pattern & energy modeling",
+      "Action auto-execution trust system",
+      "Push notifications",
+      "Unlimited Projects (full ERP)",
+      "Business Advanced + AI plans",
+      "Full Orb DNA (70-variable profile)",
+      "Consciousness Leap access",
     ],
     he: [
       "הכל מ-Plus",
-      "ליבה (6 עמודי פיתוח)",
-      "זירה (עושר, השפעה, קשרים)",
-      "מודול פרויקטים",
-      "אימון AI מתקדם וניתוח",
-      "גישה מלאה ל-Life OS",
+      "מנוע אינטליגנציה פרואקטיבית מלא",
+      "תדרוכי בוקר ובדיקות אמצע יום",
+      "מודלינג דפוסים התנהגותיים ואנרגיה",
+      "מערכת ביצוע אוטונומי",
+      "התראות פוש",
+      "פרויקטים ללא הגבלה (ERP מלא)",
+      "עסקים מתקדם + תוכניות AI",
+      "Orb DNA מלא (70 משתנים)",
+      "גישה לקפיצת תודעה",
     ],
   },
 };
