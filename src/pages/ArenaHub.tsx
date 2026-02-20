@@ -116,38 +116,6 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
           </p>
         </div>
 
-        {/* ── Progress Overview Card ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent p-4 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/25">
-                <Swords className="w-5 h-5 text-amber-400" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-foreground">
-                  {isHe ? 'הזירה שלך' : 'Your Arena'}
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  {isHe ? `${activeDomains} מתוך ${totalArena} תחומים פעילים` : `${activeDomains} of ${totalArena} domains active`}
-                </p>
-              </div>
-            </div>
-            <span className="text-2xl font-black text-amber-400">{completionPct}%</span>
-          </div>
-          <div className="w-full bg-muted/30 rounded-full h-2">
-            <motion.div
-              className="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${completionPct}%` }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            />
-          </div>
-        </motion.div>
-
         {/* ── Motivational Banner ── */}
         <div
           className="relative w-full overflow-hidden rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm cursor-pointer select-none shadow-sm"
