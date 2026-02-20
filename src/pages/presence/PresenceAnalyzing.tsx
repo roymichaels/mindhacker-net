@@ -1,6 +1,6 @@
 /**
  * @tab Life
- * @purpose Animated analysis screen — calls edge function, navigates to results.
+ * @purpose Animated analysis screen — calls edge function, navigates to results. Bilingual + RTL.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useEffect, useState, useRef } from 'react';
@@ -10,21 +10,23 @@ import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { buildScanResult } from '@/lib/presence/scoring';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const STATUS_MESSAGES = [
-  'Mapping facial structure signals...',
-  'Estimating symmetry & definition...',
-  'Detecting posture alignment patterns...',
-  'Inferring grooming baseline...',
-  'Generating recommendations...',
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PresenceAnalyzing() {
   const navigate = useNavigate();
   const { analyze } = usePresenceScans();
   const { config, saveScanResult } = usePresenceCoach();
+  const { t, isRTL } = useTranslation();
   const [messageIndex, setMessageIndex] = useState(0);
   const started = useRef(false);
+
+  const STATUS_MESSAGES = [
+    t('presence.analyzingMapping'),
+    t('presence.analyzingSymmetry'),
+    t('presence.analyzingPosture'),
+    t('presence.analyzingFrame'),
+    t('presence.analyzingRecommendations'),
+  ];
 
   // Cycle status messages
   useEffect(() => {
@@ -51,7 +53,6 @@ export default function PresenceAnalyzing() {
 
     analyze(images)
       .then(async (scanData) => {
-        // Map raw scan data to our bio-scan result model
         const result = buildScanResult(
           scanData.scores,
           scanData.derived_metrics,
@@ -68,7 +69,7 @@ export default function PresenceAnalyzing() {
 
   return (
     <PageShell>
-      <div className="flex flex-col items-center justify-center py-24 gap-6">
+      <div className="flex flex-col items-center justify-center py-24 gap-6" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="relative">
           <div className="w-20 h-20 rounded-full border-2 border-primary/20 flex items-center justify-center">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -81,12 +82,12 @@ export default function PresenceAnalyzing() {
             {STATUS_MESSAGES[messageIndex]}
           </p>
           <p className="text-xs text-muted-foreground">
-            This may take 15–30 seconds.
+            {t('presence.analyzingWait')}
           </p>
         </div>
 
         <p className="text-[10px] text-muted-foreground max-w-xs text-center">
-          This is an estimate. Not medical advice. Lighting and angle affect results.
+          {t('presence.analyzingDisclaimer')}
         </p>
       </div>
     </PageShell>

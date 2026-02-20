@@ -1,17 +1,18 @@
 /**
  * @tab Life
- * @purpose Presence Pillar Home — Scan CTA + Manual Inputs + Last Scan panel.
+ * @purpose Presence Pillar Home — Scan CTA + Last Scan panel. Bilingual + RTL.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { useNavigate } from 'react-router-dom';
-import { Eye, ArrowLeft, Loader2, ScanLine, ChevronRight } from 'lucide-react';
+import { Eye, ArrowLeft, Loader2, ScanLine, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PresenceHome() {
   const navigate = useNavigate();
   const { config, isLoading } = usePresenceCoach();
+  const { t, isRTL } = useTranslation();
   const latest = config.latest_scan;
 
   if (isLoading) {
@@ -24,16 +25,19 @@ export default function PresenceHome() {
     );
   }
 
+  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
+  const BackIcon = isRTL ? ChevronRight : ArrowLeft;
+
   return (
     <PageShell>
-      <div className="space-y-6 pb-8">
+      <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/life')}>
-            <ArrowLeft className="w-5 h-5" />
+            <BackIcon className="w-5 h-5" />
           </Button>
           <Eye className="w-6 h-6 text-rose-500" />
-          <h1 className="text-2xl font-bold text-foreground">Presence</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('presence.title')}</h1>
         </div>
 
         {/* Primary CTA — Presence Scan */}
@@ -42,28 +46,27 @@ export default function PresenceHome() {
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <ScanLine className="w-5 h-5 text-primary" />
             </div>
-            <h2 className="text-lg font-bold text-foreground">Presence Scan</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('presence.presenceScan')}</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            AI visual assessment of face structure, posture, grooming baseline, body composition signals.
+            {t('presence.scanDescription')}
           </p>
           <Button onClick={() => navigate('/life/presence/scan')} className="w-full" size="lg">
-            Begin Scan <ChevronRight className="w-4 h-4 ml-1" />
+            {t('presence.beginScan')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
-
 
         {/* Last Scan Panel */}
         {latest && (
           <div className="p-4 rounded-2xl border border-border bg-card">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Your Last Scan</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('presence.yourLastScan')}</p>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-baseline gap-2">
                 <span className={`text-3xl font-black ${latest.presence_index >= 70 ? 'text-emerald-500' : latest.presence_index >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                   {latest.presence_index}
                 </span>
                 <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                  {latest.confidence} confidence
+                  {latest.confidence} {t('presence.confidence')}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -72,10 +75,10 @@ export default function PresenceHome() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => navigate('/life/presence/scan')} className="flex-1">
-                Re-scan
+                {t('presence.rescan')}
               </Button>
               <Button variant="outline" size="sm" onClick={() => navigate('/life/presence/results')} className="flex-1">
-                View Results
+                {t('presence.viewResults')}
               </Button>
             </div>
           </div>
@@ -84,13 +87,13 @@ export default function PresenceHome() {
         {/* Completion badge */}
         {config.completed && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-            <p className="text-sm font-medium text-emerald-600">✓ Presence Assessment Complete</p>
+            <p className="text-sm font-medium text-emerald-600">{t('presence.assessmentComplete')}</p>
           </div>
         )}
 
         {/* Info note */}
         <p className="text-xs text-muted-foreground text-center">
-          Plans are generated after all pillars are assessed.
+          {t('presence.plansNote')}
         </p>
       </div>
     </PageShell>

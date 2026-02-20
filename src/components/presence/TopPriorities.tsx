@@ -1,11 +1,12 @@
 /**
  * @component TopPriorities
- * @purpose Auto-selected top 3 levers with "Add to My Focus" buttons.
+ * @purpose Auto-selected top 3 levers with "Add to My Focus" buttons. Bilingual + RTL.
  */
 import { Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { FixItem } from '@/lib/presence/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TopPrioritiesProps {
   priorities: FixItem[];
@@ -13,9 +14,15 @@ interface TopPrioritiesProps {
   onToggle: (ids: string[]) => void;
 }
 
-const PRIORITY_LABELS = ['Top Priority', 'Secondary', 'Optional'];
-
 export default function TopPriorities({ priorities, selectedIds, onToggle }: TopPrioritiesProps) {
+  const { t, isRTL } = useTranslation();
+
+  const PRIORITY_LABELS = [
+    t('presence.topPriority'),
+    t('presence.secondary'),
+    t('presence.optional'),
+  ];
+
   const toggle = (id: string) => {
     const next = selectedIds.includes(id)
       ? selectedIds.filter(x => x !== id)
@@ -26,10 +33,10 @@ export default function TopPriorities({ priorities, selectedIds, onToggle }: Top
   if (priorities.length === 0) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-2">
         <Target className="w-4 h-4 text-primary" />
-        <h3 className="font-bold text-foreground text-sm">What to Work on Now</h3>
+        <h3 className="font-bold text-foreground text-sm">{t('presence.whatToWorkOnNow')}</h3>
       </div>
       <div className="space-y-2">
         {priorities.slice(0, 3).map((fix, i) => {
@@ -62,7 +69,7 @@ export default function TopPriorities({ priorities, selectedIds, onToggle }: Top
                 className="mt-3 w-full"
                 onClick={() => toggle(fix.id)}
               >
-                {isFocused ? '✓ In My Focus' : 'Add to My Focus'}
+                {isFocused ? t('presence.inMyFocus') : t('presence.addToFocus')}
               </Button>
             </div>
           );

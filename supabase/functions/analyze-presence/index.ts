@@ -7,128 +7,117 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ─── Scoring Weights (deterministic, hardcoded) ───
+// ─── Differential Geometry Scoring Engine ───
+// Uses granular numeric scores (0-100) from AI extraction.
+// No band-to-score conversion — scores are already numeric.
 
-const STRUCTURAL_WEIGHTS = {
-  jaw_definition: 0.3,
-  mandible_prominence: 0.25,
-  zygomatic_projection: 0.2,
-  shoulder_waist_ratio: 0.25,
-};
-
-const SYMMETRY_WEIGHTS = {
-  facial_symmetry: 0.45,
-  facial_thirds_balance: 0.3,
-  upper_lower_balance: 0.25,
-};
-
-const COMPOSITION_WEIGHTS = {
-  body_fat_band: 0.45,
-  abdominal_definition: 0.3,
-  chest_projection: 0.25,
-};
-
-const POSTURE_WEIGHTS = {
-  forward_head: 0.3,
-  rounded_shoulders: 0.3,
-  pelvic_tilt: 0.2,
-  thoracic_curvature: 0.2,
-};
-
-const PROJECTION_WEIGHTS = {
-  neck_thickness: 0.2,
-  chest_projection: 0.25,
-  mandible_prominence: 0.25,
-  posture_alignment: 0.3,
-};
-
-const PRESENCE_INDEX_WEIGHTS = {
-  structural_integrity: 0.25,
-  aesthetic_symmetry: 0.2,
-  composition: 0.2,
-  posture_alignment: 0.2,
-  projection_potential: 0.15,
-};
-
-// ─── Band-to-numeric converters ───
-
-const BAND_MAP: Record<string, number> = {
-  very_low: 15, low: 30, moderate_low: 40, moderate: 50,
-  moderate_high: 60, high: 75, very_high: 90,
-};
-
-const BODY_FAT_MAP: Record<string, number> = {
-  very_lean: 90, lean: 75, moderate: 50, high: 25,
-};
-
-const SEVERITY_MAP: Record<string, number> = {
-  none: 95, minimal: 80, mild: 65, moderate: 45, significant: 25, severe: 10,
-};
-
-function bandToScore(val: string | number, map: Record<string, number> = BAND_MAP): number {
-  if (typeof val === "number") return Math.max(0, Math.min(100, val));
-  return map[val?.toLowerCase?.()] ?? 50;
+function clamp(v: number): number {
+  return Math.max(0, Math.min(100, v));
 }
 
-function severityToScore(val: string | number): number {
-  if (typeof val === "number") return Math.max(0, Math.min(100, 100 - val));
-  return SEVERITY_MAP[val?.toLowerCase?.()] ?? 50;
+function avg(...vals: (number | null | undefined)[]): number {
+  const valid = vals.filter((v): v is number => v !== null && v !== undefined);
+  return valid.length > 0 ? Math.round(valid.reduce((a, b) => a + b, 0) / valid.length) : 45;
 }
 
-function weightedScore(values: Record<string, number>, weights: Record<string, number>): number {
-  let total = 0, wSum = 0;
-  for (const [key, weight] of Object.entries(weights)) {
-    if (values[key] !== undefined) {
-      total += values[key] * weight;
-      wSum += weight;
-    }
-  }
-  return wSum > 0 ? Math.round(total / wSum) : 50;
+function weightedAvg(items: { score: number; weight: number }[]): number {
+  const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
+  if (totalWeight === 0) return 45;
+  return Math.round(items.reduce((sum, i) => sum + i.score * i.weight, 0) / totalWeight);
 }
 
-// ─── Deterministic Scoring Engine ───
+// Non-linear penalty: small deviations penalize lightly, large exponentially
+function nonLinearPenalty(score: number): number {
+  const deficit = 100 - score;
+  if (deficit <= 10) return score;
+  if (deficit <= 30) return 100 - deficit * 1.1;
+  return 100 - deficit * 1.3;
+}
 
 function computeScores(m: any) {
-  const numericMetrics: Record<string, number> = {
-    jaw_definition: bandToScore(m.jaw_definition_index),
-    mandible_prominence: bandToScore(m.mandible_prominence),
-    zygomatic_projection: bandToScore(m.zygomatic_projection),
-    shoulder_waist_ratio: bandToScore(m.shoulder_to_waist_ratio),
-    facial_symmetry: bandToScore(m.facial_symmetry_band),
-    facial_thirds_balance: bandToScore(m.facial_thirds_balance),
-    upper_lower_balance: bandToScore(m.upper_lower_development_balance),
-    body_fat_band: bandToScore(m.body_fat_band, BODY_FAT_MAP),
-    abdominal_definition: bandToScore(m.abdominal_definition_likelihood),
-    chest_projection: bandToScore(m.chest_projection),
-    forward_head: severityToScore(m.forward_head_severity),
-    rounded_shoulders: severityToScore(m.rounded_shoulders_severity),
-    pelvic_tilt: severityToScore(m.pelvic_tilt_likelihood),
-    thoracic_curvature: severityToScore(m.thoracic_curvature),
-    neck_thickness: bandToScore(m.neck_thickness_proxy),
-  };
+  // ── Bone Structure Score ──
+  const bone_structure = clamp(avg(
+    m.jaw_width_score,
+    m.chin_projection_score,
+    m.brow_ridge_score,
+    m.facial_symmetry_score,
+  ));
 
-  const structural_integrity = weightedScore(numericMetrics, STRUCTURAL_WEIGHTS);
-  const aesthetic_symmetry = weightedScore(numericMetrics, SYMMETRY_WEIGHTS);
-  const composition = weightedScore(numericMetrics, COMPOSITION_WEIGHTS);
-  const posture_alignment = weightedScore(numericMetrics, POSTURE_WEIGHTS);
+  // ── Soft Tissue Overlay Score ──
+  const soft_tissue = clamp(avg(
+    m.submental_fullness_score,
+    m.jaw_neck_angle_score,
+    m.cheek_fullness_score,
+    m.facial_puffiness_score,
+  ));
 
-  const projectionInput = { ...numericMetrics, posture_alignment };
-  const projection_potential = weightedScore(projectionInput, PROJECTION_WEIGHTS);
+  // ── Combined Facial Structure (0.6 bone + 0.4 soft tissue) ──
+  const structural_integrity = weightedAvg([
+    { score: bone_structure, weight: 0.6 },
+    { score: soft_tissue, weight: 0.4 },
+  ]);
 
-  const componentScores = {
-    structural_integrity,
-    aesthetic_symmetry,
-    composition,
-    posture_alignment,
-    projection_potential,
-  };
+  // ── Aesthetic Symmetry (from facial symmetry score directly) ──
+  const aesthetic_symmetry = clamp(m.facial_symmetry_score ?? bone_structure);
 
-  const presence_index = weightedScore(componentScores, PRESENCE_INDEX_WEIGHTS);
+  // ── Posture Alignment (non-linear penalty) ──
+  const posture_alignment = clamp(nonLinearPenalty(avg(
+    m.ear_shoulder_deviation_score,
+    m.neck_forward_translation_score,
+    m.rounded_shoulders_score,
+    m.thoracic_curvature_score,
+  )));
 
-  // Confidence band based on how many metrics were extracted
-  const extractedCount = Object.values(m).filter((v) => v !== null && v !== undefined && v !== "").length;
-  const totalExpected = 19;
-  const confidence = extractedCount >= totalExpected * 0.8 ? "high" : extractedCount >= totalExpected * 0.5 ? "moderate" : "low";
+  // ── Body Composition (contour-based) ──
+  const composition = clamp(avg(
+    m.jaw_neck_definition_score,
+    m.abdominal_projection_score,
+    m.chest_contour_score,
+  ));
+
+  // ── Frame Development ──
+  const frame = clamp(avg(
+    m.shoulder_waist_ratio_score,
+    m.upper_back_thickness_score,
+    m.deltoid_projection_score,
+  ));
+
+  // ── Inflammation / Puffiness (with lighting correction) ──
+  let inflammation = clamp(avg(
+    m.under_eye_swelling_score,
+    m.cheek_fluid_score,
+    m.skin_shine_score,
+    m.facial_edge_clarity_score,
+  ));
+  if (m.lighting_condition === "high_frontal_flash") {
+    inflammation = Math.round(inflammation * 0.8 + 20);
+  }
+
+  // ── Projection Potential ──
+  const projection_potential = weightedAvg([
+    { score: frame, weight: 0.3 },
+    { score: posture_alignment, weight: 0.3 },
+    { score: bone_structure, weight: 0.25 },
+    { score: composition, weight: 0.15 },
+  ]);
+
+  // ── Presence Index ──
+  const presence_index = weightedAvg([
+    { score: structural_integrity, weight: 0.25 },
+    { score: posture_alignment, weight: 0.25 },
+    { score: composition, weight: 0.20 },
+    { score: frame, weight: 0.15 },
+    { score: inflammation, weight: 0.15 },
+  ]);
+
+  // ── Confidence ──
+  const numericKeys = Object.keys(m).filter(k => k.endsWith('_score'));
+  const extractedCount = numericKeys.filter(k => m[k] !== null && m[k] !== undefined).length;
+  const totalExpected = 21;
+  const signalConsistency = m.signal_consistency ?? "medium";
+  let confidence = "moderate";
+  if (extractedCount >= totalExpected * 0.8 && signalConsistency === "high") confidence = "high";
+  else if (extractedCount < totalExpected * 0.5 || signalConsistency === "low") confidence = "low";
 
   return {
     structural_integrity,
@@ -138,6 +127,11 @@ function computeScores(m: any) {
     projection_potential,
     presence_index,
     confidence_band: confidence,
+    inflammation,
+    frame,
+    bone_structure,
+    soft_tissue,
+    lighting_correction: m.lighting_condition === "high_frontal_flash" ? "high_flash" : null,
   };
 }
 
@@ -200,37 +194,50 @@ serve(async (req) => {
       { type: "image_url", image_url: { url } },
     ])).flat();
 
-    const systemPrompt = `You are a clinical visual assessment system. Analyze the provided images and extract structured metrics. Return ONLY a valid JSON object with these exact keys and value types:
+    const systemPrompt = `You are a differential geometry-based visual assessment system. Analyze the provided images and extract structured numeric scores (0-100) plus categorical metrics. DO NOT default scores to 50. Each score must reflect actual detected signals from the images. Return ONLY a valid JSON object with these exact keys and value types:
 
-FACIAL METRICS:
-- facial_symmetry_band: "low" | "moderate_low" | "moderate" | "moderate_high" | "high" | "very_high"
-- jaw_definition_index: "low" | "moderate_low" | "moderate" | "moderate_high" | "high" | "very_high"
-- facial_thirds_balance: "low" | "moderate" | "high"
-- cheek_fat_distribution: "lean" | "moderate" | "high"
-- eye_fatigue_probability: "low" | "moderate" | "high"
-- skin_clarity_band: "low" | "moderate" | "high" | "very_high"
-- hairline_maturity_band: "youthful" | "early_recession" | "moderate_recession" | "advanced"
-- mandible_prominence: "low" | "moderate" | "high" | "very_high"
-- zygomatic_projection: "low" | "moderate" | "high" | "very_high"
+BONE STRUCTURE (0-100 numeric scores):
+- jaw_width_score: number (0-100, jaw width relative to cheek width)
+- chin_projection_score: number (0-100, chin projection from profile view)
+- brow_ridge_score: number (0-100, brow ridge prominence)
+- facial_symmetry_score: number (0-100, bilateral facial symmetry)
 
-BODY METRICS:
-- body_fat_band: "very_lean" | "lean" | "moderate" | "high"
-- shoulder_to_waist_ratio: "low" | "moderate" | "high" | "very_high"
-- neck_thickness_proxy: "low" | "moderate" | "high"
-- upper_lower_development_balance: "low" | "moderate" | "high"
-- abdominal_definition_likelihood: "low" | "moderate" | "high" | "very_high"
-- chest_projection: "low" | "moderate" | "high" | "very_high"
+SOFT TISSUE OVERLAY (0-100 numeric scores):
+- submental_fullness_score: number (0-100, inverted — 100 = lean, 0 = full)
+- jaw_neck_angle_score: number (0-100, definition of jaw-to-neck angle)
+- cheek_fullness_score: number (0-100, inverted — 100 = lean contour)
+- facial_puffiness_score: number (0-100, inverted — 100 = no puffiness)
 
-POSTURE METRICS:
-- forward_head_severity: "none" | "minimal" | "mild" | "moderate" | "significant" | "severe"
-- rounded_shoulders_severity: "none" | "minimal" | "mild" | "moderate" | "significant" | "severe"
-- pelvic_tilt_likelihood: "none" | "minimal" | "mild" | "moderate" | "significant"
-- thoracic_curvature: "none" | "minimal" | "mild" | "moderate" | "significant"
+POSTURE (0-100 numeric scores):
+- ear_shoulder_deviation_score: number (0-100, 100 = perfect vertical alignment)
+- neck_forward_translation_score: number (0-100, 100 = no forward translation)
+- rounded_shoulders_score: number (0-100, 100 = no rounding)
+- thoracic_curvature_score: number (0-100, 100 = neutral spine)
 
-CONFIDENCE:
+BODY COMPOSITION (0-100 numeric scores):
+- jaw_neck_definition_score: number (0-100, contour contrast)
+- abdominal_projection_score: number (0-100, inverted — 100 = flat)
+- chest_contour_score: number (0-100, muscle vs softness contrast)
+
+FRAME DEVELOPMENT (0-100 numeric scores):
+- shoulder_waist_ratio_score: number (0-100, higher = wider shoulders relative to waist)
+- upper_back_thickness_score: number (0-100, visible muscle mass signal)
+- deltoid_projection_score: number (0-100, shoulder cap development)
+
+INFLAMMATION / PUFFINESS (0-100 numeric scores):
+- under_eye_swelling_score: number (0-100, inverted — 100 = no swelling)
+- cheek_fluid_score: number (0-100, inverted — 100 = no fluid retention)
+- skin_shine_score: number (0-100, inverted — 100 = matte, 0 = high shine)
+- facial_edge_clarity_score: number (0-100, 100 = sharp edges)
+
+CATEGORICAL METRICS:
+- skin_texture_issues: "none" | "mild" | "moderate" | "significant"
+- acne_visibility: "none" | "mild" | "moderate" | "significant"
+- lighting_condition: "natural" | "indoor_even" | "high_frontal_flash" | "poor"
 - image_quality_assessment: "poor" | "acceptable" | "good" | "excellent"
+- signal_consistency: "high" | "medium" | "low"
 
-Return ONLY the JSON object. No explanations, no markdown.`;
+Return ONLY the JSON object. No explanations, no markdown. Each numeric score MUST reflect actual geometry — do NOT default to 50.`;
 
     // Call Lovable AI Gateway
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
