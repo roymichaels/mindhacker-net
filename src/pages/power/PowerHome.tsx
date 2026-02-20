@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import type { PowerDomainConfig } from '@/lib/power/types';
+import { useState, useEffect } from 'react';
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 
 export default function PowerHome() {
   const navigate = useNavigate();
@@ -21,6 +23,14 @@ export default function PowerHome() {
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+
+  const [assessOpen, setAssessOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !latest) {
+      setAssessOpen(true);
+    }
+  }, [isLoading, latest]);
 
   if (isLoading) {
     return (
@@ -55,7 +65,7 @@ export default function PowerHome() {
           <p className="text-sm text-muted-foreground mb-4">
             {t('power.assessmentDesc')}
           </p>
-          <Button onClick={() => navigate('/life/power/assess')} className="w-full bg-red-600 hover:bg-red-700" size="lg">
+          <Button onClick={() => setAssessOpen(true)} className="w-full bg-red-600 hover:bg-red-700" size="lg">
             {t('power.beginAssessment')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
@@ -84,7 +94,7 @@ export default function PowerHome() {
               <Button variant="outline" size="sm" onClick={() => navigate('/life/power/results')} className="flex-1">
                 {t('power.viewResults')}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/life/power/assess')} className="flex-1">
+              <Button variant="outline" size="sm" onClick={() => setAssessOpen(true)} className="flex-1">
                 {t('power.reAssess')}
               </Button>
             </div>
@@ -110,6 +120,7 @@ export default function PowerHome() {
           {t('power.plansNote')}
         </p>
       </div>
+      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="power" />
     </PageShell>
   );
 }

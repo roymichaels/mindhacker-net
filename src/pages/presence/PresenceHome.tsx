@@ -1,6 +1,7 @@
 /**
  * @tab Life
  * @purpose Presence Pillar Home — Scan CTA + Last Scan panel. Bilingual + RTL.
+ * Now uses DomainAssessModal for chat-based assessment with image uploads.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
@@ -11,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { buildScanResult } from '@/lib/presence/scoring';
 import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 
 export default function PresenceHome() {
   const navigate = useNavigate();
@@ -18,6 +21,11 @@ export default function PresenceHome() {
   const { recalculate, isAnalyzing } = usePresenceScans();
   const { t, isRTL } = useTranslation();
   const latest = config.latest_scan;
+  const [assessOpen, setAssessOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !latest) setAssessOpen(true);
+  }, [isLoading, latest]);
 
   if (isLoading) {
     return (
@@ -55,7 +63,7 @@ export default function PresenceHome() {
           <h1 className="text-2xl font-bold text-foreground">{t('presence.title')}</h1>
         </div>
 
-        {/* Primary CTA — Presence Scan */}
+        {/* Primary CTA — Assessment Chat */}
         <div className="p-6 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -66,7 +74,7 @@ export default function PresenceHome() {
           <p className="text-sm text-muted-foreground mb-4">
             {t('presence.scanDescription')}
           </p>
-          <Button onClick={() => navigate('/life/presence/scan')} className="w-full" size="lg">
+          <Button onClick={() => setAssessOpen(true)} className="w-full" size="lg">
             {t('presence.beginScan')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
@@ -122,6 +130,7 @@ export default function PresenceHome() {
           {t('presence.plansNote')}
         </p>
       </div>
+      <DomainAssessModal open={assessOpen} onOpenChange={setAssessOpen} domainId="presence" />
     </PageShell>
   );
 }

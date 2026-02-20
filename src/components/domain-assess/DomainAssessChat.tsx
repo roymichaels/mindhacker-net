@@ -39,9 +39,11 @@ function getBasePath(domainId: string): string {
 
 interface Props {
   domainId: string;
+  asModal?: boolean;
+  onClose?: () => void;
 }
 
-export default function DomainAssessChat({ domainId }: Props) {
+export default function DomainAssessChat({ domainId, asModal, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
@@ -88,7 +90,11 @@ export default function DomainAssessChat({ domainId }: Props) {
     setSaving(true);
     try {
       await saveAssessment(result);
-      navigate(`${getBasePath(domainId)}/${domainId}/results`);
+      if (asModal && onClose) {
+        onClose();
+      } else {
+        navigate(`${getBasePath(domainId)}/${domainId}/results`);
+      }
     } catch (err) {
       console.error('Failed to save:', err);
       setSaving(false);
@@ -240,25 +246,29 @@ export default function DomainAssessChat({ domainId }: Props) {
 
   const Icon = domain?.icon;
 
+  const Wrapper = asModal ? 'div' : PageShell;
+
   if (saving) {
     return (
-      <PageShell>
+      <Wrapper>
         <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">{isHe ? 'מעבד תוצאות...' : 'Processing results...'}</p>
         </div>
-      </PageShell>
+      </Wrapper>
     );
   }
 
   return (
-    <PageShell>
-      <div className="flex flex-col h-[calc(100vh-120px)]" dir={isRTL ? 'rtl' : 'ltr'}>
+    <Wrapper className={asModal ? 'flex flex-col h-full' : undefined}>
+      <div className={cn("flex flex-col", asModal ? "h-full" : "h-[calc(100vh-120px)]")} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header — Aurora style */}
-        <div className="flex items-center gap-3 py-3 px-2 shrink-0 border-b border-border/30">
-          <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
-            <BackIcon className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
+          {!asModal && (
+            <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
+              <BackIcon className="w-5 h-5" />
+            </Button>
+          )}
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0">
             <AuroraOrbIcon size={20} className="text-primary" />
           </div>
@@ -311,6 +321,6 @@ export default function DomainAssessChat({ domainId }: Props) {
         {/* Input — Aurora style */}
         <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />
       </div>
-    </PageShell>
+    </Wrapper>
   );
 }
