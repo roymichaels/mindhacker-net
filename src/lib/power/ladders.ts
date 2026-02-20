@@ -65,19 +65,21 @@ export const HUMAN_FLAG_LADDER: SkillLadderStep[] = [
 ];
 
 export const MUSCLE_UP_LADDER: SkillLadderStep[] = [
-  { level: 1, key: 'pullup_5_strict' },
-  { level: 2, key: 'straight_bar_dip_3' },
-  { level: 3, key: 'false_grip_hang_15s' },
-  { level: 4, key: 'false_grip_pullup' },
-  { level: 5, key: 'high_pullup' },
-  { level: 6, key: 'explosive_pullup' },
-  { level: 7, key: 'negative_mu' },
-  { level: 8, key: 'kipping_mu' },
-  { level: 9, key: 'strict_mu_1' },
-  { level: 10, key: 'strict_mu_3' },
-  { level: 11, key: 'strict_mu_5' },
-  { level: 12, key: 'bar_mu' },
-  { level: 13, key: 'weighted_mu' },
+  { level: 1, key: 'mu_dead_hang_20s' },
+  { level: 2, key: 'mu_pullup_1' },
+  { level: 3, key: 'mu_pullup_5' },
+  { level: 4, key: 'mu_chest_to_bar' },
+  { level: 5, key: 'mu_dip_on_bar' },
+  { level: 6, key: 'mu_false_grip_hang' },
+  { level: 7, key: 'mu_false_grip_pullup' },
+  { level: 8, key: 'mu_band_assisted' },
+  { level: 9, key: 'mu_negative' },
+  { level: 10, key: 'mu_kipping' },
+  { level: 11, key: 'mu_strict_1' },
+  { level: 12, key: 'mu_strict_3' },
+  { level: 13, key: 'mu_strict_5' },
+  { level: 14, key: 'mu_clean_bar' },
+  { level: 15, key: 'mu_weighted' },
 ];
 
 export const PISTOL_SQUAT_LADDER: SkillLadderStep[] = [
@@ -105,6 +107,42 @@ export const VSIT_LADDER: SkillLadderStep[] = [
   { level: 8, key: 'full_vsit' },
 ];
 
+export const DRAGON_FLAG_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'df_lying_leg_raise' },
+  { level: 2, key: 'df_candlestick_hold' },
+  { level: 3, key: 'df_tuck_negative' },
+  { level: 4, key: 'df_tuck_hold' },
+  { level: 5, key: 'df_adv_tuck' },
+  { level: 6, key: 'df_one_leg' },
+  { level: 7, key: 'df_straddle' },
+  { level: 8, key: 'df_full_negative' },
+  { level: 9, key: 'df_full' },
+];
+
+export const RING_MUSCLE_UP_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'rmu_ring_support_hold' },
+  { level: 2, key: 'rmu_ring_dip_3' },
+  { level: 3, key: 'rmu_ring_pullup_5' },
+  { level: 4, key: 'rmu_false_grip_hang' },
+  { level: 5, key: 'rmu_false_grip_pullup' },
+  { level: 6, key: 'rmu_negative' },
+  { level: 7, key: 'rmu_kipping' },
+  { level: 8, key: 'rmu_strict_1' },
+  { level: 9, key: 'rmu_strict_3' },
+  { level: 10, key: 'rmu_strict_5' },
+  { level: 11, key: 'rmu_weighted' },
+];
+
+export const ELBOW_LEVER_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'el_crow_pose' },
+  { level: 2, key: 'el_one_arm_crow' },
+  { level: 3, key: 'el_tuck_elbow_lever' },
+  { level: 4, key: 'el_one_leg' },
+  { level: 5, key: 'el_straddle' },
+  { level: 6, key: 'el_full' },
+  { level: 7, key: 'el_one_arm' },
+];
+
 export const SKILL_LADDERS = {
   handstand: HANDSTAND_LADDER,
   planche: PLANCHE_LADDER,
@@ -114,6 +152,9 @@ export const SKILL_LADDERS = {
   muscleUp: MUSCLE_UP_LADDER,
   pistolSquat: PISTOL_SQUAT_LADDER,
   vSit: VSIT_LADDER,
+  dragonFlag: DRAGON_FLAG_LADDER,
+  ringMuscleUp: RING_MUSCLE_UP_LADDER,
+  elbowLever: ELBOW_LEVER_LADDER,
 } as const;
 
 export type SkillName = keyof typeof SKILL_LADDERS;
