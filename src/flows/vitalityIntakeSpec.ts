@@ -46,6 +46,20 @@ export const vitalityIntakeSpec: FlowSpec = {
           dbPath: DB,
         },
         {
+          id: 'sleep_latency',
+          title_he: 'כמה זמן לוקח לך להירדם?',
+          title_en: 'How long does it take you to fall asleep?',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: '0_10', label_he: '0-10 דקות', label_en: '0-10 min', icon: '😴' },
+            { value: '10_20', label_he: '10-20 דקות', label_en: '10-20 min', icon: '🟢' },
+            { value: '20_40', label_he: '20-40 דקות', label_en: '20-40 min', icon: '🟡' },
+            { value: '40_plus', label_he: '40+ דקות', label_en: '40+ min', icon: '🔴' },
+          ],
+        },
+        {
           id: 'wake_during_night',
           title_he: 'כמה פעמים אתה מתעורר בלילה?',
           title_en: 'How often do you wake up during the night?',
@@ -57,6 +71,44 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: '1x', label_he: 'פעם אחת', label_en: 'Once', icon: '🌙' },
             { value: '2x_plus', label_he: '2+ פעמים', label_en: '2+ times', icon: '😐' },
             { value: 'often', label_he: 'לעתים קרובות', label_en: 'Often', icon: '😫' },
+          ],
+        },
+        {
+          id: 'snoring',
+          title_he: 'האם אתה נוחר?',
+          title_en: 'Do you snore?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          options: [
+            { value: 'no', label_he: 'לא', label_en: 'No', icon: '😴' },
+            { value: 'sometimes', label_he: 'לפעמים', label_en: 'Sometimes', icon: '😐' },
+            { value: 'yes', label_he: 'כן', label_en: 'Yes', icon: '😤' },
+          ],
+        },
+        {
+          id: 'sleep_apnea_suspect',
+          title_he: 'האם אתה מתעורר נחנק/ת או עם תחושת חנק?',
+          title_en: 'Do you wake up choking or gasping?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          options: [
+            { value: 'no', label_he: 'לא', label_en: 'No', icon: '✅' },
+            { value: 'yes', label_he: 'כן', label_en: 'Yes', icon: '⚠️' },
+          ],
+        },
+        {
+          id: 'sleep_schedule_consistency',
+          title_he: 'כמה ימים בשבוע אתה הולך לישון/קם באותה שעה?',
+          title_en: 'How many days/week do you keep consistent sleep/wake times?',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: '0_2', label_he: '0-2 ימים', label_en: '0-2 days', icon: '🔴' },
+            { value: '3_4', label_he: '3-4 ימים', label_en: '3-4 days', icon: '🟡' },
+            { value: '5_7', label_he: '5-7 ימים', label_en: '5-7 days', icon: '🟢' },
           ],
         },
         {
@@ -166,9 +218,115 @@ export const vitalityIntakeSpec: FlowSpec = {
       ],
     },
 
-    // ── Step 3: Dopamine Load ──
+    // ── Step 3: Energy & Mood ──
     {
       id: 3,
+      title_he: 'אנרגיה ומצב רוח',
+      title_en: 'Energy & Mood',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'avg_energy_level',
+          title_he: 'דירוג אנרגיה יומי ממוצע (1 = נמוך מאוד, 10 = מלא אנרגיה)',
+          title_en: 'Average daily energy level (1 = very low, 10 = full energy)',
+          inputType: 'slider',
+          sliderMin: 1,
+          sliderMax: 10,
+          sliderStep: 1,
+          validation: { required: true },
+          dbPath: DB,
+        },
+        {
+          id: 'energy_volatility',
+          title_he: 'האם האנרגיה שלך יציבה או תנודתית במהלך היום?',
+          title_en: 'Is your energy stable or volatile throughout the day?',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'stable', label_he: 'יציבה', label_en: 'Stable', icon: '📊' },
+            { value: 'moderate', label_he: 'תנודות קלות', label_en: 'Moderate swings', icon: '📈' },
+            { value: 'volatile', label_he: 'תנודתית מאוד', label_en: 'Very volatile', icon: '🎢' },
+          ],
+        },
+        {
+          id: 'baseline_mood',
+          title_he: 'מהו מצב הרוח הבסיסי שלך ביום ממוצע?',
+          title_en: 'What is your baseline mood on an average day?',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'calm', label_he: 'רגוע', label_en: 'Calm', icon: '😌' },
+            { value: 'neutral', label_he: 'נייטרלי', label_en: 'Neutral', icon: '😐' },
+            { value: 'tense', label_he: 'דרוך / מתוח', label_en: 'Tense / On-edge', icon: '😬' },
+            { value: 'low', label_he: 'מדוכדך / עצוב', label_en: 'Low / Sad', icon: '😔' },
+          ],
+        },
+        {
+          id: 'anxiety_level',
+          title_he: 'רמת חרדה כללית (0 = אין, 10 = גבוהה מאוד)',
+          title_en: 'General anxiety level (0 = none, 10 = very high)',
+          inputType: 'slider',
+          sliderMin: 0,
+          sliderMax: 10,
+          sliderStep: 1,
+          validation: { required: true },
+          dbPath: DB,
+        },
+      ],
+    },
+
+    // ── Step 4: Stress & Recovery ──
+    {
+      id: 4,
+      title_he: 'סטרס והתאוששות',
+      title_en: 'Stress & Recovery',
+      renderer: 'card',
+      miniSteps: [
+        {
+          id: 'current_stress',
+          title_he: 'רמת הסטרס הנוכחית שלך (1 = נמוכה, 10 = גבוהה מאוד)',
+          title_en: 'Your current stress level (1 = low, 10 = very high)',
+          inputType: 'slider',
+          sliderMin: 1,
+          sliderMax: 10,
+          sliderStep: 1,
+          validation: { required: true },
+          dbPath: DB,
+        },
+        {
+          id: 'relaxation_frequency',
+          title_he: 'כמה פעמים בשבוע אתה עושה משהו מרגיע באמת? (נשימות, מדיטציה, הליכה, סאונה)',
+          title_en: 'How many times/week do you do something truly relaxing? (breathwork, meditation, walking, sauna)',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'never', label_he: 'כמעט אף פעם', label_en: 'Almost never', icon: '🔴' },
+            { value: '1_2', label_he: '1-2 פעמים', label_en: '1-2 times', icon: '🟡' },
+            { value: '3_5', label_he: '3-5 פעמים', label_en: '3-5 times', icon: '🟢' },
+            { value: 'daily', label_he: 'כל יום', label_en: 'Daily', icon: '🧘' },
+          ],
+        },
+        {
+          id: 'has_hrv_device',
+          title_he: 'יש לך שעון חכם / מכשיר שמודד דופק מנוחה או HRV?',
+          title_en: 'Do you have a smartwatch / device that measures resting HR or HRV?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          options: [
+            { value: 'yes', label_he: 'כן', label_en: 'Yes', icon: '⌚' },
+            { value: 'no', label_he: 'לא', label_en: 'No', icon: '🚫' },
+          ],
+        },
+      ],
+    },
+
+    // ── Step 5: Dopamine Load ──
+    {
+      id: 5,
       title_he: 'עומס דופמין',
       title_en: 'Dopamine Load',
       renderer: 'card',
@@ -248,9 +406,9 @@ export const vitalityIntakeSpec: FlowSpec = {
       ],
     },
 
-    // ── Step 4: Nutrition & Hydration ──
+    // ── Step 6: Nutrition & Hydration ──
     {
-      id: 4,
+      id: 6,
       title_he: 'תזונה ונוזלים',
       title_en: 'Nutrition & Hydration',
       renderer: 'card',
@@ -290,6 +448,62 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: '2', label_he: 'שתיים', label_en: '2', icon: '2️⃣' },
             { value: '3', label_he: 'שלוש', label_en: '3', icon: '3️⃣' },
             { value: '4_plus', label_he: '4+', label_en: '4+', icon: '4️⃣' },
+          ],
+        },
+        {
+          id: 'protein_estimate',
+          title_he: 'הערכת צריכת חלבון יומית',
+          title_en: 'Daily protein intake estimate',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'low', label_he: 'נמוכה (פחות מ-60 גרם)', label_en: 'Low (under 60g)', icon: '🔴' },
+            { value: 'moderate', label_he: 'בינונית (60-120 גרם)', label_en: 'Moderate (60-120g)', icon: '🟡' },
+            { value: 'high', label_he: 'גבוהה (120+ גרם)', label_en: 'High (120g+)', icon: '🟢' },
+            { value: 'no_idea', label_he: 'לא יודע', label_en: 'No idea', icon: '❓' },
+          ],
+        },
+        {
+          id: 'fiber_veggie_intake',
+          title_he: 'כמה מנות ירקות/סיבים ביום?',
+          title_en: 'How many servings of vegetables/fiber per day?',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'almost_none', label_he: 'כמעט לא', label_en: 'Almost none', icon: '🔴' },
+            { value: '1_2', label_he: '1-2 מנות', label_en: '1-2 servings', icon: '🟡' },
+            { value: '3_5', label_he: '3-5 מנות', label_en: '3-5 servings', icon: '🟢' },
+            { value: '5_plus', label_he: '5+ מנות', label_en: '5+ servings', icon: '💚' },
+          ],
+        },
+        {
+          id: 'late_eating_frequency',
+          title_he: 'כמה פעמים בשבוע אתה אוכל אכילה מאוחרת? (אחרי 21:00)',
+          title_en: 'How many times/week do you eat late? (after 9pm)',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: '0', label_he: 'אף פעם', label_en: 'Never', icon: '✅' },
+            { value: '1_2', label_he: '1-2 פעמים', label_en: '1-2 times', icon: '🟡' },
+            { value: '3_5', label_he: '3-5 פעמים', label_en: '3-5 times', icon: '🟠' },
+            { value: 'daily', label_he: 'כל יום', label_en: 'Every day', icon: '🔴' },
+          ],
+        },
+        {
+          id: 'eating_window',
+          title_he: 'כמה שעות ביום אתה אוכל? (חלון אכילה)',
+          title_en: 'How many hours/day is your eating window?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          options: [
+            { value: '4_6', label_he: '4-6 שעות', label_en: '4-6 hours', icon: '⏱️' },
+            { value: '6_8', label_he: '6-8 שעות', label_en: '6-8 hours', icon: '🟢' },
+            { value: '8_10', label_he: '8-10 שעות', label_en: '8-10 hours', icon: '🟡' },
+            { value: '10_plus', label_he: '10+ שעות', label_en: '10+ hours', icon: '🔴' },
           ],
         },
         {
@@ -354,11 +568,11 @@ export const vitalityIntakeSpec: FlowSpec = {
       ],
     },
 
-    // ── Step 5: Substances ──
+    // ── Step 7: Substances & Caffeine ──
     {
-      id: 5,
-      title_he: 'חומרים',
-      title_en: 'Substances',
+      id: 7,
+      title_he: 'חומרים וקפאין',
+      title_en: 'Substances & Caffeine',
       renderer: 'card',
       miniSteps: [
         {
@@ -386,6 +600,20 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: 'within_60min', label_he: 'תוך שעה מהקימה', label_en: 'Within 60 min of waking', icon: '⏰' },
             { value: '1_2h_after', label_he: '1-2 שעות אחרי', label_en: '1-2h after waking', icon: '🕐' },
             { value: '2h_plus', label_he: '2+ שעות אחרי', label_en: '2+ hours after', icon: '✅' },
+          ],
+        },
+        {
+          id: 'last_caffeine_time',
+          title_he: 'מתי הקפאין האחרון שלך ביום?',
+          title_en: 'When is your last caffeine of the day?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          options: [
+            { value: 'before_12', label_he: 'לפני 12:00', label_en: 'Before 12pm', icon: '🟢' },
+            { value: '12_14', label_he: '12:00-14:00', label_en: '12-2pm', icon: '🟡' },
+            { value: '14_16', label_he: '14:00-16:00', label_en: '2-4pm', icon: '🟠' },
+            { value: 'after_16', label_he: 'אחרי 16:00', label_en: 'After 4pm', icon: '🔴' },
           ],
         },
         {
@@ -432,11 +660,11 @@ export const vitalityIntakeSpec: FlowSpec = {
       ],
     },
 
-    // ── Step 6: Training & Recovery ──
+    // ── Step 8: Training, Movement & Recovery ──
     {
-      id: 6,
-      title_he: 'אימון ושיקום',
-      title_en: 'Training & Recovery',
+      id: 8,
+      title_he: 'אימון, תנועה ושיקום',
+      title_en: 'Training, Movement & Recovery',
       renderer: 'card',
       miniSteps: [
         {
@@ -467,6 +695,20 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: 'evening', label_he: 'ערב', label_en: 'Evening', icon: '🌙' },
             { value: 'flexible', label_he: 'גמיש', label_en: 'Flexible', icon: '✅' },
             { value: 'none', label_he: 'אין חלון קבוע', label_en: 'No consistent window', icon: '❌' },
+          ],
+        },
+        {
+          id: 'daily_movement_neat',
+          title_he: 'תנועה יומית שאינה אימון (הליכה, צעדים)',
+          title_en: 'Daily non-exercise movement (walking, steps)',
+          inputType: 'single_select',
+          validation: { required: true },
+          dbPath: DB,
+          options: [
+            { value: 'sedentary', label_he: 'יושב רוב היום', label_en: 'Sedentary most of the day', icon: '🪑' },
+            { value: 'low', label_he: 'מעט תנועה (2,000-5,000 צעדים)', label_en: 'Low (2k-5k steps)', icon: '🟡' },
+            { value: 'moderate', label_he: 'בינונית (5,000-8,000 צעדים)', label_en: 'Moderate (5k-8k steps)', icon: '🟢' },
+            { value: 'high', label_he: 'גבוהה (8,000+ צעדים)', label_en: 'High (8k+ steps)', icon: '🚶' },
           ],
         },
         {
@@ -529,11 +771,11 @@ export const vitalityIntakeSpec: FlowSpec = {
       ],
     },
 
-    // ── Step 7: Body Baseline ──
+    // ── Step 9: Body Baseline & Hormonal Signals ──
     {
-      id: 7,
-      title_he: 'פרופיל בסיסי',
-      title_en: 'Body Baseline',
+      id: 9,
+      title_he: 'פרופיל בסיסי ואותות הורמונליים',
+      title_en: 'Body Baseline & Hormonal Signals',
       renderer: 'card',
       miniSteps: [
         {
@@ -577,6 +819,47 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: 'average', label_he: 'ממוצע', label_en: 'Average', icon: '👤' },
             { value: 'high', label_he: 'גבוה', label_en: 'High', icon: '📈' },
             { value: 'very_high', label_he: 'גבוה מאוד', label_en: 'Very high', icon: '🔴' },
+          ],
+        },
+        {
+          id: 'libido_level',
+          title_he: 'חשק מיני / ליבידו',
+          title_en: 'Libido / Sex drive',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          branching: {
+            showIf: (answers) => {
+              const age = answers.age_bracket as string;
+              return age !== '16_18';
+            },
+          },
+          options: [
+            { value: 'low', label_he: 'נמוך', label_en: 'Low', icon: '🔻' },
+            { value: 'moderate', label_he: 'בינוני', label_en: 'Moderate', icon: '➖' },
+            { value: 'high', label_he: 'גבוה', label_en: 'High', icon: '🔺' },
+            { value: 'prefer_not', label_he: 'מעדיף/ה לא לומר', label_en: 'Prefer not to say', icon: '🤐' },
+          ],
+        },
+        {
+          id: 'menstrual_regularity',
+          title_he: 'האם המחזור שלך סדיר?',
+          title_en: 'Is your menstrual cycle regular?',
+          inputType: 'single_select',
+          validation: { required: false },
+          dbPath: DB,
+          branching: {
+            showIf: (answers) => {
+              const gender = answers.gender as string;
+              const age = answers.age_bracket as string;
+              return gender === 'female' && age !== '16_18';
+            },
+          },
+          options: [
+            { value: 'regular', label_he: 'כן, סדיר', label_en: 'Yes, regular', icon: '✅' },
+            { value: 'irregular', label_he: 'לא, לא סדיר', label_en: 'No, irregular', icon: '⚠️' },
+            { value: 'not_relevant', label_he: 'לא רלוונטי', label_en: 'Not relevant', icon: '➖' },
+            { value: 'prefer_not', label_he: 'מעדיפה לא לומר', label_en: 'Prefer not to say', icon: '🤐' },
           ],
         },
       ],

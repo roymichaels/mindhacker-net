@@ -16,6 +16,8 @@ import { VITALITY_DATA_MAP } from '@/lib/vitality/dataMap';
 const SUBSYSTEM_LABELS: Record<string, string> = {
   sleep_quality: 'vitality.sub.sleepQuality',
   circadian_stability: 'vitality.sub.circadianStability',
+  energy_mood: 'vitality.sub.energyMood',
+  stress_recovery: 'vitality.sub.stressRecovery',
   dopamine_load: 'vitality.sub.dopamineLoad',
   nutritional_stability: 'vitality.sub.nutritionalStability',
   hydration_balance: 'vitality.sub.hydrationBalance',

@@ -40,11 +40,23 @@ function scoreSleep(d: Record<string, any>): number {
   const qual = Number(d.sleep_quality);
   if (!isNaN(qual)) score += (qual - 3) * 10; // 1→-20, 3→0, 5→+20
 
+  // Sleep latency
+  const latencyMap: Record<string, number> = { '0_10': 10, '10_20': 5, '20_40': -5, '40_plus': -15 };
+  score += latencyMap[d.sleep_latency] ?? 0;
+
   const wake = d.wake_during_night;
   if (wake === 'never') score += 10;
   else if (wake === '1x') score += 0;
   else if (wake === '2x_plus') score -= 10;
   else if (wake === 'often') score -= 20;
+
+  // Snoring & apnea
+  if (d.snoring === 'yes') score -= 5;
+  if (d.sleep_apnea_suspect === 'yes') score -= 15;
+
+  // Schedule consistency
+  const consistencyMap: Record<string, number> = { '5_7': 10, '3_4': 0, '0_2': -10 };
+  score += consistencyMap[d.sleep_schedule_consistency] ?? 0;
 
   if (d.screen_before_bed === 'yes') score -= 10;
   else if (d.screen_before_bed === 'no') score += 10;
@@ -81,6 +93,47 @@ function scoreCircadian(d: Record<string, any>): number {
   // Failure window
   if (d.failure_moment === 'late_night_spiral') score -= 10;
   else if (d.failure_moment === 'morning_start') score -= 5;
+
+  return clamp(score, 0, 100);
+}
+
+// ─── Energy & Mood Score ───
+function scoreEnergyMood(d: Record<string, any>): number {
+  let score = 50;
+
+  // Average energy level (1-10)
+  const energy = Number(d.avg_energy_level);
+  if (!isNaN(energy)) score += (energy - 5) * 5; // 1→-20, 5→0, 10→+25
+
+  // Energy volatility
+  const volMap: Record<string, number> = { stable: 15, moderate: 0, volatile: -15 };
+  score += volMap[d.energy_volatility] ?? 0;
+
+  // Baseline mood
+  const moodMap: Record<string, number> = { calm: 15, neutral: 5, tense: -10, low: -15 };
+  score += moodMap[d.baseline_mood] ?? 0;
+
+  // Anxiety level (0-10)
+  const anxiety = Number(d.anxiety_level);
+  if (!isNaN(anxiety)) score -= Math.max(0, anxiety - 3) * 3; // 0-3 = no penalty, 4→-3, 10→-21
+
+  return clamp(score, 0, 100);
+}
+
+// ─── Stress & Recovery Score ───
+function scoreStressRecovery(d: Record<string, any>): number {
+  let score = 50;
+
+  // Current stress (1-10)
+  const stress = Number(d.current_stress);
+  if (!isNaN(stress)) score -= Math.max(0, stress - 3) * 4; // 1-3 = no penalty, 4→-4, 10→-28
+
+  // Relaxation frequency
+  const relaxMap: Record<string, number> = { daily: 20, '3_5': 10, '1_2': 0, never: -15 };
+  score += relaxMap[d.relaxation_frequency] ?? 0;
+
+  // HRV device is just informational, slight positive for awareness
+  if (d.has_hrv_device === 'yes') score += 5;
 
   return clamp(score, 0, 100);
 }
@@ -125,10 +178,25 @@ function scoreNutrition(d: Record<string, any>): number {
   const mealsMap: Record<string, number> = { '1': -15, '2': -5, '3': 10, '4_plus': 5 };
   score += mealsMap[d.meals_per_day] ?? 0;
 
-  // Protein
-  if (d.protein_awareness === 'track_it') score += 15;
-  else if (d.protein_awareness === 'some') score += 5;
-  else if (d.protein_awareness === 'no_idea') score -= 10;
+  // Protein estimate
+  const proteinMap: Record<string, number> = { high: 15, moderate: 5, low: -10, no_idea: -5 };
+  score += proteinMap[d.protein_estimate] ?? 0;
+
+  // Fiber/veggie intake
+  const fiberMap: Record<string, number> = { '5_plus': 15, '3_5': 10, '1_2': 0, almost_none: -15 };
+  score += fiberMap[d.fiber_veggie_intake] ?? 0;
+
+  // Late eating frequency
+  const lateEatMap: Record<string, number> = { '0': 10, '1_2': 0, '3_5': -10, daily: -15 };
+  score += lateEatMap[d.late_eating_frequency] ?? 0;
+
+  // Eating window
+  const windowMap: Record<string, number> = { '4_6': 10, '6_8': 5, '8_10': 0, '10_plus': -10 };
+  score += windowMap[d.eating_window] ?? 0;
+
+  // Protein awareness (legacy, still useful)
+  if (d.protein_awareness === 'track_it') score += 5;
+  else if (d.protein_awareness === 'no_idea') score -= 5;
 
   // Weak point severity
   const weakMap: Record<string, number> = { sugar: -10, late_night_eating: -10, skipping_meals: -10, ultra_processed: -15, inconsistent_timing: -5 };
@@ -167,18 +235,22 @@ function scoreRecovery(d: Record<string, any>): number {
   if (d.training_window_available === 'none') score -= 10;
   else if (d.training_window_available) score += 5;
 
+  // Daily NEAT / movement
+  const neatMap: Record<string, number> = { sedentary: -15, low: -5, moderate: 5, high: 10 };
+  score += neatMap[d.daily_movement_neat] ?? 0;
+
   // Work load impact on recovery
   const workMap: Record<string, number> = { '0_2': 10, '2_4': 5, '4_6': 0, '6_8': -5, '8_10': -10, '10_plus': -20 };
   score += workMap[d.active_work_hours] ?? 0;
 
-  const availMap: Record<string, number> = { '0': 10, '2_4': 0, '4_8': -5, '8_12': -10, '12_plus': -15 };
+  const availMap: Record<string, number> = { '0': 10, '0_4': 5, '2_4': 0, '4_8': -5, '8_12': -10, '12_plus': -15 };
   score += availMap[d.availability_hours] ?? 0;
 
   // Dependents
   if (d.dependents === 'none') score += 5;
   else if (d.dependents && d.dependents !== 'none') score -= 5;
 
-  if (d.household_responsibility === 'high') score -= 10;
+  if (d.household_responsibility === 'high' || d.household_responsibility === 'very_high') score -= 10;
   else if (d.household_responsibility === 'low') score += 5;
 
   // Substance impact
@@ -190,6 +262,10 @@ function scoreRecovery(d: Record<string, any>): number {
 
   const thcMap: Record<string, number> = { no: 5, sometimes: 0, weekly: -5, daily: -15 };
   score += thcMap[d.weed_thc] ?? 0;
+
+  // Last caffeine time impact on recovery
+  const lastCafMap: Record<string, number> = { before_12: 10, '12_14': 5, '14_16': -5, after_16: -15 };
+  score += lastCafMap[d.last_caffeine_time] ?? 0;
 
   return clamp(score, 0, 100);
 }
@@ -218,6 +294,14 @@ function scoreHormonal(d: Record<string, any>): number {
   const ageMap: Record<string, number> = { '16_18': 10, '19_24': 10, '25_34': 5, '35_44': 0, '45_54': -5, '55_plus': -10 };
   score += ageMap[d.age_bracket] ?? 0;
 
+  // Libido as hormonal proxy
+  const libidoMap: Record<string, number> = { high: 10, moderate: 5, low: -10, prefer_not: 0 };
+  score += libidoMap[d.libido_level] ?? 0;
+
+  // Menstrual regularity (for females)
+  if (d.menstrual_regularity === 'regular') score += 5;
+  else if (d.menstrual_regularity === 'irregular') score -= 10;
+
   return clamp(score, 0, 100);
 }
 
@@ -236,6 +320,8 @@ function parseTimeToMinutes(t: any): number | null {
 const SUBSYSTEM_SCORERS: Record<string, (d: Record<string, any>) => number> = {
   sleep_quality: scoreSleep,
   circadian_stability: scoreCircadian,
+  energy_mood: scoreEnergyMood,
+  stress_recovery: scoreStressRecovery,
   dopamine_load: scoreDopamine,
   nutritional_stability: scoreNutrition,
   hydration_balance: scoreHydration,
@@ -244,13 +330,15 @@ const SUBSYSTEM_SCORERS: Record<string, (d: Record<string, any>) => number> = {
 };
 
 const SUBSYSTEM_WEIGHTS: Record<string, number> = {
-  sleep_quality: 20,
-  circadian_stability: 15,
-  dopamine_load: 15,
-  nutritional_stability: 15,
-  hydration_balance: 10,
-  recovery_capacity: 15,
-  hormonal_signal: 10,
+  sleep_quality: 18,
+  circadian_stability: 12,
+  energy_mood: 12,
+  stress_recovery: 10,
+  dopamine_load: 12,
+  nutritional_stability: 12,
+  hydration_balance: 8,
+  recovery_capacity: 10,
+  hormonal_signal: 6,
 };
 
 // ─── Findings Generator ───
@@ -267,6 +355,15 @@ function generateFindings(d: Record<string, any>, scores: Record<string, Subsyst
   if (d.screen_before_bed === 'yes' && (d.late_night_scrolling === 'often')) {
     add('screen_sleep_conflict', 'vitality.finding.screenSleepConflict', 'concern', 'sleep_quality', ['screen_before_bed', 'late_night_scrolling']);
   }
+  if (d.sleep_latency === '40_plus') {
+    add('high_sleep_latency', 'vitality.finding.highSleepLatency', 'concern', 'sleep_quality', ['sleep_latency']);
+  }
+  if (d.sleep_apnea_suspect === 'yes') {
+    add('apnea_risk', 'vitality.finding.apneaRisk', 'concern', 'sleep_quality', ['sleep_apnea_suspect', 'snoring']);
+  }
+  if (d.sleep_schedule_consistency === '0_2') {
+    add('inconsistent_sleep', 'vitality.finding.inconsistentSleep', 'concern', 'sleep_quality', ['sleep_schedule_consistency']);
+  }
 
   // Circadian
   if (d.sunlight_after_waking === 'yes' && d.wake_time && d.desired_wake_time) {
@@ -275,6 +372,25 @@ function generateFindings(d: Record<string, any>, scores: Record<string, Subsyst
     if (actual !== null && desired !== null && Math.abs(actual - desired) <= 30) {
       add('strong_circadian', 'vitality.finding.strongCircadian', 'positive', 'circadian_stability', ['sunlight_after_waking', 'wake_time', 'desired_wake_time']);
     }
+  }
+
+  // Energy & Mood
+  const energy = Number(d.avg_energy_level);
+  if (!isNaN(energy) && energy <= 3) {
+    add('low_energy', 'vitality.finding.lowEnergy', 'concern', 'energy_mood', ['avg_energy_level']);
+  }
+  if (d.energy_volatility === 'volatile') {
+    add('volatile_energy', 'vitality.finding.volatileEnergy', 'concern', 'energy_mood', ['energy_volatility']);
+  }
+  const anxiety = Number(d.anxiety_level);
+  if (!isNaN(anxiety) && anxiety >= 7) {
+    add('high_anxiety', 'vitality.finding.highAnxiety', 'concern', 'energy_mood', ['anxiety_level']);
+  }
+
+  // Stress
+  const stress = Number(d.current_stress);
+  if (!isNaN(stress) && stress >= 7 && d.relaxation_frequency === 'never') {
+    add('high_stress_no_recovery', 'vitality.finding.highStressNoRecovery', 'concern', 'stress_recovery', ['current_stress', 'relaxation_frequency']);
   }
 
   // Dopamine
@@ -286,6 +402,22 @@ function generateFindings(d: Record<string, any>, scores: Record<string, Subsyst
   // Caffeine timing
   if (d.first_caffeine_timing === 'within_60min' && d.caffeine_intake !== '0') {
     add('early_caffeine', 'vitality.finding.earlyCaffeine', 'neutral', 'circadian_stability', ['first_caffeine_timing', 'caffeine_intake']);
+  }
+  if (d.last_caffeine_time === 'after_16' && d.caffeine_intake !== '0') {
+    add('late_caffeine', 'vitality.finding.lateCaffeine', 'concern', 'recovery_capacity', ['last_caffeine_time']);
+  }
+
+  // Nutrition
+  if (d.fiber_veggie_intake === 'almost_none') {
+    add('low_fiber', 'vitality.finding.lowFiber', 'concern', 'nutritional_stability', ['fiber_veggie_intake']);
+  }
+  if (d.late_eating_frequency === 'daily') {
+    add('chronic_late_eating', 'vitality.finding.chronicLateEating', 'concern', 'nutritional_stability', ['late_eating_frequency']);
+  }
+
+  // NEAT
+  if (d.daily_movement_neat === 'sedentary') {
+    add('sedentary_lifestyle', 'vitality.finding.sedentaryLifestyle', 'concern', 'recovery_capacity', ['daily_movement_neat']);
   }
 
   // Hydration sources
@@ -309,7 +441,12 @@ function generateFindings(d: Record<string, any>, scores: Record<string, Subsyst
     add('active_training', 'vitality.finding.activeTraining', 'positive', 'recovery_capacity', ['activity_level']);
   }
 
-  return findings.slice(0, 6); // Max 6
+  // Hormonal
+  if (d.libido_level === 'low' && d.activity_level !== 'none') {
+    add('low_libido_signal', 'vitality.finding.lowLibido', 'concern', 'hormonal_signal', ['libido_level']);
+  }
+
+  return findings.slice(0, 8); // Max 8 findings now with more data
 }
 
 // ─── Main Build Function ───
