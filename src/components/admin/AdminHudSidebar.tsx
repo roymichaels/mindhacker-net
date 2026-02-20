@@ -53,7 +53,7 @@ export function AdminHudSidebar({ activeTab = 'overview', activeSubTab, onTabCha
 
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
-        <div className="flex flex-col items-center gap-3 h-full pt-7 pb-4 px-0 overflow-hidden">
+        <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
 
           {/* Tab icons */}
           <div className="flex flex-col items-center gap-1">
