@@ -145,8 +145,25 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
             {/* Domain cards */}
             {ARENA_DOMAINS.map((domain, i) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
-              const badge = statusBadge[status] ?? statusBadge.unconfigured;
               const Icon = domain.icon;
+              
+              // Custom badges for projects/business
+              let badgeContent: string;
+              let badgeVariant: 'default' | 'secondary' | 'outline';
+              if (domain.id === 'projects') {
+                const count = activeProjects.length;
+                badgeContent = count > 0 ? (isHe ? `${count} פעילים` : `${count} Active`) : (isHe ? 'לא הוגדר' : 'Not Set Up');
+                badgeVariant = count > 0 ? 'default' : 'outline';
+              } else if (domain.id === 'business') {
+                const count = businesses.length;
+                badgeContent = count > 0 ? (isHe ? `${count} עסקים` : `${count} Active`) : (isHe ? 'לא הוגדר' : 'Not Set Up');
+                badgeVariant = count > 0 ? 'default' : 'outline';
+              } else {
+                const badge = statusBadge[status] ?? statusBadge.unconfigured;
+                badgeContent = isHe ? badge.labelHe : badge.label;
+                badgeVariant = badge.variant;
+              }
+
               return (
                 <motion.button
                   key={domain.id}
@@ -166,65 +183,13 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
                   <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
                     {domain.description}
                   </p>
-                  <Badge variant={badge.variant} className="text-[9px]">
-                    {isHe ? badge.labelHe : badge.label}
+                  <Badge variant={badgeVariant} className="text-[9px]">
+                    {badgeContent}
                   </Badge>
                   <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
                 </motion.button>
               );
             })}
-
-            {/* Projects card */}
-            <motion.button
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: ARENA_DOMAINS.length * 0.04, duration: 0.3 }}
-              onClick={() => navigate('/arena/projects')}
-              className={cn(
-                'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                colorMap.amber
-              )}
-            >
-              <FolderKanban className="w-7 h-7 transition-transform group-hover:scale-110 text-amber-400" />
-              <span className="font-semibold text-foreground text-sm">
-                {isHe ? 'פרויקטים' : 'Projects'}
-              </span>
-              <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                {isHe ? 'ניהול פרויקטים ויעדים' : 'Manage projects & goals'}
-              </p>
-              <Badge variant={activeProjects.length > 0 ? 'default' : 'outline'} className="text-[9px]">
-                {activeProjects.length > 0
-                  ? (isHe ? `${activeProjects.length} פעילים` : `${activeProjects.length} Active`)
-                  : (isHe ? 'לא הוגדר' : 'Not Set Up')}
-              </Badge>
-              <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
-            </motion.button>
-
-            {/* Businesses card */}
-            <motion.button
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: (ARENA_DOMAINS.length + 1) * 0.04, duration: 0.3 }}
-              onClick={() => navigate('/arena/business')}
-              className={cn(
-                'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                colorMap.rose
-              )}
-            >
-              <Briefcase className="w-7 h-7 transition-transform group-hover:scale-110 text-rose-400" />
-              <span className="font-semibold text-foreground text-sm">
-                {isHe ? 'עסקים' : 'Business'}
-              </span>
-              <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                {isHe ? 'בניית וניהול עסקים' : 'Build & manage businesses'}
-              </p>
-              <Badge variant={businesses.length > 0 ? 'default' : 'outline'} className="text-[9px]">
-                {businesses.length > 0
-                  ? (isHe ? `${businesses.length} עסקים` : `${businesses.length} Active`)
-                  : (isHe ? 'לא הוגדר' : 'Not Set Up')}
-              </Badge>
-              <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
-            </motion.button>
           </div>
         </div>
 
