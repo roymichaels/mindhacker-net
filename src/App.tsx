@@ -75,6 +75,7 @@ const BusinessJourney = lazy(() => import("./pages/BusinessJourney"));
 const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
+const PresencePage = lazy(() => import("./pages/PresencePage"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -336,6 +337,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <LifeHub />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence"
+                          element={
+                            <ProtectedRoute>
+                              <PresencePage />
                             </ProtectedRoute>
                           }
                         />
