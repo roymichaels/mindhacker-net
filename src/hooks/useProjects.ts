@@ -28,6 +28,13 @@ export interface UserProject {
   target_date: string | null;
   started_at: string | null;
   completed_at: string | null;
+  project_type: string;
+  play_category: string | null;
+  play_intention: string | null;
+  play_location: string | null;
+  play_recurring: string | null;
+  play_duration: string | null;
+  play_reflection: any | null;
   created_at: string;
   updated_at: string;
 }
