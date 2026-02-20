@@ -4,6 +4,7 @@
  * Unified reveal screen: 6 diagnostic scores, Week 1 protocol, 8-8-8 daily structure preview.
  */
 import { useState, useMemo, useCallback } from 'react';
+import { TIER_FEATURES, TIER_CONFIGS } from '@/lib/subscriptionTiers';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -486,30 +487,64 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
           </div>
         </motion.div>
 
-        {/* ─── Post-Reveal Conversion Card ─── */}
+        {/* ─── Pro Upgrade: Deep Onboarding Continuation ─── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
-          className="rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border border-primary/30 p-5 space-y-3"
+          className="rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border-2 border-primary/30 p-6 space-y-5"
         >
-          <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-primary" />
-            <h3 className="font-bold text-foreground">
-              {isHe ? 'שחרר את הפרוטוקול המלא' : 'Unlock Your Full Protocol'}
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold">
+              <Zap className="w-3.5 h-3.5" />
+              {isHe ? 'המשך כיול מעמיק' : 'Continue Deep Calibration'}
+            </div>
+            <h3 className="text-lg font-bold text-foreground">
+              {isHe ? 'מה שגילינו עכשיו זו רק ההתחלה' : 'What we discovered is just the beginning'}
             </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {isHe
+                ? 'עם Pro, אורורה ממשיכה לכייל את המערכת שלך כל יום — היפנוזה מותאמת אישית, ליווי פרואקטיבי, וכלים מתקדמים שמתאימים את עצמם אליך.'
+                : 'With Pro, Aurora continues calibrating your system daily — personalized hypnosis, proactive coaching, and advanced tools that adapt to you.'
+              }
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {isHe
-              ? 'שדרג ל-Pro וקבל: הודעות ללא הגבלה לאורורה, היפנוזה AI יומית מותאמת אישית, וגישה לכל הכלים.'
-              : 'Upgrade to Pro for: unlimited Aurora messages, daily personalized AI hypnosis, and access to all tools.'
-            }
-          </p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm line-through text-muted-foreground/60">{isHe ? '₪497' : '$149'}/{ isHe ? 'חודש' : 'mo'}</span>
-            <span className="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{isHe ? '₪179' : '$49'}</span>
-            <span className="text-sm text-muted-foreground">/{isHe ? 'חודש' : 'mo'}</span>
+
+          {/* Pro Features Grid */}
+          <div className="space-y-2">
+            {(isHe ? TIER_FEATURES.pro.he : TIER_FEATURES.pro.en).filter(f => f !== (isHe ? 'הכל מ-Free' : 'Everything in Free')).map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: isHe ? 10 : -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.4 + i * 0.08 }}
+                className="flex items-center gap-3 p-2.5 rounded-xl bg-card/60 border border-border/50"
+              >
+                <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <Zap className="w-3 h-3 text-primary" />
+                </div>
+                <span className="text-sm font-medium text-foreground">{feature}</span>
+              </motion.div>
+            ))}
           </div>
+
+          {/* Pricing */}
+          <div className="text-center space-y-1">
+            <div className="flex items-baseline justify-center gap-2">
+              <span className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {isHe ? `₪${TIER_CONFIGS.pro.priceILS}` : `$${TIER_CONFIGS.pro.priceUSD}`}
+              </span>
+              <span className="text-sm text-muted-foreground">/{isHe ? 'חודש' : 'mo'}</span>
+            </div>
+            {TIER_CONFIGS.pro.trial && (
+              <p className="text-xs text-primary font-medium">
+                {isHe ? `${TIER_CONFIGS.pro.trial} ימי ניסיון חינם` : `${TIER_CONFIGS.pro.trial}-day free trial`}
+              </p>
+            )}
+          </div>
+
+          {/* CTA */}
           <button
             onClick={async () => {
               if (!requireAuthOrOpenModal(user, openAuthModal, {
@@ -522,9 +557,9 @@ export function OnboardingReveal({ answers }: OnboardingRevealProps) {
               const url = requireCheckoutUrlOrToast(result, isHe);
               if (url) window.location.href = url;
             }}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
           >
-            {isHe ? '🔓 שדרג עכשיו — 70% הנחה' : '🔓 Upgrade Now — 70% Off'}
+            {isHe ? '🚀 שדרג ל-Pro והמשך את הכיול' : '🚀 Upgrade to Pro & Continue Calibration'}
           </button>
         </motion.div>
 
