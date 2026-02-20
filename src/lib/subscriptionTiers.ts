@@ -33,8 +33,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     tier: "pro",
     productId: "prod_U00p6Sl2YSs5vQ",
     priceId: "price_1T20nXL9lVJ44TbRUzy3AjEN",
-    priceUSD: 49,
-    priceILS: 179,
+    priceUSD: 150,
+    priceILS: 549,
     label: { en: "Pro", he: "Pro" },
     description: {
       en: "Unlimited coaching, daily AI hypnosis, proactive nudges",

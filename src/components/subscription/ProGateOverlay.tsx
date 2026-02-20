@@ -23,6 +23,14 @@ const ProGateOverlay = ({ feature, className }: ProGateOverlayProps) => {
       he: 'מודול הפרויקטים זמין למנויי Pro',
       en: 'The Projects module is available for Pro subscribers',
     },
+    core: {
+      he: 'הליבה זמינה למנויי Pro',
+      en: 'The Core hub is available for Pro subscribers',
+    },
+    arena: {
+      he: 'הזירה זמינה למנויי Pro',
+      en: 'The Arena hub is available for Pro subscribers',
+    },
     hypnosis: {
       he: 'ספריית ההיפנוזה זמינה למנויי Pro',
       en: 'The hypnosis library is available for Pro subscribers',
