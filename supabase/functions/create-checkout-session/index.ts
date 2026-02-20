@@ -8,9 +8,8 @@ const corsHeaders = {
 };
 
 const TIER_PRICES: Record<string, { priceId: string; trial?: number }> = {
-  pro:      { priceId: "price_1T20nXL9lVJ44TbRUzy3AjEN", trial: 7 },
-  coach:    { priceId: "price_1T20oXL9lVJ44TbR60Ny0vdt" },
-  business: { priceId: "price_1T20nDL9lVJ44TbRJh4CiTNn" },
+  plus:     { priceId: "price_1T2sbYL9lVJ44TbRzI0K3mzx", trial: 7 },
+  pro:      { priceId: "price_1T2s7ZL9lVJ44TbRrZhs4rA5" },
 };
 
 serve(async (req) => {
@@ -30,14 +29,14 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
-    // Parse requested tier (default to pro)
-    let requestedTier = "pro";
+    // Parse requested tier (default to plus)
+    let requestedTier = "plus";
     try {
       const body = await req.json();
       if (body?.tier && TIER_PRICES[body.tier]) {
         requestedTier = body.tier;
       }
-    } catch { /* no body = default pro */ }
+    } catch { /* no body = default plus */ }
 
     const tierConfig = TIER_PRICES[requestedTier];
 
