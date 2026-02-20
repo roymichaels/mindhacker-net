@@ -3861,6 +3861,47 @@ export type Database = {
         }
         Relationships: []
       }
+      life_domains: {
+        Row: {
+          configured_at: string | null
+          created_at: string
+          domain_config: Json | null
+          domain_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          configured_at?: string | null
+          created_at?: string
+          domain_config?: Json | null
+          domain_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          configured_at?: string | null
+          created_at?: string
+          domain_config?: Json | null
+          domain_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_domains_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       life_plan_milestones: {
         Row: {
           challenge: string | null

@@ -9,6 +9,7 @@ export const ENERGY_COSTS = {
   ONBOARDING_RERUN: 15,
   AURORA_MESSAGE: 2,
   PDF_90DAY: 10,
+  DOMAIN_RECONFIGURE: 15,
 } as const;
 
 export type EnergyCostKey = keyof typeof ENERGY_COSTS;
