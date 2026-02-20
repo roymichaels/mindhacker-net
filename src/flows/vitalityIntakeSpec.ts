@@ -330,6 +330,7 @@ export const vitalityIntakeSpec: FlowSpec = {
             { value: 'coffee', label_he: 'קפה', label_en: 'Coffee', icon: '☕' },
             { value: 'herbal_tea', label_he: 'תה צמחים', label_en: 'Herbal tea', icon: '🍵' },
             { value: 'coconut_water', label_he: 'מי קוקוס', label_en: 'Coconut water', icon: '🥥' },
+            { value: 'natural_fruits', label_he: 'פירות טבעיים', label_en: 'Natural fruits', icon: '🍉' },
             { value: 'soft_drinks', label_he: 'שתייה ממותקת', label_en: 'Soft drinks', icon: '🥤' },
             { value: 'energy_drinks', label_he: 'משקאות אנרגיה', label_en: 'Energy drinks', icon: '⚡' },
           ],
