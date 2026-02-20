@@ -50,7 +50,7 @@ export default function DomainAssessResults({ domainId }: Props) {
       <PageShell>
         <div className="text-center py-20" dir={isRTL ? 'rtl' : 'ltr'}>
           <p className="text-muted-foreground">{isHe ? 'אין תוצאות עדיין' : 'No results yet'}</p>
-          <Button onClick={() => navigate(`/life/${domainId}/assess`)} className="mt-4">
+          <Button onClick={() => navigate(`/arena/${domainId}/assess`)} className="mt-4">
             {isHe ? 'התחל אבחון' : 'Start Assessment'}
           </Button>
         </div>
@@ -172,7 +172,7 @@ export default function DomainAssessResults({ domainId }: Props) {
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => navigate(`/life/${domainId}/assess`)} className="flex-1">
+          <Button variant="outline" onClick={() => navigate(`/arena/${domainId}/assess`)} className="flex-1">
             {isHe ? 'עשה שוב' : 'Retake'}
           </Button>
           <Button onClick={() => navigate('/arena')} className="flex-1">

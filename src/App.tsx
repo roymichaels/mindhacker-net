@@ -620,12 +620,16 @@ const App = () => (
                           }
                         />
                         {/* Arena domain AI assessment routes */}
-                        <Route path="/life/wealth/assess" element={<ProtectedRoute><WealthAssess /></ProtectedRoute>} />
-                        <Route path="/life/wealth/results" element={<ProtectedRoute><WealthResults /></ProtectedRoute>} />
-                        <Route path="/life/influence/assess" element={<ProtectedRoute><InfluenceAssess /></ProtectedRoute>} />
-                        <Route path="/life/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
-                        <Route path="/life/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
-                        <Route path="/life/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
+                        <Route path="/arena/wealth/assess" element={<ProtectedRoute><WealthAssess /></ProtectedRoute>} />
+                        <Route path="/arena/wealth/results" element={<ProtectedRoute><WealthResults /></ProtectedRoute>} />
+                        <Route path="/arena/influence/assess" element={<ProtectedRoute><InfluenceAssess /></ProtectedRoute>} />
+                        <Route path="/arena/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
+                        <Route path="/arena/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
+                        <Route path="/arena/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
+                        {/* Legacy /life arena redirects */}
+                        <Route path="/life/wealth/assess" element={<Navigate to="/arena/wealth/assess" replace />} />
+                        <Route path="/life/influence/assess" element={<Navigate to="/arena/influence/assess" replace />} />
+                        <Route path="/life/relationships/assess" element={<Navigate to="/arena/relationships/assess" replace />} />
                         <Route
                           path="/life/:domainId"
                           element={

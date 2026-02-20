@@ -34,6 +34,8 @@ export function useConsciousnessCoach() {
       await saveConfig({
         latest_assessment: result,
         history,
+        completed: true,
+        completed_at: new Date().toISOString(),
       });
     },
     [config, saveConfig],

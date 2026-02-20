@@ -116,7 +116,7 @@ export default function LifeDomainPage() {
             <Button onClick={() => {
               const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
               if (isArena) {
-                navigate(`/life/${domain.id}/assess`);
+                navigate(`/arena/${domain.id}/assess`);
               } else {
                 setIntakeOpen(true);
               }
