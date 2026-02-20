@@ -696,9 +696,14 @@ export async function playAudioUrl(
       resolve();
     };
     
-    audio.onerror = () => {
+    audio.onerror = (e) => {
       cleanup();
-      const error = new Error('Audio playback failed');
+      const mediaError = audio.error;
+      const errorMsg = mediaError 
+        ? `Audio playback failed: code=${mediaError.code}, message=${mediaError.message}`
+        : 'Audio playback failed (unknown error)';
+      console.error('[playAudioUrl]', errorMsg, { src: audioUrl.substring(0, 100) });
+      const error = new Error(errorMsg);
       options.onError?.(error);
       reject(error);
     };
