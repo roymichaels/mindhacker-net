@@ -90,6 +90,10 @@ const VitalityHome = lazy(() => import("./pages/vitality/VitalityHome"));
 const VitalityIntake = lazy(() => import("./pages/vitality/VitalityIntake"));
 const VitalityResults = lazy(() => import("./pages/vitality/VitalityResults"));
 const VitalityHistory = lazy(() => import("./pages/vitality/VitalityHistory"));
+const FocusHome = lazy(() => import("./pages/focus/FocusHome"));
+const FocusAssess = lazy(() => import("./pages/focus/FocusAssess"));
+const FocusResults = lazy(() => import("./pages/focus/FocusResults"));
+const FocusHistory = lazy(() => import("./pages/focus/FocusHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -462,6 +466,39 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <VitalityHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Focus pillar routes */}
+                        <Route
+                          path="/life/focus"
+                          element={
+                            <ProtectedRoute>
+                              <FocusHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/focus/assess"
+                          element={
+                            <ProtectedRoute>
+                              <FocusAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/focus/results"
+                          element={
+                            <ProtectedRoute>
+                              <FocusResults />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/focus/history"
+                          element={
+                            <ProtectedRoute>
+                              <FocusHistory />
                             </ProtectedRoute>
                           }
                         />
