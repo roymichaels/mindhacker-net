@@ -1,16 +1,2 @@
-export { LaunchpadFlow } from './LaunchpadFlow';
-export { LaunchpadIntro } from './LaunchpadIntro';
 export { LaunchpadProgress } from './LaunchpadProgress';
-export { PhaseIndicator } from './PhaseIndicator';
-export { PhaseTransition } from './PhaseTransition';
-export { GamifiedJourneyHeader } from './GamifiedJourneyHeader';
-export { WelcomeStep } from './steps/WelcomeStep';
-export { PersonalProfileStep } from './steps/PersonalProfileStep';
-export { LifestyleRoutineStep } from './steps/LifestyleRoutineStep';
-export { FirstChatStep } from './steps/FirstChatStep';
-export { IntrospectionStep } from './steps/IntrospectionStep';
-export { LifePlanStep } from './steps/LifePlanStep';
-export { FocusAreasStep } from './steps/FocusAreasStep';
-export { FirstWeekStep } from './steps/FirstWeekStep';
-export { FinalNotesStep } from './steps/FinalNotesStep';
-export { DashboardActivation } from './steps/DashboardActivation';
+export { AIAnalysisDisplay } from './AIAnalysisDisplay';

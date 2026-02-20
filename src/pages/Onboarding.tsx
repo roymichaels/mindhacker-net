@@ -1,19 +1,26 @@
 /**
  * Onboarding — Route page for /onboarding
- * Simple splash + basic info collection.
+ * Uses the כיול (Recalibrate) flow as the full onboarding experience.
  */
-import { OnboardingIntro } from '@/components/onboarding/OnboardingIntro';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
 
 const Onboarding = () => {
-  const navigate = useNavigate();
+  const [open, setOpen] = useState(true);
 
-  const handleComplete = (basicInfo: { name: string; gender: string; ageBracket: string }) => {
-    console.log('Onboarding complete:', basicInfo);
-    navigate('/today');
-  };
-
-  return <OnboardingIntro onComplete={handleComplete} />;
+  return (
+    <div className="min-h-screen bg-background">
+      <RecalibrateModal
+        open={open}
+        onOpenChange={(val) => {
+          // Keep it open — closing navigates away via the modal's own logic
+          if (!val) {
+            window.location.href = '/today';
+          }
+        }}
+      />
+    </div>
+  );
 };
 
 export default Onboarding;
