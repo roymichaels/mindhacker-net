@@ -30,7 +30,7 @@ export function MobileTimePicker({
   placeholder = "בחר שעה",
   minHour = 0,
   maxHour = 23,
-  minuteStep = 15,
+  minuteStep = 5,
   disabled = false,
   className,
   showVaries = false,
