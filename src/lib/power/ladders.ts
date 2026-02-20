@@ -50,12 +50,43 @@ export const HUMAN_FLAG_LADDER: SkillLadderStep[] = [
   { level: 4, key: 'full_flag' },
 ];
 
+export const MUSCLE_UP_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'high_pullup' },
+  { level: 2, key: 'negative_mu' },
+  { level: 3, key: 'kipping_mu' },
+  { level: 4, key: 'strict_mu_1' },
+  { level: 5, key: 'strict_mu_3' },
+  { level: 6, key: 'strict_mu_5' },
+  { level: 7, key: 'weighted_mu' },
+];
+
+export const PISTOL_SQUAT_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'assisted_pistol' },
+  { level: 2, key: 'box_pistol' },
+  { level: 3, key: 'full_pistol' },
+  { level: 4, key: 'pistol_3_reps' },
+  { level: 5, key: 'pistol_5_reps' },
+  { level: 6, key: 'weighted_pistol' },
+];
+
+export const VSIT_LADDER: SkillLadderStep[] = [
+  { level: 1, key: 'tucked_lsit' },
+  { level: 2, key: 'full_lsit' },
+  { level: 3, key: 'adv_lsit' },
+  { level: 4, key: 'tucked_vsit' },
+  { level: 5, key: 'straddle_vsit' },
+  { level: 6, key: 'full_vsit' },
+];
+
 export const SKILL_LADDERS = {
   handstand: HANDSTAND_LADDER,
   planche: PLANCHE_LADDER,
   frontLever: FRONT_LEVER_LADDER,
   backLever: BACK_LEVER_LADDER,
   humanFlag: HUMAN_FLAG_LADDER,
+  muscleUp: MUSCLE_UP_LADDER,
+  pistolSquat: PISTOL_SQUAT_LADDER,
+  vSit: VSIT_LADDER,
 } as const;
 
 export type SkillName = keyof typeof SKILL_LADDERS;

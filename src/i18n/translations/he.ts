@@ -3393,6 +3393,9 @@ export const he = {
       skill_frontLever: "פרונט לבר",
       skill_backLever: "באק לבר",
       skill_humanFlag: "דגל אנושי",
+      skill_muscleUp: "מאסל אפ",
+      skill_pistolSquat: "סקוואט אקדח",
+      skill_vSit: "V-Sit",
       // Handstand ladder
       ladder_wall_hold_60s: "החזקה על קיר (60 שניות)",
       ladder_wall_shoulder_taps: "נגיעות כתף על קיר",
@@ -3428,6 +3431,28 @@ export const he = {
       ladder_one_leg_flag: "רגל אחת דגל",
       ladder_straddle_flag: "Straddle דגל",
       ladder_full_flag: "דגל אנושי מלא",
+      // Muscle up ladder
+      ladder_high_pullup: "מתח גבוה (חזה לבר)",
+      ladder_negative_mu: "מאסל אפ שלילי",
+      ladder_kipping_mu: "מאסל אפ עם קיפינג",
+      ladder_strict_mu_1: "מאסל אפ סטריקט (חזרה 1)",
+      ladder_strict_mu_3: "מאסל אפ סטריקט (3 חזרות)",
+      ladder_strict_mu_5: "מאסל אפ סטריקט (5 חזרות)",
+      ladder_weighted_mu: "מאסל אפ עם משקל",
+      // Pistol squat ladder
+      ladder_assisted_pistol: "סקוואט אקדח עם עזרה",
+      ladder_box_pistol: "סקוואט אקדח על קופסה",
+      ladder_full_pistol: "סקוואט אקדח מלא (חזרה 1)",
+      ladder_pistol_3_reps: "סקוואט אקדח (3 חזרות לכל רגל)",
+      ladder_pistol_5_reps: "סקוואט אקדח (5 חזרות לכל רגל)",
+      ladder_weighted_pistol: "סקוואט אקדח עם משקל",
+      // V-sit ladder
+      ladder_tucked_lsit: "L-Sit מכווץ",
+      ladder_full_lsit: "L-Sit מלא",
+      ladder_adv_lsit: "L-Sit מתקדם (רגליים מורמות)",
+      ladder_tucked_vsit: "V-Sit מכווץ",
+      ladder_straddle_vsit: "V-Sit רגליים פתוחות",
+      ladder_full_vsit: "V-Sit מלא",
       // Explosive
       explosiveNote: "הזן את המדידות שאתה יודע.",
       verticalJump: "קפיצה אנכית (ס\"מ)",

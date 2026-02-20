@@ -129,6 +129,9 @@ export function scoreCalSkills(input: CalSkillsInput): ModuleScore {
     [input.frontLever, 'frontLever', SKILL_LADDERS.frontLever.length],
     [input.backLever, 'backLever', SKILL_LADDERS.backLever.length],
     [input.humanFlag, 'humanFlag', SKILL_LADDERS.humanFlag.length],
+    [input.muscleUp, 'muscleUp', SKILL_LADDERS.muscleUp.length],
+    [input.pistolSquat, 'pistolSquat', SKILL_LADDERS.pistolSquat.length],
+    [input.vSit, 'vSit', SKILL_LADDERS.vSit.length],
   ];
 
   for (const [level, key, maxLevel] of skills) {
