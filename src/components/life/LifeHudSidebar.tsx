@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { PanelRightClose, PanelRightOpen, Flame } from 'lucide-react';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { SidebarOrbWidget } from '@/components/sidebar/SidebarOrbWidget';
 
 export function LifeHudSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -62,7 +63,8 @@ export function LifeHudSidebar() {
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
-
+          <SidebarOrbWidget collapsed />
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
             {CORE_DOMAINS.map((domain) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
@@ -89,6 +91,8 @@ export function LifeHudSidebar() {
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+          <SidebarOrbWidget />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
           {/* Header badge */}
           <div className="w-full rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">

@@ -10,6 +10,7 @@ import { PanelRightClose, PanelRightOpen, Shield, ChevronDown, ChevronRight } fr
 import { ADMIN_TABS } from '@/domain/admin';
 import { NotificationBell } from '@/components/admin/NotificationBell';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SidebarOrbWidget } from '@/components/sidebar/SidebarOrbWidget';
 
 interface AdminHudSidebarProps {
   activeTab?: string;
@@ -54,7 +55,8 @@ export function AdminHudSidebar({ activeTab = 'overview', activeSubTab, onTabCha
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
-
+          <SidebarOrbWidget collapsed />
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
           {/* Tab icons */}
           <div className="flex flex-col items-center gap-1">
             {ADMIN_TABS.map((tab) => {
@@ -90,6 +92,8 @@ export function AdminHudSidebar({ activeTab = 'overview', activeSubTab, onTabCha
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+          <SidebarOrbWidget />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
           {/* Header badge */}
           <div className="w-full rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border border-emerald-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
