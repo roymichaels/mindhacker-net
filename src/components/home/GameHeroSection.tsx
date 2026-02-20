@@ -316,7 +316,7 @@ export default function GameHeroSection() {
                   border-0 transition-all duration-300"
               >
                 <Sparkles className={cn("h-6 w-6", isRTL ? "ml-3" : "mr-3")} />
-                {isRTL ? '🚀 התחל טרנספורמציה (חינם)' : '🚀 Start Your 90-Day Transformation (Free)'}
+                {isRTL ? '🚀 התחל את הטרנספורמציה שלך' : '🚀 Start Your 90-Day Transformation'}
                 
                 <motion.div
                   className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/25 to-white/0"

@@ -416,7 +416,7 @@ const LifePillarsSection = () => {
           </Button>
           
           <p className="mt-4 text-sm text-muted-foreground">
-            {isRTL ? 'חינם לחלוטין • בניית תוכנית אישית' : 'Completely free • Build your personal plan'}
+            {isRTL ? 'בניית תוכנית אישית מותאמת' : 'Build your personalized plan'}
           </p>
         </motion.div>
       </div>

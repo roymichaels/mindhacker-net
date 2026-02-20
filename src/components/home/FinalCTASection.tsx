@@ -18,8 +18,8 @@ import { cn } from '@/lib/utils';
 import { PresetOrb } from '@/components/orb/PresetOrb';
 
 const guarantees = [
-  { icon: Shield, keyHe: 'חינם לגמרי להתחלה', keyEn: 'Completely free to start' },
-  { icon: CreditCard, keyHe: 'ללא כרטיס אשראי', keyEn: 'No credit card required' },
+  { icon: Shield, keyHe: 'מסע מותאם אישית', keyEn: 'Personalized journey' },
+  { icon: CreditCard, keyHe: 'תוצאות מוכחות', keyEn: 'Proven results' },
   { icon: Clock, keyHe: '5 דקות להתחיל', keyEn: '5 minutes to get started' },
   { icon: Star, keyHe: 'ביטול בכל רגע', keyEn: 'Cancel anytime' },
 ];
@@ -139,7 +139,7 @@ export default function FinalCTASection() {
                   "h-6 w-6 text-primary group-hover:animate-bounce",
                   isRTL ? "ml-3" : "mr-3"
                 )} />
-                {isRTL ? '🚀 התחל את המשחק - חינם!' : '🚀 Start The Game - Free!'}
+                {isRTL ? '🚀 התחל את המשחק!' : '🚀 Start The Game!'}
               </Button>
             </motion.div>
 

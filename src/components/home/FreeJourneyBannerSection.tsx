@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
-import { Gift, ArrowRight, Brain, Target, FileText, Sparkles } from 'lucide-react';
+import { ArrowRight, Brain, Target, FileText, Sparkles } from 'lucide-react';
 
 export default function FreeJourneyBannerSection() {
   const { isRTL } = useTranslation();
@@ -36,13 +36,6 @@ export default function FreeJourneyBannerSection() {
                 <div className="w-24 h-24 sm:w-28 sm:h-28">
                   <PersonalizedOrb size={112} disablePersonalization />
                 </div>
-                {/* Free badge */}
-                <div className="absolute -top-1 -right-1">
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[10px] font-bold shadow-lg">
-                    <Gift className="w-3 h-3" />
-                    {isRTL ? 'חינם' : 'FREE'}
-                  </div>
-                </div>
               </div>
             </motion.div>
 
@@ -50,13 +43,13 @@ export default function FreeJourneyBannerSection() {
             <div className="flex-1 text-center sm:text-start">
               <h2 className="text-xl sm:text-2xl font-bold mb-2">
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {isRTL ? '🎁 מתנה: מסע הטרנספורמציה האישי שלך' : '🎁 Free Gift: Your Personal Transformation Journey'}
+                  {isRTL ? '🚀 מסע הטרנספורמציה האישי שלך' : '🚀 Your Personal Transformation Journey'}
                 </span>
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mb-4">
                 {isRTL 
-                  ? 'קבל ניתוח תודעה מבוסס AI, תוכנית 90 יום ופרופיל זהות - הכל בחינם וללא הרשמה!'
-                  : 'Get AI consciousness analysis, 90-day plan & identity profile - all free, no signup!'}
+                  ? 'ניתוח תודעה מבוסס AI, תוכנית 90 יום ופרופיל זהות מותאם אישית'
+                  : 'AI consciousness analysis, 90-day plan & personalized identity profile'}
               </p>
 
               {/* Mini benefits */}
@@ -77,9 +70,9 @@ export default function FreeJourneyBannerSection() {
 
               {/* CTA */}
               <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-muted via-muted/80 to-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-primary/30 text-foreground shadow-lg shadow-black/20 dark:shadow-black/30 hover:from-muted/80 hover:via-muted/60 hover:to-muted/80 dark:hover:from-gray-800 dark:hover:via-gray-700 dark:hover:to-gray-800">
-                <Link to="/launchpad">
+                <Link to="/onboarding">
                   <Sparkles className="w-4 h-4" />
-                  {isRTL ? 'התחל עכשיו - חינם!' : 'Start Now - Free!'}
+                  {isRTL ? 'התחל עכשיו' : 'Start Now'}
                   <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
                 </Link>
               </Button>
