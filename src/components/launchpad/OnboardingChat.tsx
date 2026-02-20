@@ -1,14 +1,13 @@
 /**
  * OnboardingChat — Aurora-powered conversational onboarding.
- * Replaces the old multi-step LaunchpadFlow with a single AI chat.
- * Extracts structured data via tool calling and saves to launchpad_progress.
+ * Replaces the old multi-step flows with a single AI chat.
+ * Extracts ~59 structured variables via tool calling and saves to launchpad_progress.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { cn } from '@/lib/utils';
 import { Send, Loader2, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +15,8 @@ import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
+import type { Json } from '@/integrations/supabase/types';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -33,7 +34,6 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { user } = useAuth();
-  const { completeStep } = useLaunchpadProgress();
   const isHe = language === 'he';
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -50,88 +50,117 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
   }, [messages]);
 
   const handleToolCall = useCallback(async (toolArgs: any) => {
+    if (!user?.id) return;
     setSaving(true);
     try {
-      // Complete all steps rapidly with extracted data
-      // The DB function complete_launchpad_step accepts arbitrary jsonb
+      // Build step_1_intention JSON (state diagnosis + targets)
+      const step1Data: Record<string, unknown> = {
+        entry_context: toolArgs.entry_context,
+        pressure_zone: toolArgs.pressure_zone,
+        functional_signals: toolArgs.functional_signals,
+        failure_moment: toolArgs.failure_moment,
+        target_90_days: toolArgs.target_90_days,
+        urgency_scale: toolArgs.urgency_scale,
+        restructure_willingness: toolArgs.restructure_willingness,
+        non_negotiable_constraint: toolArgs.non_negotiable_constraint,
+        final_notes: toolArgs.final_notes,
+        diagnostic_scores: toolArgs.diagnostic_scores,
+        selected_pillar: toolArgs.selected_pillar ?? 
+          (toolArgs.pressure_zone ? FRICTION_PILLAR_MAP[toolArgs.pressure_zone] : 'mind'),
+      };
 
-      // Step 1: Welcome/Intent  
-      await completeStep({
-        step: 1,
-        data: {
-          intention: JSON.stringify({
-            main_area: toolArgs.main_life_areas ?? [],
-            selected_pillar: toolArgs.selected_pillar ?? 'mind',
-            diagnostic_scores: toolArgs.diagnostic_scores ?? {},
-          }),
-        } as any,
-      });
+      // Build step_2_profile_data JSON (biological + behavioral)
+      const step2Data: Record<string, unknown> = {
+        // Bio
+        age_bracket: toolArgs.age_bracket,
+        gender: toolArgs.gender,
+        body_fat_estimate: toolArgs.body_fat_estimate,
+        activity_level: toolArgs.activity_level,
+        // Sleep
+        wake_time: toolArgs.wake_time,
+        sleep_time: toolArgs.sleep_time,
+        sleep_duration_avg: toolArgs.sleep_duration_avg,
+        sleep_quality: toolArgs.sleep_quality,
+        screen_before_bed: toolArgs.screen_before_bed,
+        wake_during_night: toolArgs.wake_during_night,
+        sunlight_after_waking: toolArgs.sunlight_after_waking,
+        desired_wake_time: toolArgs.desired_wake_time,
+        morning_routine_desire: toolArgs.morning_routine_desire,
+        // Stimulants
+        caffeine_intake: toolArgs.caffeine_intake,
+        first_caffeine_timing: toolArgs.first_caffeine_timing,
+        alcohol_frequency: toolArgs.alcohol_frequency,
+        nicotine: toolArgs.nicotine,
+        weed_thc: toolArgs.weed_thc,
+        // Dopamine
+        daily_screen_time: toolArgs.daily_screen_time,
+        shorts_reels: toolArgs.shorts_reels,
+        gaming: toolArgs.gaming,
+        porn_frequency: toolArgs.porn_frequency,
+        late_night_scrolling: toolArgs.late_night_scrolling,
+        // Nutrition
+        diet_type: toolArgs.diet_type,
+        protein_awareness: toolArgs.protein_awareness,
+        meals_per_day: toolArgs.meals_per_day,
+        daily_fluid_volume: toolArgs.daily_fluid_volume,
+        fluid_sources: toolArgs.fluid_sources,
+        nutrition_weak_point: toolArgs.nutrition_weak_point,
+        // Work
+        work_type: toolArgs.work_type,
+        active_work_hours: toolArgs.active_work_hours,
+        availability_hours: toolArgs.availability_hours,
+        side_projects: toolArgs.side_projects,
+        work_start_time: toolArgs.work_start_time,
+        work_end_time: toolArgs.work_end_time,
+        commute_duration: toolArgs.commute_duration,
+        energy_peak_time: toolArgs.energy_peak_time,
+        // Relationships
+        relationship_status: toolArgs.relationship_status,
+        dependents: toolArgs.dependents,
+        social_energy_level: toolArgs.social_energy_level,
+        // Behavioral
+        exercise_types: toolArgs.exercise_types,
+        training_frequency: toolArgs.training_frequency,
+        training_consistency: toolArgs.training_consistency,
+        previous_change_attempts: toolArgs.previous_change_attempts,
+        friction_trigger: toolArgs.friction_trigger,
+        stress_default_behavior: toolArgs.stress_default_behavior,
+        motivation_driver: toolArgs.motivation_driver,
+        // System preferences
+        preferred_session_length: toolArgs.preferred_session_length,
+        preferred_reminders: toolArgs.preferred_reminders,
+      };
 
-      // Step 2: Profile
-      await completeStep({
-        step: 2,
-        data: {
-          profile_data: {
-            age_bracket: toolArgs.age_bracket ?? '',
-            gender: toolArgs.gender ?? '',
-            occupation: toolArgs.occupation ?? '',
-            relationship_status: toolArgs.relationship_status ?? '',
-            activity_level: toolArgs.activity_level ?? '',
-            wake_time: toolArgs.wake_time ?? '',
-            sleep_time: toolArgs.sleep_time ?? '',
-            energy_level: toolArgs.energy_level ?? 5,
-            diet_quality: toolArgs.diet_quality ?? '',
-            substances: toolArgs.substances ?? {},
-            stress_level: toolArgs.stress_level ?? '',
-            exercise_types: toolArgs.exercise_types ?? [],
-            deep_dive: {
-              proudest_achievement: toolArgs.proudest_achievement ?? '',
-              biggest_struggle: toolArgs.biggest_struggle ?? '',
-              previous_attempts: toolArgs.previous_attempts ?? '',
-            },
-          },
-        } as any,
-      });
+      // Save directly to launchpad_progress
+      const now = new Date().toISOString();
+      await supabase
+        .from('launchpad_progress')
+        .update({
+          step_1_intention: JSON.stringify(step1Data),
+          step_1_welcome: true,
+          step_1_completed_at: now,
+          step_2_profile: true,
+          step_2_profile_data: step2Data as unknown as Json,
+          step_2_profile_completed_at: now,
+          step_2_summary: toolArgs.aurora_summary ?? '',
+          step_7_dashboard_activated: true,
+          step_7_completed_at: now,
+          launchpad_complete: true,
+          completed_at: now,
+          current_step: 11,
+          updated_at: now,
+        })
+        .eq('user_id', user.id);
 
-      // Steps 3-7: Intermediate steps (auto-complete)
-      for (const step of [3, 4, 5, 6, 7]) {
-        const stepData: Record<string, any> = {};
-        if (step === 5) stepData.summary = toolArgs.aurora_summary ?? '';
-        await completeStep({ step, data: stepData as any });
+      // Trigger summary generation (non-blocking)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await supabase.functions.invoke('generate-launchpad-summary', {
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
+      } catch (e) {
+        console.error('Summary generation error (non-blocking):', e);
       }
-
-      // Step 8: Focus areas
-      await completeStep({
-        step: 8,
-        data: {
-          focus_areas: [toolArgs.primary_focus, ...(toolArgs.main_life_areas?.slice(0, 2) ?? [])].filter(Boolean),
-        } as any,
-      });
-
-      // Step 9: First week
-      await completeStep({
-        step: 9,
-        data: {
-          actions: [...(toolArgs.habits_to_build ?? []), ...(toolArgs.habits_to_break ?? [])],
-          anchor_habit: toolArgs.habits_to_build?.[0] ?? '',
-        } as any,
-      });
-
-      // Step 10: Final notes
-      await completeStep({
-        step: 10,
-        data: {
-          intention: JSON.stringify({
-            notes: toolArgs.aurora_summary ?? '',
-            coaching_style: toolArgs.coaching_style ?? 'balanced',
-            commitment_level: toolArgs.commitment_level ?? 'ready',
-            ninety_day_vision: toolArgs.ninety_day_vision ?? '',
-          }),
-        } as any,
-      });
-
-      // Step 11: Activate dashboard
-      await completeStep({ step: 11, data: {} as any });
 
       toast.success(isHe ? 'הכיול הושלם! 🎉' : 'Calibration complete! 🎉');
 
@@ -145,7 +174,7 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
       toast.error(isHe ? 'שגיאה בשמירת הנתונים' : 'Error saving data');
       setSaving(false);
     }
-  }, [completeStep, navigate, onComplete, isHe]);
+  }, [user?.id, navigate, onComplete, isHe]);
 
   async function streamChat(
     msgs: ChatMessage[],
@@ -281,10 +310,10 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
           </div>
         </div>
         <p className="text-lg font-semibold text-foreground">
-          {isHe ? 'בונה את התוכנית שלך...' : 'Building your plan...'}
+          {isHe ? 'בונה את הארכיטקטורה שלך...' : 'Building your architecture...'}
         </p>
         <p className="text-sm text-muted-foreground">
-          {isHe ? 'מעבד את כל מה שסיפרת לי' : 'Processing everything you shared'}
+          {isHe ? 'מעבד ~59 משתנים מהשיחה שלנו' : 'Processing ~59 variables from our conversation'}
         </p>
         <Loader2 className="w-5 h-5 animate-spin text-primary mt-2" />
       </div>
