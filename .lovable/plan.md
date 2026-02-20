@@ -1,217 +1,194 @@
 
-# Presence: Elite Visual Diagnostic Engine
+# Presence Coach Engine — Full Implementation Plan
 
-This is a large system spanning DB schema, private storage, an AI vision edge function, a deterministic scoring engine, multi-step capture UI, results dashboard, delta tracking, and plan generation. It will be delivered in sub-phases within this single implementation pass, but scoped to what is buildable now.
+## Context: What Already Exists
 
-## Architecture Overview
+The current system has a solid vision-based Presence diagnostic at `/life/presence` with:
+- 5-step photo capture (GuidedCapture)
+- AI vision extraction via `analyze-presence` edge function (Gemini 2.5 Pro)
+- Deterministic scoring engine (5 component scores + Presence Index 0-100)
+- Delta tracking between scans
+- Direct Mode toggle for blunt feedback
+- Privacy consent flow
+- Storage in `presence_scans` table
+
+## What This Plan Adds
+
+The existing photo-based scan becomes **one of three assessment modes**. On top of it, we build a comprehensive Presence Coach with questionnaire-based assessment, a lever/intervention library, daily routines, and a richer multi-page structure.
+
+## Route Structure
+
+All routes stay under `/life/presence/*` (consistent with the existing Life system architecture). No `/pillars/` prefix needed.
+
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/life/presence` | PresenceHome | Hero score, sub-score cards, Next Best Action, CTAs |
+| `/life/presence/assess` | PresenceAssess | 3-mode assessment selector + runner |
+| `/life/presence/results` | PresenceResults | Full scoreboard + diagnosis + 90-day ladder |
+| `/life/presence/routine` | PresenceRoutine | Daily routine generator + completion tracking |
+| `/life/presence/history` | PresenceHistory | Reassessment history + trend charts |
+
+## Data Storage Strategy
+
+**No new DB migrations.** All Presence Coach data stored in two places:
+
+1. **`presence_scans` table** (already exists) -- for photo-based AI scans (unchanged)
+2. **`life_domains` table** (already exists) -- `domain_config` JSON for the domain where `domain_id = 'presence'` will store:
 
 ```text
-User Flow:
-/life/presence --> PresenceDashboard
-  |
-  +--> "Start Scan" --> GuidedCapture (5 steps: face front, face L/R, body front, body side, back optional)
-  |                        |
-  |                        +--> Upload to private bucket 'presence-scans'
-  |                        +--> Call edge function 'analyze-presence'
-  |                        +--> AI returns structured metrics JSON
-  |                        +--> Deterministic scoring engine computes composite scores
-  |                        +--> Save to presence_scans table
-  |
-  +--> Results Screen --> Presence Index + Component Breakdown + Leverage Points + 90-Day Projection
-  |
-  +--> Delta Engine --> Compare with previous scan --> Show improvement/regression
-  |
-  +--> "Direct Mode" toggle --> Sharper clinical language
+life_domains.domain_config = {
+  // Questionnaire-based assessment
+  latest_assessment: {
+    mode: 'quick' | 'full' | 'deep',
+    scores: { face_structure, posture_frame, body_composition, skin_routine, hair_grooming, style_fit, dental_smile },
+    total_score: number,
+    confidence: 'low' | 'med' | 'high',
+    top_levers: [...],
+    diagnosis: { today, this_week, ninety_day_phases },
+    assessed_at: ISO string
+  },
+  history: [ ...previous assessments ],
+  // Routine
+  active_routine: { intensity: 'minimal' | 'standard' | 'full', levers: [...] },
+  routine_logs: [ { date, completed_items: [...], completion_rate } ],
+  // Preferences
+  preferences: { gender, age_bracket, style_preference, goals },
+  // Reassess schedule
+  next_reassess: ISO string,
+  reassess_cadence: 7 | 14 | 30
+}
 ```
 
-## What Gets Built
+## Assessment Modes
 
-### Database (3 tables + 1 bucket)
+### Mode A: Quick Check (2-3 min, no photos)
 
-**Table: `presence_scans`**
+Collects via multi-step form:
+- Gender, age bracket
+- Height + weight (optional)
+- Body fat estimate (range selector)
+- Activity level / daily steps
+- Style preference (minimal/classic/street/athletic/formal)
+- Grooming baseline (beard, hair length, skincare routine)
+- Posture self-check (neck forward? rounded shoulders? low back pain?)
+- Top 2 goals (jawline, skin, hair, leanness, style, posture, grooming)
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| user_id | uuid NOT NULL | references profiles(id) |
-| scan_images | jsonb | paths to images in storage: { face_front, face_left, face_right, body_front, body_side, body_back? } |
-| derived_metrics | jsonb | raw AI extraction: facial symmetry, jaw index, body fat band, posture scores, etc. |
-| scores | jsonb | deterministic computed scores: structural_integrity, aesthetic_symmetry, composition, posture_alignment, projection_potential, presence_index, confidence_band |
-| delta_metrics | jsonb | compared to previous scan: { metric_key: { previous, current, change } } |
-| direct_mode_notes | jsonb | blunt language version of feedback |
-| scan_number | integer | sequential per user |
-| created_at | timestamptz | |
+Scoring: deterministic heuristic engine based on self-reported data. Confidence: "low" (self-reported only).
 
-RLS: user can CRUD own rows only.
+### Mode B: Full Assessment (8-12 min, photos required)
 
-**Table: `presence_scan_events`** (energy ledger integration)
+Everything from Quick Check PLUS:
+- Photo capture via existing GuidedCapture (face front, face profile, body front, body side)
+- Optional: teeth/smile photo, hairline photo
+- AI vision analysis via existing `analyze-presence` edge function
+- Scoring: merges questionnaire heuristics + AI vision metrics. Confidence: "med" to "high".
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| user_id | uuid NOT NULL | |
-| scan_id | uuid | references presence_scans |
-| event_type | text | 'full_scan', 'rescan', 'score_refresh' |
-| energy_cost | integer | |
-| created_at | timestamptz | |
+### Mode C: Deep Scan (5-10 min, photos + optional video)
 
-**Table: `presence_training_dataset`** (future model hook, Phase 4 prep)
+Everything from Full PLUS:
+- Extra face photo (relaxed mouth open)
+- Optional video uploads (marked as "review pending / future upgrade")
+- Confidence: "high"
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| derived_metrics | jsonb | anonymized metrics only |
-| scores | jsonb | computed scores |
-| self_perception_rating | integer | optional 1-10 |
-| improvement_outcome | jsonb | delta after 90 days, filled later |
-| consented | boolean | explicit opt-in |
-| created_at | timestamptz | |
+## Scoring Model (7 Sub-Scores)
 
-No user_id stored -- anonymized by design.
+The new Presence Coach Score expands the existing 5 component scores into 7 user-facing sub-scores:
 
-**Storage Bucket: `presence-scans`**
-- Private bucket (public = false)
-- Allowed MIME: image/jpeg, image/png, image/webp
-- Max file size: 10MB
-- RLS: users can only access their own folder (`user_id/`)
-- Users can delete their scans at any time
+| Sub-Score | Source (Quick) | Source (Full/Deep) |
+|-----------|---------------|-------------------|
+| Face Structure and Definition | Questionnaire heuristic | AI vision (jaw, symmetry, facial thirds) + questionnaire |
+| Posture and Frame | Self-check answers | AI vision (forward head, rounded shoulders, pelvic tilt) |
+| Body Composition | Self-reported body fat + activity | AI vision (body fat band, shoulder-waist ratio) |
+| Skin Routine Consistency | Skincare baseline answers | Same + AI skin clarity band |
+| Hair and Grooming | Grooming baseline answers | Same + AI hairline maturity |
+| Style and Fit | Style preference + goals | Same |
+| Dental / Smile Hygiene | Optional (defaults to neutral) | Teeth photo analysis if provided |
 
-### Edge Function: `analyze-presence`
+Each sub-score: 0-100, confidence badge, key observations, top levers with impact/effort ratings.
 
-Calls Lovable AI Gateway with `google/gemini-2.5-pro` (vision-capable model).
+**Mewing/jaw posture lever**: included ONLY when user selects jawline/face goals OR reports mouth breathing/forward head posture. Presented as posture/airway habit, not guaranteed bone change.
 
-**Input:** Base64 images or signed URLs for the uploaded scan images.
+## Lever Library
 
-**System prompt:** Structured extraction request for facial metrics (symmetry band, jaw definition index, facial thirds balance, cheek fat distribution, eye fatigue probability, skin clarity band, hairline maturity, mandible prominence, zygomatic projection), body metrics (body fat band, shoulder-to-waist ratio, neck thickness, upper/lower balance, abdominal definition, chest projection), and posture metrics (forward head, rounded shoulders, pelvic tilt, thoracic curvature).
+New file: `src/lib/presence/levers.ts`
 
-**Output:** Structured JSON with all metrics as bands/indices.
+Structured intervention library with 8 categories, each containing multiple interventions:
 
-**Important:** The AI returns raw metrics only. It does NOT compute composite scores. Scoring is deterministic server-side.
+A) Face Structure / Jawline (tongue posture, nasal breathing, chewing protocol, chin tucks, de-puff protocol, beard strategy, grooming symmetry)
+B) Posture and Frame (forward head correction, rounded shoulders, pelvic alignment, presence stance, desk ergonomics)
+C) Body Composition (body fat targeting, leaning protocol, muscle building basics, weekly measurement)
+D) Skin Protocol (cleanser/moisturizer/SPF, acne routine, sleep/hydration triggers)
+E) Hair / Grooming (haircut selector, hairline styling, beard mapping, eyebrow grooming)
+F) Style / Clothing (archetype selector, capsule wardrobe, fit checklist, color palette)
+G) Dental / Smile (brushing/flossing habits, whitening mention, breath hygiene)
+H) Sleep / Recovery (sleep window, morning light, screen reduction, hydration timing)
 
-**Deterministic scoring** happens inside the same edge function after AI extraction:
-- Structural Integrity Score = weighted(jaw_definition, mandible, zygomatic, shoulder_waist_ratio)
-- Aesthetic Symmetry Score = weighted(facial_symmetry, facial_thirds, upper_lower_balance)
-- Composition Score = weighted(body_fat_band, abdominal_definition, chest_projection)
-- Posture Alignment Score = weighted(forward_head, rounded_shoulders, pelvic_tilt, thoracic_curvature)
-- Projection Potential Score = weighted(neck_thickness, chest_projection, mandible, posture_alignment)
-- Presence Index = weighted composite of above 5 scores
-- Confidence Band = based on image quality and metric extraction confidence
+Each intervention: `{ id, title, category, timeCost, frequency, difficulty, expectedImpactTime, instructions, contraindications }`.
 
-All weights are hardcoded constants, not AI-determined.
+## Daily Routine Builder
 
-**Delta computation:** If previous scan exists, compute per-metric deltas and store in `delta_metrics`.
+New file: `src/lib/presence/routineBuilder.ts`
 
-**Direct Mode notes:** Generate a second pass of blunt clinical language feedback per weak component.
+Takes user's top levers and generates a structured daily routine:
+- **Morning block** (3-8 min): posture drill + skincare + style check
+- **Daytime micro-cues**: tongue posture reminder, nasal breathing, posture reset
+- **Evening block** (5-12 min): mobility + skincare + prep
 
-### Frontend Components
+Three intensity tiers: Minimal (5 min), Standard (12 min), Full (20 min).
 
-**1. `src/pages/PresencePage.tsx`**
-Replaces generic LifeDomainPage for the `presence` route. Three states:
-- No scan: shows "Start Your First Scan" with privacy consent
-- Scan in progress: shows GuidedCapture
-- Has scan: shows Results Dashboard
+Completion tracked in `life_domains.domain_config.routine_logs`.
 
-**2. `src/components/presence/PrivacyConsent.tsx`**
-- Explains what images are used for
-- Private, encrypted, deletable anytime
-- No public comparison or ranking
-- Checkbox consent required before proceeding
-
-**3. `src/components/presence/GuidedCapture.tsx`**
-5-step capture flow:
-1. Face Front (neutral expression)
-2. Face Profile (left + right in one step, or two separate uploads)
-3. Body Front
-4. Body Side
-5. Back (optional, skip button)
-
-Each step shows:
-- Silhouette overlay guide (SVG outline for positioning)
-- Upload button (camera/file input)
-- Retake option
-- Step progress indicator
-
-**4. `src/components/presence/PresenceResults.tsx`**
-Results dashboard with 5 sections:
-- Section 1: Presence Index (large circular display, 0-100, confidence band)
-- Section 2: Component Breakdown (5 cards: Structural Integrity, Aesthetic Symmetry, Composition, Posture Alignment, Projection Potential -- each with score, explanation, improvement lever)
-- Section 3: Top 3 Leverage Points (auto-generated from lowest component scores)
-- Section 4: 90-Day Projection (estimated improvement range based on addressable components)
-- Section 5: Generate Plan CTA (triggers domain plan generation)
-
-**5. `src/components/presence/DeltaView.tsx`**
-Shows improvement/regression vs previous scan:
-- Per-metric comparison bars
-- Overall delta indicator
-- Clinical language: "Improvement detected" or "Regression detected -- protocol adherence adjustment needed"
-
-**6. `src/components/presence/DirectModeToggle.tsx`**
-Toggle switch. When enabled, language becomes more blunt throughout results.
-Stored in localStorage (user preference, not DB).
-
-### Routing
-
-`/life/presence` renders `PresencePage` instead of the generic `LifeDomainPage`.
-
-### Energy Costs
-
-| Action | Cost |
-|--------|------|
-| Full scan (first or new) | 10 |
-| Re-scan (new photos) | 15 |
-| Score refresh (no new photos) | 5 |
-
-Added to `ENERGY_COSTS` in `src/lib/energyCosts.ts`.
-
-### Files Created
+## New Files
 
 | File | Purpose |
 |------|---------|
-| `src/pages/PresencePage.tsx` | Main presence page with state machine |
-| `src/components/presence/PrivacyConsent.tsx` | Consent screen |
-| `src/components/presence/GuidedCapture.tsx` | 5-step image capture |
-| `src/components/presence/PresenceResults.tsx` | Results dashboard |
-| `src/components/presence/ComponentCard.tsx` | Individual score card |
-| `src/components/presence/PresenceIndex.tsx` | Large circular score display |
-| `src/components/presence/LeveragePoints.tsx` | Top 3 weak areas |
-| `src/components/presence/DeltaView.tsx` | Improvement delta |
-| `src/components/presence/DirectModeToggle.tsx` | Blunt language toggle |
-| `src/hooks/usePresenceScans.ts` | Query/mutation hook for scans |
-| `supabase/functions/analyze-presence/index.ts` | AI vision + scoring engine |
+| `src/pages/presence/PresenceHome.tsx` | Hero score + sub-score cards + Next Best Action + CTAs |
+| `src/pages/presence/PresenceAssess.tsx` | 3-mode selector cards + assessment runner |
+| `src/pages/presence/PresenceResultsPage.tsx` | Full scoreboard + diagnosis + 90-day ladder |
+| `src/pages/presence/PresenceRoutine.tsx` | Daily routine + completion tracking |
+| `src/pages/presence/PresenceHistory.tsx` | History + trend visualization |
+| `src/components/presence/AssessmentSetup.tsx` | 3 big mode cards (Quick/Full/Deep) |
+| `src/components/presence/AssessmentRunner.tsx` | Multi-step questionnaire runner (reuses GuidedCapture for photo modes) |
+| `src/components/presence/PresenceDiagnosis.tsx` | Top 3 levers + today/week/90-day actions |
+| `src/components/presence/SubScoreCard.tsx` | Individual sub-score card with levers |
+| `src/components/presence/RoutineChecklist.tsx` | Morning/Day/Evening checklist UI |
+| `src/components/presence/NinetyDayLadder.tsx` | Phase 1/2/3 visual progression |
+| `src/lib/presence/types.ts` | All Presence types (assessment, scores, levers, routines) |
+| `src/lib/presence/scoring.ts` | Deterministic scoring engine for questionnaire data |
+| `src/lib/presence/levers.ts` | Full lever/intervention library data |
+| `src/lib/presence/routineBuilder.ts` | Routine generator from top levers |
+| `src/hooks/usePresenceCoach.ts` | Read/write presence data from life_domains table |
 
-### Files Modified
+## Modified Files
 
 | File | Change |
 |------|--------|
-| `src/App.tsx` | Add `/life/presence` route pointing to PresencePage |
-| `src/lib/energyCosts.ts` | Add PRESENCE_SCAN, PRESENCE_RESCAN, PRESENCE_REFRESH |
-| `supabase/config.toml` | Add `[functions.analyze-presence]` |
+| `src/App.tsx` | Replace single `/life/presence` route with 5 sub-routes |
+| `src/pages/PresencePage.tsx` | Becomes redirect to `/life/presence` (PresenceHome) or removed |
+| `src/components/presence/GuidedCapture.tsx` | Minor: accept optional extra steps for Deep Scan mode |
 
-### Migration SQL
+## Existing Components Kept
 
-Creates `presence_scans`, `presence_scan_events`, `presence_training_dataset` tables with RLS, plus the `presence-scans` private storage bucket with user-folder-scoped policies.
+All existing presence components (PresenceIndex, ComponentCard, LeveragePoints, DeltaView, DirectModeToggle, PrivacyConsent, GuidedCapture) are preserved and reused within the new results/assessment pages. The AI vision edge function (`analyze-presence`) is unchanged.
 
-## What Is NOT in This Phase
+## Dashboard Integration
 
-- Actual plan generation from weak components (uses existing domain plan system from Phase 3)
-- Automatic track activation (cervical protocol, recomp track, etc.) -- future sprint
-- Hypnosis reinforcement integration -- future sprint
-- Weekly recalibration engine -- future sprint
-- Custom model training pipeline -- table structure only, no training logic
+A "Presence: Today" card will be added to the dashboard that:
+- Shows current Presence Coach Score + top lever
+- If no assessment exists: shows "Start Presence Assessment" CTA
+- Pulls from `life_domains` where `domain_id = 'presence'`
 
-## Tone Guidelines (Enforced in AI Prompt + UI Copy)
+## Reassessment Schedule
 
-- Clinical, direct, no hype
-- "Private Structural Assessment" not "Hotness Score"
-- "Regression detected" not "You look worse"
-- "Protocol adherence adjustment needed" not "You failed"
-- No population percentile, no comparison to others
-- Score reflects internal structural coherence only
-- Users compete with their previous self
+After each assessment, user is offered cadence selection:
+- 7 days: routine adherence + posture check
+- 14 days: photos optional
+- 30 days: full reassessment
 
-## Risk Assessment
+Stored as `next_reassess` date in domain config.
 
-- **MEDIUM**: AI vision extraction quality depends on image quality and model capability. Confidence band addresses this.
-- **LOW**: Deterministic scoring is fully controlled server-side.
-- **LOW**: Privacy -- images in private bucket, user-deletable, training dataset anonymized and opt-in only.
-- **MEDIUM**: File upload UX on mobile may need iteration for camera integration.
+## Disclaimers (Enforced)
+
+Every assessment shows: "This is an estimate. Not medical advice. Lighting and angle affect results."
+
+No hotness language, no shaming, no public ranking. Score reflects personal structural baseline and improvement potential only.
