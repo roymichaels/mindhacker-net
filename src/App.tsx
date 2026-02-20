@@ -349,7 +349,39 @@ const App = () => (
                           path="/life/presence"
                           element={
                             <ProtectedRoute>
-                              <PresencePage />
+                              <PresenceHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence/assess"
+                          element={
+                            <ProtectedRoute>
+                              <PresenceAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence/results"
+                          element={
+                            <ProtectedRoute>
+                              <PresenceResultsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence/routine"
+                          element={
+                            <ProtectedRoute>
+                              <PresenceRoutine />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence/history"
+                          element={
+                            <ProtectedRoute>
+                              <PresenceHistory />
                             </ProtectedRoute>
                           }
                         />
