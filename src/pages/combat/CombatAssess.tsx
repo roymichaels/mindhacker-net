@@ -2,7 +2,7 @@
  * @page CombatAssess (/life/combat/assess)
  * Hybrid warrior capability intake — multi-section guided flow.
  */
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
@@ -58,15 +58,15 @@ export default function CombatAssess() {
   const hasGrappling = disciplines.some(d => GRAPPLING_DISCIPLINES.includes(d));
   const showLive = mode === 'gym' || mode === 'hybrid';
 
-  const getSections = useCallback((): SectionId[] => {
-    const sections: SectionId[] = ['intro', 'profile', 'reality', 'shadow'];
-    if (showLive) sections.push('live');
-    if (hasGrappling) sections.push('grappling');
-    sections.push('reaction', 'conditioning', 'durability');
-    return sections;
-  }, [showLive, hasGrappling]);
+  const sections: SectionId[] = (() => {
+    const s: SectionId[] = ['intro', 'profile', 'reality', 'shadow'];
+    if (showLive) s.push('live');
+    if (hasGrappling) s.push('grappling');
+    s.push('reaction', 'conditioning', 'durability');
+    return s;
+  })();
 
-  const sections = getSections();
+  
   const currentIdx = sections.indexOf(currentSection);
   const totalSections = sections.filter(s => s !== 'intro').length;
   const progressIdx = Math.max(0, currentIdx - 1);
