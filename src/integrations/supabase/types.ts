@@ -5019,6 +5019,122 @@ export type Database = {
         }
         Relationships: []
       }
+      presence_scan_events: {
+        Row: {
+          created_at: string
+          energy_cost: number
+          event_type: string
+          id: string
+          scan_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          energy_cost?: number
+          event_type: string
+          id?: string
+          scan_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          energy_cost?: number
+          event_type?: string
+          id?: string
+          scan_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presence_scan_events_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "presence_scans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presence_scan_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presence_scans: {
+        Row: {
+          created_at: string
+          delta_metrics: Json | null
+          derived_metrics: Json | null
+          direct_mode_notes: Json | null
+          id: string
+          scan_images: Json | null
+          scan_number: number
+          scores: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta_metrics?: Json | null
+          derived_metrics?: Json | null
+          direct_mode_notes?: Json | null
+          id?: string
+          scan_images?: Json | null
+          scan_number?: number
+          scores?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta_metrics?: Json | null
+          derived_metrics?: Json | null
+          direct_mode_notes?: Json | null
+          id?: string
+          scan_images?: Json | null
+          scan_number?: number
+          scores?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presence_scans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presence_training_dataset: {
+        Row: {
+          consented: boolean
+          created_at: string
+          derived_metrics: Json | null
+          id: string
+          improvement_outcome: Json | null
+          scores: Json | null
+          self_perception_rating: number | null
+        }
+        Insert: {
+          consented?: boolean
+          created_at?: string
+          derived_metrics?: Json | null
+          id?: string
+          improvement_outcome?: Json | null
+          scores?: Json | null
+          self_perception_rating?: number | null
+        }
+        Update: {
+          consented?: boolean
+          created_at?: string
+          derived_metrics?: Json | null
+          id?: string
+          improvement_outcome?: Json | null
+          scores?: Json | null
+          self_perception_rating?: number | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand_color: string | null

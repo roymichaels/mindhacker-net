@@ -10,6 +10,9 @@ export const ENERGY_COSTS = {
   AURORA_MESSAGE: 2,
   PDF_90DAY: 10,
   DOMAIN_RECONFIGURE: 15,
+  PRESENCE_SCAN: 10,
+  PRESENCE_RESCAN: 15,
+  PRESENCE_REFRESH: 5,
 } as const;
 
 export type EnergyCostKey = keyof typeof ENERGY_COSTS;
