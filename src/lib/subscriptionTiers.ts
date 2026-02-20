@@ -31,8 +31,8 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
   },
   pro: {
     tier: "pro",
-    productId: "prod_U00p6Sl2YSs5vQ",
-    priceId: "price_1T20nXL9lVJ44TbRUzy3AjEN",
+    productId: "prod_U0tv7nZ9CPMMgt",
+    priceId: "price_1T2s7ZL9lVJ44TbRrZhs4rA5",
     priceUSD: 150,
     priceILS: 549,
     label: { en: "Pro", he: "Pro" },
