@@ -8,11 +8,12 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { flowAudit } from "@/lib/flowAudit";
-import { 
+import {
   GameHeroSection,
+  TwoWorldsSection,
+  HowItWorksSection,
   AuroraCoachSection,
-  TransformationJourneySection,
-  WhyChooseUsSection,
+  FeatureShowcaseSection,
   TransformationProofSection,
   FinalCTASection,
 } from "@/components/home";
@@ -22,7 +23,7 @@ const Index = () => {
   const { theme } = useThemeSettings();
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  
+
   // Redirect logged-in users to their dashboard
   useEffect(() => {
     if (!loading && user) {
@@ -30,7 +31,7 @@ const Index = () => {
       navigate('/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
-  
+
   // Build brand settings from theme for SEO
   const brandSettings: BrandSettings = {
     brandName: theme.brand_name,
@@ -51,7 +52,7 @@ const Index = () => {
     type: "website",
     siteName: isRTL ? theme.brand_name : theme.brand_name_en,
     structuredData: [
-      getOrganizationSchema(brandSettings), 
+      getOrganizationSchema(brandSettings),
       getWebsiteSchema(brandSettings)
     ],
   });
@@ -72,30 +73,18 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
       <Header />
-      
+
       <main className="relative z-10">
-        {/* Hero - 90-Day Transformation pitch */}
         <GameHeroSection />
-        
-        {/* The 3-phase transformation timeline */}
-        <TransformationJourneySection />
-        
-        {/* Aurora Coach - AI as your daily guide */}
+        <TwoWorldsSection />
+        <HowItWorksSection />
         <AuroraCoachSection />
-        
-        {/* Why Choose Us - value props reframed around outcomes */}
-        <WhyChooseUsSection />
-        
-        {/* Social proof */}
+        <FeatureShowcaseSection />
         <TransformationProofSection />
-        
-        {/* Final CTA */}
         <FinalCTASection />
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
