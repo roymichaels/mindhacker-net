@@ -36,7 +36,7 @@ export function TopNavBar({ onOpenSettings }: TopNavBarProps) {
       className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="flex h-14 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
+      <div className="flex h-16 items-center justify-between px-4 lg:px-6 max-w-screen-2xl mx-auto">
         {/* Left: Logo + Tabs */}
         <div className="flex items-center gap-6">
           <AppNameDropdown onOpenSettings={onOpenSettings} />

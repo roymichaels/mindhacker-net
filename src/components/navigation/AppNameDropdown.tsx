@@ -113,14 +113,14 @@ export function AppNameDropdown({ onOpenSettings, compact = false }: AppNameDrop
               compact ? "gap-1.5" : "gap-2"
             )}
           >
-            <AuroraOrbIcon className={cn(compact ? "w-6 h-6" : "w-8 h-8", "text-foreground")} size={compact ? 24 : 32} />
+            <AuroraOrbIcon className={cn(compact ? "w-7 h-7" : "w-10 h-10", "text-foreground")} size={compact ? 28 : 40} />
             <span className={cn(
               "font-bold text-foreground",
-              compact ? "text-xs" : "text-sm"
+              compact ? "text-sm" : "text-base"
             )}>
               {language === 'he' ? brandTheme.brand_name : brandTheme.brand_name_en}
             </span>
-            <ChevronDown className={cn(compact ? "h-3 w-3" : "h-3.5 w-3.5", "text-muted-foreground")} />
+            <ChevronDown className={cn(compact ? "h-3.5 w-3.5" : "h-4 w-4", "text-muted-foreground")} />
           </button>
         </DropdownMenuTrigger>
 

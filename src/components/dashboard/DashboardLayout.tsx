@@ -34,7 +34,7 @@ const DashboardLayout = ({ children, leftSidebar, rightSidebar }: DashboardLayou
         <div className="h-screen flex flex-col bg-background w-full overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
           {isMobile ? (
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-lg">
-              <div className="flex h-12 items-center justify-between px-3">
+              <div className="flex h-14 items-center justify-between px-3">
                 <AppNameDropdown compact onOpenSettings={() => setSettingsOpen(true)} />
                 <HeaderActions compact />
               </div>
