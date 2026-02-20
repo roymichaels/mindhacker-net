@@ -1,101 +1,113 @@
 /**
- * FeatureShowcaseSection - 6-card grid highlighting key platform capabilities
+ * FeatureShowcaseSection — Tabbed feature overview with "See More" links
+ * Reference: horizontal tab bar at top, card list below, each with hook + desc + CTA
  */
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Bot, Headphones, Gamepad2, BarChart3, CircleDot, Swords } from 'lucide-react';
-
-const features = [
-  {
-    icon: Bot,
-    titleHe: 'אימון AI אישי',
-    titleEn: 'Personal AI Coaching',
-    descHe: 'Aurora מכירה את הסיפור שלך, זוכרת הכל ומתאימה את הגישה בזמן אמת.',
-    descEn: 'Aurora knows your story, remembers everything, and adapts her approach in real time.',
-  },
-  {
-    icon: Headphones,
-    titleHe: 'היפנוזה מותאמת אישית',
-    titleEn: 'Custom Hypnosis Sessions',
-    descHe: 'סשנים שנבנים לפי המצב והצרכים שלך — ישירות מתוך השיחה.',
-    descEn: 'Sessions built around your state and needs — generated directly from your conversations.',
-  },
-  {
-    icon: Gamepad2,
-    titleHe: 'גיימיפיקציה מלאה',
-    titleEn: 'Full Gamification',
-    descHe: 'XP, רמות, הישגים ותגמולים שהופכים כל יום לאתגר שכיף לנצח.',
-    descEn: 'XP, levels, achievements and rewards that turn every day into a challenge worth winning.',
-  },
-  {
-    icon: BarChart3,
-    titleHe: 'דאשבורד התקדמות',
-    titleEn: 'Progress Dashboard',
-    descHe: 'ראה את ההתקדמות שלך בכל 11 התחומים במבט אחד.',
-    descEn: 'See your progress across all 11 domains at a glance.',
-  },
-  {
-    icon: CircleDot,
-    titleHe: 'אווטאר Orb אישי',
-    titleEn: 'Personalized Orb Avatar',
-    descHe: 'כדור אנרגיה חי שמשתנה עם ההתקדמות שלך — מראה שלך הדיגיטלי.',
-    descEn: 'A living energy orb that evolves with your progress — your digital reflection.',
-  },
-  {
-    icon: Swords,
-    titleHe: 'אימון לחימה',
-    titleEn: 'Combat Training',
-    descHe: 'תוכניות ספארינג, לחץ חי ופיתוח מיומנויות — לא רק כושר.',
-    descEn: 'Sparring programs, live pressure drills, and skill development — not just fitness.',
-  },
-];
+import { useNavigate } from 'react-router-dom';
+import { FEATURES } from '@/data/featureShowcaseData';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function FeatureShowcaseSection() {
   const { isRTL } = useTranslation();
+  const navigate = useNavigate();
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = FEATURES[activeIdx];
 
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-muted/30 via-transparent to-muted/30 dark:from-gray-900/30 dark:via-transparent dark:to-gray-900/30">
       <div className="container mx-auto max-w-6xl" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="text-center mb-10"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            {isRTL ? 'הכלים שלך לטרנספורמציה' : 'Your Transformation Toolkit'}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
+            {isRTL ? 'כל מה שבפנים' : 'Everything Inside'}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-xl mx-auto">
             {isRTL
-              ? 'כל מה שצריך כדי להפוך את החיים שלך — במערכת אחת.'
-              : 'Everything you need to transform your life — in one system.'}
+              ? '13 מערכות שמשנות את אופן הניהול של החיים שלך.'
+              : '13 systems that change how you run your life.'}
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, i) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.08 * i }}
-                className="p-6 rounded-2xl bg-card border border-border/60 hover:border-primary/30 hover:shadow-lg transition-all space-y-4 group"
+        {/* Tab bar — horizontal scroll */}
+        <div className="relative mb-8">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {FEATURES.map((f, i) => (
+              <button
+                key={f.slug}
+                onClick={() => setActiveIdx(i)}
+                className={cn(
+                  "shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                  i === activeIdx
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground">
-                  {isRTL ? feature.titleHe : feature.titleEn}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {isRTL ? feature.descHe : feature.descEn}
-                </p>
-              </motion.div>
-            );
-          })}
+                <span className="mr-1.5">{f.icon}</span>
+                {isRTL ? f.titleHe.split('—')[0].trim() : f.titleEn.split('—')[0].trim()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Active feature card */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active.slug}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-2xl border border-border/60 bg-card p-8 md:p-10 space-y-6"
+          >
+            {/* Icon + Title */}
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">{active.icon}</span>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                {isRTL ? active.titleHe : active.titleEn}
+              </h3>
+            </div>
+
+            {/* Hook */}
+            <p className="text-lg font-semibold text-primary">
+              {isRTL ? active.hookHe : active.hookEn}
+            </p>
+
+            {/* Description */}
+            <p className="text-muted-foreground leading-relaxed text-base max-w-3xl">
+              {isRTL ? active.descHe : active.descEn}
+            </p>
+
+            {/* See More CTA */}
+            <button
+              onClick={() => navigate(`/features/${active.slug}`)}
+              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline transition-colors"
+            >
+              {isRTL ? 'קרא עוד' : 'See More'}
+              {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+            </button>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Quick nav dots for mobile */}
+        <div className="flex justify-center gap-1.5 mt-6 md:hidden">
+          {FEATURES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              className={cn(
+                "h-2 rounded-full transition-all",
+                i === activeIdx ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30"
+              )}
+            />
+          ))}
         </div>
       </div>
     </section>

@@ -60,6 +60,7 @@ const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Go = lazy(() => import("./pages/Go"));
+const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const CommunityPost = lazy(() => import("./pages/CommunityPost"));
 const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
 const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
@@ -242,6 +243,8 @@ const App = () => (
                         <Route path="/onboarding" element={<Onboarding />} />
                         {/* Ad landing page */}
                         <Route path="/go" element={<Go />} />
+                        {/* Feature detail pages */}
+                        <Route path="/features/:slug" element={<FeatureDetailPage />} />
                         {/* Legacy redirects → onboarding */}
                         <Route path="/start" element={<Navigate to="/onboarding" replace />} />
                         <Route path="/free-journey" element={<Navigate to="/onboarding" replace />} />

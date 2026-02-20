@@ -1,0 +1,146 @@
+/**
+ * Feature Showcase data — 13 platform capabilities
+ */
+export interface FeatureItem {
+  slug: string;
+  icon: string;
+  titleEn: string;
+  titleHe: string;
+  hookEn: string;
+  hookHe: string;
+  descEn: string;
+  descHe: string;
+}
+
+export const FEATURES: FeatureItem[] = [
+  {
+    slug: 'aurora-ai',
+    icon: '🧠',
+    titleEn: 'Aurora AI — Your Life Strategist',
+    titleHe: 'Aurora AI — האסטרטגית האישית שלך',
+    hookEn: 'Not a chatbot. A life architect.',
+    hookHe: 'לא צ\'אטבוט. ארכיטקטית חיים.',
+    descEn: 'An intelligent coaching engine that analyzes your patterns, energy, habits, and goals — then guides you daily with personalized insight, strategy, and accountability.',
+    descHe: 'מנוע אימון חכם שמנתח את הדפוסים, האנרגיה, ההרגלים והמטרות שלך — ואז מנחה אותך יום-יום עם תובנות מותאמות אישית, אסטרטגיה ואחריותיות.',
+  },
+  {
+    slug: 'identity-orb',
+    icon: '🔮',
+    titleEn: 'Your Visual DNA',
+    titleHe: 'ה-DNA החזותי שלך',
+    hookEn: 'See who you\'re becoming.',
+    hookHe: 'תראה מי אתה הופך להיות.',
+    descEn: 'A living 3D orb powered by 70+ behavioral signals that evolves as you evolve — a visual mirror of your identity and growth.',
+    descHe: 'כדור תלת-ממדי חי שמופעל על ידי 70+ אותות התנהגותיים שמתפתח איתך — מראה חזותית של הזהות וההתפתחות שלך.',
+  },
+  {
+    slug: 'life-os-core',
+    icon: '🏛️',
+    titleEn: 'Master Every Domain of Your Life',
+    titleHe: 'שלוט בכל תחום בחיים שלך',
+    hookEn: 'Your life. Measured. Engineered. Upgraded.',
+    hookHe: 'החיים שלך. נמדדים. מתוכננים. משודרגים.',
+    descEn: 'A structured system covering Power, Vitality, Focus, Combat, Expansion, and Presence — each powered by advanced assessment engines and AI coaching.',
+    descHe: 'מערכת מובנית שמכסה עוצמה, חיוניות, מיקוד, לחימה, התרחבות ונוכחות — כל אחד מופעל על ידי מנועי הערכה מתקדמים ואימון AI.',
+  },
+  {
+    slug: 'vitality-engine',
+    icon: '⚡',
+    titleEn: 'Precision Energy Intelligence',
+    titleHe: 'אינטליגנציית אנרגיה מדויקת',
+    hookEn: 'Energy is strategy.',
+    hookHe: 'אנרגיה היא אסטרטגיה.',
+    descEn: 'Sleep, hormones, nutrition, recovery, dopamine — analyzed and optimized into a single Vitality Index so your body stops sabotaging your ambition.',
+    descHe: 'שינה, הורמונים, תזונה, התאוששות, דופמין — מנותחים ומותאמים למדד חיוניות אחד כדי שהגוף יפסיק לחבל בשאיפות שלך.',
+  },
+  {
+    slug: 'focus-engine',
+    icon: '🎯',
+    titleEn: 'Cognitive Command',
+    titleHe: 'שליטה קוגניטיבית',
+    hookEn: 'Clarity is power.',
+    hookHe: 'בהירות היא כוח.',
+    descEn: 'Deep work systems, dopamine regulation, mental clarity tracking — designed to eliminate distraction and sharpen execution.',
+    descHe: 'מערכות עבודה עמוקה, ויסות דופמין, מעקב בהירות מנטלית — מתוכנן לחסל הסחות דעת ולחדד ביצוע.',
+  },
+  {
+    slug: 'combat-system',
+    icon: '🥋',
+    titleEn: 'Warrior Capability Index',
+    titleHe: 'מדד יכולת הלוחם',
+    hookEn: 'Train like a warrior. Measure like a strategist.',
+    hookHe: 'תתאמן כלוחם. תמדוד כאסטרטג.',
+    descEn: 'A structured combat framework covering striking, grappling, conditioning, reaction, and tactical awareness — turning training into measurable dominance.',
+    descHe: 'מסגרת לחימה מובנית שמכסה חבטות, היאבקות, כושר, תגובה ומודעות טקטית — הופכת אימון לשליטה מדידה.',
+  },
+  {
+    slug: 'expansion-engine',
+    icon: '🌌',
+    titleEn: 'Cognitive Growth Mapping',
+    titleHe: 'מיפוי צמיחה קוגניטיבי',
+    hookEn: 'Grow beyond your limits.',
+    hookHe: 'גדל מעבר לגבולות שלך.',
+    descEn: 'Track your learning depth, creative output, language flexibility, and systems thinking — and break through intellectual plateaus.',
+    descHe: 'עקוב אחרי עומק הלמידה, הפלט היצירתי, גמישות השפה וחשיבה מערכתית — ופרוץ מבעד לרמות אינטלקטואליות.',
+  },
+  {
+    slug: 'arena-hub',
+    icon: '💰',
+    titleEn: 'Command Your External World',
+    titleHe: 'שלוט בעולם החיצוני שלך',
+    hookEn: 'Inner mastery. Outer results.',
+    hookHe: 'שליטה פנימית. תוצאות חיצוניות.',
+    descEn: 'Build income, expand influence, strengthen relationships, and manage projects — all connected to your internal development.',
+    descHe: 'בנה הכנסה, הרחב השפעה, חזק מערכות יחסים ונהל פרויקטים — הכל מחובר להתפתחות הפנימית שלך.',
+  },
+  {
+    slug: '90-day-blueprint',
+    icon: '📋',
+    titleEn: 'Strategic Life Planning',
+    titleHe: 'תכנון חיים אסטרטגי',
+    hookEn: 'No more drifting.',
+    hookHe: 'בלי יותר סחף.',
+    descEn: 'An AI-generated 90-day roadmap aligned with your identity, goals, and current constraints — recalibrated as you evolve.',
+    descHe: 'מפת דרכים ל-90 יום שנוצרת בידי AI ומותאמת לזהות, למטרות ולאילוצים שלך — מכוילת מחדש ככל שאתה מתפתח.',
+  },
+  {
+    slug: 'ai-hypnosis',
+    icon: '🧘',
+    titleEn: 'Reprogram Your Subconscious',
+    titleHe: 'תכנת מחדש את התת-מודע',
+    hookEn: 'Change the root. Not the surface.',
+    hookHe: 'שנה את השורש. לא את פני השטח.',
+    descEn: 'Personalized hypnosis scripts and guided sessions designed to remove internal resistance and accelerate identity shifts.',
+    descHe: 'תסריטי היפנוזה מותאמים אישית וסשנים מונחים שמיועדים להסיר התנגדות פנימית ולהאיץ שינויי זהות.',
+  },
+  {
+    slug: 'gamified-growth',
+    icon: '🎮',
+    titleEn: 'Level Up Your Life',
+    titleHe: 'קפוץ רמה בחיים',
+    hookEn: 'Growth becomes addictive.',
+    hookHe: 'צמיחה הופכת לממכרת.',
+    descEn: 'XP, streaks, identity titles, and progress tracking turn personal development into a high-performance game.',
+    descHe: 'XP, רצפים, תארי זהות ומעקב התקדמות הופכים פיתוח אישי למשחק ביצועים גבוהים.',
+  },
+  {
+    slug: 'project-engine',
+    icon: '🏗️',
+    titleEn: 'Operate Like a Founder',
+    titleHe: 'תפעל כמו מייסד',
+    hookEn: 'Strategy meets execution.',
+    hookHe: 'אסטרטגיה פוגשת ביצוע.',
+    descEn: 'Map projects to life pillars, break goals into actionable tasks, and let Aurora track momentum and execution.',
+    descHe: 'מפה פרויקטים לעמודי חיים, פרק מטרות למשימות ברות-ביצוע, ותן ל-Aurora לעקוב אחרי מומנטום וביצוע.',
+  },
+  {
+    slug: 'proactive-coaching',
+    icon: '🔔',
+    titleEn: 'AI That Nudges You Forward',
+    titleHe: 'AI שדוחף אותך קדימה',
+    hookEn: 'Discipline without burnout.',
+    hookHe: 'משמעת בלי שחיקה.',
+    descEn: 'Morning briefings, mid-day check-ins, accountability prompts — Aurora intervenes before you fall off track.',
+    descHe: 'תדרוכי בוקר, צ\'ק-אין בצהריים, תזכורות אחריות — Aurora מתערבת לפני שאתה יורד מהמסלול.',
+  },
+];
