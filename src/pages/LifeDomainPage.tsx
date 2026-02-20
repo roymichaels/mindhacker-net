@@ -1,7 +1,8 @@
 /**
  * LifeDomainPage — Individual domain view.
- * Shows config status, action buttons, and domain details.
+ * Shows config status, action buttons, and domain intake flow.
  */
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { getDomainById } from '@/navigation/lifeDomains';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Settings, Map, Play, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { DomainIntakeFlow } from '@/components/life/DomainIntakeFlow';
 
 export default function LifeDomainPage() {
   const { domainId } = useParams<{ domainId: string }>();
@@ -19,6 +20,7 @@ export default function LifeDomainPage() {
   const { getDomain: getDomainRow, isLoading } = useLifeDomains();
   const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
+  const [intakeOpen, setIntakeOpen] = useState(false);
 
   const domain = domainId ? getDomainById(domainId) : undefined;
 
@@ -42,8 +44,31 @@ export default function LifeDomainPage() {
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   const handlePlaceholder = (action: string) => {
-    toast.info(isHebrew ? `${action} — יגיע בקרוב` : `${action} — coming in Phase 2`);
+    toast.info(isHebrew ? `${action} — יגיע בקרוב` : `${action} — coming soon`);
   };
+
+  // Intake flow mode
+  if (intakeOpen) {
+    return (
+      <PageShell>
+        <div className="max-w-lg mx-auto py-4">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Icon className="w-5 h-5 text-primary" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground">
+              {isHebrew ? domain.labelHe : domain.labelEn}
+            </h2>
+          </div>
+          <DomainIntakeFlow
+            domainId={domain.id}
+            onComplete={() => setIntakeOpen(false)}
+            onCancel={() => setIntakeOpen(false)}
+          />
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -84,12 +109,12 @@ export default function LifeDomainPage() {
             </h2>
             <p className="text-sm text-muted-foreground max-w-md">
               {isHebrew
-                ? 'אורורה תשאל אותך שאלות ממוקדות כדי לבנות תוכנית 90 יום מותאמת אישית לתחום הזה.'
-                : 'Aurora will ask you focused questions to build a personalized 90-day plan for this domain.'}
+                ? '7 שאלות ממוקדות כדי לבנות תוכנית 90 יום מותאמת אישית לתחום הזה.'
+                : '7 focused questions to build a personalized 90-day plan for this domain.'}
             </p>
-            <Button onClick={() => handlePlaceholder('Start Configuration')} size="lg" className="mt-2">
+            <Button onClick={() => setIntakeOpen(true)} size="lg" className="mt-2">
               <Play className="w-4 h-4 mr-2" />
-              {isHebrew ? 'התחל שיחה עם אורורה' : 'Start Aurora Intake'}
+              {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
             </Button>
           </div>
         )}
@@ -104,7 +129,9 @@ export default function LifeDomainPage() {
               {Object.entries(config).map(([key, value]) => (
                 <div key={key} className="flex justify-between p-3 rounded-lg bg-muted/50">
                   <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                  <span className="font-medium text-foreground">{String(value)}</span>
+                  <span className="font-medium text-foreground text-end max-w-[60%]">
+                    {Array.isArray(value) ? (value as string[]).join(', ') : String(value || '—')}
+                  </span>
                 </div>
               ))}
               {Object.keys(config).length === 0 && (
@@ -116,6 +143,12 @@ export default function LifeDomainPage() {
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3">
+          {status !== 'unconfigured' && (
+            <Button variant="outline" onClick={() => setIntakeOpen(true)}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              {isHebrew ? 'הגדר מחדש' : 'Reconfigure'}
+            </Button>
+          )}
           <Button variant="outline" onClick={() => handlePlaceholder('View Roadmap')}>
             <Map className="w-4 h-4 mr-2" />
             {isHebrew ? 'מפת דרכים' : 'View Roadmap'}
@@ -124,12 +157,6 @@ export default function LifeDomainPage() {
             <Play className="w-4 h-4 mr-2" />
             {isHebrew ? 'ביצוע יומי' : "Today's Execution"}
           </Button>
-          {status !== 'unconfigured' && (
-            <Button variant="outline" onClick={() => handlePlaceholder('Reconfigure (15 Energy)')}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              {isHebrew ? 'הגדר מחדש (15 אנרגיה)' : 'Reconfigure (15 Energy)'}
-            </Button>
-          )}
         </div>
       </div>
     </PageShell>
