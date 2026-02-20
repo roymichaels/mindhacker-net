@@ -51,6 +51,7 @@ export const en: TranslationKeys = {
     days: "days",
     minutes: "minutes",
     hours: "hours",
+    skip: "Skip",
   },
   avatar: {
     badge: "Your Digital Identity",

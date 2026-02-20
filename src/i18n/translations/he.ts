@@ -49,6 +49,7 @@ export const he = {
     days: "ימים",
     minutes: "דקות",
     hours: "שעות",
+    skip: "דלג",
   },
   avatar: {
     badge: "הזהות הדיגיטלית שלך",
