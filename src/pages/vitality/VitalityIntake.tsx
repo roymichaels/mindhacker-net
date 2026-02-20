@@ -19,7 +19,7 @@ import type { FlowAnswers } from '@/lib/flow/types';
 export default function VitalityIntake() {
   const navigate = useNavigate();
   const { t, isRTL, language } = useTranslation();
-  const { config, saveAssessmentFromIntake, isSaving } = useVitalityEngine();
+  const { config, rawInputs, saveAssessmentFromIntake, isSaving } = useVitalityEngine();
 
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [answers, setAnswers] = useState<FlowAnswers>(() => {
@@ -63,15 +63,16 @@ export default function VitalityIntake() {
 
   const handleFinish = useCallback(async (finalAnswers: FlowAnswers) => {
     try {
-      const rawData: Record<string, any> = { ...finalAnswers };
-      const assessment = buildVitalitySnapshot(rawData);
-      await saveAssessmentFromIntake(assessment, rawData);
+      // Merge onboarding base data with intake answers so nothing is lost
+      const mergedData: Record<string, any> = { ...rawInputs, ...finalAnswers };
+      const assessment = buildVitalitySnapshot(mergedData);
+      await saveAssessmentFromIntake(assessment, finalAnswers as Record<string, any>);
       setCompleted(true);
       toast.success(language === 'he' ? 'הסריקה הושלמה!' : 'Scan complete!');
     } catch (err) {
       toast.error(language === 'he' ? 'שגיאה בשמירה' : 'Error saving');
     }
-  }, [saveAssessmentFromIntake, language]);
+  }, [saveAssessmentFromIntake, language, rawInputs]);
 
   if (completed) {
     return (
