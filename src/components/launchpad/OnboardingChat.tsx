@@ -1,17 +1,19 @@
 /**
  * OnboardingChat — Aurora-powered conversational onboarding.
- * Replaces the old multi-step flows with a single AI chat.
- * Extracts ~59 structured variables via tool calling and saves to launchpad_progress.
+ * Uses the same Aurora chat UI as the main chat and domain assessments.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { Send, Loader2, Sparkles, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
+import { Loader2, Sparkles, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AnimatePresence } from 'framer-motion';
+import AuroraChatMessage from '@/components/aurora/AuroraChatMessage';
+import AuroraTypingIndicator from '@/components/aurora/AuroraTypingIndicator';
+import AuroraChatInput from '@/components/aurora/AuroraChatInput';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -19,8 +21,10 @@ import { FRICTION_PILLAR_MAP } from '@/flows/onboardingFlowSpec';
 import type { Json } from '@/integrations/supabase/types';
 
 interface ChatMessage {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  created_at: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/onboarding-chat`;
@@ -37,23 +41,22 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
   const isHe = language === 'he';
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
   const [started, setStarted] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const msgCounter = useRef(0);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, streamingContent]);
 
   const handleToolCall = useCallback(async (toolArgs: any) => {
     if (!user?.id) return;
     setSaving(true);
     try {
-      // Build step_1_intention JSON (state diagnosis + targets)
       const step1Data: Record<string, unknown> = {
         entry_context: toolArgs.entry_context,
         pressure_zone: toolArgs.pressure_zone,
@@ -69,14 +72,11 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
           (toolArgs.pressure_zone ? FRICTION_PILLAR_MAP[toolArgs.pressure_zone] : 'mind'),
       };
 
-      // Build step_2_profile_data JSON (biological + behavioral)
       const step2Data: Record<string, unknown> = {
-        // Bio
         age_bracket: toolArgs.age_bracket,
         gender: toolArgs.gender,
         body_fat_estimate: toolArgs.body_fat_estimate,
         activity_level: toolArgs.activity_level,
-        // Sleep
         wake_time: toolArgs.wake_time,
         sleep_time: toolArgs.sleep_time,
         sleep_duration_avg: toolArgs.sleep_duration_avg,
@@ -86,26 +86,22 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
         sunlight_after_waking: toolArgs.sunlight_after_waking,
         desired_wake_time: toolArgs.desired_wake_time,
         morning_routine_desire: toolArgs.morning_routine_desire,
-        // Stimulants
         caffeine_intake: toolArgs.caffeine_intake,
         first_caffeine_timing: toolArgs.first_caffeine_timing,
         alcohol_frequency: toolArgs.alcohol_frequency,
         nicotine: toolArgs.nicotine,
         weed_thc: toolArgs.weed_thc,
-        // Dopamine
         daily_screen_time: toolArgs.daily_screen_time,
         shorts_reels: toolArgs.shorts_reels,
         gaming: toolArgs.gaming,
         porn_frequency: toolArgs.porn_frequency,
         late_night_scrolling: toolArgs.late_night_scrolling,
-        // Nutrition
         diet_type: toolArgs.diet_type,
         protein_awareness: toolArgs.protein_awareness,
         meals_per_day: toolArgs.meals_per_day,
         daily_fluid_volume: toolArgs.daily_fluid_volume,
         fluid_sources: toolArgs.fluid_sources,
         nutrition_weak_point: toolArgs.nutrition_weak_point,
-        // Work
         work_type: toolArgs.work_type,
         active_work_hours: toolArgs.active_work_hours,
         availability_hours: toolArgs.availability_hours,
@@ -114,11 +110,9 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
         work_end_time: toolArgs.work_end_time,
         commute_duration: toolArgs.commute_duration,
         energy_peak_time: toolArgs.energy_peak_time,
-        // Relationships
         relationship_status: toolArgs.relationship_status,
         dependents: toolArgs.dependents,
         social_energy_level: toolArgs.social_energy_level,
-        // Behavioral
         exercise_types: toolArgs.exercise_types,
         training_frequency: toolArgs.training_frequency,
         training_consistency: toolArgs.training_consistency,
@@ -126,12 +120,10 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
         friction_trigger: toolArgs.friction_trigger,
         stress_default_behavior: toolArgs.stress_default_behavior,
         motivation_driver: toolArgs.motivation_driver,
-        // System preferences
         preferred_session_length: toolArgs.preferred_session_length,
         preferred_reminders: toolArgs.preferred_reminders,
       };
 
-      // Save directly to launchpad_progress
       const now = new Date().toISOString();
       await supabase
         .from('launchpad_progress')
@@ -152,7 +144,6 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
         })
         .eq('user_id', user.id);
 
-      // Trigger summary generation (non-blocking)
       try {
         const { data: { session } } = await supabase.auth.getSession();
         await supabase.functions.invoke('generate-launchpad-summary', {
@@ -177,7 +168,7 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
   }, [user?.id, navigate, onComplete, isHe]);
 
   async function streamChat(
-    msgs: ChatMessage[],
+    msgs: { role: string; content: string }[],
     onDelta: (t: string) => void,
     onDone: () => void,
     onToolCall: (args: any) => void,
@@ -256,50 +247,78 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
     onDone();
   }
 
+  const addAssistantMessage = useCallback((content: string) => {
+    msgCounter.current += 1;
+    setMessages(prev => [...prev, {
+      id: `onboard-ai-${msgCounter.current}`,
+      role: 'assistant',
+      content,
+      created_at: new Date().toISOString(),
+    }]);
+  }, []);
+
   const startConversation = useCallback(async () => {
     if (started) return;
     setStarted(true);
     setIsStreaming(true);
+    setStreamingContent('');
     let assistantSoFar = '';
     const updateAssistant = (chunk: string) => {
       assistantSoFar += chunk;
-      setMessages(prev => {
-        const last = prev[prev.length - 1];
-        if (last?.role === 'assistant') return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
-        return [...prev, { role: 'assistant', content: assistantSoFar }];
-      });
-    };
-    try { await streamChat([], updateAssistant, () => setIsStreaming(false), handleToolCall); }
-    catch (e) { console.error(e); setIsStreaming(false); }
-  }, [language, handleToolCall, started]);
-
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isStreaming) return;
-    const userMsg: ChatMessage = { role: 'user', content: text };
-    const updated = [...messages, userMsg];
-    setMessages(updated);
-    setInput('');
-    setIsStreaming(true);
-
-    let assistantSoFar = '';
-    const updateAssistant = (chunk: string) => {
-      assistantSoFar += chunk;
-      setMessages(prev => {
-        const last = prev[prev.length - 1];
-        if (last?.role === 'assistant') return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
-        return [...prev, { role: 'assistant', content: assistantSoFar }];
-      });
+      setStreamingContent(assistantSoFar);
     };
     try {
-      await streamChat(updated, updateAssistant, () => { setIsStreaming(false); inputRef.current?.focus(); }, handleToolCall);
-    } catch (e) { console.error(e); setIsStreaming(false); }
-  }, [input, messages, isStreaming, handleToolCall]);
+      await streamChat([], updateAssistant, () => {
+        setIsStreaming(false);
+        if (assistantSoFar) addAssistantMessage(assistantSoFar);
+        setStreamingContent('');
+      }, handleToolCall);
+    } catch (e) {
+      console.error(e);
+      setIsStreaming(false);
+      setStreamingContent('');
+    }
+  }, [language, handleToolCall, started, addAssistantMessage]);
+
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isStreaming) return;
+    msgCounter.current += 1;
+    const userMsg: ChatMessage = {
+      id: `onboard-user-${msgCounter.current}`,
+      role: 'user',
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    setIsStreaming(true);
+    setStreamingContent('');
+
+    let assistantSoFar = '';
+    const updateAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setStreamingContent(assistantSoFar);
+    };
+    try {
+      await streamChat(
+        updated.map(m => ({ role: m.role, content: m.content })),
+        updateAssistant,
+        () => {
+          setIsStreaming(false);
+          if (assistantSoFar) addAssistantMessage(assistantSoFar);
+          setStreamingContent('');
+        },
+        handleToolCall
+      );
+    } catch (e) {
+      console.error(e);
+      setIsStreaming(false);
+      setStreamingContent('');
+    }
+  }, [messages, isStreaming, handleToolCall, addAssistantMessage]);
 
   // Auto-start
   useEffect(() => { startConversation(); }, []);
-
-  const messageCount = messages.filter(m => m.role === 'user').length;
 
   if (saving) {
     return (
@@ -322,17 +341,17 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
 
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-80px)]" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
+      {/* Header — Aurora style */}
       <div className="flex items-center gap-3 py-3 px-4 shrink-0 border-b border-border/30">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" />
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0">
+          <AuroraOrbIcon size={20} className="text-primary" />
         </div>
         <div className="flex-1">
           <h1 className="text-sm font-bold text-foreground">
-            {isHe ? 'כיול מערכת — אורורה' : 'System Calibration — Aurora'}
+            {isHe ? 'אורורה' : 'Aurora'}
           </h1>
           <p className="text-[10px] text-muted-foreground">
-            {isHe ? `${messageCount} הודעות` : `${messageCount} messages`}
+            {isHe ? 'כיול מערכת' : 'System Calibration'}
           </p>
         </div>
         {onClose && (
@@ -342,62 +361,44 @@ export default function OnboardingChat({ onComplete, onClose }: Props) {
         )}
       </div>
 
-      {/* Chat area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 py-4 px-4">
-        <AnimatePresence initial={false}>
-          {messages.map((msg, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-              className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}
-            >
-              <div className={cn(
-                'max-w-[85%] rounded-2xl px-4 py-3 text-sm',
-                msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-ee-sm'
-                  : 'bg-muted/70 text-foreground rounded-es-sm'
-              )}>
-                {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <p>{msg.content}</p>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      {/* Chat messages — Aurora style */}
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
+          <div className="space-y-6">
+            {messages.map((message) => (
+              <AuroraChatMessage
+                key={message.id}
+                id={message.id}
+                content={message.content}
+                isOwn={message.role === 'user'}
+                isAI={message.role === 'assistant'}
+                timestamp={message.created_at}
+              />
+            ))}
 
-        {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
-          <div className="flex justify-start">
-            <div className="bg-muted/70 rounded-2xl rounded-es-sm px-4 py-3">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            </div>
+            {/* Streaming message */}
+            {isStreaming && streamingContent && (
+              <AuroraChatMessage
+                id="streaming"
+                content={streamingContent}
+                isOwn={false}
+                isAI
+                isStreaming
+              />
+            )}
+
+            {/* Typing indicator */}
+            {isStreaming && !streamingContent && (
+              <AuroraTypingIndicator />
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
-        )}
-      </div>
+        </div>
+      </ScrollArea>
 
-      {/* Input */}
-      <div className="shrink-0 py-3 px-4 border-t border-border/30">
-        <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={isHe ? 'הקלד תשובה...' : 'Type your answer...'}
-            disabled={isStreaming}
-            className="flex-1 bg-muted/50 border-border/50"
-            autoFocus
-          />
-          <Button type="submit" size="icon" disabled={isStreaming || !input.trim()}
-            className="shrink-0">
-            <Send className="w-4 h-4" />
-          </Button>
-        </form>
-      </div>
+      {/* Input — Aurora style */}
+      <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />
     </div>
   );
 }

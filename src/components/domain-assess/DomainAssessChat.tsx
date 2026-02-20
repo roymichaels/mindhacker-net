@@ -1,41 +1,33 @@
 /**
- * DomainAssessChat — Reusable AI conversation assessment for any domain.
+ * DomainAssessChat — Uses Aurora chat UI for domain assessments.
  * Streams messages from domain-assess edge function, extracts profile via tool call.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, ArrowRight, Send, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
-import { getDomainById, CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
-import type { DomainAssessmentResult, DomainAssessMeta, Confidence } from '@/lib/domain-assess/types';
+import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AnimatePresence } from 'framer-motion';
+import AuroraChatMessage from '@/components/aurora/AuroraChatMessage';
+import AuroraTypingIndicator from '@/components/aurora/AuroraTypingIndicator';
+import AuroraChatInput from '@/components/aurora/AuroraChatInput';
+import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
+import type { DomainAssessmentResult, Confidence } from '@/lib/domain-assess/types';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
+import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
 
 interface ChatMessage {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  created_at: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/domain-assess`;
-
-const COLOR_MAP: Record<string, { bg: string; text: string; bubble: string; btn: string; icon: string }> = {
-  emerald:  { bg: 'from-emerald-500/10',  text: 'text-emerald-500',  bubble: 'bg-emerald-600',  btn: 'bg-emerald-600 hover:bg-emerald-700',  icon: 'text-emerald-500' },
-  purple:   { bg: 'from-purple-500/10',   text: 'text-purple-500',   bubble: 'bg-purple-600',   btn: 'bg-purple-600 hover:bg-purple-700',   icon: 'text-purple-500' },
-  sky:      { bg: 'from-sky-500/10',      text: 'text-sky-500',      bubble: 'bg-sky-600',      btn: 'bg-sky-600 hover:bg-sky-700',      icon: 'text-sky-500' },
-  rose:     { bg: 'from-rose-500/10',     text: 'text-rose-500',     bubble: 'bg-rose-600',     btn: 'bg-rose-600 hover:bg-rose-700',     icon: 'text-rose-500' },
-  amber:    { bg: 'from-amber-500/10',    text: 'text-amber-500',    bubble: 'bg-amber-600',    btn: 'bg-amber-600 hover:bg-amber-700',    icon: 'text-amber-500' },
-  fuchsia:  { bg: 'from-fuchsia-500/10',  text: 'text-fuchsia-500',  bubble: 'bg-fuchsia-600',  btn: 'bg-fuchsia-600 hover:bg-fuchsia-700',  icon: 'text-fuchsia-500' },
-  red:      { bg: 'from-red-500/10',      text: 'text-red-500',      bubble: 'bg-red-600',      btn: 'bg-red-600 hover:bg-red-700',      icon: 'text-red-500' },
-  cyan:     { bg: 'from-cyan-500/10',     text: 'text-cyan-500',     bubble: 'bg-cyan-600',     btn: 'bg-cyan-600 hover:bg-cyan-700',     icon: 'text-cyan-500' },
-  slate:    { bg: 'from-slate-500/10',    text: 'text-slate-400',    bubble: 'bg-slate-600',    btn: 'bg-slate-600 hover:bg-slate-700',    icon: 'text-slate-400' },
-  indigo:   { bg: 'from-indigo-500/10',   text: 'text-indigo-500',   bubble: 'bg-indigo-600',   btn: 'bg-indigo-600 hover:bg-indigo-700',   icon: 'text-indigo-500' },
-};
 
 function isCoreDomain(domainId: string): boolean {
   return CORE_DOMAINS.some(d => d.id === domainId);
@@ -51,32 +43,31 @@ interface Props {
 
 export default function DomainAssessChat({ domainId }: Props) {
   const navigate = useNavigate();
-  const { t, language, isRTL } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
 
   const meta = DOMAIN_ASSESS_META[domainId];
   const domain = getDomainById(domainId);
-  const colors = COLOR_MAP[meta?.color ?? 'emerald'];
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
   const [started, setStarted] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const isHe = language === 'he';
+  let msgCounter = useRef(0);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, streamingContent]);
 
   const handleToolCall = useCallback(async (toolArgs: any) => {
     const subscores = toolArgs.subscores as Record<string, number>;
     const subsystems = meta.subsystems;
 
-    // Weighted index
     let domain_index = 0;
     for (const sub of subsystems) {
       domain_index += (subscores[sub.id] ?? 0) * sub.weight;
@@ -105,7 +96,7 @@ export default function DomainAssessChat({ domainId }: Props) {
   }, [saveAssessment, navigate, domainId, meta]);
 
   async function streamChat(
-    msgs: ChatMessage[],
+    msgs: { role: string; content: string }[],
     onDelta: (t: string) => void,
     onDone: () => void,
     onToolCall: (args: any) => void,
@@ -174,58 +165,86 @@ export default function DomainAssessChat({ domainId }: Props) {
     onDone();
   }
 
+  const addAssistantMessage = useCallback((content: string) => {
+    msgCounter.current += 1;
+    setMessages(prev => [...prev, {
+      id: `assess-ai-${msgCounter.current}`,
+      role: 'assistant',
+      content,
+      created_at: new Date().toISOString(),
+    }]);
+  }, []);
+
   const startConversation = useCallback(async () => {
     if (started) return;
     setStarted(true);
     setIsStreaming(true);
+    setStreamingContent('');
     let assistantSoFar = '';
     const updateAssistant = (chunk: string) => {
       assistantSoFar += chunk;
-      setMessages(prev => {
-        const last = prev[prev.length - 1];
-        if (last?.role === 'assistant') return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
-        return [...prev, { role: 'assistant', content: assistantSoFar }];
-      });
-    };
-    try { await streamChat([], updateAssistant, () => setIsStreaming(false), handleToolCall); }
-    catch (e) { console.error(e); setIsStreaming(false); }
-  }, [language, handleToolCall]);
-
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isStreaming) return;
-    const userMsg: ChatMessage = { role: 'user', content: text };
-    const updated = [...messages, userMsg];
-    setMessages(updated);
-    setInput('');
-    setIsStreaming(true);
-
-    let assistantSoFar = '';
-    const updateAssistant = (chunk: string) => {
-      assistantSoFar += chunk;
-      setMessages(prev => {
-        const last = prev[prev.length - 1];
-        if (last?.role === 'assistant') return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
-        return [...prev, { role: 'assistant', content: assistantSoFar }];
-      });
+      setStreamingContent(assistantSoFar);
     };
     try {
-      await streamChat(updated, updateAssistant, () => { setIsStreaming(false); inputRef.current?.focus(); }, handleToolCall);
-    } catch (e) { console.error(e); setIsStreaming(false); }
-  }, [input, messages, isStreaming, handleToolCall]);
+      await streamChat([], updateAssistant, () => {
+        setIsStreaming(false);
+        if (assistantSoFar) addAssistantMessage(assistantSoFar);
+        setStreamingContent('');
+      }, handleToolCall);
+    } catch (e) {
+      console.error(e);
+      setIsStreaming(false);
+      setStreamingContent('');
+    }
+  }, [language, handleToolCall, started, addAssistantMessage]);
 
-  const Icon = domain?.icon;
-  const isHe = language === 'he';
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isStreaming) return;
+    msgCounter.current += 1;
+    const userMsg: ChatMessage = {
+      id: `assess-user-${msgCounter.current}`,
+      role: 'user',
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    setIsStreaming(true);
+    setStreamingContent('');
 
-  // Auto-start conversation on mount
+    let assistantSoFar = '';
+    const updateAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setStreamingContent(assistantSoFar);
+    };
+    try {
+      await streamChat(
+        updated.map(m => ({ role: m.role, content: m.content })),
+        updateAssistant,
+        () => {
+          setIsStreaming(false);
+          if (assistantSoFar) addAssistantMessage(assistantSoFar);
+          setStreamingContent('');
+        },
+        handleToolCall
+      );
+    } catch (e) {
+      console.error(e);
+      setIsStreaming(false);
+      setStreamingContent('');
+    }
+  }, [messages, isStreaming, handleToolCall, addAssistantMessage]);
+
+  // Auto-start
   useEffect(() => { startConversation(); }, []);
 
-  // Saving screen
+  const Icon = domain?.icon;
+
   if (saving) {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-          <Loader2 className={cn("w-8 h-8 animate-spin", colors.icon)} />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">{isHe ? 'מעבד תוצאות...' : 'Processing results...'}</p>
         </div>
       </PageShell>
@@ -235,78 +254,62 @@ export default function DomainAssessChat({ domainId }: Props) {
   return (
     <PageShell>
       <div className="flex flex-col h-[calc(100vh-120px)]" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Header */}
-        <div className="flex items-center gap-3 py-3 shrink-0">
-          <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))}>
+        {/* Header — Aurora style */}
+        <div className="flex items-center gap-3 py-3 px-2 shrink-0 border-b border-border/30">
+          <Button variant="ghost" size="icon" onClick={() => navigate(getBasePath(domainId))} className="shrink-0">
             <BackIcon className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className={cn("w-5 h-5", colors.icon)} />}
-            <h1 className="text-lg font-bold text-foreground">
-              {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
-            </h1>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0">
+            <AuroraOrbIcon size={20} className="text-primary" />
           </div>
-          <span className="ms-auto text-xs text-muted-foreground">
-            {messages.filter(m => m.role === 'user').length} {isHe ? 'הודעות' : 'messages'}
-          </span>
+          <div className="flex-1">
+            <h1 className="text-sm font-bold text-foreground">
+              {isHe ? 'אורורה' : 'Aurora'}
+            </h1>
+            <p className="text-[10px] text-muted-foreground">
+              {isHe ? (domain?.labelHe ?? domainId) : (domain?.labelEn ?? domainId)}
+            </p>
+          </div>
         </div>
 
-        {/* Chat area */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 pb-4 px-1">
-          <AnimatePresence initial={false}>
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}
-              >
-                <div className={cn(
-                  'max-w-[85%] rounded-2xl px-4 py-3 text-sm',
-                  msg.role === 'user'
-                    ? `${colors.bubble} text-white rounded-ee-sm`
-                    : 'bg-muted/70 text-foreground rounded-es-sm'
-                )}>
-                  {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p>{msg.content}</p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+        {/* Chat messages — Aurora style */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <AuroraChatMessage
+                  key={message.id}
+                  id={message.id}
+                  content={message.content}
+                  isOwn={message.role === 'user'}
+                  isAI={message.role === 'assistant'}
+                  timestamp={message.created_at}
+                />
+              ))}
 
-          {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
-            <div className="flex justify-start">
-              <div className="bg-muted/70 rounded-2xl rounded-es-sm px-4 py-3">
-                <Loader2 className={cn("w-4 h-4 animate-spin", colors.icon)} />
-              </div>
+              {/* Streaming message */}
+              {isStreaming && streamingContent && (
+                <AuroraChatMessage
+                  id="streaming"
+                  content={streamingContent}
+                  isOwn={false}
+                  isAI
+                  isStreaming
+                />
+              )}
+
+              {/* Typing indicator */}
+              {isStreaming && !streamingContent && (
+                <AuroraTypingIndicator />
+              )}
+
+              <div ref={messagesEndRef} />
             </div>
-          )}
-        </div>
+          </div>
+        </ScrollArea>
 
-        {/* Input */}
-        <div className="shrink-0 py-3 border-t border-border/50">
-          <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={isHe ? 'הקלד תשובה...' : 'Type your answer...'}
-              disabled={isStreaming}
-              className="flex-1 bg-muted/50 border-border/50"
-              autoFocus
-            />
-            <Button type="submit" size="icon" disabled={isStreaming || !input.trim()}
-              className={cn(colors.btn, "shrink-0")}>
-              <Send className="w-4 h-4" />
-            </Button>
-          </form>
-        </div>
+        {/* Input — Aurora style */}
+        <AuroraChatInput onSend={sendMessage} disabled={isStreaming} />
       </div>
     </PageShell>
   );
