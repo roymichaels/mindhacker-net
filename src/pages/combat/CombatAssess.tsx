@@ -15,10 +15,11 @@ import { useCombatCoach } from '@/hooks/useCombatCoach';
 import { buildCombatAssessment } from '@/lib/combat/scoring';
 import { cn } from '@/lib/utils';
 import type {
-  CombatIntakeAnswers, WarriorMode, ProfileAnswers,
+  CombatIntakeAnswers, WarriorMode, CombatDiscipline, ProfileAnswers,
   RealityAnswers, ShadowAnswers, LiveAnswers, GrapplingAnswers,
   ReactionAnswers, ConditioningAnswers, DurabilityAnswers,
 } from '@/lib/combat/types';
+import { GRAPPLING_DISCIPLINES } from '@/lib/combat/types';
 import {
   ArrowLeft, ArrowRight, Swords, ChevronRight, ChevronLeft,
   Zap, Shield, Target, Flame, Brain, Activity,
@@ -53,14 +54,17 @@ export default function CombatAssess() {
   const [isSaving, setIsSaving] = useState(false);
 
   const mode = answers.profile?.warrior_mode;
+  const disciplines = answers.profile?.disciplines ?? [];
+  const hasGrappling = disciplines.some(d => GRAPPLING_DISCIPLINES.includes(d));
   const showLive = mode === 'gym' || mode === 'hybrid';
 
   const getSections = useCallback((): SectionId[] => {
     const sections: SectionId[] = ['intro', 'profile', 'reality', 'shadow'];
     if (showLive) sections.push('live');
-    sections.push('grappling', 'reaction', 'conditioning', 'durability');
+    if (hasGrappling) sections.push('grappling');
+    sections.push('reaction', 'conditioning', 'durability');
     return sections;
-  }, [showLive]);
+  }, [showLive, hasGrappling]);
 
   const sections = getSections();
   const currentIdx = sections.indexOf(currentSection);
@@ -247,6 +251,9 @@ function IntroSection({ t, onBegin, ForwardIcon }: { t: (k: string) => string; o
 
 function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => string; answers: CombatIntakeAnswers; patch: any; onNext: () => void }) {
   const mode = answers.profile?.warrior_mode;
+  const disciplines = answers.profile?.disciplines ?? [];
+  const years = answers.profile?.years_training;
+
   const modes: { id: WarriorMode; labelKey: string; descKey: string }[] = [
     { id: 'solo', labelKey: 'combat.mode_solo', descKey: 'combat.mode_solo_desc' },
     { id: 'gym', labelKey: 'combat.mode_gym', descKey: 'combat.mode_gym_desc' },
@@ -254,16 +261,52 @@ function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => strin
     { id: 'tactical', labelKey: 'combat.mode_tactical', descKey: 'combat.mode_tactical_desc' },
   ];
 
+  const allDisciplines: { id: CombatDiscipline; labelKey: string }[] = [
+    { id: 'boxing', labelKey: 'combat.disc_boxing' },
+    { id: 'muay_thai', labelKey: 'combat.disc_muay_thai' },
+    { id: 'kickboxing', labelKey: 'combat.disc_kickboxing' },
+    { id: 'bjj', labelKey: 'combat.disc_bjj' },
+    { id: 'wrestling', labelKey: 'combat.disc_wrestling' },
+    { id: 'judo', labelKey: 'combat.disc_judo' },
+    { id: 'krav_maga', labelKey: 'combat.disc_krav_maga' },
+    { id: 'kung_fu', labelKey: 'combat.disc_kung_fu' },
+    { id: 'military_training', labelKey: 'combat.disc_military_training' },
+    { id: 'mma', labelKey: 'combat.disc_mma' },
+    { id: 'none', labelKey: 'combat.disc_none' },
+  ];
+
+  const toggleDiscipline = (d: CombatDiscipline) => {
+    if (d === 'none') {
+      patch('profile', { ...answers.profile, disciplines: ['none'] });
+    } else {
+      const current = disciplines.filter(x => x !== 'none');
+      const next = current.includes(d) ? current.filter(x => x !== d) : [...current, d];
+      patch('profile', { ...answers.profile, disciplines: next });
+    }
+  };
+
+  const yearsOptions = [
+    { id: 'none', labelKey: 'combat.opt_years_none' },
+    { id: '<1', labelKey: 'combat.opt_years_lt1' },
+    { id: '1_3', labelKey: 'combat.opt_years_1_3' },
+    { id: '3_5', labelKey: 'combat.opt_years_3_5' },
+    { id: '5_plus', labelKey: 'combat.opt_years_5_plus' },
+  ];
+
+  const canContinue = !!mode && disciplines.length > 0;
+
   return (
     <Card className="p-5 border-border/40">
       <SectionHeader icon={Target} titleKey="combat.sec_profile" t={t} />
+
+      {/* Warrior mode */}
       <QuestionLabel text={t('combat.q_warrior_mode')} />
-      <div className="space-y-2">
+      <div className="space-y-2 mb-5">
         {modes.map(m => (
           <button
             key={m.id}
             type="button"
-            onClick={() => patch('profile', { warrior_mode: m.id })}
+            onClick={() => patch('profile', { ...answers.profile, warrior_mode: m.id })}
             className={cn(
               "w-full text-start p-3 rounded-lg border transition-all",
               mode === m.id
@@ -276,7 +319,37 @@ function ProfileSection({ t, answers, patch, onNext }: { t: (k: string) => strin
           </button>
         ))}
       </div>
-      <Button className="w-full mt-4" onClick={onNext} disabled={!mode}>
+
+      {/* Disciplines */}
+      <QuestionLabel text={t('combat.q_disciplines')} />
+      <div className="flex flex-wrap gap-2 mb-5">
+        {allDisciplines.map(d => (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => toggleDiscipline(d.id)}
+            className={cn(
+              "px-3 py-1.5 rounded-full border text-xs font-medium transition-all",
+              disciplines.includes(d.id)
+                ? "bg-primary/15 border-primary/50 text-primary"
+                : "bg-background border-border/50 text-muted-foreground hover:bg-muted/50"
+            )}
+          >
+            {t(d.labelKey)}
+          </button>
+        ))}
+      </div>
+
+      {/* Years of training */}
+      <QuestionLabel text={t('combat.q_years_training')} />
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        {yearsOptions.map(y => (
+          <OptionButton key={y.id} selected={years === y.id} label={t(y.labelKey)}
+            onClick={() => patch('profile', { ...answers.profile, years_training: y.id })} />
+        ))}
+      </div>
+
+      <Button className="w-full mt-4" onClick={onNext} disabled={!canContinue}>
         {t('common.next')}
       </Button>
     </Card>
