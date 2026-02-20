@@ -65,15 +65,19 @@ export const HUMAN_FLAG_LADDER: SkillLadderStep[] = [
 ];
 
 export const MUSCLE_UP_LADDER: SkillLadderStep[] = [
-  { level: 1, key: 'pullup_3_reps' },
-  { level: 2, key: 'deep_dip_3_reps' },
-  { level: 3, key: 'high_pullup' },
-  { level: 4, key: 'negative_mu' },
-  { level: 5, key: 'kipping_mu' },
-  { level: 6, key: 'strict_mu_1' },
-  { level: 7, key: 'strict_mu_3' },
-  { level: 8, key: 'strict_mu_5' },
-  { level: 9, key: 'weighted_mu' },
+  { level: 1, key: 'pullup_5_strict' },
+  { level: 2, key: 'straight_bar_dip_3' },
+  { level: 3, key: 'false_grip_hang_15s' },
+  { level: 4, key: 'false_grip_pullup' },
+  { level: 5, key: 'high_pullup' },
+  { level: 6, key: 'explosive_pullup' },
+  { level: 7, key: 'negative_mu' },
+  { level: 8, key: 'kipping_mu' },
+  { level: 9, key: 'strict_mu_1' },
+  { level: 10, key: 'strict_mu_3' },
+  { level: 11, key: 'strict_mu_5' },
+  { level: 12, key: 'bar_mu' },
+  { level: 13, key: 'weighted_mu' },
 ];
 
 export const PISTOL_SQUAT_LADDER: SkillLadderStep[] = [
