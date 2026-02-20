@@ -3,12 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { Loader2 } from 'lucide-react';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { LaunchpadFlow, LaunchpadIntro } from '@/components/launchpad';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import AuroraChatArea from './AuroraChatArea';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { usePromoPopup } from '@/hooks/usePromoPopup';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
+
+const OnboardingChat = lazy(() => import('@/components/launchpad/OnboardingChat'));
 
 const AuroraLayout = () => {
   const { user } = useAuth();
@@ -22,8 +23,7 @@ const AuroraLayout = () => {
     handleSelectConversation,
   } = useAuroraChatContext();
   
-  const [showLaunchpad, setShowLaunchpad] = useState(true);
-  const [showLaunchpadIntro, setShowLaunchpadIntro] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(true);
   const { shouldShowPromo, dismissPromo, triggerPromo } = usePromoPopup();
   const launchpadWasIncomplete = useRef(!isLaunchpadComplete);
 
@@ -46,21 +46,21 @@ const AuroraLayout = () => {
     );
   }
 
-  if (!isLaunchpadComplete && showLaunchpad && showLaunchpadIntro) {
+  // Show Aurora onboarding chat instead of old step-by-step flow
+  if (!isLaunchpadComplete && showOnboarding) {
     return (
-      <LaunchpadIntro 
-        onStart={() => setShowLaunchpadIntro(false)}
-        onSkip={() => setShowLaunchpad(false)}
-      />
-    );
-  }
-
-  if (!isLaunchpadComplete && showLaunchpad) {
-    return (
-      <LaunchpadFlow 
-        onComplete={() => setShowLaunchpad(false)}
-        onClose={() => setShowLaunchpad(false)}
-      />
+      <DashboardLayout>
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-[60vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }>
+          <OnboardingChat
+            onComplete={() => setShowOnboarding(false)}
+            onClose={() => setShowOnboarding(false)}
+          />
+        </Suspense>
+      </DashboardLayout>
     );
   }
 
