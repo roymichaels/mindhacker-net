@@ -19,6 +19,8 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = 
   emerald: { border: 'border-emerald-500/30', bg: 'from-emerald-500/10', text: 'text-emerald-400' },
   purple:  { border: 'border-purple-500/30',  bg: 'from-purple-500/10',  text: 'text-purple-400' },
   sky:     { border: 'border-sky-500/30',     bg: 'from-sky-500/10',     text: 'text-sky-400' },
+  rose:    { border: 'border-rose-500/30',    bg: 'from-rose-500/10',    text: 'text-rose-400' },
+  amber:   { border: 'border-amber-500/30',   bg: 'from-amber-500/10',   text: 'text-amber-400' },
 };
 
 function scoreColor(v: number): string {

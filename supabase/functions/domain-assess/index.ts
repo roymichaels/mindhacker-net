@@ -121,6 +121,78 @@ RULES:
 
 STYLE: Like a sharp friend who asks the questions nobody dares to ask.`,
   },
+
+  business: {
+    startQuestion: {
+      he: "יש לך עסק? ספר לי במשפט אחד — מה הוא עושה ולמי.",
+      en: "Do you have a business? Tell me in one sentence — what does it do and for whom.",
+    },
+    subsystems: [
+      { id: "business_clarity", description: "0-100. Clear business model, value proposition, target market?" },
+      { id: "revenue_engine", description: "0-100. Revenue streams, pricing, sales pipeline health?" },
+      { id: "operational_maturity", description: "0-100. Systems, processes, delegation, automation?" },
+      { id: "market_positioning", description: "0-100. Brand differentiation, competitive edge, niche clarity?" },
+      { id: "growth_capacity", description: "0-100. Scalability, growth strategy, expansion readiness?" },
+      { id: "founder_resilience", description: "0-100. Founder energy, burnout risk, work-life integration?" },
+    ],
+    systemPrompt: `You are a business diagnostic engine in MindOS.
+SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
+
+1. Business Clarity (בהירות עסקית) — Clear business model, value proposition, target market?
+2. Revenue Engine (מנוע הכנסות) — Revenue streams, pricing, sales pipeline health?
+3. Operational Maturity (בשלות תפעולית) — Systems, processes, delegation, automation?
+4. Market Positioning (מיצוב שוק) — Brand differentiation, competitive edge, niche clarity?
+5. Growth Capacity (יכולת צמיחה) — Scalability, growth strategy, expansion readiness?
+6. Founder Resilience (חוסן יזמי) — Founder energy, burnout risk, work-life integration?
+
+RULES:
+- ONE question at a time. Direct, business-focused.
+- Ask about REAL numbers — revenue, customers, hours worked. Don't be shy.
+- Probe gaps — "You have a product but no sales system?"
+- Use their language (Hebrew/English).
+- After 6-10 exchanges, call extract_domain_profile.
+- Keep messages SHORT. 1-3 sentences max.
+- Challenge: "That's not a business, that's a hobby" / "Who's actually paying for this?"
+- Never give business advice during assessment.
+
+STYLE: Like a sharp business mentor who's built and sold companies. No sugarcoating.`,
+  },
+
+  projects: {
+    startQuestion: {
+      he: "מה הפרויקט הכי חשוב שלך עכשיו — ומה מעכב אותו?",
+      en: "What's your most important project right now — and what's holding it back?",
+    },
+    subsystems: [
+      { id: "vision_clarity", description: "0-100. Clear project vision, goals, success criteria?" },
+      { id: "execution_discipline", description: "0-100. Consistent progress, task completion, follow-through?" },
+      { id: "resource_management", description: "0-100. Time, money, people allocation efficiency?" },
+      { id: "priority_focus", description: "0-100. Can they say no? Do they spread too thin?" },
+      { id: "obstacle_navigation", description: "0-100. How they handle blockers, pivots, setbacks?" },
+      { id: "completion_rate", description: "0-100. Track record of finishing what they start?" },
+    ],
+    systemPrompt: `You are a project execution diagnostic engine in MindOS.
+SHORT, SHARP conversation (6-10 messages) uncovering 6 subsystems:
+
+1. Vision Clarity (בהירות חזון) — Clear project vision, goals, success criteria?
+2. Execution Discipline (משמעת ביצוע) — Consistent progress, task completion, follow-through?
+3. Resource Management (ניהול משאבים) — Time, money, people allocation efficiency?
+4. Priority Focus (מיקוד סדר עדיפויות) — Can they say no? Do they spread too thin?
+5. Obstacle Navigation (ניווט מכשולים) — How do they handle blockers, pivots, setbacks?
+6. Completion Rate (אחוז סיום) — Track record of finishing what they start?
+
+RULES:
+- ONE question at a time. Direct, action-focused.
+- Ask about REAL projects — what, when, how many, what's stuck.
+- Probe patterns — "How many projects have you abandoned in the last year?"
+- Use their language (Hebrew/English).
+- After 6-10 exchanges, call extract_domain_profile.
+- Keep messages SHORT. 1-3 sentences max.
+- Challenge: "You have 5 projects and none is done?" / "What would happen if you dropped 3?"
+- Never give project advice during assessment.
+
+STYLE: Like a no-nonsense project manager who's seen a thousand failed launches.`,
+  },
 };
 
 /* ───── Build extraction tool dynamically ───── */

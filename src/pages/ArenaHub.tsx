@@ -179,7 +179,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: ARENA_DOMAINS.length * 0.04, duration: 0.3 }}
-              onClick={() => setWizardOpen(true)}
+              onClick={() => navigate('/arena/projects')}
               className={cn(
                 'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
                 colorMap.amber
@@ -195,7 +195,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               <Badge variant={activeProjects.length > 0 ? 'default' : 'outline'} className="text-[9px]">
                 {activeProjects.length > 0
                   ? (isHe ? `${activeProjects.length} פעילים` : `${activeProjects.length} Active`)
-                  : (isHe ? 'התחל' : 'Start')}
+                  : (isHe ? 'לא הוגדר' : 'Not Set Up')}
               </Badge>
               <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
             </motion.button>
@@ -205,7 +205,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: (ARENA_DOMAINS.length + 1) * 0.04, duration: 0.3 }}
-              onClick={() => navigate('/business/journey')}
+              onClick={() => navigate('/arena/business')}
               className={cn(
                 'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
                 colorMap.rose
@@ -221,7 +221,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               <Badge variant={businesses.length > 0 ? 'default' : 'outline'} className="text-[9px]">
                 {businesses.length > 0
                   ? (isHe ? `${businesses.length} עסקים` : `${businesses.length} Active`)
-                  : (isHe ? 'התחל' : 'Start')}
+                  : (isHe ? 'לא הוגדר' : 'Not Set Up')}
               </Badge>
               <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
             </motion.button>

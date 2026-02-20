@@ -4641,6 +4641,26 @@ export const he = {
       sub_conflict_capacity: 'התמודדות עם קונפליקט',
       sub_reciprocity_balance: 'איזון נתינה-קבלה',
     },
+    businessAssess: {
+      assessTitle: 'אבחון עסקי',
+      assessSubtitle: 'שיחה קצרה שתחשוף את מצב העסק שלך, מנוע ההכנסות, ומה באמת צריך להשתנות.',
+      sub_business_clarity: 'בהירות עסקית',
+      sub_revenue_engine: 'מנוע הכנסות',
+      sub_operational_maturity: 'בשלות תפעולית',
+      sub_market_positioning: 'מיצוב שוק',
+      sub_growth_capacity: 'יכולת צמיחה',
+      sub_founder_resilience: 'חוסן יזמי',
+    },
+    projectsAssess: {
+      assessTitle: 'אבחון פרויקטים',
+      assessSubtitle: 'שיחה קצרה שתחשוף את יכולת הביצוע שלך, סדרי עדיפויות, ולמה דברים לא מסתיימים.',
+      sub_vision_clarity: 'בהירות חזון',
+      sub_execution_discipline: 'משמעת ביצוע',
+      sub_resource_management: 'ניהול משאבים',
+      sub_priority_focus: 'מיקוד סדר עדיפויות',
+      sub_obstacle_navigation: 'ניווט מכשולים',
+      sub_completion_rate: 'אחוז סיום',
+    },
 };
 
 export type TranslationKeys = typeof he;
