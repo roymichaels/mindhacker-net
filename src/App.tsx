@@ -87,6 +87,7 @@ const PowerAssess = lazy(() => import("./pages/power/PowerAssess"));
 const PowerResultsPage = lazy(() => import("./pages/power/PowerResultsPage"));
 const PowerHistory = lazy(() => import("./pages/power/PowerHistory"));
 const VitalityHome = lazy(() => import("./pages/vitality/VitalityHome"));
+const VitalityIntake = lazy(() => import("./pages/vitality/VitalityIntake"));
 const VitalityResults = lazy(() => import("./pages/vitality/VitalityResults"));
 const VitalityHistory = lazy(() => import("./pages/vitality/VitalityHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
@@ -437,6 +438,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <VitalityHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/vitality/intake"
+                          element={
+                            <ProtectedRoute>
+                              <VitalityIntake />
                             </ProtectedRoute>
                           }
                         />
