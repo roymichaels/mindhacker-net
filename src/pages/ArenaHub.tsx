@@ -150,7 +150,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               {isHe ? 'תחומי זירה' : 'Arena Domains'}
             </h3>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {/* Domain cards */}
             {ARENA_DOMAINS.map((domain, i) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
