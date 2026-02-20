@@ -15,20 +15,25 @@ import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Targ
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
-  rose:    'from-rose-500/20 to-rose-600/5 border-rose-500/30 hover:border-rose-400/60',
-  red:     'from-red-500/20 to-red-600/5 border-red-500/30 hover:border-red-400/60',
-  amber:   'from-amber-500/20 to-amber-600/5 border-amber-500/30 hover:border-amber-400/60',
-  violet:  'from-violet-500/20 to-violet-600/5 border-violet-500/30 hover:border-violet-400/60',
-  emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 hover:border-emerald-400/60',
-  slate:   'from-slate-500/20 to-slate-600/5 border-slate-500/30 hover:border-slate-400/60',
-  indigo:  'from-indigo-500/20 to-indigo-600/5 border-indigo-500/30 hover:border-indigo-400/60',
-  orange:  'from-orange-500/20 to-orange-600/5 border-orange-500/30 hover:border-orange-400/60',
+  fuchsia: 'from-fuchsia-500/25 to-fuchsia-600/5 border-fuchsia-500/40 hover:border-fuchsia-400/70',
+  red:     'from-red-500/25 to-red-600/5 border-red-500/40 hover:border-red-400/70',
+  amber:   'from-amber-500/25 to-amber-600/5 border-amber-500/40 hover:border-amber-400/70',
+  cyan:    'from-cyan-500/25 to-cyan-600/5 border-cyan-500/40 hover:border-cyan-400/70',
+  slate:   'from-slate-400/20 to-slate-600/5 border-slate-400/35 hover:border-slate-300/60',
+  indigo:  'from-indigo-500/25 to-indigo-600/5 border-indigo-500/40 hover:border-indigo-400/70',
+  emerald: 'from-emerald-500/25 to-emerald-600/5 border-emerald-500/40 hover:border-emerald-400/70',
+  purple:  'from-purple-500/25 to-purple-600/5 border-purple-500/40 hover:border-purple-400/70',
+  sky:     'from-sky-500/25 to-sky-600/5 border-sky-500/40 hover:border-sky-400/70',
+  rose:    'from-rose-500/25 to-rose-600/5 border-rose-500/40 hover:border-rose-400/70',
+  violet:  'from-violet-500/25 to-violet-600/5 border-violet-500/40 hover:border-violet-400/70',
+  orange:  'from-orange-500/25 to-orange-600/5 border-orange-500/40 hover:border-orange-400/70',
 };
 
 const iconColorMap: Record<string, string> = {
-  rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
-  violet: 'text-violet-400', emerald: 'text-emerald-400', slate: 'text-slate-400',
-  indigo: 'text-indigo-400', orange: 'text-orange-400',
+  fuchsia: 'text-fuchsia-400', red: 'text-red-400', amber: 'text-amber-400',
+  cyan: 'text-cyan-400', slate: 'text-slate-300', indigo: 'text-indigo-400',
+  emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400',
+  rose: 'text-rose-400', violet: 'text-violet-400', orange: 'text-orange-400',
 };
 
 const statusBadge: Record<string, { label: string; labelHe: string; variant: 'default' | 'secondary' | 'outline' }> = {
