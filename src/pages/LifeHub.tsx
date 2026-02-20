@@ -1,17 +1,17 @@
 /**
- * LifeHub — Body content rendered inside LifeLayoutWrapper.
- * Matches dashboard's modular card-based layout style.
+ * CoreHub — Body content rendered inside LifeLayoutWrapper.
+ * Renamed from LifeHub. Displays Core/ליבה domains (personal transformation).
  */
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Heart, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Eye, Shield, Brain, Zap } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye } from 'lucide-react';
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
@@ -42,9 +42,9 @@ interface Banner { icon: React.ReactNode; textHe: string; textEn: string; gradie
 const banners: Banner[] = [
   { icon: <Sparkles className="w-4 h-4" />, textHe: 'כל תחום שאתה מפעיל — מקרב אותך לגרסה המלאה', textEn: 'Every domain you activate brings you closer to your full version', gradient: 'from-rose-500/20 via-rose-500/5 to-transparent' },
   { icon: <Target className="w-4 h-4" />, textHe: 'התחל מהתחום שהכי מפריע לך — שם השינוי הגדול', textEn: 'Start with what bothers you most — that\'s where the big shift is', gradient: 'from-violet-500/20 via-violet-500/5 to-transparent' },
-  { icon: <Flame className="w-4 h-4" />, textHe: 'עקביות יומית ב-8 תחומים — זה מה שמייצר שינוי אמיתי', textEn: 'Daily consistency across 8 domains — that\'s what creates real change', gradient: 'from-amber-500/20 via-amber-500/5 to-transparent' },
+  { icon: <Flame className="w-4 h-4" />, textHe: 'עקביות יומית בליבה — זה מה שמייצר שינוי אמיתי', textEn: 'Daily consistency in your Core — that\'s what creates real change', gradient: 'from-amber-500/20 via-amber-500/5 to-transparent' },
   { icon: <Shield className="w-4 h-4" />, textHe: 'לא צריך להיות מושלם — צריך להיות בתנועה', textEn: 'You don\'t need to be perfect — you need to be in motion', gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent' },
-  { icon: <Brain className="w-4 h-4" />, textHe: 'הגוף, הנפש וההשפעה — הכל מתחבר במערכת אחת', textEn: 'Body, mind, and influence — it all connects in one system', gradient: 'from-indigo-500/20 via-indigo-500/5 to-transparent' },
+  { icon: <Brain className="w-4 h-4" />, textHe: 'הגוף, הנפש והשליטה — הכל מתחבר בליבה', textEn: 'Body, mind, and control — it all connects in your Core', gradient: 'from-indigo-500/20 via-indigo-500/5 to-transparent' },
   { icon: <Zap className="w-4 h-4" />, textHe: 'הכוח שלך נמדד ביכולת לפעול בו-זמנית על כל החזיתות', textEn: 'Your power is measured by your ability to operate on all fronts', gradient: 'from-red-500/20 via-red-500/5 to-transparent' },
 ];
 
@@ -75,11 +75,13 @@ export default function LifeHub() {
   useEffect(() => { const t = setInterval(nextBanner, 5000); return () => clearInterval(t); }, [nextBanner]);
   const banner = banners[bannerIdx];
 
-  // Stats
-  const entries = Object.entries(statusMap);
-  const activeDomains = entries.filter(([, s]) => s === 'active').length;
-  const configuredDomains = entries.filter(([, s]) => s === 'configured').length;
-  const completionPct = Math.round(((activeDomains + configuredDomains) / 8) * 100);
+  // Stats — only count core domains (6)
+  const coreDomainIds = CORE_DOMAINS.map(d => d.id);
+  const coreEntries = Object.entries(statusMap).filter(([id]) => coreDomainIds.includes(id));
+  const activeDomains = coreEntries.filter(([, s]) => s === 'active').length;
+  const configuredDomains = coreEntries.filter(([, s]) => s === 'configured').length;
+  const totalCore = CORE_DOMAINS.length;
+  const completionPct = Math.round(((activeDomains + configuredDomains) / totalCore) * 100);
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
@@ -107,14 +109,14 @@ export default function LifeHub() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-xl bg-rose-500/15 border border-rose-500/25">
-                <Heart className="w-5 h-5 text-rose-400" />
+                <Flame className="w-5 h-5 text-rose-400" />
               </div>
               <div>
                 <h2 className="text-sm font-bold text-foreground">
-                  {isHe ? 'מערכת החיים שלך' : 'Your Life System'}
+                  {isHe ? 'הליבה שלך' : 'Your Core'}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {isHe ? `${activeDomains} מתוך 8 תחומים פעילים` : `${activeDomains} of 8 domains active`}
+                  {isHe ? `${activeDomains} מתוך ${totalCore} תחומים פעילים` : `${activeDomains} of ${totalCore} domains active`}
                 </p>
               </div>
             </div>
@@ -161,11 +163,11 @@ export default function LifeHub() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isHe ? 'תחומי ביצוע' : 'Execution Domains'}
+              {isHe ? 'תחומי ליבה' : 'Core Domains'}
             </h3>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {LIFE_DOMAINS.map((domain, i) => {
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {CORE_DOMAINS.map((domain, i) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const badge = statusBadge[status] ?? statusBadge.unconfigured;
               const Icon = domain.icon;
@@ -201,8 +203,8 @@ export default function LifeHub() {
         {/* ── Quick Insights Row ── */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { icon: Eye, label: isHe ? 'נוכחות' : 'Presence', value: statusMap['presence'] === 'active' ? (isHe ? 'פעיל' : 'Active') : (isHe ? 'ממתין' : 'Pending'), color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
-            { icon: Target, label: isHe ? 'פעילים' : 'Active', value: `${activeDomains}/8`, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+            { icon: Eye, label: isHe ? 'תדמית' : 'Image', value: statusMap['presence'] === 'active' ? (isHe ? 'פעיל' : 'Active') : (isHe ? 'ממתין' : 'Pending'), color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+            { icon: Target, label: isHe ? 'פעילים' : 'Active', value: `${activeDomains}/${totalCore}`, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
             { icon: Flame, label: isHe ? 'מוכנות' : 'Readiness', value: `${completionPct}%`, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
           ].map((m) => (
             <div key={m.label} className={cn("rounded-xl border p-3 flex flex-col items-center gap-1 text-center", m.bg)}>

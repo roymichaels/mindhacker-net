@@ -1,32 +1,33 @@
 /**
- * CoreActivitySidebar - Right sidebar with core domain stats and activity.
- * Rose/pink color scheme matching Core identity.
+ * ArenaActivitySidebar - Right sidebar with arena stats.
+ * Amber/orange color scheme.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelLeftClose, PanelLeftOpen, Flame, CheckCircle, Clock, Target } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Swords, CheckCircle, Clock, Target, FolderKanban } from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { useProjects } from '@/hooks/useProjects';
 
-export function LifeActivitySidebar() {
+export function ArenaActivitySidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
+  const { projects } = useProjects();
 
-  const coreDomainIds = CORE_DOMAINS.map(d => d.id);
-  const coreEntries = Object.entries(statusMap).filter(([id]) => coreDomainIds.includes(id));
-  const totalDomains = CORE_DOMAINS.length;
-  const activeDomains = coreEntries.filter(([, s]) => s === 'active').length;
-  const configuredDomains = coreEntries.filter(([, s]) => s === 'configured').length;
-  const completionPct = Math.round(((activeDomains + configuredDomains) / totalDomains) * 100);
+  const arenaDomainIds = ARENA_DOMAINS.map(d => d.id);
+  const arenaEntries = Object.entries(statusMap).filter(([id]) => arenaDomainIds.includes(id));
+  const totalDomains = ARENA_DOMAINS.length;
+  const activeDomains = arenaEntries.filter(([, s]) => s === 'active').length;
+  const activeProjects = projects.filter(p => p.status === 'active').length;
 
   const statItems = [
-    { icon: Flame, value: totalDomains, label: isHe ? 'תחומים' : 'Domains', color: 'text-rose-400' },
+    { icon: Swords, value: totalDomains, label: isHe ? 'תחומים' : 'Domains', color: 'text-amber-400' },
     { icon: Target, value: activeDomains, label: isHe ? 'פעילים' : 'Active', color: 'text-teal-400' },
-    { icon: CheckCircle, value: configuredDomains, label: isHe ? 'הוגדרו' : 'Set Up', color: 'text-emerald-400' },
-    { icon: Clock, value: `${completionPct}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-indigo-400' },
+    { icon: FolderKanban, value: activeProjects, label: isHe ? 'פרויקטים' : 'Projects', color: 'text-orange-400' },
+    { icon: Clock, value: projects.length, label: isHe ? 'סה"כ' : 'Total', color: 'text-indigo-400' },
   ];
 
   return (
@@ -35,11 +36,10 @@ export function LifeActivitySidebar() {
         "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
         "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
         "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-        "ltr:border-e rtl:border-s border-border/50 dark:border-rose-500/15",
+        "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
         collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
       )}
     >
-      {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className={cn(
@@ -56,7 +56,6 @@ export function LifeActivitySidebar() {
         }
       </button>
 
-      {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center gap-1 w-full">
@@ -70,10 +69,8 @@ export function LifeActivitySidebar() {
         </div>
       )}
 
-      {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-          {/* Stats */}
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
             {isHe ? 'סטטיסטיקה' : 'Stats'}
           </span>
@@ -87,42 +84,19 @@ export function LifeActivitySidebar() {
             ))}
           </div>
 
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-3" />
+          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
 
-          {/* Overall progress */}
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
-            {isHe ? 'התקדמות כללית' : 'Overall Progress'}
-          </span>
-          <div className="rounded-xl bg-muted/30 dark:bg-muted/15 border border-border/20 p-3 mb-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-foreground">
-                {isHe ? 'תחומים פעילים' : 'Active Domains'}
-              </span>
-              <span className="text-xs font-bold text-rose-400">{activeDomains}/{totalDomains}</span>
-            </div>
-            <div className="w-full bg-muted/30 rounded-full h-1.5">
-              <div
-                className="bg-gradient-to-r from-rose-400 to-pink-500 h-1.5 rounded-full transition-all"
-                style={{ width: `${completionPct}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-3" />
-
-          {/* Domain status list */}
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
             {isHe ? 'סטטוס תחומים' : 'Domain Status'}
           </span>
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <div className="flex flex-col gap-1.5">
-              {CORE_DOMAINS.map((domain) => {
+              {ARENA_DOMAINS.map((domain) => {
                 const status = statusMap[domain.id] ?? 'unconfigured';
                 const statusLabel = isHe
                   ? (status === 'active' ? 'פעיל' : status === 'configured' ? 'הוגדר' : 'לא הוגדר')
                   : (status === 'active' ? 'Active' : status === 'configured' ? 'Set Up' : 'Not Set');
                 const statusColor = status === 'active' ? 'bg-emerald-500' : status === 'configured' ? 'bg-amber-500' : 'bg-muted-foreground/30';
-
                 return (
                   <div key={domain.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
                     <div className="flex items-center gap-2">
@@ -135,6 +109,25 @@ export function LifeActivitySidebar() {
                   </div>
                 );
               })}
+            </div>
+
+            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent my-3" />
+
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
+              {isHe ? 'פרויקטים אחרונים' : 'Recent Projects'}
+            </span>
+            <div className="flex flex-col gap-1.5">
+              {projects.slice(0, 5).map((project) => (
+                <div key={project.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project.cover_color || '#f59e0b' }} />
+                    <span className="text-[11px] font-medium leading-tight truncate">{project.title}</span>
+                  </div>
+                  <div className="mt-1.5 w-full bg-muted/30 rounded-full h-1">
+                    <div className="bg-gradient-to-r from-amber-400 to-orange-500 h-1 rounded-full transition-all" style={{ width: `${project.progress_percentage || 0}%` }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
