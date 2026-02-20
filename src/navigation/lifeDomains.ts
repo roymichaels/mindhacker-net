@@ -26,7 +26,7 @@ export interface LifeDomain {
 }
 
 export const LIFE_DOMAINS: LifeDomain[] = [
-  { id: 'presence',  labelEn: 'Presence',  labelHe: 'נוכחות',   icon: Eye,        color: 'rose',    description: 'Face, body aesthetics, grooming, posture, style' },
+  { id: 'presence',  labelEn: 'Image',     labelHe: 'תדמית',    icon: Eye,        color: 'rose',    description: 'Face, body aesthetics, grooming, posture, style' },
   { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',    icon: Dumbbell,   color: 'red',     description: 'Strength, calisthenics, skill progressions' },
   { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',   description: 'Sleep, nutrition, recovery, hormones' },
   { id: 'focus',     labelEn: 'Focus',     labelHe: 'מיקוד',    icon: Crosshair,  color: 'violet',  description: 'Dopamine control, deep work, meditation' },
