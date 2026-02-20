@@ -1,23 +1,26 @@
 /**
  * @component FixLibrary
- * @purpose Selectable fix cards grouped by tier.
+ * @purpose Selectable fix cards grouped by tier. Bilingual + RTL.
  */
 import { FIX_LIBRARY } from '@/lib/presence/levers';
 import { cn } from '@/lib/utils';
 import { Wrench } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FixLibraryProps {
   selectedIds: string[];
   onSelectionChange: (ids: string[]) => void;
 }
 
-const TIER_LABELS: Record<number, string> = {
-  1: 'Tier 1 — High Impact',
-  2: 'Tier 2 — Refinement',
-  3: 'Tier 3 — Optional',
-};
-
 export default function FixLibrary({ selectedIds, onSelectionChange }: FixLibraryProps) {
+  const { t, isRTL } = useTranslation();
+
+  const TIER_LABELS: Record<number, string> = {
+    1: t('presence.tier1'),
+    2: t('presence.tier2'),
+    3: t('presence.tier3'),
+  };
+
   const toggle = (id: string) => {
     const next = selectedIds.includes(id)
       ? selectedIds.filter(x => x !== id)
@@ -40,12 +43,12 @@ export default function FixLibrary({ selectedIds, onSelectionChange }: FixLibrar
   const tiers = [1, 2, 3] as const;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-2">
         <Wrench className="w-4 h-4 text-primary" />
-        <h3 className="font-bold text-foreground text-sm">Fix Library</h3>
+        <h3 className="font-bold text-foreground text-sm">{t('presence.fixLibrary')}</h3>
       </div>
-      <p className="text-[11px] text-muted-foreground">Select items to add to your focus.</p>
+      <p className="text-[11px] text-muted-foreground">{t('presence.selectFocusItems')}</p>
       <div className="space-y-4">
         {tiers.map(tier => {
           const fixes = FIX_LIBRARY.filter(f => f.tier === tier);
@@ -62,7 +65,7 @@ export default function FixLibrary({ selectedIds, onSelectionChange }: FixLibrar
                     key={fix.id}
                     onClick={() => toggle(fix.id)}
                     className={cn(
-                      'w-full text-left p-3 rounded-xl border transition-all',
+                      'w-full text-start p-3 rounded-xl border transition-all',
                       selected
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/30'
@@ -82,7 +85,7 @@ export default function FixLibrary({ selectedIds, onSelectionChange }: FixLibrar
                         {fix.difficulty}
                       </span>
                       <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium', getImpactColor(fix.impact))}>
-                        {fix.impact} impact
+                        {fix.impact} {t('presence.impact')}
                       </span>
                     </div>
                   </button>

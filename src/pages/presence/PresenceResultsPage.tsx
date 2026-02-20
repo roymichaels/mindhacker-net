@@ -1,17 +1,18 @@
 /**
  * @tab Life
- * @purpose Full bio-scan results — Index, Subscores, Findings, Fix Library, Focus Selection, Mark Complete.
+ * @purpose Full bio-scan results — Index, Subscores, Findings, Fix Library, Focus Selection, Mark Complete. Bilingual + RTL.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FindingsList from '@/components/presence/FindingsList';
 import FixLibrary from '@/components/presence/FixLibrary';
 import TopPriorities from '@/components/presence/TopPriorities';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { SubScoreKey } from '@/lib/presence/types';
 
 const SUB_SCORE_ORDER: SubScoreKey[] = [
@@ -25,6 +26,7 @@ const SUB_SCORE_ORDER: SubScoreKey[] = [
 export default function PresenceResultsPage() {
   const navigate = useNavigate();
   const { config, isLoading, isSaving, saveFocusItems, markComplete } = usePresenceCoach();
+  const { t, isRTL } = useTranslation();
   const latest = config.latest_scan;
 
   if (isLoading) {
@@ -57,7 +59,7 @@ export default function PresenceResultsPage() {
   const handleMarkComplete = async () => {
     try {
       await markComplete();
-      toast.success('Presence assessment marked complete.');
+      toast.success(t('presence.assessmentComplete'));
     } catch {
       toast.error('Failed to mark complete.');
     }
@@ -71,29 +73,31 @@ export default function PresenceResultsPage() {
     }
   };
 
+  const BackIcon = isRTL ? ChevronRight : ArrowLeft;
+
   return (
     <PageShell>
-      <div className="space-y-6 pb-8">
+      <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/life/presence')}>
-            <ArrowLeft className="w-5 h-5" />
+            <BackIcon className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground">Presence Results</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('presence.results')}</h1>
         </div>
 
         {/* A) Presence Index */}
         <div className="p-6 rounded-2xl border border-border bg-card text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Presence Index</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t('presence.presenceIndex')}</p>
           <p className={cn('text-5xl font-black', getScoreColor(latest.presence_index))}>
             {latest.presence_index}
           </p>
-          <div className="flex items-center justify-center gap-2 mt-2">
+          <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
             <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground">
-              {latest.confidence} confidence
+              {latest.confidence} {t('presence.confidence')}
             </span>
             <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground">
-              Structural Potential: {latest.structural_potential}
+              {t('presence.structuralPotential')}: {latest.structural_potential}
             </span>
           </div>
         </div>
@@ -101,13 +105,13 @@ export default function PresenceResultsPage() {
         {/* Low confidence warning */}
         {latest.confidence === 'low' && (
           <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-            <p className="text-sm text-amber-600">Lighting or angle reduced confidence. Re-scan recommended.</p>
+            <p className="text-sm text-amber-600">{t('presence.lowConfidenceBanner')}</p>
           </div>
         )}
 
         {/* B) Subscores */}
         <div className="space-y-2">
-          <h3 className="font-bold text-foreground text-sm">Subscores</h3>
+          <h3 className="font-bold text-foreground text-sm">{t('presence.subscores')}</h3>
           {SUB_SCORE_ORDER.map(key => {
             const sub = latest.scores[key];
             if (!sub) return null;
@@ -125,7 +129,11 @@ export default function PresenceResultsPage() {
                 <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
                     className={cn('h-full rounded-full transition-all duration-700', getBarColor(sub.score))}
-                    style={{ width: `${sub.score}%` }}
+                    style={{
+                      width: `${sub.score}%`,
+                      [isRTL ? 'marginRight' : 'marginLeft']: '0',
+                      float: isRTL ? 'right' : 'left',
+                    }}
                   />
                 </div>
               </div>
@@ -153,7 +161,7 @@ export default function PresenceResultsPage() {
 
         {/* Disclaimer */}
         <p className="text-[10px] text-muted-foreground text-center">
-          This is an estimate. Not medical advice. Lighting and angle affect results.
+          {t('presence.disclaimer')}
         </p>
 
         {/* F) Mark Complete */}
@@ -164,12 +172,12 @@ export default function PresenceResultsPage() {
             className="w-full"
             variant="outline"
           >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            Mark Presence Assessment Complete
+            <CheckCircle2 className="w-4 h-4 me-2" />
+            {t('presence.markComplete')}
           </Button>
         ) : (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-            <p className="text-sm font-medium text-emerald-600">✓ Presence Assessment Complete</p>
+            <p className="text-sm font-medium text-emerald-600">{t('presence.assessmentComplete')}</p>
           </div>
         )}
       </div>
