@@ -31,7 +31,7 @@ export const LIFE_DOMAINS: LifeDomain[] = [
   { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',   description: 'Sleep, nutrition, recovery, hormones' },
   { id: 'focus',     labelEn: 'Focus',     labelHe: 'מיקוד',    icon: Crosshair,  color: 'violet',  description: 'Dopamine control, deep work, meditation' },
   { id: 'wealth',    labelEn: 'Wealth',    labelHe: 'עושר',     icon: TrendingUp, color: 'emerald', description: 'Income, business, career, monetization' },
-  { id: 'edge',      labelEn: 'Edge',      labelHe: 'קצה',      icon: Swords,     color: 'slate',   description: 'Combat, self-protection, stress response' },
+  { id: 'combat',    labelEn: 'Combat',    labelHe: 'לחימה',    icon: Swords,     color: 'slate',   description: 'Technical exposure, sparring, live pressure, reaction' },
   { id: 'expansion', labelEn: 'Expansion', labelHe: 'התרחבות',  icon: Brain,      color: 'indigo',  description: 'Learning, creativity, languages, philosophy' },
   { id: 'influence', labelEn: 'Influence', labelHe: 'השפעה',    icon: Crown,      color: 'orange',  description: 'Communication, leadership, relationships, charisma' },
 ];
