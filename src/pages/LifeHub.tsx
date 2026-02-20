@@ -96,8 +96,8 @@ export default function LifeHub() {
       <div className="flex flex-col gap-4 flex-1 px-1">
         <div className="pt-1" />
 
-        {/* ── Analysis Progress Bar ── */}
-        <AnalysisProgressBar completionPct={completionPct} isHe={isHe} isRTL={isRTL} accentColor="rose" domains={CORE_DOMAINS} statusMap={statusMap} routePrefix="/life" />
+        {/* ── Unified Progress Bar ── */}
+        <AnalysisProgressBar />
 
         {/* ── Motivational Banner ── */}
         <div

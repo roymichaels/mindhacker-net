@@ -107,8 +107,8 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
       <div className="flex flex-col gap-4 flex-1 px-1">
         <div className="pt-1" />
 
-        {/* ── Analysis Progress Bar ── */}
-        <AnalysisProgressBar completionPct={completionPct} isHe={isHe} isRTL={isRTL} accentColor="amber" domains={ARENA_DOMAINS} statusMap={statusMap} routePrefix="/arena" />
+        {/* ── Unified Progress Bar ── */}
+        <AnalysisProgressBar />
 
         {/* ── Motivational Banner ── */}
         <div
