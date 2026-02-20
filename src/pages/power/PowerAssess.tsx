@@ -1,11 +1,12 @@
 /**
  * @tab Life > Power > Assess
- * Multi-step assessment wizard:
- * Step 1: Goal/track selection
- * Step 2+: Dynamic modules per selected track
+ * One-question-per-screen micro-flow assessment:
+ * Step 0: Track selection
+ * Step 1: Bodyweight
+ * Step 2+: Individual questions per selected track modules
  * Final: Compute & save
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import {
   scoreExplosivePower, buildPowerAssessment,
 } from '@/lib/power/scoring';
 import type { ModuleScore } from '@/lib/power/types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TRACK_META: { id: PowerTrackId; icon: typeof Dumbbell; color: string }[] = [
   { id: 'gym_strength', icon: Dumbbell, color: 'text-red-500 bg-red-500/10 border-red-500/30' },
@@ -38,20 +40,30 @@ const TRACK_META: { id: PowerTrackId; icon: typeof Dumbbell; color: string }[] =
 
 const REP_SCHEMES: RepScheme[] = ['1rm', '5rm', '8_12rm'];
 
+/* ─── Micro-step definition for one-question-per-screen ─── */
+interface MicroStep {
+  id: string;
+  module: string;
+  type: 'rep_scheme' | 'lift' | 'number' | 'skill_ladder' | 'checkbox';
+  liftKey?: 'squat' | 'deadlift' | 'bench' | 'ohp';
+  numberKey?: string;
+  skillKey?: SkillName;
+  skillField?: keyof CalSkillsInput;
+  placeholder?: string;
+}
+
 export default function PowerAssess() {
   const navigate = useNavigate();
   const { t, isRTL, language } = useTranslation();
   const { getDomain, upsertDomain } = useLifeDomains();
 
-  // Steps: 'select' → then one step per selected track → 'submit'
   const [selectedTracks, setSelectedTracks] = useState<PowerTrackId[]>([]);
-  const [currentStep, setCurrentStep] = useState(0); // 0 = track selection
+  const [phase, setPhase] = useState<'select' | 'flow'>('select');
+  const [microIndex, setMicroIndex] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [direction, setDirection] = useState(1);
 
-  // Bodyweight (shared across modules)
   const [bodyweight, setBodyweight] = useState<number | undefined>();
-
-  // Module inputs
   const [gymInput, setGymInput] = useState<GymStrengthInput>({ repScheme: '1rm' });
   const [calCondInput, setCalCondInput] = useState<CalConditioningInput>({ weightedCalisthenics: false });
   const [calSkillInput, setCalSkillInput] = useState<CalSkillsInput>({
@@ -64,23 +76,80 @@ export default function PowerAssess() {
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
 
-  // Resolve which actual modules to show based on selection
   const activeModules = useMemo(() => {
     const mods: PowerTrackId[] = [];
     if (selectedTracks.includes('gym_strength') || selectedTracks.includes('general_athleticism')) mods.push('gym_strength');
     if (selectedTracks.includes('calisthenics_conditioning') || selectedTracks.includes('general_athleticism')) mods.push('calisthenics_conditioning');
     if (selectedTracks.includes('calisthenics_skills')) mods.push('calisthenics_skills');
     if (selectedTracks.includes('explosive_power') || selectedTracks.includes('general_athleticism')) mods.push('explosive_power');
-    // Deduplicate
     return [...new Set(mods)];
   }, [selectedTracks]);
 
-  const totalSteps = 1 + activeModules.length + 1; // select + modules + bodyweight
-  // Step 0 = select, Step 1 = bodyweight, Step 2..N = modules
+  // Build flat micro-steps array
+  const microSteps = useMemo<MicroStep[]>(() => {
+    const steps: MicroStep[] = [];
+    // Bodyweight
+    steps.push({ id: 'bodyweight', module: 'general', type: 'number', numberKey: 'bodyweight', placeholder: 'kg' });
+
+    for (const mod of activeModules) {
+      if (mod === 'gym_strength') {
+        steps.push({ id: 'rep_scheme', module: 'gym_strength', type: 'rep_scheme' });
+        for (const lift of ['squat', 'deadlift', 'bench', 'ohp'] as const) {
+          steps.push({ id: `lift_${lift}`, module: 'gym_strength', type: 'lift', liftKey: lift });
+        }
+      }
+      if (mod === 'calisthenics_conditioning') {
+        for (const key of ['maxPushups', 'maxPullups', 'maxDips', 'maxBwSquats'] as const) {
+          steps.push({ id: `cal_${key}`, module: 'calisthenics_conditioning', type: 'number', numberKey: key });
+        }
+        steps.push({ id: 'cal_weighted', module: 'calisthenics_conditioning', type: 'checkbox' });
+      }
+      if (mod === 'calisthenics_skills') {
+        const skills: { key: SkillName; field: keyof CalSkillsInput }[] = [
+          { key: 'handstand', field: 'handstand' }, { key: 'hspu', field: 'hspu' },
+          { key: 'planche', field: 'planche' }, { key: 'frontLever', field: 'frontLever' },
+          { key: 'backLever', field: 'backLever' }, { key: 'humanFlag', field: 'humanFlag' },
+          { key: 'muscleUp', field: 'muscleUp' }, { key: 'ringMuscleUp', field: 'ringMuscleUp' },
+          { key: 'pistolSquat', field: 'pistolSquat' }, { key: 'shrimpSquat', field: 'shrimpSquat' },
+          { key: 'nordicCurl', field: 'nordicCurl' }, { key: 'vSit', field: 'vSit' },
+          { key: 'dragonFlag', field: 'dragonFlag' }, { key: 'bridge', field: 'bridge' },
+          { key: 'elbowLever', field: 'elbowLever' },
+        ];
+        for (const s of skills) {
+          steps.push({ id: `skill_${s.key}`, module: 'calisthenics_skills', type: 'skill_ladder', skillKey: s.key, skillField: s.field });
+        }
+      }
+      if (mod === 'explosive_power') {
+        steps.push({ id: 'exp_verticalJump', module: 'explosive_power', type: 'number', numberKey: 'verticalJumpCm', placeholder: 'cm' });
+        steps.push({ id: 'exp_broadJump', module: 'explosive_power', type: 'number', numberKey: 'broadJumpCm', placeholder: 'cm' });
+        steps.push({ id: 'exp_sprint20m', module: 'explosive_power', type: 'number', numberKey: 'sprint20mSeconds', placeholder: t('power.seconds') });
+        steps.push({ id: 'exp_sprint40m', module: 'explosive_power', type: 'number', numberKey: 'sprint40mSeconds', placeholder: t('power.seconds') });
+      }
+    }
+    return steps;
+  }, [activeModules, t]);
+
+  const totalMicro = microSteps.length;
+  const pct = totalMicro > 0 ? Math.round(((microIndex + 1) / totalMicro) * 100) : 0;
 
   const toggleTrack = (id: PowerTrackId) => {
     setSelectedTracks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
+
+  const goNext = useCallback(() => {
+    setDirection(1);
+    if (microIndex < totalMicro - 1) {
+      setMicroIndex(i => i + 1);
+    } else {
+      handleSubmit();
+    }
+  }, [microIndex, totalMicro]);
+
+  const goBack = useCallback(() => {
+    setDirection(-1);
+    if (microIndex > 0) setMicroIndex(i => i - 1);
+    else setPhase('select');
+  }, [microIndex]);
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -94,7 +163,6 @@ export default function PowerAssess() {
       if (activeModules.includes('explosive_power')) scores.push(scoreExplosivePower(explosiveInput));
 
       const assessment = buildPowerAssessment(selectedTracks, scores);
-
       const row = getDomain('power');
       const existing = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
       const history = [...(existing.history ?? [])];
@@ -121,20 +189,8 @@ export default function PowerAssess() {
     }
   };
 
-  const numField = (label: string, value: number | undefined, onChange: (v: number | undefined) => void, placeholder?: string) => (
-    <div className="space-y-1">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
-      <Input
-        type="number" inputMode="decimal" placeholder={placeholder ?? '—'}
-        value={value ?? ''} dir="ltr"
-        onChange={e => onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-        className="text-start"
-      />
-    </div>
-  );
-
-  // ─── Step 0: Track Selection ───
-  if (currentStep === 0) {
+  // ─── Phase: Track Selection ───
+  if (phase === 'select') {
     return (
       <PageShell>
         <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -174,7 +230,7 @@ export default function PowerAssess() {
             })}
           </div>
 
-          <Button onClick={() => setCurrentStep(1)} disabled={selectedTracks.length === 0}
+          <Button onClick={() => { setPhase('flow'); setMicroIndex(0); }} disabled={selectedTracks.length === 0}
             className="w-full bg-red-600 hover:bg-red-700" size="lg">
             {t('common.next')} <ForwardIcon className="w-4 h-4 ms-1" />
           </Button>
@@ -183,274 +239,257 @@ export default function PowerAssess() {
     );
   }
 
-  // ─── Step 1: Bodyweight ───
-  if (currentStep === 1) {
-    return (
-      <PageShell>
-        <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
-          <StepHeader step={1} total={totalSteps} label={t('power.bodyweightStep')} onBack={() => setCurrentStep(0)} isRTL={isRTL} />
-          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
-            {numField(t('power.bodyweight'), bodyweight, setBodyweight, 'kg')}
-            <p className="text-xs text-muted-foreground">{t('power.bodyweightNote')}</p>
-          </div>
-          <Button onClick={() => setCurrentStep(2)} className="w-full bg-red-600 hover:bg-red-700" size="lg">
-            {t('power.saveAndContinue')} <ForwardIcon className="w-4 h-4 ms-1" />
-          </Button>
-        </div>
-      </PageShell>
-    );
-  }
+  // ─── Phase: Micro-flow (one question per screen) ───
+  const step = microSteps[microIndex];
+  if (!step) return null;
 
-  // ─── Steps 2+: Module forms ───
-  const moduleIndex = currentStep - 2;
-  const currentModule = activeModules[moduleIndex];
-  const isLastModule = moduleIndex === activeModules.length - 1;
+  const isLast = microIndex === totalMicro - 1;
 
-  const goNext = () => {
-    if (isLastModule) handleSubmit();
-    else setCurrentStep(currentStep + 1);
+  // Get module label
+  const getModuleLabel = (mod: string) => {
+    if (mod === 'general') return t('power.bodyweightStep');
+    return t(`power.track_${mod}`);
   };
 
-  const renderModuleForm = () => {
-    switch (currentModule) {
-      case 'gym_strength':
-        return <GymStrengthForm input={gymInput} setInput={setGymInput} numField={numField} t={t} isRTL={isRTL} />;
-      case 'calisthenics_conditioning':
-        return <CalConditioningForm input={calCondInput} setInput={setCalCondInput} numField={numField} t={t} />;
-      case 'calisthenics_skills':
-        return <CalSkillsForm input={calSkillInput} setInput={setCalSkillInput} t={t} language={language} />;
-      case 'explosive_power':
-        return <ExplosivePowerForm input={explosiveInput} setInput={setExplosiveInput} numField={numField} t={t} />;
-      default:
+  // Get question title
+  const getTitle = (s: MicroStep) => {
+    if (s.id === 'bodyweight') return t('power.bodyweight');
+    if (s.type === 'rep_scheme') return t('power.howMeasure');
+    if (s.type === 'lift' && s.liftKey) return t(`power.lift_${s.liftKey}`);
+    if (s.type === 'skill_ladder' && s.skillKey) return t(`power.skill_${s.skillKey}`);
+    if (s.type === 'checkbox') return t('power.weightedCal');
+    if (s.numberKey === 'maxPushups') return t('power.maxPushups');
+    if (s.numberKey === 'maxPullups') return t('power.maxPullups');
+    if (s.numberKey === 'maxDips') return t('power.maxDips');
+    if (s.numberKey === 'maxBwSquats') return t('power.maxBwSquats');
+    if (s.numberKey === 'verticalJumpCm') return t('power.verticalJump');
+    if (s.numberKey === 'broadJumpCm') return t('power.broadJump');
+    if (s.numberKey === 'sprint20mSeconds') return t('power.sprint20m');
+    if (s.numberKey === 'sprint40mSeconds') return t('power.sprint40m');
+    return '';
+  };
+
+  const renderMicroStep = (s: MicroStep) => {
+    switch (s.type) {
+      case 'number': {
+        if (s.id === 'bodyweight') {
+          return (
+            <div className="space-y-3">
+              <Input type="number" inputMode="decimal" placeholder={s.placeholder ?? '—'}
+                value={bodyweight ?? ''} dir="ltr" autoFocus
+                onChange={e => setBodyweight(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                className="text-start text-lg h-12" />
+              <p className="text-xs text-muted-foreground">{t('power.bodyweightNote')}</p>
+            </div>
+          );
+        }
+        // Cal conditioning numbers
+        if (s.module === 'calisthenics_conditioning' && s.numberKey) {
+          const key = s.numberKey as keyof CalConditioningInput;
+          return (
+            <Input type="number" inputMode="numeric" placeholder="—"
+              value={calCondInput[key] as number ?? ''} dir="ltr" autoFocus
+              onChange={e => setCalCondInput(p => ({ ...p, [key]: e.target.value === '' ? undefined : parseInt(e.target.value) }))}
+              className="text-start text-lg h-12" />
+          );
+        }
+        // Explosive numbers
+        if (s.module === 'explosive_power' && s.numberKey) {
+          const key = s.numberKey as keyof ExplosivePowerInput;
+          return (
+            <Input type="number" inputMode="decimal" placeholder={s.placeholder ?? '—'}
+              value={explosiveInput[key] ?? ''} dir="ltr" autoFocus
+              onChange={e => setExplosiveInput(p => ({ ...p, [key]: e.target.value === '' ? undefined : parseFloat(e.target.value) }))}
+              className="text-start text-lg h-12" />
+          );
+        }
         return null;
-    }
-  };
+      }
 
-  if (currentModule) {
-    return (
-      <PageShell>
-        <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
-          <StepHeader
-            step={currentStep}
-            total={totalSteps}
-            label={t(`power.track_${currentModule}`)}
-            onBack={() => setCurrentStep(currentStep - 1)}
-            isRTL={isRTL}
-          />
-          {renderModuleForm()}
-          <Button onClick={goNext} disabled={saving} className="w-full bg-red-600 hover:bg-red-700" size="lg">
-            {saving ? t('common.saving') : isLastModule ? t('power.computeResults') : t('power.saveAndContinue')}
-            {!saving && <ForwardIcon className="w-4 h-4 ms-1" />}
-          </Button>
-        </div>
-      </PageShell>
-    );
-  }
-
-  return null;
-}
-
-/* ─── Step Header with progress ─── */
-function StepHeader({ step, total, label, onBack, isRTL }: { step: number; total: number; label: string; onBack: () => void; isRTL: boolean }) {
-  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
-  const pct = Math.round((step / (total - 1)) * 100);
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <BackIcon className="w-5 h-5" />
-        </Button>
-        <h1 className="text-xl font-bold text-foreground flex-1">{label}</h1>
-        <span className="text-xs text-muted-foreground">{step}/{total - 1}</span>
-      </div>
-      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden" dir="ltr">
-        <div className="h-full rounded-full bg-red-500 transition-all" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
-
-/* ─── Gym Strength Form ─── */
-function GymStrengthForm({ input, setInput, numField, t, isRTL }: {
-  input: GymStrengthInput; setInput: React.Dispatch<React.SetStateAction<GymStrengthInput>>;
-  numField: (l: string, v: number | undefined, fn: (v: number | undefined) => void, p?: string) => JSX.Element;
-  t: (k: string) => string; isRTL: boolean;
-}) {
-  const setLift = (key: 'squat' | 'deadlift' | 'bench' | 'ohp', field: 'weight' | 'reps', val: number | undefined) => {
-    setInput(prev => {
-      const existing = prev[key] ?? { weight: 0, reps: 1 };
-      return { ...prev, [key]: { ...existing, [field]: val ?? 0 } };
-    });
-  };
-
-  return (
-    <div className="p-4 rounded-xl border border-border bg-card space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <Dumbbell className="w-4 h-4 text-red-500" />
-        <h3 className="font-bold text-sm text-foreground">{t('power.track_gym_strength')}</h3>
-      </div>
-
-      {/* Rep scheme */}
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-muted-foreground">{t('power.howMeasure')}</label>
-        <div className="flex flex-wrap gap-1.5">
-          {REP_SCHEMES.map(rs => (
-            <button key={rs} type="button" onClick={() => setInput(prev => ({ ...prev, repScheme: rs }))}
-              className={cn('px-3 py-1.5 text-xs rounded-lg border transition-colors',
-                input.repScheme === rs ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:bg-muted'
-              )}>
-              {t(`power.rep_${rs}`)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Lifts */}
-      {(['squat', 'deadlift', 'bench', 'ohp'] as const).map(lift => (
-        <div key={lift} className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">{t(`power.lift_${lift}`)}</label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input type="number" inputMode="decimal" placeholder={t('power.weight')} dir="ltr"
-              value={input[lift]?.weight || ''} className="text-start"
-              onChange={e => setLift(lift, 'weight', e.target.value === '' ? undefined : parseFloat(e.target.value))} />
-            <Input type="number" inputMode="numeric" placeholder={t('power.reps')} dir="ltr"
-              value={input[lift]?.reps || ''} className="text-start"
-              onChange={e => setLift(lift, 'reps', e.target.value === '' ? undefined : parseInt(e.target.value))} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Calisthenics Conditioning Form ─── */
-function CalConditioningForm({ input, setInput, numField, t }: {
-  input: CalConditioningInput; setInput: React.Dispatch<React.SetStateAction<CalConditioningInput>>;
-  numField: (l: string, v: number | undefined, fn: (v: number | undefined) => void, p?: string) => JSX.Element;
-  t: (k: string) => string;
-}) {
-  return (
-    <div className="p-4 rounded-xl border border-border bg-card space-y-3">
-      <div className="flex items-center gap-2">
-        <Target className="w-4 h-4 text-orange-500" />
-        <h3 className="font-bold text-sm text-foreground">{t('power.track_calisthenics_conditioning')}</h3>
-      </div>
-      <p className="text-xs text-muted-foreground">{t('power.calCondNote')}</p>
-      {numField(t('power.maxPushups'), input.maxPushups, v => setInput(p => ({ ...p, maxPushups: v })))}
-      {numField(t('power.maxPullups'), input.maxPullups, v => setInput(p => ({ ...p, maxPullups: v })))}
-      {numField(t('power.maxDips'), input.maxDips, v => setInput(p => ({ ...p, maxDips: v })))}
-      {numField(t('power.maxBwSquats'), input.maxBwSquats, v => setInput(p => ({ ...p, maxBwSquats: v })))}
-
-      {/* Weighted toggle */}
-      <div className="pt-2 border-t border-border">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={input.weightedCalisthenics}
-            onChange={e => setInput(p => ({ ...p, weightedCalisthenics: e.target.checked }))}
-            className="rounded border-border" />
-          <span className="text-xs text-foreground">{t('power.weightedCal')}</span>
-        </label>
-        {input.weightedCalisthenics && (
-          <div className="mt-2 space-y-2 ps-4">
-            <div className="grid grid-cols-2 gap-2">
-              {numField(t('power.weightedPullupWeight'), input.weightedPullupWeight, v => setInput(p => ({ ...p, weightedPullupWeight: v })), 'kg')}
-              {numField(t('power.weightedPullupReps'), input.weightedPullupReps, v => setInput(p => ({ ...p, weightedPullupReps: v })))}
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {numField(t('power.weightedDipWeight'), input.weightedDipWeight, v => setInput(p => ({ ...p, weightedDipWeight: v })), 'kg')}
-              {numField(t('power.weightedDipReps'), input.weightedDipReps, v => setInput(p => ({ ...p, weightedDipReps: v })))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Calisthenics Skills Form (Ladder) ─── */
-function CalSkillsForm({ input, setInput, t, language }: {
-  input: CalSkillsInput; setInput: React.Dispatch<React.SetStateAction<CalSkillsInput>>;
-  t: (k: string) => string; language: string;
-}) {
-  const skills: { key: SkillName; field: keyof CalSkillsInput }[] = [
-    { key: 'handstand', field: 'handstand' },
-    { key: 'hspu', field: 'hspu' },
-    { key: 'planche', field: 'planche' },
-    { key: 'frontLever', field: 'frontLever' },
-    { key: 'backLever', field: 'backLever' },
-    { key: 'humanFlag', field: 'humanFlag' },
-    { key: 'muscleUp', field: 'muscleUp' },
-    { key: 'ringMuscleUp', field: 'ringMuscleUp' },
-    { key: 'pistolSquat', field: 'pistolSquat' },
-    { key: 'shrimpSquat', field: 'shrimpSquat' },
-    { key: 'nordicCurl', field: 'nordicCurl' },
-    { key: 'vSit', field: 'vSit' },
-    { key: 'dragonFlag', field: 'dragonFlag' },
-    { key: 'bridge', field: 'bridge' },
-    { key: 'elbowLever', field: 'elbowLever' },
-  ];
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Shield className="w-4 h-4 text-violet-500" />
-        <h3 className="font-bold text-sm text-foreground">{t('power.track_calisthenics_skills')}</h3>
-      </div>
-      <p className="text-xs text-muted-foreground">{t('power.skillsNote')}</p>
-
-      {skills.map(skill => {
-        const ladder = SKILL_LADDERS[skill.key];
-        const currentLevel = input[skill.field];
-
+      case 'rep_scheme':
         return (
-          <div key={skill.key} className="p-3 rounded-xl border border-border bg-card space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-foreground">{t(`power.skill_${skill.key}`)}</p>
-              <button type="button" onClick={() => setInput(prev => ({ ...prev, [skill.field]: 0 }))}
-                className={cn('text-[10px] px-2 py-0.5 rounded-full border transition-colors',
-                  currentLevel === 0 ? 'bg-muted text-foreground border-border' : 'text-muted-foreground border-transparent hover:bg-muted'
+          <div className="grid grid-cols-1 gap-2">
+            {REP_SCHEMES.map(rs => (
+              <button key={rs} type="button" onClick={() => { setGymInput(prev => ({ ...prev, repScheme: rs })); }}
+                className={cn(
+                  'p-4 rounded-xl border text-start transition-all flex items-center justify-between',
+                  gymInput.repScheme === rs ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'border-border bg-card hover:bg-muted/50'
                 )}>
-                {t('power.notTraining')}
+                <span className="font-medium text-sm text-foreground">{t(`power.rep_${rs}`)}</span>
+                {gymInput.repScheme === rs && <Check className="w-4 h-4 text-primary" />}
               </button>
+            ))}
+          </div>
+        );
+
+      case 'lift': {
+        const lift = s.liftKey!;
+        return (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Dumbbell className="w-5 h-5 text-red-500" />
+              <span className="text-xs text-muted-foreground">{t(`power.rep_${gymInput.repScheme}`)}</span>
             </div>
-            <div className="space-y-1">
-              {ladder.map(step => (
-                <button key={step.level} type="button"
-                  onClick={() => setInput(prev => ({ ...prev, [skill.field]: step.level }))}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">{t('power.weight')} (kg)</label>
+              <Input type="number" inputMode="decimal" placeholder="kg" dir="ltr" autoFocus
+                value={gymInput[lift]?.weight || ''}
+                onChange={e => {
+                  const v = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                  setGymInput(prev => ({ ...prev, [lift]: { ...(prev[lift] ?? { weight: 0, reps: 1 }), weight: v } }));
+                }}
+                className="text-start text-lg h-12" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">{t('power.reps')}</label>
+              <Input type="number" inputMode="numeric" placeholder="—" dir="ltr"
+                value={gymInput[lift]?.reps || ''}
+                onChange={e => {
+                  const v = e.target.value === '' ? 1 : parseInt(e.target.value);
+                  setGymInput(prev => ({ ...prev, [lift]: { ...(prev[lift] ?? { weight: 0, reps: 1 }), reps: v } }));
+                }}
+                className="text-start text-lg h-12" />
+            </div>
+          </div>
+        );
+      }
+
+      case 'skill_ladder': {
+        const ladder = SKILL_LADDERS[s.skillKey!];
+        const currentLevel = calSkillInput[s.skillField!];
+        return (
+          <div className="space-y-2">
+            <button type="button" onClick={() => setCalSkillInput(prev => ({ ...prev, [s.skillField!]: 0 }))}
+              className={cn('text-xs px-3 py-1.5 rounded-full border transition-colors mb-2',
+                currentLevel === 0 ? 'bg-muted text-foreground border-border' : 'text-muted-foreground border-transparent hover:bg-muted'
+              )}>
+              {t('power.notTraining')}
+            </button>
+            <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
+              {ladder.map(lStep => (
+                <button key={lStep.level} type="button"
+                  onClick={() => setCalSkillInput(prev => ({ ...prev, [s.skillField!]: lStep.level }))}
                   className={cn(
-                    'w-full text-start px-3 py-2 rounded-lg border text-xs transition-all flex items-center justify-between',
-                    currentLevel === step.level
+                    'w-full text-start px-4 py-3 rounded-xl border text-sm transition-all flex items-center justify-between',
+                    currentLevel === lStep.level
                       ? 'bg-violet-500/10 border-violet-500/40 text-foreground font-medium'
                       : 'border-border text-muted-foreground hover:bg-muted/50'
                   )}>
-                  <span>{t(`power.ladder_${step.key}`)}</span>
-                  {currentLevel === step.level && <Check className="w-3.5 h-3.5 text-violet-500" />}
+                  <span>{t(`power.ladder_${lStep.key}`)}</span>
+                  {currentLevel === lStep.level && <Check className="w-4 h-4 text-violet-500 shrink-0" />}
                 </button>
               ))}
             </div>
           </div>
         );
-      })}
-    </div>
-  );
-}
+      }
 
-/* ─── Explosive Power Form ─── */
-function ExplosivePowerForm({ input, setInput, numField, t }: {
-  input: ExplosivePowerInput; setInput: React.Dispatch<React.SetStateAction<ExplosivePowerInput>>;
-  numField: (l: string, v: number | undefined, fn: (v: number | undefined) => void, p?: string) => JSX.Element;
-  t: (k: string) => string;
-}) {
+      case 'checkbox': {
+        return (
+          <div className="space-y-4">
+            <button type="button"
+              onClick={() => setCalCondInput(p => ({ ...p, weightedCalisthenics: !p.weightedCalisthenics }))}
+              className={cn(
+                'w-full p-4 rounded-xl border text-start transition-all flex items-center justify-between',
+                calCondInput.weightedCalisthenics ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'border-border bg-card hover:bg-muted/50'
+              )}>
+              <span className="text-sm font-medium text-foreground">{t('power.weightedCal')}</span>
+              {calCondInput.weightedCalisthenics && <Check className="w-4 h-4 text-primary" />}
+            </button>
+
+            {calCondInput.weightedCalisthenics && (
+              <div className="space-y-3 p-4 rounded-xl border border-border bg-card">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t('power.weightedPullupWeight')}</label>
+                  <Input type="number" inputMode="decimal" placeholder="kg" dir="ltr"
+                    value={calCondInput.weightedPullupWeight ?? ''} className="text-start"
+                    onChange={e => setCalCondInput(p => ({ ...p, weightedPullupWeight: e.target.value === '' ? undefined : parseFloat(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t('power.weightedPullupReps')}</label>
+                  <Input type="number" inputMode="numeric" placeholder="—" dir="ltr"
+                    value={calCondInput.weightedPullupReps ?? ''} className="text-start"
+                    onChange={e => setCalCondInput(p => ({ ...p, weightedPullupReps: e.target.value === '' ? undefined : parseInt(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t('power.weightedDipWeight')}</label>
+                  <Input type="number" inputMode="decimal" placeholder="kg" dir="ltr"
+                    value={calCondInput.weightedDipWeight ?? ''} className="text-start"
+                    onChange={e => setCalCondInput(p => ({ ...p, weightedDipWeight: e.target.value === '' ? undefined : parseFloat(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">{t('power.weightedDipReps')}</label>
+                  <Input type="number" inputMode="numeric" placeholder="—" dir="ltr"
+                    value={calCondInput.weightedDipReps ?? ''} className="text-start"
+                    onChange={e => setCalCondInput(p => ({ ...p, weightedDipReps: e.target.value === '' ? undefined : parseInt(e.target.value) }))} />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="p-4 rounded-xl border border-border bg-card space-y-3">
-      <div className="flex items-center gap-2">
-        <Zap className="w-4 h-4 text-amber-500" />
-        <h3 className="font-bold text-sm text-foreground">{t('power.track_explosive_power')}</h3>
+    <PageShell>
+      <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Header */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={goBack}>
+              <BackIcon className="w-5 h-5" />
+            </Button>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground">{getModuleLabel(step.module)}</p>
+              <span className="text-xs text-muted-foreground">{microIndex + 1}/{totalMicro}</span>
+            </div>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden" dir="ltr">
+            <motion.div
+              className="h-full rounded-full bg-red-500"
+              initial={false}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            />
+          </div>
+        </div>
+
+        {/* Question */}
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step.id}
+            custom={direction}
+            initial={{ opacity: 0, x: direction * 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction * -60 }}
+            transition={{ duration: 0.25 }}
+          >
+            <h2 className="text-lg font-bold text-foreground mb-4">{getTitle(step)}</h2>
+            <div className="p-4 rounded-xl border border-border bg-card">
+              {renderMicroStep(step)}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Next */}
+        <Button onClick={goNext} disabled={saving}
+          className="w-full bg-red-600 hover:bg-red-700" size="lg">
+          {saving ? t('common.saving') : isLast ? t('power.computeResults') : t('common.next')}
+          {!saving && <ForwardIcon className="w-4 h-4 ms-1" />}
+        </Button>
+
+        {/* Skip option for optional fields */}
+        {(step.type === 'number' || step.type === 'skill_ladder') && !isLast && (
+          <button type="button" onClick={goNext}
+            className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+            {t('common.skip') ?? 'Skip'}
+          </button>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">{t('power.explosiveNote')}</p>
-      {numField(t('power.verticalJump'), input.verticalJumpCm, v => setInput(p => ({ ...p, verticalJumpCm: v })), 'cm')}
-      {numField(t('power.broadJump'), input.broadJumpCm, v => setInput(p => ({ ...p, broadJumpCm: v })), 'cm')}
-      {numField(t('power.sprint20m'), input.sprint20mSeconds, v => setInput(p => ({ ...p, sprint20mSeconds: v })), t('power.seconds'))}
-      {numField(t('power.sprint40m'), input.sprint40mSeconds, v => setInput(p => ({ ...p, sprint40mSeconds: v })), t('power.seconds'))}
-    </div>
+    </PageShell>
   );
 }
