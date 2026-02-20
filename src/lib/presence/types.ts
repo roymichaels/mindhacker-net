@@ -5,22 +5,14 @@
 
 export type ConfidenceLevel = 'low' | 'med' | 'high';
 
-// ── Manual Inputs (optional enrichment) ──
-
-export interface ManualInputs {
-  has_beard: boolean;
-  hair_length: 'buzz' | 'short' | 'medium' | 'long';
-  skincare_routine: 'none' | 'basic' | 'full';
-}
-
 // ── Sub-Scores ──
 
 export type SubScoreKey =
-  | 'facial_definition'
+  | 'facial_structure'
   | 'posture_alignment'
   | 'body_composition'
-  | 'grooming_baseline'
-  | 'style_signal';
+  | 'frame_development'
+  | 'inflammation_puffiness';
 
 export interface SubScore {
   score: number;
@@ -51,6 +43,7 @@ export interface FixItem {
   difficulty: 'easy' | 'medium' | 'hard';
   impact: 'low' | 'med' | 'high';
   category: string;
+  tier: 1 | 2 | 3;
 }
 
 // ── Scan Result ──
@@ -71,7 +64,6 @@ export interface PresenceScanResult {
 export interface PresenceDomainConfig {
   latest_scan?: PresenceScanResult;
   scan_history?: PresenceScanResult[];
-  manual_inputs?: ManualInputs;
   focus_items_selected?: string[];
   completed?: boolean;
   completed_at?: string | null;

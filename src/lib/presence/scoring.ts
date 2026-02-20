@@ -11,7 +11,6 @@ import type {
   FixItem,
   ConfidenceLevel,
   StructuralPotential,
-  ManualInputs,
 } from './types';
 import { FIX_LIBRARY } from './levers';
 
@@ -24,10 +23,10 @@ function clamp(v: number, min = 0, max = 100): number {
  */
 export function mapRawScoresToPresence(rawScores: Record<string, any>): PresenceScores {
   return {
-    facial_definition: {
+    facial_structure: {
       score: clamp(Math.round(rawScores.structural_integrity ?? rawScores.aesthetic_symmetry ?? 50)),
-      confidence: rawScores.confidence_band === 'high' ? 'high' : rawScores.confidence_band === 'med' ? 'med' : 'med',
-      label: 'Facial Definition',
+      confidence: rawScores.confidence_band === 'high' ? 'high' : 'med',
+      label: 'Facial Structure Signal',
     },
     posture_alignment: {
       score: clamp(Math.round(rawScores.posture_alignment ?? 50)),
@@ -39,37 +38,17 @@ export function mapRawScoresToPresence(rawScores: Record<string, any>): Presence
       confidence: 'med',
       label: 'Body Composition Signal',
     },
-    grooming_baseline: {
-      score: clamp(Math.round(rawScores.projection_potential ?? 50)),
-      confidence: 'low',
-      label: 'Grooming Baseline',
+    frame_development: {
+      score: clamp(Math.round(rawScores.projection_potential ?? rawScores.frame ?? 50)),
+      confidence: 'med',
+      label: 'Frame Development Signal',
     },
-    style_signal: {
-      score: 50, // lightweight — no photo data for style
+    inflammation_puffiness: {
+      score: clamp(Math.round(rawScores.inflammation ?? rawScores.puffiness ?? 50)),
       confidence: 'low',
-      label: 'Style Signal',
+      label: 'Inflammation / Puffiness Signal',
     },
   };
-}
-
-/**
- * Enrich grooming/skin scores with manual inputs.
- */
-export function enrichWithManualInputs(
-  scores: PresenceScores,
-  manual?: ManualInputs,
-): PresenceScores {
-  if (!manual) return scores;
-  const enriched = { ...scores };
-
-  // Skincare enrichment
-  const skinBonus = manual.skincare_routine === 'full' ? 15 : manual.skincare_routine === 'basic' ? 5 : -10;
-  enriched.grooming_baseline = {
-    ...enriched.grooming_baseline,
-    score: clamp(enriched.grooming_baseline.score + skinBonus),
-  };
-
-  return enriched;
 }
 
 /**
@@ -78,7 +57,6 @@ export function enrichWithManualInputs(
 export function generateFindings(
   rawMetrics: Record<string, any>,
   scores: PresenceScores,
-  manual?: ManualInputs,
 ): Finding[] {
   const findings: Finding[] = [];
 
@@ -88,17 +66,17 @@ export function generateFindings(
   if (scores.posture_alignment.score < 40) {
     findings.push({ id: 'rounded_shoulders', text: 'Rounded shoulders pattern detected', severity: 'notable' });
   }
-  if (scores.facial_definition.score < 50) {
+  if (scores.facial_structure.score < 50) {
     findings.push({ id: 'jaw_bf', text: 'Jawline definition limited by body composition signal', severity: 'moderate' });
   }
   if (scores.body_composition.score < 50) {
     findings.push({ id: 'body_comp', text: 'Body composition above optimal range for definition', severity: 'mild' });
   }
-  if (manual?.skincare_routine === 'none') {
-    findings.push({ id: 'no_skincare', text: 'No skincare routine reported (from manual input)', severity: 'mild' });
+  if (scores.frame_development.score < 45) {
+    findings.push({ id: 'frame_low', text: 'Frame development below threshold', severity: 'mild' });
   }
-  if (scores.grooming_baseline.score < 45) {
-    findings.push({ id: 'grooming_low', text: 'Grooming baseline below threshold', severity: 'mild' });
+  if (scores.inflammation_puffiness.score < 45) {
+    findings.push({ id: 'inflammation', text: 'Elevated inflammation or puffiness signals detected', severity: 'moderate' });
   }
 
   return findings.slice(0, 6);
@@ -108,19 +86,20 @@ export function generateFindings(
  * Select top 3 priority fixes based on scores.
  */
 export function selectTopPriorities(scores: PresenceScores, findings: Finding[]): FixItem[] {
-  // Score each fix by relevance
   const scored: { fix: FixItem; relevance: number }[] = FIX_LIBRARY.map(fix => {
     let relevance = fix.impact === 'high' ? 3 : fix.impact === 'med' ? 2 : 1;
 
     // Boost relevance based on weak scores
     if (fix.category === 'posture' && scores.posture_alignment.score < 60) relevance += 3;
-    if (fix.category === 'face' && scores.facial_definition.score < 60) relevance += 3;
+    if (fix.category === 'face' && scores.facial_structure.score < 60) relevance += 3;
     if (fix.category === 'body' && scores.body_composition.score < 60) relevance += 2;
-    if (fix.category === 'skin' && scores.grooming_baseline.score < 55) relevance += 2;
-    if (fix.category === 'grooming' && scores.grooming_baseline.score < 55) relevance += 2;
+    if (fix.category === 'frame' && scores.frame_development.score < 55) relevance += 2;
+    if (fix.category === 'skin' && scores.inflammation_puffiness.score < 45) relevance += 2;
+    if (fix.category === 'recovery' && scores.inflammation_puffiness.score < 50) relevance += 2;
 
-    // Prefer easy/high-impact
+    // Prefer easy/high-impact and tier 1
     if (fix.difficulty === 'easy' && fix.impact === 'high') relevance += 2;
+    if (fix.tier === 1) relevance += 1;
 
     return { fix, relevance };
   });
@@ -145,21 +124,19 @@ export function computeStructuralPotential(scores: PresenceScores): StructuralPo
 export function buildScanResult(
   rawScores: Record<string, any>,
   rawMetrics: Record<string, any>,
-  manual?: ManualInputs,
   scanId?: string,
 ): PresenceScanResult {
-  let scores = mapRawScoresToPresence(rawScores);
-  scores = enrichWithManualInputs(scores, manual);
+  const scores = mapRawScoresToPresence(rawScores);
 
   const presenceIndex = Math.round(
-    scores.facial_definition.score * 0.25 +
+    scores.facial_structure.score * 0.25 +
     scores.posture_alignment.score * 0.25 +
     scores.body_composition.score * 0.20 +
-    scores.grooming_baseline.score * 0.15 +
-    scores.style_signal.score * 0.15
+    scores.frame_development.score * 0.15 +
+    scores.inflammation_puffiness.score * 0.15
   );
 
-  const findings = generateFindings(rawMetrics, scores, manual);
+  const findings = generateFindings(rawMetrics, scores);
   const topPriorities = selectTopPriorities(scores, findings);
   const structural_potential = computeStructuralPotential(scores);
 

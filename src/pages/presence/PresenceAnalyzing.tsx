@@ -55,7 +55,6 @@ export default function PresenceAnalyzing() {
         const result = buildScanResult(
           scanData.scores,
           scanData.derived_metrics,
-          config.manual_inputs,
           scanData.id,
         );
         await saveScanResult(result);

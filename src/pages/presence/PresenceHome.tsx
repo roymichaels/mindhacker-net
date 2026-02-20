@@ -7,7 +7,7 @@ import { usePresenceCoach } from '@/hooks/usePresenceCoach';
 import { useNavigate } from 'react-router-dom';
 import { Eye, ArrowLeft, Loader2, ScanLine, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ManualInputs from '@/components/presence/ManualInputs';
+
 
 export default function PresenceHome() {
   const navigate = useNavigate();
@@ -52,8 +52,6 @@ export default function PresenceHome() {
           </Button>
         </div>
 
-        {/* Manual Inputs (optional enrichment) */}
-        <ManualInputs />
 
         {/* Last Scan Panel */}
         {latest && (
