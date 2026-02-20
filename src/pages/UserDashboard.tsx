@@ -22,8 +22,6 @@ import { toast } from 'sonner';
 import { usePromoPopup } from '@/hooks/usePromoPopup';
 import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
-import { DailyPrioritiesModal } from '@/components/dashboard/DailyPrioritiesModal';
-import { useDailyPriorities } from '@/hooks/useDailyPriorities';
 
 const UserDashboard = () => {
   const { t, language } = useTranslation();
@@ -88,7 +86,7 @@ const UserDashboard = () => {
   }, [user?.id]);
 
   const { canAccessHypnosis, showUpgradePrompt: showSubUpgrade, upgradeFeature: subUpgradeFeature, dismissUpgrade: dismissSubUpgrade } = useSubscriptionGate();
-  const { filledToday: prioritiesFilledToday, isLoading: prioritiesLoading } = useDailyPriorities();
+  
 
   const handleOpenHypnosis = () => {
     if (!isLaunchpadComplete) {
@@ -169,12 +167,8 @@ const UserDashboard = () => {
     );
   }
 
-  // Show daily priorities gate for onboarded users who haven't filled today
-  const showPrioritiesGate = !prioritiesLoading && !prioritiesFilledToday;
-
   return (
     <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4 !py-0 md:!py-4 overflow-y-auto">
-      {showPrioritiesGate && <DailyPrioritiesModal />}
       <MobileHeroGrid planData={planData} />
       <section className="md:hidden">
         <ProfileContent />
