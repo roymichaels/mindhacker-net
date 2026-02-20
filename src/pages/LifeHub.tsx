@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye, Waves } from 'lucide-react';
+import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
@@ -95,6 +96,8 @@ export default function LifeHub() {
       <div className="flex flex-col gap-4 flex-1 px-1">
         <div className="pt-1" />
 
+        {/* ── Analysis Progress Bar ── */}
+        <AnalysisProgressBar completionPct={completionPct} isHe={isHe} accentColor="rose" />
 
         {/* ── Motivational Banner ── */}
         <div
