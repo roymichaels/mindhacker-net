@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSubscriptionsModal } from "@/contexts/SubscriptionsModalContext";
-import { TIER_CONFIGS } from "@/lib/subscriptionTiers";
+import { TIER_CONFIGS, type SubscriptionTier } from "@/lib/subscriptionTiers";
 
 interface UpgradePromptModalProps {
   feature: string | null;
@@ -13,7 +13,7 @@ interface UpgradePromptModalProps {
 interface FeatureMessage {
   he: string;
   en: string;
-  targetTier?: "plus" | "pro";
+  targetTier?: SubscriptionTier;
 }
 
 const featureMessages: Record<string, FeatureMessage> = {
@@ -37,20 +37,35 @@ const featureMessages: Record<string, FeatureMessage> = {
     en: "Proactive nudges are a Plus feature",
     targetTier: "plus",
   },
+  combat: {
+    he: "פילר הלחימה זמין מ-Plus",
+    en: "The Combat pillar requires Plus",
+    targetTier: "plus",
+  },
   core: {
-    he: "הליבה זמינה למנויי Pro",
-    en: "The Core hub requires a Pro subscription",
-    targetTier: "pro",
+    he: "שחרר את הפילרים המלאים עם Plus",
+    en: "Unlock full pillar depth with Plus",
+    targetTier: "plus",
   },
   arena: {
-    he: "הזירה זמינה למנויי Pro",
-    en: "The Arena hub requires a Pro subscription",
-    targetTier: "pro",
+    he: "גישה מלאה לזירה זמינה מ-Plus",
+    en: "Full Arena access requires Plus",
+    targetTier: "plus",
   },
   projects: {
-    he: "מודול הפרויקטים זמין למנויי Pro",
-    en: "The Projects module requires a Pro subscription",
-    targetTier: "pro",
+    he: "מודול הפרויקטים זמין ב-Apex",
+    en: "The Projects module requires Apex",
+    targetTier: "apex",
+  },
+  proactive: {
+    he: "מנוע האינטליגנציה הפרואקטיבית זמין ב-Apex",
+    en: "Full proactive intelligence requires Apex",
+    targetTier: "apex",
+  },
+  business_advanced: {
+    he: "עסקים מתקדם זמין ב-Apex",
+    en: "Business Advanced requires Apex",
+    targetTier: "apex",
   },
   default: {
     he: "פיצ'ר זה זמין למנויים בתשלום",
@@ -68,7 +83,7 @@ const UpgradePromptModal = ({ feature, onDismiss }: UpgradePromptModalProps) => 
 
   const config = featureMessages[feature] || featureMessages.default;
   const message = isRTL ? config.he : config.en;
-  const target = config.targetTier || "plus";
+  const target: SubscriptionTier = config.targetTier || "plus";
   const tierConfig = TIER_CONFIGS[target];
   const pricing = isRTL ? `₪${tierConfig.priceILS}/חודש` : `$${tierConfig.priceUSD}/month`;
   const label = tierConfig.label;

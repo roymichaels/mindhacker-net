@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 const TIER_PRICES: Record<string, { priceId: string; trial?: number }> = {
-  plus:     { priceId: "price_1T2sbYL9lVJ44TbRzI0K3mzx", trial: 7 },
-  pro:      { priceId: "price_1T2s7ZL9lVJ44TbRrZhs4rA5" },
+  plus:  { priceId: "price_1T30RDL9lVJ44TbRPRLAICE8", trial: 7 },
+  apex:  { priceId: "price_1T30dML9lVJ44TbRYgjf56K9" },
 };
 
 serve(async (req) => {

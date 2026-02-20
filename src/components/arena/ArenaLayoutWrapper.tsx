@@ -1,6 +1,6 @@
 /**
  * ArenaLayoutWrapper - Wraps ArenaHub with sidebar-driven layout.
- * Gated behind Pro subscription.
+ * Gated behind Plus subscription (was Pro).
  */
 import { Suspense, lazy, useState } from 'react';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -16,15 +16,15 @@ const ArenaHub = lazy(() => import('@/pages/ArenaHub'));
 export default function ArenaLayoutWrapper() {
   const [wizardTrigger, setWizardTrigger] = useState(0);
   const { isLaunchpadComplete } = useLaunchpadProgress();
-  const { canAccessProjects: canAccessPro, isLoading } = useSubscriptionGate();
+  const { canAccessArenaFull, isLoading } = useSubscriptionGate();
 
-  // Pro gate
-  if (!isLoading && !canAccessPro) {
+  // Plus gate (Arena full access requires Plus+)
+  if (!isLoading && !canAccessArenaFull) {
     return (
       <Suspense fallback={<PageSkeleton />}>
         <DashboardLayout leftSidebar={null} rightSidebar={null}>
           <div className="flex items-center justify-center min-h-[60vh] p-4">
-            <ProGateOverlay feature="arena" className="max-w-md w-full" />
+            <ProGateOverlay feature="arena" targetTier="plus" className="max-w-md w-full" />
           </div>
         </DashboardLayout>
       </Suspense>
