@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { getDomainById } from '@/navigation/lifeDomains';
+import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,14 @@ export default function LifeDomainPage() {
                 ? '7 שאלות ממוקדות כדי לבנות תוכנית 90 יום מותאמת אישית לתחום הזה.'
                 : '7 focused questions to build a personalized 90-day plan for this domain.'}
             </p>
-            <Button onClick={() => setIntakeOpen(true)} size="lg" className="mt-2">
+            <Button onClick={() => {
+              const isArena = ARENA_DOMAINS.some(d => d.id === domain.id);
+              if (isArena) {
+                navigate(`/life/${domain.id}/assess`);
+              } else {
+                setIntakeOpen(true);
+              }
+            }} size="lg" className="mt-2">
               <Play className="w-4 h-4 mr-2" />
               {isHebrew ? 'התחל הגדרה' : 'Start Configuration'}
             </Button>

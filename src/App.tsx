@@ -106,6 +106,12 @@ const ConsciousnessHome = lazy(() => import("./pages/consciousness/Consciousness
 const ConsciousnessAssess = lazy(() => import("./pages/consciousness/ConsciousnessAssess"));
 const ConsciousnessResults = lazy(() => import("./pages/consciousness/ConsciousnessResults"));
 const ConsciousnessHistory = lazy(() => import("./pages/consciousness/ConsciousnessHistory"));
+const WealthAssess = lazy(() => import("./pages/arena/WealthAssess"));
+const WealthResults = lazy(() => import("./pages/arena/WealthResults"));
+const InfluenceAssess = lazy(() => import("./pages/arena/InfluenceAssess"));
+const InfluenceResults = lazy(() => import("./pages/arena/InfluenceResults"));
+const RelationshipsAssess = lazy(() => import("./pages/arena/RelationshipsAssess"));
+const RelationshipsResults = lazy(() => import("./pages/arena/RelationshipsResults"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -613,6 +619,13 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
+                        {/* Arena domain AI assessment routes */}
+                        <Route path="/life/wealth/assess" element={<ProtectedRoute><WealthAssess /></ProtectedRoute>} />
+                        <Route path="/life/wealth/results" element={<ProtectedRoute><WealthResults /></ProtectedRoute>} />
+                        <Route path="/life/influence/assess" element={<ProtectedRoute><InfluenceAssess /></ProtectedRoute>} />
+                        <Route path="/life/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
+                        <Route path="/life/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
+                        <Route path="/life/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
                         <Route
                           path="/life/:domainId"
                           element={

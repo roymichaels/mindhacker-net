@@ -4611,6 +4611,36 @@ export const he = {
       lever_yoga: "יוגה",
       lever_yoga_why: "חיבור בין גוף, נשימה ותודעה",
     },
+    wealth: {
+      assessTitle: 'אבחון עושר',
+      assessSubtitle: 'שיחה קצרה שתחשוף את היחס שלך לכסף, הזדמנויות, ומה באמת עוצר אותך.',
+      sub_income_clarity: 'בהירות הכנסה',
+      sub_financial_discipline: 'משמעת פיננסית',
+      sub_value_creation: 'יצירת ערך',
+      sub_opportunity_awareness: 'זיהוי הזדמנויות',
+      sub_wealth_mindset: 'חשיבה כלכלית',
+      sub_strategic_positioning: 'מיצוב אסטרטגי',
+    },
+    influence: {
+      assessTitle: 'אבחון השפעה',
+      assessSubtitle: 'שיחה קצרה שתגלה את הנוכחות שלך, יכולת המנהיגות, ואיפה אתה מתחזה.',
+      sub_communication_power: 'כוח תקשורת',
+      sub_presence_impact: 'השפעת נוכחות',
+      sub_leadership_capacity: 'יכולת מנהיגות',
+      sub_social_intelligence: 'אינטליגנציה חברתית',
+      sub_persuasion_skill: 'כישורי שכנוע',
+      sub_authenticity_in_power: 'אותנטיות בכוח',
+    },
+    relationships: {
+      assessTitle: 'אבחון קשרים',
+      assessSubtitle: 'שיחה קצרה שתחשוף את עומק הקשרים שלך, גבולות, ואיפה אתה נותן יותר מדי או פחות מדי.',
+      sub_connection_depth: 'עומק קשרים',
+      sub_boundary_clarity: 'גבולות ברורים',
+      sub_vulnerability_access: 'פתיחות',
+      sub_network_quality: 'איכות רשת',
+      sub_conflict_capacity: 'התמודדות עם קונפליקט',
+      sub_reciprocity_balance: 'איזון נתינה-קבלה',
+    },
 };
 
 export type TranslationKeys = typeof he;
