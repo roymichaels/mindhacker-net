@@ -39,7 +39,7 @@ export const CORE_DOMAINS: LifeDomain[] = [
 /** Arena domains — external impact (displayed in Arena/זירה hub alongside Projects) */
 export const ARENA_DOMAINS: LifeDomain[] = [
   { id: 'wealth',        labelEn: 'Wealth',        labelHe: 'עושר',     icon: TrendingUp, color: 'emerald', description: 'Income, business, career, monetization' },
-  { id: 'influence',     labelEn: 'Influence',     labelHe: 'השפעה',    icon: Crown,      color: 'orange',  description: 'Communication, leadership, charisma' },
+  { id: 'influence',     labelEn: 'Influence',     labelHe: 'השפעה',    icon: Crown,      color: 'purple',  description: 'Communication, leadership, charisma' },
   { id: 'relationships', labelEn: 'Relationships', labelHe: 'קשרים',   icon: Users,      color: 'sky',     description: 'Connections, partnerships, social capital' },
 ];
 

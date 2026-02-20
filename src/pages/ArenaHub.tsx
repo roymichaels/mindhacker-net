@@ -24,13 +24,15 @@ import { useBusinessJourneys } from '@/hooks/useBusinessJourneys';
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
   emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 hover:border-emerald-400/60',
-  orange:  'from-orange-500/20 to-orange-600/5 border-orange-500/30 hover:border-orange-400/60',
+  purple:  'from-purple-500/20 to-purple-600/5 border-purple-500/30 hover:border-purple-400/60',
   sky:     'from-sky-500/20 to-sky-600/5 border-sky-500/30 hover:border-sky-400/60',
   amber:   'from-amber-500/20 to-amber-600/5 border-amber-500/30 hover:border-amber-400/60',
+  orange:  'from-orange-500/20 to-orange-600/5 border-orange-500/30 hover:border-orange-400/60',
+  rose:    'from-rose-500/20 to-rose-600/5 border-rose-500/30 hover:border-rose-400/60',
 };
 
 const iconColorMap: Record<string, string> = {
-  emerald: 'text-emerald-400', orange: 'text-orange-400', sky: 'text-sky-400', amber: 'text-amber-400',
+  emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400',
 };
 
 const statusBadge: Record<string, { label: string; labelHe: string; variant: 'default' | 'secondary' | 'outline' }> = {
@@ -247,10 +249,10 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               onClick={() => navigate('/business/journey')}
               className={cn(
                 'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                colorMap.orange
+                colorMap.rose
               )}
             >
-              <Briefcase className="w-7 h-7 transition-transform group-hover:scale-110 text-orange-400" />
+              <Briefcase className="w-7 h-7 transition-transform group-hover:scale-110 text-rose-400" />
               <span className="font-semibold text-foreground text-sm">
                 {isHe ? 'עסקים' : 'Business'}
               </span>
@@ -271,7 +273,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
         <div className="grid grid-cols-3 gap-2">
           {[
             { icon: FolderKanban, label: isHe ? 'פרויקטים' : 'Projects', value: `${activeProjects.length}`, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-            { icon: Briefcase, label: isHe ? 'עסקים' : 'Businesses', value: `${businesses.length}`, color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
+            { icon: Briefcase, label: isHe ? 'עסקים' : 'Businesses', value: `${businesses.length}`, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
             { icon: Target, label: isHe ? 'תחומים' : 'Domains', value: `${activeDomains}/${totalArena}`, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
           ].map((m) => (
             <div key={m.label} className={cn("rounded-xl border p-3 flex flex-col items-center gap-1 text-center", m.bg)}>
