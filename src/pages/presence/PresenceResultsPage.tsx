@@ -15,11 +15,11 @@ import { cn } from '@/lib/utils';
 import type { SubScoreKey } from '@/lib/presence/types';
 
 const SUB_SCORE_ORDER: SubScoreKey[] = [
-  'facial_definition',
+  'facial_structure',
   'posture_alignment',
   'body_composition',
-  'grooming_baseline',
-  'style_signal',
+  'frame_development',
+  'inflammation_puffiness',
 ];
 
 export default function PresenceResultsPage() {
@@ -97,6 +97,13 @@ export default function PresenceResultsPage() {
             </span>
           </div>
         </div>
+
+        {/* Low confidence warning */}
+        {latest.confidence === 'low' && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+            <p className="text-sm text-amber-600">Lighting or angle reduced confidence. Re-scan recommended.</p>
+          </div>
+        )}
 
         {/* B) Subscores */}
         <div className="space-y-2">

@@ -8,7 +8,6 @@ import { useMemo, useCallback } from 'react';
 import type {
   PresenceDomainConfig,
   PresenceScanResult,
-  ManualInputs,
 } from '@/lib/presence/types';
 
 export function usePresenceCoach() {
@@ -44,13 +43,6 @@ export function usePresenceCoach() {
     [config, saveConfig],
   );
 
-  const saveManualInputs = useCallback(
-    async (inputs: ManualInputs) => {
-      await saveConfig({ manual_inputs: inputs });
-    },
-    [saveConfig],
-  );
-
   const saveFocusItems = useCallback(
     async (itemIds: string[]) => {
       await saveConfig({ focus_items_selected: itemIds });
@@ -73,7 +65,6 @@ export function usePresenceCoach() {
     isLoading,
     isSaving: upsertDomain.isPending,
     saveScanResult,
-    saveManualInputs,
     saveFocusItems,
     markComplete,
     saveConfig,
