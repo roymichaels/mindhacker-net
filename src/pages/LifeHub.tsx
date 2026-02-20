@@ -1,9 +1,8 @@
 /**
  * LifeHub — Grid of 8 outcome-based domains.
- * Gated behind onboarding completion.
+ * Rendered inside LifeLayoutWrapper (which provides DashboardLayout + sidebars).
  */
 import { useNavigate } from 'react-router-dom';
-import { PageShell } from '@/components/aurora-ui/PageShell';
 import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -36,51 +35,49 @@ const statusBadge: Record<string, { label: string; labelHe: string; variant: 'de
 export default function LifeHub() {
   const navigate = useNavigate();
   const { statusMap, isLoading } = useLifeDomains();
-  const { language } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
 
   return (
-    <PageShell>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            {isHebrew ? 'מערכת חיים' : 'Life System'}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isHebrew ? '8 תחומי ביצוע. מבנה קבוע. ביצוע יומי.' : '8 execution domains. Fixed structure. Daily execution.'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {LIFE_DOMAINS.map((domain) => {
-            const status = statusMap[domain.id] ?? 'unconfigured';
-            const badge = statusBadge[status] ?? statusBadge.unconfigured;
-            const Icon = domain.icon;
-
-            return (
-              <button
-                key={domain.id}
-                onClick={() => navigate(`/life/${domain.id}`)}
-                className={cn(
-                  'relative flex flex-col items-center gap-3 p-5 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                  colorMap[domain.color] ?? colorMap.slate
-                )}
-              >
-                <Icon className={cn('w-8 h-8 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
-                <span className="font-semibold text-foreground text-sm md:text-base">
-                  {isHebrew ? domain.labelHe : domain.labelEn}
-                </span>
-                <p className="text-xs text-muted-foreground text-center leading-tight hidden md:block">
-                  {domain.description}
-                </p>
-                <Badge variant={badge.variant} className="text-[10px]">
-                  {isHebrew ? badge.labelHe : badge.label}
-                </Badge>
-              </button>
-            );
-          })}
-        </div>
+    <div className="space-y-6 pt-4 sm:pt-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          {isHebrew ? 'מערכת חיים' : 'Life System'}
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          {isHebrew ? '8 תחומי ביצוע. מבנה קבוע. ביצוע יומי.' : '8 execution domains. Fixed structure. Daily execution.'}
+        </p>
       </div>
-    </PageShell>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        {LIFE_DOMAINS.map((domain) => {
+          const status = statusMap[domain.id] ?? 'unconfigured';
+          const badge = statusBadge[status] ?? statusBadge.unconfigured;
+          const Icon = domain.icon;
+
+          return (
+            <button
+              key={domain.id}
+              onClick={() => navigate(`/life/${domain.id}`)}
+              className={cn(
+                'relative flex flex-col items-center gap-3 p-5 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
+                colorMap[domain.color] ?? colorMap.slate
+              )}
+            >
+              <Icon className={cn('w-8 h-8 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
+              <span className="font-semibold text-foreground text-sm md:text-base">
+                {isHebrew ? domain.labelHe : domain.labelEn}
+              </span>
+              <p className="text-xs text-muted-foreground text-center leading-tight hidden md:block">
+                {domain.description}
+              </p>
+              <Badge variant={badge.variant} className="text-[10px]">
+                {isHebrew ? badge.labelHe : badge.label}
+              </Badge>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
