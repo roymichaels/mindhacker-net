@@ -22,7 +22,6 @@ interface MobileTimePickerProps {
 }
 
 const ITEM_HEIGHT = 44;
-const VISIBLE_ITEMS = 5;
 
 export function MobileTimePicker({
   value,
@@ -45,7 +44,7 @@ export function MobileTimePicker({
       const [h] = value.split(':');
       return parseInt(h, 10);
     }
-    return 7; // Default
+    return 7;
   });
   const [selectedMinute, setSelectedMinute] = useState(() => {
     if (value && value !== 'varies') {
@@ -55,12 +54,10 @@ export function MobileTimePicker({
     return 0;
   });
 
-  // Handle wrap-around (e.g. minHour=18, maxHour=3 means 18..23,0..3)
   const hours = (() => {
     if (minHour <= maxHour) {
       return Array.from({ length: maxHour - minHour + 1 }, (_, i) => minHour + i);
     }
-    // Wrap around midnight
     const evening = Array.from({ length: 24 - minHour }, (_, i) => minHour + i);
     const morning = Array.from({ length: maxHour + 1 }, (_, i) => i);
     return [...evening, ...morning];
@@ -72,6 +69,8 @@ export function MobileTimePicker({
 
   const hourRef = useRef<HTMLDivElement>(null);
   const minuteRef = useRef<HTMLDivElement>(null);
+  const hourTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const minuteTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const scrollToSelected = useCallback(() => {
     if (hourRef.current) {
@@ -90,13 +89,24 @@ export function MobileTimePicker({
     }
   }, [isOpen, scrollToSelected]);
 
-  const handleScroll = (ref: React.RefObject<HTMLDivElement>, items: number[], setter: (val: number) => void) => {
-    if (!ref.current) return;
-    const scrollTop = ref.current.scrollTop;
-    const index = Math.round(scrollTop / ITEM_HEIGHT);
-    const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
-    setter(items[clampedIndex]);
-  };
+  // Debounced scroll handler — only updates state + snaps after scrolling stops
+  const handleScrollEnd = useCallback((
+    ref: React.RefObject<HTMLDivElement>,
+    items: number[],
+    setter: (val: number) => void,
+    timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | undefined>
+  ) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (!ref.current) return;
+      const scrollTop = ref.current.scrollTop;
+      const index = Math.round(scrollTop / ITEM_HEIGHT);
+      const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
+      setter(items[clampedIndex]);
+      // Snap to exact position
+      ref.current.scrollTo({ top: clampedIndex * ITEM_HEIGHT, behavior: 'smooth' });
+    }, 120);
+  }, []);
 
   const handleConfirm = () => {
     const timeStr = `${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}`;
@@ -145,15 +155,12 @@ export function MobileTimePicker({
       {/* Modal Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-          {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
           
-          {/* Picker Panel */}
           <div className="relative w-full max-w-sm bg-card border border-border rounded-t-3xl sm:rounded-3xl shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <button
                 onClick={() => setIsOpen(false)}
@@ -170,7 +177,6 @@ export function MobileTimePicker({
               </button>
             </div>
 
-            {/* Varies Option */}
             {showVaries && (
               <div className="p-4 border-b border-border">
                 <button
@@ -193,27 +199,25 @@ export function MobileTimePicker({
               </div>
             )}
 
-            {/* Time Wheels */}
             {!isVaries && (
               <div className="flex items-center justify-center p-4 gap-4">
                 {/* Hours Wheel */}
                 <div className="relative">
                   <div 
                     ref={hourRef}
-                    onScroll={() => handleScroll(hourRef, hours, setSelectedHour)}
-                    className="h-[220px] w-20 overflow-y-auto scrollbar-hide snap-y snap-mandatory"
-                    style={{ scrollSnapType: 'y mandatory' }}
+                    onScroll={() => handleScrollEnd(hourRef, hours, setSelectedHour, hourTimerRef)}
+                    className="h-[220px] w-20 overflow-y-auto scrollbar-hide"
+                    style={{ scrollBehavior: 'auto' }}
                   >
-                    {/* Padding for centering */}
                     <div style={{ height: ITEM_HEIGHT * 2 }} />
                     {hours.map((hour) => (
                       <div
                         key={hour}
                         className={cn(
-                          "h-[44px] flex items-center justify-center text-2xl tabular-nums snap-center transition-all",
+                          "h-[44px] flex items-center justify-center text-2xl tabular-nums transition-colors duration-150",
                           hour === selectedHour 
-                            ? "text-foreground font-bold scale-110" 
-                            : "text-muted-foreground/50"
+                            ? "text-foreground font-bold" 
+                            : "text-muted-foreground/40"
                         )}
                         onClick={() => {
                           setSelectedHour(hour);
@@ -228,30 +232,28 @@ export function MobileTimePicker({
                     ))}
                     <div style={{ height: ITEM_HEIGHT * 2 }} />
                   </div>
-                  {/* Selection highlight */}
                   <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-[44px] border-t-2 border-b-2 border-primary/30 pointer-events-none rounded-lg bg-primary/5" />
                 </div>
 
-                {/* Separator */}
                 <span className="text-3xl font-bold text-muted-foreground">:</span>
 
                 {/* Minutes Wheel */}
                 <div className="relative">
                   <div 
                     ref={minuteRef}
-                    onScroll={() => handleScroll(minuteRef, minutes, setSelectedMinute)}
-                    className="h-[220px] w-20 overflow-y-auto scrollbar-hide snap-y snap-mandatory"
-                    style={{ scrollSnapType: 'y mandatory' }}
+                    onScroll={() => handleScrollEnd(minuteRef, minutes, setSelectedMinute, minuteTimerRef)}
+                    className="h-[220px] w-20 overflow-y-auto scrollbar-hide"
+                    style={{ scrollBehavior: 'auto' }}
                   >
                     <div style={{ height: ITEM_HEIGHT * 2 }} />
                     {minutes.map((minute) => (
                       <div
                         key={minute}
                         className={cn(
-                          "h-[44px] flex items-center justify-center text-2xl tabular-nums snap-center transition-all",
+                          "h-[44px] flex items-center justify-center text-2xl tabular-nums transition-colors duration-150",
                           minute === selectedMinute 
-                            ? "text-foreground font-bold scale-110" 
-                            : "text-muted-foreground/50"
+                            ? "text-foreground font-bold" 
+                            : "text-muted-foreground/40"
                         )}
                         onClick={() => {
                           setSelectedMinute(minute);
@@ -271,7 +273,6 @@ export function MobileTimePicker({
               </div>
             )}
 
-            {/* Safe area padding for mobile */}
             <div className="h-6 sm:h-4" />
           </div>
         </div>
