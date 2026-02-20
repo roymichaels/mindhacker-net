@@ -86,6 +86,9 @@ const PowerHome = lazy(() => import("./pages/power/PowerHome"));
 const PowerAssess = lazy(() => import("./pages/power/PowerAssess"));
 const PowerResultsPage = lazy(() => import("./pages/power/PowerResultsPage"));
 const PowerHistory = lazy(() => import("./pages/power/PowerHistory"));
+const VitalityHome = lazy(() => import("./pages/vitality/VitalityHome"));
+const VitalityResults = lazy(() => import("./pages/vitality/VitalityResults"));
+const VitalityHistory = lazy(() => import("./pages/vitality/VitalityHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -425,6 +428,31 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <PowerHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Vitality pillar routes */}
+                        <Route
+                          path="/life/vitality"
+                          element={
+                            <ProtectedRoute>
+                              <VitalityHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/vitality/results"
+                          element={
+                            <ProtectedRoute>
+                              <VitalityResults />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/vitality/history"
+                          element={
+                            <ProtectedRoute>
+                              <VitalityHistory />
                             </ProtectedRoute>
                           }
                         />
