@@ -1,13 +1,12 @@
 /**
  * @tab Life > Power > History
- * Simple assessment history list.
  */
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { ArrowLeft, ChevronRight, ChevronLeft, Dumbbell } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Dumbbell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PowerDomainConfig, PowerAssessment } from '@/lib/power/types';
 
@@ -18,12 +17,11 @@ export default function PowerHistory() {
 
   const row = getDomain('power');
   const config = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
-  const BackIcon = isRTL ? ChevronRight : ArrowLeft;
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
   const allAssessments: PowerAssessment[] = [];
-  if (config.latest_assessment) allAssessments.push(config.latest_assessment);
+  if (config.latest) allAssessments.push(config.latest);
   if (config.history) allAssessments.push(...config.history);
-  // Sort newest first
   allAssessments.sort((a, b) => new Date(b.assessedAt).getTime() - new Date(a.assessedAt).getTime());
 
   const scoreColor = (s: number) =>
@@ -57,17 +55,24 @@ export default function PowerHistory() {
             {allAssessments.map((a, idx) => (
               <div key={idx} className="p-4 rounded-xl border border-border bg-card">
                 <div className="flex items-center justify-between mb-2">
-                  <span className={cn('text-2xl font-black', a.powerIndex >= 0 ? scoreColor(a.powerIndex) : 'text-muted-foreground')}>
-                    {a.powerIndex >= 0 ? a.powerIndex : '—'}
-                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span className={cn('text-2xl font-black', a.powerIndex >= 0 ? scoreColor(a.powerIndex) : 'text-muted-foreground')}>
+                      {a.powerIndex >= 0 ? a.powerIndex : '—'}
+                    </span>
+                    <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full',
+                      a.confidence === 'high' ? 'bg-emerald-500/10 text-emerald-600' :
+                      a.confidence === 'med' ? 'bg-amber-500/10 text-amber-600' :
+                      'bg-muted text-muted-foreground'
+                    )}>{t(`power.conf_${a.confidence}`)}</span>
+                  </div>
                   <span className="text-xs text-muted-foreground">
                     {new Date(a.assessedAt).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {a.selectedModules.map(m => (
+                  {a.selectedTracks.map(m => (
                     <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      {t(`power.mod_${m}`)}
+                      {t(`power.track_${m}`)}
                     </span>
                   ))}
                 </div>
