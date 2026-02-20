@@ -102,6 +102,10 @@ const ExpansionHome = lazy(() => import("./pages/expansion/ExpansionHome"));
 const ExpansionAssess = lazy(() => import("./pages/expansion/ExpansionAssess"));
 const ExpansionResults = lazy(() => import("./pages/expansion/ExpansionResults"));
 const ExpansionHistory = lazy(() => import("./pages/expansion/ExpansionHistory"));
+const ConsciousnessHome = lazy(() => import("./pages/consciousness/ConsciousnessHome"));
+const ConsciousnessAssess = lazy(() => import("./pages/consciousness/ConsciousnessAssess"));
+const ConsciousnessResults = lazy(() => import("./pages/consciousness/ConsciousnessResults"));
+const ConsciousnessHistory = lazy(() => import("./pages/consciousness/ConsciousnessHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
 const CoachingJourney = lazy(() => import("./pages/CoachingJourney"));
@@ -573,6 +577,39 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <ExpansionHistory />
+                            </ProtectedRoute>
+                          }
+                        />
+                        {/* Consciousness pillar routes */}
+                        <Route
+                          path="/life/consciousness"
+                          element={
+                            <ProtectedRoute>
+                              <ConsciousnessHome />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/consciousness/assess"
+                          element={
+                            <ProtectedRoute>
+                              <ConsciousnessAssess />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/consciousness/results"
+                          element={
+                            <ProtectedRoute>
+                              <ConsciousnessResults />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/consciousness/history"
+                          element={
+                            <ProtectedRoute>
+                              <ConsciousnessHistory />
                             </ProtectedRoute>
                           }
                         />

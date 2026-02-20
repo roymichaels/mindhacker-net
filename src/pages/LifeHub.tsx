@@ -4,14 +4,14 @@
  */
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { CORE_DOMAINS, getDomainById } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye, Waves } from 'lucide-react';
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
@@ -122,6 +122,34 @@ export default function LifeHub() {
             ))}
           </div>
         </div>
+
+        {/* ── Consciousness Hero Card (2-col) ── */}
+        <motion.button
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={() => navigate('/life/consciousness')}
+          className={cn(
+            'relative flex items-center gap-4 p-5 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group col-span-2',
+            'from-violet-500/25 to-violet-600/5 border-violet-500/40 hover:border-violet-400/70'
+          )}
+        >
+          <Waves className="w-9 h-9 text-violet-400 transition-transform group-hover:scale-110 shrink-0" />
+          <div className="flex-1 min-w-0 text-start">
+            <span className="font-bold text-foreground text-base">{isHe ? 'תודעה' : 'Consciousness'}</span>
+            <p className="text-xs text-muted-foreground leading-tight mt-0.5">
+              {isHe ? 'תדר נשמה, זיהוי מסכות, יושרה פנימית' : 'Soul frequency, identity unmasking, inner integrity'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={(statusMap['consciousness'] ?? 'unconfigured') === 'active' ? 'default' : (statusMap['consciousness'] ?? 'unconfigured') === 'configured' ? 'secondary' : 'outline'} className="text-[9px]">
+              {isHe
+                ? (statusBadge[statusMap['consciousness'] ?? 'unconfigured']?.labelHe ?? 'לא הוגדר')
+                : (statusBadge[statusMap['consciousness'] ?? 'unconfigured']?.label ?? 'Not Set Up')}
+            </Badge>
+            <ChevronIcon className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
+          </div>
+        </motion.button>
 
         {/* ── Domain Grid ── */}
         <div>
