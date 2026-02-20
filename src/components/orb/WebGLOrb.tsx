@@ -717,7 +717,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     animate();
     return () => { cancelAnimationFrame(frameRef.current); };
-  }, [state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, textureType, activeMorphology]);
+  }, [sceneVersion, state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, textureType, activeMorphology]);
 
   // Resize
   useEffect(() => {
