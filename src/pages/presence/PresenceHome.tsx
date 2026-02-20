@@ -4,14 +4,18 @@
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { usePresenceCoach } from '@/hooks/usePresenceCoach';
+import { usePresenceScans } from '@/hooks/usePresenceScans';
 import { useNavigate } from 'react-router-dom';
-import { Eye, ArrowLeft, Loader2, ScanLine, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Eye, ArrowLeft, Loader2, ScanLine, ChevronRight, ChevronLeft, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
+import { buildScanResult } from '@/lib/presence/scoring';
+import { toast } from 'sonner';
 
 export default function PresenceHome() {
   const navigate = useNavigate();
-  const { config, isLoading } = usePresenceCoach();
+  const { config, isLoading, saveScanResult } = usePresenceCoach();
+  const { recalculate, isAnalyzing } = usePresenceScans();
   const { t, isRTL } = useTranslation();
   const latest = config.latest_scan;
 
@@ -24,6 +28,17 @@ export default function PresenceHome() {
       </PageShell>
     );
   }
+
+  const handleRecalculate = async () => {
+    try {
+      const scanData = await recalculate();
+      const result = buildScanResult(scanData.scores, scanData.derived_metrics, scanData.id);
+      await saveScanResult(result);
+      toast.success(t('presence.recalculateSuccess'));
+    } catch (err: any) {
+      toast.error(err.message || 'Recalculation failed.');
+    }
+  };
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
   const BackIcon = isRTL ? ChevronRight : ArrowLeft;
@@ -74,7 +89,18 @@ export default function PresenceHome() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/life/presence/scan')} className="flex-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRecalculate}
+                disabled={isAnalyzing}
+                className="flex-1"
+              >
+                {isAnalyzing ? (
+                  <Loader2 className="w-3 h-3 animate-spin me-1" />
+                ) : (
+                  <RefreshCw className="w-3 h-3 me-1" />
+                )}
                 {t('presence.rescan')}
               </Button>
               <Button variant="outline" size="sm" onClick={() => navigate('/life/presence/results')} className="flex-1">
