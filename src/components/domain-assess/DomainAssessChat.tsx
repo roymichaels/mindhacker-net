@@ -18,7 +18,7 @@ import AuroraChatInput from '@/components/aurora/AuroraChatInput';
 import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import type { DomainAssessmentResult, Confidence } from '@/lib/domain-assess/types';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 
 interface ChatMessage {
   id: string;
@@ -332,9 +332,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
               <BackIcon className="w-5 h-5" />
             </Button>
           )}
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0">
-            <AuroraOrbIcon size={20} className="text-primary" />
-          </div>
+          <AuroraHoloOrb size={32} glow="subtle" />
           <div className="flex-1">
             <h1 className="text-sm font-bold text-foreground">
               {isHe ? 'אורורה' : 'Aurora'}

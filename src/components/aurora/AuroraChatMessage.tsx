@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { toast } from 'sonner';
 import AuroraCTAButton from './AuroraCTAButton';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 
 interface AuroraChatMessageProps {
   id: string;
@@ -75,9 +75,7 @@ const AuroraChatMessage = ({
       )}>
         {/* Avatar - only for Aurora */}
         {!isOwn && (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
-            <AuroraOrbIcon size={20} className="text-primary" />
-          </div>
+          <AuroraHoloOrb size={32} glow="subtle" className="mt-0.5" />
         )}
 
         {/* Message Bubble */}

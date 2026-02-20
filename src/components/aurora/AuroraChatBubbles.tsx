@@ -7,7 +7,7 @@ import { useAuroraChat } from '@/hooks/aurora/useAuroraChat';
 import { useAuroraVoice } from '@/hooks/aurora/useAuroraVoice';
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -156,7 +156,7 @@ const AuroraChatBubbles = () => {
             {/* Header with close button */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <AuroraOrbIcon className="w-5 h-5 text-primary" size={20} />
+                <AuroraHoloOrb size={24} glow="none" />
                 <span className="text-sm font-medium text-foreground">
                   {language === 'he' ? 'אורורה' : 'Aurora'}
                 </span>
@@ -201,9 +201,7 @@ const AuroraChatBubbles = () => {
                       )}
                     >
                       {message.is_ai_message && (
-                        <div className="shrink-0">
-                          <AuroraOrbIcon className="w-6 h-6 text-primary" size={24} />
-                        </div>
+                        <AuroraHoloOrb size={24} glow="none" />
                       )}
                       <div className="space-y-1.5 max-w-[80%]">
                         <div
@@ -263,9 +261,7 @@ const AuroraChatBubbles = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-3 justify-start"
                   >
-                    <div className="shrink-0">
-                      <AuroraOrbIcon className="w-6 h-6 text-primary animate-pulse" size={24} />
-                    </div>
+                    <AuroraHoloOrb size={24} glow="subtle" />
                     <div className="max-w-[80%] rounded-xl px-4 py-2 text-sm bg-muted/50 text-foreground">
                       <div className="prose prose-sm dark:prose-invert max-w-none">
                         <ReactMarkdown>{streamingContent}</ReactMarkdown>
@@ -281,9 +277,7 @@ const AuroraChatBubbles = () => {
                     animate={{ opacity: 1 }}
                     className="flex gap-3 justify-start"
                   >
-                    <div className="shrink-0">
-                      <AuroraOrbIcon className="w-6 h-6 text-primary animate-pulse" size={24} />
-                    </div>
+                    <AuroraHoloOrb size={24} glow="subtle" />
                     <div className="bg-muted/50 rounded-xl px-4 py-3">
                       <div className="flex gap-1">
                         <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
