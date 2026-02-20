@@ -11,6 +11,7 @@ import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useProjects } from '@/hooks/useProjects';
 import { useBusinessJourneys } from '@/hooks/useBusinessJourneys';
+import { SidebarOrbWidget } from '@/components/sidebar/SidebarOrbWidget';
 
 interface ArenaHudSidebarProps {
   onNewProject?: () => void;
@@ -68,7 +69,8 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
-
+          <SidebarOrbWidget collapsed />
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           {/* Arena domain icons */}
           <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
             {ARENA_DOMAINS.map((domain) => {
@@ -106,6 +108,8 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
       {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+          <SidebarOrbWidget />
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           {/* Header badge */}
           <div className="w-full rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/20 p-3 flex items-center justify-between">
             <div className="text-center flex-1">
