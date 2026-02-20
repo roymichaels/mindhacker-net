@@ -436,6 +436,23 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   const fractalOctaves = Math.max(2, Math.min(6, profile?.fractalOctaves ?? 4));
   const textureType = profile?.textureType ?? 'flowing';
 
+  // Store animation params in refs so the animation loop doesn't restart on every profile transition frame
+  const morphIntensityRef = useRef(morphIntensity);
+  const morphSpeedRef = useRef(morphSpeed);
+  const fractalOctavesRef = useRef(fractalOctaves);
+  const textureTypeRef = useRef(textureType);
+  const stateRef = useRef(state);
+  const audioLevelRef = useRef(audioLevel);
+  const isTunnelRef = useRef(isTunnel);
+
+  useEffect(() => { morphIntensityRef.current = morphIntensity; }, [morphIntensity]);
+  useEffect(() => { morphSpeedRef.current = morphSpeed; }, [morphSpeed]);
+  useEffect(() => { fractalOctavesRef.current = fractalOctaves; }, [fractalOctaves]);
+  useEffect(() => { textureTypeRef.current = textureType; }, [textureType]);
+  useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => { audioLevelRef.current = audioLevel; }, [audioLevel]);
+  useEffect(() => { isTunnelRef.current = isTunnel; }, [isTunnel]);
+
   const activePalette = useMemo((): ColorPalette => {
     if (profile?.primaryColor) {
       return {
@@ -461,6 +478,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   }, [profile, themeColors]);
 
   const activeMorphology = useMemo(() => getMorphology(activePalette.id), [activePalette.id]);
+  const activeMorphologyRef = useRef(activeMorphology);
+  useEffect(() => { activeMorphologyRef.current = activeMorphology; }, [activeMorphology]);
   const geometryTypes = useMemo(() => getGeometryFromProfile(profile), [profile?.geometryFamily]);
 
   useImperativeHandle(ref, () => ({
@@ -623,6 +642,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
   }, [sceneVersion, gradientColorVecs, gradientModeInt, materialTypeInt, patternTypeInt, patternIntensity, chromaShift, rimLightColor, materialParams, activePalette.accent]);
 
   // ===== ANIMATION LOOP =====
+  // Only depends on sceneVersion — all other params are read from refs to avoid restart-flicker
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current || !solidMeshRef.current) return;
 
@@ -636,8 +656,19 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
-      timeRef.current += 0.012 * morphSpeed;
-      morphPhaseRef.current += 0.005 * morphSpeed;
+      
+      // Read current values from refs (no effect restart needed)
+      const curMorphSpeed = morphSpeedRef.current;
+      const curMorphIntensity = morphIntensityRef.current;
+      const curFractalOctaves = fractalOctavesRef.current;
+      const curTextureType = textureTypeRef.current;
+      const curState = stateRef.current;
+      const curAudioLevel = audioLevelRef.current;
+      const curIsTunnel = isTunnelRef.current;
+      const curMorphology = activeMorphologyRef.current;
+      
+      timeRef.current += 0.012 * curMorphSpeed;
+      morphPhaseRef.current += 0.005 * curMorphSpeed;
 
       const time = timeRef.current;
       const morphPhase = morphPhaseRef.current;
@@ -652,7 +683,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         thinking: { rotMod: 4, morphMod: 2.2, pulseMod: 2.0 },
         session: { rotMod: 1.8, morphMod: 1.5, pulseMod: 1.4 },
         breathing: { rotMod: 0.6, morphMod: 2.0, pulseMod: 0.7 },
-      }[state];
+      }[curState];
       const { rotMod, morphMod, pulseMod } = stateModifier;
 
       // ===== MORPH DEFORMATION =====
@@ -660,7 +691,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
         const positions = solidMesh.geometry.attributes.position;
         
         let noiseFreq = 2.5, noiseSharp = 1.0, waveScale = 1.0;
-        switch (textureType) {
+        switch (curTextureType) {
           case 'crystalline': noiseFreq = 4.0; noiseSharp = 1.5; break;
           case 'ethereal': noiseFreq = 1.8; noiseSharp = 0.6; waveScale = 1.3; break;
           case 'electric': noiseFreq = 3.5; noiseSharp = 2.0; break;
@@ -677,7 +708,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           if (dist === 0) continue;
           const nx = baseX / dist, ny = baseY / dist, nz = baseZ / dist;
 
-          let noiseVal = fbm(nx * noiseFreq + morphPhase * 0.6, ny * noiseFreq + morphPhase * 0.4, nz * noiseFreq + morphPhase * 0.8, fractalOctaves);
+          let noiseVal = fbm(nx * noiseFreq + morphPhase * 0.6, ny * noiseFreq + morphPhase * 0.4, nz * noiseFreq + morphPhase * 0.8, curFractalOctaves);
           if (noiseSharp > 1.2) noiseVal = Math.sign(noiseVal) * Math.pow(Math.abs(noiseVal), 1 / noiseSharp);
 
           const wave1 = Math.sin(ny * 5 + time * 2.5) * Math.cos(nx * 4 + time * 2) * 0.02 * waveScale;
@@ -685,26 +716,24 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
           const wave3 = Math.sin((nx + ny) * 4 + time * 3) * 0.01 * waveScale;
           const pulse1 = Math.sin(time * pulseMod + dist * 4) * 0.01;
           const pulse2 = Math.sin(time * pulseMod * 0.7 + dist * 2) * 0.005;
-          const audioBoost = audioLevel * 0.08;
+          const audioBoost = curAudioLevel * 0.08;
 
-          const deform = noiseVal * morphIntensity * morphMod * 0.06 + wave1 + wave2 + wave3 + pulse1 + pulse2 + audioBoost;
+          const deform = noiseVal * curMorphIntensity * morphMod * 0.06 + wave1 + wave2 + wave3 + pulse1 + pulse2 + audioBoost;
 
           positions.setXYZ(i, baseX + nx * deform, baseY + ny * deform, baseZ + nz * deform);
         }
         positions.needsUpdate = true;
-        solidMesh.geometry.computeVertexNormals(); // Recompute normals for proper lighting
+        solidMesh.geometry.computeVertexNormals();
 
         // Sync wireframe overlay positions
         if (wireOverlay) {
-          const wirePositions = wireOverlay.geometry.attributes.position;
-          // Wireframe has different vertex count, just track the mesh
           wireOverlay.rotation.copy(solidMesh.rotation);
           wireOverlay.scale.copy(solidMesh.scale);
         }
       }
 
       // Rotation
-      const rotAxis = activeMorphology.rotationAxis;
+      const rotAxis = curMorphology.rotationAxis;
       solidMesh.rotation.y += 0.003 * rotMod;
       if (rotAxis === 'x' || rotAxis === 'diagonal') solidMesh.rotation.x += 0.002 * rotMod;
       if (rotAxis === 'z' || rotAxis === 'diagonal') solidMesh.rotation.z += 0.001 * rotMod;
@@ -714,7 +743,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
       }
 
       // Camera
-      if (isTunnel) {
+      if (curIsTunnel) {
         camera.position.z = 1.8 + Math.sin(time * 0.5) * 0.3;
         solidMesh.rotation.z += 0.015;
       } else {
@@ -726,7 +755,7 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
 
     animate();
     return () => { cancelAnimationFrame(frameRef.current); };
-  }, [sceneVersion, state, audioLevel, isTunnel, morphIntensity, morphSpeed, fractalOctaves, textureType, activeMorphology]);
+  }, [sceneVersion]);
 
   // Resize
   useEffect(() => {
