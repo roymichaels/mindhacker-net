@@ -1,284 +1,178 @@
 /**
  * @module lib/presence/scoring
- * @purpose Deterministic heuristic scoring engine for questionnaire-based Presence assessment.
+ * @purpose Maps raw scan metrics from analyze-presence edge function into the bio-scan result model.
  */
 
 import type {
-  PresencePreferences,
-  SubScoreKey,
-  SubScore,
+  PresenceScanResult,
   PresenceScores,
-  PresenceAssessmentResult,
-  AssessmentMode,
-  LeverRecommendation,
-  PresenceDiagnosisActions,
+  SubScore,
+  Finding,
+  FixItem,
+  ConfidenceLevel,
+  StructuralPotential,
+  ManualInputs,
 } from './types';
-import { LEVERS } from './levers';
-
-// ── Heuristic Helpers ──
+import { FIX_LIBRARY } from './levers';
 
 function clamp(v: number, min = 0, max = 100): number {
   return Math.max(min, Math.min(max, v));
 }
 
-function bodyFatScore(range?: string): number {
-  const map: Record<string, number> = {
-    'under_10': 90, '10_14': 85, '15_19': 70, '20_24': 55, '25_29': 40, '30_plus': 25,
-  };
-  return map[range ?? ''] ?? 50;
-}
-
-function activityScore(level?: string): number {
-  const map: Record<string, number> = {
-    'sedentary': 25, 'light': 40, 'moderate': 60, 'active': 75, 'very_active': 90,
-  };
-  return map[level ?? ''] ?? 50;
-}
-
-// ── Sub-Score Engines ──
-
-function scoreFaceStructure(prefs: PresencePreferences): SubScore {
-  let score = 55; // baseline
-  if (prefs.posture_self_check.neck_forward) score -= 10;
-  if (prefs.grooming_baseline.has_beard) score += 5;
-  if (prefs.body_fat_range) {
-    const bf = bodyFatScore(prefs.body_fat_range);
-    score += (bf - 50) * 0.3; // lower bf → better jawline definition
-  }
-
-  const observations: string[] = [];
-  const levers: LeverRecommendation[] = [];
-
-  if (prefs.posture_self_check.neck_forward) {
-    observations.push('Forward head posture may reduce jawline projection');
-    levers.push({
-      leverId: 'chin_tuck_drills', title: 'Chin Tuck Drills',
-      impact: 4, effort: 1, why: 'Reduces forward head to enhance jaw appearance',
-      steps: ['3 sets of 10 chin tucks daily'],
-    });
-  }
-
-  // Mewing lever: only if user selected jawline goal or reports forward head / mouth breathing
-  const wantsMewing = prefs.goals.includes('jawline') || prefs.posture_self_check.neck_forward;
-  if (wantsMewing) {
-    levers.push({
-      leverId: 'tongue_posture', title: 'Tongue Posture (Mewing)',
-      impact: 3, effort: 1, why: 'Posture/airway habit that may improve appearance over time',
-      steps: ['Rest tongue on palate, lips sealed, nasal breathing'],
-    });
-  }
-
-  if ((bodyFatScore(prefs.body_fat_range) < 60)) {
-    observations.push('Higher body fat may mask jawline definition');
-    levers.push({
-      leverId: 'leaning_protocol', title: 'Leaning Protocol',
-      impact: 5, effort: 4, why: 'Body fat reduction reveals facial structure',
-      steps: ['Caloric deficit + high protein + resistance training'],
-    });
-  }
-
-  observations.push('Face structure score based on self-reported data');
-
-  return { score: clamp(Math.round(score)), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scorePostureFrame(prefs: PresencePreferences): SubScore {
-  let score = 70;
-  const observations: string[] = [];
-  const levers: LeverRecommendation[] = [];
-
-  if (prefs.posture_self_check.neck_forward) { score -= 15; observations.push('Forward head posture detected'); }
-  if (prefs.posture_self_check.rounded_shoulders) { score -= 15; observations.push('Rounded shoulders reported'); }
-  if (prefs.posture_self_check.low_back_pain) { score -= 10; observations.push('Low back discomfort — possible pelvic tilt'); }
-
-  if (prefs.posture_self_check.neck_forward) {
-    levers.push({ leverId: 'forward_head_correction', title: 'Forward Head Correction', impact: 5, effort: 2, why: 'High ROI: visible posture improvement', steps: ['Chin tucks + wall angels + thoracic extensions daily'] });
-  }
-  if (prefs.posture_self_check.rounded_shoulders) {
-    levers.push({ leverId: 'rounded_shoulders_fix', title: 'Rounded Shoulders Fix', impact: 5, effort: 2, why: 'Opens chest, improves frame', steps: ['Band pull-aparts + doorway stretch daily'] });
-  }
-  if (prefs.posture_self_check.low_back_pain) {
-    levers.push({ leverId: 'pelvic_alignment', title: 'Pelvic Alignment', impact: 4, effort: 3, why: 'Reduces pain, improves stance', steps: ['Glute bridges + hip flexor stretch daily'] });
-  }
-
-  score += activityScore(prefs.activity_level) * 0.1;
-  return { score: clamp(Math.round(score)), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scoreBodyComposition(prefs: PresencePreferences): SubScore {
-  const bf = bodyFatScore(prefs.body_fat_range);
-  const act = activityScore(prefs.activity_level);
-  const score = Math.round(bf * 0.6 + act * 0.4);
-  const observations: string[] = [`Body fat range: ${prefs.body_fat_range?.replace(/_/g, '-') || 'not provided'}`];
-  const levers: LeverRecommendation[] = [];
-
-  if (bf < 60) {
-    levers.push({ leverId: 'leaning_protocol', title: 'Leaning Protocol', impact: 5, effort: 4, why: 'Reveals muscle definition and facial structure', steps: ['Deficit + protein + resistance training'] });
-  }
-  if (act < 60) {
-    levers.push({ leverId: 'muscle_building_basics', title: 'Resistance Training', impact: 4, effort: 3, why: 'Builds frame and raises metabolism', steps: ['3-4x/week compound lifts'] });
-  }
-
-  return { score: clamp(score), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scoreSkinRoutine(prefs: PresencePreferences): SubScore {
-  let score = 50;
-  const routine = prefs.grooming_baseline.skincare_routine ?? 'none';
-  const observations: string[] = [];
-  const levers: LeverRecommendation[] = [];
-
-  if (routine === 'full') { score = 80; observations.push('Full skincare routine reported'); }
-  else if (routine === 'basic') { score = 60; observations.push('Basic skincare in place'); }
-  else { score = 35; observations.push('No consistent skincare routine'); }
-
-  if (score < 70) {
-    levers.push({ leverId: 'skincare_basics', title: 'Cleanser + Moisturizer + SPF', impact: 4, effort: 1, why: 'Foundation of skin health', steps: ['AM: cleanse → moisturize → SPF', 'PM: cleanse → moisturize'] });
-  }
-
-  return { score: clamp(score), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scoreHairGrooming(prefs: PresencePreferences): SubScore {
-  let score = 55;
-  const observations: string[] = [];
-  const levers: LeverRecommendation[] = [];
-  const hairLength = prefs.grooming_baseline.hair_length ?? 'medium';
-
-  observations.push(`Hair length: ${hairLength}`);
-  if (prefs.grooming_baseline.has_beard) { score += 5; observations.push('Beard maintained'); }
-
-  levers.push({ leverId: 'haircut_selector', title: 'Optimize Haircut for Face Shape', impact: 4, effort: 1, why: 'Right cut dramatically changes appearance', steps: ['Identify face shape, find matching styles'] });
-  levers.push({ leverId: 'eyebrow_grooming', title: 'Eyebrow Grooming', impact: 3, effort: 1, why: 'Quick symmetry improvement', steps: ['Remove strays, trim long hairs weekly'] });
-
-  return { score: clamp(score), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scoreStyleFit(prefs: PresencePreferences): SubScore {
-  let score = 50;
-  const observations: string[] = [`Style preference: ${prefs.style_preference}`];
-  const levers: LeverRecommendation[] = [];
-
-  if (prefs.goals.includes('style')) { score -= 5; observations.push('Style upgrade is a stated goal'); }
-
-  levers.push({ leverId: 'fit_checklist', title: 'Fit Checklist', impact: 4, effort: 1, why: 'Properly fitting clothes elevate any style', steps: ['Check shoulder, sleeve, and pant fit'] });
-  levers.push({ leverId: 'capsule_wardrobe', title: 'Capsule Wardrobe', impact: 3, effort: 2, why: 'Simplifies daily decisions, ensures cohesion', steps: ['Select 15-20 mix-and-match pieces'] });
-
-  return { score: clamp(score), confidence: 'low', keyObservations: observations, topLevers: levers };
-}
-
-function scoreDentalSmile(_prefs: PresencePreferences): SubScore {
-  // Defaults to neutral since no data in quick mode
+/**
+ * Map raw edge function scores into our 5 sub-score model.
+ */
+export function mapRawScoresToPresence(rawScores: Record<string, any>): PresenceScores {
   return {
-    score: 50,
-    confidence: 'low',
-    keyObservations: ['Dental score defaults to neutral without photo assessment'],
-    topLevers: [
-      { leverId: 'brushing_flossing', title: 'Brushing & Flossing Habit', impact: 3, effort: 1, why: 'Foundation of dental health', steps: ['Brush 2x/day, floss before evening brush'] },
-      { leverId: 'breath_hygiene', title: 'Breath Hygiene', impact: 2, effort: 1, why: 'Subtle but impactful', steps: ['Tongue scraper + hydration + nasal breathing'] },
-    ],
-  };
-}
-
-// ── Main Scoring Function ──
-
-export function computeQuickScores(prefs: PresencePreferences): PresenceScores {
-  return {
-    face_structure: scoreFaceStructure(prefs),
-    posture_frame: scorePostureFrame(prefs),
-    body_composition: scoreBodyComposition(prefs),
-    skin_routine: scoreSkinRoutine(prefs),
-    hair_grooming: scoreHairGrooming(prefs),
-    style_fit: scoreStyleFit(prefs),
-    dental_smile: scoreDentalSmile(prefs),
-  };
-}
-
-export function computeTotalScore(scores: PresenceScores): number {
-  const weights: Record<SubScoreKey, number> = {
-    face_structure: 0.2,
-    posture_frame: 0.2,
-    body_composition: 0.2,
-    skin_routine: 0.1,
-    hair_grooming: 0.1,
-    style_fit: 0.1,
-    dental_smile: 0.1,
-  };
-
-  let total = 0;
-  for (const [key, w] of Object.entries(weights)) {
-    total += scores[key as SubScoreKey].score * w;
-  }
-  return Math.round(total);
-}
-
-export function getTopLevers(scores: PresenceScores, count = 3): LeverRecommendation[] {
-  const all: LeverRecommendation[] = [];
-  for (const sub of Object.values(scores)) {
-    all.push(...sub.topLevers);
-  }
-  // Sort by impact desc, then effort asc
-  all.sort((a, b) => b.impact - a.impact || a.effort - b.effort);
-  // Deduplicate by leverId
-  const seen = new Set<string>();
-  const result: LeverRecommendation[] = [];
-  for (const l of all) {
-    if (!seen.has(l.leverId) && result.length < count) {
-      seen.add(l.leverId);
-      result.push(l);
-    }
-  }
-  return result;
-}
-
-export function generateDiagnosis(scores: PresenceScores, topLevers: LeverRecommendation[]): PresenceDiagnosisActions {
-  const todayActions = topLevers.slice(0, 3).map(l => l.steps[0] || l.title);
-  const weekActions = topLevers.map(l => `${l.title}: ${l.steps.join(', ')}`);
-
-  // Find weakest categories
-  const sorted = Object.entries(scores).sort((a, b) => a[1].score - b[1].score);
-  const weakest = sorted.slice(0, 2).map(([k]) => k);
-  const mid = sorted.slice(2, 4).map(([k]) => k);
-
-  return {
-    today: todayActions,
-    this_week: weekActions,
-    ninety_day_phases: {
-      phase1: {
-        label: 'Foundations',
-        weeks: 'Weeks 1-4',
-        actions: [`Focus on: ${weakest.map(k => k.replace(/_/g, ' ')).join(', ')}`, 'Build daily habits', 'Establish routine consistency'],
-      },
-      phase2: {
-        label: 'Definition',
-        weeks: 'Weeks 5-8',
-        actions: [`Expand to: ${mid.map(k => k.replace(/_/g, ' ')).join(', ')}`, 'Increase routine intensity', 'Track measurable progress'],
-      },
-      phase3: {
-        label: 'Refinement',
-        weeks: 'Weeks 9-12',
-        actions: ['Fine-tune all areas', 'Reassess with full photo scan', 'Set next 90-day targets'],
-      },
+    facial_definition: {
+      score: clamp(Math.round(rawScores.structural_integrity ?? rawScores.aesthetic_symmetry ?? 50)),
+      confidence: rawScores.confidence_band === 'high' ? 'high' : rawScores.confidence_band === 'med' ? 'med' : 'med',
+      label: 'Facial Definition',
+    },
+    posture_alignment: {
+      score: clamp(Math.round(rawScores.posture_alignment ?? 50)),
+      confidence: 'med',
+      label: 'Posture Alignment',
+    },
+    body_composition: {
+      score: clamp(Math.round(rawScores.composition ?? 50)),
+      confidence: 'med',
+      label: 'Body Composition Signal',
+    },
+    grooming_baseline: {
+      score: clamp(Math.round(rawScores.projection_potential ?? 50)),
+      confidence: 'low',
+      label: 'Grooming Baseline',
+    },
+    style_signal: {
+      score: 50, // lightweight — no photo data for style
+      confidence: 'low',
+      label: 'Style Signal',
     },
   };
 }
 
-export function buildAssessmentResult(
-  mode: AssessmentMode,
-  prefs: PresencePreferences,
-): PresenceAssessmentResult {
-  const scores = computeQuickScores(prefs);
-  const total = computeTotalScore(scores);
-  const topLevers = getTopLevers(scores);
-  const diagnosis = generateDiagnosis(scores, topLevers);
+/**
+ * Enrich grooming/skin scores with manual inputs.
+ */
+export function enrichWithManualInputs(
+  scores: PresenceScores,
+  manual?: ManualInputs,
+): PresenceScores {
+  if (!manual) return scores;
+  const enriched = { ...scores };
+
+  // Skincare enrichment
+  const skinBonus = manual.skincare_routine === 'full' ? 15 : manual.skincare_routine === 'basic' ? 5 : -10;
+  enriched.grooming_baseline = {
+    ...enriched.grooming_baseline,
+    score: clamp(enriched.grooming_baseline.score + skinBonus),
+  };
+
+  return enriched;
+}
+
+/**
+ * Generate findings from raw metrics.
+ */
+export function generateFindings(
+  rawMetrics: Record<string, any>,
+  scores: PresenceScores,
+  manual?: ManualInputs,
+): Finding[] {
+  const findings: Finding[] = [];
+
+  if (scores.posture_alignment.score < 55) {
+    findings.push({ id: 'forward_head', text: 'Forward-head posture detected (moderate)', severity: 'moderate' });
+  }
+  if (scores.posture_alignment.score < 40) {
+    findings.push({ id: 'rounded_shoulders', text: 'Rounded shoulders pattern detected', severity: 'notable' });
+  }
+  if (scores.facial_definition.score < 50) {
+    findings.push({ id: 'jaw_bf', text: 'Jawline definition limited by body composition signal', severity: 'moderate' });
+  }
+  if (scores.body_composition.score < 50) {
+    findings.push({ id: 'body_comp', text: 'Body composition above optimal range for definition', severity: 'mild' });
+  }
+  if (manual?.skincare_routine === 'none') {
+    findings.push({ id: 'no_skincare', text: 'No skincare routine reported (from manual input)', severity: 'mild' });
+  }
+  if (scores.grooming_baseline.score < 45) {
+    findings.push({ id: 'grooming_low', text: 'Grooming baseline below threshold', severity: 'mild' });
+  }
+
+  return findings.slice(0, 6);
+}
+
+/**
+ * Select top 3 priority fixes based on scores.
+ */
+export function selectTopPriorities(scores: PresenceScores, findings: Finding[]): FixItem[] {
+  // Score each fix by relevance
+  const scored: { fix: FixItem; relevance: number }[] = FIX_LIBRARY.map(fix => {
+    let relevance = fix.impact === 'high' ? 3 : fix.impact === 'med' ? 2 : 1;
+
+    // Boost relevance based on weak scores
+    if (fix.category === 'posture' && scores.posture_alignment.score < 60) relevance += 3;
+    if (fix.category === 'face' && scores.facial_definition.score < 60) relevance += 3;
+    if (fix.category === 'body' && scores.body_composition.score < 60) relevance += 2;
+    if (fix.category === 'skin' && scores.grooming_baseline.score < 55) relevance += 2;
+    if (fix.category === 'grooming' && scores.grooming_baseline.score < 55) relevance += 2;
+
+    // Prefer easy/high-impact
+    if (fix.difficulty === 'easy' && fix.impact === 'high') relevance += 2;
+
+    return { fix, relevance };
+  });
+
+  scored.sort((a, b) => b.relevance - a.relevance);
+  return scored.slice(0, 3).map(s => s.fix);
+}
+
+/**
+ * Compute structural potential from scores.
+ */
+export function computeStructuralPotential(scores: PresenceScores): StructuralPotential {
+  const avg = Object.values(scores).reduce((sum, s) => sum + s.score, 0) / Object.values(scores).length;
+  if (avg >= 70) return 'high';
+  if (avg >= 50) return 'med';
+  return 'low';
+}
+
+/**
+ * Build complete scan result from raw edge function output.
+ */
+export function buildScanResult(
+  rawScores: Record<string, any>,
+  rawMetrics: Record<string, any>,
+  manual?: ManualInputs,
+  scanId?: string,
+): PresenceScanResult {
+  let scores = mapRawScoresToPresence(rawScores);
+  scores = enrichWithManualInputs(scores, manual);
+
+  const presenceIndex = Math.round(
+    scores.facial_definition.score * 0.25 +
+    scores.posture_alignment.score * 0.25 +
+    scores.body_composition.score * 0.20 +
+    scores.grooming_baseline.score * 0.15 +
+    scores.style_signal.score * 0.15
+  );
+
+  const findings = generateFindings(rawMetrics, scores, manual);
+  const topPriorities = selectTopPriorities(scores, findings);
+  const structural_potential = computeStructuralPotential(scores);
+
+  const confidence: ConfidenceLevel = rawScores.confidence_band === 'high' ? 'high' : 'med';
 
   return {
-    mode,
+    presence_index: clamp(presenceIndex),
+    confidence,
     scores,
-    total_score: total,
-    confidence: mode === 'quick' ? 'low' : mode === 'full' ? 'med' : 'high',
-    top_levers: topLevers,
-    diagnosis,
+    structural_potential,
+    findings,
+    top_priorities: topPriorities,
     assessed_at: new Date().toISOString(),
+    scan_id: scanId,
   };
 }

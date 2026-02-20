@@ -77,9 +77,9 @@ const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
 const PresencePage = lazy(() => import("./pages/PresencePage"));
 const PresenceHome = lazy(() => import("./pages/presence/PresenceHome"));
-const PresenceAssess = lazy(() => import("./pages/presence/PresenceAssess"));
+const PresenceScan = lazy(() => import("./pages/presence/PresenceScan"));
+const PresenceAnalyzing = lazy(() => import("./pages/presence/PresenceAnalyzing"));
 const PresenceResultsPage = lazy(() => import("./pages/presence/PresenceResultsPage"));
-const PresenceRoutine = lazy(() => import("./pages/presence/PresenceRoutine"));
 const PresenceHistory = lazy(() => import("./pages/presence/PresenceHistory"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Coaches = lazy(() => import("./pages/Coaches"));
@@ -354,10 +354,18 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/life/presence/assess"
+                          path="/life/presence/scan"
                           element={
                             <ProtectedRoute>
-                              <PresenceAssess />
+                              <PresenceScan />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/life/presence/analyzing"
+                          element={
+                            <ProtectedRoute>
+                              <PresenceAnalyzing />
                             </ProtectedRoute>
                           }
                         />
@@ -370,12 +378,8 @@ const App = () => (
                           }
                         />
                         <Route
-                          path="/life/presence/routine"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceRoutine />
-                            </ProtectedRoute>
-                          }
+                          path="/life/presence/assess"
+                          element={<Navigate to="/life/presence" replace />}
                         />
                         <Route
                           path="/life/presence/history"
