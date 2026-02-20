@@ -188,7 +188,7 @@ export default function LifeHub() {
                     {isHe ? domain.labelHe : domain.labelEn}
                   </span>
                   <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                    {domain.description}
+                    {isHe ? domain.descriptionHe : domain.description}
                   </p>
                   <Badge variant={badge.variant} className="text-[9px]">
                     {isHe ? badge.labelHe : badge.label}

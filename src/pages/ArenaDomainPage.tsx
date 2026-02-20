@@ -67,7 +67,7 @@ export default function ArenaDomainPage() {
             <h1 className="text-2xl font-bold text-foreground">
               {isHebrew ? domain.labelHe : domain.labelEn}
             </h1>
-            <p className="text-muted-foreground text-sm">{domain.description}</p>
+            <p className="text-muted-foreground text-sm">{isHebrew ? domain.descriptionHe : domain.description}</p>
           </div>
           <Badge variant={status === 'active' ? 'default' : status === 'configured' ? 'secondary' : 'outline'} className="ml-auto">
             {status === 'active' ? (isHebrew ? 'פעיל' : 'Active') :

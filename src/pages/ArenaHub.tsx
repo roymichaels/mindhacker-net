@@ -184,7 +184,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
                     {isHe ? domain.labelHe : domain.labelEn}
                   </span>
                   <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                    {domain.description}
+                    {isHe ? domain.descriptionHe : domain.description}
                   </p>
                   <Badge variant={badgeVariant} className="text-[9px]">
                     {badgeContent}
