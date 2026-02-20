@@ -100,38 +100,6 @@ export default function LifeHub() {
           </p>
         </div>
 
-        {/* ── Progress Overview Card ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full rounded-2xl border border-rose-500/20 bg-gradient-to-r from-rose-500/10 via-pink-500/5 to-transparent p-4 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-rose-500/15 border border-rose-500/25">
-                <Flame className="w-5 h-5 text-rose-400" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-foreground">
-                  {isHe ? 'הליבה שלך' : 'Your Core'}
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  {isHe ? `${activeDomains} מתוך ${totalCore} תחומים פעילים` : `${activeDomains} of ${totalCore} domains active`}
-                </p>
-              </div>
-            </div>
-            <span className="text-2xl font-black text-rose-400">{completionPct}%</span>
-          </div>
-          <div className="w-full bg-muted/30 rounded-full h-2">
-            <motion.div
-              className="bg-gradient-to-r from-rose-400 to-pink-500 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${completionPct}%` }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            />
-          </div>
-        </motion.div>
-
         {/* ── Motivational Banner ── */}
         <div
           className="relative w-full overflow-hidden rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm cursor-pointer select-none shadow-sm"
