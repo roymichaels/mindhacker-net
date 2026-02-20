@@ -6,10 +6,11 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
-import { PanelRightClose, PanelRightOpen, Swords, Plus, FolderKanban } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, Swords, Plus, FolderKanban, Briefcase } from 'lucide-react';
 import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useProjects } from '@/hooks/useProjects';
+import { useBusinessJourneys } from '@/hooks/useBusinessJourneys';
 
 interface ArenaHudSidebarProps {
   onNewProject?: () => void;
@@ -22,6 +23,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
   const { projects } = useProjects();
+  const { journeys: businesses } = useBusinessJourneys();
 
   const domainColorMap: Record<string, string> = {
     emerald: 'text-emerald-400', orange: 'text-orange-400', sky: 'text-sky-400', amber: 'text-amber-400',
@@ -178,6 +180,29 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
                   <span className="text-[11px] font-medium leading-tight truncate">{project.title}</span>
                 </div>
               </div>
+            ))}
+          </div>
+
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+
+          {/* Businesses section */}
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            {isHe ? `עסקים (${businesses.length})` : `Businesses (${businesses.length})`}
+          </span>
+          <div className="flex flex-col gap-1">
+            {businesses.slice(0, 5).map((biz) => (
+              <button
+                key={biz.id}
+                onClick={() => navigate(`/business/journey/${biz.id}`)}
+                className="w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2 text-start hover:bg-accent/10 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
+                  <span className="text-[11px] font-medium leading-tight truncate">
+                    {biz.business_name || (isHe ? 'עסק ללא שם' : 'Unnamed Business')}
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
 
