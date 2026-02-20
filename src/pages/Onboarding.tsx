@@ -1,24 +1,13 @@
 /**
  * Onboarding — Route page for /onboarding
- * Uses the כיול (Recalibrate) flow as the full onboarding experience.
+ * Uses the full OnboardingFlow (Neural Intake) for first-time users.
  */
-import { useState } from 'react';
-import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
 const Onboarding = () => {
-  const [open, setOpen] = useState(true);
-
   return (
     <div className="min-h-screen bg-background">
-      <RecalibrateModal
-        open={open}
-        onOpenChange={(val) => {
-          // Keep it open — closing navigates away via the modal's own logic
-          if (!val) {
-            window.location.href = '/today';
-          }
-        }}
-      />
+      <OnboardingFlow />
     </div>
   );
 };
