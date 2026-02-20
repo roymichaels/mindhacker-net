@@ -175,6 +175,7 @@ export default function DomainAssessChat({ domainId }: Props) {
   }
 
   const startConversation = useCallback(async () => {
+    if (started) return;
     setStarted(true);
     setIsStreaming(true);
     let assistantSoFar = '';
@@ -216,26 +217,8 @@ export default function DomainAssessChat({ domainId }: Props) {
   const Icon = domain?.icon;
   const isHe = language === 'he';
 
-  // Intro screen
-  if (!started) {
-    return (
-      <PageShell>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4" dir={isRTL ? 'rtl' : 'ltr'}>
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
-            {Icon && <Icon className={cn("w-14 h-14 mx-auto mb-4", colors.icon)} />}
-            <h1 className="text-2xl font-black text-foreground mb-2">{t(meta.introTitleKey)}</h1>
-            <p className="text-sm text-muted-foreground mb-2 max-w-sm mx-auto">{t(meta.introSubtitleKey)}</p>
-            <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
-              {isHe ? 'שיחה קצרה. בלי תוכניות — רק מראה.' : 'Short conversation. No plans — just a mirror.'}
-            </p>
-            <Button onClick={startConversation} className={colors.btn} size="lg">
-              {isHe ? 'בוא נתחיל' : "Let's begin"}
-            </Button>
-          </motion.div>
-        </div>
-      </PageShell>
-    );
-  }
+  // Auto-start conversation on mount
+  useEffect(() => { startConversation(); }, []);
 
   // Saving screen
   if (saving) {
