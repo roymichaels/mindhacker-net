@@ -125,15 +125,19 @@ export function scoreCalSkills(input: CalSkillsInput): ModuleScore {
 
   const skills: [number, string, number][] = [
     [input.handstand, 'handstand', SKILL_LADDERS.handstand.length],
+    [input.hspu, 'hspu', SKILL_LADDERS.hspu.length],
     [input.planche, 'planche', SKILL_LADDERS.planche.length],
     [input.frontLever, 'frontLever', SKILL_LADDERS.frontLever.length],
     [input.backLever, 'backLever', SKILL_LADDERS.backLever.length],
     [input.humanFlag, 'humanFlag', SKILL_LADDERS.humanFlag.length],
     [input.muscleUp, 'muscleUp', SKILL_LADDERS.muscleUp.length],
+    [input.ringMuscleUp, 'ringMuscleUp', SKILL_LADDERS.ringMuscleUp.length],
     [input.pistolSquat, 'pistolSquat', SKILL_LADDERS.pistolSquat.length],
+    [input.shrimpSquat, 'shrimpSquat', SKILL_LADDERS.shrimpSquat.length],
+    [input.nordicCurl, 'nordicCurl', SKILL_LADDERS.nordicCurl.length],
     [input.vSit, 'vSit', SKILL_LADDERS.vSit.length],
     [input.dragonFlag, 'dragonFlag', SKILL_LADDERS.dragonFlag.length],
-    [input.ringMuscleUp, 'ringMuscleUp', SKILL_LADDERS.ringMuscleUp.length],
+    [input.bridge, 'bridge', SKILL_LADDERS.bridge.length],
     [input.elbowLever, 'elbowLever', SKILL_LADDERS.elbowLever.length],
   ];
 
