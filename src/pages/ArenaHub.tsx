@@ -14,7 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Swords, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Zap, TrendingUp, Crown, Users, Plus, FolderKanban, Briefcase } from 'lucide-react';
+import { Swords, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Zap, TrendingUp, Crown, Users, Plus, FolderKanban, Briefcase, Gamepad2 } from 'lucide-react';
+import { PlaySummaryCard } from '@/components/arena/PlaySummaryCard';
 import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
@@ -196,12 +197,16 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
           </div>
         </div>
 
+        {/* ── Play Summary Card ── */}
+        <PlaySummaryCard />
+
         {/* ── Quick Insights Row ── */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {[
             { icon: FolderKanban, label: isHe ? 'פרויקטים' : 'Projects', value: `${activeProjects.length}`, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
             { icon: Briefcase, label: isHe ? 'עסקים' : 'Businesses', value: `${businesses.length}`, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
             { icon: Target, label: isHe ? 'תחומים' : 'Domains', value: `${activeDomains}/${totalArena}`, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+            { icon: Gamepad2, label: isHe ? 'Play' : 'Play', value: `${projects.filter(p => p.project_type === 'play').length}`, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
           ].map((m) => (
             <div key={m.label} className={cn("rounded-xl border p-3 flex flex-col items-center gap-1 text-center", m.bg)}>
               <m.icon className={cn("w-4 h-4", m.color)} />

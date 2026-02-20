@@ -143,4 +143,14 @@ export const FEATURES: FeatureItem[] = [
     descEn: 'Morning briefings, mid-day check-ins, accountability prompts — Aurora intervenes before you fall off track.',
     descHe: 'תדרוכי בוקר, צ\'ק-אין בצהריים, תזכורות אחריות — Aurora מתערבת לפני שאתה יורד מהמסלול.',
   },
+  {
+    slug: 'play-system',
+    icon: '🎮',
+    titleEn: 'Play & Regeneration System',
+    titleHe: 'מערכת Play והתחדשות',
+    hookEn: 'Intentional renewal. Strategic regeneration.',
+    hookHe: 'התחדשות מכוונת. רגנרציה אסטרטגית.',
+    descEn: 'Plan and schedule meaningful play experiences — nature, movement, social, creative, adventure — tracked as intentional regeneration inside your Arena.',
+    descHe: 'תכנן ותזמן חוויות משחק משמעותיות — טבע, תנועה, חברתי, יצירתי, הרפתקה — מנוטרות כהתחדשות מכוונת בתוך הזירה שלך.',
+  },
 ];

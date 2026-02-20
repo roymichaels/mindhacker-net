@@ -6115,9 +6115,16 @@ export type Database = {
           linked_checklist_ids: string[] | null
           linked_goal_ids: string[] | null
           linked_life_areas: string[] | null
+          play_category: string | null
+          play_duration: string | null
+          play_intention: string | null
+          play_location: string | null
+          play_recurring: string | null
+          play_reflection: Json | null
           potential_blockers: string | null
           priority: string | null
           progress_percentage: number | null
+          project_type: string
           resources_needed: string | null
           started_at: string | null
           status: string | null
@@ -6142,9 +6149,16 @@ export type Database = {
           linked_checklist_ids?: string[] | null
           linked_goal_ids?: string[] | null
           linked_life_areas?: string[] | null
+          play_category?: string | null
+          play_duration?: string | null
+          play_intention?: string | null
+          play_location?: string | null
+          play_recurring?: string | null
+          play_reflection?: Json | null
           potential_blockers?: string | null
           priority?: string | null
           progress_percentage?: number | null
+          project_type?: string
           resources_needed?: string | null
           started_at?: string | null
           status?: string | null
@@ -6169,9 +6183,16 @@ export type Database = {
           linked_checklist_ids?: string[] | null
           linked_goal_ids?: string[] | null
           linked_life_areas?: string[] | null
+          play_category?: string | null
+          play_duration?: string | null
+          play_intention?: string | null
+          play_location?: string | null
+          play_recurring?: string | null
+          play_reflection?: Json | null
           potential_blockers?: string | null
           priority?: string | null
           progress_percentage?: number | null
+          project_type?: string
           resources_needed?: string | null
           started_at?: string | null
           status?: string | null

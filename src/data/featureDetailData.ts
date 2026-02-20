@@ -659,4 +659,54 @@ export const FEATURE_DETAILS: Record<string, FeatureDetail> = {
       'כל מי שרוצה AI שעובד בשבילו, לא רק מגיב לו',
     ],
   },
+  'play-system': {
+    slug: 'play-system',
+    tier: 'plus',
+    overviewEn: [
+      'The Play & Regeneration System transforms how high-performers approach rest and renewal. Instead of treating play as an afterthought, this system positions it as a strategic execution layer inside your Arena — alongside wealth, influence, and projects.',
+      'Play is not leisure. It\'s intentional regeneration — activities chosen with purpose to reset your nervous system, spark creativity, deepen connections, and restore the energy that fuels your ambitions. Nature hikes, creative sessions, social gatherings, adventures, and movement are all tracked as meaningful execution.',
+      'Aurora monitors your play patterns, notices gaps, suggests new categories to explore, and connects your play activity to measurable improvements in energy, focus, and overall performance. The result is a balanced Arena where execution includes restoration.',
+    ],
+    overviewHe: [
+      'מערכת ה-Play וההתחדשות משנה את האופן שבו אנשי ביצועים גבוהים ניגשים למנוחה והתחדשות. במקום להתייחס למשחק כמחשבה שנייה, המערכת ממקמת אותו כשכבת ביצוע אסטרטגית בתוך הזירה — לצד עושר, השפעה ופרויקטים.',
+      'Play זה לא פנאי. זו התחדשות מכוונת — פעילויות שנבחרות עם מטרה כדי לאפס את מערכת העצבים, לעורר יצירתיות, להעמיק קשרים ולשחזר את האנרגיה שמזינה את השאיפות שלך. טיולים בטבע, סשנים יצירתיים, מפגשים חברתיים, הרפתקאות ותנועה — כולם מנוטרים כביצוע משמעותי.',
+      'Aurora עוקבת אחרי דפוסי ה-Play שלך, מזהה פערים, מציעה קטגוריות חדשות לחקור ומחברת את פעילות ה-Play שלך לשיפורים מדידים באנרגיה, מיקוד וביצועים כוללים. התוצאה היא זירה מאוזנת שבה ביצוע כולל התחדשות.',
+    ],
+    benefitsEn: [
+      { title: 'Intentional Scheduling', desc: 'Plan play sessions with specific categories, intentions, and durations — not just "free time" but strategic renewal.' },
+      { title: 'Category Diversity', desc: 'Track across 9 play categories (Nature, Movement, Social, Creative, Adventure, Recovery, Exploration, Travel) to ensure balanced regeneration.' },
+      { title: 'Reflection & Growth', desc: 'Post-completion reflection prompts help you understand which play types restore you most effectively.' },
+      { title: 'Gap Detection', desc: 'Aurora notices when you haven\'t played in too long and proactively suggests sessions based on your schedule.' },
+      { title: 'Energy Connection', desc: 'See how play activity correlates with your vitality, focus, and overall performance metrics.' },
+    ],
+    benefitsHe: [
+      { title: 'תזמון מכוון', desc: 'תכנן סשנים של Play עם קטגוריות, כוונות ומשכים ספציפיים — לא סתם "זמן פנוי" אלא התחדשות אסטרטגית.' },
+      { title: 'גיוון קטגוריות', desc: 'עקוב ב-9 קטגוריות Play (טבע, תנועה, חברתי, יצירתי, הרפתקה, התאוששות, חקירה, טיולים) כדי להבטיח רגנרציה מאוזנת.' },
+      { title: 'רפלקציה וצמיחה', desc: 'שאלות רפלקציה לאחר השלמה עוזרות לך להבין אילו סוגי Play משחזרים אותך בצורה הכי אפקטיבית.' },
+      { title: 'זיהוי פערים', desc: 'Aurora מזהה כשלא שיחקת יותר מדי זמן ומציעה יזומות סשנים בהתאם ללוח הזמנים שלך.' },
+      { title: 'חיבור לאנרגיה', desc: 'ראה איך פעילות Play מתואמת עם החיוניות, המיקוד ומדדי הביצועים הכוללים שלך.' },
+    ],
+    howItWorksEn: [
+      { step: 'Create Play Project', desc: 'Choose Play as your project type, select a category (Nature, Movement, Social, etc.) and set your intention (Relax, Explore, Connect).' },
+      { step: 'Schedule & Execute', desc: 'Set dates, durations, locations, and recurring patterns. Play sessions appear alongside your other Arena projects.' },
+      { step: 'Reflect & Learn', desc: 'After completion, Aurora asks 3 short reflection prompts about flow, body response, and frequency — building your Play intelligence.' },
+      { step: 'Track & Optimize', desc: 'The Play Activity panel shows days since last session, monthly totals, top categories, and upcoming sessions — encouraging balanced execution.' },
+    ],
+    howItWorksHe: [
+      { step: 'צור פרויקט Play', desc: 'בחר Play כסוג הפרויקט, בחר קטגוריה (טבע, תנועה, חברתי וכו\') והגדר את הכוונה שלך (להירגע, לחקור, להתחבר).' },
+      { step: 'תזמן ובצע', desc: 'הגדר תאריכים, משכים, מיקומים ודפוסים חוזרים. סשנים של Play מופיעים לצד פרויקטי הזירה האחרים שלך.' },
+      { step: 'הרהר ולמד', desc: 'לאחר השלמה, Aurora שואלת 3 שאלות רפלקציה קצרות על flow, תגובת הגוף ותדירות — ובונה את אינטליגנציית ה-Play שלך.' },
+      { step: 'עקוב ואופטם', desc: 'פאנל פעילות Play מציג ימים מאז הסשן האחרון, סיכום חודשי, קטגוריות מובילות וסשנים מתוכננים — מעודד ביצוע מאוזן.' },
+    ],
+    whoForEn: [
+      'High-performers who neglect rest and renewal in pursuit of goals',
+      'Anyone who wants to make play intentional rather than accidental',
+      'People seeking a balanced approach to execution that includes joy and restoration',
+    ],
+    whoForHe: [
+      'אנשי ביצועים גבוהים שמזניחים מנוחה והתחדשות במרדף אחרי מטרות',
+      'כל מי שרוצה להפוך את המשחק למכוון ולא למקרי',
+      'אנשים שמחפשים גישה מאוזנת לביצוע שכוללת שמחה והתחדשות',
+    ],
+  },
 };
