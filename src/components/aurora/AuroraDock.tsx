@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/useTranslation';
-import { AuroraOrbIcon } from '@/components/icons/AuroraOrbIcon';
+
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
 import { cn } from '@/lib/utils';
