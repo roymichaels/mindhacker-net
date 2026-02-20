@@ -29,6 +29,58 @@ interface ChatMessage {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/domain-assess`;
 
+/** Static intro messages per domain — explains goal, why we ask, what we'll cover */
+const DOMAIN_INTROS: Record<string, { he: string; en: string }> = {
+  vitality: {
+    he: '🔋 **ברוכים הבאים לסריקת חיוניות**\n\nכאן אנחנו בודקים את רמת האנרגיה, איכות השינה, התזונה וההתאוששות שלך — הבסיס הפיזיולוגי לכל השאר.\n\n**למה?** בלי חיוניות גבוהה, אין ביצועים. זה המנוע.\n\n**מה נשאל?** שאלות על שינה, תזונה, חומרים, אנרגיה יומית, התאוששות ויציבות קירקדית. ענה בכנות — אין תשובות נכונות או לא נכונות.',
+    en: '🔋 **Welcome to the Vitality Scan**\n\nHere we assess your energy levels, sleep quality, nutrition, and recovery — the physiological foundation for everything else.\n\n**Why?** Without high vitality, there\'s no performance. This is your engine.\n\n**What will we ask?** Questions about sleep, nutrition, substances, daily energy, recovery, and circadian stability. Answer honestly — there are no right or wrong answers.',
+  },
+  focus: {
+    he: '🎯 **ברוכים הבאים לסריקת מיקוד**\n\nכאן אנחנו מודדים את יכולת הריכוז, עמידות בפני הסחות, שליטה בדופמין ויכולת כניסה לעבודה עמוקה.\n\n**למה?** מיקוד הוא הכלי שמפריד בין אנשים שחולמים לבין אנשים שמבצעים.\n\n**מה נשאל?** שאלות על הרגלי ריכוז, מדיטציה, זמני מסך, עבודה עמוקה ועמידות קוגניטיבית.',
+    en: '🎯 **Welcome to the Focus Scan**\n\nHere we measure your concentration capacity, distraction resistance, dopamine control, and deep work ability.\n\n**Why?** Focus is the tool that separates dreamers from executors.\n\n**What will we ask?** Questions about concentration habits, meditation, screen time, deep work, and cognitive endurance.',
+  },
+  power: {
+    he: '💪 **ברוכים הבאים לסריקת עוצמה**\n\nכאן אנחנו מודדים את הכוח הפיזי שלך — כוח מקסימלי, כוח יחסי, מיומנויות קליסטניקס, כוח פיצוצי ועמידות מבנית.\n\n**למה?** הגוף שלך הוא הכלי הראשון. עוצמה פיזית משפיעה על ביטחון, נוכחות ויכולת פעולה.\n\n**מה נשאל?** שאלות על אימונים, הרמות, תרגילי משקל גוף, ספרינטים, קפיצות והחזקות.',
+    en: '💪 **Welcome to the Power Scan**\n\nHere we measure your physical strength — max strength, relative strength, calisthenics skills, explosive power, and structural strength.\n\n**Why?** Your body is your first tool. Physical power affects confidence, presence, and capacity for action.\n\n**What will we ask?** Questions about training, lifts, bodyweight exercises, sprints, jumps, and holds.',
+  },
+  combat: {
+    he: '⚔️ **ברוכים הבאים לסריקת לחימה**\n\nכאן אנחנו מודדים את יכולות הלחימה שלך — מכות, היאבקות, מהירות תגובה, כושר לחימתי ומודעות טקטית.\n\n**למה?** לחימה היא הביטוי הגולמי ביותר של שליטה עצמית תחת לחץ.\n\n**מה נשאל?** שאלות על ניסיון בלחימה, אימונים, יכולות טכניות, התמודדות עם לחץ ואסטרטגיה.',
+    en: '⚔️ **Welcome to the Combat Scan**\n\nHere we measure your fighting capabilities — striking, grappling, reaction speed, combat conditioning, and tactical awareness.\n\n**Why?** Combat is the rawest expression of self-control under pressure.\n\n**What will we ask?** Questions about combat experience, training, technical abilities, pressure handling, and strategy.',
+  },
+  expansion: {
+    he: '🧠 **ברוכים הבאים לסריקת התרחבות**\n\nכאן אנחנו מודדים את הצמיחה האינטלקטואלית שלך — למידה, יצירתיות, טווח אינטלקטואלי וחשיבה מורכבת.\n\n**למה?** התרחבות מנטלית היא מה שמפריד בין חיים שטוחים לחיים עם עומק.\n\n**מה נשאל?** שאלות על הרגלי למידה, יצירה, שפות, קריאה, סקרנות ויישום ידע.',
+    en: '🧠 **Welcome to the Expansion Scan**\n\nHere we measure your intellectual growth — learning drive, creativity, intellectual range, and complex thinking.\n\n**Why?** Mental expansion is what separates a flat life from one with depth.\n\n**What will we ask?** Questions about learning habits, creation, languages, reading, curiosity, and knowledge application.',
+  },
+  consciousness: {
+    he: '🔮 **ברוכים הבאים לסריקת תודעה**\n\nכאן אנחנו מודדים את רמת המודעות העצמית שלך — בהירות כוונה, מודעות למסכות, יציבות פנימית וקוהרנטיות.\n\n**למה?** תודעה היא השכבה העמוקה ביותר. בלעדיה, כל השאר הוא אוטופילוט.\n\n**מה נשאל?** שאלות על מודעות עצמית, אותנטיות, חיבור פנימי, בהירות כוונה ויישור פנימי.',
+    en: '🔮 **Welcome to the Consciousness Scan**\n\nHere we measure your self-awareness level — intention clarity, mask awareness, inner stability, and coherence.\n\n**Why?** Consciousness is the deepest layer. Without it, everything else is autopilot.\n\n**What will we ask?** Questions about self-awareness, authenticity, inner connection, intention clarity, and inner alignment.',
+  },
+  presence: {
+    he: '👁️ **ברוכים הבאים לסריקת נוכחות**\n\nכאן אנחנו מודדים את האימג\' החיצוני שלך — מבנה גוף, סטייל, טיפוח, יציבה ומודעות לתדמית.\n\n**למה?** הנוכחות שלך היא הדבר הראשון שאנשים קולטים. היא משדרת מי אתה לפני שאמרת מילה.\n\n**מה נשאל?** שאלות על סטייל, טיפוח, יציבה, הרכב גוף ומודעות עצמית חזותית. תוכל גם להעלות תמונות.',
+    en: '👁️ **Welcome to the Presence Scan**\n\nHere we assess your external image — body composition, style, grooming, posture, and image awareness.\n\n**Why?** Your presence is the first thing people perceive. It communicates who you are before you say a word.\n\n**What will we ask?** Questions about style, grooming, posture, body composition, and visual self-awareness. You can also upload images.',
+  },
+  wealth: {
+    he: '💰 **ברוכים הבאים לסריקת עושר**\n\nכאן אנחנו מודדים את המצב הפיננסי שלך — בהירות הכנסה, משמעת כלכלית, יצירת ערך ומיצוב אסטרטגי.\n\n**למה?** עושר הוא כלי לחופש. בלי שליטה פיננסית, אתה עבד למערכת.\n\n**מה נשאל?** שאלות על הכנסות, הוצאות, השקעות, מנטליות כלכלית ותכנון אסטרטגי.',
+    en: '💰 **Welcome to the Wealth Scan**\n\nHere we assess your financial state — income clarity, financial discipline, value creation, and strategic positioning.\n\n**Why?** Wealth is a tool for freedom. Without financial control, you\'re enslaved to the system.\n\n**What will we ask?** Questions about income, expenses, investments, financial mindset, and strategic planning.',
+  },
+  influence: {
+    he: '👑 **ברוכים הבאים לסריקת השפעה**\n\nכאן אנחנו מודדים את כוח ההשפעה שלך — תקשורת, נוכחות, מנהיגות, אינטליגנציה חברתית ושכנוע.\n\n**למה?** השפעה היא היכולת לזוז אנשים. בלעדיה, אתה בלתי נראה.\n\n**מה נשאל?** שאלות על יכולת דיבור, נוכחות בחדר, מנהיגות, קריאת אנשים ואותנטיות.',
+    en: '👑 **Welcome to the Influence Scan**\n\nHere we measure your influence power — communication, presence, leadership, social intelligence, and persuasion.\n\n**Why?** Influence is the ability to move people. Without it, you\'re invisible.\n\n**What will we ask?** Questions about speaking ability, room presence, leadership, reading people, and authenticity.',
+  },
+  relationships: {
+    he: '❤️ **ברוכים הבאים לסריקת מערכות יחסים**\n\nכאן אנחנו מודדים את איכות הקשרים שלך — עומק חיבור, גבולות, פגיעות, איכות רשת ויכולת קונפליקט.\n\n**למה?** מערכות יחסים הן המראה הכי אמיתית שלך. הן מגדירות את איכות החיים.\n\n**מה נשאל?** שאלות על קשרים קרובים, גבולות, פתיחות רגשית, קונפליקטים ואיזון בנתינה וקבלה.',
+    en: '❤️ **Welcome to the Relationships Scan**\n\nHere we measure your connection quality — depth, boundaries, vulnerability, network quality, and conflict capacity.\n\n**Why?** Relationships are your truest mirror. They define your quality of life.\n\n**What will we ask?** Questions about close connections, boundaries, emotional openness, conflicts, and give-take balance.',
+  },
+  business: {
+    he: '🏢 **ברוכים הבאים לסריקת עסק**\n\nכאן אנחנו מודדים את המצב העסקי שלך — בהירות, מנוע הכנסות, בשלות תפעולית ויכולת צמיחה.\n\n**למה?** העסק שלך הוא הביטוי של הערך שאתה יוצר בעולם.\n\n**מה נשאל?** שאלות על מודל עסקי, הכנסות, תפעול, מיצוב שוק וחוסן יזמי.',
+    en: '🏢 **Welcome to the Business Scan**\n\nHere we assess your business state — clarity, revenue engine, operational maturity, and growth capacity.\n\n**Why?** Your business is the expression of the value you create in the world.\n\n**What will we ask?** Questions about business model, revenue, operations, market positioning, and founder resilience.',
+  },
+  projects: {
+    he: '🔭 **ברוכים הבאים לסריקת פרויקטים**\n\nכאן אנחנו מודדים את יכולת הביצוע שלך — בהירות חזון, משמעת ביצוע, ניהול משאבים ושיעור השלמה.\n\n**למה?** פרויקטים הם הגשר בין חזון למציאות. בלי ביצוע, חלומות נשארים חלומות.\n\n**מה נשאל?** שאלות על פרויקטים פעילים, סדרי עדיפויות, התמודדות עם מכשולים ויכולת סיום.',
+    en: '🔭 **Welcome to the Projects Scan**\n\nHere we measure your execution capacity — vision clarity, execution discipline, resource management, and completion rate.\n\n**Why?** Projects are the bridge between vision and reality. Without execution, dreams stay dreams.\n\n**What will we ask?** Questions about active projects, priorities, obstacle handling, and completion ability.',
+  },
+};
+
 function isCoreDomain(domainId: string): boolean {
   return CORE_DOMAINS.some(d => d.id === domainId);
 }
@@ -51,7 +103,18 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   const meta = DOMAIN_ASSESS_META[domainId];
   const domain = getDomainById(domainId);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const isHe = language === 'he';
+
+  // Build intro message for this domain
+  const introText = DOMAIN_INTROS[domainId];
+  const introMessage: ChatMessage | null = introText ? {
+    id: 'intro-static',
+    role: 'assistant',
+    content: isHe ? introText.he : introText.en,
+    created_at: new Date().toISOString(),
+  } : null;
+
+  const [messages, setMessages] = useState<ChatMessage[]>(introMessage ? [introMessage] : []);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [started, setStarted] = useState(false);
@@ -59,7 +122,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
-  const isHe = language === 'he';
+  // isHe already declared above
   let msgCounter = useRef(0);
 
   useEffect(() => {
