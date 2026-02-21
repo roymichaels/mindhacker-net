@@ -128,6 +128,9 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   // isHe already declared above
   let msgCounter = useRef(0);
+  const startedRef = useRef(false);
+  const messagesRef = useRef<ChatMessage[]>(messages);
+  messagesRef.current = messages;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -249,7 +252,8 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   }, []);
 
   const startConversation = useCallback(async () => {
-    if (started) return;
+    if (startedRef.current) return;
+    startedRef.current = true;
     setStarted(true);
     setIsStreaming(true);
     setStreamingContent('');
@@ -269,7 +273,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       setIsStreaming(false);
       setStreamingContent('');
     }
-  }, [language, handleToolCall, started, addAssistantMessage]);
+  }, [language, handleToolCall, addAssistantMessage]);
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isStreaming) return;
@@ -280,7 +284,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       content: text,
       created_at: new Date().toISOString(),
     };
-    const updated = [...messages, userMsg];
+    const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
     setIsStreaming(true);
     setStreamingContent('');
@@ -306,7 +310,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       setIsStreaming(false);
       setStreamingContent('');
     }
-  }, [messages, isStreaming, handleToolCall, addAssistantMessage]);
+  }, [isStreaming, handleToolCall, addAssistantMessage]);
 
   // Auto-start
   useEffect(() => { startConversation(); }, []);
