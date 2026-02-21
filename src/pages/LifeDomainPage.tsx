@@ -9,6 +9,7 @@ import { getDomainById } from '@/navigation/lifeDomains';
 import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
+import { usePillarContext } from '@/hooks/usePillarContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Settings, Map, Play, RefreshCw } from 'lucide-react';
@@ -22,6 +23,9 @@ export default function LifeDomainPage() {
   const { language, isRTL } = useTranslation();
   const isHebrew = language === 'he';
   const [intakeOpen, setIntakeOpen] = useState(false);
+
+  // Scope the AuroraDock chat to this pillar
+  usePillarContext(domainId || '');
 
   const domain = domainId ? getDomainById(domainId) : undefined;
 
