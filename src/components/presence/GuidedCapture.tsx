@@ -97,7 +97,10 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
       </div>
 
       {/* Image area */}
-      <div className="relative aspect-[3/4] rounded-2xl border-2 border-dashed border-border bg-muted/30 overflow-hidden flex items-center justify-center">
+      <div
+        className="relative aspect-[3/4] max-h-[50vh] rounded-2xl border-2 border-dashed border-border bg-muted/30 overflow-hidden flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+        onClick={() => !uploading && !previews[current.key] && inputRef.current?.click()}
+      >
         {previews[current.key] ? (
           <img
             src={previews[current.key]}
@@ -105,8 +108,8 @@ export default function GuidedCapture({ onComplete, onCancel }: GuidedCapturePro
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="text-center space-y-3 p-6">
-            <Camera className="w-16 h-16 mx-auto text-muted-foreground/40" />
+          <div className="text-center space-y-3 p-6 pointer-events-none">
+            <Camera className="w-12 h-12 mx-auto text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">Tap to capture or upload</p>
           </div>
         )}
