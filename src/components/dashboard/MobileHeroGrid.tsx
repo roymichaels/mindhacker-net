@@ -14,6 +14,7 @@ import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, Trendin
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
+import { NowSection } from '@/components/dashboard/NowSection';
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -188,6 +189,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         {/* ===== COL 2 - Plan Modules ===== */}
         <div ref={leftColRef} className="flex flex-col gap-4 flex-1 px-1">
           <div className="pt-1" />
+
+          {/* 🔥 Now Engine — Daily Execution Queue */}
+          <NowSection />
 
           <StartSessionButton />
 
