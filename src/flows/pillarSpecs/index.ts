@@ -29,6 +29,7 @@ export interface PillarQuestMeta {
 }
 
 export const PILLAR_QUESTS: PillarQuestMeta[] = [
+  { id: 'consciousness', specId: 'quest-consciousness', icon: '🔮', title_he: 'תודעה', title_en: 'Consciousness', color: 'text-blue-500' },
   { id: 'health', specId: 'quest-health', icon: '💪', title_he: 'בריאות וכושר', title_en: 'Health & Fitness', color: 'text-red-500' },
   { id: 'mind', specId: 'quest-mind', icon: '🧠', title_he: 'מנטלי ורגשי', title_en: 'Mind & Emotions', color: 'text-purple-500' },
   { id: 'relationships', specId: 'quest-relationships', icon: '❤️', title_he: 'מערכות יחסים', title_en: 'Relationships', color: 'text-pink-500' },

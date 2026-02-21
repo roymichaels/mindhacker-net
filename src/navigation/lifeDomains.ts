@@ -2,9 +2,11 @@
  * @module navigation/lifeDomains
  * @purpose Single source of truth for domain definitions.
  * Split into CORE_DOMAINS (Core/ליבה tab) and ARENA_DOMAINS (Arena/זירה tab).
+ * Consciousness is a meta-pillar at the top of Core.
  */
 
 import {
+  Orbit,
   Eye,
   Dumbbell,
   Sun,
@@ -32,6 +34,7 @@ export interface LifeDomain {
 
 /** Core domains — personal transformation (displayed in Core/ליבה hub) */
 export const CORE_DOMAINS: LifeDomain[] = [
+  { id: 'consciousness', labelEn: 'Consciousness', labelHe: 'תודעה', icon: Orbit, color: 'blue', description: 'Identity map, traits, consciousness patterns, self-awareness', descriptionHe: 'מפת זהות, תכונות, דפוסי תודעה, מודעות עצמית' },
   { id: 'presence',  labelEn: 'Image',     labelHe: 'תדמית',    icon: Eye,        color: 'fuchsia',  description: 'Face, body aesthetics, grooming, posture, style',                    descriptionHe: 'פנים, אסתטיקה גופנית, טיפוח, יציבה, סגנון' },
   { id: 'power',     labelEn: 'Power',     labelHe: 'עוצמה',    icon: Dumbbell,   color: 'red',      description: 'Strength, calisthenics, skill progressions',                        descriptionHe: 'כוח, קליסטניקס, התקדמות מיומנויות' },
   { id: 'vitality',  labelEn: 'Vitality',  labelHe: 'חיוניות',  icon: Sun,        color: 'amber',    description: 'Sleep, nutrition, recovery, hormones',                              descriptionHe: 'שינה, תזונה, התאוששות, הורמונים' },
