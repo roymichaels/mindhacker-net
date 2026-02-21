@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
+import { PILLAR_SUBCATEGORIES } from '@/lib/communityHelpers';
+import { MessageSquarePlus } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
+import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
 import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
 import AddToPlanModal from '@/components/community/AddToPlanModal';
@@ -26,7 +29,8 @@ interface CommunityProps {
 const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { setActivePillar, setIsChatExpanded } = useAuroraChatContext();
+  const { setActivePillar } = useAuroraChatContext();
+  const [suggestOpen, setSuggestOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
@@ -46,12 +50,10 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
 
   useEffect(() => {
     setActivePillar(selectedPillar);
-    setIsChatExpanded(true);
     return () => {
       setActivePillar(null);
-      setIsChatExpanded(false);
     };
-  }, [selectedPillar, setActivePillar, setIsChatExpanded]);
+  }, [selectedPillar, setActivePillar]);
 
   if (loading) {
     return (
@@ -138,6 +140,11 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
           thread={planThread}
           open={!!planThread}
           onClose={() => setPlanThread(null)}
+        />
+        <SuggestTopicModal
+          open={suggestOpen}
+          onOpenChange={setSuggestOpen}
+          pillar={selectedPillar}
         />
       </PageShell>
     </UsernameGate>

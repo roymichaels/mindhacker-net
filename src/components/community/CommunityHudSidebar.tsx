@@ -91,18 +91,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
             </button>
           ))}
 
-          {onCreateThread && (
-            <>
-              <div className="w-8 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent my-1" />
-              <button
-                onClick={onCreateThread}
-                className="p-2 rounded-lg bg-violet-500/20 border border-violet-500/30 hover:bg-violet-500/30 transition-colors"
-                title={isHe ? 'פתח שרשור' : 'New Thread'}
-              >
-                <Plus className="w-4 h-4 text-violet-400" />
-              </button>
-            </>
-          )}
         </div>
       )}
 
@@ -170,16 +158,6 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
-          {/* New Thread button */}
-          {onCreateThread && (
-            <button
-              onClick={onCreateThread}
-              className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white p-2.5 flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-500/20"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="text-xs font-semibold">{isHe ? 'פתח שרשור' : 'New Thread'}</span>
-            </button>
-          )}
         </div>
       )}
     </aside>
