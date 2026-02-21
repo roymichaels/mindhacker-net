@@ -31,10 +31,11 @@ const colorMap: Record<string, string> = {
   amber:   'from-amber-500/20 to-amber-600/5 border-amber-500/30 hover:border-amber-400/60',
   orange:  'from-orange-500/20 to-orange-600/5 border-orange-500/30 hover:border-orange-400/60',
   rose:    'from-rose-500/20 to-rose-600/5 border-rose-500/30 hover:border-rose-400/60',
+  violet:  'from-violet-500/20 to-violet-600/5 border-violet-500/30 hover:border-violet-400/60',
 };
 
 const iconColorMap: Record<string, string> = {
-  emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400',
+  emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400', violet: 'text-violet-400',
 };
 
 const statusBadge: Record<string, { label: string; labelHe: string; variant: 'default' | 'secondary' | 'outline' }> = {
@@ -156,8 +157,18 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
               let badgeVariant: 'default' | 'secondary' | 'outline';
               if (domain.id === 'projects') {
                 const count = activeProjects.length;
-                badgeContent = count > 0 ? (isHe ? `${count} פעילים` : `${count} Active`) : (isHe ? 'לא הוגדר' : 'Not Set Up');
-                badgeVariant = count > 0 ? 'default' : 'outline';
+                const domainStatus = statusMap['projects'] ?? 'unconfigured';
+                if (count > 0) {
+                  badgeContent = isHe ? `${count} פעילים` : `${count} Active`;
+                  badgeVariant = 'default';
+                } else if (domainStatus === 'configured' || domainStatus === 'active') {
+                  const badge = statusBadge[domainStatus] ?? statusBadge.configured;
+                  badgeContent = isHe ? badge.labelHe : badge.label;
+                  badgeVariant = badge.variant;
+                } else {
+                  badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
+                  badgeVariant = 'outline';
+                }
               } else if (domain.id === 'business') {
                 const count = businesses.length;
                 const domainStatus = statusMap['business'] ?? 'unconfigured';
