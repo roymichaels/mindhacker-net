@@ -2,31 +2,31 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCombatDailyLimit } from '@/hooks/useCombatDailyLimit';
+import { useCommunityDailyLimit } from '@/hooks/useCommunityDailyLimit';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-interface CombatHeaderProps {
+interface CommunityHeaderProps {
   onCreateThread: () => void;
 }
 
-export default function CombatHeader({ onCreateThread }: CombatHeaderProps) {
-  const { t, isRTL } = useTranslation();
+export default function CommunityHeader({ onCreateThread }: CommunityHeaderProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const { hasPostedToday, loading } = useCombatDailyLimit();
+  const { hasPostedToday, loading } = useCommunityDailyLimit();
 
   return (
     <div className="px-4 pt-6 pb-3">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">
-            {t('combatCommunity.title')}
+            {t('combatCommunity.communityTitle') || 'MindOS Community'}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {t('combatCommunity.subtitle')}
+            {t('combatCommunity.communitySubtitle') || '13 pillars. One civilization.'}
           </p>
         </div>
         {user && (

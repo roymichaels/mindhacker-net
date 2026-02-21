@@ -1660,6 +1660,7 @@ export type Database = {
           created_at: string | null
           edited_at: string | null
           id: string
+          is_aurora: boolean | null
           is_edited: boolean | null
           likes_count: number | null
           parent_comment_id: string | null
@@ -1672,6 +1673,7 @@ export type Database = {
           created_at?: string | null
           edited_at?: string | null
           id?: string
+          is_aurora?: boolean | null
           is_edited?: boolean | null
           likes_count?: number | null
           parent_comment_id?: string | null
@@ -1684,6 +1686,7 @@ export type Database = {
           created_at?: string | null
           edited_at?: string | null
           id?: string
+          is_aurora?: boolean | null
           is_edited?: boolean | null
           likes_count?: number | null
           parent_comment_id?: string | null
@@ -1979,6 +1982,8 @@ export type Database = {
           is_pinned: boolean | null
           likes_count: number | null
           media_urls: string[] | null
+          pillar: string | null
+          status: string
           title: string | null
           updated_at: string | null
           user_id: string
@@ -1994,6 +1999,8 @@ export type Database = {
           is_pinned?: boolean | null
           likes_count?: number | null
           media_urls?: string[] | null
+          pillar?: string | null
+          status?: string
           title?: string | null
           updated_at?: string | null
           user_id: string
@@ -2009,6 +2016,8 @@ export type Database = {
           is_pinned?: boolean | null
           likes_count?: number | null
           media_urls?: string[] | null
+          pillar?: string | null
+          status?: string
           title?: string | null
           updated_at?: string | null
           user_id?: string
@@ -5214,6 +5223,7 @@ export type Database = {
           active_ego_state: string | null
           aurora_preferences: Json | null
           bio: string | null
+          community_username: string | null
           created_at: string | null
           ego_state_usage: Json | null
           experience: number | null
@@ -5234,6 +5244,7 @@ export type Database = {
           active_ego_state?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
+          community_username?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null
@@ -5254,6 +5265,7 @@ export type Database = {
           active_ego_state?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
+          community_username?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null

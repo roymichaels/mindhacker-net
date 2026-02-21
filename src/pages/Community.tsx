@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import CommunityFeed from '@/components/community/CommunityFeed';
 import { useSEO } from '@/hooks/useSEO';
+import UsernameGate from '@/components/community/UsernameGate';
+import CommunityHeader from '@/components/community/CommunityHeader';
+import PillarTabs from '@/components/community/PillarTabs';
+import ThreadList from '@/components/community/ThreadList';
+import CreateThreadModal from '@/components/community/CreateThreadModal';
+import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 
 const Community = () => {
-  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [selectedPillar, setSelectedPillar] = useState('all');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
 
   useSEO({
-    title: t('community.pageTitle'),
-    description: t('community.pageDescription'),
+    title: 'MindOS Community',
+    description: '13 pillars. One civilization.',
   });
 
   useEffect(() => {
@@ -25,7 +31,7 @@ const Community = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
@@ -33,18 +39,29 @@ const Community = () => {
   if (!user) return null;
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-2xl font-bold">{t('community.feed')}</h1>
-          <p className="text-muted-foreground">{t('community.feedSubtitle')}</p>
-        </div>
-        
-        {/* Feed Content (includes NavTabs) */}
-        <CommunityFeed />
+    <UsernameGate>
+      <div className="min-h-screen bg-background pb-20">
+        <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
+        <PillarTabs
+          selected={selectedPillar}
+          onSelect={setSelectedPillar}
+        />
+        <ThreadList
+          pillarFilter={selectedPillar}
+          onProfileClick={(uid) => setProfileUserId(uid)}
+        />
+        <CreateThreadModal
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          defaultPillar={selectedPillar !== 'all' ? selectedPillar : undefined}
+        />
+        <CommunityMiniProfile
+          userId={profileUserId}
+          open={!!profileUserId}
+          onClose={() => setProfileUserId(null)}
+        />
       </div>
-    </DashboardLayout>
+    </UsernameGate>
   );
 };
 

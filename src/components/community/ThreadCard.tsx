@@ -2,57 +2,68 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatDistanceToNow } from 'date-fns';
 import { he as heLocale, enUS } from 'date-fns/locale';
-import { Heart, MessageCircle, Bookmark, Dumbbell } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { getRankForPillar } from '@/lib/communityHelpers';
+import { getDomainById } from '@/navigation/lifeDomains';
+import PlayerAvatar from './PlayerAvatar';
 
-function getCombatRank(level: number): { en: string; he: string } {
-  if (level >= 80) return { en: 'Elite', he: 'עילית' };
-  if (level >= 51) return { en: 'Advanced', he: 'מתקדם' };
-  if (level >= 26) return { en: 'Fighter', he: 'לוחם' };
-  if (level >= 11) return { en: 'Operator', he: 'מפעיל' };
-  return { en: 'Initiate', he: 'חניך' };
+export interface ThreadData {
+  id: string;
+  user_id: string;
+  title: string | null;
+  content: string;
+  pillar: string | null;
+  status: string;
+  created_at: string | null;
+  likes_count: number | null;
+  comments_count: number | null;
+  category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
+  author?: { full_name: string | null; level: number | null; community_username: string | null } | null;
 }
 
-interface CombatThreadCardProps {
-  thread: {
-    id: string;
-    user_id: string;
-    title: string | null;
-    content: string;
-    created_at: string | null;
-    likes_count: number | null;
-    comments_count: number | null;
-    category?: { name: string; name_en: string | null; color: string | null; icon: string | null } | null;
-    author?: { full_name: string | null; level: number | null } | null;
-    member?: { user_id: string; avatar_url: string | null } | null;
-  };
+interface ThreadCardProps {
+  thread: ThreadData;
   onProfileClick: (userId: string) => void;
 }
 
-export default function CombatThreadCard({ thread, onProfileClick }: CombatThreadCardProps) {
+const PILLAR_ICONS: Record<string, string> = {
+  consciousness: '🔮', presence: '👁️', power: '💪', vitality: '☀️',
+  focus: '🎯', combat: '⚔️', expansion: '🧠', wealth: '📈',
+  influence: '👑', relationships: '🤝', business: '💼', projects: '📋', play: '🎮',
+};
+
+export default function ThreadCard({ thread, onProfileClick }: ThreadCardProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const level = thread.author?.level ?? 1;
-  const rank = getCombatRank(level);
+  const pillar = thread.pillar || 'combat';
+  const rank = getRankForPillar(pillar, level);
+  const domain = getDomainById(pillar);
   const isMistakeAnalysis = thread.category?.name_en === 'Mistake Analysis';
+  const isPending = thread.status === 'pending';
+  const username = (thread.author as any)?.community_username;
 
   return (
     <div
       className={cn(
         "rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-4 transition-colors hover:bg-card/80",
-        isMistakeAnalysis && "border-s-2 border-s-destructive"
+        isMistakeAnalysis && "border-s-2 border-s-destructive",
+        isPending && "opacity-60"
       )}
     >
+      {isPending && (
+        <div className="flex items-center gap-1.5 text-xs text-primary mb-2">
+          <Clock className="h-3 w-3" />
+          <span>{isHe ? 'ממתין לאישור Aurora' : 'Awaiting Aurora approval'}</span>
+        </div>
+      )}
+
       {/* Top: Orb + Username + Rank + Time */}
       <div className="flex items-center gap-2.5 mb-2">
         <button onClick={() => onProfileClick(thread.user_id)} className="shrink-0">
-          <Avatar className="h-9 w-9 ring-1 ring-border/50">
-            <AvatarFallback className="text-xs bg-amber-500/10 text-amber-500 font-bold">
-              {(thread.author?.full_name || '?').charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <PlayerAvatar userId={thread.user_id} size="sm" />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 text-sm">
@@ -60,9 +71,9 @@ export default function CombatThreadCard({ thread, onProfileClick }: CombatThrea
               onClick={() => onProfileClick(thread.user_id)}
               className="font-semibold hover:underline truncate"
             >
-              {thread.author?.full_name || '—'}
+              {username || thread.author?.full_name || '—'}
             </button>
-            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 shrink-0 border-amber-500/40 text-amber-500">
+            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 shrink-0 border-primary/40 text-primary">
               {isHe ? rank.he : rank.en}
             </Badge>
             {isMistakeAnalysis && <span className="text-xs">⚠️</span>}
@@ -80,6 +91,15 @@ export default function CombatThreadCard({ thread, onProfileClick }: CombatThrea
         </div>
       </div>
 
+      {/* Pillar badge */}
+      {domain && (
+        <div className="mb-1.5">
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
+            {PILLAR_ICONS[pillar]} {isHe ? domain.labelHe : domain.labelEn}
+          </Badge>
+        </div>
+      )}
+
       {/* Title */}
       <Link to={`/community/post/${thread.id}`}>
         <h3 className="font-semibold text-foreground mb-1 hover:text-primary transition-colors leading-tight">
@@ -92,20 +112,20 @@ export default function CombatThreadCard({ thread, onProfileClick }: CombatThrea
         {thread.content}
       </p>
 
-      {/* Category Badge */}
+      {/* Sub-category Badge */}
       {thread.category && (
         <div className="mt-2">
           <Badge
             variant="outline"
             className="text-[10px] px-1.5 py-0 h-4"
-            style={{ borderColor: thread.category.color || '#f59e0b', color: thread.category.color || '#f59e0b' }}
+            style={{ borderColor: thread.category.color || undefined, color: thread.category.color || undefined }}
           >
             {thread.category.icon} {isHe ? thread.category.name : thread.category.name_en || thread.category.name}
           </Badge>
         </div>
       )}
 
-      {/* Bottom: Reply, Upvotes, Save, Drill */}
+      {/* Bottom: Reply, Upvotes, Save */}
       <div className="flex items-center gap-4 mt-3 -ms-1.5">
         <Link to={`/community/post/${thread.id}`}>
           <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
@@ -113,15 +133,12 @@ export default function CombatThreadCard({ thread, onProfileClick }: CombatThrea
             <span>{thread.comments_count || 0}</span>
           </button>
         </Link>
-        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors">
+        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
           <Heart className="h-3.5 w-3.5" />
           <span>{thread.likes_count || 0}</span>
         </button>
-        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 transition-colors">
+        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
           <Bookmark className="h-3.5 w-3.5" />
-        </button>
-        <button className="flex items-center gap-1 px-1.5 py-1 rounded-full text-xs text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors">
-          <Dumbbell className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>

@@ -25,7 +25,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Core',      labelHe: 'ליבה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
-  { id: 'combat',    path: '/combat-community', icon: Crosshair, labelEn: 'Combat',  labelHe: 'לחימה' },
+  { id: 'community', path: '/community', icon: Crosshair, labelEn: 'Community', labelHe: 'קומיוניטי' },
 ];
 
 /** Admin-only tab, appended when user has 'admin' role */
