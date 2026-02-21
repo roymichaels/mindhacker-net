@@ -59,14 +59,8 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
-const CombatCommunity = lazy(() => import("./pages/CombatCommunity"));
 const Go = lazy(() => import("./pages/Go"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
-const CommunityPost = lazy(() => import("./pages/CommunityPost"));
-const CommunityEvents = lazy(() => import("./pages/CommunityEvents"));
-const CommunityMembers = lazy(() => import("./pages/CommunityMembers"));
-const CommunityLeaderboard = lazy(() => import("./pages/CommunityLeaderboard"));
-const CommunityProfile = lazy(() => import("./pages/CommunityProfile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const MessageThread = lazy(() => import("./pages/MessageThread"));
 
@@ -271,7 +265,7 @@ const App = () => (
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-                        {/* Community routes (protected) */}
+                        {/* Community (protected) */}
                         <Route
                           path="/community"
                           element={
@@ -280,55 +274,10 @@ const App = () => (
                             </ProtectedRoute>
                           }
                         />
-                        <Route
-                          path="/community/post/:id"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityPost />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/community/events"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityEvents />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/community/members"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityMembers />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/community/leaderboard"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityLeaderboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/community/profile/:userId"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityProfile />
-                            </ProtectedRoute>
-                          }
-                        />
-                        
-                        {/* Combat Community (protected) */}
+                        {/* Legacy combat-community redirect */}
                         <Route
                           path="/combat-community"
-                          element={
-                            <ProtectedRoute>
-                              <CombatCommunity />
-                            </ProtectedRoute>
-                          }
+                          element={<Navigate to="/community" replace />}
                         />
                         
                         {/* Messages routes (protected) */}
