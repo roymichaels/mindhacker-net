@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye, Waves } from 'lucide-react';
 import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
+import { PlanMilestonesSection } from '@/components/hubs/PlanMilestonesSection';
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
@@ -98,6 +99,9 @@ export default function LifeHub() {
 
         {/* ── Unified Progress Bar ── */}
         <AnalysisProgressBar />
+
+        {/* ── 90-Day Plan Milestones ── */}
+        <PlanMilestonesSection hub="core" />
 
         {/* ── Motivational Banner ── */}
         <div
