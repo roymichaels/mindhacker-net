@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import UsernameGate from '@/components/community/UsernameGate';
 import CommunityHeader from '@/components/community/CommunityHeader';
 import PillarTabs from '@/components/community/PillarTabs';
-import ThreadList from '@/components/community/ThreadList';
+import PillarChat from '@/components/community/PillarChat';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Community = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [selectedPillar, setSelectedPillar] = useState('all');
+  const isMobile = useIsMobile();
+  const [selectedPillar, setSelectedPillar] = useState('consciousness');
   const [createOpen, setCreateOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
 
@@ -40,16 +41,24 @@ const Community = () => {
 
   return (
     <UsernameGate>
-      <div className="min-h-screen bg-background pb-20">
-        <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
-        <PillarTabs
-          selected={selectedPillar}
-          onSelect={setSelectedPillar}
-        />
-        <ThreadList
-          pillarFilter={selectedPillar}
-          onProfileClick={(uid) => setProfileUserId(uid)}
-        />
+      <div
+        className="flex flex-col bg-background"
+        style={{ height: isMobile ? 'calc(100dvh - 56px)' : '100dvh' }}
+      >
+        {/* Header + Tabs - fixed top */}
+        <div className="shrink-0">
+          <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
+          <PillarTabs
+            selected={selectedPillar}
+            onSelect={setSelectedPillar}
+          />
+        </div>
+
+        {/* Chat area - fills remaining space, input docked to bottom */}
+        <div className="flex-1 min-h-0">
+          <PillarChat key={selectedPillar} pillar={selectedPillar} />
+        </div>
+
         <CreateThreadModal
           open={createOpen}
           onOpenChange={setCreateOpen}

@@ -2488,6 +2488,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          context: string | null
           created_at: string
           id: string
           last_message_at: string | null
@@ -2498,6 +2499,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          context?: string | null
           created_at?: string
           id?: string
           last_message_at?: string | null
@@ -2508,6 +2510,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          context?: string | null
           created_at?: string
           id?: string
           last_message_at?: string | null
@@ -6993,6 +6996,10 @@ export type Database = {
       }
       get_or_create_ai_conversation: {
         Args: { user_id: string }
+        Returns: string
+      }
+      get_or_create_pillar_conversation: {
+        Args: { p_pillar: string; p_user_id: string }
         Returns: string
       }
       get_pending_proactive_items: {
