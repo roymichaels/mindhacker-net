@@ -4,18 +4,26 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import UsernameGate from '@/components/community/UsernameGate';
-import CommunityHeader from '@/components/community/CommunityHeader';
-import PillarTabs from '@/components/community/PillarTabs';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
+import { PageShell } from '@/components/aurora-ui/PageShell';
+import { useTranslation } from '@/hooks/useTranslation';
+import { getDomainById } from '@/navigation/lifeDomains';
 
-const Community = () => {
+interface CommunityProps {
+  selectedPillar?: string;
+  onPillarSelect?: (pillar: string) => void;
+  createOpen?: boolean;
+  onCreateOpenChange?: (open: boolean) => void;
+}
+
+const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar, setIsChatExpanded } = useAuroraChatContext();
-  const [selectedPillar, setSelectedPillar] = useState('consciousness');
-  const [createOpen, setCreateOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
+  const { language } = useTranslation();
+  const isHe = language === 'he';
 
   useSEO({
     title: 'MindOS Community',
@@ -38,10 +46,6 @@ const Community = () => {
     };
   }, [selectedPillar, setActivePillar, setIsChatExpanded]);
 
-  const handlePillarSelect = (pillar: string) => {
-    setSelectedPillar(pillar);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -52,19 +56,34 @@ const Community = () => {
 
   if (!user) return null;
 
+  const domain = getDomainById(selectedPillar);
+  const pillarLabel = domain ? (isHe ? domain.labelHe : domain.labelEn) : selectedPillar;
+
   return (
     <UsernameGate>
-      <div className="bg-background pb-20">
-        <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
-        <PillarTabs
-          selected={selectedPillar}
-          onSelect={handlePillarSelect}
-        />
-        {/* The AuroraDock at the bottom handles the chat — 
-            it reads activePillar from context and shows pillar-scoped conversation */}
+      <PageShell>
+        <div className="flex flex-col gap-4">
+          {/* Pillar header */}
+          <div className="pt-2">
+            <h1 className="text-xl font-bold text-foreground">
+              {pillarLabel}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {domain ? (isHe ? domain.descriptionHe : domain.description) : ''}
+            </p>
+          </div>
+
+          {/* Placeholder content — threads/feed will go here */}
+          <div className="flex-1 flex items-center justify-center min-h-[40vh] rounded-xl border border-border/30 bg-muted/10">
+            <p className="text-sm text-muted-foreground">
+              {isHe ? `שיחת קהילה ב${pillarLabel} — הדוק של אורורה פתוח למטה` : `${pillarLabel} community — Aurora dock is open below`}
+            </p>
+          </div>
+        </div>
+
         <CreateThreadModal
           open={createOpen}
-          onOpenChange={setCreateOpen}
+          onOpenChange={onCreateOpenChange || (() => {})}
           defaultPillar={selectedPillar}
         />
         <CommunityMiniProfile
@@ -72,7 +91,7 @@ const Community = () => {
           open={!!profileUserId}
           onClose={() => setProfileUserId(null)}
         />
-      </div>
+      </PageShell>
     </UsernameGate>
   );
 };
