@@ -112,6 +112,8 @@ const BusinessAssess = lazy(() => import("./pages/arena/BusinessAssess"));
 const BusinessResults = lazy(() => import("./pages/arena/BusinessResults"));
 const ProjectsAssess = lazy(() => import("./pages/arena/ProjectsAssess"));
 const ProjectsResults = lazy(() => import("./pages/arena/ProjectsResults"));
+const PlayAssess = lazy(() => import("./pages/arena/PlayAssess"));
+const PlayResults = lazy(() => import("./pages/arena/PlayResults"));
 const PresenceChatAssess = lazy(() => import("./pages/life/PresenceChatAssess"));
 const PresenceChatResults = lazy(() => import("./pages/life/PresenceChatResults"));
 const PowerChatAssess = lazy(() => import("./pages/life/PowerChatAssess"));
@@ -579,6 +581,8 @@ const App = () => (
                         <Route path="/arena/business/results" element={<ProtectedRoute><BusinessResults /></ProtectedRoute>} />
                         <Route path="/arena/projects/assess" element={<ProtectedRoute><ProjectsAssess /></ProtectedRoute>} />
                         <Route path="/arena/projects/results" element={<ProtectedRoute><ProjectsResults /></ProtectedRoute>} />
+                        <Route path="/arena/play/assess" element={<ProtectedRoute><PlayAssess /></ProtectedRoute>} />
+                        <Route path="/arena/play/results" element={<ProtectedRoute><PlayResults /></ProtectedRoute>} />
                         {/* Arena domain page (catch-all) */}
                         <Route path="/arena/:domainId" element={<ProtectedRoute><ArenaDomainPage /></ProtectedRoute>} />
                         {/* Legacy /life arena redirects */}
