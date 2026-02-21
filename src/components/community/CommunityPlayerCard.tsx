@@ -1,8 +1,7 @@
 /**
  * CommunityPlayerCard - Compact card showing user's community identity.
- * Shows: Orb, Username, Global Level, Pillar Rank, Reputation Tier.
+ * Shows: Orb (personalized), Username, Global Level, Pillar Rank, Reputation Tier.
  */
-import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserReputation } from '@/hooks/useCommunityFeed';
 import { useCommunityUsername } from '@/hooks/useCommunityUsername';
@@ -10,7 +9,7 @@ import { calculateReputation, getReputationTier, getPillarRank } from '@/lib/com
 import { useXpProgress } from '@/hooks/useGameState';
 import { Badge } from '@/components/ui/badge';
 import { Star, MessageCircle, Heart, TrendingUp } from 'lucide-react';
-import PlayerAvatar from './PlayerAvatar';
+import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { cn } from '@/lib/utils';
 
 interface CommunityPlayerCardProps {
@@ -33,7 +32,10 @@ export default function CommunityPlayerCard({ userId }: CommunityPlayerCardProps
   return (
     <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-3">
       <div className="flex items-center gap-3">
-        <PlayerAvatar userId={userId} size="md" name={username || '?'} />
+        {/* Current user's own orb */}
+        <div className="shrink-0 rounded-full overflow-hidden" style={{ width: 48, height: 48 }}>
+          <PersonalizedOrb size={48} state="idle" showGlow={false} />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="font-semibold text-sm truncate">

@@ -57,21 +57,27 @@ export function useCommunityFeed({ pillarFilter = 'all', mode = 'latest', limit 
 
       const catMap = Object.fromEntries((categories || []).map(c => [c.id, c]));
 
-      let threads: CommunityThread[] = posts.map(post => {
-        const hoursAgo = post.created_at
-          ? (Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60)
-          : 999;
+      // Only show threads from users who have a community_username
+      let threads: CommunityThread[] = posts
+        .filter(post => {
+          const author = profiles?.find(p => p.id === post.user_id);
+          return author?.community_username; // must have username
+        })
+        .map(post => {
+          const hoursAgo = post.created_at
+            ? (Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60)
+            : 999;
 
-        return {
-          ...post,
-          likes_count: post.likes_count || 0,
-          comments_count: post.comments_count || 0,
-          is_pinned: post.is_pinned || false,
-          category: catMap[post.category_id || ''] || null,
-          author: profiles?.find(p => p.id === post.user_id) || null,
-          trendingScore: calculateTrendingScore(post.likes_count || 0, post.comments_count || 0, hoursAgo),
-        };
-      });
+          return {
+            ...post,
+            likes_count: post.likes_count || 0,
+            comments_count: post.comments_count || 0,
+            is_pinned: post.is_pinned || false,
+            category: catMap[post.category_id || ''] || null,
+            author: profiles?.find(p => p.id === post.user_id) || null,
+            trendingScore: calculateTrendingScore(post.likes_count || 0, post.comments_count || 0, hoursAgo),
+          };
+        });
 
       if (mode === 'trending') {
         threads.sort((a, b) => (b.trendingScore || 0) - (a.trendingScore || 0));
@@ -147,7 +153,6 @@ export function useWeeklyHighlight() {
 
       if (!data || data.length === 0) return null;
 
-      // Calculate trending scores and pick best
       let best = data[0];
       let bestScore = 0;
       for (const post of data) {
@@ -159,7 +164,6 @@ export function useWeeklyHighlight() {
         }
       }
 
-      // Get author
       const { data: author } = await supabase
         .from('profiles')
         .select('full_name, community_username, level')
@@ -172,29 +176,47 @@ export function useWeeklyHighlight() {
   });
 }
 
-/** Top contributors this week */
+/** Top contributors — only users with community_username AND orb_profile */
 export function useTopContributors(limit = 5) {
   return useQuery({
     queryKey: ['community-top-contributors', limit],
     queryFn: async () => {
+      // Fetch more than needed since we'll filter
       const { data } = await supabase
         .from('community_members')
         .select('user_id, total_points, likes_received, posts_count, comments_count')
         .order('total_points', { ascending: false })
-        .limit(limit);
+        .limit(limit * 3);
 
       if (!data || data.length === 0) return [];
 
       const userIds = data.map(m => m.user_id);
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, community_username, level')
-        .in('id', userIds);
+      
+      // Fetch profiles and orb_profiles in parallel
+      const [{ data: profiles }, { data: orbProfiles }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, full_name, community_username, level')
+          .in('id', userIds),
+        supabase
+          .from('orb_profiles')
+          .select('user_id')
+          .in('user_id', userIds),
+      ]);
 
-      return data.map(m => ({
-        ...m,
-        profile: profiles?.find(p => p.id === m.user_id) || null,
-      }));
+      const orbUserIds = new Set((orbProfiles || []).map(o => o.user_id));
+
+      // Filter: must have community_username AND orb profile
+      return data
+        .map(m => ({
+          ...m,
+          profile: profiles?.find(p => p.id === m.user_id) || null,
+        }))
+        .filter(m => {
+          const username = (m.profile as any)?.community_username;
+          return username && orbUserIds.has(m.user_id);
+        })
+        .slice(0, limit);
     },
     staleTime: 5 * 60_000,
   });

@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelLeftClose, PanelLeftOpen, TrendingUp, Award, Star, Users, Crown } from 'lucide-react';
 import { useTopContributors, useWeeklyHighlight, useActiveToday } from '@/hooks/useCommunityFeed';
-import { getReputationTier, calculateReputation, getRankForPillar } from '@/lib/communityHelpers';
+import { getReputationTier, calculateReputation } from '@/lib/communityHelpers';
 import { Badge } from '@/components/ui/badge';
-import PlayerAvatar from './PlayerAvatar';
+import CommunityOrb from './CommunityOrb';
 
 export function CommunityActivitySidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -115,14 +115,14 @@ export function CommunityActivitySidebar() {
                 topContributors.map((c, i) => {
                   const rep = calculateReputation(c.posts_count || 0, c.comments_count || 0, c.likes_received || 0);
                   const tier = getReputationTier(rep);
-                  const username = (c.profile as any)?.community_username || (c.profile as any)?.full_name || '—';
+                  const username = (c.profile as any)?.community_username;
 
                   return (
                     <div key={c.user_id} className="flex items-center gap-2 rounded-lg bg-muted/20 border border-border/20 p-2">
                       <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
-                      <PlayerAvatar userId={c.user_id} size="sm" name={username} className="h-6 w-6 ring-1" />
+                      <CommunityOrb userId={c.user_id} size={28} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-medium truncate">{username}</p>
+                        <p className="text-[11px] font-medium truncate">@{username}</p>
                         <div className="flex items-center gap-1">
                           <span className={cn("text-[9px] font-bold", tier.color)}>
                             {isHe ? tier.he : tier.en}
