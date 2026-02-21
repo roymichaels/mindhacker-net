@@ -76,6 +76,9 @@ export interface AuroraContext {
   conversation_memories: { date: string; summary: string; action_items: string[] }[];
   pending_reminders: { message: string; created_at: string }[];
 
+  // Cross-conversation memory (one brain)
+  cross_conversation_history: { pillar: string | null; role: string; content: string; date: string }[];
+
   // Launchpad
   launchpad_summary: {
     summary: string | null;
@@ -160,6 +163,7 @@ export async function buildContext(
     pulseTodayRes,
     pulseWeekRes,
     recalibRes,
+    crossConvRes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).single(),
     supabase.from("aurora_life_direction").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
@@ -193,6 +197,16 @@ export async function buildContext(
     supabase.from("daily_pulse_logs").select("*").eq("user_id", userId).gte("log_date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]).order("log_date", { ascending: false }),
     // Latest recalibration
     supabase.from("recalibration_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
+    // Cross-conversation history: recent messages from ALL Aurora conversations (one brain)
+    supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").eq("is_ai_message", false).order("created_at", { ascending: false }).limit(40).then(async (userMsgsRes) => {
+      // Get conversation IDs that belong to this user's AI conversations
+      const { data: aiConvs } = await supabase.from("conversations").select("id, context").eq("participant_1", userId).eq("type", "ai").order("updated_at", { ascending: false }).limit(10);
+      if (!aiConvs || aiConvs.length === 0) return { data: [], error: null };
+      const convIds = aiConvs.map((c: any) => c.id);
+      const convContextMap = new Map(aiConvs.map((c: any) => [c.id, c.context]));
+      const { data: recentMsgs } = await supabase.from("messages").select("content, is_ai_message, created_at, conversation_id").in("conversation_id", convIds).order("created_at", { ascending: false }).limit(60);
+      return { data: (recentMsgs || []).map((m: any) => ({ ...m, pillar_context: convContextMap.get(m.conversation_id) || null })), error: null };
+    }),
   ]);
 
   const profile = profileRes.data;
@@ -221,6 +235,7 @@ export async function buildContext(
   const pulseToday = pulseTodayRes.data;
   const pulseWeekData = pulseWeekRes.data || [];
   const latestRecalib = recalibRes.data?.[0];
+  const crossConvData = (crossConvRes as any)?.data || [];
 
   // Compute pulse week stats
   let pulseWeekStats: AuroraContext["pulse_week"] = null;
@@ -359,6 +374,18 @@ export async function buildContext(
       created_at: r.created_at,
     })),
 
+    // Cross-conversation memory: recent exchanges from all pillar/general chats
+    cross_conversation_history: crossConvData.slice(0, 40).reverse().map((m: any) => {
+      const pillarCtx = m.pillar_context;
+      const pillar = pillarCtx ? pillarCtx.replace('pillar:', '') : null;
+      return {
+        pillar,
+        role: m.is_ai_message ? 'aurora' : 'user',
+        content: m.content.length > 300 ? m.content.slice(0, 300) + '...' : m.content,
+        date: new Date(m.created_at).toISOString().split("T")[0],
+      };
+    }),
+
     launchpad_summary: launchpadSummary ? {
       summary: launchpadSummary.summary_data?.summary || null,
       consciousness_analysis: launchpadSummary.summary_data?.consciousness_analysis || null,
@@ -430,6 +457,7 @@ function createEmptyContext(today: string): AuroraContext {
     onboarding: { direction_clarity: "incomplete", identity_understanding: "shallow", energy_patterns_status: "unknown" },
     conversation_memories: [],
     pending_reminders: [],
+    cross_conversation_history: [],
     launchpad_summary: null,
     recent_insights: [],
     projects: [],
