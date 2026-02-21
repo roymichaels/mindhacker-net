@@ -4606,6 +4606,18 @@ export const en: TranslationKeys = {
       sub_learning_drive: 'Learning Drive', sub_creative_output: 'Creative Output', sub_intellectual_range: 'Intellectual Range',
       sub_language_skill: 'Language Skill', sub_growth_mindset: 'Growth Mindset', sub_knowledge_application: 'Knowledge Application',
     },
+    projectsAssess: {
+      assessTitle: 'Projects Diagnostic',
+      assessSubtitle: 'A short conversation to reveal your vision clarity, execution discipline, and completion ability.',
+      sub_vision_clarity: 'Vision Clarity', sub_execution_discipline: 'Execution Discipline', sub_resource_management: 'Resource Management',
+      sub_priority_focus: 'Priority Focus', sub_obstacle_navigation: 'Obstacle Navigation', sub_completion_rate: 'Completion Rate',
+    },
+    playAssess: {
+      assessTitle: 'Play & Regeneration Diagnostic',
+      assessSubtitle: 'A short conversation to reveal your capacity for joy, recovery, and guilt-free rest.',
+      sub_play_frequency: 'Play Frequency', sub_joy_capacity: 'Joy Capacity', sub_variety_range: 'Variety Range',
+      sub_recovery_awareness: 'Recovery Awareness', sub_guilt_free_rest: 'Guilt-Free Rest', sub_somatic_connection: 'Somatic Connection',
+    },
     combatCommunity: {
       pageTitle: 'Combat | Community',
       title: 'Combat Community',
