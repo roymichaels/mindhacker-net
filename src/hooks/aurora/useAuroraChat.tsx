@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { debug } from '@/lib/debug';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuroraChatContextSafe } from '@/contexts/AuroraChatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { parseAllTags, stripAllTags } from '@/lib/commandBus';
@@ -19,7 +20,7 @@ interface Message {
 
 interface ChatMessage {
   role: 'user' | 'assistant';
-  content: string;
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
 }
 
 export const useAuroraChat = (conversationId: string | null) => {
@@ -27,6 +28,7 @@ export const useAuroraChat = (conversationId: string | null) => {
   const { language } = useTranslation();
   const queryClient = useQueryClient();
   const { dispatchCommands, pendingCommands } = useCommandBus();
+  const chatContext = useAuroraChatContextSafe();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -167,20 +169,21 @@ export const useAuroraChat = (conversationId: string | null) => {
   }, [language, queryClient]);
 
   // Send message to Aurora
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, imageBase64?: string) => {
     if (!user?.id || !conversationId || isStreaming) return;
 
     setError(null);
     setIsStreaming(true);
     setStreamingContent('');
 
-    // Save user message
+    // Save user message (text only for DB)
+    const displayContent = imageBase64 ? `${content}\n[📷 תמונה צורפה]` : content;
     const { error: insertError } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
         sender_id: user.id,
-        content,
+        content: displayContent || content,
         is_ai_message: false,
       });
 
@@ -209,8 +212,19 @@ export const useAuroraChat = (conversationId: string | null) => {
         role: (m.is_ai_message ? 'assistant' : 'user') as 'user' | 'assistant',
         content: m.content,
       })),
-      { role: 'user' as const, content },
     ];
+
+    // Build the current user message - multimodal if image attached
+    if (imageBase64) {
+      const parts: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
+      if (content) {
+        parts.push({ type: 'text', text: content });
+      }
+      parts.push({ type: 'image_url', image_url: { url: imageBase64 } });
+      chatMessages.push({ role: 'user', content: parts });
+    } else {
+      chatMessages.push({ role: 'user', content });
+    }
 
     try {
       abortControllerRef.current = new AbortController();
@@ -227,6 +241,8 @@ export const useAuroraChat = (conversationId: string | null) => {
             messages: chatMessages,
             userId: user.id,
             language,
+            pillar: chatContext?.activePillar || null,
+            hasImages: !!imageBase64,
           }),
           signal: abortControllerRef.current.signal,
         }

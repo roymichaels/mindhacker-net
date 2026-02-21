@@ -56,10 +56,10 @@ const AuroraChatBubbles = () => {
 
   // Register send message function for global access
   useEffect(() => {
-    registerSendMessage(async (message: string) => {
+    registerSendMessage(async (message: string, imageBase64?: string) => {
       setIsStreaming(true);
       try {
-        await sendMessage(message);
+        await sendMessage(message, imageBase64);
       } finally {
         setIsStreaming(false);
       }

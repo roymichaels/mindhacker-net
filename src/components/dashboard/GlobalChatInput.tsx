@@ -96,6 +96,15 @@ const GlobalChatInput = () => {
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && !selectedImage) || isStreaming) return;
@@ -107,6 +116,7 @@ const GlobalChatInput = () => {
     }
     
     const messageToSend = input.trim();
+    const imageFile = selectedImage;
     setInput('');
     clearImage();
     
@@ -114,12 +124,18 @@ const GlobalChatInput = () => {
       textareaRef.current.style.height = 'auto';
     }
     
-    // TODO: Handle image upload with message when backend supports it
-    if (selectedImage) {
-      toast.info(isRTL ? 'תמיכה בתמונות בקרוב!' : 'Image support coming soon!');
+    // Convert image to base64 if present
+    let imageBase64: string | undefined;
+    if (imageFile) {
+      try {
+        imageBase64 = await fileToBase64(imageFile);
+      } catch (err) {
+        console.error('Failed to convert image:', err);
+        toast.error(isRTL ? 'שגיאה בטעינת התמונה' : 'Failed to load image');
+      }
     }
     
-    if (!messageToSend) return;
+    if (!messageToSend && !imageBase64) return;
 
     // Increment daily message count for free users
     if (!isPro && user?.id) {
@@ -134,7 +150,7 @@ const GlobalChatInput = () => {
     
     while (attempts < maxAttempts) {
       if (sendMessageRef.current) {
-        sendMessageRef.current(messageToSend);
+        sendMessageRef.current(messageToSend || (isRTL ? 'נא לנתח את התמונה' : 'Please analyze this image'), imageBase64);
         return;
       }
       attempts++;

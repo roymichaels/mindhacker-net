@@ -22,8 +22,8 @@ interface AuroraChatContextType {
   handleNewChat: () => Promise<boolean>;
   handleSelectConversation: (id: string) => void;
   // For global input - allows sending messages from anywhere
-  sendMessageRef: React.MutableRefObject<((message: string) => void) | null>;
-  registerSendMessage: (fn: (message: string) => void) => void;
+  sendMessageRef: React.MutableRefObject<((message: string, imageBase64?: string) => void) | null>;
+  registerSendMessage: (fn: (message: string, imageBase64?: string) => void) => void;
   isStreaming: boolean;
   setIsStreaming: (streaming: boolean) => void;
   // Chat expanded state - shows message bubbles when focused
@@ -71,7 +71,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
   const [activePillar, setActivePillar] = useState<string | null>(null);
-  const sendMessageRef = useRef<((message: string) => void) | null>(null);
+  const sendMessageRef = useRef<((message: string, imageBase64?: string) => void) | null>(null);
   const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
 
   const toggleChatExpanded = useCallback(() => {
@@ -157,7 +157,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     setCurrentConversationId(id);
   }, []);
 
-  const registerSendMessage = useCallback((fn: (message: string) => void) => {
+  const registerSendMessage = useCallback((fn: (message: string, imageBase64?: string) => void) => {
     sendMessageRef.current = fn;
   }, []);
 

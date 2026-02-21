@@ -39,7 +39,7 @@ serve(async (req) => {
       });
     }
 
-    const { messages, customSystemPrompt, language } = parsed;
+    const { messages, customSystemPrompt, language, pillar, hasImages } = parsed;
     userId = parsed.userId;
     mode = parsed.mode;
 
@@ -68,8 +68,9 @@ serve(async (req) => {
     const context = userId ? await buildContext(supabase, userId, language) : await buildContext(supabase, "", language);
 
     // 4. Orchestrate (Layer 2 - policy + routing)
-    const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt);
-    const model = mode === "widget" ? widgetModel : orchestrated.model;
+    const orchestrated = prepare(mode, context, language, knowledgeBase, customSystemPrompt, pillar);
+    // Use vision-capable model when images are present
+    const model = hasImages ? "google/gemini-2.5-flash" : (mode === "widget" ? widgetModel : orchestrated.model);
 
     console.log(`Aurora chat - Mode: ${mode}, User: ${userId || "guest"}, Model: ${model}, Version: ${orchestrated.promptVersion}, ContextHash: ${context.context_hash.slice(0, 8)}`);
 
