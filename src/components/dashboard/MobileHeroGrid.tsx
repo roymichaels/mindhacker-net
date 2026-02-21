@@ -16,6 +16,7 @@ import { CommunityPulse } from '@/components/community/CommunityPulse';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
 import { NowSection } from '@/components/dashboard/NowSection';
+import { CurrentWeekPlanCard } from '@/components/dashboard/CurrentWeekPlanCard';
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -193,6 +194,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* 🔥 Now Engine — Daily Execution Queue */}
           <NowSection />
+
+          {/* 90-Day Plan Card */}
+          <CurrentWeekPlanCard />
 
           <StartSessionButton />
 
