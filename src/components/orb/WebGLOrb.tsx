@@ -1,5 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
+
+// Disable THREE.js color management to prevent sRGB→linear conversion
+// which darkens colors when passed to custom ShaderMaterial uniforms
+THREE.ColorManagement.enabled = false;
 import type { OrbRef, OrbProps, OrbState, OrbProfile } from './types';
 import { VISUAL_DEFAULTS } from './types';
 import { 
@@ -110,12 +114,15 @@ function parseHslToThreeColor(colorStr: string): THREE.Color {
 }
 
 function parseHslToVec3(colorStr: string): THREE.Vector3 {
-  const c = parseHslToThreeColor(colorStr);
-  // Safety: if near-black, substitute fallback
-  if (c.r + c.g + c.b < 0.1) {
-    return new THREE.Vector3(...FALLBACK_RGB);
+  // Bypass THREE.Color entirely to avoid sRGB→linear darkening
+  const normalized = normalizeHsl(colorStr);
+  const m = normalized.match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
+  if (m) {
+    const [r, g, b] = hslToRgbDirect(parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]));
+    if (r + g + b < 0.1) return new THREE.Vector3(...FALLBACK_RGB);
+    return new THREE.Vector3(r, g, b);
   }
-  return new THREE.Vector3(c.r, c.g, c.b);
+  return new THREE.Vector3(...FALLBACK_RGB);
 }
 
 // ===== GEOMETRY =====
