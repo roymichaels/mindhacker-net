@@ -4023,6 +4023,86 @@ export type Database = {
           },
         ]
       }
+      life_protocols: {
+        Row: {
+          compliance_avg: number | null
+          created_at: string
+          end_date: string | null
+          energy_crash_end: string | null
+          energy_crash_start: string | null
+          energy_peak_end: string | null
+          energy_peak_start: string | null
+          id: string
+          locked_until: string | null
+          plan_id: string | null
+          sleep_time: string
+          start_date: string
+          status: string
+          tier: string
+          training_window_end: string | null
+          training_window_start: string | null
+          updated_at: string
+          user_id: string
+          wake_time: string
+          work_end: string | null
+          work_start: string | null
+        }
+        Insert: {
+          compliance_avg?: number | null
+          created_at?: string
+          end_date?: string | null
+          energy_crash_end?: string | null
+          energy_crash_start?: string | null
+          energy_peak_end?: string | null
+          energy_peak_start?: string | null
+          id?: string
+          locked_until?: string | null
+          plan_id?: string | null
+          sleep_time?: string
+          start_date?: string
+          status?: string
+          tier?: string
+          training_window_end?: string | null
+          training_window_start?: string | null
+          updated_at?: string
+          user_id: string
+          wake_time?: string
+          work_end?: string | null
+          work_start?: string | null
+        }
+        Update: {
+          compliance_avg?: number | null
+          created_at?: string
+          end_date?: string | null
+          energy_crash_end?: string | null
+          energy_crash_start?: string | null
+          energy_peak_end?: string | null
+          energy_peak_start?: string | null
+          id?: string
+          locked_until?: string | null
+          plan_id?: string | null
+          sleep_time?: string
+          start_date?: string
+          status?: string
+          tier?: string
+          training_window_end?: string | null
+          training_window_start?: string | null
+          updated_at?: string
+          user_id?: string
+          wake_time?: string
+          work_end?: string | null
+          work_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_protocols_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_items: {
         Row: {
           action_type: string
@@ -5313,6 +5393,140 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      protocol_blocks: {
+        Row: {
+          block_type: string
+          completed_at: string | null
+          created_at: string
+          day_index: number
+          description: string | null
+          end_time: string
+          id: string
+          is_completed: boolean
+          linked_action_id: string | null
+          linked_session_id: string | null
+          protocol_id: string
+          skipped: boolean
+          start_time: string
+          title: string
+        }
+        Insert: {
+          block_type: string
+          completed_at?: string | null
+          created_at?: string
+          day_index?: number
+          description?: string | null
+          end_time: string
+          id?: string
+          is_completed?: boolean
+          linked_action_id?: string | null
+          linked_session_id?: string | null
+          protocol_id: string
+          skipped?: boolean
+          start_time: string
+          title: string
+        }
+        Update: {
+          block_type?: string
+          completed_at?: string | null
+          created_at?: string
+          day_index?: number
+          description?: string | null
+          end_time?: string
+          id?: string
+          is_completed?: boolean
+          linked_action_id?: string | null
+          linked_session_id?: string | null
+          protocol_id?: string
+          skipped?: boolean
+          start_time?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_blocks_linked_action_id_fkey"
+            columns: ["linked_action_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protocol_blocks_linked_action_id_fkey"
+            columns: ["linked_action_id"]
+            isOneToOne: false
+            referencedRelation: "v_habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protocol_blocks_linked_action_id_fkey"
+            columns: ["linked_action_id"]
+            isOneToOne: false
+            referencedRelation: "v_milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protocol_blocks_linked_action_id_fkey"
+            columns: ["linked_action_id"]
+            isOneToOne: false
+            referencedRelation: "v_today_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protocol_blocks_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "life_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protocol_compliance: {
+        Row: {
+          completed_blocks: number
+          compliance_pct: number
+          created_at: string
+          id: string
+          log_date: string
+          notes: string | null
+          protocol_id: string
+          skipped_blocks: number
+          total_blocks: number
+          user_id: string
+        }
+        Insert: {
+          completed_blocks?: number
+          compliance_pct?: number
+          created_at?: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          protocol_id: string
+          skipped_blocks?: number
+          total_blocks?: number
+          user_id: string
+        }
+        Update: {
+          completed_blocks?: number
+          compliance_pct?: number
+          created_at?: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          protocol_id?: string
+          skipped_blocks?: number
+          total_blocks?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_compliance_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "life_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       purchases: {
         Row: {

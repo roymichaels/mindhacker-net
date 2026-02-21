@@ -28,6 +28,7 @@ import {
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
 import { VerticalRoadmap } from '@/components/dashboard/VerticalRoadmap';
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
+import { ProtocolCompilerPanel } from '@/components/protocol/ProtocolCompilerPanel';
 
 interface MobileHeroGridProps {
   planData: {
@@ -195,6 +196,11 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Daily Roadmap - unified timeline */}
           <DailyRoadmap />
+
+          {/* Life Protocol Compiler */}
+          <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm p-4">
+            <ProtocolCompilerPanel />
+          </div>
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
