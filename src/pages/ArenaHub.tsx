@@ -160,8 +160,18 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
                 badgeVariant = count > 0 ? 'default' : 'outline';
               } else if (domain.id === 'business') {
                 const count = businesses.length;
-                badgeContent = count > 0 ? (isHe ? `${count} עסקים` : `${count} Active`) : (isHe ? 'לא הוגדר' : 'Not Set Up');
-                badgeVariant = count > 0 ? 'default' : 'outline';
+                const domainStatus = statusMap['business'] ?? 'unconfigured';
+                if (count > 0) {
+                  badgeContent = isHe ? `${count} עסקים` : `${count} Active`;
+                  badgeVariant = 'default';
+                } else if (domainStatus === 'configured' || domainStatus === 'active') {
+                  const badge = statusBadge[domainStatus] ?? statusBadge.configured;
+                  badgeContent = isHe ? badge.labelHe : badge.label;
+                  badgeVariant = badge.variant;
+                } else {
+                  badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
+                  badgeVariant = 'outline';
+                }
               } else {
                 const badge = statusBadge[status] ?? statusBadge.unconfigured;
                 badgeContent = isHe ? badge.labelHe : badge.label;
