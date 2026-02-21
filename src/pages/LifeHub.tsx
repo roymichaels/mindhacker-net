@@ -167,7 +167,7 @@ export default function LifeHub() {
             </h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {CORE_DOMAINS.map((domain, i) => {
+            {CORE_DOMAINS.filter(d => d.id !== 'consciousness').map((domain, i) => {
               const status = statusMap[domain.id] ?? 'unconfigured';
               const badge = statusBadge[status] ?? statusBadge.unconfigured;
               const Icon = domain.icon;
