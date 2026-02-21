@@ -219,6 +219,7 @@ serve(async (req) => {
       todayActionsRes,
       overdueRes,
       milestonesRes,
+      planMilestonesRes,
       minimumsRes,
       assessmentsRes,
       projectsRes,
@@ -230,8 +231,10 @@ serve(async (req) => {
       supabase.from("action_items").select("id, title, pillar, status, type").eq("user_id", user_id).in("status", ["todo", "doing"]).in("type", ["task"]).or(`due_at.gte.${today}T00:00:00,due_at.lte.${today}T23:59:59,scheduled_date.eq.${today}`),
       // Overdue tasks
       supabase.from("action_items").select("id, title, pillar, due_at").eq("user_id", user_id).eq("type", "task").in("status", ["todo", "doing"]).lt("due_at", `${today}T00:00:00`).order("due_at").limit(3),
-      // Upcoming milestones
+      // Upcoming milestones from action_items
       supabase.from("action_items").select("id, title, pillar, plan_id, metadata").eq("user_id", user_id).eq("type", "milestone").in("status", ["todo", "doing"]).order("order_index").limit(3),
+      // Fallback: milestones directly from life_plan_milestones (if not yet synced to action_items)
+      supabase.from("life_plan_milestones").select("id, title, description, week_number, is_completed, plan_id, focus_area").eq("is_completed", false).order("week_number").limit(3),
       // Daily minimums (anchors)
       supabase.from("aurora_daily_minimums").select("id, title, category").eq("user_id", user_id).eq("is_active", true),
       // Pillar assessments (onboarding diagnostic data)
@@ -245,11 +248,37 @@ serve(async (req) => {
     const habits = habitsRes.data || [];
     const todayActions = todayActionsRes.data || [];
     const overdue = overdueRes.data || [];
-    const milestones = milestonesRes.data || [];
+    let milestones = milestonesRes.data || [];
     const minimums = minimumsRes.data || [];
     const assessment = assessmentsRes.data;
     const projects = projectsRes.data || [];
     const pulse = pulseRes.data;
+
+    // If no milestones in action_items, use life_plan_milestones directly
+    // Filter plan milestones to only include those belonging to user's active plan
+    if (milestones.length === 0 && (planMilestonesRes.data || []).length > 0) {
+      // Verify the plan belongs to this user
+      const planMilestones = planMilestonesRes.data || [];
+      if (planMilestones.length > 0) {
+        const planId = planMilestones[0].plan_id;
+        const { data: planCheck } = await supabase
+          .from("life_plans")
+          .select("id")
+          .eq("id", planId)
+          .eq("user_id", user_id)
+          .eq("status", "active")
+          .maybeSingle();
+        if (planCheck) {
+          milestones = planMilestones.map((pm: any) => ({
+            id: pm.id,
+            title: pm.title,
+            pillar: pm.focus_area || "focus",
+            plan_id: pm.plan_id,
+            metadata: { week_number: pm.week_number, source: "life_plan_milestones" },
+          }));
+        }
+      }
+    }
 
     // ── Build queue ──────────────────────────────────────
     const queue: QueueItem[] = [];
