@@ -40,8 +40,8 @@ const iconColorMap: Record<string, string> = {
 
 const statusBadge: Record<string, { label: string; labelHe: string; variant: 'default' | 'secondary' | 'outline' }> = {
   unconfigured: { label: 'Not Set Up', labelHe: 'לא הוגדר', variant: 'outline' },
-  configured:   { label: 'Configured', labelHe: 'הוגדר', variant: 'secondary' },
-  active:       { label: 'Active', labelHe: 'פעיל', variant: 'default' },
+  configured:   { label: '✓ Analyzed', labelHe: '✓ נותח', variant: 'secondary' },
+  active:       { label: '✓ Active', labelHe: '✓ פעיל', variant: 'default' },
 };
 
 /* ───── Motivational banners ───── */
@@ -130,79 +130,75 @@ export default function LifeHub() {
           </div>
         </div>
 
-        {/* ── Consciousness Hero Card (2-col) ── */}
-        <motion.button
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => navigate('/life/consciousness')}
-          className={cn(
-            'relative flex items-center gap-4 p-5 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group col-span-2',
-            'from-violet-500/25 to-violet-600/5 border-violet-500/40 hover:border-violet-400/70'
-          )}
-        >
-          <Waves className="w-9 h-9 text-violet-400 transition-transform group-hover:scale-110 shrink-0" />
-          <div className="flex-1 min-w-0 text-start">
-            <span className="font-bold text-foreground text-base">{isHe ? 'תודעה' : 'Consciousness'}</span>
-            <p className="text-xs text-muted-foreground leading-tight mt-0.5">
-              {isHe ? 'תדר נשמה, זיהוי מסכות, יושרה פנימית' : 'Soul frequency, identity unmasking, inner integrity'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {(() => {
-              const cRow = getDomain('consciousness');
-              const cStatus = cRow?.status ?? 'unconfigured';
-              const cBadge = statusBadge[cStatus] ?? statusBadge.unconfigured;
-              return (
-                <Badge variant={cBadge.variant} className="text-[9px]">
-                  {isHe ? cBadge.labelHe : cBadge.label}
-                </Badge>
-              );
-            })()}
-            <ChevronIcon className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
-          </div>
-        </motion.button>
+        {/* ── Consciousness Hero Card (only if unconfigured) ── */}
+        {(statusMap['consciousness'] ?? 'unconfigured') === 'unconfigured' && (
+          <motion.button
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => navigate('/life/consciousness')}
+            className={cn(
+              'relative flex items-center gap-4 p-5 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group col-span-2',
+              'from-violet-500/25 to-violet-600/5 border-violet-500/40 hover:border-violet-400/70'
+            )}
+          >
+            <Waves className="w-9 h-9 text-violet-400 transition-transform group-hover:scale-110 shrink-0" />
+            <div className="flex-1 min-w-0 text-start">
+              <span className="font-bold text-foreground text-base">{isHe ? 'תודעה' : 'Consciousness'}</span>
+              <p className="text-xs text-muted-foreground leading-tight mt-0.5">
+                {isHe ? 'תדר נשמה, זיהוי מסכות, יושרה פנימית' : 'Soul frequency, identity unmasking, inner integrity'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-[9px]">
+                {isHe ? 'לא הוגדר' : 'Not Set Up'}
+              </Badge>
+              <ChevronIcon className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
+            </div>
+          </motion.button>
+        )}
 
-        {/* ── Domain Grid ── */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isHe ? 'תחומי ליבה' : 'Core Domains'}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {CORE_DOMAINS.filter(d => d.id !== 'consciousness').map((domain, i) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              const badge = statusBadge[status] ?? statusBadge.unconfigured;
-              const Icon = domain.icon;
-              return (
-                <motion.button
-                  key={domain.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.3 }}
-                  onClick={() => navigate(`/life/${domain.id}`)}
-                  className={cn(
-                    'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                    colorMap[domain.color] ?? colorMap.slate
-                  )}
-                >
-                  <Icon className={cn('w-7 h-7 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
-                  <span className="font-semibold text-foreground text-sm">
-                    {isHe ? domain.labelHe : domain.labelEn}
-                  </span>
-                  <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                    {isHe ? domain.descriptionHe : domain.description}
-                  </p>
-                  <Badge variant={badge.variant} className="text-[9px]">
-                    {isHe ? badge.labelHe : badge.label}
-                  </Badge>
-                  <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
+        {/* ── Domain Grid (only unconfigured domains) ── */}
+        {(() => {
+          const unconfiguredDomains = CORE_DOMAINS.filter(d => d.id !== 'consciousness' && (statusMap[d.id] ?? 'unconfigured') === 'unconfigured');
+          if (unconfiguredDomains.length === 0) return null;
+          return (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  {isHe ? 'תחומים להגדרה' : 'Domains to Configure'}
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {unconfiguredDomains.map((domain, i) => {
+                  const Icon = domain.icon;
+                  return (
+                    <motion.button
+                      key={domain.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.3 }}
+                      onClick={() => navigate(`/life/${domain.id}`)}
+                      className={cn(
+                        'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
+                        colorMap[domain.color] ?? colorMap.slate
+                      )}
+                    >
+                      <Icon className={cn('w-7 h-7 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
+                      <span className="font-semibold text-foreground text-sm">
+                        {isHe ? domain.labelHe : domain.labelEn}
+                      </span>
+                      <Badge variant="outline" className="text-[9px]">
+                        {isHe ? 'לא הוגדר' : 'Not Set Up'}
+                      </Badge>
+                      <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Quick Insights Row ── */}
         <div className="grid grid-cols-3 gap-2">

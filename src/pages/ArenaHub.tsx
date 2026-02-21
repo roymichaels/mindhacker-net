@@ -41,8 +41,8 @@ const iconColorMap: Record<string, string> = {
 
 const statusBadge: Record<string, { label: string; labelHe: string; variant: 'default' | 'secondary' | 'outline' }> = {
   unconfigured: { label: 'Not Set Up', labelHe: 'לא הוגדר', variant: 'outline' },
-  configured:   { label: 'Configured', labelHe: 'הוגדר', variant: 'secondary' },
-  active:       { label: 'Active', labelHe: 'פעיל', variant: 'default' },
+  configured:   { label: '✓ Analyzed', labelHe: '✓ נותח', variant: 'secondary' },
+  active:       { label: '✓ Active', labelHe: '✓ פעיל', variant: 'default' },
 };
 
 /* ───── Banners ───── */
@@ -143,84 +143,60 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
           </div>
         </div>
 
-        {/* ── Arena Grid (Domains + Projects + Businesses) ── */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isHe ? 'תחומי זירה' : 'Arena Domains'}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {/* Domain cards */}
-            {ARENA_DOMAINS.map((domain, i) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              const Icon = domain.icon;
-              
-              // Custom badges for projects/business
-              let badgeContent: string;
-              let badgeVariant: 'default' | 'secondary' | 'outline';
-              if (domain.id === 'projects') {
-                const count = activeProjects.length;
-                const domainStatus = statusMap['projects'] ?? 'unconfigured';
-                if (count > 0) {
-                  badgeContent = isHe ? `${count} פעילים` : `${count} Active`;
-                  badgeVariant = 'default';
-                } else if (domainStatus === 'configured' || domainStatus === 'active') {
-                  const badge = statusBadge[domainStatus] ?? statusBadge.configured;
-                  badgeContent = isHe ? badge.labelHe : badge.label;
-                  badgeVariant = badge.variant;
-                } else {
-                  badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
-                  badgeVariant = 'outline';
-                }
-              } else if (domain.id === 'business') {
-                const count = businesses.length;
-                const domainStatus = statusMap['business'] ?? 'unconfigured';
-                if (count > 0) {
-                  badgeContent = isHe ? `${count} עסקים` : `${count} Active`;
-                  badgeVariant = 'default';
-                } else if (domainStatus === 'configured' || domainStatus === 'active') {
-                  const badge = statusBadge[domainStatus] ?? statusBadge.configured;
-                  badgeContent = isHe ? badge.labelHe : badge.label;
-                  badgeVariant = badge.variant;
-                } else {
-                  badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
-                  badgeVariant = 'outline';
-                }
-              } else {
-                const badge = statusBadge[status] ?? statusBadge.unconfigured;
-                badgeContent = isHe ? badge.labelHe : badge.label;
-                badgeVariant = badge.variant;
-              }
+        {/* ── Arena Grid (only unconfigured domains) ── */}
+        {(() => {
+          const unconfiguredDomains = ARENA_DOMAINS.filter(d => (statusMap[d.id] ?? 'unconfigured') === 'unconfigured');
+          if (unconfiguredDomains.length === 0) return null;
+          return (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  {isHe ? 'תחומים להגדרה' : 'Domains to Configure'}
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {unconfiguredDomains.map((domain, i) => {
+                  const Icon = domain.icon;
 
-              return (
-                <motion.button
-                  key={domain.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.3 }}
-                  onClick={() => navigate(`/arena/${domain.id}`)}
-                  className={cn(
-                    'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
-                    colorMap[domain.color] ?? colorMap.amber
-                  )}
-                >
-                  <Icon className={cn('w-7 h-7 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
-                  <span className="font-semibold text-foreground text-sm">
-                    {isHe ? domain.labelHe : domain.labelEn}
-                  </span>
-                  <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
-                    {isHe ? domain.descriptionHe : domain.description}
-                  </p>
-                  <Badge variant={badgeVariant} className="text-[9px]">
-                    {badgeContent}
-                  </Badge>
-                  <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
+                  let badgeContent: string;
+                  if (domain.id === 'projects') {
+                    badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
+                  } else if (domain.id === 'business') {
+                    badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
+                  } else {
+                    badgeContent = isHe ? 'לא הוגדר' : 'Not Set Up';
+                  }
+
+                  return (
+                    <motion.button
+                      key={domain.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.3 }}
+                      onClick={() => navigate(`/arena/${domain.id}`)}
+                      className={cn(
+                        'relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border bg-gradient-to-b transition-all duration-200 cursor-pointer group',
+                        colorMap[domain.color] ?? colorMap.amber
+                      )}
+                    >
+                      <Icon className={cn('w-7 h-7 transition-transform group-hover:scale-110', iconColorMap[domain.color])} />
+                      <span className="font-semibold text-foreground text-sm">
+                        {isHe ? domain.labelHe : domain.labelEn}
+                      </span>
+                      <p className="text-[10px] text-muted-foreground text-center leading-tight hidden md:block line-clamp-2">
+                        {isHe ? domain.descriptionHe : domain.description}
+                      </p>
+                      <Badge variant="outline" className="text-[9px]">
+                        {badgeContent}
+                      </Badge>
+                      <ChevronIcon className={cn("absolute top-3 w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors", isRTL ? "left-2.5" : "right-2.5")} />
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Play Summary Card ── */}
         <PlaySummaryCard />

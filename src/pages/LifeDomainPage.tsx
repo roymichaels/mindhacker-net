@@ -99,8 +99,8 @@ export default function LifeDomainPage() {
             <p className="text-muted-foreground text-sm">{isHebrew ? domain.descriptionHe : domain.description}</p>
           </div>
           <Badge variant={status === 'active' ? 'default' : status === 'configured' ? 'secondary' : 'outline'} className="ml-auto">
-            {status === 'active' ? (isHebrew ? 'פעיל' : 'Active') :
-             status === 'configured' ? (isHebrew ? 'הוגדר' : 'Configured') :
+            {status === 'active' ? (isHebrew ? '✓ פעיל' : '✓ Active') :
+             status === 'configured' ? (isHebrew ? '✓ נותח' : '✓ Analyzed') :
              (isHebrew ? 'לא הוגדר' : 'Not Set Up')}
           </Badge>
         </div>
