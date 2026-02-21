@@ -149,6 +149,15 @@ export const EXPANSION_SUBSYSTEMS: SubsystemMeta[] = [
   { id: 'knowledge_application', icon: '⚙️', nameKey: 'expansionAssess.sub_knowledge_application', weight: 0.15 },
 ];
 
+export const PLAY_SUBSYSTEMS: SubsystemMeta[] = [
+  { id: 'play_frequency', icon: '🎮', nameKey: 'playAssess.sub_play_frequency', weight: 0.20 },
+  { id: 'joy_capacity', icon: '😊', nameKey: 'playAssess.sub_joy_capacity', weight: 0.20 },
+  { id: 'variety_range', icon: '🌈', nameKey: 'playAssess.sub_variety_range', weight: 0.15 },
+  { id: 'recovery_awareness', icon: '🔄', nameKey: 'playAssess.sub_recovery_awareness', weight: 0.15 },
+  { id: 'guilt_free_rest', icon: '🧘', nameKey: 'playAssess.sub_guilt_free_rest', weight: 0.15 },
+  { id: 'somatic_connection', icon: '🏃', nameKey: 'playAssess.sub_somatic_connection', weight: 0.15 },
+];
+
 export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
   /* Arena domains */
   wealth: {
@@ -185,6 +194,13 @@ export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
     introTitleKey: 'projectsAssess.assessTitle',
     introSubtitleKey: 'projectsAssess.assessSubtitle',
     subsystems: PROJECTS_SUBSYSTEMS,
+  },
+  play: {
+    domainId: 'play',
+    color: 'violet',
+    introTitleKey: 'playAssess.assessTitle',
+    introSubtitleKey: 'playAssess.assessSubtitle',
+    subsystems: PLAY_SUBSYSTEMS,
   },
   /* Core domains */
   presence: {
