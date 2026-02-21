@@ -319,7 +319,7 @@ const Header = ({ variant = "public", brandColors, onMenuClick }: HeaderProps) =
       <AuthModal 
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen} 
-        defaultMode={authModalMode}
+        defaultView={authModalMode}
       />
     </>
   );
