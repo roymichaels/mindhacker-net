@@ -1,50 +1,23 @@
 /**
- * CommunityActivitySidebar - Right sidebar with community stats and activity.
- * Violet/purple color scheme matching community identity.
+ * CommunityActivitySidebar - Right sidebar: Trending, Top Contributors, Weekly Highlight.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelLeftClose, PanelLeftOpen, MessageSquare, Users, Heart, TrendingUp } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { PanelLeftClose, PanelLeftOpen, TrendingUp, Award, Star, Users, Crown } from 'lucide-react';
+import { useTopContributors, useWeeklyHighlight, useActiveToday } from '@/hooks/useCommunityFeed';
+import { getReputationTier, calculateReputation, getRankForPillar } from '@/lib/communityHelpers';
+import { Badge } from '@/components/ui/badge';
+import PlayerAvatar from './PlayerAvatar';
 
 export function CommunityActivitySidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
-  const { data: stats } = useQuery({
-    queryKey: ['community-stats'],
-    queryFn: async () => {
-      const [postsRes, membersRes] = await Promise.all([
-        supabase.from('community_posts').select('id', { count: 'exact', head: true }),
-        supabase.from('community_members').select('id', { count: 'exact', head: true }),
-      ]);
-      return {
-        posts: postsRes.count || 0,
-        members: membersRes.count || 0,
-      };
-    },
-  });
-
-  const { data: recentPosts } = useQuery({
-    queryKey: ['community-recent-posts'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('community_posts')
-        .select('id, title, content, pillar, created_at, likes_count, comments_count')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      return data || [];
-    },
-  });
-
-  const statItems = [
-    { icon: Users, value: stats?.members || 0, label: isHe ? 'חברים' : 'Members', color: 'text-violet-400' },
-    { icon: MessageSquare, value: stats?.posts || 0, label: isHe ? 'פוסטים' : 'Posts', color: 'text-purple-400' },
-  ];
+  const { data: topContributors } = useTopContributors(5);
+  const { data: highlight } = useWeeklyHighlight();
+  const { data: activeCount } = useActiveToday();
 
   return (
     <aside
@@ -73,70 +46,95 @@ export function CommunityActivitySidebar() {
         }
       </button>
 
-      {/* ===== COLLAPSED MINI VIEW ===== */}
+      {/* ===== COLLAPSED ===== */}
       {collapsed && (
-        <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
-          <div className="flex flex-col items-center gap-1 w-full">
-            {statItems.map((m, i) => (
-              <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
-                <m.icon className={cn("w-4 h-4", m.color)} />
-                <span className="text-[10px] font-bold leading-none">{m.value}</span>
-              </div>
-            ))}
+        <div className="flex flex-col items-center gap-2 pt-8 px-0.5">
+          <div className="w-10 h-10 rounded-lg bg-muted/30 border border-border/20 flex flex-col items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-amber-400" />
           </div>
+          <div className="w-10 h-10 rounded-lg bg-muted/30 border border-border/20 flex flex-col items-center justify-center">
+            <Crown className="w-4 h-4 text-violet-400" />
+          </div>
+          {activeCount !== undefined && activeCount > 0 && (
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center">
+              <Users className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-[9px] font-bold text-emerald-400">{activeCount}</span>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ===== EXPANDED FULL VIEW ===== */}
+      {/* ===== EXPANDED ===== */}
       {!collapsed && (
-        <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-          {/* Stats */}
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
-            {isHe ? 'סטטיסטיקה' : 'Stats'}
-          </span>
-          <div className="grid grid-cols-2 gap-1.5 mb-3">
-            {statItems.map((m) => (
-              <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
-                <m.icon className={cn("w-3.5 h-3.5", m.color)} />
-                <span className="text-sm font-bold leading-none">{m.value}</span>
-                <span className="text-[9px] text-muted-foreground">{m.label}</span>
+        <div className="flex flex-col h-full overflow-y-auto scrollbar-hide p-3 pt-8 gap-4">
+          {/* Active Now */}
+          {activeCount !== undefined && activeCount > 0 && (
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-medium text-emerald-400">
+                {activeCount} {isHe ? 'פעילים היום' : 'Active Today'}
+              </span>
+            </div>
+          )}
+
+          {/* Weekly Highlight */}
+          {highlight && (
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+                <Award className="w-3 h-3 text-amber-400" />
+                {isHe ? 'שרשור השבוע' : 'Thread of the Week'}
+              </span>
+              <div className="rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20 p-3">
+                <p className="text-xs font-semibold leading-tight line-clamp-2 mb-1.5">
+                  {highlight.title || highlight.content?.slice(0, 50)}
+                </p>
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <span>@{(highlight.author as any)?.community_username || (highlight.author as any)?.full_name || '—'}</span>
+                  <Badge variant="outline" className="text-[8px] px-1 py-0 h-3 border-amber-500/30 text-amber-500">
+                    🏆 {isHe ? 'שרשור השבוע' : 'TOTW'}
+                  </Badge>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-violet-500/20 to-transparent mb-3" />
+          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
-          {/* Recent Activity */}
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
-            {isHe ? 'פעילות אחרונה' : 'Recent Activity'}
-          </span>
-          <div className="flex-1 overflow-y-auto scrollbar-hide">
-            {(!recentPosts || recentPosts.length === 0) ? (
-              <p className="text-xs text-muted-foreground text-center py-2">{isHe ? 'אין פוסטים עדיין' : 'No posts yet'}</p>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {recentPosts.map((post) => (
-                  <div key={post.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
-                    <p className="text-[11px] font-medium leading-tight truncate">
-                      {post.title || (post.content?.slice(0, 40) + '...')}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {post.pillar && (
-                        <span className="text-[9px] bg-violet-500/15 text-violet-400 px-1.5 py-0.5 rounded-full">
-                          {post.pillar}
-                        </span>
-                      )}
-                      <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                        <Heart className="w-2.5 h-2.5" /> {post.likes_count || 0}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                        <MessageSquare className="w-2.5 h-2.5" /> {post.comments_count || 0}
-                      </span>
+          {/* Top Contributors */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+              <Crown className="w-3 h-3 text-violet-400" />
+              {isHe ? 'מובילים' : 'Top Contributors'}
+            </span>
+            <div className="flex flex-col gap-1.5">
+              {(!topContributors || topContributors.length === 0) ? (
+                <p className="text-xs text-muted-foreground text-center py-2">
+                  {isHe ? 'אין נתונים עדיין' : 'No data yet'}
+                </p>
+              ) : (
+                topContributors.map((c, i) => {
+                  const rep = calculateReputation(c.posts_count || 0, c.comments_count || 0, c.likes_received || 0);
+                  const tier = getReputationTier(rep);
+                  const username = (c.profile as any)?.community_username || (c.profile as any)?.full_name || '—';
+
+                  return (
+                    <div key={c.user_id} className="flex items-center gap-2 rounded-lg bg-muted/20 border border-border/20 p-2">
+                      <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
+                      <PlayerAvatar userId={c.user_id} size="sm" name={username} className="h-6 w-6 ring-1" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-medium truncate">{username}</p>
+                        <div className="flex items-center gap-1">
+                          <span className={cn("text-[9px] font-bold", tier.color)}>
+                            {isHe ? tier.he : tier.en}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground">• {rep} rep</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       )}

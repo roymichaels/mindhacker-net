@@ -6,9 +6,15 @@ import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
+import ThreadList from '@/components/community/ThreadList';
+import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
+import AddToPlanModal from '@/components/community/AddToPlanModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getDomainById } from '@/navigation/lifeDomains';
+import { cn } from '@/lib/utils';
+import { Flame, Clock } from 'lucide-react';
+import type { ThreadData } from '@/components/community/ThreadCard';
 
 interface CommunityProps {
   selectedPillar?: string;
@@ -22,6 +28,8 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
   const navigate = useNavigate();
   const { setActivePillar, setIsChatExpanded } = useAuroraChatContext();
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
+  const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
+  const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const { language } = useTranslation();
   const isHe = language === 'he';
 
@@ -36,7 +44,6 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
     }
   }, [user, loading, navigate]);
 
-  // Set pillar context for the dock and auto-expand
   useEffect(() => {
     setActivePillar(selectedPillar);
     setIsChatExpanded(true);
@@ -58,27 +65,63 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
 
   const domain = getDomainById(selectedPillar);
   const pillarLabel = domain ? (isHe ? domain.labelHe : domain.labelEn) : selectedPillar;
+  const isAll = selectedPillar === 'all';
 
   return (
     <UsernameGate>
       <PageShell>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          {/* Player Card - compact stats */}
+          <CommunityPlayerCard userId={user.id} />
+
           {/* Pillar header */}
-          <div className="pt-2">
-            <h1 className="text-xl font-bold text-foreground">
-              {pillarLabel}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {domain ? (isHe ? domain.descriptionHe : domain.description) : ''}
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">
+                {isAll ? (isHe ? 'כל הפילרים' : 'All Pillars') : pillarLabel}
+              </h1>
+              {domain && (
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {isHe ? domain.descriptionHe : domain.description}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Placeholder content — threads/feed will go here */}
-          <div className="flex-1 flex items-center justify-center min-h-[40vh] rounded-xl border border-border/30 bg-muted/10">
-            <p className="text-sm text-muted-foreground">
-              {isHe ? `שיחת קהילה ב${pillarLabel} — הדוק של אורורה פתוח למטה` : `${pillarLabel} community — Aurora dock is open below`}
-            </p>
+          {/* Feed mode tabs */}
+          <div className="flex gap-1 bg-muted/30 rounded-lg p-1 w-fit">
+            <button
+              onClick={() => setFeedMode('latest')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                feedMode === 'latest'
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Clock className="h-3.5 w-3.5" />
+              {isHe ? 'אחרונים' : 'Latest'}
+            </button>
+            <button
+              onClick={() => setFeedMode('trending')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                feedMode === 'trending'
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Flame className="h-3.5 w-3.5" />
+              {isHe ? 'טרנדי' : 'Trending'}
+            </button>
           </div>
+
+          {/* Thread Feed */}
+          <ThreadList
+            pillarFilter={selectedPillar}
+            mode={feedMode}
+            onProfileClick={setProfileUserId}
+          />
         </div>
 
         <CreateThreadModal
@@ -90,6 +133,11 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
           userId={profileUserId}
           open={!!profileUserId}
           onClose={() => setProfileUserId(null)}
+        />
+        <AddToPlanModal
+          thread={planThread}
+          open={!!planThread}
+          onClose={() => setPlanThread(null)}
         />
       </PageShell>
     </UsernameGate>

@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
 import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
+import { CommunityPulse } from '@/components/community/CommunityPulse';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
 import { NowSection } from '@/components/dashboard/NowSection';
@@ -200,6 +201,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* Command Timeline (Plus/Apex only - auto-hides for Free) */}
           <CommandTimeline />
+
+          {/* Community Pulse */}
+          <CommunityPulse />
 
           {/* Daily Roadmap - unified timeline */}
           <DailyRoadmap />
