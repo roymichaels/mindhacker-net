@@ -13,6 +13,7 @@ import { useNowEngine, NowQueueItem } from '@/hooks/useNowEngine';
 import { useCompleteNowAction } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { toast } from 'sonner';
+import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 
 function PillarBadge({ pillarId, hub }: { pillarId: string; hub: 'core' | 'arena' }) {
   const { language } = useTranslation();
@@ -80,25 +81,18 @@ function QueueItemCard({
 
 export function NowSection() {
   const { language, isRTL } = useTranslation();
-  const { queue, nextAction, tier, isLoading } = useNowEngine();
+  const { queue, nextAction, tier, isLoading, refetch } = useNowEngine();
   const [expanded, setExpanded] = useState(true);
-  const completeMutation = useCompleteNowAction();
+  const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
+  const [executionOpen, setExecutionOpen] = useState(false);
 
   const handleExecute = (item: NowQueueItem) => {
-    // If it has a sourceId (real action_item), mark complete
-    if (item.sourceId && (item.sourceType === 'habit' || item.sourceType === 'plan')) {
-      completeMutation.mutate(
-        { actionId: item.sourceId, done: true },
-        {
-          onSuccess: () => {
-            toast.success(language === 'he' ? 'הושלם! 🎉' : 'Completed! 🎉');
-          },
-        }
-      );
-    } else {
-      // Template action — just confirm
-      toast.success(language === 'he' ? `בצע: ${item.title}` : `Execute: ${item.title}`);
-    }
+    setExecutionAction(item);
+    setExecutionOpen(true);
+  };
+
+  const handleExecutionComplete = () => {
+    refetch();
   };
 
   if (isLoading) {
@@ -200,6 +194,13 @@ export function NowSection() {
           </AnimatePresence>
         </div>
       )}
+      {/* Execution Modal */}
+      <ExecutionModal
+        open={executionOpen}
+        onOpenChange={setExecutionOpen}
+        action={executionAction}
+        onComplete={handleExecutionComplete}
+      />
     </div>
   );
 }

@@ -97,6 +97,80 @@ interface QueueItem {
   sourceId?: string;
 }
 
+// ─── Execution step generator ─────────────────────────────────
+interface ExecStep { label: string; detail?: string; durationSec: number; }
+
+function generateExecutionSteps(actionType: string, pillar: string, durationMin: number, isHe: boolean): ExecStep[] {
+  const dur = durationMin;
+  // Specific templates per action type
+  const templates: Record<string, () => ExecStep[]> = {
+    shadowboxing_session: () => isHe ? [
+      { label: "חימום — קפיצות + סיבובי מפרקים", durationSec: 120 },
+      { label: "סיבוב 1 — ג׳אב-קרוס, קצב נמוך", detail: "התמקד בטכניקה נקייה", durationSec: 180 },
+      { label: "סיבוב 2 — קומבינציות + תנועה", detail: "הוסף ווים ואפרקאטים", durationSec: 180 },
+      { label: "סיבוב 3 — אינטנסיביות מקסימלית", detail: "דמיין יריב. תלחם.", durationSec: 180 },
+      { label: "שחרור ונשימה — 2 דקות", durationSec: 120 },
+    ] : [
+      { label: "Warm-up — jump rope + joint circles", durationSec: 120 },
+      { label: "Round 1 — Jab-cross, slow tempo", detail: "Focus on clean technique", durationSec: 180 },
+      { label: "Round 2 — Combinations + movement", detail: "Add hooks and uppercuts", durationSec: 180 },
+      { label: "Round 3 — Max intensity", detail: "Visualize opponent. Fight.", durationSec: 180 },
+      { label: "Cooldown & breathwork — 2 min", durationSec: 120 },
+    ],
+    deep_work_block: () => isHe ? [
+      { label: "הגדר כוונה — מה בדיוק תעשה ב-45 הדקות?", durationSec: 60 },
+      { label: "סגור הסחות — טלפון במצב טיסה", durationSec: 30 },
+      { label: "בלוק עבודה עמוקה — 40 דקות רצופות", detail: "אל תעצור. אל תבדוק הודעות.", durationSec: 2400 },
+      { label: "סיכום — מה הושג? מה הצעד הבא?", durationSec: 120 },
+    ] : [
+      { label: "Set intention — what exactly will you do?", durationSec: 60 },
+      { label: "Remove distractions — phone on airplane mode", durationSec: 30 },
+      { label: "Deep work block — 40 unbroken minutes", detail: "Don't stop. Don't check messages.", durationSec: 2400 },
+      { label: "Recap — what was achieved? What's next?", durationSec: 120 },
+    ],
+    strength_session: () => isHe ? [
+      { label: "חימום דינמי — 3 דקות", durationSec: 180 },
+      { label: "סט 1 — שכיבות סמיכה / פול-אפ", detail: "3 סטים × מקסימום חזרות", durationSec: 300 },
+      { label: "סט 2 — סקוואט / לאנג'ים", detail: "3 סטים × 12 חזרות", durationSec: 300 },
+      { label: "סט 3 — פלאנק + ליבה", detail: "3 × 30 שניות", durationSec: 180 },
+      { label: "מתיחות — 3 דקות", durationSec: 180 },
+    ] : [
+      { label: "Dynamic warm-up — 3 min", durationSec: 180 },
+      { label: "Set 1 — Push-ups / Pull-ups", detail: "3 sets × max reps", durationSec: 300 },
+      { label: "Set 2 — Squats / Lunges", detail: "3 sets × 12 reps", durationSec: 300 },
+      { label: "Set 3 — Plank + Core", detail: "3 × 30 seconds", durationSec: 180 },
+      { label: "Stretching — 3 min", durationSec: 180 },
+    ],
+    meditation_focus: () => isHe ? [
+      { label: "שב בנוחות. עיניים עצומות.", durationSec: 30 },
+      { label: "5 נשימות עמוקות — שאיפה 4, עצירה 4, נשיפה 6", durationSec: 120 },
+      { label: "סריקת גוף — ראש עד רגליים", detail: "שחרר כל מתח שאתה מרגיש", durationSec: 180 },
+      { label: "ישיבה בשקט — תצפית על מחשבות", detail: "אל תשפוט, רק צפה", durationSec: 360 },
+      { label: "חזרה — 3 נשימות, פתח עיניים", durationSec: 60 },
+    ] : [
+      { label: "Sit comfortably. Close your eyes.", durationSec: 30 },
+      { label: "5 deep breaths — inhale 4, hold 4, exhale 6", durationSec: 120 },
+      { label: "Body scan — head to toes", detail: "Release any tension you feel", durationSec: 180 },
+      { label: "Quiet sitting — observe thoughts", detail: "Don't judge, just watch", durationSec: 360 },
+      { label: "Return — 3 breaths, open eyes", durationSec: 60 },
+    ],
+  };
+
+  if (templates[actionType]) return templates[actionType]();
+
+  // Generic fallback
+  const coreMin = Math.max(1, dur - 4);
+  return isHe ? [
+    { label: "הכנה — נשימות עמוקות ומיקוד כוונה", durationSec: 60 },
+    { label: `ביצוע ליבה — ${coreMin} דקות`, detail: "עבודה ממוקדת ללא הסחות", durationSec: coreMin * 60 },
+    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 120 },
+  ] : [
+    { label: "Prepare — deep breaths & set intention", durationSec: 60 },
+    { label: `Core execution — ${coreMin} minutes`, detail: "Focused work without distractions", durationSec: coreMin * 60 },
+    { label: "Close — what did I learn? What's next?", durationSec: 120 },
+  ];
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -109,12 +183,27 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Parse request
-    const { user_id, language = "he" } = await req.json();
+    const body = await req.json();
+    const { user_id, language = "he", mode } = body;
     if (!user_id) {
       return new Response(JSON.stringify({ error: "user_id required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // ── MODE: execution_steps ────────────────────────────
+    if (mode === "execution_steps") {
+      const { action_type, pillar, duration_min } = body;
+      const isHe = language === "he";
+      const steps = generateExecutionSteps(action_type, pillar, duration_min || 15, isHe);
+      const auroraMessage = isHe
+        ? `בוא נתחיל. ${duration_min || 15} דקות של ${pillar || "עבודה"}. אני איתך.`
+        : `Let's begin. ${duration_min || 15} minutes of ${pillar || "work"}. I'm with you.`;
+      return new Response(
+        JSON.stringify({ steps, aurora_message: auroraMessage }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Get user tier
