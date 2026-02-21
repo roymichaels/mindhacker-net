@@ -1,7 +1,7 @@
 /**
  * OnboardingReveal — Neural Diagnostics + Week 1 Protocol + Daily Structure
  * 
- * Unified reveal screen: 6 diagnostic scores, Week 1 protocol, 8-8-8 daily structure preview.
+ * Unified reveal screen: 7 diagnostic scores (incl. Consciousness), Week 1 protocol, 8-8-8 daily structure preview.
  */
 import { useState, useMemo, useCallback } from 'react';
 import { TIER_FEATURES, TIER_CONFIGS } from '@/lib/subscriptionTiers';
