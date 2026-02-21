@@ -40,6 +40,10 @@ interface AuroraChatContextType {
   // Proactive messages
   pendingProactiveMessage: string | null;
   setPendingProactiveMessage: (message: string | null) => void;
+  // Pillar context
+  activePillar: string | null;
+  setActivePillar: (pillar: string | null) => void;
+  pillarConversationId: string | null;
 }
 
 const AuroraChatContext = createContext<AuroraChatContextType | null>(null);
@@ -66,6 +70,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
   const [pendingProactiveMessage, setPendingProactiveMessage] = useState<string | null>(null);
+  const [activePillar, setActivePillar] = useState<string | null>(null);
   const sendMessageRef = useRef<((message: string) => void) | null>(null);
   const commandHandlerRef = useRef<((command: AuroraCommand) => void) | null>(null);
 
@@ -92,7 +97,31 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     enabled: !!user?.id,
   });
 
-  const activeConversationId = currentConversationId || defaultConversationId || null;
+  // Get or create pillar-specific conversation
+  const { data: pillarConversationId } = useQuery({
+    queryKey: ['pillar-conversation', user?.id, activePillar],
+    queryFn: async () => {
+      if (!user?.id || !activePillar) return null;
+
+      const { data, error } = await supabase.rpc('get_or_create_pillar_conversation', {
+        p_user_id: user.id,
+        p_pillar: activePillar,
+      });
+
+      if (error) {
+        console.error('Failed to get pillar conversation:', error);
+        throw error;
+      }
+
+      return data as string;
+    },
+    enabled: !!user?.id && !!activePillar,
+  });
+
+  // When pillar is active, use pillar conversation; otherwise use user-selected or default
+  const activeConversationId = activePillar
+    ? (pillarConversationId || null)
+    : (currentConversationId || defaultConversationId || null);
 
   const handleNewChat = useCallback(async (): Promise<boolean> => {
     if (!user?.id) {
@@ -101,7 +130,6 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
     }
     
     try {
-      // Use security-definer backend function to ensure we can reliably create and get the new id
       const { data, error } = await supabase
         .rpc('create_ai_conversation', { p_user_id: user.id });
 
@@ -113,8 +141,8 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
       const newId = data as string | null;
       if (!newId) return false;
 
+      setActivePillar(null); // Clear pillar context on new chat
       setCurrentConversationId(newId);
-      // Invalidate both list and messages for the newly selected conversation
       queryClient.invalidateQueries({ queryKey: ['aurora-conversations'] });
       queryClient.invalidateQueries({ queryKey: ['aurora-messages'] });
       return true;
@@ -125,6 +153,7 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
   }, [user?.id, queryClient]);
 
   const handleSelectConversation = useCallback((id: string) => {
+    setActivePillar(null);
     setCurrentConversationId(id);
   }, []);
 
@@ -146,7 +175,6 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
       commandHandlerRef.current(command);
     }
     
-    // Emit global event for components not using the hook
     window.dispatchEvent(new CustomEvent('aurora:command', { detail: command }));
   }, []);
 
@@ -190,6 +218,9 @@ export const AuroraChatProvider = ({ children }: { children: ReactNode }) => {
         registerCommandHandler,
         pendingProactiveMessage,
         setPendingProactiveMessage,
+        activePillar,
+        setActivePillar,
+        pillarConversationId: pillarConversationId || null,
       }}
     >
       {children}

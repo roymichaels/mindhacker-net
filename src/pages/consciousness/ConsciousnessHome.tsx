@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useConsciousnessCoach } from '@/hooks/useConsciousnessCoach';
+import { usePillarContext } from '@/hooks/usePillarContext';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowRight, Activity, Clock,
@@ -29,6 +30,7 @@ export default function ConsciousnessHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useConsciousnessCoach();
+  usePillarContext('consciousness');
   const [assessOpen, setAssessOpen] = useState(false);
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;

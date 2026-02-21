@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Bug } from 'lucide-react';
+import { Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/useTranslation';
+import { LIFE_DOMAINS } from '@/navigation/lifeDomains';
 
 import GlobalChatInput from '@/components/dashboard/GlobalChatInput';
 import AuroraChatBubbles from '@/components/aurora/AuroraChatBubbles';
@@ -19,8 +20,11 @@ export function AuroraDock() {
     isChatExpanded,
     setIsChatExpanded,
     isStreaming,
+    activePillar,
   } = useAuroraChatContext();
   const [bugReportOpen, setBugReportOpen] = useState(false);
+
+  const isHe = language === 'he';
 
   // Hide dock on non-dashboard pages (panels, etc.)
   const isPanel = location.pathname.startsWith('/panel') ||
@@ -28,26 +32,40 @@ export function AuroraDock() {
     location.pathname.startsWith('/affiliate');
   if (isPanel) return null;
 
+  // Check if we're on the community page — dock takes full remaining height
+  const isCommunity = location.pathname === '/community';
+
+  // Get pillar label if active
+  const pillarDomain = activePillar ? LIFE_DOMAINS.find(d => d.id === activePillar) : null;
+  const pillarLabel = pillarDomain ? (isHe ? pillarDomain.labelHe : pillarDomain.labelEn) : null;
+
   return (
     <>
       <BugReportDialog open={bugReportOpen} onOpenChange={setBugReportOpen} />
 
       <div
         className={cn(
-          "fixed left-0 right-0 z-40 flex flex-col items-center",
+          "fixed left-0 right-0 z-40 flex flex-col",
           "bg-background/100 backdrop-blur-none border-t border-border shadow-[0_-4px_16px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.5)]",
           isMobile
             ? "bottom-14"
             : "bottom-0"
         )}
       >
-        {/* Bug report button (visible only when expanded) */}
+        {/* Bug report + pillar indicator (visible only when expanded) */}
         {isChatExpanded && (
-          <div className="w-full max-w-3xl mx-auto flex items-center justify-end px-3 pt-1.5 mb-0.5">
+          <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-3 pt-1.5 mb-0.5">
+            {pillarLabel ? (
+              <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-full">
+                {pillarLabel}
+              </span>
+            ) : (
+              <span />
+            )}
             <button
               onClick={() => setBugReportOpen(true)}
               className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-              title={language === 'he' ? 'דווח על באג' : 'Report Bug'}
+              title={isHe ? 'דווח על באג' : 'Report Bug'}
             >
               <Bug className="w-4 h-4" />
             </button>

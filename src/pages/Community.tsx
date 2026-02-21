@@ -2,18 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
+import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
 import UsernameGate from '@/components/community/UsernameGate';
 import CommunityHeader from '@/components/community/CommunityHeader';
 import PillarTabs from '@/components/community/PillarTabs';
-import PillarChat from '@/components/community/PillarChat';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Community = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const { setActivePillar, setIsChatExpanded } = useAuroraChatContext();
   const [selectedPillar, setSelectedPillar] = useState('consciousness');
   const [createOpen, setCreateOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
@@ -29,6 +28,20 @@ const Community = () => {
     }
   }, [user, loading, navigate]);
 
+  // Set pillar context for the dock and auto-expand
+  useEffect(() => {
+    setActivePillar(selectedPillar);
+    setIsChatExpanded(true);
+    return () => {
+      setActivePillar(null);
+      setIsChatExpanded(false);
+    };
+  }, [selectedPillar, setActivePillar, setIsChatExpanded]);
+
+  const handlePillarSelect = (pillar: string) => {
+    setSelectedPillar(pillar);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -41,28 +54,18 @@ const Community = () => {
 
   return (
     <UsernameGate>
-      <div
-        className="flex flex-col bg-background"
-        style={{ height: isMobile ? 'calc(100dvh - 56px)' : '100dvh' }}
-      >
-        {/* Header + Tabs - fixed top */}
-        <div className="shrink-0">
-          <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
-          <PillarTabs
-            selected={selectedPillar}
-            onSelect={setSelectedPillar}
-          />
-        </div>
-
-        {/* Chat area - fills remaining space, input docked to bottom */}
-        <div className="flex-1 min-h-0">
-          <PillarChat key={selectedPillar} pillar={selectedPillar} />
-        </div>
-
+      <div className="bg-background pb-20">
+        <CommunityHeader onCreateThread={() => setCreateOpen(true)} />
+        <PillarTabs
+          selected={selectedPillar}
+          onSelect={handlePillarSelect}
+        />
+        {/* The AuroraDock at the bottom handles the chat — 
+            it reads activePillar from context and shows pillar-scoped conversation */}
         <CreateThreadModal
           open={createOpen}
           onOpenChange={setCreateOpen}
-          defaultPillar={selectedPillar !== 'all' ? selectedPillar : undefined}
+          defaultPillar={selectedPillar}
         />
         <CommunityMiniProfile
           userId={profileUserId}
