@@ -16,6 +16,7 @@ import {
   Users,
   Briefcase,
   FolderKanban,
+  Gamepad2,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -46,6 +47,7 @@ export const ARENA_DOMAINS: LifeDomain[] = [
   { id: 'relationships', labelEn: 'Relationships', labelHe: 'קשרים',     icon: Users,        color: 'sky',     description: 'Connections, partnerships, social capital',  descriptionHe: 'קשרים, שותפויות, הון חברתי' },
   { id: 'business',      labelEn: 'Business',      labelHe: 'עסקים',     icon: Briefcase,    color: 'rose',    description: 'Build & manage businesses',                  descriptionHe: 'בנייה וניהול עסקים' },
   { id: 'projects',      labelEn: 'Projects',      labelHe: 'פרויקטים',  icon: FolderKanban, color: 'amber',   description: 'Manage projects & goals',                    descriptionHe: 'ניהול פרויקטים ויעדים' },
+  { id: 'play',          labelEn: 'Play',          labelHe: 'משחק',      icon: Gamepad2,     color: 'violet',  description: 'Intentional regeneration & joyful movement', descriptionHe: 'התחדשות מכוונת ותנועה משמחת' },
 ];
 
 /** Combined — backwards compat for anything iterating all domains */

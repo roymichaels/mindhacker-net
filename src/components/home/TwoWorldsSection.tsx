@@ -52,8 +52,8 @@ export default function TwoWorldsSection() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {isRTL
-              ? '11 תחומים. שני עולמות. מערכת אחת שמחברת את הכל.'
-              : '11 domains. Two worlds. One system that connects it all.'}
+              ? '12 תחומים. שני עולמות. מערכת אחת שמחברת את הכל.'
+              : '12 domains. Two worlds. One system that connects it all.'}
           </p>
         </motion.div>
 
