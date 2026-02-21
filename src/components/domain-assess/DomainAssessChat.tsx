@@ -1,6 +1,7 @@
 /**
  * DomainAssessChat — Uses Aurora chat UI for domain assessments.
  * Streams messages from domain-assess edge function, extracts profile via tool call.
+ * Messages are persisted to the database for continuity across sessions.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,8 @@ import { getDomainById, CORE_DOMAINS } from '@/navigation/lifeDomains';
 import type { DomainAssessmentResult, Confidence } from '@/lib/domain-assess/types';
 import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
 import { AuroraHoloOrb } from '@/components/aurora/AuroraHoloOrb';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ChatMessage {
   id: string;
@@ -103,30 +106,23 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   const navigate = useNavigate();
   const { language, isRTL } = useTranslation();
   const { saveAssessment } = useDomainAssessment(domainId);
+  const { user } = useAuth();
 
   const meta = DOMAIN_ASSESS_META[domainId];
   const domain = getDomainById(domainId);
 
   const isHe = language === 'he';
 
-  // Build intro message for this domain
-  const introText = DOMAIN_INTROS[domainId];
-  const introMessage: ChatMessage | null = introText ? {
-    id: 'intro-static',
-    role: 'assistant',
-    content: isHe ? introText.he : introText.en,
-    created_at: new Date().toISOString(),
-  } : null;
-
-  const [messages, setMessages] = useState<ChatMessage[]>(introMessage ? [introMessage] : []);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [started, setStarted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
-  // isHe already declared above
   let msgCounter = useRef(0);
   const startedRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>(messages);
@@ -135,6 +131,81 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingContent]);
+
+  // ─── DB persistence helpers ───
+  const saveMessageToDB = useCallback(async (convId: string, role: 'user' | 'assistant', content: string) => {
+    if (!user?.id) return;
+    await supabase.from('messages').insert({
+      conversation_id: convId,
+      sender_id: role === 'user' ? user.id : null,
+      content,
+      is_ai_message: role === 'assistant',
+    });
+  }, [user?.id]);
+
+  // ─── Load or create conversation + history ───
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+
+    const init = async () => {
+      // Get or create pillar conversation
+      const { data: convId, error: convErr } = await supabase.rpc('get_or_create_pillar_conversation', {
+        p_user_id: user.id,
+        p_pillar: `assess:${domainId}`,
+      });
+
+      if (convErr || !convId) {
+        console.error('Failed to get pillar conversation:', convErr);
+        setLoadingHistory(false);
+        return;
+      }
+
+      if (cancelled) return;
+      setConversationId(convId);
+
+      // Fetch existing messages
+      const { data: existing, error: msgErr } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
+
+      if (cancelled) return;
+
+      if (!msgErr && existing && existing.length > 0) {
+        const loaded: ChatMessage[] = existing.map((m: any) => ({
+          id: m.id,
+          role: m.is_ai_message ? 'assistant' as const : 'user' as const,
+          content: m.content,
+          created_at: m.created_at,
+        }));
+        msgCounter.current = loaded.length;
+        setMessages(loaded);
+        setStarted(true);
+        startedRef.current = true;
+      } else {
+        // No history — add intro message and auto-start
+        const introText = DOMAIN_INTROS[domainId];
+        if (introText) {
+          const introContent = isHe ? introText.he : introText.en;
+          const introMsg: ChatMessage = {
+            id: 'intro-static',
+            role: 'assistant',
+            content: introContent,
+            created_at: new Date().toISOString(),
+          };
+          setMessages([introMsg]);
+          // Save intro to DB
+          await saveMessageToDB(convId, 'assistant', introContent);
+        }
+      }
+      setLoadingHistory(false);
+    };
+
+    init();
+    return () => { cancelled = true; };
+  }, [user?.id, domainId, isHe, saveMessageToDB]);
 
   const handleToolCall = useCallback(async (toolArgs: any) => {
     const subscores = toolArgs.subscores as Record<string, number>;
@@ -214,19 +285,30 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
         try {
           const parsed = JSON.parse(jsonStr);
           const choice = parsed.choices?.[0];
+          if (!choice) continue;
 
-          if (choice?.delta?.tool_calls) {
+          // Check for tool call
+          const toolCall = choice.delta?.tool_calls?.[0];
+          if (toolCall) {
             isToolCallFlag = true;
-            for (const tc of choice.delta.tool_calls) {
-              if (tc.function?.arguments) toolCallArgs += tc.function.arguments;
+            if (toolCall.function?.arguments) {
+              toolCallArgs += toolCall.function.arguments;
             }
+            continue;
           }
 
-          const content = choice?.delta?.content as string | undefined;
+          // Regular content
+          const content = choice.delta?.content as string | undefined;
           if (content) onDelta(content);
 
-          if (choice?.finish_reason === 'tool_calls' && toolCallArgs) {
-            try { onToolCall(JSON.parse(toolCallArgs)); } catch {}
+          // If finish_reason is 'tool_calls', process accumulated args
+          if (choice.finish_reason === 'tool_calls' && toolCallArgs) {
+            try {
+              const args = JSON.parse(toolCallArgs);
+              onToolCall(args);
+            } catch (pe) {
+              console.error('Failed to parse tool args:', pe, toolCallArgs);
+            }
           }
         } catch {
           textBuffer = line + '\n' + textBuffer;
@@ -235,21 +317,48 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       }
     }
 
-    if (toolCallArgs && isToolCallFlag) {
-      try { onToolCall(JSON.parse(toolCallArgs)); } catch {}
+    // Final flush
+    if (textBuffer.trim()) {
+      for (let raw of textBuffer.split('\n')) {
+        if (!raw) continue;
+        if (raw.endsWith('\r')) raw = raw.slice(0, -1);
+        if (raw.startsWith(':') || raw.trim() === '') continue;
+        if (!raw.startsWith('data: ')) continue;
+        const jsonStr = raw.slice(6).trim();
+        if (jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch { /* ignore partial leftovers */ }
+      }
     }
+
+    // Handle tool call that finished without explicit finish_reason
+    if (isToolCallFlag && toolCallArgs) {
+      try {
+        const args = JSON.parse(toolCallArgs);
+        onToolCall(args);
+      } catch { /* already tried */ }
+    }
+
     onDone();
   }
 
   const addAssistantMessage = useCallback((content: string) => {
     msgCounter.current += 1;
-    setMessages(prev => [...prev, {
+    const msg: ChatMessage = {
       id: `assess-ai-${msgCounter.current}`,
       role: 'assistant',
       content,
       created_at: new Date().toISOString(),
-    }]);
-  }, []);
+    };
+    setMessages(prev => [...prev, msg]);
+    // Save to DB
+    if (conversationId) {
+      saveMessageToDB(conversationId, 'assistant', content);
+    }
+  }, [conversationId, saveMessageToDB]);
 
   const startConversation = useCallback(async () => {
     if (startedRef.current) return;
@@ -286,6 +395,12 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
     };
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
+
+    // Save user message to DB
+    if (conversationId) {
+      saveMessageToDB(conversationId, 'user', text);
+    }
+
     setIsStreaming(true);
     setStreamingContent('');
 
@@ -310,10 +425,14 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       setIsStreaming(false);
       setStreamingContent('');
     }
-  }, [isStreaming, handleToolCall, addAssistantMessage]);
+  }, [isStreaming, handleToolCall, addAssistantMessage, conversationId, saveMessageToDB]);
 
-  // Auto-start
-  useEffect(() => { startConversation(); }, []);
+  // Auto-start only after history is loaded and no existing messages
+  useEffect(() => {
+    if (!loadingHistory && !startedRef.current && conversationId) {
+      startConversation();
+    }
+  }, [loadingHistory, conversationId, startConversation]);
 
   const Icon = domain?.icon;
 
@@ -325,6 +444,17 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
         <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">{isHe ? 'מעבד תוצאות...' : 'Processing results...'}</p>
+        </div>
+      </Wrapper>
+    );
+  }
+
+  if (loadingHistory) {
+    return (
+      <Wrapper>
+        <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">{isHe ? 'טוען שיחה...' : 'Loading chat...'}</p>
         </div>
       </Wrapper>
     );
