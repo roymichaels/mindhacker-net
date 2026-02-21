@@ -59,6 +59,7 @@ const AffiliateSignup = lazy(() => import("./pages/AffiliateSignup"));
 const OrbGallery = lazy(() => import("./pages/dev/OrbGallery"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage"));
 const Community = lazy(() => import("./pages/Community"));
+const CombatCommunity = lazy(() => import("./pages/CombatCommunity"));
 const Go = lazy(() => import("./pages/Go"));
 const FeatureDetailPage = lazy(() => import("./pages/FeatureDetailPage"));
 const CommunityPost = lazy(() => import("./pages/CommunityPost"));
@@ -316,6 +317,16 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <CommunityProfile />
+                            </ProtectedRoute>
+                          }
+                        />
+                        
+                        {/* Combat Community (protected) */}
+                        <Route
+                          path="/combat-community"
+                          element={
+                            <ProtectedRoute>
+                              <CombatCommunity />
                             </ProtectedRoute>
                           }
                         />

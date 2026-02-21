@@ -5,7 +5,7 @@
  * Replaces navConfig.ts. Consumed by TopNavBar, BottomTabBar, and sidebar components.
  */
 
-import { LayoutDashboard, Flame, Swords, Shield, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Flame, Swords, Shield, Crosshair, type LucideIcon } from 'lucide-react';
 
 // ─── Tab Definition ──────────────────────────────────────────────────────────
 
@@ -25,6 +25,7 @@ export const OS_TABS: OsTab[] = [
   { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHe: 'דאשבורד' },
   { id: 'core',      path: '/life',      icon: Flame,          labelEn: 'Core',      labelHe: 'ליבה' },
   { id: 'arena',     path: '/arena',     icon: Swords,         labelEn: 'Arena',     labelHe: 'זירה' },
+  { id: 'combat',    path: '/combat-community', icon: Crosshair, labelEn: 'Combat',  labelHe: 'לחימה' },
 ];
 
 /** Admin-only tab, appended when user has 'admin' role */

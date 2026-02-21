@@ -4687,6 +4687,26 @@ export const he = {
       sub_learning_drive: 'דחף למידה', sub_creative_output: 'תפוקה יצירתית', sub_intellectual_range: 'רוחב אינטלקטואלי',
       sub_language_skill: 'כישורי שפה', sub_growth_mindset: 'חשיבת צמיחה', sub_knowledge_application: 'יישום ידע',
     },
+    combatCommunity: {
+      pageTitle: 'לחימה | קהילה',
+      title: 'Combat Community',
+      subtitle: 'דיונים, טעויות, דרילים ופיתוח לוחם',
+      newThread: 'פתח שרשור',
+      dailyLimitReached: 'השרשור היומי כבר נפתח. חזור מחר.',
+      selectCategory: 'בחר קטגוריה',
+      threadTitle: 'כותרת',
+      threadTitlePlaceholder: 'כותרת השרשור...',
+      threadContent: 'תוכן',
+      threadContentPlaceholder: 'תאר את הנושא, השאלה או הטעות...',
+      publishThread: 'פרסם שרשור',
+      threadCreated: 'השרשור נוצר בהצלחה',
+      noThreads: 'אין שרשורים עדיין',
+      beFirstThread: 'היה הראשון לפתוח שרשור.',
+      playerProfile: 'פרופיל לוחם',
+      threads: 'שרשורים',
+      replies: 'תגובות',
+      topThreads: 'שרשורים מובילים',
+    },
 };
 
 export type TranslationKeys = typeof he;
