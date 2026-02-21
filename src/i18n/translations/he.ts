@@ -4687,6 +4687,18 @@ export const he = {
       sub_learning_drive: 'דחף למידה', sub_creative_output: 'תפוקה יצירתית', sub_intellectual_range: 'רוחב אינטלקטואלי',
       sub_language_skill: 'כישורי שפה', sub_growth_mindset: 'חשיבת צמיחה', sub_knowledge_application: 'יישום ידע',
     },
+    projectsAssess: {
+      assessTitle: 'אבחון פרויקטים',
+      assessSubtitle: 'שיחה קצרה שתחשוף את בהירות החזון, משמעת הביצוע ויכולת ההשלמה שלך.',
+      sub_vision_clarity: 'בהירות חזון', sub_execution_discipline: 'משמעת ביצוע', sub_resource_management: 'ניהול משאבים',
+      sub_priority_focus: 'מיקוד עדיפויות', sub_obstacle_navigation: 'ניווט מכשולים', sub_completion_rate: 'שיעור השלמה',
+    },
+    playAssess: {
+      assessTitle: 'אבחון משחק והתחדשות',
+      assessSubtitle: 'שיחה קצרה שתחשוף את יכולת ההנאה, ההתחדשות והמנוחה ללא אשמה שלך.',
+      sub_play_frequency: 'תדירות משחק', sub_joy_capacity: 'יכולת הנאה', sub_variety_range: 'מגוון חוויות',
+      sub_recovery_awareness: 'מודעות להתאוששות', sub_guilt_free_rest: 'מנוחה ללא אשמה', sub_somatic_connection: 'חיבור גופני',
+    },
     combatCommunity: {
       pageTitle: 'לחימה | קהילה',
       title: 'Combat Community',

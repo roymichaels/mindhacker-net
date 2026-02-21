@@ -26,6 +26,7 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string }> = 
   cyan:     { border: 'border-cyan-500/30',     bg: 'from-cyan-500/10',     text: 'text-cyan-400' },
   slate:    { border: 'border-slate-500/30',    bg: 'from-slate-500/10',    text: 'text-slate-400' },
   indigo:   { border: 'border-indigo-500/30',   bg: 'from-indigo-500/10',   text: 'text-indigo-400' },
+  violet:   { border: 'border-violet-500/30',   bg: 'from-violet-500/10',   text: 'text-violet-400' },
 };
 
 function isCoreDomain(id: string) { return CORE_DOMAINS.some(d => d.id === id); }
@@ -72,7 +73,7 @@ export default function DomainAssessResults({ domainId }: Props) {
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/life/${domainId}`)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`${getBasePath(domainId)}/${domainId}`)}>
             <BackIcon className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">
