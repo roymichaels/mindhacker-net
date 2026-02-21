@@ -61,6 +61,20 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
 
           <div className="w-8 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent my-1" />
 
+          {/* Global feed */}
+          <button
+            onClick={() => onPillarSelect('all')}
+            className={cn(
+              "w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-colors",
+              selectedPillar === 'all'
+                ? "bg-violet-500/20 border border-violet-500/40"
+                : "bg-muted/30 dark:bg-muted/15 border border-border/20 hover:bg-accent/10"
+            )}
+            title={isHe ? 'הכל' : 'All'}
+          >
+            🌐
+          </button>
+
           {LIFE_DOMAINS.map((domain) => (
             <button
               key={domain.id}
@@ -114,6 +128,24 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
             {isHe ? 'עמודים' : 'Pillars'}
           </span>
           <div className="flex flex-col gap-1 w-full">
+            {/* Global feed button */}
+            <button
+              onClick={() => onPillarSelect('all')}
+              className={cn(
+                "w-full rounded-xl p-2 flex items-center gap-2.5 transition-all border text-start",
+                selectedPillar === 'all'
+                  ? "bg-violet-500/15 border-violet-500/30 shadow-sm"
+                  : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+              )}
+            >
+              <span className="text-sm">🌐</span>
+              <span className={cn(
+                "text-xs font-medium flex-1",
+                selectedPillar === 'all' ? 'text-violet-400' : 'text-foreground'
+              )}>
+                {isHe ? 'כל הפילרים' : 'All Pillars'}
+              </span>
+            </button>
             {LIFE_DOMAINS.map((domain) => (
               <button
                 key={domain.id}

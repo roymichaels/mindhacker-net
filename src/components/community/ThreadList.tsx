@@ -1,60 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
 import ThreadCard from './ThreadCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCommunityFeed } from '@/hooks/useCommunityFeed';
+import { cn } from '@/lib/utils';
 
 interface ThreadListProps {
   pillarFilter: string;
+  mode?: 'latest' | 'trending';
   onProfileClick: (userId: string) => void;
 }
 
-export default function ThreadList({ pillarFilter, onProfileClick }: ThreadListProps) {
-  const { t } = useTranslation();
+export default function ThreadList({ pillarFilter, mode = 'latest', onProfileClick }: ThreadListProps) {
+  const { language } = useTranslation();
+  const isHe = language === 'he';
+  const { user } = useAuth();
 
-  const { data: threads, isLoading } = useQuery({
-    queryKey: ['community-threads', pillarFilter],
-    queryFn: async () => {
-      let query = supabase
-        .from('community_posts')
-        .select('id, user_id, title, content, category_id, created_at, likes_count, comments_count, is_pinned, pillar, status')
-        .in('status', ['approved'])
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (pillarFilter !== 'all') {
-        query = query.eq('pillar', pillarFilter);
-      }
-
-      const { data: posts, error } = await query;
-      if (error) throw error;
-      if (!posts || posts.length === 0) return [];
-
-      // Fetch author data + category data
-      const userIds = [...new Set(posts.map(p => p.user_id))];
-      const categoryIds = [...new Set(posts.map(p => p.category_id).filter(Boolean))];
-
-      const [{ data: profiles }, { data: categories }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, level, community_username').in('id', userIds),
-        categoryIds.length > 0
-          ? supabase.from('community_categories').select('id, name, name_en, color, icon').in('id', categoryIds)
-          : Promise.resolve({ data: [] }),
-      ]);
-
-      const catMap = Object.fromEntries((categories || []).map(c => [c.id, c]));
-
-      return posts.map(post => ({
-        ...post,
-        category: catMap[post.category_id || ''] || null,
-        author: profiles?.find(p => p.id === post.user_id) || null,
-      }));
-    },
-  });
+  const { data: threads, isLoading } = useCommunityFeed({ pillarFilter, mode });
 
   if (isLoading) {
     return (
-      <div className="px-4 space-y-3">
+      <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="rounded-xl border border-border/50 p-4 space-y-2">
             <div className="flex gap-3">
@@ -74,21 +42,26 @@ export default function ThreadList({ pillarFilter, onProfileClick }: ThreadListP
 
   if (!threads || threads.length === 0) {
     return (
-      <div className="text-center py-16 px-4">
+      <div className="text-center py-16">
         <p className="text-4xl mb-3">🌐</p>
-        <p className="text-muted-foreground font-medium">{t('combatCommunity.noThreads')}</p>
-        <p className="text-sm text-muted-foreground/60 mt-1">{t('combatCommunity.beFirstThread')}</p>
+        <p className="text-muted-foreground font-medium">
+          {isHe ? 'אין שרשורים עדיין' : 'No threads yet'}
+        </p>
+        <p className="text-sm text-muted-foreground/60 mt-1">
+          {isHe ? 'היה הראשון לפתוח שרשור' : 'Be the first to start a thread'}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="px-4 space-y-3 pb-4">
+    <div className="space-y-3">
       {threads.map((thread) => (
         <ThreadCard
           key={thread.id}
           thread={thread}
           onProfileClick={onProfileClick}
+          showTrendingBadge={mode === 'trending'}
         />
       ))}
     </div>
