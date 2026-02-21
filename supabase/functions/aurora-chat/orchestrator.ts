@@ -28,11 +28,13 @@ export interface OrchestratorResult {
 }
 
 export interface ValidatedRequest {
-  messages: { role: string; content: string }[];
+  messages: { role: string; content: any }[];
   customSystemPrompt: string | null;
   userId: string | null;
   language: string;
   mode: AuroraMode;
+  pillar: string | null;
+  hasImages: boolean;
 }
 
 // ─── Request Validation ────────────────────────────────────
@@ -41,7 +43,7 @@ const MAX_MESSAGES = 200;
 const MAX_CONTENT_LENGTH = 8000;
 
 export function validateRequest(raw: any): ValidatedRequest | { error: string; status: number } {
-  const { messages, userId, language = "he", mode = "full" } = raw;
+  const { messages, userId, language = "he", mode = "full", pillar = null, hasImages = false } = raw;
 
   if (!messages || !Array.isArray(messages)) {
     return { error: "Messages array is required", status: 400 };
@@ -55,23 +57,37 @@ export function validateRequest(raw: any): ValidatedRequest | { error: string; s
   let customSystemPrompt: string | null = null;
 
   for (const msg of messages) {
-    if (!msg || typeof msg !== "object" || !msg.role || !msg.content || typeof msg.content !== "string") {
+    if (!msg || typeof msg !== "object" || !msg.role) {
       return { error: "Invalid message format", status: 400 };
     }
     if (msg.role !== "user" && msg.role !== "assistant" && msg.role !== "system") {
       return { error: "Invalid message role", status: 400 };
     }
-    if (msg.content.length > MAX_CONTENT_LENGTH) {
-      return { error: "Message content too long", status: 400 };
+    // Support multimodal content (array of parts with text/image_url)
+    if (Array.isArray(msg.content)) {
+      // Multimodal message - validate parts
+      for (const part of msg.content) {
+        if (part.type === 'text' && typeof part.text === 'string' && part.text.length > MAX_CONTENT_LENGTH) {
+          return { error: "Message content too long", status: 400 };
+        }
+      }
+      if (msg.role === "system") continue;
+      validated.push({ role: msg.role, content: msg.content });
+    } else if (typeof msg.content === "string") {
+      if (msg.content.length > MAX_CONTENT_LENGTH) {
+        return { error: "Message content too long", status: 400 };
+      }
+      if (msg.role === "system") {
+        customSystemPrompt = msg.content.trim();
+        continue;
+      }
+      validated.push({ role: msg.role, content: msg.content.trim() });
+    } else {
+      return { error: "Invalid message content", status: 400 };
     }
-    if (msg.role === "system") {
-      customSystemPrompt = msg.content.trim();
-      continue;
-    }
-    validated.push({ role: msg.role, content: msg.content.trim() });
   }
 
-  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode };
+  return { messages: validated, customSystemPrompt, userId: userId || null, language, mode: mode as AuroraMode, pillar, hasImages };
 }
 
 // ─── Widget Settings ───────────────────────────────────────
@@ -96,7 +112,8 @@ export function prepare(
   context: AuroraContext,
   language: string,
   knowledgeBase: string = "",
-  customSystemPrompt: string | null = null
+  customSystemPrompt: string | null = null,
+  pillar: string | null = null
 ): OrchestratorResult {
   const promptVersion = PROMPT_VERSIONS[mode];
 
@@ -135,13 +152,78 @@ export function prepare(
   }
 
   // Full mode
+  const pillarSection = buildPillarSection(pillar, language);
   return {
-    systemPrompt: buildFullPrompt(language, contextMarkdown, openerSection),
+    systemPrompt: buildFullPrompt(language, contextMarkdown, openerSection) + pillarSection,
     model: "google/gemini-2.5-flash",
     maxTokens: 1000,
     temperature: 0.7,
     promptVersion,
   };
+}
+
+// ─── Pillar-Specific Instructions ──────────────────────────
+
+function buildPillarSection(pillar: string | null, language: string): string {
+  if (!pillar) return "";
+  const isHe = language === "he";
+
+  if (pillar === "presence") {
+    return isHe
+      ? `\n\n## 📸 הקשר פילר: תדמית (Image Bio-Scan)
+אתה כרגע בפילר התדמית. זהו מנוע סריקת תדמית שמנתח מבנה פנים, יציבה, הרכב גוף ואיתותי מסגרת.
+
+### מה לעשות כאן:
+1. **בקש תמונות מהמשתמש** — אתה צריך 4 תמונות לניתוח מלא:
+   - פנים מלפנים (Face Front)
+   - פנים מהצד (Face Profile)  
+   - גוף מלפנים (Body Front)
+   - גוף מהצד (Body Side)
+2. **הנחה את המשתמש** — תאורה טובה, רקע נקי, עמידה ישרה
+3. **כשמקבל תמונה** — נתח את מה שאתה רואה: מבנה פנים, סימטריה, יציבה, הרכב גוף
+4. **תן המלצות** — ציין חוזקות ותחומים לשיפור
+5. **היה רגיש** — זהו נושא אישי. היה כן אבל אמפתי.
+
+כשהמשתמש נכנס לפילר הזה בפעם הראשונה, הזמן אותו לשלוח תמונות דרך כפתור ה+ (פלוס) בצ'אט. הסבר מה צריך ולמה.`
+      : `\n\n## 📸 Pillar Context: Image (Bio-Scan Engine)
+You are currently in the Image pillar. This is the Image Bio-Scan engine that analyzes facial structure, posture, body composition, and frame signals.
+
+### What to do here:
+1. **Ask the user for photos** — You need 4 photos for full analysis:
+   - Face Front
+   - Face Profile
+   - Body Front
+   - Body Side
+2. **Guide the user** — Good lighting, clean background, standing straight
+3. **When receiving an image** — Analyze what you see: facial structure, symmetry, posture, body composition
+4. **Give recommendations** — Note strengths and areas for improvement
+5. **Be sensitive** — This is personal. Be honest but empathetic.
+
+When the user enters this pillar for the first time, invite them to send photos via the + (plus) button in chat. Explain what's needed and why.`;
+  }
+
+  // Generic pillar context for other pillars
+  const pillarNames: Record<string, { en: string; he: string }> = {
+    consciousness: { en: "Consciousness", he: "תודעה" },
+    power: { en: "Power", he: "עוצמה" },
+    vitality: { en: "Vitality", he: "חיוניות" },
+    focus: { en: "Focus", he: "מיקוד" },
+    combat: { en: "Combat", he: "לחימה" },
+    expansion: { en: "Expansion", he: "התרחבות" },
+    wealth: { en: "Wealth", he: "עושר" },
+    influence: { en: "Influence", he: "השפעה" },
+    relationships: { en: "Relationships", he: "קשרים" },
+    business: { en: "Business", he: "עסקים" },
+    projects: { en: "Projects", he: "פרויקטים" },
+    play: { en: "Play", he: "משחק" },
+  };
+
+  const name = pillarNames[pillar];
+  if (!name) return "";
+
+  return isHe
+    ? `\n\n## 🎯 הקשר פילר: ${name.he}\nאתה כרגע בשיחה בפילר ${name.he}. התמקד בנושאים הקשורים לתחום הזה, אבל אל תשכח שאתה זוכר הכל מכל השיחות האחרות.`
+    : `\n\n## 🎯 Pillar Context: ${name.en}\nYou are currently in the ${name.en} pillar conversation. Focus on topics related to this domain, but remember you have full memory of all other conversations.`;
 }
 
 // ─── Context → Markdown Formatter ──────────────────────────
