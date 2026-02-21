@@ -152,7 +152,7 @@ export default function DomainAssessChat({ domainId, asModal, onClose }: Props) 
       // Get or create pillar conversation
       const { data: convId, error: convErr } = await supabase.rpc('get_or_create_pillar_conversation', {
         p_user_id: user.id,
-        p_pillar: `assess:${domainId}`,
+        p_pillar: domainId,
       });
 
       if (convErr || !convId) {

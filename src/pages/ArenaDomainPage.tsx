@@ -9,6 +9,7 @@ import { getDomainById, ARENA_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { useTranslation } from '@/hooks/useTranslation';
+import { usePillarContext } from '@/hooks/usePillarContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -36,6 +37,9 @@ export default function ArenaDomainPage() {
   const domain = domainId ? getDomainById(domainId) : undefined;
   const isArena = domain ? ARENA_DOMAINS.some(d => d.id === domain.id) : false;
   const [assessOpen, setAssessOpen] = useState(false);
+
+  // Scope Aurora chat to this pillar so history persists
+  usePillarContext(domainId || '');
 
   const row = getDomainRow(domain?.id ?? '');
   const status = row?.status ?? 'unconfigured';
