@@ -153,14 +153,4 @@ export const FEATURES: FeatureItem[] = [
     descEn: 'Plan and schedule meaningful play experiences — nature, movement, social, creative, adventure — tracked as intentional regeneration inside your Arena.',
     descHe: 'תכנן ותזמן חוויות משחק משמעותיות — טבע, תנועה, חברתי, יצירתי, הרפתקה — מנוטרות כהתחדשות מכוונת בתוך הזירה שלך.',
   },
-  {
-    slug: 'life-protocol-compiler',
-    icon: '⚙️',
-    titleEn: 'Life Protocol Compiler',
-    titleHe: 'מהדר פרוטוקול חיים',
-    hookEn: 'No negotiation. Wake up and follow.',
-    hookHe: 'ללא משא ומתן. קום ובצע.',
-    descEn: 'A time-locked daily execution schedule built from your wake time, sleep time, energy peaks, and training windows. Locked for 7 days. Compliance-tracked. The system removes negotiation.',
-    descHe: 'לוח זמנים יומי נעול לביצוע שנבנה מזמני ההשכמה, השינה, שיאי האנרגיה וחלונות האימון שלך. נעול ל-7 ימים. מעקב ציות. המערכת מסירה משא ומתן.',
-  },
 ];

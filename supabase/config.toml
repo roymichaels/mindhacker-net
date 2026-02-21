@@ -117,6 +117,3 @@ verify_jwt = false
 
 [functions.onboarding-chat]
 verify_jwt = false
-
-[functions.compile-life-protocol]
-verify_jwt = false
