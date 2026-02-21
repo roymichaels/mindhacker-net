@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
+      workbox: {
+        navigateFallbackDenylist: [/^\/~oauth/],
+      },
       manifest: {
         name: "MindOS - מערכת ההפעלה לחיים שלך",
         short_name: "MindOS",
