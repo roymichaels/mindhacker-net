@@ -4,83 +4,79 @@ import { lovable } from '@/integrations/lovable/index';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, LogIn, UserPlus } from 'lucide-react';
+import { Loader2, Mail, ArrowRight } from 'lucide-react';
 import { z } from 'zod';
 import { useTranslation } from '@/hooks/useTranslation';
-import { trackSignupComplete } from '@/hooks/useAnalytics';
-import { Link } from 'react-router-dom';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
-type AuthView = 'login' | 'signup';
+type AuthStep = 'entry' | 'otp';
 
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultView?: AuthView;
+  defaultView?: 'login' | 'signup';
   onSuccess?: () => void;
 }
 
+const AppleIcon = () => (
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+  </svg>
+);
+
+const GoogleIcon = () => (
+  <svg className="h-5 w-5" viewBox="0 0 24 24">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+  </svg>
+);
+
 export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess }: AuthModalProps) {
   const { t, isRTL } = useTranslation();
-  const [view, setView] = useState<AuthView>(defaultView);
+  const [step, setStep] = useState<AuthStep>('entry');
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
 
-  // Login form
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  
-  // Signup form
-  const [signupData, setSignupData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeTerms: false,
-  });
+  const emailSchema = z.string().trim().email(t('validation.invalidEmail')).max(255).toLowerCase();
 
-  const loginSchema = z.object({
-    email: z.string().trim().email(t('validation.invalidEmail')).max(255).toLowerCase(),
-    password: z.string().min(1, t('validation.passwordRequired')).max(128),
-  });
-
-  const signUpSchema = z.object({
-    fullName: z.string().trim().min(2, t('validation.nameMinLength')).max(100, t('validation.nameMaxLength'))
-      .regex(/^[\u0590-\u05FFa-zA-Z\s'-]+$/, t('validation.nameInvalidChars')),
-    email: z.string().trim().email(t('validation.invalidEmail')).max(255).toLowerCase(),
-    password: z.string().min(10, t('validation.passwordMinLength')).max(128)
-      .regex(/[A-Z]/, t('validation.passwordUppercase'))
-      .regex(/[a-z]/, t('validation.passwordLowercase'))
-      .regex(/[0-9]/, t('validation.passwordNumber'))
-      .regex(/[^A-Za-z0-9]/, t('validation.passwordSpecial')),
-    confirmPassword: z.string(),
-    agreeTerms: z.literal(true, {
-      errorMap: () => ({ message: t('validation.mustAgreeTerms') })
-    })
-  }).refine(data => data.password === data.confirmPassword, {
-    message: t('validation.passwordMismatch'),
-    path: ['confirmPassword']
-  });
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = loginSchema.safeParse(loginData);
+    const result = emailSchema.safeParse(email);
     if (!result.success) {
       toast({ title: t('validation.validationError'), description: result.error.errors[0].message, variant: 'destructive' });
       return;
     }
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: result.data.email,
-      password: result.data.password,
+    const { error } = await supabase.auth.signInWithOtp({
+      email: result.data,
+      options: { shouldCreateUser: true },
     });
     setIsLoading(false);
     if (error) {
-      toast({
-        title: t('auth.loginError'),
-        description: error.message === 'Invalid login credentials' ? t('messages.wrongCredentials') : error.message,
-        variant: 'destructive',
-      });
+      toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'קוד נשלח! ✉️', description: 'בדוק את תיבת המייל שלך' });
+    setStep('otp');
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length < 6) return;
+    setIsLoading(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: 'email',
+    });
+    setIsLoading(false);
+    if (error) {
+      toast({ title: 'שגיאה', description: error.message, variant: 'destructive' });
       return;
     }
     if (data.user) {
@@ -90,32 +86,14 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = signUpSchema.safeParse(signupData);
-    if (!result.success) {
-      toast({ title: t('validation.validationError'), description: result.error.errors[0].message, variant: 'destructive' });
-      return;
-    }
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: result.data.email,
-      password: result.data.password,
-      options: {
-        data: { full_name: result.data.fullName },
-        emailRedirectTo: `${window.location.origin}/`,
-      },
+    const { error } = await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: window.location.origin,
     });
     setIsLoading(false);
     if (error) {
-      toast({ title: t('auth.signupError'), description: error.message, variant: 'destructive' });
-      return;
-    }
-    if (data.user) {
-      trackSignupComplete();
-      toast({ title: t('messages.signupSuccess'), description: t('messages.welcomeNew') });
-      onOpenChange(false);
-      onSuccess?.();
+      toast({ title: t('auth.loginError'), description: error.message, variant: 'destructive' });
     }
   };
 
@@ -130,154 +108,104 @@ export function AuthModal({ open, onOpenChange, defaultView = 'login', onSuccess
     }
   };
 
-  const switchView = (newView: AuthView) => {
-    setView(newView);
-    setLoginData({ email: '', password: '' });
-    setSignupData({ fullName: '', email: '', password: '', confirmPassword: '', agreeTerms: false });
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setStep('entry');
+      setEmail('');
+      setOtp('');
+    }
+    onOpenChange(nextOpen);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-primary">
-            {view === 'login' ? (
-              <><LogIn className="h-5 w-5" /> {t('auth.loginTitle')}</>
-            ) : (
-              <><UserPlus className="h-5 w-5" /> {t('auth.signupTitle')}</>
-            )}
+          <DialogTitle className="text-xl font-bold text-primary text-center">
+            {step === 'otp' ? 'הזן את הקוד' : 'התחבר ל-MindOS'}
           </DialogTitle>
+          <DialogDescription className="text-center text-muted-foreground">
+            {step === 'otp'
+              ? `שלחנו קוד בן 6 ספרות אל ${email}`
+              : 'התחבר כדי להמשיך את המסע שלך'}
+          </DialogDescription>
         </DialogHeader>
 
-        {view === 'login' ? (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="login-email">{t('auth.email')}</Label>
-              <Input
-                id="login-email"
-                type="email"
-                placeholder="example@email.com"
-                value={loginData.email}
-                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                required
-                disabled={isLoading}
-              />
+        {step === 'otp' ? (
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
+            <div className="flex justify-center">
+              <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isLoading}>
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="login-password">{t('auth.password')}</Label>
-              <Input
-                id="login-password"
-                type="password"
-                placeholder={t('auth.enterPassword')}
-                value={loginData.password}
-                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading} size="lg">
-              {isLoading ? <><Loader2 className="h-4 w-4 animate-spin me-2" />{t('common.loggingIn')}</> : t('common.login')}
+            <Button type="submit" className="w-full" disabled={isLoading || otp.length < 6} size="lg">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <ArrowRight className="h-4 w-4 me-2" />}
+              אימות וכניסה
             </Button>
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">או</span></div>
-            </div>
-            <Button type="button" variant="outline" className="w-full gap-2" size="lg" disabled={isLoading} onClick={handleAppleSignIn}>
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-              התחבר עם Apple
-            </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              {t('auth.noAccount')}{' '}
-              <button type="button" onClick={() => switchView('signup')} className="text-primary hover:underline font-medium">
-                {t('auth.signupNow')}
-              </button>
-            </p>
+            <button
+              type="button"
+              onClick={() => { setStep('entry'); setOtp(''); }}
+              className="w-full text-sm text-muted-foreground hover:text-foreground text-center"
+            >
+              חזרה
+            </button>
           </form>
         ) : (
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="signup-name">{t('auth.fullName')}</Label>
-              <Input
-                id="signup-name"
-                type="text"
-                placeholder={t('auth.enterFullName')}
-                value={signupData.fullName}
-                onChange={(e) => setSignupData({ ...signupData, fullName: e.target.value })}
-                required
-                disabled={isLoading}
-              />
+          <div className="space-y-4">
+            {/* Social buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" size="lg" className="w-full gap-2" disabled={isLoading} onClick={handleGoogleSignIn}>
+                <GoogleIcon />
+                Google
+              </Button>
+              <Button variant="outline" size="lg" className="w-full gap-2" disabled={isLoading} onClick={handleAppleSignIn}>
+                <AppleIcon />
+                Apple
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="signup-email">{t('auth.email')}</Label>
-              <Input
-                id="signup-email"
-                type="email"
-                placeholder="example@email.com"
-                value={signupData.email}
-                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                required
-                disabled={isLoading}
-              />
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">או עם אימייל</span>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="signup-password">{t('auth.password')}</Label>
-              <Input
-                id="signup-password"
-                type="password"
-                placeholder={t('auth.passwordPlaceholder')}
-                value={signupData.password}
-                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="signup-confirm">{t('auth.confirmPassword')}</Label>
-              <Input
-                id="signup-confirm"
-                type="password"
-                placeholder={t('auth.confirmPasswordPlaceholder')}
-                value={signupData.confirmPassword}
-                onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <div className={`flex items-center gap-2 ${isRTL ? '' : 'flex-row-reverse justify-end'}`}>
-                <Checkbox
-                  id="modal-terms"
-                  checked={signupData.agreeTerms}
-                  onCheckedChange={(checked) => setSignupData({ ...signupData, agreeTerms: checked as boolean })}
+
+            {/* Email OTP form */}
+            <form onSubmit={handleSendOtp} className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="auth-email">{t('auth.email')}</Label>
+                <Input
+                  id="auth-email"
+                  type="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                   disabled={isLoading}
                 />
-                <Label htmlFor="modal-terms" className="text-sm font-normal cursor-pointer">
-                  {t('auth.termsAgreePrefix')}{' '}
-                  <Link to="/terms-of-service" className="text-primary hover:underline" target="_blank">{t('auth.termsLink')}</Link>
-                  {' & '}
-                  <Link to="/privacy-policy" className="text-primary hover:underline" target="_blank">{t('footer.privacyPolicy')}</Link>
-                </Label>
               </div>
-              <p className="text-xs text-muted-foreground">{t('legal.terms.userAcknowledgment')}</p>
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading} size="lg">
-              {isLoading ? <><Loader2 className="h-4 w-4 animate-spin me-2" />{t('common.creatingAccount')}</> : t('common.signup')}
-            </Button>
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">או</span></div>
-            </div>
-            <Button type="button" variant="outline" className="w-full gap-2" size="lg" disabled={isLoading} onClick={handleAppleSignIn}>
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-              הרשמה עם Apple
-            </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              {t('auth.hasAccount')}{' '}
-              <button type="button" onClick={() => switchView('login')} className="text-primary hover:underline font-medium">
-                {t('auth.loginNow')}
-              </button>
+              <Button type="submit" className="w-full gap-2" disabled={isLoading} size="lg">
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                שלח קוד למייל
+              </Button>
+            </form>
+
+            <p className="text-xs text-center text-muted-foreground pt-2">
+              בלחיצה על המשך אתה מסכים ל
+              <a href="/terms-of-service" target="_blank" className="text-primary hover:underline mx-1">תנאי השימוש</a>
+              ול
+              <a href="/privacy-policy" target="_blank" className="text-primary hover:underline mx-1">מדיניות הפרטיות</a>
             </p>
-          </form>
+          </div>
         )}
       </DialogContent>
     </Dialog>
