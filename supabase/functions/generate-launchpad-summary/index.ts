@@ -146,6 +146,39 @@ Deno.serve(async (req) => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 90);
 
+    // Determine user tier for schedule generation
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('id', userId)
+      .single();
+    
+    // Also check active subscription
+    const { data: activeSub } = await supabase
+      .from('user_subscriptions')
+      .select('product_id')
+      .eq('user_id', userId)
+      .in('status', ['active', 'trialing'])
+      .limit(1)
+      .maybeSingle();
+    
+    const hasPlus = !!activeSub; // Any active subscription = Plus or above
+
+    // Extract schedule-relevant data from onboarding
+    const lifestyleData = launchpadData.lifestyleRoutine || {};
+    const wakeTime = lifestyleData.wake_time || '06:00';
+    const sleepTime = lifestyleData.sleep_time || '22:00';
+    const workStart = lifestyleData.work_start || '09:00';
+    const workEnd = lifestyleData.work_end || '17:00';
+    const trainingWindow = lifestyleData.training_window || '07:30';
+    const energyPeak = lifestyleData.energy_peak || 'morning';
+
+    // Build schedule template for Plus/Apex
+    let scheduleTemplate = null;
+    if (hasPlus) {
+      scheduleTemplate = buildScheduleTemplate(wakeTime, sleepTime, workStart, workEnd, trainingWindow, energyPeak);
+    }
+
     const { data: planRecord, error: planError } = await supabase
       .from('life_plans')
       .insert({
@@ -156,6 +189,9 @@ Deno.serve(async (req) => {
         end_date: endDate.toISOString().split('T')[0],
         plan_data: plan,
         status: 'active',
+        schedule_settings: scheduleTemplate
+          ? { schedule_template_week: { blocks: scheduleTemplate }, schedule_committed: false }
+          : {},
       })
       .select()
       .single();
@@ -444,6 +480,49 @@ Deno.serve(async (req) => {
     });
   }
 });
+
+function buildScheduleTemplate(wake: string, sleep: string, workStart: string, workEnd: string, training: string, energyPeak: string) {
+  const addMinutes = (time: string, mins: number) => {
+    const [h, m] = time.split(':').map(Number);
+    const total = h * 60 + m + mins;
+    return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  };
+
+  const blocks = [];
+
+  // Wake protocol
+  blocks.push({ block_type: 'wake', start_time: wake, end_time: addMinutes(wake, 20), title_he: 'השכמה + אור + מים', title_en: 'Wake + Light + Hydration', pillar: 'vitality', intensity: 'low' });
+
+  // Focus block aligned with energy peak
+  const focusStart = energyPeak === 'morning' ? addMinutes(wake, 30) : addMinutes(workEnd, 30);
+  const focusEnd = addMinutes(focusStart, 90);
+  blocks.push({ block_type: 'focus', start_time: focusStart, end_time: focusEnd, title_he: 'פוקוס עמוק', title_en: 'Deep Focus Block', pillar: 'focus', intensity: 'high' });
+
+  // Training
+  const trainingEnd = addMinutes(training, 60);
+  blocks.push({ block_type: 'training', start_time: training, end_time: trainingEnd, title_he: 'אימון', title_en: 'Training Session', pillar: 'vitality', intensity: 'high' });
+
+  // Work blocks
+  blocks.push({ block_type: 'work', start_time: workStart, end_time: addMinutes(workStart, 180), title_he: 'בלוק עבודה 1', title_en: 'Work Block 1', pillar: 'business', intensity: 'med' });
+  blocks.push({ block_type: 'work', start_time: addMinutes(workStart, 210), end_time: workEnd, title_he: 'בלוק עבודה 2', title_en: 'Work Block 2', pillar: 'business', intensity: 'med' });
+
+  // Recovery
+  blocks.push({ block_type: 'recovery', start_time: addMinutes(workEnd, 0), end_time: addMinutes(workEnd, 30), title_he: 'התאוששות', title_en: 'Recovery', pillar: 'presence', intensity: 'low' });
+
+  // Play / regeneration
+  blocks.push({ block_type: 'play', start_time: addMinutes(workEnd, 60), end_time: addMinutes(workEnd, 120), title_he: 'משחק / התחדשות', title_en: 'Play / Regeneration', pillar: 'play', intensity: 'low' });
+
+  // Shutdown + Reflection
+  const shutdownStart = addMinutes(sleep, -60);
+  blocks.push({ block_type: 'reflection', start_time: shutdownStart, end_time: addMinutes(shutdownStart, 20), title_he: 'רפלקציה יומית', title_en: 'Daily Reflection', pillar: 'presence', intensity: 'low' });
+  blocks.push({ block_type: 'shutdown', start_time: addMinutes(sleep, -30), end_time: sleep, title_he: 'כיבוי מסכים', title_en: 'Screen Shutdown', pillar: 'vitality', intensity: 'low' });
+  blocks.push({ block_type: 'sleep', start_time: sleep, end_time: addMinutes(sleep, 480), title_he: 'שינה', title_en: 'Sleep', pillar: 'vitality', intensity: 'low' });
+
+  // Sort by start_time
+  blocks.sort((a, b) => a.start_time.localeCompare(b.start_time));
+  return blocks;
+}
+
 
 async function gatherLaunchpadData(supabase: any, userId: string): Promise<LaunchpadData> {
   // Get launchpad progress

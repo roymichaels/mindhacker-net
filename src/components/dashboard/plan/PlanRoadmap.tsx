@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { SchedulePreview } from './SchedulePreview';
 
 interface Milestone {
   id: string;
@@ -188,6 +189,9 @@ export function PlanRoadmap() {
 
   return (
     <div className="space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Schedule Preview (Plus/Apex) - auto-hides for Free */}
+      <SchedulePreview />
+
       {/* Month sections */}
       {[1, 2, 3].map(month => {
         const weeks = byMonth[month] || [];
