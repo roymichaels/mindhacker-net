@@ -17,7 +17,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Swords, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Zap, TrendingUp, Crown, Users, Plus, FolderKanban, Briefcase, Gamepad2 } from 'lucide-react';
 import { PlaySummaryCard } from '@/components/arena/PlaySummaryCard';
 import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
-import { PlanMilestonesSection } from '@/components/hubs/PlanMilestonesSection';
+import { TodayExecutionSection } from '@/components/execution/TodayExecutionSection';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
@@ -113,8 +113,8 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
         {/* ── Unified Progress Bar ── */}
         <AnalysisProgressBar />
 
-        {/* ── 90-Day Plan Milestones ── */}
-        <PlanMilestonesSection hub="arena" />
+        {/* ── Today Execution Mode ── */}
+        <TodayExecutionSection hub="arena" />
 
         {/* ── Motivational Banner ── */}
         <div

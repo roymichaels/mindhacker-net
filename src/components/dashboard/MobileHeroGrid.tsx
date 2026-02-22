@@ -16,6 +16,10 @@ import { CommunityPulse } from '@/components/community/CommunityPulse';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
 import { NowSection } from '@/components/dashboard/NowSection';
+import { TodayScheduleCard } from '@/components/execution/TodayScheduleCard';
+import { MovementScoreCard } from '@/components/execution/MovementScoreCard';
+import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import { CurrentWeekPlanCard } from '@/components/dashboard/CurrentWeekPlanCard';
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
@@ -56,7 +60,14 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
   const { canAccessHypnosis, showUpgradePrompt, upgradeFeature, dismissUpgrade } = useSubscriptionGate();
   
   const { sessionStats } = useGameState();
+  const execution = useTodayExecution();
+  const [executionAction, setExecutionAction] = useState<any>(null);
+  const [executionOpen, setExecutionOpen] = useState(false);
 
+  const handleExecuteAction = (action: any) => {
+    setExecutionAction(action);
+    setExecutionOpen(true);
+  };
 
   const leftColRef = useRef<HTMLDivElement>(null);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
@@ -195,6 +206,24 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* 🔥 Now Engine — Daily Execution Queue */}
           <NowSection />
 
+          {/* 📅 Today Schedule Timeline */}
+          {execution.schedule.length > 0 && (
+            <TodayScheduleCard schedule={execution.schedule} onActionClick={handleExecuteAction} />
+          )}
+
+          {/* 📊 Movement Score */}
+          {execution.queue.length > 0 && (
+            <MovementScoreCard
+              score={execution.movementScore}
+              bodyCovered={execution.bodyCovered}
+              mindCovered={execution.mindCovered}
+              arenaCovered={execution.arenaCovered}
+              actionsCompleted={execution.actionsCompleted}
+              actionsTotal={execution.actionsTotal}
+              isMinDayMode={execution.isMinDayMode}
+            />
+          )}
+
           {/* 90-Day Plan Card */}
           <CurrentWeekPlanCard />
 
@@ -245,6 +274,14 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
       />
       <OrbDNAModal open={orbDNAOpen} onOpenChange={setOrbDNAOpen} />
       <UpgradePromptModal feature={upgradeFeature} onDismiss={dismissUpgrade} />
+      {executionAction && (
+        <ExecutionModal
+          open={executionOpen}
+          onOpenChange={setExecutionOpen}
+          action={executionAction}
+          onComplete={() => execution.refetch()}
+        />
+      )}
     </div>
   );
 }
