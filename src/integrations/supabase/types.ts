@@ -22,13 +22,16 @@ export type Database = {
           due_at: string | null
           ego_state: string | null
           end_time: string | null
+          generated_payload: Json | null
           id: string
+          is_fallback: boolean | null
           metadata: Json | null
           milestone_id: string | null
           order_index: number
           parent_id: string | null
           pillar: string | null
           plan_id: string | null
+          priority_score: number | null
           project_id: string | null
           recurrence_rule: string | null
           scheduled_date: string | null
@@ -36,6 +39,7 @@ export type Database = {
           start_time: string | null
           status: string
           tags: string[] | null
+          time_block: string | null
           title: string
           token_reward: number
           type: string
@@ -50,13 +54,16 @@ export type Database = {
           due_at?: string | null
           ego_state?: string | null
           end_time?: string | null
+          generated_payload?: Json | null
           id?: string
+          is_fallback?: boolean | null
           metadata?: Json | null
           milestone_id?: string | null
           order_index?: number
           parent_id?: string | null
           pillar?: string | null
           plan_id?: string | null
+          priority_score?: number | null
           project_id?: string | null
           recurrence_rule?: string | null
           scheduled_date?: string | null
@@ -64,6 +71,7 @@ export type Database = {
           start_time?: string | null
           status?: string
           tags?: string[] | null
+          time_block?: string | null
           title: string
           token_reward?: number
           type: string
@@ -78,13 +86,16 @@ export type Database = {
           due_at?: string | null
           ego_state?: string | null
           end_time?: string | null
+          generated_payload?: Json | null
           id?: string
+          is_fallback?: boolean | null
           metadata?: Json | null
           milestone_id?: string | null
           order_index?: number
           parent_id?: string | null
           pillar?: string | null
           plan_id?: string | null
+          priority_score?: number | null
           project_id?: string | null
           recurrence_rule?: string | null
           scheduled_date?: string | null
@@ -92,6 +103,7 @@ export type Database = {
           start_time?: string | null
           status?: string
           tags?: string[] | null
+          time_block?: string | null
           title?: string
           token_reward?: number
           type?: string
@@ -5227,9 +5239,13 @@ export type Database = {
           aurora_preferences: Json | null
           bio: string | null
           community_username: string | null
+          crash_window_end: string | null
+          crash_window_start: string | null
           created_at: string | null
           ego_state_usage: Json | null
           experience: number | null
+          focus_peak_end: string | null
+          focus_peak_start: string | null
           full_name: string | null
           id: string
           last_session_date: string | null
@@ -5237,20 +5253,26 @@ export type Database = {
           onboarding_completed_at: string | null
           preferred_language: string | null
           session_streak: number | null
+          sleep_time: string | null
           stripe_customer_id: string | null
           subscription_tier: string | null
           tokens: number | null
           updated_at: string | null
           utm_data: Json | null
+          wake_time: string | null
         }
         Insert: {
           active_ego_state?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
           community_username?: string | null
+          crash_window_end?: string | null
+          crash_window_start?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null
+          focus_peak_end?: string | null
+          focus_peak_start?: string | null
           full_name?: string | null
           id: string
           last_session_date?: string | null
@@ -5258,20 +5280,26 @@ export type Database = {
           onboarding_completed_at?: string | null
           preferred_language?: string | null
           session_streak?: number | null
+          sleep_time?: string | null
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
           utm_data?: Json | null
+          wake_time?: string | null
         }
         Update: {
           active_ego_state?: string | null
           aurora_preferences?: Json | null
           bio?: string | null
           community_username?: string | null
+          crash_window_end?: string | null
+          crash_window_start?: string | null
           created_at?: string | null
           ego_state_usage?: Json | null
           experience?: number | null
+          focus_peak_end?: string | null
+          focus_peak_start?: string | null
           full_name?: string | null
           id?: string
           last_session_date?: string | null
@@ -5279,11 +5307,13 @@ export type Database = {
           onboarding_completed_at?: string | null
           preferred_language?: string | null
           session_streak?: number | null
+          sleep_time?: string | null
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           tokens?: number | null
           updated_at?: string | null
           utm_data?: Json | null
+          wake_time?: string | null
         }
         Relationships: []
       }
@@ -5922,6 +5952,60 @@ export type Database = {
           setting_type?: string | null
           setting_value?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      today_runs: {
+        Row: {
+          actions_completed: number | null
+          actions_total: number | null
+          arena_covered: boolean | null
+          body_covered: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          generated_at: string | null
+          id: string
+          mind_covered: boolean | null
+          mode: string
+          movement_score: number | null
+          run_date: string
+          schedule_data: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actions_completed?: number | null
+          actions_total?: number | null
+          arena_covered?: boolean | null
+          body_covered?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          generated_at?: string | null
+          id?: string
+          mind_covered?: boolean | null
+          mode?: string
+          movement_score?: number | null
+          run_date?: string
+          schedule_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actions_completed?: number | null
+          actions_total?: number | null
+          arena_covered?: boolean | null
+          body_covered?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          generated_at?: string | null
+          id?: string
+          mind_covered?: boolean | null
+          mode?: string
+          movement_score?: number | null
+          run_date?: string
+          schedule_data?: Json | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
