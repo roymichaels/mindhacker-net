@@ -105,6 +105,18 @@ export interface AuroraContext {
   // Opener hints (computed)
   opener_hints: string[];
 
+  // Plan milestones (for live editing)
+  plan_milestones: {
+    id: string;
+    week_number: number;
+    title: string;
+    goal: string | null;
+    focus_area: string | null;
+    description: string | null;
+    tasks: any[] | null;
+    is_completed: boolean;
+  }[];
+
   // Adaptive Feedback Loop
   pulse_today: { energy: number; mood: string; sleep: string; task_confidence: number; screen_discipline: boolean } | null;
   pulse_week: { avg_energy: number; avg_confidence: number; compliance: number; recovery_debt: number; days_logged: number } | null;
@@ -408,6 +420,20 @@ export async function buildContext(
 
     opener_hints: openerHints,
 
+    // Plan milestones for live editing
+    plan_milestones: lifePlan?.life_plan_milestones
+      ? (lifePlan.life_plan_milestones as any[]).map((m: any) => ({
+          id: m.id,
+          week_number: m.week_number,
+          title: m.title,
+          goal: m.goal || null,
+          focus_area: m.focus_area || null,
+          description: m.description || null,
+          tasks: Array.isArray(m.tasks) ? m.tasks : null,
+          is_completed: !!m.is_completed,
+        })).sort((a: any, b: any) => a.week_number - b.week_number)
+      : [],
+
     // Adaptive feedback loop
     pulse_today: pulseToday ? {
       energy: pulseToday.energy_rating,
@@ -462,6 +488,7 @@ function createEmptyContext(today: string): AuroraContext {
     recent_insights: [],
     projects: [],
     opener_hints: [],
+    plan_milestones: [],
     pulse_today: null,
     pulse_week: null,
     behavioral_risks: [],
