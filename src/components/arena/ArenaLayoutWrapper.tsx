@@ -35,7 +35,7 @@ export default function ArenaLayoutWrapper() {
     return (
       <Suspense fallback={<PageSkeleton />}>
         <DashboardLayout leftSidebar={null} rightSidebar={null}>
-          <ArenaHub openWizardTrigger={wizardTrigger} />
+          <ArenaHub />
         </DashboardLayout>
       </Suspense>
     );
@@ -47,7 +47,7 @@ export default function ArenaLayoutWrapper() {
         leftSidebar={<ArenaHudSidebar onNewProject={() => setWizardTrigger(prev => prev + 1)} />}
         rightSidebar={<ArenaActivitySidebar />}
       >
-        <ArenaHub openWizardTrigger={wizardTrigger} />
+        <ArenaHub />
       </DashboardLayout>
     </Suspense>
   );
