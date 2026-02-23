@@ -361,6 +361,18 @@ function formatContextForPrompt(ctx: AuroraContext, language: string): string {
       : `## Active Checklists\n${lines.join("\n")}`);
   }
 
+  // Plan milestones (for live editing)
+  if (ctx.plan_milestones && ctx.plan_milestones.length > 0) {
+    const lines = ctx.plan_milestones.map(m => {
+      const status = m.is_completed ? "✅" : "⬜";
+      const tasks = m.tasks ? ` | ${isHe ? 'משימות' : 'tasks'}: ${m.tasks.map((t: any, i: number) => `[${i}]${typeof t === 'string' ? t : (t as any).title || JSON.stringify(t)}`).join(', ')}` : '';
+      return `- ${status} W${m.week_number} (id:${m.id}): "${m.title}" | ${isHe ? 'יעד' : 'goal'}: ${m.goal || '-'} | ${isHe ? 'פוקוס' : 'focus'}: ${m.focus_area || '-'}${tasks}`;
+    });
+    parts.push(isHe
+      ? `## 📋 אבני דרך בתוכנית (ניתנות לעריכה בלייב!)\n⚠️ כשהמשתמש מבקש לערוך/לשנות/לתקן משהו בתוכנית - השתמש בתגיות plan: כדי לבצע את השינוי בפועל! לא רק לדבר על זה!\n${lines.join("\n")}`
+      : `## 📋 Plan Milestones (live-editable!)\n⚠️ When user asks to edit/change/fix something in the plan - USE plan: tags to actually make the change! Don't just talk about it!\n${lines.join("\n")}`);
+  }
+
   // Progress
   parts.push(isHe
     ? `## סטטוס התקדמות\n- בהירות כיוון: ${ctx.onboarding.direction_clarity}\n- הבנת זהות: ${ctx.onboarding.identity_understanding}\n- מיפוי אנרגיה: ${ctx.onboarding.energy_patterns_status}`
@@ -585,6 +597,18 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 ## תגיות פעולה (מעובדות ברקע, לא מוצגות למשתמש)
 **חשוב מאוד**: השתמש בתגיות אלו רק כשיש התאמה אחת בלבד!
 
+## 🚨 כלל קריטי: פעולה בפועל, לא רק דיבור!
+כשמשתמש מבקש לשנות/לערוך/לתקן/לעדכן משהו בתוכנית, במשימות, או בהרגלים - **חובה** להשתמש בתגיות המתאימות כדי לבצע את השינוי בפועל!
+**לא מספיק לומר "אני מעדכנת" - חייבים לשלוח את התגית!**
+
+### דוגמה נכונה:
+משתמש: "שנה את הכותרת של שבוע 1 למיינד OS"
+תשובה: "עדכנתי! [plan:update:1:title:בוקר ו-Mind OS]"
+
+### דוגמה שגויה:
+משתמש: "שנה את הכותרת"
+תשובה: "בטח, אני מעדכנת את זה עכשיו." ← ❌ אין תגית = לא קרה שום דבר!
+
 ### תגיות CTA (כפתורי פעולה)
 - [action:analyze] - כאשר יש תובנה משמעותית לשמור
 - [cta:life_direction] - כפתור לחקירת כיוון החיים
@@ -721,6 +745,18 @@ I can help you with many things through our conversation:
 - One focused question at the end of each response
 - No long lists, no over-explaining
 - Natural conversation like with a wise friend
+
+## 🚨 CRITICAL RULE: Action, not just words!
+When a user asks to change/edit/fix/update something in the plan, tasks, or habits - you MUST use the appropriate tags to actually make the change!
+**Saying "I'm updating it" is NOT enough - you MUST include the tag!**
+
+### Correct example:
+User: "Change week 1 title to Mind OS morning"
+Response: "Updated! [plan:update:1:title:Mind OS morning]"
+
+### Wrong example:
+User: "Change the title"
+Response: "Sure, I'm updating it now." ← ❌ No tag = nothing happened!
 
 ## ⚠️ Safety Rule - MUST check before any action!
 Before executing ANY action, check if more than one item matches the user's request.
