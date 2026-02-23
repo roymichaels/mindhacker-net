@@ -610,10 +610,19 @@ function buildFullPrompt(language: string, contextMarkdown: string, openerSectio
 - [habit:create:שם_ההרגל] - יצירת הרגל יומי חדש
 - [habit:remove:שם_ההרגל] - הסרת הרגל
 
-### תגיות עדכון תוכנית
+### תגיות עדכון תוכנית (עריכה בלייב - ללא יצירת תוכנית מחדש!)
 - [plan:update:מספר_שבוע:goal:ערך_חדש] - עדכון יעד שבועי
-- [plan:update:מספר_שבוע:focus:ערך_חדש] - עדכון פוקוס שבועי
+- [plan:update:מספר_שבוע:focus_area:ערך_חדש] - עדכון פוקוס שבועי
+- [plan:update:מספר_שבוע:title:ערך_חדש] - עדכון כותרת אבן דרך
+- [plan:update:מספר_שבוע:description:ערך_חדש] - עדכון תיאור
+- [plan:edit:milestone_id:title=ערך|goal=ערך] - עריכת אבן דרך לפי ID (מספר שדות)
+- [plan:add_task:מספר_שבוע:טקסט_משימה] - הוספת משימה לאבן דרך
+- [plan:remove_task:מספר_שבוע:אינדקס] - הסרת משימה (0=ראשונה)
+- [plan:replace_task:מספר_שבוע:אינדקס:טקסט_חדש] - החלפת משימה
+- [plan:add_milestone:מספר_שבוע:כותרת:יעד:פוקוס] - הוספת אבן דרך חדשה
+- [plan:remove_milestone:מספר_שבוע] - הסרת אבן דרך
 - [milestone:complete:מספר_שבוע] - סימון שבוע כהושלם
+⚠️ תמיד העדף עריכת התוכנית הקיימת במקום ליצור חדשה! שנה יעדים, משימות, או פוקוס ישירות.
 
 ### תגיות זהות
 - [identity:add:value:ערך] - הוספת ערך
@@ -750,9 +759,19 @@ Only use these tags when exactly ONE match exists!
 - [habit:create:habit_name] - create new daily habit
 - [habit:remove:habit_name] - remove a habit
 
-## Plan Tags
+## Plan Tags (Live Edit - NO full regeneration needed!)
 - [plan:update:week_number:goal:new_value] - update weekly goal
+- [plan:update:week_number:focus_area:new_value] - update weekly focus
+- [plan:update:week_number:title:new_value] - update milestone title
+- [plan:update:week_number:description:new_value] - update description
+- [plan:edit:milestone_id:title=value|goal=value] - edit milestone by ID (multi-field)
+- [plan:add_task:week_number:task_text] - add task to milestone
+- [plan:remove_task:week_number:index] - remove task (0=first)
+- [plan:replace_task:week_number:index:new_text] - replace task
+- [plan:add_milestone:week_number:title:goal:focus] - add new milestone
+- [plan:remove_milestone:week_number] - remove milestone
 - [milestone:complete:week_number] - mark week as completed
+⚠️ ALWAYS prefer editing the existing plan over regenerating! Modify goals, tasks, or focus directly.
 
 ## Identity Tags
 - [identity:add:value:content] - add a value

@@ -20,6 +20,12 @@ export type AppCommand =
   | { type: 'renameChecklist'; oldTitle: string; newTitle: string }
   | { type: 'completeMilestone'; weekNumber: number }
   | { type: 'updatePlan'; weekNumber: number; field: string; value: string }
+  | { type: 'editMilestone'; milestoneId: string; updates: Record<string, string> }
+  | { type: 'addMilestoneTask'; weekNumber: number; task: string }
+  | { type: 'removeMilestoneTask'; weekNumber: number; taskIndex: number }
+  | { type: 'replaceMilestoneTask'; weekNumber: number; taskIndex: number; newTask: string }
+  | { type: 'addMilestone'; weekNumber: number; title: string; goal?: string; focusArea?: string }
+  | { type: 'removeMilestone'; weekNumber: number }
   | { type: 'addIdentity'; elementType: string; content: string }
   | { type: 'removeIdentity'; elementType: string; content: string }
   | { type: 'setReminder'; message: string; date: string; time?: string }
@@ -39,7 +45,7 @@ const SAFE_COMMANDS: CommandType[] = [
 ];
 
 const DESTRUCTIVE_COMMANDS: CommandType[] = [
-  'deleteActionItem', 'archiveChecklist', 'removeHabit', 'removeIdentity',
+  'deleteActionItem', 'archiveChecklist', 'removeHabit', 'removeIdentity', 'removeMilestone', 'removeMilestoneTask',
 ];
 
 export function classifyRisk(command: AppCommand): RiskLevel {
@@ -145,6 +151,41 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'updatePlan', weekNumber: parseInt(m[1]), field: m[2].trim(), value: m[3].trim() });
   }
 
+  // Milestone edit by ID: [plan:edit:milestone_id:field1=val1|field2=val2]
+  for (const m of content.matchAll(/\[plan:edit:([a-f0-9-]+):(.+?)\]/g)) {
+    const updates: Record<string, string> = {};
+    m[2].split('|').forEach(pair => {
+      const [k, ...v] = pair.split('=');
+      if (k && v.length) updates[k.trim()] = v.join('=').trim();
+    });
+    commands.push({ type: 'editMilestone', milestoneId: m[1], updates });
+  }
+
+  // Add task to milestone: [plan:add_task:week:task_text]
+  for (const m of content.matchAll(/\[plan:add_task:(\d+):(.+?)\]/g)) {
+    commands.push({ type: 'addMilestoneTask', weekNumber: parseInt(m[1]), task: m[2].trim() });
+  }
+
+  // Remove task from milestone: [plan:remove_task:week:index]
+  for (const m of content.matchAll(/\[plan:remove_task:(\d+):(\d+)\]/g)) {
+    commands.push({ type: 'removeMilestoneTask', weekNumber: parseInt(m[1]), taskIndex: parseInt(m[2]) });
+  }
+
+  // Replace task in milestone: [plan:replace_task:week:index:new_text]
+  for (const m of content.matchAll(/\[plan:replace_task:(\d+):(\d+):(.+?)\]/g)) {
+    commands.push({ type: 'replaceMilestoneTask', weekNumber: parseInt(m[1]), taskIndex: parseInt(m[2]), newTask: m[3].trim() });
+  }
+
+  // Add new milestone: [plan:add_milestone:week:title] or [plan:add_milestone:week:title:goal:focus]
+  for (const m of content.matchAll(/\[plan:add_milestone:(\d+):([^:\]]+)(?::([^:\]]+))?(?::([^:\]]+))?\]/g)) {
+    commands.push({ type: 'addMilestone', weekNumber: parseInt(m[1]), title: m[2].trim(), goal: m[3]?.trim(), focusArea: m[4]?.trim() });
+  }
+
+  // Remove milestone: [plan:remove_milestone:week]
+  for (const m of content.matchAll(/\[plan:remove_milestone:(\d+)\]/g)) {
+    commands.push({ type: 'removeMilestone', weekNumber: parseInt(m[1]) });
+  }
+
   // Identity: [identity:add:type:content], [identity:remove:type:content]
   for (const m of content.matchAll(/\[identity:add:(.+?):(.+?)\]/g)) {
     commands.push({ type: 'addIdentity', elementType: m[1].trim(), content: m[2].trim() });
@@ -178,6 +219,12 @@ export function stripAllTags(content: string): string {
     .replace(/\[milestone:[^\]]+\]/g, '')
     .replace(/\[habit:[^\]]+\]/g, '')
     .replace(/\[plan:[^\]]+\]/g, '')
+    .replace(/\[plan:edit:[^\]]+\]/g, '')
+    .replace(/\[plan:add_task:[^\]]+\]/g, '')
+    .replace(/\[plan:remove_task:[^\]]+\]/g, '')
+    .replace(/\[plan:replace_task:[^\]]+\]/g, '')
+    .replace(/\[plan:add_milestone:[^\]]+\]/g, '')
+    .replace(/\[plan:remove_milestone:[^\]]+\]/g, '')
     .replace(/\[identity:[^\]]+\]/g, '')
     .replace(/\[reminder:[^\]]+\]/g, '')
     .replace(/\[focus:[^\]]+\]/g, '')
@@ -220,6 +267,18 @@ export function describeCommand(command: AppCommand, isHebrew: boolean): { label
       return { actionType: 'task_delete', label: isHebrew ? 'הסרת זהות' : 'Remove Identity', description: `${command.elementType}: ${command.content}` };
     case 'updatePlan':
       return { actionType: 'task_create', label: isHebrew ? 'עדכון תוכנית' : 'Update Plan', description: `Week ${command.weekNumber}: ${command.field}` };
+    case 'editMilestone':
+      return { actionType: 'task_create', label: isHebrew ? 'עריכת אבן דרך' : 'Edit Milestone', description: Object.keys(command.updates).join(', ') };
+    case 'addMilestoneTask':
+      return { actionType: 'task_create', label: isHebrew ? 'הוספת משימה לאבן דרך' : 'Add Milestone Task', description: `Week ${command.weekNumber}: ${command.task}` };
+    case 'removeMilestoneTask':
+      return { actionType: 'task_delete', label: isHebrew ? 'הסרת משימה מאבן דרך' : 'Remove Milestone Task', description: `Week ${command.weekNumber} #${command.taskIndex}` };
+    case 'replaceMilestoneTask':
+      return { actionType: 'task_create', label: isHebrew ? 'החלפת משימה באבן דרך' : 'Replace Milestone Task', description: `Week ${command.weekNumber}: ${command.newTask}` };
+    case 'addMilestone':
+      return { actionType: 'task_create', label: isHebrew ? 'הוספת אבן דרך' : 'Add Milestone', description: `Week ${command.weekNumber}: ${command.title}` };
+    case 'removeMilestone':
+      return { actionType: 'task_delete', label: isHebrew ? 'הסרת אבן דרך' : 'Remove Milestone', description: isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}` };
     default:
       return { actionType: 'navigate', label: command.type, description: '' };
   }

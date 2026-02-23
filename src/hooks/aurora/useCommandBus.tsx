@@ -59,6 +59,8 @@ const TOAST_CONFIGS: Record<string, { titleHe: string; titleEn: string }> = {
   'milestone:complete': { titleHe: '🏆 שבוע הושלם!', titleEn: '🏆 Week completed!' },
   'identity:update': { titleHe: '✨ זהות עודכנה', titleEn: '✨ Identity updated' },
   'plan:update': { titleHe: '📝 תוכנית עודכנה', titleEn: '📝 Plan updated' },
+  'milestone:create': { titleHe: '📌 אבן דרך נוספה', titleEn: '📌 Milestone added' },
+  'milestone:delete': { titleHe: '🗑️ אבן דרך הוסרה', titleEn: '🗑️ Milestone removed' },
 };
 
 function showReceiptToast(receipt: ActionReceipt, isHebrew: boolean) {
@@ -270,6 +272,92 @@ export const useCommandBus = () => {
         const { error } = await supabase.from('life_plan_milestones').update(updateData).eq('plan_id', plan.id).eq('week_number', command.weekNumber);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
         return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `${command.field}: ${command.value}`);
+      }
+
+      // ── Edit Milestone by ID ──
+      case 'editMilestone': {
+        if (!user?.id) return null;
+        const allowedFields = ['title', 'title_en', 'description', 'description_en', 'goal', 'goal_en', 'focus_area', 'focus_area_en', 'challenge', 'hypnosis_recommendation'];
+        const safeUpdates: Record<string, string> = {};
+        for (const [k, v] of Object.entries(command.updates)) {
+          if (allowedFields.includes(k)) safeUpdates[k] = v;
+        }
+        if (Object.keys(safeUpdates).length === 0) return null;
+        const { error } = await supabase.from('life_plan_milestones').update(safeUpdates).eq('id', command.milestoneId);
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('plan', 'update', !error, command.milestoneId, Object.keys(safeUpdates).join(', '));
+      }
+
+      // ── Add Task to Milestone ──
+      case 'addMilestoneTask': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', plan.id).eq('week_number', command.weekNumber).single();
+        if (!milestone) return null;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        tasks.push(command.task);
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `+${command.task}`);
+      }
+
+      // ── Remove Task from Milestone ──
+      case 'removeMilestoneTask': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', plan.id).eq('week_number', command.weekNumber).single();
+        if (!milestone) return null;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        if (command.taskIndex < 0 || command.taskIndex >= tasks.length) return null;
+        const removed = tasks.splice(command.taskIndex, 1);
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `-${removed[0]}`);
+      }
+
+      // ── Replace Task in Milestone ──
+      case 'replaceMilestoneTask': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { data: milestone } = await supabase.from('life_plan_milestones').select('id, tasks').eq('plan_id', plan.id).eq('week_number', command.weekNumber).single();
+        if (!milestone) return null;
+        const tasks = Array.isArray(milestone.tasks) ? [...milestone.tasks] : [];
+        if (command.taskIndex < 0 || command.taskIndex >= tasks.length) return null;
+        const old = tasks[command.taskIndex];
+        tasks[command.taskIndex] = command.newTask;
+        const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `${old} → ${command.newTask}`);
+      }
+
+      // ── Add Milestone ──
+      case 'addMilestone': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { error } = await supabase.from('life_plan_milestones').insert({
+          plan_id: plan.id,
+          week_number: command.weekNumber,
+          month_number: Math.ceil(command.weekNumber / 4),
+          title: command.title,
+          goal: command.goal || null,
+          focus_area: command.focusArea || null,
+        });
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('milestone', 'create', !error, command.title, `Week ${command.weekNumber}`);
+      }
+
+      // ── Remove Milestone ──
+      case 'removeMilestone': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { error } = await supabase.from('life_plan_milestones').delete().eq('plan_id', plan.id).eq('week_number', command.weekNumber);
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('milestone', 'delete', !error, isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}`);
       }
 
       // ── Identity ──
