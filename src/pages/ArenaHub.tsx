@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { UserPlateGrid } from '@/components/plate/UserPlateGrid';
 import { HubPillarsList } from '@/components/hubs/HubPillarsList';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
+import { DailyMilestones } from '@/components/hubs/DailyMilestones';
 
 interface ArenaHubProps {
   openWizardTrigger?: number;
@@ -21,6 +22,7 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-col gap-6 flex-1 px-1 pt-2">
+        <DailyMilestones hub="arena" />
         <UserPlateGrid hub="arena" />
         <HubPillarsList hub="arena" />
       </div>

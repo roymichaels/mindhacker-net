@@ -22,6 +22,45 @@ interface ExecutionStep {
   label: string;
   detail?: string;
   durationSec?: number;
+  youtubeUrl?: string;
+}
+
+// Activities that should get YouTube video embeds
+const YOUTUBE_ACTIVITIES = [
+  'tai_chi', 'tai chi', 'yoga', 'meditation', 'stretching', 'qigong', 'qi gong',
+  'pilates', 'breathwork', 'mobility', 'foam rolling', 'cold exposure',
+];
+
+// Combat/training activities that get special routines
+const COMBAT_ACTIVITIES = [
+  'combat', 'shadowboxing', 'boxing', 'muay thai', 'kickboxing', 'martial arts',
+  'punching', 'striking', 'fighting', 'heavy bag',
+];
+
+function isYouTubeActivity(actionType: string, title: string): boolean {
+  const combined = `${actionType} ${title}`.toLowerCase();
+  return YOUTUBE_ACTIVITIES.some(a => combined.includes(a));
+}
+
+function isCombatActivity(actionType: string, title: string): boolean {
+  const combined = `${actionType} ${title}`.toLowerCase();
+  return COMBAT_ACTIVITIES.some(a => combined.includes(a));
+}
+
+function YouTubeEmbed({ url }: { url: string }) {
+  // Extract video ID from various YouTube URL formats
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (!match) return null;
+  return (
+    <div className="rounded-xl overflow-hidden border border-border/50 aspect-video">
+      <iframe
+        src={`https://www.youtube.com/embed/${match[1]}?rel=0`}
+        className="w-full h-full"
+        allowFullScreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      />
+    </div>
+  );
 }
 
 interface ExecutionModalProps {
@@ -61,6 +100,10 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
 
     const fetchSteps = async () => {
       try {
+        const actionLower = `${action.actionType} ${action.title}`.toLowerCase();
+        const wantYouTube = isYouTubeActivity(action.actionType, action.title);
+        const wantCombat = isCombatActivity(action.actionType, action.title);
+
         const { data, error } = await supabase.functions.invoke('generate-today-queue', {
           body: {
             user_id: user.id,
@@ -69,6 +112,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             action_type: action.actionType,
             pillar: action.pillarId,
             duration_min: action.durationMin,
+            title: action.title,
+            want_youtube: wantYouTube,
+            want_combat_routine: wantCombat,
           },
         });
 
@@ -77,15 +123,30 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           setSteps(data.steps);
           setAuroraMessage(data.aurora_message || '');
         } else {
-          // fallback
-          const dur = action.durationMin;
-          const coreMin = Math.max(1, dur - 4);
-          setSteps([
-            { label: t('today.prepare'), durationSec: 60 },
-            { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
-            { label: t('today.reflect'), durationSec: 120 },
-          ]);
-          setAuroraMessage(`${t('today.letsBegin')} ${action.durationMin} ${t('today.minutesShort')}. ${t('today.withYou')}`);
+          // Build smart fallback based on activity type
+          if (wantCombat) {
+            const rounds = [
+              { label: '🥊 Round 1 — Jab + Cross', detail: '100 reps: 50 left jab, 50 right cross. Fast tempo!', durationSec: 180 },
+              { label: '🥊 Round 2 — Hooks', detail: '100 reps: 50 left hook, 50 right hook. Rotate hips!', durationSec: 180 },
+              { label: '🥊 Round 3 — Uppercuts', detail: '100 reps: 50 left uppercut, 50 right uppercut. Drive from legs!', durationSec: 180 },
+              { label: '🦵 Round 4 — Kicks (Muay Thai)', detail: '60 reps: 20 roundhouse each side, 10 teep each side. Full power!', durationSec: 180 },
+              { label: '💥 Round 5 — Combos', detail: 'Jab-Cross-Hook-Uppercut-Roundhouse. Non-stop 3 minutes!', durationSec: 180 },
+              { label: '🧘 Cooldown', detail: 'Stretch shoulders, hips, wrists. Deep breathing.', durationSec: 120 },
+            ];
+            setSteps(rounds);
+            setAuroraMessage(isRTL 
+              ? '🎵 שים שיר — כל שיר זה ראונד. אין עצירות. הגוף שלך הוא כלי הנשק.' 
+              : '🎵 Put on a song — each song is a round. No stops. Your body is the weapon.');
+          } else {
+            const dur = action.durationMin;
+            const coreMin = Math.max(1, dur - 4);
+            setSteps([
+              { label: t('today.prepare'), durationSec: 60 },
+              { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
+              { label: t('today.reflect'), durationSec: 120 },
+            ]);
+            setAuroraMessage(`${t('today.letsBegin')} ${action.durationMin} ${t('today.minutesShort')}. ${t('today.withYou')}`);
+          }
         }
       } catch {
         if (cancelled) return;
@@ -262,6 +323,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                           {step.label}
                         </p>
                         {step.detail && <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>}
+                        {step.youtubeUrl && <div className="mt-2"><YouTubeEmbed url={step.youtubeUrl} /></div>}
                         {step.durationSec && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/60 mt-1">
                             <Clock className="h-2.5 w-2.5" />

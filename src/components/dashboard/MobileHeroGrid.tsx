@@ -11,11 +11,11 @@ import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useAuth } from '@/contexts/AuthContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
-// DailyRoadmap now rendered inside NowSection
-import { CommunityPulse } from '@/components/community/CommunityPulse';
+import { NowSection } from '@/components/dashboard/NowSection';
+import { DailyMilestones as DailyMilestonesSection } from '@/components/hubs/DailyMilestones';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
-import { NowSection } from '@/components/dashboard/NowSection';
+// NowSection already imported above
 import { TodayScheduleCard } from '@/components/execution/TodayScheduleCard';
 import { MovementScoreCard } from '@/components/execution/MovementScoreCard';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
@@ -205,6 +205,9 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
 
           {/* 🔥 Now Engine — Daily Execution Queue */}
           <NowSection />
+
+          {/* 🎯 Daily Milestones — Unified from Core + Arena */}
+          <DailyMilestonesSection />
 
           {/* 📊 Movement Score */}
 
