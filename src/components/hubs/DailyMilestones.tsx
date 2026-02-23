@@ -38,6 +38,7 @@ interface DailyMilestone {
 
 interface DailyMilestonesProps {
   hub?: 'core' | 'arena' | 'both';
+  hideHeader?: boolean;
 }
 
 function getDayOfPlan(startDate: string): number {
@@ -46,7 +47,7 @@ function getDayOfPlan(startDate: string): number {
   return Math.max(0, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
 }
 
-export function DailyMilestones({ hub = 'both' }: DailyMilestonesProps) {
+export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMilestonesProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { coreStrategy, arenaStrategy, corePlan, arenaPlan } = useStrategyPlans();
@@ -135,15 +136,17 @@ export function DailyMilestones({ hub = 'both' }: DailyMilestonesProps) {
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-2 mb-3">
-        <Calendar className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-          {title}
-        </h3>
-        <span className="text-[10px] text-muted-foreground/60 ms-auto">
-          {dailyMilestones.length} {isHe ? 'משימות' : 'tasks'}
-        </span>
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
+            {title}
+          </h3>
+          <span className="text-[10px] text-muted-foreground/60 ms-auto">
+            {dailyMilestones.length} {isHe ? 'משימות' : 'tasks'}
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {dailyMilestones.map((dm, i) => {
