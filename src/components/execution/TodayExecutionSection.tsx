@@ -95,13 +95,13 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
           <div className="flex items-center gap-2 mb-2">
             <Target className="h-4 w-4 text-primary" />
             <span className="text-sm font-bold text-primary">
-              {isRTL ? 'צור תוכנית 90 יום' : 'Generate 90-Day Strategy'}
+              {isRTL ? 'צור תוכנית 100 יום' : 'Generate 100-Day Strategy'}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mb-3">
             {isRTL
-              ? 'בהתבסס על האבחונים שלך, אורורה תבנה תוכנית אסטרטגית מותאמת אישית ל-90 הימים הקרובים.'
-              : 'Based on your pillar assessments, Aurora will build a personalized strategic plan for the next 90 days.'}
+              ? 'בהתבסס על האבחונים שלך, אורורה תבנה תוכנית אסטרטגית ב-10 שלבים ל-100 הימים הקרובים.'
+              : 'Based on your assessments, Aurora will build a 10-phase strategic plan for the next 100 days.'}
           </p>
           <Button
             size="sm"
