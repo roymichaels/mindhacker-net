@@ -31,7 +31,23 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
-  const { data: actionItems, isLoading } = useQuery({
+  // Fetch milestone's built-in tasks from the milestone row itself
+  const { data: milestoneRow, isLoading: loadingMilestone } = useQuery({
+    queryKey: ['milestone-row', milestone?.id],
+    queryFn: async () => {
+      if (!milestone?.id) return null;
+      const { data } = await supabase
+        .from('life_plan_milestones')
+        .select('tasks, tasks_en, description, description_en, goal, goal_en, challenge, hypnosis_recommendation')
+        .eq('id', milestone.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!milestone?.id && open,
+  });
+
+  // Also check for linked action_items
+  const { data: actionItems, isLoading: loadingActions } = useQuery({
     queryKey: ['milestone-actions', milestone?.id],
     queryFn: async () => {
       if (!milestone?.id) return [];
@@ -47,6 +63,22 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
 
   if (!milestone) return null;
 
+  const isLoading = loadingMilestone || loadingActions;
+
+  // Get tasks from milestone row (bilingual)
+  const builtInTasks: string[] = isHe
+    ? (milestoneRow?.tasks as string[] || [])
+    : (milestoneRow?.tasks_en as string[] || milestoneRow?.tasks as string[] || []);
+
+  const goalText = isHe
+    ? (milestoneRow?.goal || milestone.goal)
+    : (milestoneRow?.goal_en || milestoneRow?.goal || milestone.goal);
+
+  const descText = isHe
+    ? milestoneRow?.description
+    : (milestoneRow?.description_en || milestoneRow?.description);
+
+  const hasActionItems = (actionItems?.length ?? 0) > 0;
   const completed = actionItems?.filter(a => a.status === 'done').length ?? 0;
   const total = actionItems?.length ?? 0;
   const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -71,15 +103,18 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
               )}
             </div>
             <DialogTitle className="text-base font-semibold leading-snug">
-              {milestone.goal || milestone.title}
+              {goalText || milestone.title}
             </DialogTitle>
           </DialogHeader>
           {milestone.focus_area && (
             <p className="text-xs text-muted-foreground mt-1">{milestone.focus_area}</p>
           )}
+          {descText && (
+            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{descText}</p>
+          )}
         </div>
 
-        {/* Action Items */}
+        {/* Tasks */}
         <ScrollArea className="max-h-[55vh]">
           <div className="p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -87,7 +122,7 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
                 <ListTodo className="w-4 h-4 text-muted-foreground" />
                 {isHe ? 'משימות' : 'Tasks'}
               </div>
-              {total > 0 && (
+              {hasActionItems && total > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{completed}/{total}</span>
                   <div className="w-16">
@@ -101,11 +136,8 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
-            ) : total === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">
-                {isHe ? 'אין משימות עדיין' : 'No tasks yet'}
-              </p>
-            ) : (
+            ) : hasActionItems ? (
+              /* Linked action_items */
               <div className="space-y-1.5">
                 {actionItems?.map(item => (
                   <div
@@ -135,14 +167,45 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
                           {item.description}
                         </span>
                       )}
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          {item.type}
-                        </Badge>
-                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : builtInTasks.length > 0 ? (
+              /* Built-in tasks from milestone row */
+              <div className="space-y-1.5">
+                {builtInTasks.map((task, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-2.5 p-2.5 rounded-lg border bg-card/50"
+                  >
+                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/40 shrink-0 mt-0.5" />
+                    <span className="text-xs block flex-1">{task}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-6">
+                {isHe ? 'אין משימות עדיין' : 'No tasks yet'}
+              </p>
+            )}
+
+            {/* Challenge / Hypnosis recommendation */}
+            {milestoneRow?.challenge && (
+              <div className="mt-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
+                <p className="text-[10px] font-semibold text-amber-600 mb-1">
+                  {isHe ? '⚡ אתגר השבוע' : '⚡ Weekly Challenge'}
+                </p>
+                <p className="text-xs text-muted-foreground">{milestoneRow.challenge}</p>
+              </div>
+            )}
+
+            {milestoneRow?.hypnosis_recommendation && (
+              <div className="mt-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
+                <p className="text-[10px] font-semibold text-primary mb-1">
+                  {isHe ? '🧠 המלצת היפנוזה' : '🧠 Hypnosis Recommendation'}
+                </p>
+                <p className="text-xs text-muted-foreground">{milestoneRow.hypnosis_recommendation}</p>
               </div>
             )}
           </div>
