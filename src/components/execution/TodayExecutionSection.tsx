@@ -1,16 +1,17 @@
 /**
  * TodayExecutionSection — Primary execution surface for Dashboard + Hubs.
- * Shows: Next Action hero → Today Blocks → Movement Score → Pillar Coverage
+ * Shows: Strategy CTA (if none) → Next Action hero → Today Blocks → Movement Score
  * 
  * NO "Week X" text. NO milestone-first UI.
  * Filtered by hub (core/arena) or shows all (dashboard).
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Clock, Play, AlertTriangle, Loader2 } from 'lucide-react';
+import { Flame, Clock, Play, AlertTriangle, Loader2, Zap, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { NowQueueItem } from '@/hooks/useNowEngine';
 import { TodayScheduleCard } from './TodayScheduleCard';
 import { MovementScoreCard } from './MovementScoreCard';
@@ -23,7 +24,7 @@ interface TodayExecutionSectionProps {
 }
 
 export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
-  const { t, isRTL } = useTranslation();
+  const { t, isRTL, language } = useTranslation();
   const {
     queue, nextAction, schedule, tier,
     movementScore, bodyCovered, mindCovered, arenaCovered,
@@ -33,12 +34,27 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
     refetch,
   } = useTodayExecution();
 
+  const {
+    hasAnyStrategy, corePlan, arenaPlan,
+    coreStrategy, arenaStrategy,
+    coreWeek, arenaWeek,
+    generateStrategy, isGenerating,
+  } = useStrategyPlans();
+
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
 
   const handleExecute = (action: NowQueueItem) => {
     setExecutionAction(action);
     setExecutionOpen(true);
+  };
+
+  const handleGenerateStrategy = () => {
+    if (hub) {
+      generateStrategy.mutate({ hub, forceRegenerate: false });
+    } else {
+      generateStrategy.mutate({ hub: 'both', forceRegenerate: false });
+    }
   };
 
   if (isLoading) {
@@ -50,7 +66,10 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
     );
   }
 
-  if (queue.length === 0) return null;
+  // Show strategy generation CTA if no strategy exists for this hub
+  const needsStrategy = hub
+    ? (hub === 'core' ? !corePlan : !arenaPlan)
+    : !hasAnyStrategy;
 
   // Filter by hub
   const filteredQueue = hub ? queue.filter(q => q.hub === hub) : queue;
@@ -59,10 +78,66 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
     : schedule;
   const filteredNextAction = hub ? filteredQueue[0] || null : nextAction;
 
-  if (filteredQueue.length === 0) return null;
+  // Current strategy context
+  const currentStrategy = hub === 'core' ? coreStrategy : hub === 'arena' ? arenaStrategy : null;
+  const currentWeek = hub === 'core' ? coreWeek : hub === 'arena' ? arenaWeek : null;
+  const currentWeekData = currentStrategy?.weeks?.find(w => w.week === currentWeek);
 
   return (
     <div className="space-y-3" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Strategy Generation CTA */}
+      {needsStrategy && (
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="h-4 w-4 text-primary" />
+            <span className="text-sm font-bold text-primary">
+              {isRTL ? 'צור תוכנית 90 יום' : 'Generate 90-Day Strategy'}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            {isRTL
+              ? 'בהתבסס על האבחונים שלך, אורורה תבנה תוכנית אסטרטגית מותאמת אישית ל-90 הימים הקרובים.'
+              : 'Based on your pillar assessments, Aurora will build a personalized strategic plan for the next 90 days.'}
+          </p>
+          <Button
+            size="sm"
+            onClick={handleGenerateStrategy}
+            disabled={isGenerating}
+            className="gap-1.5"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {isRTL ? 'מייצר...' : 'Generating...'}
+              </>
+            ) : (
+              <>
+                <Zap className="h-3.5 w-3.5" />
+                {isRTL ? 'צור אסטרטגיה' : 'Generate Strategy'}
+              </>
+            )}
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Weekly Theme Banner (if strategy exists) */}
+      {currentWeekData && currentWeek && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/40 border border-border/30 text-xs"
+        >
+          <Target className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-muted-foreground font-medium truncate">
+            {isRTL ? currentWeekData.theme_he : currentWeekData.theme_en}
+          </span>
+        </motion.div>
+      )}
+
       {/* Min Day Warning */}
       {isMinDayMode && (
         <motion.div
@@ -132,15 +207,17 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
       )}
 
       {/* Movement Score */}
-      <MovementScoreCard
-        score={movementScore}
-        bodyCovered={bodyCovered}
-        mindCovered={mindCovered}
-        arenaCovered={arenaCovered}
-        actionsCompleted={actionsCompleted}
-        actionsTotal={actionsTotal}
-        isMinDayMode={isMinDayMode}
-      />
+      {filteredQueue.length > 0 && (
+        <MovementScoreCard
+          score={movementScore}
+          bodyCovered={bodyCovered}
+          mindCovered={mindCovered}
+          arenaCovered={arenaCovered}
+          actionsCompleted={actionsCompleted}
+          actionsTotal={actionsTotal}
+          isMinDayMode={isMinDayMode}
+        />
+      )}
 
       {/* Execution Modal */}
       <ExecutionModal
