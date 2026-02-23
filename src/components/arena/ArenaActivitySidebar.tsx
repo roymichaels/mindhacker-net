@@ -1,137 +1,255 @@
 /**
- * ArenaActivitySidebar - Right sidebar with arena stats.
+ * ArenaActivitySidebar - Left sidebar with arena feature stats + roadmap.
  * Amber/orange color scheme.
  */
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { PanelLeftClose, PanelLeftOpen, Swords, CheckCircle, Clock, Target, FolderKanban } from 'lucide-react';
+import {
+  PanelLeftClose, PanelLeftOpen, Swords, CheckCircle2, Circle,
+  Target, Trophy, FolderKanban, Briefcase, Clock, Calendar, Loader2,
+} from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { ARENA_DOMAINS } from '@/navigation/lifeDomains';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useProjects } from '@/hooks/useProjects';
+import { motion } from 'framer-motion';
+import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
 
 export function ArenaActivitySidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
+  const { arenaPlan, arenaStrategy, arenaWeek, isLoading } = useStrategyPlans();
   const { projects } = useProjects();
+  const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
 
   const arenaDomainIds = ARENA_DOMAINS.map(d => d.id);
   const arenaEntries = Object.entries(statusMap).filter(([id]) => arenaDomainIds.includes(id));
   const totalDomains = ARENA_DOMAINS.length;
   const activeDomains = arenaEntries.filter(([, s]) => s === 'active').length;
+
+  // Real stats
   const activeProjects = projects.filter(p => p.status === 'active').length;
+  const completedProjects = projects.filter(p => p.status === 'completed').length;
+
+  // Milestones from strategy
+  const milestones = arenaStrategy?.weeks || [];
+  const currentWeek = arenaWeek || 1;
+  const totalWeeks = milestones.length || 12;
+  const completedWeeks = milestones.filter((_, i) => i + 1 < currentWeek).length;
+  const progressPct = Math.round((completedWeeks / totalWeeks) * 100);
+
+  // Pillar goals from strategy
+  const pillarGoals = arenaStrategy?.pillars || {};
+  const totalGoals = Object.values(pillarGoals).reduce((sum, p) => sum + (p.goals?.length || 0), 0);
 
   const statItems = [
-    { icon: Swords, value: totalDomains, label: isHe ? 'תחומים' : 'Domains', color: 'text-amber-400' },
-    { icon: Target, value: activeDomains, label: isHe ? 'פעילים' : 'Active', color: 'text-teal-400' },
-    { icon: FolderKanban, value: activeProjects, label: isHe ? 'פרויקטים' : 'Projects', color: 'text-orange-400' },
-    { icon: Clock, value: projects.length, label: isHe ? 'סה"כ' : 'Total', color: 'text-indigo-400' },
+    { icon: Swords, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים פעילים' : 'Active Pillars', color: 'text-amber-400' },
+    { icon: Target, value: totalGoals, label: isHe ? 'מטרות' : 'Goals', color: 'text-teal-400' },
+    { icon: FolderKanban, value: activeProjects, label: isHe ? 'פרויקטים פעילים' : 'Active Projects', color: 'text-orange-400' },
+    { icon: Briefcase, value: completedProjects, label: isHe ? 'הושלמו' : 'Completed', color: 'text-emerald-400' },
   ];
 
   return (
-    <aside
-      className={cn(
-        "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
-        "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-        "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-        "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
-        collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
-      )}
-    >
-      <button
-        onClick={() => setCollapsed(!collapsed)}
+    <>
+      <aside
         className={cn(
-          "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
-          collapsed
-            ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
-            : "ltr:right-2 rtl:left-2"
+          "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
+          "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
+          "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
+          "ltr:border-e rtl:border-s border-border/50 dark:border-amber-500/15",
+          collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
         )}
-        title={collapsed ? "Expand" : "Collapse"}
       >
-        {collapsed
-          ? (isRTL ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />)
-          : (isRTL ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />)
-        }
-      </button>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(
+            "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
+            collapsed
+              ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
+              : "ltr:right-2 rtl:left-2"
+          )}
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed
+            ? (isRTL ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />)
+            : (isRTL ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />)
+          }
+        </button>
 
-      {collapsed && (
-        <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
-          <div className="flex flex-col items-center gap-1 w-full">
-            {statItems.map((m, i) => (
-              <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
-                <m.icon className={cn("w-4 h-4", m.color)} />
-                <span className="text-[10px] font-bold leading-none">{m.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {!collapsed && (
-        <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
-            {isHe ? 'סטטיסטיקה' : 'Stats'}
-          </span>
-          <div className="grid grid-cols-2 gap-1.5 mb-3">
-            {statItems.map((m) => (
-              <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
-                <m.icon className={cn("w-3.5 h-3.5", m.color)} />
-                <span className="text-sm font-bold leading-none">{m.value}</span>
-                <span className="text-[9px] text-muted-foreground">{m.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
-
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
-            {isHe ? 'סטטוס תחומים' : 'Domain Status'}
-          </span>
-          <div className="flex-1 overflow-y-auto scrollbar-hide">
-            <div className="flex flex-col gap-1.5">
-              {ARENA_DOMAINS.map((domain) => {
-                const status = statusMap[domain.id] ?? 'unconfigured';
-                const statusLabel = isHe
-                  ? (status === 'active' ? 'פעיל' : status === 'configured' ? 'הוגדר' : 'לא הוגדר')
-                  : (status === 'active' ? 'Active' : status === 'configured' ? 'Set Up' : 'Not Set');
-                const statusColor = status === 'active' ? 'bg-emerald-500' : status === 'configured' ? 'bg-amber-500' : 'bg-muted-foreground/30';
-                return (
-                  <div key={domain.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
-                    <div className="flex items-center gap-2">
-                      <div className={cn("w-2 h-2 rounded-full shrink-0", statusColor)} />
-                      <span className="text-[11px] font-medium leading-tight truncate flex-1">
-                        {isHe ? domain.labelHe : domain.labelEn}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground">{statusLabel}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent my-3" />
-
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
-              {isHe ? 'פרויקטים אחרונים' : 'Recent Projects'}
-            </span>
-            <div className="flex flex-col gap-1.5">
-              {projects.slice(0, 5).map((project) => (
-                <div key={project.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project.cover_color || '#f59e0b' }} />
-                    <span className="text-[11px] font-medium leading-tight truncate">{project.title}</span>
-                  </div>
-                  <div className="mt-1.5 w-full bg-muted/30 rounded-full h-1">
-                    <div className="bg-gradient-to-r from-amber-400 to-orange-500 h-1 rounded-full transition-all" style={{ width: `${project.progress_percentage || 0}%` }} />
-                  </div>
+        {/* ===== COLLAPSED MINI VIEW ===== */}
+        {collapsed && (
+          <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
+            <div className="flex flex-col items-center gap-1 w-full">
+              {statItems.map((m, i) => (
+                <div key={i} className="flex flex-col items-center gap-0.5 w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-1">
+                  <m.icon className={cn("w-4 h-4", m.color)} />
+                  <span className="text-[10px] font-bold leading-none">{m.value}</span>
                 </div>
               ))}
             </div>
+            {/* Mini roadmap dots */}
+            <div className="flex flex-col items-center gap-1 mt-2">
+              {milestones.slice(0, 12).map((w, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full transition-colors",
+                    i + 1 < currentWeek ? "bg-amber-400" :
+                    i + 1 === currentWeek ? "bg-amber-400/50 ring-2 ring-amber-400/30" :
+                    "bg-muted-foreground/20"
+                  )}
+                />
+              ))}
+              <span className="text-[9px] font-bold text-amber-400">{progressPct}%</span>
+            </div>
           </div>
-        </div>
-      )}
-    </aside>
+        )}
+
+        {/* ===== EXPANDED FULL VIEW ===== */}
+        {!collapsed && (
+          <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
+            {/* Stats */}
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
+              {isHe ? 'סטטיסטיקה' : 'Stats'}
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 mb-3">
+              {statItems.map((m) => (
+                <div key={m.label} className="rounded-lg bg-muted/40 dark:bg-muted/20 border border-border/30 p-1.5 flex flex-col items-center gap-0.5">
+                  <m.icon className={cn("w-3.5 h-3.5", m.color)} />
+                  <span className="text-sm font-bold leading-none">{m.value}</span>
+                  <span className="text-[9px] text-muted-foreground text-center">{m.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
+
+            {/* Roadmap */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xs font-bold text-foreground truncate">
+                  {isHe ? 'מפת דרכים — זירה' : 'Roadmap — Arena'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground">
+                  {isHe ? `שבוע ${currentWeek}/12` : `Week ${currentWeek}/12`}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-2">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                <span>{isHe ? 'התקדמות' : 'Progress'}</span>
+                <span className="font-bold text-amber-400">{progressPct}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPct}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-2" />
+
+            {/* Weekly timeline */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : !arenaPlan ? (
+                <div className="flex flex-col items-center justify-center gap-2 text-center py-4 px-2">
+                  <Calendar className="w-8 h-8 text-muted-foreground/40" />
+                  <p className="text-xs text-muted-foreground">
+                    {isHe ? 'אין תוכנית זירה פעילה. צור תוכנית מהדאשבורד.' : 'No Arena plan active. Generate from dashboard.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-0.5">
+                  {milestones.map((week, idx) => {
+                    const weekNum = week.week || idx + 1;
+                    const isPast = weekNum < currentWeek;
+                    const isCurrent = weekNum === currentWeek;
+
+                    return (
+                      <div key={idx} className="relative">
+                        {idx < milestones.length - 1 && (
+                          <div className={cn(
+                            "absolute top-6 ltr:left-[11px] rtl:right-[11px] w-0.5 h-[calc(100%-4px)]",
+                            isPast ? "bg-amber-400/40" : "bg-muted-foreground/15"
+                          )} />
+                        )}
+                        <div
+                          className={cn(
+                            "relative flex items-start gap-2 p-2 rounded-lg transition-all",
+                            isCurrent && "bg-amber-500/10 border border-amber-500/20",
+                            isPast && "opacity-70",
+                            !isCurrent && !isPast && "hover:bg-muted/30"
+                          )}
+                        >
+                          <div className="mt-0.5 shrink-0">
+                            {isPast ? (
+                              <CheckCircle2 className="w-[18px] h-[18px] text-amber-400" />
+                            ) : isCurrent ? (
+                              <div className="w-[18px] h-[18px] rounded-full border-2 border-amber-400 bg-amber-400/20 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                              </div>
+                            ) : (
+                              <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <span className={cn(
+                                "text-[10px] font-bold",
+                                isCurrent ? "text-amber-400" : "text-muted-foreground"
+                              )}>
+                                W{weekNum}
+                              </span>
+                              {isCurrent && (
+                                <span className="text-[8px] px-1 py-0.5 rounded-full bg-amber-400/20 text-amber-400 font-bold">
+                                  {isHe ? 'עכשיו' : 'NOW'}
+                                </span>
+                              )}
+                            </div>
+                            <p className={cn(
+                              "text-[11px] leading-tight mt-0.5",
+                              isPast && "line-through",
+                              isCurrent ? "font-semibold text-foreground" : "text-muted-foreground"
+                            )}>
+                              {isHe ? week.theme_he : week.theme_en}
+                            </p>
+                            {week.pillar_focus?.length > 0 && (
+                              <span className="text-[9px] text-muted-foreground/60 mt-0.5 block">
+                                {week.pillar_focus.join(' · ')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </aside>
+
+      <MilestoneDetailModal
+        open={!!selectedMilestone}
+        onOpenChange={(o) => !o && setSelectedMilestone(null)}
+        milestone={selectedMilestone}
+      />
+    </>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * ProjectsActivitySidebar - Right sidebar with project stats and quick info.
+ * ProjectsActivitySidebar - Right sidebar with project stats and roadmap.
  * Amber/gold color scheme matching projects identity.
  */
 import { useState } from 'react';
@@ -28,7 +28,6 @@ export function ProjectsActivitySidebar() {
     { icon: Clock, value: `${avgProgress}%`, label: isHe ? 'התקדמות' : 'Progress', color: 'text-indigo-400' },
   ];
 
-  // Recent projects
   const recentProjects = projects.slice(0, 5);
 
   return (
@@ -41,7 +40,6 @@ export function ProjectsActivitySidebar() {
         collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
       )}
     >
-      {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className={cn(
@@ -58,7 +56,6 @@ export function ProjectsActivitySidebar() {
         }
       </button>
 
-      {/* ===== COLLAPSED MINI VIEW ===== */}
       {collapsed && (
         <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center gap-1 w-full">
@@ -72,10 +69,8 @@ export function ProjectsActivitySidebar() {
         </div>
       )}
 
-      {/* ===== EXPANDED FULL VIEW ===== */}
       {!collapsed && (
         <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-          {/* Stats */}
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
             {isHe ? 'סטטיסטיקה' : 'Stats'}
           </span>
@@ -91,7 +86,6 @@ export function ProjectsActivitySidebar() {
 
           <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent mb-3" />
 
-          {/* Recent Projects */}
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
             {isHe ? 'פרויקטים אחרונים' : 'Recent Projects'}
           </span>
