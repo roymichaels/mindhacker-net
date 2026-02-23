@@ -12,7 +12,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { Calendar, Play } from 'lucide-react';
+import { Calendar, Play, Rocket, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
@@ -55,7 +56,7 @@ function getDayOfPlan(startDate: string): number {
 export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMilestonesProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { corePlan, arenaPlan } = useStrategyPlans();
+  const { corePlan, arenaPlan, generateStrategy, isGenerating } = useStrategyPlans();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const navigate = useNavigate();
@@ -195,6 +196,45 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     });
     setExecutionOpen(true);
   };
+
+  // Show generate CTA if the requested hub has no plan
+  const missingCore = (hub === 'core' || hub === 'both') && !corePlan;
+  const missingArena = (hub === 'arena' || hub === 'both') && !arenaPlan;
+  const missingHubs = [
+    ...(missingCore ? ['core' as const] : []),
+    ...(missingArena ? ['arena' as const] : []),
+  ];
+
+  if (dailyMilestones.length === 0 && missingHubs.length > 0) {
+    return (
+      <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl border border-border/40 bg-card/30">
+        <Rocket className="w-8 h-8 text-primary/60" />
+        <p className="text-sm font-medium text-center text-foreground/80">
+          {isHe
+            ? `טרם יצרת תוכנית 100 יום ל${missingHubs.map(h => h === 'core' ? 'ליבה' : 'זירה').join(' ו')}`
+            : `Generate your 100-day plan for ${missingHubs.map(h => h === 'core' ? 'Core' : 'Arena').join(' & ')}`}
+        </p>
+        <p className="text-xs text-muted-foreground text-center max-w-xs">
+          {isHe ? 'התוכנית תייצר משימות יומיות מותאמות אישית לכל תחום' : 'The plan will create personalized daily missions for every pillar'}
+        </p>
+        <Button
+          size="sm"
+          className="gap-1.5 mt-1"
+          disabled={isGenerating}
+          onClick={() => {
+            const target = missingHubs.length === 2 ? 'both' : missingHubs[0];
+            generateStrategy.mutate({ hub: target, forceRegenerate: false });
+          }}
+        >
+          {isGenerating ? (
+            <><Loader2 className="w-3.5 h-3.5 animate-spin" />{isHe ? 'מייצר...' : 'Generating...'}</>
+          ) : (
+            <><Rocket className="w-3.5 h-3.5" />{isHe ? 'צור תוכנית 100 יום' : 'Generate 100-Day Plan'}</>
+          )}
+        </Button>
+      </div>
+    );
+  }
 
   if (dailyMilestones.length === 0) return null;
 
