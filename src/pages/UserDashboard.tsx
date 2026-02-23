@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, Sparkles, Target, Brain } from 'lucide-react';
+import { Rocket, Sparkles, Target, Brain, Play } from 'lucide-react';
 import { PresetOrb } from '@/components/orb';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -139,8 +139,31 @@ const UserDashboard = () => {
     );
   }
 
+  const isHe = language === 'he';
+
   return (
     <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4 !py-0 md:!py-4 overflow-y-auto">
+      {/* Start Hypnosis CTA */}
+      <motion.button
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        onClick={handleOpenHypnosis}
+        className="mx-3 md:mx-0 mt-3 md:mt-0 flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/10 to-transparent border border-primary/20 hover:border-primary/40 hover:from-primary/25 transition-all group cursor-pointer"
+      >
+        <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+          <Play className="w-5 h-5 text-primary fill-primary/50" />
+        </div>
+        <div className="flex-1 min-w-0 text-start">
+          <p className="text-sm font-semibold text-foreground">
+            {isHe ? 'התחל סשן היפנוזה' : 'Start Hypnosis Session'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {isHe ? '15 דקות של שינוי עמוק — מותאם אישית עם AI' : '15 min deep transformation — AI-personalized for you'}
+          </p>
+        </div>
+        <Sparkles className="w-4 h-4 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
+      </motion.button>
+
       <MobileHeroGrid planData={null} />
       <section className="md:hidden">
         <ProfileContent />
