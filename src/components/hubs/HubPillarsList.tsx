@@ -1,6 +1,5 @@
 /**
- * HubPillarsList — Renders pillar domain cards with strategy actions underneath.
- * Shows assessment status, current week goals, and daily actions per pillar.
+ * HubPillarsList — Grid of pillar cards, each with 90-day goal lists.
  */
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, ChevronLeft, ChevronRight, Target } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400',
@@ -42,6 +41,21 @@ const activeBgMap: Record<string, string> = {
   violet: 'bg-violet-500/10 border-violet-500/25',
 };
 
+const dotColorMap: Record<string, string> = {
+  blue: 'bg-blue-400',
+  fuchsia: 'bg-fuchsia-400',
+  red: 'bg-red-400',
+  amber: 'bg-amber-400',
+  cyan: 'bg-cyan-400',
+  slate: 'bg-slate-400',
+  indigo: 'bg-indigo-400',
+  emerald: 'bg-emerald-400',
+  purple: 'bg-purple-400',
+  sky: 'bg-sky-400',
+  rose: 'bg-rose-400',
+  violet: 'bg-violet-400',
+};
+
 interface HubPillarsListProps {
   hub: 'core' | 'arena';
 }
@@ -51,71 +65,70 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
-  const { coreStrategy, arenaStrategy, coreWeek, arenaWeek } = useStrategyPlans();
+  const { coreStrategy, arenaStrategy } = useStrategyPlans();
 
   const domains: LifeDomain[] = hub === 'core' ? CORE_DOMAINS : ARENA_DOMAINS;
   const basePath = hub === 'core' ? '/life' : '/arena';
   const strategy = hub === 'core' ? coreStrategy : arenaStrategy;
-  const currentWeek = hub === 'core' ? coreWeek : arenaWeek;
 
   const sectionTitle = hub === 'core'
     ? (isHe ? 'תחומי הליבה' : 'Core Pillars')
     : (isHe ? 'תחומי הזירה' : 'Arena Pillars');
 
-  // Extract current week's actions grouped by pillar
-  const pillarActions = useMemo(() => {
-    if (!strategy?.weeks || !currentWeek) return {};
-    const week = strategy.weeks.find(w => w.week === currentWeek);
-    if (!week) return {};
-
-    const grouped: Record<string, { action: string; duration: number }[]> = {};
-    for (const da of week.daily_actions || []) {
-      const pillar = da.pillar;
-      if (!grouped[pillar]) grouped[pillar] = [];
-      grouped[pillar].push({
-        action: isHe ? da.action_he : da.action_en,
-        duration: da.duration_min,
-      });
-    }
-    return grouped;
-  }, [strategy, currentWeek, isHe]);
-
-  // Extract current week goals grouped by pillar_focus
+  // Aggregate all 90-day goals per pillar from all weeks
   const pillarGoals = useMemo(() => {
-    if (!strategy?.weeks || !currentWeek) return {};
-    const week = strategy.weeks.find(w => w.week === currentWeek);
-    if (!week) return {};
-
-    const goals = isHe ? week.goals_he : week.goals_en;
+    if (!strategy?.weeks) return {};
     const grouped: Record<string, string[]> = {};
-    for (const pillar of week.pillar_focus || []) {
-      grouped[pillar] = goals || [];
+
+    for (const week of strategy.weeks) {
+      // Map goals to focused pillars
+      const goals = isHe ? week.goals_he : week.goals_en;
+      if (!goals?.length || !week.pillar_focus?.length) continue;
+
+      for (const pillar of week.pillar_focus) {
+        if (!grouped[pillar]) grouped[pillar] = [];
+        // Add the week theme as a goal bucket label
+        const theme = isHe ? week.theme_he : week.theme_en;
+        if (theme && !grouped[pillar].includes(theme)) {
+          grouped[pillar].push(theme);
+        }
+      }
+
+      // Also extract unique daily action descriptions per pillar
+      for (const da of week.daily_actions || []) {
+        const pillar = da.pillar;
+        if (!pillar) continue;
+        if (!grouped[pillar]) grouped[pillar] = [];
+        const actionLabel = isHe ? da.action_he : da.action_en;
+        // Extract a short summary (first ~50 chars)
+        const short = actionLabel.split('.')[0].split('(')[0].trim();
+        if (short && !grouped[pillar].some(g => g === short)) {
+          grouped[pillar].push(short);
+        }
+      }
+    }
+
+    // Deduplicate and limit
+    for (const key of Object.keys(grouped)) {
+      const unique = [...new Set(grouped[key])];
+      grouped[key] = unique.slice(0, 8);
     }
     return grouped;
-  }, [strategy, currentWeek, isHe]);
+  }, [strategy, isHe]);
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-          {sectionTitle}
-        </h3>
-        {currentWeek && (
-          <span className="text-[10px] text-muted-foreground/60">
-            {isHe ? `שבוע ${currentWeek}/12` : `Week ${currentWeek}/12`}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-col gap-3">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        {sectionTitle}
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {domains.map((domain, i) => {
           const status = statusMap[domain.id] ?? 'unconfigured';
           const isActive = status === 'active' || status === 'configured';
           const Icon = domain.icon;
-          const actions = pillarActions[domain.id] || [];
           const goals = pillarGoals[domain.id] || [];
-          const hasContent = actions.length > 0 || goals.length > 0;
 
           return (
             <motion.div
@@ -124,7 +137,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: 0.25 }}
               className={cn(
-                'rounded-xl border transition-all overflow-hidden',
+                'rounded-xl border transition-all overflow-hidden flex flex-col',
                 isActive
                   ? activeBgMap[domain.color]
                   : 'bg-card/40 border-border/30'
@@ -150,48 +163,26 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
                 <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
               </button>
 
-              {/* Strategy content underneath */}
-              {hasContent && (
+              {/* 90-day goal list */}
+              {goals.length > 0 && (
                 <div className="px-3 pb-3 pt-0 border-t border-border/20">
-                  {/* Goals */}
-                  {goals.length > 0 && (
-                    <div className="mt-2 mb-1.5">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Target className="w-3 h-3 text-primary/60" />
-                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">
-                          {isHe ? 'יעדי השבוע' : 'Weekly Goals'}
-                        </span>
-                      </div>
-                      <ul className="space-y-0.5">
-                        {goals.slice(0, 3).map((g, gi) => (
-                          <li key={gi} className="text-[11px] text-foreground/70 leading-relaxed flex gap-1.5">
-                            <span className="text-primary/40 shrink-0">•</span>
-                            <span className="line-clamp-2">{g}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  <ul className="mt-2 space-y-1">
+                    {goals.map((goal, gi) => (
+                      <li key={gi} className="flex items-start gap-2 text-[11px] text-foreground/70 leading-relaxed">
+                        <span className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-1.5', dotColorMap[domain.color])} />
+                        <span className="line-clamp-2">{goal}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-                  {/* Daily actions */}
-                  {actions.length > 0 && (
-                    <div className="mt-2">
-                      <span className="text-[10px] font-semibold text-muted-foreground uppercase mb-1 block">
-                        {isHe ? 'פעולות יומיות' : 'Daily Actions'}
-                      </span>
-                      <ul className="space-y-1">
-                        {actions.slice(0, 4).map((a, ai) => (
-                          <li key={ai} className="text-[11px] text-foreground/60 leading-relaxed flex items-start gap-1.5">
-                            <span className="text-accent/40 shrink-0 mt-0.5">▸</span>
-                            <span className="line-clamp-2 flex-1">{a.action}</span>
-                            <span className="text-[9px] text-muted-foreground/40 shrink-0 tabular-nums">
-                              {a.duration}{isHe ? 'ד׳' : 'm'}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+              {/* Empty state */}
+              {goals.length === 0 && (
+                <div className="px-3 pb-3 pt-0 border-t border-border/20">
+                  <p className="text-[10px] text-muted-foreground/40 mt-2 italic">
+                    {isHe ? 'אין יעדים עדיין — השלם אבחון כדי לייצר תוכנית' : 'No goals yet — complete assessment to generate plan'}
+                  </p>
                 </div>
               )}
             </motion.div>
