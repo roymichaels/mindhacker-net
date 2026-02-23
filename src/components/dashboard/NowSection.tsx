@@ -3,8 +3,8 @@
  * Shows Next Action card + Today Queue list
  */
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Clock, ChevronDown, ChevronUp, CheckCircle2, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Flame, Clock, CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -49,32 +49,21 @@ function QueueItemCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="group flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/40 hover:border-primary/30 hover:bg-accent/5 transition-all cursor-pointer"
+      className="group flex flex-col gap-2 p-3 rounded-xl bg-card/50 border border-border/40 hover:border-primary/30 hover:bg-accent/5 transition-all cursor-pointer"
       onClick={() => onExecute(item)}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* Number */}
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center text-[11px] font-bold text-muted-foreground">
-        {index + 1}
+      <div className="flex items-center justify-between">
+        <PillarBadge pillarId={item.pillarId} hub={item.hub} />
+        <span className="text-[10px] font-bold text-muted-foreground/50">{index + 1}</span>
       </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <PillarBadge pillarId={item.pillarId} hub={item.hub} />
-        </div>
-        <p className="text-sm font-medium truncate">{item.title}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
-            <Clock className="h-2.5 w-2.5" />
-            {item.durationMin} {language === 'he' ? 'דק׳' : 'min'}
-          </span>
-          <span className="text-[10px] text-muted-foreground/60">{item.reason}</span>
-        </div>
+      <p className="text-xs font-semibold leading-tight line-clamp-2">{item.title}</p>
+      <div className="flex items-center gap-1.5 mt-auto">
+        <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+        <span className="text-[10px] text-muted-foreground">
+          {item.durationMin} {language === 'he' ? 'דק׳' : 'min'}
+        </span>
       </div>
-
-      {/* Execute CTA */}
-      <ArrowRight className={cn("h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0", isRTL && "rotate-180")} />
     </motion.div>
   );
 }
@@ -161,37 +150,22 @@ export function NowSection() {
         </Card>
       </motion.div>
 
-      {/* ─── TODAY QUEUE ──────────────────────────────── */}
+      {/* ─── TODAY QUEUE (Grid) ─────────────────────── */}
       {restQueue.length > 0 && (
         <div>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-2 px-1 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors w-full"
-          >
+          <div className="flex items-center gap-2 px-1 py-1 text-xs font-semibold text-muted-foreground">
             <CheckCircle2 className="h-3.5 w-3.5" />
             <span>
               {language === 'he'
                 ? `עוד ${restQueue.length} פעולות להיום`
                 : `${restQueue.length} more actions today`}
             </span>
-            {expanded ? <ChevronUp className="h-3 w-3 ms-auto" /> : <ChevronDown className="h-3 w-3 ms-auto" />}
-          </button>
-
-          <AnimatePresence>
-            {expanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden space-y-1.5 mt-1"
-              >
-                {restQueue.map((item, i) => (
-                  <QueueItemCard key={`${item.actionType}-${i}`} item={item} index={i + 1} onExecute={handleExecute} />
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mt-1">
+            {restQueue.map((item, i) => (
+              <QueueItemCard key={`${item.actionType}-${i}`} item={item} index={i + 1} onExecute={handleExecute} />
+            ))}
+          </div>
         </div>
       )}
       {/* Execution Modal */}
