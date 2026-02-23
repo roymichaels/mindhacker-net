@@ -1,15 +1,13 @@
 /**
- * AdminLayoutWrapper - Wraps AdminHub with sidebar-driven layout.
- * Mirrors CoachesLayoutWrapper pattern.
+ * AdminLayoutWrapper - Sets sidebars for the Admin hub.
  */
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PageSkeleton } from '@/components/ui/skeleton';
 import { AdminHudSidebar } from '@/components/admin/AdminHudSidebar';
 import { AdminActivitySidebar } from '@/components/admin/AdminActivitySidebar';
 import { ADMIN_TABS } from '@/domain/admin';
+import { useSidebars } from '@/hooks/useSidebars';
 
-const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 const AdminHub = lazy(() => import('@/pages/AdminHub'));
 
 export default function AdminLayoutWrapper() {
@@ -30,23 +28,14 @@ export default function AdminLayoutWrapper() {
     handleTabChange(tab, sub);
   };
 
-  const leftSidebar = (
-    <AdminHudSidebar
-      activeTab={activeTab}
-      activeSubTab={activeSubTab}
-      onTabChange={handleTabChange}
-    />
-  );
-
-  const rightSidebar = (
+  useSidebars(
+    <AdminHudSidebar activeTab={activeTab} activeSubTab={activeSubTab} onTabChange={handleTabChange} />,
     <AdminActivitySidebar onNavigate={handleNavigate} />
   );
 
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <DashboardLayout leftSidebar={leftSidebar} rightSidebar={rightSidebar}>
-        <AdminHub activeTab={activeTab} activeSubTab={activeSubTab} />
-      </DashboardLayout>
+    <Suspense fallback={null}>
+      <AdminHub activeTab={activeTab} activeSubTab={activeSubTab} />
     </Suspense>
   );
 }

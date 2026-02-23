@@ -11,6 +11,7 @@ import MessageBubble from '@/components/messages/MessageBubble';
 import { cn } from '@/lib/utils';
 import { useThemeSettings } from '@/hooks/useThemeSettings';
 import { AuroraMessageThread } from '@/components/aurora';
+import { useSidebars } from '@/hooks/useSidebars';
 
 interface Message {
   id: string;
@@ -44,6 +45,9 @@ const MessageThread = () => {
 
   // Check if this is Aurora - either by param OR by route path
   const isAI = conversationId === 'ai' || location.pathname === '/messages/ai';
+
+  // Hide sidebars for message threads
+  useSidebars(null, null);
 
   // If this is an AI conversation, render Aurora instead
   if (isAI) {
@@ -292,47 +296,41 @@ const MessageThread = () => {
   const isAIConversation = isAI || conversation?.type === 'ai';
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="flex items-center gap-3 p-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/messages')}
-          >
-            <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
-          </Button>
-          
-          {/* Avatar */}
-          <Avatar className="h-10 w-10">
-            {isAIConversation ? (
-              <div className="h-full w-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Bot className="h-5 w-5 text-white" />
-              </div>
-            ) : (
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {otherProfile?.full_name?.charAt(0)?.toUpperCase() || '?'}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <h1 className="font-semibold truncate">
-              {isAIConversation 
-                ? t('messages.aiAssistant')
-                : otherProfile?.full_name || t('messages.unknownUser')
-              }
-            </h1>
-            {isAIConversation && (
-              <p className="text-xs text-muted-foreground">{t('messages.aiSubtitle')}</p>
-            )}
-          </div>
+    <div className="flex flex-col h-full" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Sub-header with back + participant info */}
+      <div className="flex items-center gap-3 p-3 border-b border-border">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => navigate('/messages')}
+        >
+          <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
+        </Button>
+        
+        <Avatar className="h-8 w-8">
+          {isAIConversation ? (
+            <div className="h-full w-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <Bot className="h-4 w-4 text-white" />
+            </div>
+          ) : (
+            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+              {otherProfile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+            </AvatarFallback>
+          )}
+        </Avatar>
+        
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold text-sm truncate">
+            {isAIConversation 
+              ? t('messages.aiAssistant')
+              : otherProfile?.full_name || t('messages.unknownUser')
+            }
+          </h2>
         </div>
-      </header>
+      </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-40">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-20">
         {messages.length === 0 && !isStreaming && (
           <div className="text-center py-8 text-muted-foreground">
             {t('messages.startTyping')}
@@ -349,7 +347,6 @@ const MessageThread = () => {
           />
         ))}
         
-        {/* Streaming message */}
         {isStreaming && streamingContent && (
           <MessageBubble
             content={streamingContent}
@@ -363,10 +360,10 @@ const MessageThread = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - positioned above bottom nav */}
+      {/* Input */}
       <form 
         onSubmit={handleSubmit} 
-        className="fixed bottom-14 left-0 right-0 p-4 bg-background border-t"
+        className="sticky bottom-0 p-3 bg-background border-t border-border"
       >
         <div className="flex gap-2 max-w-3xl mx-auto">
           <input

@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import ConversationItem from '@/components/messages/ConversationItem';
 import NewMessageDialog from '@/components/messages/NewMessageDialog';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { useSidebars } from '@/hooks/useSidebars';
 import { cn } from '@/lib/utils';
 
 interface Conversation {
@@ -125,84 +125,85 @@ const Messages = () => {
     return profile?.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  // Hide sidebars for messages
+  useSidebars(null, null);
+
   return (
-    <DashboardLayout>
-      <div className="flex flex-col h-full" dir={isRTL ? 'rtl' : 'ltr'}>
-          {/* Page Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold">{t('messages.title')}</h1>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowNewMessage(true)}
-            >
-              <PenSquare className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Search */}
-          <div className="mb-4">
-            <div className="relative">
-              <Search className={cn(
-                "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground",
-                isRTL ? "right-3" : "left-3"
-              )} />
-              <Input
-                placeholder={t('messages.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={cn("h-10", isRTL ? "pr-10" : "pl-10")}
-              />
-            </div>
-          </div>
-
-          {/* Conversations List */}
-          <div className="flex-1 overflow-y-auto -mx-4 px-4">
-            {/* AI Assistant - Always First (Pinned) */}
-            <ConversationItem
-              isAI
-              conversationId={aiConversationId || 'ai'}
-              name={t('messages.aiAssistant')}
-              subtitle={t('messages.aiSubtitle')}
-              lastMessage={aiConversation?.last_message_preview || t('messages.aiGreeting')}
-              lastMessageAt={aiConversation?.last_message_at}
-              unreadCount={aiConversationId ? unreadCounts[aiConversationId] || 0 : 0}
-              isPinned
-            />
-
-            {/* Separator */}
-            {filteredConversations.length > 0 && (
-              <div className="h-px bg-border my-1" />
-            )}
-
-            {/* Direct Conversations */}
-            {filteredConversations.map(conversation => {
-              const otherId = conversation.participant_1 === user?.id 
-                ? conversation.participant_2 
-                : conversation.participant_1;
-              const profile = profiles[otherId || ''];
-              
-              return (
-                <ConversationItem
-                  key={conversation.id}
-                  name={profile?.full_name || t('messages.unknownUser')}
-                  conversationId={conversation.id}
-                  lastMessage={conversation.last_message_preview || ''}
-                  lastMessageAt={conversation.last_message_at}
-                  unreadCount={unreadCounts[conversation.id] || 0}
-                />
-              );
-            })}
-
-          </div>
-
-          {/* New Message Dialog */}
-          <NewMessageDialog 
-            open={showNewMessage} 
-            onOpenChange={setShowNewMessage} 
-          />
+    <div className="flex flex-col h-full" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold">{t('messages.title')}</h1>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setShowNewMessage(true)}
+          >
+            <PenSquare className="h-5 w-5" />
+          </Button>
         </div>
-      </DashboardLayout>
+
+        {/* Search */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className={cn(
+              "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground",
+              isRTL ? "right-3" : "left-3"
+            )} />
+            <Input
+              placeholder={t('messages.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={cn("h-10", isRTL ? "pr-10" : "pl-10")}
+            />
+          </div>
+        </div>
+
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto -mx-4 px-4">
+          {/* AI Assistant - Always First (Pinned) */}
+          <ConversationItem
+            isAI
+            conversationId={aiConversationId || 'ai'}
+            name={t('messages.aiAssistant')}
+            subtitle={t('messages.aiSubtitle')}
+            lastMessage={aiConversation?.last_message_preview || t('messages.aiGreeting')}
+            lastMessageAt={aiConversation?.last_message_at}
+            unreadCount={aiConversationId ? unreadCounts[aiConversationId] || 0 : 0}
+            isPinned
+          />
+
+          {/* Separator */}
+          {filteredConversations.length > 0 && (
+            <div className="h-px bg-border my-1" />
+          )}
+
+          {/* Direct Conversations */}
+          {filteredConversations.map(conversation => {
+            const otherId = conversation.participant_1 === user?.id 
+              ? conversation.participant_2 
+              : conversation.participant_1;
+            const profile = profiles[otherId || ''];
+            
+            return (
+              <ConversationItem
+                key={conversation.id}
+                name={profile?.full_name || t('messages.unknownUser')}
+                conversationId={conversation.id}
+                lastMessage={conversation.last_message_preview || ''}
+                lastMessageAt={conversation.last_message_at}
+                unreadCount={unreadCounts[conversation.id] || 0}
+              />
+            );
+          })}
+
+        </div>
+
+        {/* New Message Dialog */}
+        <NewMessageDialog 
+          open={showNewMessage} 
+          onOpenChange={setShowNewMessage} 
+        />
+      </div>
     );
 };
 

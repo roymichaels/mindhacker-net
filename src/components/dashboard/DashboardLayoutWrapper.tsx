@@ -1,52 +1,39 @@
 /**
- * DashboardLayoutWrapper - Wraps the Dashboard with conditional sidebar visibility.
- * Hides HUD sidebars for un-onboarded users (like CoachesLayoutWrapper does for non-coaches).
+ * DashboardLayoutWrapper - Sets default sidebars for the Dashboard hub.
  * Auto-triggers PillarSynthesisModal when all 14 domains are complete.
  */
 import { Suspense, lazy, useState, useEffect } from 'react';
-import { PageSkeleton } from '@/components/ui/skeleton';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
 import { useAllDomainsComplete } from '@/hooks/useAllDomainsComplete';
 import { PillarSynthesisModal } from '@/components/dashboard/PillarSynthesisModal';
-
-const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
-const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
-
+import { useSidebars } from '@/hooks/useSidebars';
 import { flowAudit } from '@/lib/flowAudit';
+
+const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
 
 export default function DashboardLayoutWrapper() {
   const { isLaunchpadComplete } = useLaunchpadProgress();
   const { shouldTriggerSynthesis } = useAllDomainsComplete();
   const [synthesisOpen, setSynthesisOpen] = useState(false);
 
-  // Auto-trigger synthesis modal when all domains complete
+  // Set sidebars via context: null for un-onboarded, undefined (defaults) for onboarded
+  useSidebars(
+    isLaunchpadComplete ? undefined : null,
+    isLaunchpadComplete ? undefined : null
+  );
+
   useEffect(() => {
-    if (shouldTriggerSynthesis) {
-      setSynthesisOpen(true);
-    }
+    if (shouldTriggerSynthesis) setSynthesisOpen(true);
   }, [shouldTriggerSynthesis]);
 
   flowAudit.redirect('/dashboard', isLaunchpadComplete ? '(full layout)' : '(no sidebars)', `isLaunchpadComplete=${isLaunchpadComplete}`);
 
-  // Un-onboarded users: no sidebars (clean intro page)
-  if (!isLaunchpadComplete) {
-    return (
-      <Suspense fallback={<PageSkeleton />}>
-        <DashboardLayout leftSidebar={null} rightSidebar={null}>
-          <UserDashboard />
-        </DashboardLayout>
-        <PillarSynthesisModal open={synthesisOpen} onOpenChange={setSynthesisOpen} />
-      </Suspense>
-    );
-  }
-
-  // Onboarded users: default sidebars (HudSidebar + RoadmapSidebar)
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <DashboardLayout>
+    <>
+      <Suspense fallback={null}>
         <UserDashboard />
-      </DashboardLayout>
+      </Suspense>
       <PillarSynthesisModal open={synthesisOpen} onOpenChange={setSynthesisOpen} />
-    </Suspense>
+    </>
   );
 }
