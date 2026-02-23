@@ -24,7 +24,7 @@ const AdminDashboardOverview = lazy(() => import('@/pages/admin/Analytics'));
 const Analytics         = lazy(() => import('@/pages/admin/Analytics'));
 const NotificationCenter = lazy(() => import('@/pages/admin/NotificationCenter'));
 const Users             = lazy(() => import('@/pages/admin/Users'));
-const RolesManager      = lazy(() => import('@/pages/panel/RolesManager'));
+
 const Leads             = lazy(() => import('@/pages/admin/Leads'));
 const Businesses        = lazy(() => import('@/pages/admin/Businesses'));
 const AuroraInsights    = lazy(() => import('@/pages/admin/AuroraInsights'));
@@ -67,7 +67,6 @@ export const ADMIN_TABS: AdminTabConfig[] = [
     icon: Shield,
     subTabs: [
       { id: 'users', labelHe: 'משתמשים', labelEn: 'Users', component: Users },
-      { id: 'roles', labelHe: 'תפקידים', labelEn: 'Roles', component: RolesManager },
       { id: 'leads', labelHe: 'לידים', labelEn: 'Leads', component: Leads },
       { id: 'businesses', labelHe: 'עסקים', labelEn: 'Businesses', component: Businesses },
       { id: 'aurora-insights', labelHe: 'תובנות', labelEn: 'Insights', component: AuroraInsights },
