@@ -16,12 +16,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MilestoneDetailModal } from './MilestoneDetailModal';
 
 export function RoadmapSidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1280);
   const [recalibrating, setRecalibrating] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -187,12 +189,15 @@ export function RoadmapSidebar() {
                       )}
 
                       <button
-                        onClick={() => {
-                          if (!isDone && isCurrent && plan?.id) {
-                            completeMutation.mutate({ milestoneId: m.id, planId: plan.id });
-                          }
-                        }}
-                        disabled={isDone || !isCurrent}
+                        onClick={() => setSelectedMilestone({
+                          id: m.id,
+                          title: isHe ? m.title : (m.title_en || m.title),
+                          goal: m.goal || null,
+                          focus_area: isHe ? m.focus_area : (m.focus_area_en || m.focus_area),
+                          week_number: m.week_number,
+                          month_number: m.month_number || Math.ceil(m.week_number / 4),
+                          is_completed: m.is_completed,
+                        })}
                         className={cn(
                           "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
                           isCurrent && !isDone && "bg-primary/10 border border-primary/20",
@@ -268,6 +273,12 @@ export function RoadmapSidebar() {
           </div>
         )}
       </aside>
+
+      <MilestoneDetailModal
+        open={!!selectedMilestone}
+        onOpenChange={(o) => !o && setSelectedMilestone(null)}
+        milestone={selectedMilestone}
+      />
     </>
   );
 }
