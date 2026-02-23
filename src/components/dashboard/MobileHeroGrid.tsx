@@ -11,7 +11,7 @@ import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useAuth } from '@/contexts/AuthContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
-import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
+// DailyRoadmap now rendered inside NowSection
 import { CommunityPulse } from '@/components/community/CommunityPulse';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
@@ -206,36 +206,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* 🔥 Now Engine — Daily Execution Queue */}
           <NowSection />
 
-          {/* TodayScheduleCard removed — NowSection already shows the full queue as grid cards */}
-
           {/* 📊 Movement Score */}
-          {execution.queue.length > 0 && (
-            <MovementScoreCard
-              score={execution.movementScore}
-              bodyCovered={execution.bodyCovered}
-              mindCovered={execution.mindCovered}
-              arenaCovered={execution.arenaCovered}
-              actionsCompleted={execution.actionsCompleted}
-              actionsTotal={execution.actionsTotal}
-              isMinDayMode={execution.isMinDayMode}
-            />
-          )}
-
-          {/* Plan card removed — TodayEngine is the primary surface */}
-
-          <StartSessionButton />
-
-          {/* Motivational Banner */}
-          <MotivationalBanner />
-
-          {/* Command Timeline (Plus/Apex only - auto-hides for Free) */}
-          <CommandTimeline />
-
-          {/* Community Pulse */}
-          <CommunityPulse />
-
-          {/* Daily Roadmap - unified timeline */}
-          <DailyRoadmap />
 
           {/* Weekly Recalibration Summary */}
           <RecalibrationSummary />
