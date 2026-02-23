@@ -73,7 +73,7 @@ const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
 const LifeHub = lazy(() => import("./pages/LifeHub"));
 const LifeLayoutWrapper = lazy(() => import("./components/life/LifeLayoutWrapper"));
 const LifeDomainPage = lazy(() => import("./pages/LifeDomainPage"));
-const PresencePage = lazy(() => import("./pages/PresencePage"));
+
 const PresenceHome = lazy(() => import("./pages/presence/PresenceHome"));
 const PresenceScan = lazy(() => import("./pages/presence/PresenceScan"));
 const PresenceAnalyzing = lazy(() => import("./pages/presence/PresenceAnalyzing"));
@@ -146,13 +146,6 @@ const AffiliateDashboardPanel = lazy(() => import("./pages/panel/AffiliateDashbo
 const MyLinks = lazy(() => import("./pages/panel/MyLinks"));
 const MyReferrals = lazy(() => import("./pages/panel/MyReferrals"));
 const MyPayouts = lazy(() => import("./pages/panel/MyPayouts"));
-// Storefront
-const StorefrontLayout = lazy(() => import("./pages/storefront/StorefrontLayout"));
-const StorefrontHome = lazy(() => import("./pages/storefront/StorefrontHome"));
-const StorefrontLogin = lazy(() => import("./pages/storefront/StorefrontLogin"));
-const StorefrontSignup = lazy(() => import("./pages/storefront/StorefrontSignup"));
-const StorefrontCourses = lazy(() => import("./pages/storefront/StorefrontCourses"));
-const StorefrontClientDashboard = lazy(() => import("./pages/storefront/StorefrontClientDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

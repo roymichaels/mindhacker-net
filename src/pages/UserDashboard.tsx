@@ -1,178 +1,31 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Rocket, Sparkles, Target, Brain, Play } from 'lucide-react';
-import { PresetOrb } from '@/components/orb';
-import { Button } from '@/components/ui/button';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useSEO } from '@/hooks/useSEO';
-import { getBreadcrumbSchema } from '@/lib/seo';
-import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
-import { useGuestDataMigration } from '@/hooks/useGuestDataMigration';
-import { NextActionBanner } from '@/components/dashboard/v2';
-import { HypnosisModal } from '@/components/dashboard/HypnosisModal';
-import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
-import { ProfileContent } from '@/components/dashboard/ProfileContent';
-import { PageShell } from '@/components/aurora-ui/PageShell';
+/**
+ * UserDashboard — main dashboard page.
+ * Renders MobileHeroGrid with plan data.
+ */
 import { MobileHeroGrid } from '@/components/dashboard/MobileHeroGrid';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { usePromoPopup } from '@/hooks/usePromoPopup';
-import PromoUpgradeModal from '@/components/subscription/PromoUpgradeModal';
-import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
-const UserDashboard = () => {
-  const { t, language } = useTranslation();
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const { isLaunchpadComplete } = useLaunchpadProgress();
-  const [hypnosisOpen, setHypnosisOpen] = useState(false);
-  useGuestDataMigration();
-  const { shouldShowPromo, dismissPromo } = usePromoPopup();
+export default function UserDashboard() {
+  const { plan, milestones, isLoading } = useLifePlanWithMilestones();
 
-  // Legacy planData query removed — TodayEngine is the primary surface
+  if (isLoading) return <PageSkeleton />;
 
-  useSEO({
-    title: t('seo.dashboardTitle'),
-    description: t('seo.dashboardDescription'),
-    url: `${window.location.origin}/dashboard`,
-    type: 'website',
-    structuredData: [
-      getBreadcrumbSchema([
-        { name: t('seo.breadcrumbHome'), url: window.location.origin },
-        { name: 'Dashboard', url: `${window.location.origin}/dashboard` },
-      ]),
-    ],
-  });
+  const currentWeek = plan
+    ? Math.min(10, Math.max(1, Math.ceil((Date.now() - new Date(plan.start_date).getTime()) / (1000 * 60 * 60 * 24 * 10))))
+    : 1;
 
-  // Update last_active_at
-  useEffect(() => {
-    if (!user?.id) return;
-    supabase
-      .from('aurora_onboarding_progress')
-      .update({ last_active_at: new Date().toISOString() })
-      .eq('user_id', user.id)
-      .then(() => {});
-  }, [user?.id]);
+  const completedCount = milestones.filter((m: any) => m.is_completed).length;
+  const totalCount = milestones.length || 1;
 
-  const { canAccessHypnosis, showUpgradePrompt: showSubUpgrade, upgradeFeature: subUpgradeFeature, dismissUpgrade: dismissSubUpgrade } = useSubscriptionGate();
-  
+  const planData = plan
+    ? {
+        currentWeek,
+        progressPercent: Math.round((completedCount / totalCount) * 100),
+        currentMonth: Math.ceil(currentWeek / 3),
+        currentMilestone: milestones.find((m: any) => !m.is_completed) || null,
+      }
+    : null;
 
-  const handleOpenHypnosis = () => {
-    if (!isLaunchpadComplete) {
-      toast(language === 'he' ? 'יש להשלים את מסע התודעה לפני שימוש בהיפנוזה' : 'Complete the Consciousness Journey before using Hypnosis', {
-        action: {
-          label: language === 'he' ? 'התחל מסע' : 'Start Journey',
-          onClick: () => navigate('/onboarding'),
-        },
-      });
-      return;
-    }
-    if (!canAccessHypnosis) {
-      showSubUpgrade('hypnosis');
-      return;
-    }
-    setHypnosisOpen(true);
-  };
-
-  const handleOpenChat = () => {
-    navigate('/aurora');
-  };
-
-  // Gate: un-onboarded users see intro CTA
-  if (!isLaunchpadComplete) {
-    const isHe = language === 'he';
-    const features = [
-      { icon: Target, he: 'תוכנית 90 יום מותאמת אישית', en: 'Personalized 90-day plan' },
-      { icon: Sparkles, he: 'אימון AI יומי עם אורורה', en: 'Daily AI coaching with Aurora' },
-      { icon: Brain, he: 'כלי התבוננות וצמיחה', en: 'Introspection & growth tools' },
-    ];
-    return (
-      <PageShell className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6 max-w-lg mx-auto"
-        >
-          <div className="flex items-center justify-center w-full">
-            <PresetOrb size={80} />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold">
-            {isHe ? 'המסע שלך מתחיל כאן' : 'Your Journey Starts Here'}
-          </h2>
-          <p className="text-muted-foreground">
-            {isHe
-              ? 'השלם את תהליך הכיול כדי לפתוח את הדאשבורד המלא — תוכנית 90 יום, אימון יומי וכלי צמיחה מותאמים אישית.'
-              : 'Complete the calibration to unlock your full dashboard — a 90-day plan, daily coaching, and personalized growth tools.'}
-          </p>
-
-          <div className="grid gap-3 text-start">
-            {features.map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: isHe ? 20 : -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + i * 0.1 }}
-                className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-3"
-              >
-                <div className="rounded-full bg-primary/10 p-2">
-                  <f.icon className="w-4 h-4 text-primary" />
-                </div>
-                <span className="text-sm font-medium">{isHe ? f.he : f.en}</span>
-              </motion.div>
-            ))}
-          </div>
-
-          <Button
-            onClick={() => navigate('/onboarding')}
-            size="lg"
-            className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
-          >
-            <Rocket className="w-5 h-5 me-2" />
-            {isHe ? 'התחל את המסע' : 'Start Your Journey'}
-          </Button>
-        </motion.div>
-      </PageShell>
-    );
-  }
-
-  const isHe = language === 'he';
-
-  return (
-    <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4 !py-0 md:!py-4 overflow-y-auto">
-      {/* Start Hypnosis CTA */}
-      <motion.button
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        onClick={handleOpenHypnosis}
-        className="mx-3 md:mx-0 mt-3 md:mt-0 flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/10 to-transparent border border-primary/20 hover:border-primary/40 hover:from-primary/25 transition-all group cursor-pointer"
-      >
-        <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-          <Play className="w-5 h-5 text-primary fill-primary/50" />
-        </div>
-        <div className="flex-1 min-w-0 text-start">
-          <p className="text-sm font-semibold text-foreground">
-            {isHe ? 'התחל סשן היפנוזה' : 'Start Hypnosis Session'}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {isHe ? '15 דקות של שינוי עמוק — מותאם אישית עם AI' : '15 min deep transformation — AI-personalized for you'}
-          </p>
-        </div>
-        <Sparkles className="w-4 h-4 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
-      </motion.button>
-
-      <MobileHeroGrid planData={null} />
-      <section className="md:hidden">
-        <ProfileContent />
-      </section>
-      <HypnosisModal open={hypnosisOpen} onOpenChange={setHypnosisOpen} />
-      <PromoUpgradeModal open={shouldShowPromo} onDismiss={dismissPromo} />
-      <UpgradePromptModal feature={subUpgradeFeature} onDismiss={dismissSubUpgrade} />
-    </PageShell>
-  );
-};
-
-export default UserDashboard;
+  return <MobileHeroGrid planData={planData} />;
+}
