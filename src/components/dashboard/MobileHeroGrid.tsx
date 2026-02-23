@@ -20,7 +20,7 @@ import { TodayScheduleCard } from '@/components/execution/TodayScheduleCard';
 import { MovementScoreCard } from '@/components/execution/MovementScoreCard';
 import { useTodayExecution } from '@/hooks/useTodayExecution';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
-import { CurrentWeekPlanCard } from '@/components/dashboard/CurrentWeekPlanCard';
+// CurrentWeekPlanCard removed — replaced by TodayEngine
 import { StartSessionButton } from '@/components/dashboard/StartSessionButton';
 import { RecalibrationSummary } from '@/components/dashboard/RecalibrationSummary';
 import { useGameState } from '@/contexts/GameStateContext';
@@ -34,7 +34,7 @@ import {
   MergedIdentityModal, MergedDirectionModal, MergedInsightsModal,
 } from '@/components/dashboard/MergedModals';
 import { OrbDNAModal } from '@/components/gamification/OrbDNAModal';
-import { VerticalRoadmap } from '@/components/dashboard/VerticalRoadmap';
+// VerticalRoadmap removed — replaced by TodayEngine
 import UpgradePromptModal from '@/components/subscription/UpgradePromptModal';
 
 interface MobileHeroGridProps {
@@ -224,8 +224,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
             />
           )}
 
-          {/* 90-Day Plan Card */}
-          <CurrentWeekPlanCard />
+          {/* Plan card removed — TodayEngine is the primary surface */}
 
           <StartSessionButton />
 

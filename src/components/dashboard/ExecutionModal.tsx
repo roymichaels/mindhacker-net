@@ -1,12 +1,13 @@
 /**
- * ExecutionModal — Full-screen modal for executing a Now Engine action
- * Shows Aurora live guidance, checklist steps, complete/skip controls
+ * ExecutionModal — Full-screen modal for executing a Today Engine action.
+ * Free: deterministic checklist. Plus/Apex: AI-generated steps via aurora-task-brief.
+ * Uses translation keys only. RTL-aware.
  */
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckCircle2, SkipForward, Sparkles, Clock, Flame,
-  ChevronRight, Loader2, ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -31,7 +32,7 @@ interface ExecutionModalProps {
 }
 
 export function ExecutionModal({ open, onOpenChange, action, onComplete }: ExecutionModalProps) {
-  const { language, isRTL } = useTranslation();
+  const { t, language, isRTL } = useTranslation();
   const { user } = useAuth();
   const completeMutation = useCompleteNowAction();
 
@@ -41,11 +42,22 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const [loading, setLoading] = useState(false);
   const [completing, setCompleting] = useState(false);
 
-  const isHe = language === 'he';
   const domain = action ? getDomainById(action.pillarId) : null;
   const DomainIcon = domain?.icon;
 
-  // Generate steps via Aurora or fallback
+  const generateFallbackSteps = useCallback(() => {
+    if (!action) return;
+    const dur = action.durationMin;
+    const coreMin = Math.max(1, dur - 4);
+    const baseSteps: ExecutionStep[] = [
+      { label: t('today.prepare'), durationSec: 60 },
+      { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
+      { label: t('today.reflect'), durationSec: 120 },
+    ];
+    setSteps(baseSteps);
+    setAuroraMessage(`${t('today.letsBegin')} ${action.durationMin} ${t('today.minutesShort')}. ${t('today.withYou')}`);
+  }, [action, t]);
+
   const generateSteps = useCallback(async () => {
     if (!action || !user?.id) return;
     setLoading(true);
@@ -67,7 +79,6 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
         setSteps(data.steps);
         setAuroraMessage(data.aurora_message || '');
       } else {
-        // Fallback: generate simple steps client-side
         generateFallbackSteps();
       }
     } catch {
@@ -75,41 +86,16 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     } finally {
       setLoading(false);
     }
-  }, [action, user?.id, language]);
-
-  const generateFallbackSteps = () => {
-    if (!action) return;
-    const dur = action.durationMin;
-    const baseSteps: ExecutionStep[] = isHe
-      ? [
-          { label: 'הכנה — נשימות עמוקות ומיקוד כוונה', durationSec: 60 },
-          { label: `ביצוע ליבה — ${action.title}`, detail: `${Math.max(1, dur - 4)} דקות של עבודה ממוקדת`, durationSec: Math.max(60, (dur - 4) * 60) },
-          { label: 'סיכום — מה למדתי? מה השלב הבא?', durationSec: 120 },
-        ]
-      : [
-          { label: 'Prepare — deep breaths & set intention', durationSec: 60 },
-          { label: `Core execution — ${action.title}`, detail: `${Math.max(1, dur - 4)} minutes of focused work`, durationSec: Math.max(60, (dur - 4) * 60) },
-          { label: 'Reflect — what did I learn? What\'s next?', durationSec: 120 },
-        ];
-    setSteps(baseSteps);
-    setAuroraMessage(
-      isHe
-        ? `בוא נתחיל. ${action.title} — ${dur} דקות. אני איתך.`
-        : `Let's go. ${action.title} — ${dur} minutes. I'm with you.`
-    );
-  };
+  }, [action, user?.id, language, generateFallbackSteps]);
 
   useEffect(() => {
-    if (open && action) {
-      generateSteps();
-    }
+    if (open && action) generateSteps();
   }, [open, action, generateSteps]);
 
   const toggleStep = (idx: number) => {
-    setCheckedSteps((prev) => {
+    setCheckedSteps(prev => {
       const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+      next.has(idx) ? next.delete(idx) : next.add(idx);
       return next;
     });
   };
@@ -126,20 +112,19 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
         { actionId: action.sourceId, done: true },
         {
           onSuccess: () => {
-            toast.success(isHe ? 'הושלם! 🎉 +XP' : 'Completed! 🎉 +XP');
+            toast.success(t('today.completedXP'));
             setCompleting(false);
             onComplete?.();
             onOpenChange(false);
           },
           onError: () => {
-            toast.error(isHe ? 'שגיאה בשמירה' : 'Error saving');
+            toast.error(t('today.errorSaving'));
             setCompleting(false);
           },
         }
       );
     } else {
-      // Template action — just close with success
-      toast.success(isHe ? 'הושלם! 🎉' : 'Completed! 🎉');
+      toast.success(t('today.completedXP'));
       setCompleting(false);
       onComplete?.();
       onOpenChange(false);
@@ -147,7 +132,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   };
 
   const handleSkip = () => {
-    toast(isHe ? 'דילגת — הפעולה תחזור מחר' : 'Skipped — action will return tomorrow');
+    toast(t('today.skippedReturn'));
     onOpenChange(false);
   };
 
@@ -168,9 +153,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             <div className="flex items-center gap-2">
               {DomainIcon && <DomainIcon className="h-5 w-5 text-primary" />}
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                {isHe ? (action.hub === 'core' ? 'ליבה' : 'זירה') : action.hub}
-                {' · '}
-                {domain ? (isHe ? domain.labelHe : domain.labelEn) : action.pillarId}
+                {domain ? (isRTL ? domain.labelHe : domain.labelEn) : action.pillarId}
               </span>
             </div>
             <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-muted transition-colors">
@@ -180,15 +163,13 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-5 max-w-lg mx-auto w-full">
-            {/* Action Title */}
             <div>
-              <h2 className="text-xl font-bold">{action.title}</h2>
+              <h2 className="text-xl font-bold">{isRTL ? action.title : action.titleEn}</h2>
               <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {action.durationMin} {isHe ? 'דקות' : 'min'}
+                  {action.durationMin} {t('today.minutesShort')}
                 </span>
-                <span className="text-muted-foreground/50">{action.reason}</span>
               </div>
             </div>
 
@@ -200,11 +181,11 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                 className="rounded-xl bg-primary/10 border border-primary/20 p-3.5"
               >
                 <div className="flex items-start gap-2">
-                  <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   {loading ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      {isHe ? 'אורורה מחשבת...' : 'Aurora is computing...'}
+                      {t('today.auroraComputing')}
                     </div>
                   ) : (
                     <p className="text-sm leading-relaxed">{auroraMessage}</p>
@@ -213,10 +194,10 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
               </motion.div>
             )}
 
-            {/* Progress Bar */}
+            {/* Progress */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{isHe ? 'התקדמות' : 'Progress'}</span>
+                <span>{t('today.progress')}</span>
                 <span>{progress}%</span>
               </div>
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
@@ -229,10 +210,10 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
               </div>
             </div>
 
-            {/* Checklist Steps */}
+            {/* Checklist */}
             {loading ? (
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3].map(i => (
                   <div key={i} className="h-14 rounded-xl bg-muted/30 animate-pulse" />
                 ))}
               </div>
@@ -249,31 +230,24 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                       onClick={() => toggleStep(idx)}
                       className={cn(
                         'w-full flex items-start gap-3 p-3.5 rounded-xl border text-start transition-all',
-                        checked
-                          ? 'bg-primary/10 border-primary/30'
-                          : 'bg-card/50 border-border/40 hover:border-primary/20'
+                        checked ? 'bg-primary/10 border-primary/30' : 'bg-card/50 border-border/40 hover:border-primary/20'
                       )}
                     >
-                      {/* Checkbox */}
                       <div className={cn(
-                        'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors',
+                        'shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors',
                         checked ? 'border-primary bg-primary' : 'border-muted-foreground/30'
                       )}>
                         {checked && <CheckCircle2 className="h-4 w-4 text-primary-foreground" />}
                       </div>
-
-                      {/* Label */}
                       <div className="flex-1 min-w-0">
                         <p className={cn('text-sm font-medium', checked && 'line-through opacity-60')}>
                           {step.label}
                         </p>
-                        {step.detail && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>
-                        )}
+                        {step.detail && <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>}
                         {step.durationSec && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/60 mt-1">
                             <Clock className="h-2.5 w-2.5" />
-                            {Math.ceil(step.durationSec / 60)} {isHe ? 'דק׳' : 'min'}
+                            {Math.ceil(step.durationSec / 60)} {t('today.minutesShort')}
                           </span>
                         )}
                       </div>
@@ -284,30 +258,19 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer */}
           <div className="p-4 border-t border-border/50 flex items-center gap-3 max-w-lg mx-auto w-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSkip}
-              className="flex-shrink-0 text-muted-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={handleSkip} className="shrink-0 text-muted-foreground">
               <SkipForward className="h-4 w-4 me-1" />
-              {isHe ? 'דלג' : 'Skip'}
+              {t('today.skip')}
             </Button>
-
-            <Button
-              size="lg"
-              className="flex-1 gap-2"
-              disabled={!allDone || completing}
-              onClick={handleComplete}
-            >
+            <Button size="lg" className="flex-1 gap-2" disabled={!allDone || completing} onClick={handleComplete}>
               {completing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
                   <Flame className="h-4 w-4" />
-                  {isHe ? 'השלם' : 'Complete'}
+                  {t('today.complete')}
                 </>
               )}
             </Button>

@@ -1,8 +1,14 @@
 /**
- * useTodayExecution — Central hook for the Today Execution Engine.
- * Combines the Now Engine queue with schedule blocks and movement tracking.
+ * useTodayExecution — Central hook for the Dynamic Execution Engine.
+ * Replaces milestone-first logic with a TODAY-first, pillar-distributed system.
+ * 
+ * Core rules:
+ * - No "Week X" or milestone-first surfaces
+ * - Distributes across 13 pillars (Body / Mind / Arena coverage)
+ * - Tier-gated: Free=3-5 actions, Plus=full schedule, Apex=adaptive
+ * - Movement Score tracks daily compliance
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,23 +19,11 @@ export type TimeBlock = 'morning' | 'midday' | 'evening' | 'deepwork' | 'trainin
 export interface ScheduleSlot {
   id: string;
   timeBlock: TimeBlock;
-  startTime: string; // HH:MM
+  startTime: string;
   endTime: string;
-  label: string;
+  labelKey: string;
   actions: NowQueueItem[];
   status: 'upcoming' | 'active' | 'done' | 'skipped';
-}
-
-export interface TodayRunData {
-  id: string;
-  run_date: string;
-  mode: 'normal' | 'min_day';
-  movement_score: number;
-  body_covered: boolean;
-  mind_covered: boolean;
-  arena_covered: boolean;
-  actions_completed: number;
-  actions_total: number;
 }
 
 export interface UserSchedulePrefs {
@@ -39,99 +33,82 @@ export interface UserSchedulePrefs {
   focus_peak_end: string | null;
 }
 
-// Map queue items to time blocks based on action type
-function assignTimeBlock(item: NowQueueItem, hour: number): TimeBlock {
-  if (item.actionType.includes('morning') || item.actionType.includes('hydration')) return 'morning';
-  if (item.actionType.includes('training') || item.actionType.includes('strength') || item.actionType.includes('shadowboxing') || item.actionType.includes('footwork') || item.actionType.includes('combat')) return 'training';
-  if (item.actionType.includes('deep_work') || item.actionType.includes('focus') || item.actionType.includes('learning')) return 'deepwork';
-  if (item.actionType.includes('meditation') || item.actionType.includes('recovery') || item.actionType.includes('shutdown') || item.actionType.includes('sleep')) return 'recovery';
-  if (item.actionType.includes('business') || item.actionType.includes('money') || item.actionType.includes('project') || item.actionType.includes('influence')) return 'admin';
-  if (item.actionType.includes('relationship') || item.actionType.includes('presence')) return 'social';
-  if (item.actionType.includes('play')) return 'play';
-  // Time-based fallback
-  if (hour < 12) return 'morning';
-  if (hour < 17) return 'midday';
-  return 'evening';
+const BODY_PILLARS = ['vitality', 'power', 'combat'];
+const MIND_PILLARS = ['focus', 'consciousness', 'expansion'];
+const ARENA_PILLARS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play'];
+
+function assignTimeBlock(item: NowQueueItem): TimeBlock {
+  const t = item.actionType;
+  if (t.includes('morning') || t.includes('hydration')) return 'morning';
+  if (t.includes('training') || t.includes('strength') || t.includes('shadowboxing') || t.includes('footwork') || t.includes('combat')) return 'training';
+  if (t.includes('deep_work') || t.includes('focus') || t.includes('learning')) return 'deepwork';
+  if (t.includes('meditation') || t.includes('recovery') || t.includes('shutdown') || t.includes('sleep')) return 'recovery';
+  if (t.includes('business') || t.includes('money') || t.includes('project') || t.includes('influence')) return 'admin';
+  if (t.includes('relationship') || t.includes('presence')) return 'social';
+  if (t.includes('play')) return 'play';
+  return 'midday';
 }
 
-// Generate schedule from queue + preferences
-function buildSchedule(
-  queue: NowQueueItem[],
-  prefs: UserSchedulePrefs,
-  tier: string,
-  isHe: boolean,
-): ScheduleSlot[] {
+function getCurrentTimeStr(): string {
   const now = new Date();
-  const currentHour = now.getHours();
-  const currentMin = now.getMinutes();
-  const currentTimeStr = `${String(currentHour).padStart(2,'0')}:${String(currentMin).padStart(2,'0')}`;
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+}
 
-  const wakeH = parseInt(prefs.wake_time?.split(':')[0] || '6');
-  const sleepH = parseInt(prefs.sleep_time?.split(':')[0] || '23');
+function getSlotStatus(startTime: string, endTime: string): ScheduleSlot['status'] {
+  const current = getCurrentTimeStr();
+  if (current >= startTime && current < endTime) return 'active';
+  if (current >= endTime) return 'done';
+  return 'upcoming';
+}
 
-  // Free tier: 3 simple blocks
-  if (tier === 'clarity') {
-    const blocks: ScheduleSlot[] = [
-      { id: 'morning', timeBlock: 'morning', startTime: `${String(wakeH).padStart(2,'0')}:00`, endTime: '12:00', label: isHe ? '🌅 בוקר' : '🌅 Morning', actions: [], status: 'upcoming' },
-      { id: 'midday', timeBlock: 'midday', startTime: '12:00', endTime: '17:00', label: isHe ? '⚡ צהריים' : '⚡ Midday', actions: [], status: 'upcoming' },
-      { id: 'evening', timeBlock: 'evening', startTime: '17:00', endTime: `${String(sleepH).padStart(2,'0')}:00`, label: isHe ? '🌙 ערב' : '🌙 Evening', actions: [], status: 'upcoming' },
-    ];
+function buildFreeSchedule(queue: NowQueueItem[], wakeH: number, sleepH: number): ScheduleSlot[] {
+  const blocks: ScheduleSlot[] = [
+    { id: 'morning', timeBlock: 'morning', startTime: `${String(wakeH).padStart(2, '0')}:00`, endTime: '12:00', labelKey: 'today.morning', actions: [], status: 'upcoming' },
+    { id: 'midday', timeBlock: 'midday', startTime: '12:00', endTime: '17:00', labelKey: 'today.midday', actions: [], status: 'upcoming' },
+    { id: 'evening', timeBlock: 'evening', startTime: '17:00', endTime: `${String(sleepH).padStart(2, '0')}:00`, labelKey: 'today.evening', actions: [], status: 'upcoming' },
+  ];
+  queue.forEach((item, i) => blocks[i % 3].actions.push(item));
+  blocks.forEach(b => { b.status = getSlotStatus(b.startTime, b.endTime); });
+  return blocks;
+}
 
-    // Distribute queue items across blocks
-    queue.forEach((item, i) => {
-      const blockIdx = i % 3;
-      blocks[blockIdx].actions.push(item);
-    });
-
-    // Set active status
-    blocks.forEach(b => {
-      if (currentTimeStr >= b.startTime && currentTimeStr < b.endTime) b.status = 'active';
-      else if (currentTimeStr >= b.endTime) b.status = 'done';
-    });
-
-    return blocks;
-  }
-
-  // Plus/Apex: hourly blocks based on action types
+function buildFullSchedule(queue: NowQueueItem[], wakeH: number, sleepH: number): ScheduleSlot[] {
   const blockMap = new Map<TimeBlock, NowQueueItem[]>();
   queue.forEach(item => {
-    const block = assignTimeBlock(item, currentHour);
+    const block = assignTimeBlock(item);
     if (!blockMap.has(block)) blockMap.set(block, []);
     blockMap.get(block)!.push(item);
   });
 
-  const blockOrder: { key: TimeBlock; label: string; labelHe: string; startH: number; endH: number }[] = [
-    { key: 'morning', label: '🌅 Morning Routine', labelHe: '🌅 שגרת בוקר', startH: wakeH, endH: wakeH + 2 },
-    { key: 'training', label: '💪 Training', labelHe: '💪 אימון', startH: wakeH + 2, endH: wakeH + 3 },
-    { key: 'deepwork', label: '🎯 Deep Work', labelHe: '🎯 עבודה עמוקה', startH: wakeH + 3, endH: wakeH + 5 },
-    { key: 'admin', label: '📊 Business & Projects', labelHe: '📊 עסקים ופרויקטים', startH: wakeH + 5, endH: wakeH + 7 },
-    { key: 'midday', label: '⚡ Midday', labelHe: '⚡ צהריים', startH: 12, endH: 14 },
-    { key: 'social', label: '🤝 Relationships & Influence', labelHe: '🤝 קשרים והשפעה', startH: 17, endH: 19 },
-    { key: 'recovery', label: '🧘 Recovery & Reflection', labelHe: '🧘 התאוששות', startH: sleepH - 2, endH: sleepH },
-    { key: 'play', label: '🎮 Play', labelHe: '🎮 משחק', startH: 19, endH: 21 },
+  const blockDefs: { key: TimeBlock; labelKey: string; startH: number; endH: number }[] = [
+    { key: 'morning', labelKey: 'today.morning', startH: wakeH, endH: wakeH + 2 },
+    { key: 'training', labelKey: 'today.training', startH: wakeH + 2, endH: wakeH + 3 },
+    { key: 'deepwork', labelKey: 'today.deepWork', startH: wakeH + 3, endH: wakeH + 5 },
+    { key: 'admin', labelKey: 'today.businessProjects', startH: wakeH + 5, endH: wakeH + 7 },
+    { key: 'midday', labelKey: 'today.midday', startH: 12, endH: 14 },
+    { key: 'social', labelKey: 'today.relationships', startH: 17, endH: 19 },
+    { key: 'play', labelKey: 'today.play', startH: 19, endH: 21 },
+    { key: 'recovery', labelKey: 'today.recovery', startH: sleepH - 2, endH: sleepH },
   ];
 
   const slots: ScheduleSlot[] = [];
-  blockOrder.forEach(b => {
+  blockDefs.forEach(b => {
     const actions = blockMap.get(b.key) || [];
     if (actions.length === 0) return;
-    const startStr = `${String(Math.min(23, b.startH)).padStart(2,'0')}:00`;
-    const endStr = `${String(Math.min(23, b.endH)).padStart(2,'0')}:00`;
-    let status: ScheduleSlot['status'] = 'upcoming';
-    if (currentTimeStr >= startStr && currentTimeStr < endStr) status = 'active';
-    else if (currentTimeStr >= endStr) status = 'done';
+    const startStr = `${String(Math.min(23, b.startH)).padStart(2, '0')}:00`;
+    const endStr = `${String(Math.min(23, b.endH)).padStart(2, '0')}:00`;
     slots.push({
       id: b.key,
       timeBlock: b.key,
       startTime: startStr,
       endTime: endStr,
-      label: isHe ? b.labelHe : b.label,
+      labelKey: b.labelKey,
       actions,
-      status,
+      status: getSlotStatus(startStr, endStr),
     });
   });
 
-  // Add unassigned items to a generic midday block
+  // Unassigned items → midday
   const assigned = new Set(slots.flatMap(s => s.actions));
   const unassigned = queue.filter(q => !assigned.has(q));
   if (unassigned.length > 0) {
@@ -144,36 +121,25 @@ function buildSchedule(
         timeBlock: 'midday',
         startTime: '12:00',
         endTime: '14:00',
-        label: isHe ? '⚡ צהריים' : '⚡ Midday',
+        labelKey: 'today.midday',
         actions: unassigned,
-        status: currentTimeStr >= '12:00' && currentTimeStr < '14:00' ? 'active' : currentTimeStr >= '14:00' ? 'done' : 'upcoming',
+        status: getSlotStatus('12:00', '14:00'),
       });
     }
   }
 
-  // Sort by start time
   slots.sort((a, b) => a.startTime.localeCompare(b.startTime));
   return slots;
 }
 
-// Compute movement score
-function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>): {
-  score: number;
-  bodyCovered: boolean;
-  mindCovered: boolean;
-  arenaCovered: boolean;
-} {
-  const bodyPillars = ['vitality', 'power', 'combat'];
-  const mindPillars = ['focus', 'consciousness', 'expansion'];
-  const arenaPillars = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play'];
-
+function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>) {
   const completed = queue.filter(q => q.sourceId && completedIds.has(q.sourceId));
   const total = queue.length;
   const baseScore = total > 0 ? Math.round((completed.length / total) * 70) : 0;
 
-  const bodyCovered = queue.some(q => bodyPillars.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
-  const mindCovered = queue.some(q => mindPillars.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
-  const arenaCovered = queue.some(q => arenaPillars.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
+  const bodyCovered = queue.some(q => BODY_PILLARS.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
+  const mindCovered = queue.some(q => MIND_PILLARS.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
+  const arenaCovered = queue.some(q => ARENA_PILLARS.includes(q.pillarId) && q.sourceId && completedIds.has(q.sourceId));
 
   const coverageBonus = [bodyCovered, mindCovered, arenaCovered].filter(Boolean).length * 10;
 
@@ -188,10 +154,8 @@ function computeMovementScore(queue: NowQueueItem[], completedIds: Set<string>):
 export function useTodayExecution() {
   const { user } = useAuth();
   const { language } = useTranslation();
-  const isHe = language === 'he';
   const { queue, tier, maxActions, isLoading: queueLoading, refetch } = useNowEngine();
 
-  // Fetch user schedule preferences
   const { data: schedulePrefs } = useQuery({
     queryKey: ['schedule-prefs', user?.id],
     queryFn: async () => {
@@ -206,24 +170,8 @@ export function useTodayExecution() {
     staleTime: 10 * 60 * 1000,
   });
 
-  // Fetch today's run data
   const today = new Date().toISOString().slice(0, 10);
-  const { data: todayRun } = useQuery({
-    queryKey: ['today-run', user?.id, today],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('today_runs')
-        .select('*')
-        .eq('user_id', user!.id)
-        .eq('run_date', today)
-        .maybeSingle();
-      return data as TodayRunData | null;
-    },
-    enabled: !!user?.id,
-    staleTime: 30_000,
-  });
 
-  // Fetch completed action IDs for today
   const { data: completedIds = new Set<string>() } = useQuery({
     queryKey: ['completed-today', user?.id, today],
     queryFn: async () => {
@@ -241,53 +189,54 @@ export function useTodayExecution() {
   });
 
   const prefs = schedulePrefs || { wake_time: '06:30', sleep_time: '23:00', focus_peak_start: null, focus_peak_end: null };
+  const wakeH = parseInt(prefs.wake_time?.split(':')[0] || '6');
+  const sleepH = parseInt(prefs.sleep_time?.split(':')[0] || '23');
 
-  // Build schedule and movement score
-  const schedule = queue.length > 0 ? buildSchedule(queue, prefs, tier, isHe) : [];
+  // Build schedule based on tier
+  const isFree = tier === 'clarity';
+  const schedule = queue.length > 0
+    ? (isFree ? buildFreeSchedule(queue, wakeH, sleepH) : buildFullSchedule(queue, wakeH, sleepH))
+    : [];
+
   const movement = computeMovementScore(queue, completedIds);
 
   // Next action = first non-completed item
   const nextAction = queue.find(q => !q.sourceId || !completedIds.has(q.sourceId)) || null;
 
-  // Fallback plan (top 3 high-impact actions for min_day mode)
+  // Fallback plan (top 3 for min-day)
   const fallbackPlan = queue
     .filter(q => !q.sourceId || !completedIds.has(q.sourceId))
     .slice(0, 3);
 
-  // Check if we should auto-switch to minimum viable day
+  // Min-day mode detection
   const now = new Date();
-  const sleepH = parseInt(prefs.sleep_time?.split(':')[0] || '23');
   const hoursRemaining = Math.max(0, sleepH - now.getHours());
   const pendingActions = queue.filter(q => !q.sourceId || !completedIds.has(q.sourceId));
   const totalPendingMin = pendingActions.reduce((sum, a) => sum + a.durationMin, 0);
   const isMinDayMode = hoursRemaining * 60 < totalPendingMin && pendingActions.length > 3;
 
   return {
-    // Core data
     queue,
     nextAction,
     schedule,
     tier,
     maxActions,
+    isFree,
 
-    // Movement tracking
-    movementScore: todayRun?.movement_score ?? movement.score,
-    bodyCovered: todayRun?.body_covered ?? movement.bodyCovered,
-    mindCovered: todayRun?.mind_covered ?? movement.mindCovered,
-    arenaCovered: todayRun?.arena_covered ?? movement.arenaCovered,
+    movementScore: movement.score,
+    bodyCovered: movement.bodyCovered,
+    mindCovered: movement.mindCovered,
+    arenaCovered: movement.arenaCovered,
     actionsCompleted: completedIds.size,
     actionsTotal: queue.length,
 
-    // Mode
     isMinDayMode,
     fallbackPlan,
     hoursRemaining,
 
-    // Schedule prefs
     wakeTime: prefs.wake_time,
     sleepTime: prefs.sleep_time,
 
-    // State
     isLoading: queueLoading,
     refetch,
   };

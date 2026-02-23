@@ -1,10 +1,10 @@
 /**
  * TodayScheduleCard — Scrollable timeline showing time blocks with actions.
- * Free: 3 blocks (Morning/Midday/Evening)
- * Plus/Apex: Hourly blocks based on wake/sleep times
+ * Uses translation keys only. RTL-aware.
+ * Free: 3 blocks | Plus/Apex: hourly blocks
  */
 import { motion } from 'framer-motion';
-import { Clock, CheckCircle2, Play, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, Play, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ScheduleSlot } from '@/hooks/useTodayExecution';
@@ -18,9 +18,14 @@ interface TodayScheduleCardProps {
   onActionClick: (action: NowQueueItem) => void;
 }
 
+const BLOCK_EMOJIS: Record<string, string> = {
+  morning: '🌅', midday: '⚡', evening: '🌙',
+  training: '💪', deepwork: '🎯', admin: '📊',
+  social: '🤝', recovery: '🧘', play: '🎮',
+};
+
 export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCardProps) {
-  const { language, isRTL } = useTranslation();
-  const isHe = language === 'he';
+  const { t, isRTL } = useTranslation();
   const [expandedBlock, setExpandedBlock] = useState<string | null>(
     schedule.find(s => s.status === 'active')?.id || schedule[0]?.id || null
   );
@@ -32,7 +37,7 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
       <div className="flex items-center gap-2 px-1">
         <Clock className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-bold text-foreground">
-          {isHe ? 'לוח זמנים להיום' : "Today's Schedule"}
+          {t('today.schedule')}
         </h3>
       </div>
 
@@ -41,6 +46,7 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
           const isExpanded = expandedBlock === slot.id;
           const isActive = slot.status === 'active';
           const isDone = slot.status === 'done';
+          const emoji = BLOCK_EMOJIS[slot.timeBlock] || '📌';
 
           return (
             <motion.div
@@ -49,7 +55,6 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.04 }}
             >
-              {/* Block Header */}
               <button
                 onClick={() => setExpandedBlock(isExpanded ? null : slot.id)}
                 className={cn(
@@ -59,29 +64,25 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
                   !isActive && !isDone && 'border-border/30 bg-card/40 hover:border-border/50',
                 )}
               >
-                {/* Time indicator */}
                 <div className={cn(
-                  'flex-shrink-0 w-2 h-2 rounded-full',
+                  'shrink-0 w-2 h-2 rounded-full',
                   isActive && 'bg-primary animate-pulse',
                   isDone && 'bg-muted-foreground/30',
                   !isActive && !isDone && 'bg-muted-foreground/50',
                 )} />
 
-                {/* Time range */}
-                <span className="text-[11px] font-mono text-muted-foreground w-[85px] flex-shrink-0">
+                <span className="text-[11px] font-mono text-muted-foreground w-[85px] shrink-0">
                   {slot.startTime} – {slot.endTime}
                 </span>
 
-                {/* Label */}
                 <span className={cn(
                   'flex-1 text-sm font-medium',
                   isActive && 'text-primary',
                   isDone && 'line-through text-muted-foreground',
                 )}>
-                  {slot.label}
+                  {emoji} {t(slot.labelKey)}
                 </span>
 
-                {/* Action count */}
                 <Badge variant={isActive ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0">
                   {slot.actions.length}
                 </Badge>
@@ -93,7 +94,6 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
                 )}
               </button>
 
-              {/* Expanded Actions */}
               {isExpanded && slot.actions.length > 0 && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
@@ -110,16 +110,16 @@ export function TodayScheduleCard({ schedule, onActionClick }: TodayScheduleCard
                         onClick={() => onActionClick(action)}
                         className="w-full flex items-center gap-2.5 p-2.5 rounded-lg bg-card/30 border border-border/20 hover:border-primary/30 hover:bg-accent/5 transition-all text-start group"
                       >
-                        {DomainIcon && <DomainIcon className="w-4 h-4 text-muted-foreground/60 flex-shrink-0" />}
+                        {DomainIcon && <DomainIcon className="w-4 h-4 text-muted-foreground/60 shrink-0" />}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{isHe ? action.title : action.titleEn}</p>
+                          <p className="text-sm font-medium truncate">{isRTL ? action.title : action.titleEn}</p>
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <Clock className="w-2.5 h-2.5" />
-                            {action.durationMin} {isHe ? 'דק׳' : 'min'}
+                            {action.durationMin} {t('today.minutesShort')}
                           </span>
                         </div>
                         <Play className={cn(
-                          "w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors flex-shrink-0",
+                          "w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors shrink-0",
                           isRTL && "rotate-180"
                         )} />
                       </button>
