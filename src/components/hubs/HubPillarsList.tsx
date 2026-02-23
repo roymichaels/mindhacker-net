@@ -1,6 +1,6 @@
 /**
- * HubPillarsList — Grid of pillar cards, each with 90-day goal lists.
- * Sources goals from strategy weeks + life_plan_milestones.
+ * HubPillarsList — Grid of pillar cards with 90-day goals.
+ * Sources goals from strategy pillars data + life_plan_milestones.
  */
 import { useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Target } from 'lucide-react';
 
 const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
@@ -68,14 +68,14 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
     ? (isHe ? 'תחומי הליבה' : 'Core Pillars')
     : (isHe ? 'תחומי הזירה' : 'Arena Pillars');
 
-  // Fetch milestones for this plan
+  // Fetch milestones for this plan (now stored as pillar goals)
   const { data: milestones } = useQuery({
     queryKey: ['plan-milestones', plan?.id],
     queryFn: async () => {
       if (!plan?.id) return [];
       const { data, error } = await supabase
         .from('life_plan_milestones')
-        .select('focus_area, focus_area_en, title, title_en, goal, goal_en, week_number')
+        .select('focus_area, focus_area_en, title, title_en, goal, goal_en, tasks, tasks_en, week_number')
         .eq('plan_id', plan.id)
         .order('week_number');
       if (error) throw error;
@@ -85,39 +85,43 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Also fetch milestones from ANY active plan if no hub-specific plan exists
-  const { data: allMilestones } = useQuery({
-    queryKey: ['all-plan-milestones', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const { data: plans } = await supabase
-        .from('life_plans')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('status', 'active');
-      if (!plans?.length) return [];
-      const planIds = plans.map(p => p.id);
-      const { data, error } = await supabase
-        .from('life_plan_milestones')
-        .select('focus_area, focus_area_en, title, title_en, goal, goal_en, week_number')
-        .in('plan_id', planIds)
-        .order('week_number');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!user?.id && !plan?.id,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const effectiveMilestones = milestones || allMilestones || [];
-
-  // Build goals per pillar from strategy weeks + milestones
+  // Build goals per pillar from strategy pillars data OR milestones
   const pillarGoals = useMemo(() => {
-    const grouped: Record<string, string[]> = {};
+    const grouped: Record<string, { goal: string; milestones: string[] }[]> = {};
     const domainIds = domains.map(d => d.id);
 
-    // Source 1: Strategy weeks
-    if (strategy?.weeks) {
+    // Source 1: strategy.pillars (new structure)
+    const pillarsData = strategy?.pillars as Record<string, { goals: any[] }> | undefined;
+    if (pillarsData) {
+      for (const [pillarId, pillarObj] of Object.entries(pillarsData)) {
+        if (!domainIds.includes(pillarId)) continue;
+        if (!grouped[pillarId]) grouped[pillarId] = [];
+        for (const g of (pillarObj?.goals || [])) {
+          grouped[pillarId].push({
+            goal: isHe ? (g.goal_he || g.goal_en) : (g.goal_en || g.goal_he),
+            milestones: isHe ? (g.milestones_he || []) : (g.milestones_en || []),
+          });
+        }
+      }
+    }
+
+    // Source 2: milestones from DB (works for both old weekly and new pillar structure)
+    if (milestones?.length && Object.keys(grouped).length === 0) {
+      for (const ms of milestones) {
+        const focusArea = (ms.focus_area || '').trim().toLowerCase();
+        if (!domainIds.includes(focusArea)) continue;
+        if (!grouped[focusArea]) grouped[focusArea] = [];
+        const goalText = isHe ? (ms.goal || ms.title) : (ms.goal_en || ms.title_en || ms.goal || ms.title);
+        const msItems = isHe ? (ms.tasks as string[] || []) : (ms.tasks_en as string[] || ms.tasks as string[] || []);
+        grouped[focusArea].push({
+          goal: goalText,
+          milestones: msItems,
+        });
+      }
+    }
+
+    // Legacy fallback: strategy.weeks (old structure)
+    if (strategy?.weeks && Object.keys(grouped).length === 0) {
       for (const week of strategy.weeks) {
         const goals = isHe ? week.goals_he : week.goals_en;
         if (!goals?.length || !week.pillar_focus?.length) continue;
@@ -125,43 +129,19 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           if (!domainIds.includes(pillar)) continue;
           if (!grouped[pillar]) grouped[pillar] = [];
           const theme = isHe ? week.theme_he : week.theme_en;
-          if (theme && !grouped[pillar].includes(theme)) {
-            grouped[pillar].push(theme);
-          }
-        }
-        for (const da of week.daily_actions || []) {
-          if (!da.pillar || !domainIds.includes(da.pillar)) continue;
-          if (!grouped[da.pillar]) grouped[da.pillar] = [];
-          const short = (isHe ? da.action_he : da.action_en).split('.')[0].split('(')[0].trim();
-          if (short && !grouped[da.pillar].some(g => g === short)) {
-            grouped[da.pillar].push(short);
+          if (theme && !grouped[pillar].some(g => g.goal === theme)) {
+            grouped[pillar].push({ goal: theme, milestones: [] });
           }
         }
       }
     }
 
-    // Source 2: Milestones (focus_area is comma-separated pillar names)
-    for (const ms of effectiveMilestones) {
-      const focusAreas = (ms.focus_area || '').split(',').map((s: string) => s.trim().toLowerCase());
-      for (const area of focusAreas) {
-        if (!domainIds.includes(area)) continue;
-        if (!grouped[area]) grouped[area] = [];
-        const title = isHe ? ms.title : (ms.title_en || ms.title);
-        const goal = isHe ? ms.goal : (ms.goal_en || ms.goal);
-        if (goal && !grouped[area].includes(goal)) {
-          grouped[area].push(goal);
-        } else if (title && !grouped[area].includes(title)) {
-          grouped[area].push(title);
-        }
-      }
-    }
-
-    // Deduplicate and limit
+    // Limit to 10 goals per pillar
     for (const key of Object.keys(grouped)) {
-      grouped[key] = [...new Set(grouped[key])].slice(0, 8);
+      grouped[key] = grouped[key].slice(0, 10);
     }
     return grouped;
-  }, [strategy, effectiveMilestones, isHe, domains]);
+  }, [strategy, milestones, isHe, domains]);
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
@@ -169,13 +149,8 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
     <div>
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
         {sectionTitle}
-        {generateStrategy.isPending && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60 font-normal normal-case ml-2">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            {isHe ? 'מייצר תוכנית 90 יום...' : 'Generating 90-day plan...'}
-          </span>
-        )}
       </h3>
+
       {generateStrategy.isPending && (
         <div className="flex flex-col items-center justify-center py-10 gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -184,6 +159,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           </p>
         </div>
       )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {domains.map((domain, i) => {
           const status = statusMap[domain.id] ?? 'unconfigured';
@@ -215,17 +191,29 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
                     {isHe ? domain.descriptionHe : domain.description}
                   </p>
                 </div>
+                {goals.length > 0 && (
+                  <span className="text-[10px] text-muted-foreground/50 shrink-0">
+                    {goals.length} {isHe ? 'מטרות' : 'goals'}
+                  </span>
+                )}
                 {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                 <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
               </button>
 
               {goals.length > 0 && (
                 <div className="px-3 pb-3 pt-0 border-t border-border/20">
-                  <ul className="mt-2 space-y-1">
-                    {goals.map((goal, gi) => (
+                  <ul className="mt-2 space-y-1.5">
+                    {goals.map((g, gi) => (
                       <li key={gi} className="flex items-start gap-2 text-[11px] text-foreground/70 leading-relaxed">
-                        <span className={cn('w-1.5 h-1.5 rounded-full shrink-0 mt-1.5', dotColorMap[domain.color])} />
-                        <span className="line-clamp-2">{goal}</span>
+                        <Target className={cn('w-3 h-3 shrink-0 mt-0.5', domainColorMap[domain.color])} />
+                        <div className="min-w-0">
+                          <span className="line-clamp-1 font-medium">{g.goal}</span>
+                          {g.milestones.length > 0 && (
+                            <span className="text-[10px] text-muted-foreground/50">
+                              {g.milestones.length} {isHe ? 'אבני דרך' : 'milestones'}
+                            </span>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>

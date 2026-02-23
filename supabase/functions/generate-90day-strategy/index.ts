@@ -5,9 +5,10 @@ import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/co
 /**
  * generate-90day-strategy
  * 
- * Reads all pillar assessments, user projects, businesses, Aurora conversation
- * memory, and onboarding data to generate a hyper-specific 90-day strategic plan.
- * Uses Lovable AI gateway. Stores result in life_plans + life_plan_milestones.
+ * Generates a pillar-based 90-day plan:
+ * - Per pillar: 10 goals
+ * - Per goal: 10 milestones
+ * Stores in life_plans (plan_data) + life_plan_milestones.
  */
 
 const CORE_PILLAR_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
@@ -36,48 +37,42 @@ function buildStrategyPrompt(
       return `### ${a.domain_id.toUpperCase()} (score: ${latest?.overallScore ?? '?'}/100)
 Mirror: ${latest?.mirrorStatement || 'N/A'}
 Subsystems: ${JSON.stringify(latest?.subsystems || latest?.subScores || {}, null, 1)}
-Findings: ${JSON.stringify(latest?.findings?.slice(0, 5) || [], null, 1)}
+Findings: ${JSON.stringify(latest?.findings?.slice(0, 3) || [], null, 1)}
 Next Step: ${latest?.nextStep || 'N/A'}
-Key Form Data: ${JSON.stringify(formData, null, 1).slice(0, 1500)}`;
+Form Data: ${JSON.stringify(formData, null, 1).slice(0, 800)}`;
     })
     .join('\n\n');
 
-  // Projects detail
   const projectsSection = userProjects.length > 0
     ? userProjects.map(p => `- "${p.name}" (${p.status}) — ${p.description || 'no description'}. Pillar: ${p.life_pillar || 'general'}. Goals: ${JSON.stringify(p.goals || [])}`).join('\n')
     : 'No active projects.';
 
-  // Business detail
   const businessSection = userBusinesses.length > 0
     ? userBusinesses.map(b => {
         const vision = b.step_1_vision;
-        return `- "${b.business_name || 'Unnamed Business'}" (step ${b.current_step}/10, ${b.journey_complete ? 'complete' : 'in progress'})
-  Vision: ${JSON.stringify(vision || {}).slice(0, 500)}
-  Model: ${JSON.stringify(b.step_2_business_model || {}).slice(0, 300)}
+        return `- "${b.business_name || 'Unnamed'}" (step ${b.current_step}/10)
+  Vision: ${JSON.stringify(vision || {}).slice(0, 400)}
   Marketing: ${JSON.stringify(b.step_8_marketing || {}).slice(0, 300)}`;
       }).join('\n')
     : 'No businesses configured.';
 
-  // Aurora memory (recent insights)
   const memorySection = auroraMemory.length > 0
-    ? auroraMemory.map(m => `- [${m.emotional_state || 'neutral'}] ${m.summary}. Topics: ${(m.key_topics || []).join(', ')}. Actions: ${(m.action_items || []).join(', ')}`).join('\n')
+    ? auroraMemory.slice(0, 10).map(m => `- [${m.emotional_state || 'neutral'}] ${m.summary}. Topics: ${(m.key_topics || []).join(', ')}`).join('\n')
     : 'No conversation memory.';
 
   const hubLabel = hub === 'core' ? 'Core (Internal Development)' : 'Arena (External Execution)';
-  const pillars = hub === 'core' 
-    ? 'Consciousness, Presence/Image, Power, Vitality, Focus, Combat, Expansion'
-    : 'Wealth, Influence, Relationships, Business, Projects, Play';
+  const pillarIds = hub === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
 
-  return `You are Aurora, an elite life transformation AI architect. You know EVERYTHING about this user — their projects, businesses, habits, struggles, and goals. Generate a hyper-specific, personalized 90-day strategic plan for their ${hubLabel} hub.
+  return `You are Aurora, an elite life transformation AI. Generate a 90-day strategic plan organized BY PILLAR for the user's ${hubLabel} hub.
 
 ## USER IDENTITY
 Name: ${profileData?.name || 'Unknown'}
 Level: ${profileData?.level || 1}
 Intention: ${JSON.stringify(profileData?.intention || 'Not set')}
-Lifestyle Data: ${JSON.stringify(profileData?.lifestyle || {}).slice(0, 800)}
-Profile Data: ${JSON.stringify(profileData?.profile || {}).slice(0, 800)}
+Lifestyle: ${JSON.stringify(profileData?.lifestyle || {}).slice(0, 600)}
+Profile: ${JSON.stringify(profileData?.profile || {}).slice(0, 600)}
 
-## PILLAR ASSESSMENTS (DETAILED)
+## PILLAR ASSESSMENTS
 ${pillarSummaries || 'No assessments completed yet.'}
 
 ## USER'S ACTIVE PROJECTS
@@ -86,58 +81,45 @@ ${projectsSection}
 ## USER'S BUSINESSES
 ${businessSection}
 
-## AURORA'S MEMORY (Recent Conversations & Insights)
+## AURORA'S MEMORY
 ${memorySection}
 
-## PILLARS IN THIS HUB: ${pillars}
+## PILLARS TO GENERATE: ${JSON.stringify(pillarIds)}
 
-## CRITICAL RULES — READ CAREFULLY:
-1. Create exactly 12 weekly milestones (4 weeks × 3 months).
-2. Each week must have 5-9 daily_actions that are ULTRA-SPECIFIC.
-3. NEVER write generic actions like "Deep Work Block", "Work on project", "Business Strategy Step", "Revenue Action".
-4. Instead, reference the user's ACTUAL projects and businesses BY NAME.
-   - BAD: "ביצוע פרויקט — משימה הבאה" 
-   - GOOD: "MindOS — לבנות את דף הנחיתה למודול ההיפנוזה"
-   - BAD: "בלוק עבודה עמוקה — 45 דקות"
-   - GOOD: "כתיבת 3 מאמרי SEO לבלוג של [שם העסק]"
-   - BAD: "פעולת הכנסה — חשבונית / פנייה"
-   - GOOD: "שליחת 5 הצעות מחיר ללקוחות פוטנציאליים ב-[ענף]"
-5. Use progressive intensity: weeks 1-4 foundation, 5-8 building, 9-12 integration.
-6. Every pillar must appear at least once per 3 weeks.
-7. Reference specific assessment findings — if sleep is poor, include specific sleep protocols; if combat training exists, reference the actual martial art.
-8. If user has specific fitness goals from assessments, reference actual exercises, weights, routines.
-9. Be a SPECIFIC STRATEGIST, not a template generator.
+## STRUCTURE — CRITICAL:
+For EACH pillar above, generate exactly 10 GOALS for the next 90 days.
+For EACH goal, generate exactly 10 MILESTONES (concrete checkpoints/deliverables).
+
+## RULES:
+1. Goals must be SPECIFIC and MEASURABLE — not generic motivational phrases.
+2. Milestones must be ACTIONABLE steps that clearly lead to the goal.
+3. Reference the user's ACTUAL projects and businesses BY NAME.
+4. Reference assessment data: if sleep score is low, include specific sleep goals; if combat training exists, reference the actual discipline.
+5. Progressive difficulty: early milestones are foundational, later ones are advanced.
+6. Both Hebrew and English for all text. Hebrew must be natural, not literal translation.
 
 ## OUTPUT FORMAT (JSON only, no markdown fences):
 {
   "hub": "${hub}",
-  "title_en": "...",
-  "title_he": "...",
-  "vision_en": "One concrete, measurable 90-day vision",
+  "title_en": "90-Day ${hubLabel} Plan",
+  "title_he": "תוכנית 90 יום — ${hub === 'core' ? 'ליבה' : 'זירה'}",
+  "vision_en": "One concrete measurable 90-day vision statement",
   "vision_he": "...",
-  "weeks": [
-    {
-      "week": 1,
-      "theme_en": "Foundation — [specific theme based on user's situation]",
-      "theme_he": "...",
-      "intensity": "medium",
-      "pillar_focus": ["vitality", "focus", "consciousness"],
-      "goals_en": ["Specific measurable goal 1", "Specific measurable goal 2"],
-      "goals_he": ["..."],
-      "daily_actions": [
-        { "pillar": "vitality", "action_en": "Morning Sunlight Walk — 10 min before 8am", "action_he": "הליכת אור בוקר — 10 דקות לפני 8 בבוקר", "duration_min": 10, "block_type": "body" },
-        { "pillar": "projects", "action_en": "[Actual project name] — [Specific deliverable]", "action_he": "[שם פרויקט אמיתי] — [תוצר ספציפי]", "duration_min": 30, "block_type": "arena" }
+  "pillars": {
+    "${pillarIds[0]}": {
+      "goals": [
+        {
+          "goal_en": "Specific measurable goal",
+          "goal_he": "מטרה ספציפית מדידה",
+          "milestones_en": ["Step 1", "Step 2", "...", "Step 10"],
+          "milestones_he": ["צעד 1", "צעד 2", "...", "צעד 10"]
+        }
       ]
     }
-  ]
+  }
 }
 
-Generate all 12 weeks. Each week should have 5-9 daily_actions.
-block_type must be one of: body, mind, arena.
-For Core hub: body=Power/Vitality/Combat, mind=Focus/Consciousness/Expansion, arena=Presence
-For Arena hub: arena=all Arena pillars
-
-Language: Provide BOTH English and Hebrew for all text fields. Hebrew must be natural and specific, not a literal translation.`;
+Generate ALL ${pillarIds.length} pillars, each with exactly 10 goals, each goal with exactly 10 milestones.`;
 }
 
 serve(async (req) => {
@@ -181,7 +163,7 @@ serve(async (req) => {
       }
     }
 
-    // Fetch ALL user data in parallel for maximum context
+    // Fetch ALL user data in parallel
     const [domainsRes, profileRes, launchpadRes, projectsRes, businessRes, memoryRes] = await Promise.all([
       supabase.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id),
       supabase.from('profiles').select('full_name, display_name, level, experience').eq('id', user_id).single(),
@@ -206,7 +188,7 @@ serve(async (req) => {
       profile: launchpad.step_2_profile_data,
     };
 
-    // Always archive old active plans and clean up their action items
+    // Archive old active plans and clean up their action items
     const { data: oldActivePlans } = await supabase
       .from('life_plans')
       .select('id')
@@ -216,23 +198,23 @@ serve(async (req) => {
     const oldPlanIds = (oldActivePlans || []).map((p: any) => p.id);
     if (oldPlanIds.length > 0) {
       await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', oldPlanIds);
+      await supabase.from('life_plan_milestones').delete().in('plan_id', oldPlanIds);
       await supabase.from('life_plans').update({ status: 'archived' }).in('id', oldPlanIds);
     }
 
-    // Also clean up orphaned plan-generated action items
+    // Clean up orphaned plan-generated action items
     await supabase
       .from('action_items')
       .delete()
       .eq('user_id', user_id)
       .is('plan_id', null)
-      .in('source', ['plan', 'aurora', 'user'])
+      .in('source', ['plan', 'aurora'])
       .in('type', ['habit', 'task'])
       .neq('status', 'done');
 
     const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
     const results: any[] = [];
 
-    // Use Lovable AI gateway
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     for (const h of hubsToGenerate) {
@@ -256,7 +238,7 @@ serve(async (req) => {
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
             messages: [
-              { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual projects, businesses, and assessment data by name." },
+              { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual projects, businesses, and assessment data by name. Generate the FULL structure as requested with ALL pillars, ALL 10 goals per pillar, and ALL 10 milestones per goal." },
               { role: "user", content: prompt },
             ],
           }),
@@ -303,63 +285,50 @@ serve(async (req) => {
         continue;
       }
 
-      // Generate milestones from the weeks data
-      const weeks = strategyData?.weeks || [];
-      const milestones = weeks.map((w: any) => ({
-        plan_id: plan.id,
-        week_number: w.week,
-        month_number: Math.ceil(w.week / 4),
-        title: w.theme_he || `שבוע ${w.week}`,
-        title_en: w.theme_en || `Week ${w.week}`,
-        description: (w.goals_he || []).join(' | '),
-        description_en: (w.goals_en || []).join(' | '),
-        goal: (w.goals_he || [])[0] || null,
-        goal_en: (w.goals_en || [])[0] || null,
-        focus_area: (w.pillar_focus || []).join(', '),
-        tasks: (w.daily_actions || []).map((a: any) => a.action_he || a.action_en),
-        tasks_en: (w.daily_actions || []).map((a: any) => a.action_en || a.action_he),
-        is_completed: false,
-        xp_reward: 50,
-        tokens_reward: 10,
-        start_date: null,
-        end_date: null,
-      }));
+      // Generate life_plan_milestones from the pillar-based goals structure
+      // Each goal becomes a milestone row; sub-milestones stored in tasks/tasks_en
+      const pillarsData = strategyData?.pillars || {};
+      const milestoneRows: any[] = [];
+      let goalIndex = 0;
 
-      if (milestones.length > 0) {
-        const { error: milestoneError } = await supabase
-          .from('life_plan_milestones')
-          .insert(milestones);
-        if (milestoneError) console.error("Milestone insert error:", milestoneError);
+      for (const [pillarId, pillarObj] of Object.entries(pillarsData)) {
+        const goals = (pillarObj as any)?.goals || [];
+        goals.forEach((goal: any, gi: number) => {
+          milestoneRows.push({
+            plan_id: plan.id,
+            week_number: gi + 1, // reuse week_number as goal_index (1-10)
+            month_number: Math.ceil((gi + 1) / 4),
+            title: goal.goal_he || goal.goal_en,
+            title_en: goal.goal_en || goal.goal_he,
+            description: (goal.milestones_he || []).join(' | '),
+            description_en: (goal.milestones_en || []).join(' | '),
+            goal: goal.goal_he || goal.goal_en,
+            goal_en: goal.goal_en || goal.goal_he,
+            focus_area: pillarId,
+            focus_area_en: pillarId,
+            tasks: goal.milestones_he || [],
+            tasks_en: goal.milestones_en || [],
+            is_completed: false,
+            xp_reward: 50,
+            tokens_reward: 10,
+          });
+          goalIndex++;
+        });
       }
 
-      // Create action_items for the current week's daily actions
-      const currentWeekData = weeks.find((w: any) => w.week === 1);
-      if (currentWeekData?.daily_actions) {
-        const today = new Date().toISOString().split('T')[0];
-        const actionItems = currentWeekData.daily_actions.map((action: any, idx: number) => ({
-          user_id,
-          plan_id: plan.id,
-          title: action.action_he || action.action_en,
-          description: action.action_en,
-          type: 'task',
-          source: 'plan',
-          status: 'pending',
-          pillar: action.pillar,
-          time_block: action.block_type,
-          scheduled_date: today,
-          order_index: idx,
-          xp_reward: 10,
-          token_reward: 2,
-          metadata: { duration_min: action.duration_min, strategy_week: 1 },
-        }));
-
-        const { error: actionError } = await supabase
-          .from('action_items')
-          .insert(actionItems);
-        if (actionError) console.error("Action items insert error:", actionError);
+      if (milestoneRows.length > 0) {
+        // Insert in batches to avoid payload limits
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < milestoneRows.length; i += BATCH_SIZE) {
+          const batch = milestoneRows.slice(i, i + BATCH_SIZE);
+          const { error: milestoneError } = await supabase
+            .from('life_plan_milestones')
+            .insert(batch);
+          if (milestoneError) console.error("Milestone insert error:", milestoneError);
+        }
       }
 
-      results.push({ hub: h, plan_id: plan.id, strategy: strategyData });
+      results.push({ hub: h, plan_id: plan.id, goals_count: milestoneRows.length });
     }
 
     return new Response(
@@ -375,50 +344,39 @@ serve(async (req) => {
   }
 });
 
-// Fallback strategy — still tries to be specific using real user data
+// Fallback strategy — pillar-based structure
 function buildFallbackStrategy(hub: 'core' | 'arena', projects: any[] = [], businesses: any[] = []) {
+  const pillarIds = hub === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
   const projectNames = projects.map(p => p.name).filter(Boolean);
   const businessNames = businesses.map(b => b.business_name).filter(Boolean);
 
-  const coreActions = [
-    { pillar: 'vitality', action_en: 'Morning Sunlight Walk — 10 min before 8am', action_he: 'הליכת אור בוקר — 10 דקות לפני 8 בבוקר', duration_min: 10, block_type: 'body' },
-    { pillar: 'power', action_en: 'Strength Training — Upper Body Compound Movements', action_he: 'אימון כוח — תרגילים מורכבים פלג גוף עליון', duration_min: 40, block_type: 'body' },
-    { pillar: 'combat', action_en: 'Combat Training — 3 Rounds Shadowboxing + Footwork', action_he: 'אימון לחימה — 3 סיבובי צללים + עבודת רגליים', duration_min: 20, block_type: 'body' },
-    { pillar: 'focus', action_en: projectNames[0] ? `Deep Work on ${projectNames[0]} — Core feature build` : 'Focused Deep Work — Single priority task', action_he: projectNames[0] ? `עבודה ממוקדת על ${projectNames[0]} — בניית פיצ'ר מרכזי` : 'עבודה ממוקדת — משימת עדיפות בודדת', duration_min: 45, block_type: 'mind' },
-    { pillar: 'consciousness', action_en: 'Meditation & Self-Awareness — 15 min', action_he: 'מדיטציה ומודעות עצמית — 15 דקות', duration_min: 15, block_type: 'mind' },
-    { pillar: 'expansion', action_en: 'Learning Block — Read 20 pages or study skill', action_he: 'בלוק למידה — קריאת 20 עמודים או לימוד מיומנות', duration_min: 30, block_type: 'mind' },
-    { pillar: 'presence', action_en: 'Grooming & Style — Daily appearance check', action_he: 'טיפוח וסגנון — בדיקת מראה יומית', duration_min: 10, block_type: 'mind' },
-    { pillar: 'vitality', action_en: 'Evening Shutdown Protocol — No screens after 21:00', action_he: 'פרוטוקול כיבוי ערב — ללא מסכים אחרי 21:00', duration_min: 15, block_type: 'body' },
-  ];
+  const pillars: Record<string, { goals: any[] }> = {};
 
-  const arenaActions = [
-    { pillar: 'wealth', action_en: businessNames[0] ? `${businessNames[0]} — Send 5 outreach messages` : 'Revenue Action — Send 5 client outreach messages', action_he: businessNames[0] ? `${businessNames[0]} — שליחת 5 הודעות פנייה` : 'פעולת הכנסה — שליחת 5 הודעות ללקוחות', duration_min: 25, block_type: 'arena' },
-    { pillar: 'business', action_en: businessNames[0] ? `${businessNames[0]} — Execute next business milestone` : 'Business Strategy — Complete next milestone', action_he: businessNames[0] ? `${businessNames[0]} — ביצוע אבן דרך עסקית` : 'אסטרטגיה עסקית — השלמת אבן דרך', duration_min: 30, block_type: 'arena' },
-    { pillar: 'projects', action_en: projectNames[0] ? `${projectNames[0]} — Build next deliverable` : 'Project Execution — Complete next deliverable', action_he: projectNames[0] ? `${projectNames[0]} — בניית התוצר הבא` : 'ביצוע פרויקט — השלמת התוצר הבא', duration_min: 25, block_type: 'arena' },
-    { pillar: 'influence', action_en: 'Content Creation — Write & publish 1 post', action_he: 'יצירת תוכן — כתיבה ופרסום פוסט אחד', duration_min: 20, block_type: 'arena' },
-    { pillar: 'relationships', action_en: 'Meaningful Connection — Call or meet 1 person', action_he: 'קשר משמעותי — שיחה או פגישה עם אדם אחד', duration_min: 15, block_type: 'arena' },
-    { pillar: 'play', action_en: 'Play Session — Physical activity or creative hobby', action_he: 'זמן משחק — פעילות גופנית או תחביב יצירתי', duration_min: 30, block_type: 'arena' },
-  ];
-
-  const actions = hub === 'core' ? coreActions : arenaActions;
-  const phases = ['foundation', 'building', 'integration'];
-  const intensities = ['medium', 'medium', 'high', 'medium', 'high', 'medium', 'light', 'medium', 'high', 'high', 'medium', 'light'];
+  for (const pillarId of pillarIds) {
+    const goals: any[] = [];
+    for (let g = 0; g < 10; g++) {
+      const milestones_en: string[] = [];
+      const milestones_he: string[] = [];
+      for (let m = 0; m < 10; m++) {
+        milestones_en.push(`${pillarId} goal ${g + 1} — milestone ${m + 1}`);
+        milestones_he.push(`${pillarId} מטרה ${g + 1} — אבן דרך ${m + 1}`);
+      }
+      goals.push({
+        goal_en: `${pillarId.charAt(0).toUpperCase() + pillarId.slice(1)} — Goal ${g + 1} for 90 days`,
+        goal_he: `${pillarId} — מטרה ${g + 1} ל-90 יום`,
+        milestones_en,
+        milestones_he,
+      });
+    }
+    pillars[pillarId] = { goals };
+  }
 
   return {
     hub,
     title_en: hub === 'core' ? '90-Day Core Transformation' : '90-Day Arena Execution',
     title_he: hub === 'core' ? 'טרנספורמציה פנימית — 90 יום' : 'ביצוע בזירה — 90 יום',
     vision_en: hub === 'core' ? 'Build unshakable daily systems for body, mind, and identity.' : 'Create momentum in wealth, influence, and external impact.',
-    vision_he: hub === 'core' ? 'בנה מערכות יומיות בלתי ניתנות לערעור לגוף, נפש וזהות.' : 'צור מומנטום בעושר, השפעה והשפעה חיצונית.',
-    weeks: Array.from({ length: 12 }, (_, i) => ({
-      week: i + 1,
-      theme_en: `${phases[Math.floor(i / 4)].charAt(0).toUpperCase() + phases[Math.floor(i / 4)].slice(1)} Phase — Week ${i + 1}`,
-      theme_he: `שלב ${phases[Math.floor(i / 4)] === 'foundation' ? 'יסודות' : phases[Math.floor(i / 4)] === 'building' ? 'בנייה' : 'אינטגרציה'} — שבוע ${i + 1}`,
-      intensity: intensities[i],
-      pillar_focus: actions.slice(0, 3 + (i % 3)).map(a => a.pillar),
-      goals_en: [`Week ${i + 1} milestone — progressive overload`],
-      goals_he: [`אבן דרך שבוע ${i + 1} — עומס מתקדם`],
-      daily_actions: actions.slice(0, 5 + Math.min(4, Math.floor(i / 3))),
-    })),
+    vision_he: hub === 'core' ? 'בנה מערכות יומיות בלתי ניתנות לערעור.' : 'צור מומנטום בעושר, השפעה והשפעה חיצונית.',
+    pillars,
   };
 }
