@@ -1,10 +1,9 @@
 import { Suspense, lazy, useState } from 'react';
-import { PageSkeleton } from '@/components/ui/skeleton';
 import { useCoachSidebars } from '@/pages/Coaches';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSidebars } from '@/hooks/useSidebars';
 
-const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 const Coaches = lazy(() => import('@/pages/Coaches'));
 
 export default function CoachesLayoutWrapper() {
@@ -13,7 +12,7 @@ export default function CoachesLayoutWrapper() {
   const { hasRole, loading } = useUserRoles();
   const { user } = useAuth();
   const isPractitioner = !loading && user && hasRole('practitioner');
-  
+
   const handleTabChange = (tab: string) => {
     setSelectedClientId(null);
     setActiveTab(tab);
@@ -26,26 +25,26 @@ export default function CoachesLayoutWrapper() {
     handleTabChange,
   );
 
-  // For non-coaches, render without DashboardLayout sidebars (clean landing page)
+  useSidebars(
+    !loading && !isPractitioner ? null : leftSidebar,
+    !loading && !isPractitioner ? null : rightSidebar
+  );
+
   if (!loading && !isPractitioner) {
     return (
-      <Suspense fallback={<PageSkeleton />}>
-        <DashboardLayout leftSidebar={null} rightSidebar={null}>
-          <Coaches />
-        </DashboardLayout>
+      <Suspense fallback={null}>
+        <Coaches />
       </Suspense>
     );
   }
 
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <DashboardLayout leftSidebar={leftSidebar} rightSidebar={rightSidebar}>
-        <Coaches
-          selectedClientId={selectedClientId}
-          onClearClient={() => setSelectedClientId(null)}
-          activeTab={activeTab}
-        />
-      </DashboardLayout>
+    <Suspense fallback={null}>
+      <Coaches
+        selectedClientId={selectedClientId}
+        onClearClient={() => setSelectedClientId(null)}
+        activeTab={activeTab}
+      />
     </Suspense>
   );
 }

@@ -1,38 +1,26 @@
 /**
- * LifeLayoutWrapper - Wraps LifeHub with sidebar-driven layout.
+ * LifeLayoutWrapper - Sets sidebars for the Life hub.
  * Core hub is OPEN to all tiers (assessment for Free, full depth for Plus+).
  */
 import { Suspense, lazy } from 'react';
-import { PageSkeleton } from '@/components/ui/skeleton';
 import { LifeHudSidebar } from '@/components/life/LifeHudSidebar';
 import { LifeActivitySidebar } from '@/components/life/LifeActivitySidebar';
 import { useLaunchpadProgress } from '@/hooks/useLaunchpadProgress';
+import { useSidebars } from '@/hooks/useSidebars';
 
-const DashboardLayout = lazy(() => import('@/components/dashboard/DashboardLayout'));
 const LifeHub = lazy(() => import('@/pages/LifeHub'));
 
 export default function LifeLayoutWrapper() {
   const { isLaunchpadComplete } = useLaunchpadProgress();
 
-  // Core is open to all tiers — depth gating happens at pillar level
-  if (!isLaunchpadComplete) {
-    return (
-      <Suspense fallback={<PageSkeleton />}>
-        <DashboardLayout leftSidebar={null} rightSidebar={null}>
-          <LifeHub />
-        </DashboardLayout>
-      </Suspense>
-    );
-  }
+  useSidebars(
+    isLaunchpadComplete ? <LifeHudSidebar /> : null,
+    isLaunchpadComplete ? <LifeActivitySidebar /> : null
+  );
 
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <DashboardLayout
-        leftSidebar={<LifeHudSidebar />}
-        rightSidebar={<LifeActivitySidebar />}
-      >
-        <LifeHub />
-      </DashboardLayout>
+    <Suspense fallback={null}>
+      <LifeHub />
     </Suspense>
   );
 }

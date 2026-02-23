@@ -28,6 +28,7 @@ import { LanguagePrompt } from "@/components/LanguagePrompt";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import RoleRoute from "@/components/RoleRoute";
+const ProtectedAppShell = lazy(() => import("./components/layout/ProtectedAppShell"));
 
 import { PageSkeleton } from "@/components/ui/skeleton";
 
@@ -267,477 +268,124 @@ const App = () => (
                         />
                         <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-                        {/* Community (protected) */}
-                        <Route
-                          path="/community"
-                          element={
-                            <ProtectedRoute>
-                              <CommunityLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Legacy combat-community redirect */}
-                        <Route
-                          path="/combat-community"
-                          element={<Navigate to="/community" replace />}
-                        />
-                        
-                        {/* Messages routes (protected) */}
-                        <Route
-                          path="/messages"
-                          element={
-                            <ProtectedRoute>
-                              <Messages />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/messages/ai"
-                          element={
-                            <ProtectedRoute>
-                              <MessageThread />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/messages/:conversationId"
-                          element={
-                            <ProtectedRoute>
-                              <MessageThread />
-                            </ProtectedRoute>
-                          }
-                        />
-
-
-                        {/* Hypnosis library → redirect to dashboard */}
-                        <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
-
-                        {/* Dynamic Landing Pages */}
-                        <Route path="/lp/:slug" element={<DynamicLandingPage />} />
-                        
-                        {/* Coach Storefront Routes (canonical: /p/:slug) */}
-                        <Route path="/p/:practitionerSlug" element={<StorefrontLayout />}>
-                          <Route index element={<StorefrontHome />} />
-                          <Route path="login" element={<StorefrontLogin />} />
-                          <Route path="signup" element={<StorefrontSignup />} />
-                          <Route path="courses" element={<StorefrontCourses />} />
-                          <Route path="dashboard" element={<StorefrontClientDashboard />} />
+                        {/* ── Protected routes with root AppShell (header, sidebars, bottom tab) ── */}
+                        <Route element={<ProtectedAppShell />}>
+                          {/* Community */}
+                          <Route path="/community" element={<CommunityLayoutWrapper />} />
+                          {/* Messages */}
+                          <Route path="/messages" element={<Messages />} />
+                          <Route path="/messages/ai" element={<MessageThread />} />
+                          <Route path="/messages/:conversationId" element={<MessageThread />} />
+                          {/* Dashboard */}
+                          <Route path="/dashboard" element={<DashboardLayoutWrapper />} />
+                          {/* Life System */}
+                          <Route path="/life" element={<LifeLayoutWrapper />} />
+                          <Route path="/life/presence" element={<PresenceHome />} />
+                          <Route path="/life/presence/scan" element={<PresenceScan />} />
+                          <Route path="/life/presence/analyzing" element={<PresenceAnalyzing />} />
+                          <Route path="/life/presence/results" element={<PresenceResultsPage />} />
+                          <Route path="/life/presence/assess" element={<PresenceChatAssess />} />
+                          <Route path="/life/presence/chat-results" element={<PresenceChatResults />} />
+                          <Route path="/life/presence/history" element={<PresenceHistory />} />
+                          {/* Power */}
+                          <Route path="/life/power" element={<PowerHome />} />
+                          <Route path="/life/power/assess" element={<PowerChatAssess />} />
+                          <Route path="/life/power/chat-results" element={<PowerChatResults />} />
+                          <Route path="/life/power/results" element={<PowerResultsPage />} />
+                          <Route path="/life/power/history" element={<PowerHistory />} />
+                          {/* Vitality */}
+                          <Route path="/life/vitality" element={<VitalityHome />} />
+                          <Route path="/life/vitality/assess" element={<VitalityChatAssess />} />
+                          <Route path="/life/vitality/chat-results" element={<VitalityChatResults />} />
+                          <Route path="/life/vitality/intake" element={<VitalityIntake />} />
+                          <Route path="/life/vitality/results" element={<VitalityResults />} />
+                          <Route path="/life/vitality/history" element={<VitalityHistory />} />
+                          {/* Focus */}
+                          <Route path="/life/focus" element={<FocusHome />} />
+                          <Route path="/life/focus/assess" element={<FocusChatAssess />} />
+                          <Route path="/life/focus/chat-results" element={<FocusChatResults />} />
+                          <Route path="/life/focus/results" element={<FocusResults />} />
+                          <Route path="/life/focus/history" element={<FocusHistory />} />
+                          {/* Combat */}
+                          <Route path="/life/combat" element={<CombatHome />} />
+                          <Route path="/life/combat/assess" element={<CombatChatAssess />} />
+                          <Route path="/life/combat/chat-results" element={<CombatChatResults />} />
+                          <Route path="/life/combat/results" element={<CombatResults />} />
+                          <Route path="/life/combat/history" element={<CombatHistory />} />
+                          {/* Expansion */}
+                          <Route path="/life/expansion" element={<ExpansionHome />} />
+                          <Route path="/life/expansion/assess" element={<ExpansionChatAssess />} />
+                          <Route path="/life/expansion/chat-results" element={<ExpansionChatResults />} />
+                          <Route path="/life/expansion/results" element={<ExpansionResults />} />
+                          <Route path="/life/expansion/history" element={<ExpansionHistory />} />
+                          {/* Consciousness */}
+                          <Route path="/life/consciousness" element={<ConsciousnessHome />} />
+                          <Route path="/life/consciousness/assess" element={<ConsciousnessAssess />} />
+                          <Route path="/life/consciousness/results" element={<ConsciousnessResults />} />
+                          <Route path="/life/consciousness/history" element={<ConsciousnessHistory />} />
+                          {/* Arena domain assessments */}
+                          <Route path="/arena/wealth/assess" element={<WealthAssess />} />
+                          <Route path="/arena/wealth/results" element={<WealthResults />} />
+                          <Route path="/arena/influence/assess" element={<InfluenceAssess />} />
+                          <Route path="/arena/influence/results" element={<InfluenceResults />} />
+                          <Route path="/arena/relationships/assess" element={<RelationshipsAssess />} />
+                          <Route path="/arena/relationships/results" element={<RelationshipsResults />} />
+                          <Route path="/arena/business/assess" element={<BusinessAssess />} />
+                          <Route path="/arena/business/results" element={<BusinessResults />} />
+                          <Route path="/arena/projects/assess" element={<ProjectsAssess />} />
+                          <Route path="/arena/projects/results" element={<ProjectsResults />} />
+                          <Route path="/arena/play/assess" element={<PlayAssess />} />
+                          <Route path="/arena/play/results" element={<PlayResults />} />
+                          <Route path="/arena/:domainId" element={<ArenaDomainPage />} />
+                          {/* Life domain catch-all */}
+                          <Route path="/life/:domainId" element={<LifeDomainPage />} />
+                          {/* Arena hub */}
+                          <Route path="/arena" element={<ArenaLayoutWrapper />} />
+                          {/* Coaches */}
+                          <Route path="/coaches" element={<CoachesLayoutWrapper />} />
+                          {/* Admin Hub */}
+                          <Route path="/admin-hub" element={<AdminLayoutWrapper />} />
+                          {/* Launchpad */}
+                          <Route path="/launchpad/complete" element={<LaunchpadComplete />} />
+                          {/* Quests */}
+                          <Route path="/quests/:pillar" element={<QuestRunnerPage />} />
+                          {/* Journeys */}
+                          <Route path="/coaching/journey" element={<CoachingJourney />} />
+                          <Route path="/coaching/journey/:journeyId" element={<CoachingJourney />} />
+                          <Route path="/admin/journey" element={<AdminJourney />} />
+                          <Route path="/admin/journey/:journeyId" element={<AdminJourney />} />
+                          <Route path="/projects/journey" element={<ProjectsJourney />} />
+                          <Route path="/projects/journey/:journeyId" element={<ProjectsJourney />} />
+                          {/* Business */}
+                          <Route path="/business" element={<Business />} />
+                          <Route path="/business/journey" element={<BusinessJourney />} />
+                          <Route path="/business/journey/:journeyId" element={<BusinessJourney />} />
+                          <Route path="/business/:businessId" element={<BusinessDashboard />} />
+                          {/* Personal Hypnosis */}
+                          <Route path="/personal-hypnosis/success" element={<PersonalHypnosisSuccess />} />
+                          <Route path="/personal-hypnosis/pending" element={<PersonalHypnosisPending />} />
+                          {/* Success */}
+                          <Route path="/success" element={<Success />} />
                         </Route>
 
-                        {/* Protected user routes */}
-                        <Route
-                          path="/personal-hypnosis/success"
-                          element={
-                            <ProtectedRoute>
-                              <PersonalHypnosisSuccess />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/personal-hypnosis/pending"
-                          element={
-                            <ProtectedRoute>
-                              <PersonalHypnosisPending />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Unified Dashboard */}
-                        <Route
-                          path="/dashboard"
-                          element={
-                            <ProtectedRoute>
-                              <DashboardLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Life System */}
-                        <Route
-                          path="/life"
-                          element={
-                            <ProtectedRoute>
-                              <LifeLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/presence"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/presence/scan"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceScan />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/presence/analyzing"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceAnalyzing />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/presence/results"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceResultsPage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/presence/assess" element={<ProtectedRoute><PresenceChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/presence/chat-results" element={<ProtectedRoute><PresenceChatResults /></ProtectedRoute>} />
-                        <Route
-                          path="/life/presence/history"
-                          element={
-                            <ProtectedRoute>
-                              <PresenceHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Power pillar routes */}
-                        <Route
-                          path="/life/power"
-                          element={
-                            <ProtectedRoute>
-                              <PowerHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/power/assess" element={<ProtectedRoute><PowerChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/power/chat-results" element={<ProtectedRoute><PowerChatResults /></ProtectedRoute>} />
-                        <Route
-                          path="/life/power/results"
-                          element={
-                            <ProtectedRoute>
-                              <PowerResultsPage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/power/history"
-                          element={
-                            <ProtectedRoute>
-                              <PowerHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Vitality pillar routes */}
-                        <Route
-                          path="/life/vitality"
-                          element={
-                            <ProtectedRoute>
-                              <VitalityHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/vitality/assess" element={<ProtectedRoute><VitalityChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/vitality/chat-results" element={<ProtectedRoute><VitalityChatResults /></ProtectedRoute>} />
-                        <Route path="/life/vitality/intake" element={<ProtectedRoute><VitalityIntake /></ProtectedRoute>} />
-                        <Route
-                          path="/life/vitality/results"
-                          element={
-                            <ProtectedRoute>
-                              <VitalityResults />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/vitality/history"
-                          element={
-                            <ProtectedRoute>
-                              <VitalityHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Focus pillar routes */}
-                        <Route
-                          path="/life/focus"
-                          element={
-                            <ProtectedRoute>
-                              <FocusHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/focus/assess" element={<ProtectedRoute><FocusChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/focus/chat-results" element={<ProtectedRoute><FocusChatResults /></ProtectedRoute>} />
-                        <Route
-                          path="/life/focus/results"
-                          element={
-                            <ProtectedRoute>
-                              <FocusResults />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/focus/history"
-                          element={
-                            <ProtectedRoute>
-                              <FocusHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Combat pillar routes */}
-                        <Route
-                          path="/life/combat"
-                          element={
-                            <ProtectedRoute>
-                              <CombatHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/combat/assess" element={<ProtectedRoute><CombatChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/combat/chat-results" element={<ProtectedRoute><CombatChatResults /></ProtectedRoute>} />
-                        <Route
-                          path="/life/combat/results"
-                          element={
-                            <ProtectedRoute>
-                              <CombatResults />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/combat/history"
-                          element={
-                            <ProtectedRoute>
-                              <CombatHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Expansion pillar routes */}
-                        <Route
-                          path="/life/expansion"
-                          element={
-                            <ProtectedRoute>
-                              <ExpansionHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/life/expansion/assess" element={<ProtectedRoute><ExpansionChatAssess /></ProtectedRoute>} />
-                        <Route path="/life/expansion/chat-results" element={<ProtectedRoute><ExpansionChatResults /></ProtectedRoute>} />
-                        <Route
-                          path="/life/expansion/results"
-                          element={
-                            <ProtectedRoute>
-                              <ExpansionResults />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/expansion/history"
-                          element={
-                            <ProtectedRoute>
-                              <ExpansionHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Consciousness pillar routes */}
-                        <Route
-                          path="/life/consciousness"
-                          element={
-                            <ProtectedRoute>
-                              <ConsciousnessHome />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/consciousness/assess"
-                          element={
-                            <ProtectedRoute>
-                              <ConsciousnessAssess />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/consciousness/results"
-                          element={
-                            <ProtectedRoute>
-                              <ConsciousnessResults />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/life/consciousness/history"
-                          element={
-                            <ProtectedRoute>
-                              <ConsciousnessHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Arena domain AI assessment routes (specific before catch-all) */}
-                        <Route path="/arena/wealth/assess" element={<ProtectedRoute><WealthAssess /></ProtectedRoute>} />
-                        <Route path="/arena/wealth/results" element={<ProtectedRoute><WealthResults /></ProtectedRoute>} />
-                        <Route path="/arena/influence/assess" element={<ProtectedRoute><InfluenceAssess /></ProtectedRoute>} />
-                        <Route path="/arena/influence/results" element={<ProtectedRoute><InfluenceResults /></ProtectedRoute>} />
-                        <Route path="/arena/relationships/assess" element={<ProtectedRoute><RelationshipsAssess /></ProtectedRoute>} />
-                        <Route path="/arena/relationships/results" element={<ProtectedRoute><RelationshipsResults /></ProtectedRoute>} />
-                        <Route path="/arena/business/assess" element={<ProtectedRoute><BusinessAssess /></ProtectedRoute>} />
-                        <Route path="/arena/business/results" element={<ProtectedRoute><BusinessResults /></ProtectedRoute>} />
-                        <Route path="/arena/projects/assess" element={<ProtectedRoute><ProjectsAssess /></ProtectedRoute>} />
-                        <Route path="/arena/projects/results" element={<ProtectedRoute><ProjectsResults /></ProtectedRoute>} />
-                        <Route path="/arena/play/assess" element={<ProtectedRoute><PlayAssess /></ProtectedRoute>} />
-                        <Route path="/arena/play/results" element={<ProtectedRoute><PlayResults /></ProtectedRoute>} />
-                        {/* Arena domain page (catch-all) */}
-                        <Route path="/arena/:domainId" element={<ProtectedRoute><ArenaDomainPage /></ProtectedRoute>} />
-                        {/* Legacy /life arena redirects */}
+                        {/* Legacy redirects (no shell needed) */}
+                        <Route path="/combat-community" element={<Navigate to="/community" replace />} />
+                        <Route path="/today" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/me" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
+                        <Route path="/projects" element={<Navigate to="/arena" replace />} />
+                        <Route path="/launchpad" element={<Navigate to="/onboarding" replace />} />
+                        <Route path="/quests" element={<Navigate to="/onboarding" replace />} />
+                        <Route path="/hypnosis" element={<Navigate to="/dashboard" replace />} />
+                        {/* Legacy arena redirects */}
                         <Route path="/life/wealth" element={<Navigate to="/arena/wealth" replace />} />
                         <Route path="/life/influence" element={<Navigate to="/arena/influence" replace />} />
                         <Route path="/life/relationships" element={<Navigate to="/arena/relationships" replace />} />
                         <Route path="/life/wealth/assess" element={<Navigate to="/arena/wealth/assess" replace />} />
                         <Route path="/life/influence/assess" element={<Navigate to="/arena/influence/assess" replace />} />
                         <Route path="/life/relationships/assess" element={<Navigate to="/arena/relationships/assess" replace />} />
-                        <Route
-                          path="/life/:domainId"
-                          element={
-                            <ProtectedRoute>
-                              <LifeDomainPage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Legacy tab routes → redirect to dashboard */}
-                        <Route path="/today" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/plan" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/me" element={<Navigate to="/dashboard" replace />} />
-                        {/* Aurora → Messages AI */}
-                        <Route path="/aurora" element={<Navigate to="/messages/ai" replace />} />
-                        {/* Arena - sidebar-driven layout (replaces Projects) */}
-                        <Route
-                          path="/arena"
-                          element={
-                            <ProtectedRoute>
-                              <ArenaLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Legacy /projects redirect to Arena */}
-                        <Route path="/projects" element={<Navigate to="/arena" replace />} />
-                        {/* Coaches */}
-                        <Route
-                          path="/coaches"
-                          element={
-                            <ProtectedRoute>
-                              <CoachesLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Admin Hub - sidebar-driven layout */}
-                        <Route
-                          path="/admin-hub"
-                          element={
-                            <ProtectedRoute>
-                              <AdminLayoutWrapper />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route path="/launchpad" element={<Navigate to="/onboarding" replace />} />
-                        <Route
-                          path="/launchpad/complete"
-                          element={
-                            <ProtectedRoute>
-                              <LaunchpadComplete />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Pillar Quests — redirect to onboarding */}
-                        <Route path="/quests" element={<Navigate to="/onboarding" replace />} />
-                        <Route
-                          path="/quests/:pillar"
-                          element={
-                            <ProtectedRoute>
-                              <QuestRunnerPage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Coaching Journey */}
-                        <Route
-                          path="/coaching/journey"
-                          element={
-                            <ProtectedRoute>
-                              <CoachingJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/coaching/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <CoachingJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Admin Journey */}
-                        <Route
-                          path="/admin/journey"
-                          element={
-                            <ProtectedRoute>
-                              <AdminJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <AdminJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Projects Journey */}
-                        <Route
-                          path="/projects/journey"
-                          element={
-                            <ProtectedRoute>
-                              <ProjectsJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/projects/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <ProjectsJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/business"
-                          element={
-                            <ProtectedRoute>
-                              <Business />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/business/journey"
-                          element={
-                            <ProtectedRoute>
-                              <BusinessJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/business/journey/:journeyId"
-                          element={
-                            <ProtectedRoute>
-                              <BusinessJourney />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/business/:businessId"
-                          element={
-                            <ProtectedRoute>
-                              <BusinessDashboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        {/* Old pillar routes → redirect to /life */}
+                        {/* Old pillar routes */}
                         <Route path="/consciousness" element={<Navigate to="/life" replace />} />
                         <Route path="/health" element={<Navigate to="/life" replace />} />
                         <Route path="/health/journey" element={<Navigate to="/life" replace />} />
@@ -758,20 +406,10 @@ const App = () => (
                         <Route path="/hobbies" element={<Navigate to="/life" replace />} />
                         <Route path="/hobbies/journey" element={<Navigate to="/life" replace />} />
                         <Route path="/hobbies/journey/:id" element={<Navigate to="/life" replace />} />
-                        <Route
-                          path="/success"
-                          element={
-                            <ProtectedRoute>
-                              <Success />
-                            </ProtectedRoute>
-                          }
-                        />
-
-                        {/* Admin routes redirect to /admin-hub */}
+                        {/* Admin redirects */}
                         <Route path="/admin" element={<Navigate to="/admin-hub" replace />} />
                         <Route path="/admin/*" element={<Navigate to="/admin-hub" replace />} />
-
-                        {/* Legacy /panel routes redirect to /admin-hub */}
+                        {/* Legacy panel redirects */}
                         <Route path="/panel" element={<Navigate to="/admin-hub" replace />} />
                         <Route path="/panel/analytics" element={<Navigate to="/admin-hub?tab=overview&sub=analytics" replace />} />
                         <Route path="/panel/notifications" element={<Navigate to="/admin-hub?tab=overview&sub=notifications" replace />} />
@@ -798,12 +436,10 @@ const App = () => (
                         <Route path="/panel/chat-assistant" element={<Navigate to="/admin-hub?tab=system&sub=chat-assistant" replace />} />
                         <Route path="/panel/settings" element={<Navigate to="/admin-hub?tab=system&sub=settings" replace />} />
                         <Route path="/panel/*" element={<Navigate to="/admin-hub" replace />} />
-
-                        {/* Coach Panel — redirect to /coaches for practitioners */}
+                        {/* Coach panel redirects */}
                         <Route path="/coach" element={<Navigate to="/coaches" replace />} />
                         <Route path="/coach/*" element={<Navigate to="/coaches" replace />} />
-
-                        {/* Affiliate Panel routes */}
+                        {/* Affiliate Panel */}
                         <Route
                           path="/affiliate"
                           element={
@@ -817,10 +453,8 @@ const App = () => (
                           <Route path="referrals" element={<MyReferrals />} />
                           <Route path="payouts" element={<MyPayouts />} />
                         </Route>
-
                         {/* Dev routes */}
                         <Route path="/dev/orb-gallery" element={<OrbGallery />} />
-
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
