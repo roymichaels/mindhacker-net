@@ -9,7 +9,7 @@ import { Loader2, Rocket, Sparkles, Gift, Download, ArrowRight } from 'lucide-re
 import { SummaryScores } from '@/components/launchpad/summary/SummaryScores';
 import { ConsciousnessAnalysis } from '@/components/launchpad/summary/ConsciousnessAnalysis';
 import { IdentityProfile } from '@/components/launchpad/summary/IdentityProfile';
-import { PlanPreview } from '@/components/launchpad/summary/PlanPreview';
+// PlanPreview removed — replaced by TodayEngine
 import { LifeDirectionSection } from '@/components/launchpad/summary/LifeDirectionSection';
 import { AnswersReview } from '@/components/launchpad/summary/AnswersReview';
 import { useProfilePDF } from '@/hooks/useProfilePDF';
@@ -320,18 +320,7 @@ export default function LaunchpadComplete() {
           </motion.div>
         )}
 
-        {/* Plan Preview */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="p-6 rounded-2xl bg-card/50 border border-border/50"
-        >
-          <PlanPreview
-            months={planData?.months || []}
-            onViewFullPlan={() => navigate('/plan')}
-          />
-        </motion.div>
+        {/* Plan section removed — TodayEngine is the primary surface */}
 
         {/* CTAs */}
         <motion.div

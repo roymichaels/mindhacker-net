@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
-import { LifePlanExpanded } from './LifePlanExpanded';
 import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay, CurrentFocusCard, ChecklistsCard } from './unified';
-import { PlanRoadmap } from '../dashboard/plan/PlanRoadmap';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Brain, Target, ListChecks, Sparkles, TrendingUp, User, Award, Heart, Anchor, Focus, Map } from 'lucide-react';
@@ -33,10 +31,12 @@ export function LifePlanModal({ open, onOpenChange, language }: DashboardModalPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader 
-          title={language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}
+          title={language === 'he' ? 'מפת אסטרטגיה' : 'Strategy Map'}
           icon={<Target className="h-5 w-5" />}
         />
-        <LifePlanExpanded />
+        <div className="text-center py-8 text-muted-foreground text-sm">
+          {language === 'he' ? 'מפת האסטרטגיה זמינה דרך מנוע היום' : 'Strategy map available through Today Engine'}
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -50,10 +50,7 @@ export function ChecklistsModal({ open, onOpenChange, language }: DashboardModal
           title={language === 'he' ? 'משימות ויעדים' : 'Tasks & Goals'}
           icon={<ListChecks className="h-5 w-5" />}
         />
-        <div className="space-y-4">
-          <ChecklistsCard />
-          <PlanRoadmap />
-        </div>
+        <ChecklistsCard />
       </DialogContent>
     </Dialog>
   );

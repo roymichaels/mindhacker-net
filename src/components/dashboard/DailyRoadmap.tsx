@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTodaysHabits } from '@/hooks/useTodaysHabits';
 import { useDailyPulse } from '@/hooks/useDailyPulse';
-import { useLifePlanWithMilestones } from '@/hooks/useLifePlan';
+// Legacy useLifePlan removed — TodayEngine is primary
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ export function DailyRoadmap() {
   // Data sources
   const { habits, toggleHabit, completedCount: habitsCompleted, totalCount: habitsTotal } = useTodaysHabits();
   const { hasLoggedToday } = useDailyPulse();
-  const { currentMilestone } = useLifePlanWithMilestones();
+  // Legacy milestone reference removed
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayEnd = `${todayStr}T23:59:59`;
@@ -83,16 +83,7 @@ export function DailyRoadmap() {
     items.push({ id: t.id, title: t.title, type: 'task', done: t.done, toggleable: true });
   });
 
-  // Current milestone
-  if (currentMilestone) {
-    items.push({
-      id: (currentMilestone as any).id || 'milestone',
-      title: (currentMilestone as any).title || (isHe ? 'אבן דרך נוכחית' : 'Current Milestone'),
-      type: 'milestone',
-      done: false,
-      toggleable: false,
-    });
-  }
+  // Milestone section removed — TodayEngine handles this
 
   const pendingItems = items.filter(i => !i.done);
   const completedItems = items.filter(i => i.done);
