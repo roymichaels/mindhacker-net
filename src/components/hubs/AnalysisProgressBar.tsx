@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { CORE_DOMAINS, ARENA_DOMAINS, LIFE_DOMAINS } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useTranslation } from '@/hooks/useTranslation';
+import { NextActionBanner } from '@/components/dashboard/v2/NextActionBanner';
 
 export function AnalysisProgressBar() {
   const navigate = useNavigate();
@@ -28,6 +29,11 @@ export function AnalysisProgressBar() {
   // Core / Arena split for the mini indicators
   const coreCompleted = CORE_DOMAINS.filter(d => statusMap[d.id] === 'active' || statusMap[d.id] === 'configured').length;
   const arenaCompleted = ARENA_DOMAINS.filter(d => statusMap[d.id] === 'active' || statusMap[d.id] === 'configured').length;
+
+  // Once all domains are assessed, show NextActionBanner instead
+  if (completed >= total) {
+    return <NextActionBanner />;
+  }
 
   // Find next incomplete domain (core first, then arena)
   const nextDomain = allDomains.find(d => {
