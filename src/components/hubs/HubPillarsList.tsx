@@ -176,6 +176,14 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           </span>
         )}
       </h3>
+      {generateStrategy.isPending && (
+        <div className="flex flex-col items-center justify-center py-10 gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">
+            {isHe ? 'מייצר תוכנית 90 יום...' : 'Generating 90-day plan...'}
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {domains.map((domain, i) => {
           const status = statusMap[domain.id] ?? 'unconfigured';
