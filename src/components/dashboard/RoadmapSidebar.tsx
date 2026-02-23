@@ -8,24 +8,58 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   RefreshCw, ChevronRight, ChevronLeft, CheckCircle2, Circle,
   Target, Calendar, Trophy, PanelLeftClose, PanelLeftOpen,
-  Loader2,
+  Loader2, Sparkles,
 } from 'lucide-react';
-import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
 import { useLifePlanWithMilestones, useCompleteMilestone } from '@/hooks/useLifePlan';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function RoadmapSidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const [recalibrateOpen, setRecalibrateOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1280);
+  const [recalibrating, setRecalibrating] = useState(false);
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { plan, milestones, currentWeek, isLoading, hasLifePlan } = useLifePlanWithMilestones();
   const completeMutation = useCompleteMilestone();
 
   const completedCount = milestones.filter(m => m.is_completed).length;
   const totalCount = milestones.length || 12;
   const progressPct = Math.round((completedCount / totalCount) * 100);
+
+  const handleRecalibrate = async () => {
+    if (!user?.id || recalibrating) return;
+    setRecalibrating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { error } = await supabase.functions.invoke('generate-pillar-synthesis', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (error) throw error;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
+        queryClient.invalidateQueries({ queryKey: ['milestones'] }),
+        queryClient.invalidateQueries({ queryKey: ['launchpad-summary'] }),
+        queryClient.invalidateQueries({ queryKey: ['current-week-milestone'] }),
+        queryClient.invalidateQueries({ queryKey: ['unified-dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['life-plan-milestones'] }),
+        queryClient.invalidateQueries({ queryKey: ['daily-roadmap'] }),
+        queryClient.invalidateQueries({ queryKey: ['action-items'] }),
+      ]);
+      toast.success(isHe ? '✨ התוכנית חושבה מחדש!' : '✨ Plan recalculated!');
+    } catch (e) {
+      console.error('Recalibration failed:', e);
+      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    } finally {
+      setRecalibrating(false);
+    }
+  };
 
   return (
     <>
@@ -71,11 +105,15 @@ export function RoadmapSidebar() {
             </div>
             <span className="text-[9px] font-bold text-primary">{progressPct}%</span>
             <button
-              onClick={() => setRecalibrateOpen(true)}
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
               className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
               title={isHe ? 'כיול מחדש' : 'Recalibrate'}
             >
-              <RefreshCw className="w-3.5 h-3.5 text-primary" />
+              {recalibrating 
+                ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                : <RefreshCw className="w-3.5 h-3.5 text-primary" />
+              }
             </button>
           </div>
         )}
@@ -214,17 +252,22 @@ export function RoadmapSidebar() {
 
             {/* Recalibrate */}
             <button
-              onClick={() => setRecalibrateOpen(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold"
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold disabled:opacity-50"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>{isHe ? 'כיול מחדש' : 'Recalibrate'}</span>
+              {recalibrating 
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <RefreshCw className="w-3.5 h-3.5" />
+              }
+              <span>{recalibrating 
+                ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') 
+                : (isHe ? 'כיול מחדש' : 'Recalibrate')
+              }</span>
             </button>
           </div>
         )}
       </aside>
-
-      <RecalibrateModal open={recalibrateOpen} onOpenChange={setRecalibrateOpen} />
     </>
   );
 }

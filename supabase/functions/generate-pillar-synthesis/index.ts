@@ -139,7 +139,6 @@ Deno.serve(async (req) => {
       .eq('user_id', userId);
 
     if (!domains || domains.length < 9) {
-      // At minimum need 9 assessment domains (excluding business/projects which may just be "configured")
       console.log(`[pillar-synthesis] Only ${domains?.length ?? 0} domains found`);
     }
 
@@ -150,8 +149,37 @@ Deno.serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
+    // 2b. Gather Aurora conversation memory for richer context
+    const { data: conversationMemory } = await supabase
+      .from('aurora_conversation_memory')
+      .select('summary, key_topics, emotional_state, action_items')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    // 2c. Gather recent messages for behavioral context
+    const { data: recentConversations } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('participant_1', userId)
+      .eq('type', 'ai')
+      .order('last_message_at', { ascending: false })
+      .limit(5);
+
+    let recentMessages: any[] = [];
+    if (recentConversations?.length) {
+      const convIds = recentConversations.map(c => c.id);
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('content, sender_type, created_at')
+        .in('conversation_id', convIds)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      recentMessages = msgs || [];
+    }
+
     // 3. Build comprehensive prompt
-    const prompt = buildSynthesisPrompt(domains || [], launchpad);
+    const prompt = buildSynthesisPrompt(domains || [], launchpad, conversationMemory || [], recentMessages);
 
     // 4. Call AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -397,14 +425,14 @@ Deno.serve(async (req) => {
   }
 });
 
-function buildSynthesisPrompt(domains: any[], launchpad: any): string {
+function buildSynthesisPrompt(domains: any[], launchpad: any, conversationMemory: any[], recentMessages: any[]): string {
   const sections: string[] = [];
 
   sections.push('# COMPREHENSIVE LIFE DOMAIN SYNTHESIS');
   sections.push('The user has completed assessments in ALL life domains. Below is the full data.\n');
 
   // Group domains
-  const coreDomainIds = ['presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
+  const coreDomainIds = ['presence', 'power', 'vitality', 'focus', 'combat', 'expansion', 'consciousness'];
   const arenaDomainIds = ['wealth', 'influence', 'relationships', 'business', 'projects'];
 
   sections.push('## CORE HUB — Personal Transformation');
@@ -439,11 +467,37 @@ function buildSynthesisPrompt(domains: any[], launchpad: any): string {
     if (launchpad.step_2_profile_data) {
       sections.push('### Personal Profile');
       const profile = launchpad.step_2_profile_data as Record<string, any>;
-      // Key biological data
       const keys = ['age_bracket', 'gender', 'wake_time', 'sleep_time', 'activity_level', 'work_type', 'diet_type'];
       for (const k of keys) {
         if (profile[k]) sections.push(`${k}: ${profile[k]}`);
       }
+    }
+    if (launchpad.step_3_lifestyle_data) {
+      sections.push('### Lifestyle Data');
+      sections.push(typeof launchpad.step_3_lifestyle_data === 'string'
+        ? launchpad.step_3_lifestyle_data
+        : JSON.stringify(launchpad.step_3_lifestyle_data, null, 2));
+    }
+  }
+
+  // Aurora conversation memory — what Aurora remembers about the user
+  if (conversationMemory.length > 0) {
+    sections.push('\n## AURORA MEMORY — What the AI coach has learned about this user');
+    for (const mem of conversationMemory.slice(0, 15)) {
+      sections.push(`- Summary: ${mem.summary}`);
+      if (mem.emotional_state) sections.push(`  Emotional state: ${mem.emotional_state}`);
+      if (mem.key_topics?.length) sections.push(`  Topics: ${mem.key_topics.join(', ')}`);
+      if (mem.action_items?.length) sections.push(`  Actions: ${mem.action_items.join(', ')}`);
+    }
+  }
+
+  // Recent conversation excerpts for behavioral patterns
+  if (recentMessages.length > 0) {
+    sections.push('\n## RECENT USER MESSAGES — Behavioral patterns');
+    const userMsgs = recentMessages.filter(m => m.sender_type === 'user').slice(0, 20);
+    for (const msg of userMsgs) {
+      const content = msg.content?.substring(0, 200) || '';
+      if (content) sections.push(`- ${content}`);
     }
   }
 
