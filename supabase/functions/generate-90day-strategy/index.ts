@@ -285,7 +285,8 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
   return null;
 }
 
-// ========== 3-LAYER ORCHESTRATION PER PILLAR ==========
+// ========== 2-LAYER ORCHESTRATION PER PILLAR (outline only) ==========
+// Layer 3 (mini-milestones) is generated on-demand when user reaches a milestone
 async function generatePillarStrategy(
   apiKey: string,
   pillarId: string,
@@ -304,7 +305,7 @@ async function generatePillarStrategy(
     return null;
   }
 
-  // LAYER 2: 5 milestones per mission
+  // LAYER 2: 5 milestones per mission (outline — no mini-milestones yet)
   console.log(`  [${pillarId}] Layer 2: generating 5 milestones per mission...`);
   const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 3000);
   if (!layer2?.missions) {
@@ -312,16 +313,8 @@ async function generatePillarStrategy(
     return null;
   }
 
-  // LAYER 3: 5 mini-milestones per milestone
-  console.log(`  [${pillarId}] Layer 3: generating 5 mini-milestones per milestone...`);
-  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.missions), sysMsg, 8000);
-  if (!layer3?.missions) {
-    console.error(`  [${pillarId}] Layer 3 failed, using Layer 2 without minis`);
-    return layer2;
-  }
-
-  console.log(`  ✅ [${pillarId}] All 3 layers complete`);
-  return layer3;
+  console.log(`  ✅ [${pillarId}] Outline complete (mini-milestones deferred to phase entry)`);
+  return layer2;
 }
 
 // ========== FALLBACK ==========
@@ -576,28 +569,8 @@ serve(async (req) => {
             }
             totalMilestones++;
 
-            // Insert mini-milestones (daily actions)
-            const minis = ms.minis || [];
-            const miniRows = minis.slice(0, 5).map((mini: any, miniIdx: number) => ({
-              milestone_id: msRow.id,
-              mini_number: miniIdx + 1,
-              title: mini.title_he || mini.title_en,
-              title_en: mini.title_en,
-              xp_reward: 10,
-              // Spread across 100 days
-              scheduled_day: Math.min(
-                mi * 34 + si * 7 + miniIdx + 1,
-                TOTAL_DAYS
-              ),
-            }));
-
-            if (miniRows.length > 0) {
-              const { error: miniError } = await supabase
-                .from('mini_milestones')
-                .insert(miniRows);
-              if (miniError) console.error(`Mini-milestone insert error:`, miniError);
-              else totalMinis += miniRows.length;
-            }
+            // Mini-milestones are generated on-demand when user enters this milestone phase
+            // This keeps initial generation fast and allows analytics-aware action creation
           }
         }
       }
