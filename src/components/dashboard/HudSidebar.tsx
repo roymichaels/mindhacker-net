@@ -3,7 +3,7 @@
  * Rendered at the layout level in DashboardLayout.
  * On mobile, the HUD is shown inline in MobileHeroGrid instead.
  */
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
@@ -17,9 +17,12 @@ import {
 } from '@/components/dashboard/MergedModals';
 import {
   Star, Flame, Zap as ZapIcon, Clock, Brain, Eye, TrendingUp,
-  Target, UserCircle, Compass, RefreshCw,
+  Target, UserCircle, Compass, RefreshCw, Loader2,
 } from 'lucide-react';
-import { RecalibrateModal } from '@/components/dashboard/RecalibrateModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export function HudSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -31,7 +34,36 @@ export function HudSidebar() {
   const { sessionStats } = useGameState();
 
   const [orbDNAOpen, setOrbDNAOpen] = useState(false);
-  const [recalibrateOpen, setRecalibrateOpen] = useState(false);
+  const [recalibrating, setRecalibrating] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const isHe = language === 'he';
+
+  const handleRecalibrate = useCallback(async () => {
+    if (!user?.id || recalibrating) return;
+    setRecalibrating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { error } = await supabase.functions.invoke('generate-pillar-synthesis', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (error) throw error;
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
+        queryClient.invalidateQueries({ queryKey: ['milestones'] }),
+        queryClient.invalidateQueries({ queryKey: ['life-plan-milestones'] }),
+        queryClient.invalidateQueries({ queryKey: ['unified-dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['daily-roadmap'] }),
+        queryClient.invalidateQueries({ queryKey: ['action-items'] }),
+      ]);
+      toast.success(isHe ? '✨ התוכנית חושבה מחדש!' : '✨ Plan recalculated!');
+    } catch (e) {
+      console.error('Recalibration failed:', e);
+      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    } finally {
+      setRecalibrating(false);
+    }
+  }, [user?.id, recalibrating, isHe, queryClient]);
   type ModalType = 'identity' | 'direction' | 'insights' | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [insightsTab, setInsightsTab] = useState<string | undefined>();
@@ -229,11 +261,12 @@ export function HudSidebar() {
 
           {/* Recalibrate button — expanded */}
           <button
-            onClick={() => setRecalibrateOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold"
+            onClick={handleRecalibrate}
+            disabled={recalibrating}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-sm font-semibold disabled:opacity-50"
           >
-            <RefreshCw className="w-4 h-4" />
-            <span>{language === 'he' ? 'כיול מחדש' : 'Recalibrate'}</span>
+            {recalibrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            <span>{recalibrating ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') : (isHe ? 'כיול מחדש' : 'Recalibrate')}</span>
           </button>
         </div>
         )}
@@ -254,7 +287,7 @@ export function HudSidebar() {
         open={activeModal === 'insights'} onOpenChange={(o) => !o && setActiveModal(null)} language={language}
         initialTab={insightsTab}
       />
-      <RecalibrateModal open={recalibrateOpen} onOpenChange={setRecalibrateOpen} />
+      
     </>
   );
 }
