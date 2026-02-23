@@ -1,37 +1,53 @@
 /**
- * CoreActivitySidebar - Left sidebar with core feature stats + roadmap.
+ * LifeActivitySidebar - Right sidebar with core stats + phase-based roadmap.
  * Rose/pink color scheme matching Core identity.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   PanelLeftClose, PanelLeftOpen, Flame, CheckCircle2, Circle,
-  Target, Trophy, Zap, Brain, Clock, Calendar, Loader2,
+  Target, Trophy, Zap, Brain, Clock, Calendar, Loader2, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useHabits, useSessionsToday } from '@/hooks/useActionItems';
-import { motion } from 'framer-motion';
+import { useMilestones } from '@/hooks/useLifePlan';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
+
+const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+const TOTAL_PHASES = 10;
+
+interface PhaseGroup {
+  phase: number;
+  label: string;
+  focusAreas: string[];
+  total: number;
+  completed: number;
+  milestones: any[];
+}
 
 export function LifeActivitySidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
-  const { corePlan, coreStrategy, coreWeek, isLoading } = useStrategyPlans();
+  const { corePlan, coreStrategy, isLoading: stratLoading } = useStrategyPlans();
   const { data: habits } = useHabits();
   const { data: sessionsToday } = useSessionsToday();
+  const { data: allMilestones, isLoading: msLoading } = useMilestones(corePlan?.id || null);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
+  const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
+
+  const isLoading = stratLoading || msLoading;
 
   const coreDomainIds = CORE_DOMAINS.map(d => d.id);
   const coreEntries = Object.entries(statusMap).filter(([id]) => coreDomainIds.includes(id));
   const totalDomains = CORE_DOMAINS.length;
   const activeDomains = coreEntries.filter(([, s]) => s === 'active').length;
 
-  // Real stats from features
   const coreHabits = (habits || []).filter(h => {
     const pillar = (h as any).pillar;
     return !pillar || coreDomainIds.includes(pillar);
@@ -39,16 +55,47 @@ export function LifeActivitySidebar() {
   const completedHabits = coreHabits.filter(h => h.status === 'done').length;
   const totalHabits = coreHabits.length;
 
-  // Milestones from strategy
-  const milestones = coreStrategy?.weeks || [];
-  const currentWeek = coreWeek || 1;
-  const totalWeeks = milestones.length || 12;
-  const completedWeeks = milestones.filter((_, i) => i + 1 < currentWeek).length;
-  const progressPct = Math.round((completedWeeks / totalWeeks) * 100);
+  // Current phase calculation
+  const getCurrentPhase = () => {
+    if (!corePlan?.start_date) return 1;
+    const start = new Date(corePlan.start_date);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.min(TOTAL_PHASES, Math.max(1, Math.ceil((diffDays + 1) / 10)));
+  };
+  const currentPhase = getCurrentPhase();
 
-  // Pillar goals from strategy
+  // Group milestones by phase
+  const phaseGroups = useMemo<PhaseGroup[]>(() => {
+    const map = new Map<number, PhaseGroup>();
+    for (const m of (allMilestones || [])) {
+      const p = m.week_number;
+      if (!map.has(p)) {
+        const label = PHASE_LABELS[p - 1] || String(p);
+        map.set(p, { phase: p, label, focusAreas: [], total: 0, completed: 0, milestones: [] });
+      }
+      const g = map.get(p)!;
+      g.total++;
+      if (m.is_completed) g.completed++;
+      g.milestones.push(m);
+      const area = isHe ? m.focus_area : (m.focus_area_en || m.focus_area);
+      if (area && !g.focusAreas.includes(area)) g.focusAreas.push(area);
+    }
+    for (let p = 1; p <= TOTAL_PHASES; p++) {
+      if (!map.has(p)) {
+        const label = PHASE_LABELS[p - 1] || String(p);
+        map.set(p, { phase: p, label, focusAreas: [], total: 0, completed: 0, milestones: [] });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.phase - b.phase);
+  }, [allMilestones, isHe]);
+
+  const completedCount = (allMilestones || []).filter(m => m.is_completed).length;
+  const totalCount = (allMilestones || []).length || 1;
+  const progressPct = Math.round((completedCount / totalCount) * 100);
+
   const pillarGoals = coreStrategy?.pillars || {};
-  const totalGoals = Object.values(pillarGoals).reduce((sum, p) => sum + (p.goals?.length || 0), 0);
+  const totalGoals = Object.values(pillarGoals).reduce((sum: number, p: any) => sum + (p.goals?.length || 0), 0);
 
   const statItems = [
     { icon: Flame, value: `${activeDomains}/${totalDomains}`, label: isHe ? 'תחומים פעילים' : 'Active Pillars', color: 'text-rose-400' },
@@ -68,7 +115,6 @@ export function LifeActivitySidebar() {
           collapsed ? "w-[54px] min-w-[54px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
         )}
       >
-        {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
@@ -85,7 +131,6 @@ export function LifeActivitySidebar() {
           }
         </button>
 
-        {/* ===== COLLAPSED MINI VIEW ===== */}
         {collapsed && (
           <div className="flex flex-col items-center justify-between h-full pt-8 pb-3 px-0.5 overflow-y-auto scrollbar-hide">
             <div className="flex flex-col items-center gap-1 w-full">
@@ -96,15 +141,14 @@ export function LifeActivitySidebar() {
                 </div>
               ))}
             </div>
-            {/* Mini roadmap dots */}
             <div className="flex flex-col items-center gap-1 mt-2">
-              {milestones.slice(0, 12).map((w, i) => (
+              {phaseGroups.map((g) => (
                 <div
-                  key={i}
+                  key={g.phase}
                   className={cn(
                     "w-2.5 h-2.5 rounded-full transition-colors",
-                    i + 1 < currentWeek ? "bg-rose-400" :
-                    i + 1 === currentWeek ? "bg-rose-400/50 ring-2 ring-rose-400/30" :
+                    g.phase < currentPhase ? "bg-rose-400" :
+                    g.phase === currentPhase ? "bg-rose-400/50 ring-2 ring-rose-400/30" :
                     "bg-muted-foreground/20"
                   )}
                 />
@@ -114,10 +158,8 @@ export function LifeActivitySidebar() {
           </div>
         )}
 
-        {/* ===== EXPANDED FULL VIEW ===== */}
         {!collapsed && (
           <div className="flex flex-col h-full overflow-hidden p-3 pt-8">
-            {/* Stats */}
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
               {isHe ? 'סטטיסטיקה' : 'Stats'}
             </span>
@@ -133,7 +175,6 @@ export function LifeActivitySidebar() {
 
             <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-3" />
 
-            {/* Roadmap */}
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1 rounded-lg bg-rose-500/10 border border-rose-500/20">
                 <Trophy className="w-3.5 h-3.5 text-rose-400" />
@@ -143,12 +184,11 @@ export function LifeActivitySidebar() {
                   {isHe ? 'מפת דרכים — ליבה' : 'Roadmap — Core'}
                 </h3>
                 <p className="text-[10px] text-muted-foreground">
-                  {isHe ? `שבוע ${currentWeek}/12` : `Week ${currentWeek}/12`}
+                  {isHe ? `שלב ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}` : `Phase ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}`}
                 </p>
               </div>
             </div>
 
-            {/* Progress bar */}
             <div className="mb-2">
               <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
                 <span>{isHe ? 'התקדמות' : 'Progress'}</span>
@@ -166,13 +206,12 @@ export function LifeActivitySidebar() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-2" />
 
-            {/* Weekly timeline */}
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               {isLoading ? (
                 <div className="flex items-center justify-center py-4">
                   <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
-              ) : !corePlan ? (
+              ) : !corePlan || (allMilestones || []).length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-2 text-center py-4 px-2">
                   <Calendar className="w-8 h-8 text-muted-foreground/40" />
                   <p className="text-xs text-muted-foreground">
@@ -181,22 +220,24 @@ export function LifeActivitySidebar() {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  {milestones.map((week, idx) => {
-                    const weekNum = week.week || idx + 1;
-                    const isPast = weekNum < currentWeek;
-                    const isCurrent = weekNum === currentWeek;
+                  {phaseGroups.map((group) => {
+                    const isPast = group.phase < currentPhase;
+                    const isCurrent = group.phase === currentPhase;
+                    const isExpanded = expandedPhase === group.phase;
+                    const phasePct = group.total > 0 ? Math.round((group.completed / group.total) * 100) : 0;
 
                     return (
-                      <div key={idx} className="relative">
-                        {idx < milestones.length - 1 && (
+                      <div key={group.phase} className="relative">
+                        {group.phase < TOTAL_PHASES && (
                           <div className={cn(
                             "absolute top-6 ltr:left-[11px] rtl:right-[11px] w-0.5 h-[calc(100%-4px)]",
                             isPast ? "bg-rose-400/40" : "bg-muted-foreground/15"
                           )} />
                         )}
-                        <div
+                        <button
+                          onClick={() => setExpandedPhase(isExpanded ? null : group.phase)}
                           className={cn(
-                            "relative flex items-start gap-2 p-2 rounded-lg transition-all",
+                            "relative w-full flex items-start gap-2 p-2 rounded-lg transition-all text-left",
                             isCurrent && "bg-rose-500/10 border border-rose-500/20",
                             isPast && "opacity-70",
                             !isCurrent && !isPast && "hover:bg-muted/30"
@@ -219,28 +260,58 @@ export function LifeActivitySidebar() {
                                 "text-[10px] font-bold",
                                 isCurrent ? "text-rose-400" : "text-muted-foreground"
                               )}>
-                                W{weekNum}
+                                {isHe ? `שלב ${group.label}` : `Phase ${group.label}`}
                               </span>
                               {isCurrent && (
                                 <span className="text-[8px] px-1 py-0.5 rounded-full bg-rose-400/20 text-rose-400 font-bold">
                                   {isHe ? 'עכשיו' : 'NOW'}
                                 </span>
                               )}
+                              {group.total > 0 && (
+                                <span className="text-[9px] text-muted-foreground ms-auto">{phasePct}%</span>
+                              )}
                             </div>
-                            <p className={cn(
-                              "text-[11px] leading-tight mt-0.5",
-                              isPast && "line-through",
-                              isCurrent ? "font-semibold text-foreground" : "text-muted-foreground"
-                            )}>
-                              {isHe ? week.theme_he : week.theme_en}
-                            </p>
-                            {week.pillar_focus?.length > 0 && (
-                              <span className="text-[9px] text-muted-foreground/60 mt-0.5 block">
-                                {week.pillar_focus.join(' · ')}
-                              </span>
+                            {group.focusAreas.length > 0 && (
+                              <p className="text-[10px] text-muted-foreground/70 mt-0.5 truncate">
+                                {group.focusAreas.join(' · ')}
+                              </p>
                             )}
                           </div>
-                        </div>
+                          {group.total > 0 && (
+                            isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground mt-1" /> : <ChevronDown className="w-3 h-3 text-muted-foreground mt-1" />
+                          )}
+                        </button>
+
+                        <AnimatePresence>
+                          {isExpanded && group.milestones.length > 0 && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden ltr:ml-6 rtl:mr-6"
+                            >
+                              {group.milestones.map((m: any) => (
+                                <button
+                                  key={m.id}
+                                  onClick={() => setSelectedMilestone(m)}
+                                  className="w-full text-left flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-muted/30 transition-colors"
+                                >
+                                  {m.is_completed ? (
+                                    <CheckCircle2 className="w-3 h-3 text-rose-400 shrink-0" />
+                                  ) : (
+                                    <Circle className="w-3 h-3 text-muted-foreground/30 shrink-0" />
+                                  )}
+                                  <span className={cn(
+                                    "text-[10px] truncate",
+                                    m.is_completed ? "line-through text-muted-foreground" : "text-foreground"
+                                  )}>
+                                    {isHe ? m.title : (m.title_en || m.title)}
+                                  </span>
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     );
                   })}
