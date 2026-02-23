@@ -206,10 +206,7 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
           {/* 🔥 Now Engine — Daily Execution Queue */}
           <NowSection />
 
-          {/* 📅 Today Schedule Timeline */}
-          {execution.schedule.length > 0 && (
-            <TodayScheduleCard schedule={execution.schedule} onActionClick={handleExecuteAction} />
-          )}
+          {/* TodayScheduleCard removed — NowSection already shows the full queue as grid cards */}
 
           {/* 📊 Movement Score */}
           {execution.queue.length > 0 && (
