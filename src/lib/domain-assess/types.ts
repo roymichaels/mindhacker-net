@@ -158,6 +158,15 @@ export const PLAY_SUBSYSTEMS: SubsystemMeta[] = [
   { id: 'somatic_connection', icon: '🏃', nameKey: 'playAssess.sub_somatic_connection', weight: 0.15 },
 ];
 
+export const ORDER_SUBSYSTEMS: SubsystemMeta[] = [
+  { id: 'space_cleanliness', icon: '🧹', nameKey: 'orderAssess.sub_space_cleanliness', weight: 0.20 },
+  { id: 'system_organization', icon: '📂', nameKey: 'orderAssess.sub_system_organization', weight: 0.20 },
+  { id: 'digital_order', icon: '💻', nameKey: 'orderAssess.sub_digital_order', weight: 0.15 },
+  { id: 'routine_consistency', icon: '🔁', nameKey: 'orderAssess.sub_routine_consistency', weight: 0.15 },
+  { id: 'environmental_mastery', icon: '🏠', nameKey: 'orderAssess.sub_environmental_mastery', weight: 0.15 },
+  { id: 'minimalism_clarity', icon: '✨', nameKey: 'orderAssess.sub_minimalism_clarity', weight: 0.15 },
+];
+
 export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
   /* Arena domains */
   wealth: {
@@ -201,6 +210,13 @@ export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
     introTitleKey: 'playAssess.assessTitle',
     introSubtitleKey: 'playAssess.assessSubtitle',
     subsystems: PLAY_SUBSYSTEMS,
+  },
+  order: {
+    domainId: 'order',
+    color: 'teal',
+    introTitleKey: 'orderAssess.assessTitle',
+    introSubtitleKey: 'orderAssess.assessSubtitle',
+    subsystems: ORDER_SUBSYSTEMS,
   },
   /* Core domains */
   presence: {

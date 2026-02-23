@@ -4618,6 +4618,12 @@ export const en: TranslationKeys = {
       sub_play_frequency: 'Play Frequency', sub_joy_capacity: 'Joy Capacity', sub_variety_range: 'Variety Range',
       sub_recovery_awareness: 'Recovery Awareness', sub_guilt_free_rest: 'Guilt-Free Rest', sub_somatic_connection: 'Somatic Connection',
     },
+    orderAssess: {
+      assessTitle: 'Order & Cleanliness Diagnostic',
+      assessSubtitle: 'A short conversation to reveal your environmental mastery, organization systems, and minimalism clarity.',
+      sub_space_cleanliness: 'Space Cleanliness', sub_system_organization: 'System Organization', sub_digital_order: 'Digital Order',
+      sub_routine_consistency: 'Routine Consistency', sub_environmental_mastery: 'Environmental Mastery', sub_minimalism_clarity: 'Minimalism Clarity',
+    },
     combatCommunity: {
       pageTitle: 'Combat | Community',
       title: 'Combat Community',

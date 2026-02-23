@@ -19,7 +19,7 @@ const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
   amber: 'text-amber-400', cyan: 'text-cyan-400', slate: 'text-slate-400',
   indigo: 'text-indigo-400', emerald: 'text-emerald-400', purple: 'text-purple-400',
-  sky: 'text-sky-400', rose: 'text-rose-400', violet: 'text-violet-400',
+  sky: 'text-sky-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
 };
 
 const activeBgMap: Record<string, string> = {
@@ -29,13 +29,14 @@ const activeBgMap: Record<string, string> = {
   indigo: 'bg-indigo-500/10 border-indigo-500/25', emerald: 'bg-emerald-500/10 border-emerald-500/25',
   purple: 'bg-purple-500/10 border-purple-500/25', sky: 'bg-sky-500/10 border-sky-500/25',
   rose: 'bg-rose-500/10 border-rose-500/25', violet: 'bg-violet-500/10 border-violet-500/25',
+  teal: 'bg-teal-500/10 border-teal-500/25',
 };
 
 const dotColorMap: Record<string, string> = {
   blue: 'bg-blue-400', fuchsia: 'bg-fuchsia-400', red: 'bg-red-400',
   amber: 'bg-amber-400', cyan: 'bg-cyan-400', slate: 'bg-slate-400',
   indigo: 'bg-indigo-400', emerald: 'bg-emerald-400', purple: 'bg-purple-400',
-  sky: 'bg-sky-400', rose: 'bg-rose-400', violet: 'bg-violet-400',
+  sky: 'bg-sky-400', rose: 'bg-rose-400', violet: 'bg-violet-400', teal: 'bg-teal-400',
 };
 
 interface HubPillarsListProps {

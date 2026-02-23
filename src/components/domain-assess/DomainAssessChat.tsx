@@ -86,6 +86,10 @@ const DOMAIN_INTROS: Record<string, { he: string; en: string }> = {
     he: '🎮 **ברוכים הבאים לסריקת משחק והתחדשות**\n\nכאן אנחנו מודדים את יכולת ההתחדשות שלך — תדירות משחק, יכולת שמחה, מגוון פעילויות, מנוחה ללא אשמה וחיבור גופני.\n\n**למה?** משחק הוא לא מותרות — הוא תרופה. בלי התחדשות מכוונת, שחיקה בלתי נמנעת.\n\n**מה נשאל?** שאלות על תחביבים, טיולים, ספורט כיפי, חיי חברה, הרפתקאות, גיימינג וכל מה שמשמח אותך.\n\n🔒 *כל המידע שלך מאובטח ושמור רק עבורך. שום דבר לא דולף החוצה.*',
     en: '🎮 **Welcome to the Play & Regeneration Scan**\n\nHere we measure your regeneration capacity — play frequency, joy capacity, activity variety, guilt-free rest, and somatic connection.\n\n**Why?** Play isn\'t luxury — it\'s medicine. Without intentional regeneration, burnout is inevitable.\n\n**What will we ask?** Questions about hobbies, trips, fun sports, social life, adventures, gaming, and everything that brings you joy.\n\n🔒 *All your data is encrypted and stored securely — only you can access it.*',
   },
+  order: {
+    he: '✨ **ברוכים הבאים לסריקת סדר וניקיון**\n\nכאן אנחנו מודדים את רמת הסדר בחיים שלך — ניקיון הסביבה, ארגון מערכות, סדר דיגיטלי, עקביות שגרה ומינימליזם.\n\n**למה?** סביבה מסודרת = מוח מסודר. סדר חיצוני משפיע ישירות על בהירות פנימית, פרודוקטיביות ושליטה.\n\n**מה נשאל?** שאלות על ניקיון הבית, ארגון חפצים, סדר דיגיטלי, שגרות ניקיון, מינימליזם ושליטה בסביבה.\n\n🔒 *כל המידע שלך מאובטח ושמור רק עבורך. שום דבר לא דולף החוצה.*',
+    en: '✨ **Welcome to the Order & Cleanliness Scan**\n\nHere we measure your environmental mastery — space cleanliness, system organization, digital order, routine consistency, and minimalism clarity.\n\n**Why?** An ordered environment = an ordered mind. External order directly impacts internal clarity, productivity, and control.\n\n**What will we ask?** Questions about home cleanliness, item organization, digital order, cleaning routines, minimalism, and environmental mastery.\n\n🔒 *All your data is encrypted and stored securely — only you can access it.*',
+  },
 };
 
 function isCoreDomain(domainId: string): boolean {

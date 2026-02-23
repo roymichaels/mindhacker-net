@@ -153,4 +153,14 @@ export const FEATURES: FeatureItem[] = [
     descEn: 'Plan and schedule meaningful play experiences — nature, movement, social, creative, adventure — tracked as intentional regeneration inside your Arena.',
     descHe: 'תכנן ותזמן חוויות משחק משמעותיות — טבע, תנועה, חברתי, יצירתי, הרפתקה — מנוטרות כהתחדשות מכוונת בתוך הזירה שלך.',
   },
+  {
+    slug: 'order-system',
+    icon: '✨',
+    titleEn: 'Order & Cleanliness System',
+    titleHe: 'מערכת סדר וניקיון',
+    hookEn: 'Ordered space. Ordered mind.',
+    hookHe: 'סביבה מסודרת. מוח מסודר.',
+    descEn: 'Track and optimize your physical and digital environments — cleanliness routines, organization systems, minimalism, and environmental mastery that directly fuel clarity and execution.',
+    descHe: 'עקוב ושפר את הסביבות הפיזיות והדיגיטליות שלך — שגרות ניקיון, מערכות ארגון, מינימליזם ושליטה סביבתית שמזינות ישירות בהירות וביצוע.',
+  },
 ];
