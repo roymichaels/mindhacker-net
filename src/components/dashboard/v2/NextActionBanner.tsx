@@ -266,27 +266,19 @@ export function NextActionBanner({ onOpenHypnosis, onOpenChat }: NextActionBanne
               </div>
             </div>
             
-            {/* Action Buttons */}
-            <div className="flex gap-2 w-full sm:w-auto">
-              {(nextAction as any).dismissable && (nextAction as any).onDismiss && (
-                <Button
-                  onClick={(e) => { e.stopPropagation(); (nextAction as any).onDismiss(); }}
+            {/* Action Buttons - hide for proactive coaching (greeting banner) */}
+            {nextAction.id !== 'proactive_coaching' && (
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button 
+                  onClick={handleClick}
                   size="sm"
-                  variant="ghost"
-                  className="flex-shrink-0"
+                  className="flex-1 sm:flex-initial flex-shrink-0 gap-1.5"
                 >
-                  <X className="h-4 w-4" />
+                  {nextAction.actionLabel}
+                  <ArrowRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
                 </Button>
-              )}
-              <Button 
-                onClick={handleClick}
-                size="sm"
-                className="flex-1 sm:flex-initial flex-shrink-0 gap-1.5"
-              >
-                {nextAction.actionLabel}
-                <ArrowRight className={cn("h-4 w-4", isRTL && "rotate-180")} />
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
