@@ -3941,9 +3941,11 @@ export type Database = {
           completed_at: string | null
           created_at: string | null
           description: string | null
+          description_en: string | null
           end_date: string | null
           focus_area: string | null
           goal: string | null
+          goal_en: string | null
           hypnosis_recommendation: string | null
           id: string
           is_completed: boolean | null
@@ -3951,7 +3953,9 @@ export type Database = {
           plan_id: string
           start_date: string | null
           tasks: Json | null
+          tasks_en: Json | null
           title: string
+          title_en: string | null
           tokens_reward: number | null
           week_number: number
           xp_reward: number | null
@@ -3961,9 +3965,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           description?: string | null
+          description_en?: string | null
           end_date?: string | null
           focus_area?: string | null
           goal?: string | null
+          goal_en?: string | null
           hypnosis_recommendation?: string | null
           id?: string
           is_completed?: boolean | null
@@ -3971,7 +3977,9 @@ export type Database = {
           plan_id: string
           start_date?: string | null
           tasks?: Json | null
+          tasks_en?: Json | null
           title: string
+          title_en?: string | null
           tokens_reward?: number | null
           week_number: number
           xp_reward?: number | null
@@ -3981,9 +3989,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           description?: string | null
+          description_en?: string | null
           end_date?: string | null
           focus_area?: string | null
           goal?: string | null
+          goal_en?: string | null
           hypnosis_recommendation?: string | null
           id?: string
           is_completed?: boolean | null
@@ -3991,7 +4001,9 @@ export type Database = {
           plan_id?: string
           start_date?: string | null
           tasks?: Json | null
+          tasks_en?: Json | null
           title?: string
+          title_en?: string | null
           tokens_reward?: number | null
           week_number?: number
           xp_reward?: number | null

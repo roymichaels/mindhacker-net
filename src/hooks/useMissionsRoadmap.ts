@@ -36,11 +36,14 @@ export interface MilestoneInfo {
   week_number: number;
   month_number: number;
   title: string;
+  title_en: string | null;
   goal: string;
+  goal_en: string | null;
   is_completed: boolean;
   start_date?: string;
   end_date?: string;
   tasks?: any;
+  tasks_en?: any;
 }
 
 export interface DayData {
@@ -143,7 +146,7 @@ export function useMissionsRoadmap() {
         // Fetch ALL milestones for the plan
         const { data: allMilestones } = await supabase
           .from('life_plan_milestones')
-          .select('id, week_number, month_number, title, goal, is_completed, tasks')
+          .select('id, week_number, month_number, title, title_en, goal, goal_en, is_completed, tasks, tasks_en')
           .eq('plan_id', lifePlan.id)
           .order('week_number', { ascending: true });
 
