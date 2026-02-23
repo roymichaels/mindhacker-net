@@ -68,18 +68,23 @@ Respond with valid JSON:
     "months": [
       {
         "number": 1,
-        "title": "Month 1 title",
+        "title": "Month 1 title in Hebrew",
         "title_he": "Hebrew title",
-        "focus": "Month 1 focus area",
+        "focus": "Month 1 focus area in Hebrew",
+        "focus_en": "Month 1 focus area in English",
         "milestone": "Key milestone",
         "weeks": [
           {
             "number": 1,
             "title": "Week title in Hebrew",
-            "description": "Week description",
-            "tasks": ["task1", "task2", "task3", "task4"],
-            "goal": "Weekly goal",
-            "challenge": "Weekly challenge",
+            "title_en": "Week title in English",
+            "description": "Week description in Hebrew",
+            "description_en": "Week description in English",
+            "tasks": ["task1 in Hebrew", "task2 in Hebrew", "task3 in Hebrew", "task4 in Hebrew"],
+            "tasks_en": ["task1 in English", "task2 in English", "task3 in English", "task4 in English"],
+            "goal": "Weekly goal in Hebrew",
+            "goal_en": "Weekly goal in English",
+            "challenge": "Weekly challenge in Hebrew",
             "hypnosis_recommendation": "Specific hypnosis focus"
           }
         ]
@@ -91,7 +96,13 @@ Respond with valid JSON:
     "readiness": 80,
     "clarity": 85
   }
-}`;
+}
+
+CRITICAL LANGUAGE RULE:
+- "title", "description", "tasks", "goal", "challenge", "focus" fields MUST be in HEBREW.
+- "title_en", "description_en", "tasks_en", "goal_en", "focus_en" fields MUST be in ENGLISH.
+- NEVER put English in Hebrew fields. NEVER put Hebrew in English fields.
+- Both versions must convey the same meaning.`;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -265,6 +276,7 @@ Deno.serve(async (req) => {
           description: week.description,
           description_en: week.description_en || week.description,
           focus_area: month.focus,
+          focus_area_en: month.focus_en || month.focus,
           tasks: week.tasks,
           tasks_en: week.tasks_en || week.tasks,
           goal: week.goal,
