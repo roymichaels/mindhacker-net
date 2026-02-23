@@ -26,6 +26,7 @@ export type AppCommand =
   | { type: 'replaceMilestoneTask'; weekNumber: number; taskIndex: number; newTask: string }
   | { type: 'addMilestone'; weekNumber: number; title: string; goal?: string; focusArea?: string }
   | { type: 'removeMilestone'; weekNumber: number }
+  | { type: 'bulkReplacePlan'; oldText: string; newText: string }
   | { type: 'addIdentity'; elementType: string; content: string }
   | { type: 'removeIdentity'; elementType: string; content: string }
   | { type: 'setReminder'; message: string; date: string; time?: string }
@@ -186,6 +187,11 @@ export function parseAllTags(content: string): AppCommand[] {
     commands.push({ type: 'removeMilestone', weekNumber: parseInt(m[1]) });
   }
 
+  // Bulk replace across all milestones: [plan:bulk_replace:old_text:new_text]
+  for (const m of content.matchAll(/\[plan:bulk_replace:(.+?):(.+?)\]/g)) {
+    commands.push({ type: 'bulkReplacePlan', oldText: m[1].trim(), newText: m[2].trim() });
+  }
+
   // Identity: [identity:add:type:content], [identity:remove:type:content]
   for (const m of content.matchAll(/\[identity:add:(.+?):(.+?)\]/g)) {
     commands.push({ type: 'addIdentity', elementType: m[1].trim(), content: m[2].trim() });
@@ -225,6 +231,7 @@ export function stripAllTags(content: string): string {
     .replace(/\[plan:replace_task:[^\]]+\]/g, '')
     .replace(/\[plan:add_milestone:[^\]]+\]/g, '')
     .replace(/\[plan:remove_milestone:[^\]]+\]/g, '')
+    .replace(/\[plan:bulk_replace:[^\]]+\]/g, '')
     .replace(/\[identity:[^\]]+\]/g, '')
     .replace(/\[reminder:[^\]]+\]/g, '')
     .replace(/\[focus:[^\]]+\]/g, '')

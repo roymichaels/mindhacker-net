@@ -59,6 +59,7 @@ const TOAST_CONFIGS: Record<string, { titleHe: string; titleEn: string }> = {
   'milestone:complete': { titleHe: '🏆 שבוע הושלם!', titleEn: '🏆 Week completed!' },
   'identity:update': { titleHe: '✨ זהות עודכנה', titleEn: '✨ Identity updated' },
   'plan:update': { titleHe: '📝 תוכנית עודכנה', titleEn: '📝 Plan updated' },
+  'plan:bulk_replace': { titleHe: '🔄 החלפה גורפת בתוכנית', titleEn: '🔄 Bulk plan replace' },
   'milestone:create': { titleHe: '📌 אבן דרך נוספה', titleEn: '📌 Milestone added' },
   'milestone:delete': { titleHe: '🗑️ אבן דרך הוסרה', titleEn: '🗑️ Milestone removed' },
 };
@@ -358,6 +359,51 @@ export const useCommandBus = () => {
         const { error } = await supabase.from('life_plan_milestones').delete().eq('plan_id', plan.id).eq('week_number', command.weekNumber);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
         return makeReceipt('milestone', 'delete', !error, isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}`);
+      }
+
+      // ── Bulk Replace across all milestones ──
+      case 'bulkReplacePlan': {
+        if (!user?.id) return null;
+        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
+        if (!plan) return null;
+        const { data: milestones } = await supabase.from('life_plan_milestones').select('id, title, title_en, goal, goal_en, description, description_en, focus_area, focus_area_en, tasks, tasks_en').eq('plan_id', plan.id);
+        if (!milestones) return null;
+        const regex = new RegExp(command.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        let updatedCount = 0;
+        for (const m of milestones) {
+          const updates: Record<string, any> = {};
+          for (const field of ['title', 'title_en', 'goal', 'goal_en', 'description', 'description_en', 'focus_area', 'focus_area_en'] as const) {
+            const val = (m as any)[field];
+            if (typeof val === 'string' && regex.test(val)) {
+              updates[field] = val.replace(regex, command.newText);
+              regex.lastIndex = 0;
+            }
+          }
+          // Handle tasks arrays
+          for (const taskField of ['tasks', 'tasks_en'] as const) {
+            const tasks = (m as any)[taskField];
+            if (Array.isArray(tasks)) {
+              const newTasks = tasks.map((t: any) => {
+                if (typeof t === 'string') return t.replace(regex, command.newText);
+                if (t && typeof t === 'object' && typeof t.title === 'string') {
+                  regex.lastIndex = 0;
+                  return { ...t, title: t.title.replace(regex, command.newText) };
+                }
+                return t;
+              });
+              regex.lastIndex = 0;
+              if (JSON.stringify(newTasks) !== JSON.stringify(tasks)) {
+                updates[taskField] = newTasks;
+              }
+            }
+          }
+          if (Object.keys(updates).length > 0) {
+            await supabase.from('life_plan_milestones').update(updates).eq('id', m.id);
+            updatedCount++;
+          }
+        }
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        return makeReceipt('plan', 'update', updatedCount > 0, `${command.oldText} → ${command.newText}`, `${updatedCount} ${isHebrew ? 'אבני דרך עודכנו' : 'milestones updated'}`);
       }
 
       // ── Identity ──
