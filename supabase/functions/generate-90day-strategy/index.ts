@@ -355,9 +355,10 @@ serve(async (req) => {
                 "Authorization": `Bearer ${LOVABLE_API_KEY}`,
               },
               body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+                model: "google/gemini-2.5-flash-lite",
+                max_tokens: 4000,
                 messages: [
-                  { role: "system", content: "You are Aurora, elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual data. Generate exactly 3 goals with 5 sub-goals each with 10 milestones each." },
+                  { role: "system", content: "You are Aurora, elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual data. Generate exactly 3 goals with 5 sub-goals each with 10 milestones each. Keep milestone text SHORT (under 15 words each)." },
                   { role: "user", content: prompt },
                 ],
               }),
