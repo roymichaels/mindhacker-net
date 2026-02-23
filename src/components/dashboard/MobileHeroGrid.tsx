@@ -11,7 +11,7 @@ import { useXpProgress, useStreak, useEnergy } from '@/hooks/useGameState';
 import { useAuth } from '@/contexts/AuthContext';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { Play, Clock, Flame, Zap as ZapIcon, Star, ListChecks, Sparkles, TrendingUp, Eye, ChevronDown, UserCircle, Compass, Brain, Target, Activity } from 'lucide-react';
-import { NowSection } from '@/components/dashboard/NowSection';
+// NowSection removed — Dashboard uses only DailyMilestones (Core+Arena)
 import { DailyMilestones as DailyMilestonesSection } from '@/components/hubs/DailyMilestones';
 import { CommandTimeline } from '@/components/dashboard/CommandTimeline';
 import { MotivationalBanner } from '@/components/dashboard/MotivationalBanner';
@@ -203,11 +203,8 @@ export function MobileHeroGrid({ planData }: MobileHeroGridProps) {
         <div ref={leftColRef} className="flex flex-col gap-4 flex-1 px-1">
           <div className="pt-1" />
 
-          {/* 🔥 Now Engine — Daily Execution Queue */}
-          <NowSection />
-
-          {/* 🎯 Daily Milestones — Unified from Core + Arena */}
-          <DailyMilestonesSection />
+          {/* 🎯 Daily Milestones — Core + Arena only */}
+          <DailyMilestonesSection hub="both" />
 
           {/* 📊 Movement Score */}
 
