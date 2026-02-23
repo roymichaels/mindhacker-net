@@ -288,7 +288,7 @@ function NinetyDayPlanModal({
       
       // Create plan with generated milestones
       createPlan({
-        title: data.title || (language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'),
+        title: data.title || (language === 'he' ? 'תוכנית 100 יום' : '100-Day Plan'),
         description: data.description,
         milestones: data.milestones,
       });
@@ -308,7 +308,7 @@ function NinetyDayPlanModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-amber-500" />
-            {language === 'he' ? 'תוכנית 90 יום' : '90-Day Business Plan'}
+            {language === 'he' ? 'תוכנית 100 יום' : '100-Day Business Plan'}
           </DialogTitle>
         </DialogHeader>
         
@@ -322,11 +322,11 @@ function NinetyDayPlanModal({
                     {language === 'he' ? 'התקדמות כללית' : 'Overall Progress'}
                   </span>
                   <span className="text-sm font-bold text-amber-600">
-                    {plan.milestones?.filter(m => m.is_completed).length || 0}/{plan.milestones?.length || 12}
+                    {plan.milestones?.filter(m => m.is_completed).length || 0}/{plan.milestones?.length || 10}
                   </span>
                 </div>
                 <Progress 
-                  value={(plan.milestones?.filter(m => m.is_completed).length || 0) / (plan.milestones?.length || 12) * 100} 
+                  value={(plan.milestones?.filter(m => m.is_completed).length || 0) / (plan.milestones?.length || 10) * 100} 
                   className="h-2"
                 />
               </div>
@@ -388,8 +388,8 @@ function NinetyDayPlanModal({
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
                 {language === 'he' 
-                  ? 'צור תוכנית פעולה מותאמת אישית ל-90 יום'
-                  : 'Create a personalized 90-day action plan'
+                  ? 'צור תוכנית פעולה מותאמת אישית ל-100 יום (10 שלבים)'
+                  : 'Create a personalized 100-day action plan (10 phases)'
                 }
               </p>
               <Button 

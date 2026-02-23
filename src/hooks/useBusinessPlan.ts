@@ -1,5 +1,5 @@
 /**
- * Hook to manage business 90-day plans and milestones
+ * Hook to manage business 100-day plans and milestones (10 phases)
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -94,7 +94,7 @@ export function useBusinessPlan(businessId: string | undefined) {
       // Create the plan
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 90);
+      endDate.setDate(endDate.getDate() + 100);
       
       const { data: newPlan, error: planError } = await supabase
         .from('business_plans')
@@ -106,7 +106,7 @@ export function useBusinessPlan(businessId: string | undefined) {
           status: 'active',
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
-          total_weeks: 12,
+          total_weeks: 10,
           current_week: 1,
         })
         .select()

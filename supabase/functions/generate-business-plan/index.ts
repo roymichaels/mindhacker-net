@@ -33,11 +33,13 @@ serve(async (req) => {
     const isHebrew = language === 'he';
 
     const systemPrompt = isHebrew
-      ? `אתה יועץ עסקי מומחה. צור תוכנית פעולה ל-90 יום (12 שבועות) עבור העסק. כל אבן דרך שבועית צריכה להיות ספציפית, מדידה וניתנת לביצוע. התמקד בצמיחה אמיתית ותוצאות מוחשיות.`
-      : `You are an expert business consultant. Create a 90-day action plan (12 weeks) for the business. Each weekly milestone should be specific, measurable, and actionable. Focus on real growth and tangible results.`;
+      ? `אתה יועץ עסקי מומחה. צור תוכנית פעולה ל-100 יום (10 שלבים, A עד J) עבור העסק. כל שלב בן 10 ימים צריך להיות ספציפי, מדיד וניתן לביצוע. שלב A הוא הבסיסי ביותר ו-J הוא המתקדם ביותר. כל שלב בונה על הקודם. התמקד בצמיחה אמיתית ותוצאות מוחשיות.`
+      : `You are an expert business consultant. Create a 100-day action plan (10 phases, A through J) for the business. Each phase is 10 days and should be specific, measurable, and actionable. Phase A is the most foundational and J is the most advanced. Each phase builds on the previous one. Focus on real growth and tangible results.`;
+
+    const phaseLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
     const userPrompt = isHebrew
-      ? `צור תוכנית 90 יום עבור העסק הבא:
+      ? `צור תוכנית 100 יום (10 שלבים, A עד J) עבור העסק הבא:
 
 שם העסק: ${businessName}
 חזון: ${JSON.stringify(vision)}
@@ -50,6 +52,8 @@ serve(async (req) => {
 שיווק: ${JSON.stringify(marketing)}
 תפעול: ${JSON.stringify(operations)}
 
+צור בדיוק 10 אבני דרך (אחת לכל שלב). שלב A הוא הבסיסי ביותר (מחקר, הגדרה) ושלב J הוא המתקדם (שליטה, אופטימיזציה).
+
 החזר JSON בפורמט הבא:
 {
   "title": "כותרת התוכנית",
@@ -57,6 +61,7 @@ serve(async (req) => {
   "milestones": [
     {
       "week_number": 1,
+      "phase_label": "A",
       "title": "כותרת אבן הדרך",
       "description": "תיאור מפורט",
       "focus_area": "תחום מיקוד (שיווק/מכירות/תפעול/מוצר)",
@@ -68,7 +73,7 @@ serve(async (req) => {
     }
   ]
 }`
-      : `Create a 90-day plan for the following business:
+      : `Create a 100-day plan (10 phases, A through J) for the following business:
 
 Business Name: ${businessName}
 Vision: ${JSON.stringify(vision)}
@@ -81,6 +86,8 @@ Financial Planning: ${JSON.stringify(financial)}
 Marketing: ${JSON.stringify(marketing)}
 Operations: ${JSON.stringify(operations)}
 
+Generate exactly 10 milestones (one per phase). Phase A is the most foundational (research, setup) and Phase J is the most advanced (mastery, optimization).
+
 Return JSON in this format:
 {
   "title": "Plan Title",
@@ -88,6 +95,7 @@ Return JSON in this format:
   "milestones": [
     {
       "week_number": 1,
+      "phase_label": "A",
       "title": "Milestone title",
       "description": "Detailed description",
       "focus_area": "Focus area (marketing/sales/operations/product)",
@@ -160,13 +168,14 @@ Return JSON in this format:
       console.error("[generate-business-plan] Failed to parse AI response:", parseError);
       // Return a default structure if parsing fails
       planData = {
-        title: isHebrew ? "תוכנית 90 יום" : "90-Day Business Plan",
+        title: isHebrew ? "תוכנית 100 יום" : "100-Day Business Plan",
         description: isHebrew ? "תוכנית פעולה מותאמת אישית" : "Personalized action plan",
-        milestones: Array.from({ length: 12 }, (_, i) => ({
+        milestones: Array.from({ length: 10 }, (_, i) => ({
           week_number: i + 1,
-          title: isHebrew ? `שבוע ${i + 1}` : `Week ${i + 1}`,
-          description: isHebrew ? "אבן דרך לשבוע זה" : "Milestone for this week",
-          focus_area: ["marketing", "sales", "operations", "product"][i % 4],
+          phase_label: phaseLabels[i],
+          title: isHebrew ? `שלב ${phaseLabels[i]}` : `Phase ${phaseLabels[i]}`,
+          description: isHebrew ? "אבן דרך לשלב זה" : "Milestone for this phase",
+          focus_area: ["marketing", "sales", "operations", "product", "growth"][i % 5],
           tasks: [],
           xp_reward: 50,
           tokens_reward: 10,
