@@ -311,6 +311,28 @@ serve(async (req) => {
 
     const targetHub = hub || 'both';
 
+    // === GENERATION LOCK: Prevent concurrent generation ===
+    // Check for any plans in "generating" status (indicates another call in progress)
+    const { data: generatingPlans } = await supabase
+      .from('life_plans').select('id, created_at')
+      .eq('user_id', user_id).eq('status', 'generating');
+    
+    if (generatingPlans && generatingPlans.length > 0) {
+      // Check if generating plan is stale (> 5 min old = likely crashed)
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const stale = generatingPlans.filter((p: any) => p.created_at < fiveMinAgo);
+      if (stale.length > 0) {
+        // Clean up stale locks
+        await supabase.from('life_plans').delete().in('id', stale.map((p: any) => p.id));
+        console.log(`Cleaned ${stale.length} stale generation locks`);
+      } else {
+        // Active generation in progress — reject
+        return new Response(JSON.stringify({ message: "Generation already in progress, please wait." }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Check existing plans
     if (!force_regenerate) {
       const { data: existing } = await supabase
@@ -358,35 +380,8 @@ serve(async (req) => {
 
     const userContext = buildUserContext(profileContext, userProjects, userBusinesses, auroraMemory);
 
-    // ===== HUB-AWARE ARCHIVING =====
-    // Only archive plans for the hubs we're about to generate
+    // Archiving moved to AFTER generation (atomic flip) — see below
     const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
-    
-    for (const h of hubsToGenerate) {
-      const { data: oldPlansForHub } = await supabase
-        .from('life_plans')
-        .select('id, plan_data')
-        .eq('user_id', user_id)
-        .eq('status', 'active');
-      
-      const hubPlanIds = (oldPlansForHub || [])
-        .filter((p: any) => p.plan_data?.hub === h)
-        .map((p: any) => p.id);
-      
-      if (hubPlanIds.length > 0) {
-        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
-        await supabase.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
-        await supabase.from('life_plans').update({ status: 'archived' }).in('id', hubPlanIds);
-        console.log(`Archived ${hubPlanIds.length} old ${h} plans`);
-      }
-    }
-
-    // Clean orphaned items only if generating both
-    if (targetHub === 'both') {
-      await supabase.from('action_items').delete()
-        .eq('user_id', user_id).is('plan_id', null)
-        .in('source', ['plan', 'aurora']).in('type', ['habit', 'task']).neq('status', 'done');
-    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const results: any[] = [];
@@ -442,6 +437,7 @@ serve(async (req) => {
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 90);
 
+      // Insert plan with "generating" status (lock) then flip to "active" after milestones
       const { data: plan, error: planError } = await supabase
         .from('life_plans')
         .insert({
@@ -450,7 +446,7 @@ serve(async (req) => {
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
           plan_data: { hub: h, strategy: strategyData },
-          status: 'active',
+          status: 'generating',
           progress_percentage: 0,
         })
         .select('id')
@@ -502,6 +498,26 @@ serve(async (req) => {
         }
       }
 
+      // === ATOMIC FLIP: Only now archive old plans and activate the new one ===
+      // This ensures we never lose data — old plan stays active until new one is fully ready
+      const { data: oldPlansForHub } = await supabase
+        .from('life_plans').select('id, plan_data')
+        .eq('user_id', user_id).eq('status', 'active');
+      
+      const hubPlanIds = (oldPlansForHub || [])
+        .filter((p: any) => p.plan_data?.hub === h)
+        .map((p: any) => p.id);
+      
+      if (hubPlanIds.length > 0) {
+        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
+        await supabase.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
+        await supabase.from('life_plans').update({ status: 'archived' }).in('id', hubPlanIds);
+        console.log(`Archived ${hubPlanIds.length} old ${h} plans`);
+      }
+
+      // Now activate the new plan
+      await supabase.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
+
       console.log(`✅ ${h} hub: ${milestoneRows.length} milestones created (AI: ${allAiSuccess})`);
       results.push({ hub: h, plan_id: plan.id, goals_count: milestoneRows.length, ai_generated: allAiSuccess });
     }
@@ -512,6 +528,14 @@ serve(async (req) => {
     );
   } catch (e) {
     console.error("generate-90day-strategy error:", e);
+    // Clean up any "generating" locks on error
+    try {
+      const body2 = await req.clone().json().catch(() => ({}));
+      if (body2?.user_id) {
+        const supabase2 = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+        await supabase2.from('life_plans').delete().eq('user_id', body2.user_id).eq('status', 'generating');
+      }
+    } catch (_) { /* ignore cleanup errors */ }
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
