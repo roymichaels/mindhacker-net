@@ -1,8 +1,10 @@
 /**
  * DailyMilestones — Shows today's milestone for each pillar from the 90-day plan.
  * Picks based on day-of-plan offset, cycling through the 3×5×10 structure.
+ * Always includes a daily hypnosis task under Consciousness.
  */
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -53,6 +55,7 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   const { coreStrategy, arenaStrategy, corePlan, arenaPlan } = useStrategyPlans();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
+  const navigate = useNavigate();
 
   const dailyMilestones = useMemo(() => {
     const results: DailyMilestone[] = [];
@@ -106,11 +109,32 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
     if (hub === 'arena' || hub === 'both') {
       processHub(arenaStrategy, arenaPlan, ARENA_DOMAINS, 'arena');
     }
+
+    // Always inject a daily hypnosis task under Consciousness
+    if (hub === 'core' || hub === 'both') {
+      const consciousnessDomain = CORE_DOMAINS.find(d => d.id === 'consciousness');
+      if (consciousnessDomain) {
+        results.unshift({
+          pillarId: 'consciousness-hypnosis',
+          domain: consciousnessDomain,
+          goalTitle: isHe ? 'טרנספורמציה יומית' : 'Daily Transformation',
+          subGoalTitle: isHe ? 'סשן היפנוזה יומי — 15 דקות' : 'Daily Hypnosis Session — 15 min',
+          milestone: isHe ? '🧠 היפנוזה יומית — סשן תודעה מותאם אישית' : '🧠 Daily Hypnosis — Personalized Consciousness Session',
+          milestoneIndex: 1,
+          totalMilestones: 1,
+        });
+      }
+    }
     
     return results;
   }, [coreStrategy, arenaStrategy, corePlan, arenaPlan, isHe, hub]);
 
   const handleExecute = (dm: DailyMilestone) => {
+    // Hypnosis task → navigate to hypnosis page
+    if (dm.pillarId === 'consciousness-hypnosis') {
+      navigate('/hypnosis');
+      return;
+    }
     const hubType = CORE_DOMAINS.some(d => d.id === dm.pillarId) ? 'core' : 'arena';
     setExecutionAction({
       pillarId: dm.pillarId,
