@@ -23,6 +23,11 @@ export interface NowEngineData {
   tier: string;
   max_actions: number;
   energy_level: number | null;
+  day_intensity?: string;
+  has_core_strategy?: boolean;
+  has_arena_strategy?: boolean;
+  core_week?: number | null;
+  arena_week?: number | null;
 }
 
 export function useNowEngine() {
@@ -49,6 +54,11 @@ export function useNowEngine() {
     tier: query.data?.tier || 'clarity',
     maxActions: query.data?.max_actions || 3,
     energyLevel: query.data?.energy_level,
+    dayIntensity: query.data?.day_intensity || 'medium',
+    hasCoreStrategy: query.data?.has_core_strategy || false,
+    hasArenaStrategy: query.data?.has_arena_strategy || false,
+    coreWeek: query.data?.core_week || null,
+    arenaWeek: query.data?.arena_week || null,
     isLoading: query.isLoading,
     refetch: query.refetch,
   };
