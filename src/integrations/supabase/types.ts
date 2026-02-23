@@ -5389,6 +5389,7 @@ export type Database = {
           level: number | null
           onboarding_completed_at: string | null
           preferred_language: string | null
+          selected_pillars: Json | null
           session_streak: number | null
           sleep_time: string | null
           stripe_customer_id: string | null
@@ -5416,6 +5417,7 @@ export type Database = {
           level?: number | null
           onboarding_completed_at?: string | null
           preferred_language?: string | null
+          selected_pillars?: Json | null
           session_streak?: number | null
           sleep_time?: string | null
           stripe_customer_id?: string | null
@@ -5443,6 +5445,7 @@ export type Database = {
           level?: number | null
           onboarding_completed_at?: string | null
           preferred_language?: string | null
+          selected_pillars?: Json | null
           session_streak?: number | null
           sleep_time?: string | null
           stripe_customer_id?: string | null

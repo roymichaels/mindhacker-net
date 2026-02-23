@@ -91,12 +91,19 @@ export function useStrategyPlans() {
   });
 
   const generateStrategy = useMutation({
-    mutationFn: async ({ hub, forceRegenerate }: { hub?: 'core' | 'arena' | 'both'; forceRegenerate?: boolean }) => {
+    mutationFn: async ({ hub, forceRegenerate, selectedPillars, singlePillar }: { 
+      hub?: 'core' | 'arena' | 'both'; 
+      forceRegenerate?: boolean;
+      selectedPillars?: { core: string[]; arena: string[] };
+      singlePillar?: string;
+    }) => {
       const { data, error } = await supabase.functions.invoke('generate-90day-strategy', {
         body: {
           user_id: user!.id,
           hub: hub || 'both',
           force_regenerate: forceRegenerate || false,
+          selected_pillars: selectedPillars,
+          single_pillar: singlePillar,
         },
       });
       if (error) throw error;
