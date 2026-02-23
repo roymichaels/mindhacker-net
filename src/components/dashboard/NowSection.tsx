@@ -14,6 +14,7 @@ import { useCompleteNowAction } from '@/hooks/useNowEngine';
 import { getDomainById } from '@/navigation/lifeDomains';
 import { toast } from 'sonner';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
+import { DailyRoadmap } from '@/components/dashboard/DailyRoadmap';
 
 function PillarBadge({ pillarId, hub }: { pillarId: string; hub: 'core' | 'arena' }) {
   const { language } = useTranslation();
@@ -149,6 +150,9 @@ export function NowSection() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* ─── DAILY ROADMAP (Progress + checklist) ──── */}
+      <DailyRoadmap />
 
       {/* ─── TODAY QUEUE (Grid) ─────────────────────── */}
       {restQueue.length > 0 && (
