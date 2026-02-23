@@ -24,11 +24,20 @@ export interface StrategyWeek {
   }[];
 }
 
+export interface StrategySubGoal {
+  sub_goal_en: string;
+  sub_goal_he: string;
+  milestones_en: string[];
+  milestones_he: string[];
+}
+
 export interface StrategyPillarGoal {
   goal_en: string;
   goal_he: string;
-  milestones_en: string[];
-  milestones_he: string[];
+  sub_goals?: StrategySubGoal[];
+  // Legacy flat milestones
+  milestones_en?: string[];
+  milestones_he?: string[];
 }
 
 export interface StrategyData {
