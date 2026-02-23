@@ -1,13 +1,12 @@
 /**
  * ArenaHub — Body content for the Arena/זירה tab.
- * Matches Core hub layout: header + daily milestones + pillars grid.
+ * Displays daily arena missions only; pillar grid is in the sidebar.
  */
 import { useState } from 'react';
 import { Plus, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { HubPillarsList } from '@/components/hubs/HubPillarsList';
 import { DailyMilestones } from '@/components/hubs/DailyMilestones';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 
@@ -40,7 +39,6 @@ export default function ArenaHub() {
         </div>
 
         <DailyMilestones hub="arena" hideHeader />
-        <HubPillarsList hub="arena" />
       </div>
       <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="arena" />
     </div>

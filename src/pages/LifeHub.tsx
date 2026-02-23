@@ -7,7 +7,6 @@ import { Plus, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
-import { HubPillarsList } from '@/components/hubs/HubPillarsList';
 import { DailyMilestones } from '@/components/hubs/DailyMilestones';
 import { AddItemWizard } from '@/components/plate/AddItemWizard';
 
@@ -40,7 +39,6 @@ export default function LifeHub() {
         </div>
 
         <DailyMilestones hub="core" hideHeader />
-        <HubPillarsList hub="core" />
       </div>
       <AddItemWizard open={wizardOpen} onOpenChange={setWizardOpen} hub="core" />
     </div>
