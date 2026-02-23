@@ -43,10 +43,10 @@ export function useUserPlate() {
           .from('action_items')
           .select('id, title, description, type, status, pillar, source, created_at')
           .eq('user_id', user.id)
-          .in('type', ['goal', 'milestone'])
+          .in('type', ['goal', 'milestone', 'task'])
           .neq('status', 'done')
           .order('created_at', { ascending: false })
-          .limit(50),
+          .limit(80),
       ]);
 
       const items: PlateItem[] = [];
@@ -114,7 +114,8 @@ export function filterByHub(items: PlateItem[], hub: 'core' | 'arena'): PlateIte
   const pillars = hub === 'core' ? corePillars : arenaPillars;
 
   return items.filter(item => {
-    if (item.pillars.length === 0) return false;
+    // Items with no pillar (e.g. plan milestones) show in both hubs
+    if (item.pillars.length === 0) return true;
     return item.pillars.some(p => pillars.includes(p));
   });
 }
