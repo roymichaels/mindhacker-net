@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
 interface MilestoneDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,7 +23,7 @@ interface MilestoneDetailModalProps {
     title: string;
     goal: string | null;
     focus_area: string | null;
-    week_number: number;
+    week_number: number; // phase_number
     month_number: number;
     is_completed: boolean | null;
   } | null;
@@ -31,7 +33,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
 
-  // Fetch milestone's built-in tasks from the milestone row itself
   const { data: milestoneRow, isLoading: loadingMilestone } = useQuery({
     queryKey: ['milestone-row', milestone?.id],
     queryFn: async () => {
@@ -46,7 +47,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
     enabled: !!milestone?.id && open,
   });
 
-  // Also check for linked action_items
   const { data: actionItems, isLoading: loadingActions } = useQuery({
     queryKey: ['milestone-actions', milestone?.id],
     queryFn: async () => {
@@ -65,7 +65,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
 
   const isLoading = loadingMilestone || loadingActions;
 
-  // Get tasks from milestone row (bilingual)
   const builtInTasks: string[] = isHe
     ? (milestoneRow?.tasks as string[] || [])
     : (milestoneRow?.tasks_en as string[] || milestoneRow?.tasks as string[] || []);
@@ -83,8 +82,8 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
   const total = actionItems?.length ?? 0;
   const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  const weekLabel = isHe ? `שבוע ${milestone.week_number}` : `Week ${milestone.week_number}`;
-  const monthLabel = isHe ? `חודש ${milestone.month_number}` : `Month ${milestone.month_number}`;
+  const phaseLabel = PHASE_LABELS[(milestone.week_number || 1) - 1] || '?';
+  const phaseTag = isHe ? `שלב ${phaseLabel}` : `Phase ${phaseLabel}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,8 +92,10 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
         <div className="p-4 pb-3 border-b bg-gradient-to-r from-amber-500/10 to-transparent">
           <DialogHeader>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="text-xs">{monthLabel}</Badge>
-              <Badge variant="outline" className="text-xs">{weekLabel}</Badge>
+              <Badge variant="secondary" className="text-xs">{phaseTag}</Badge>
+              {milestone.focus_area && (
+                <Badge variant="outline" className="text-xs">{milestone.focus_area}</Badge>
+              )}
               {milestone.is_completed && (
                 <Badge className="bg-amber-500/20 text-amber-600 text-xs gap-1">
                   <Trophy className="w-3 h-3" />
@@ -106,9 +107,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
               {goalText || milestone.title}
             </DialogTitle>
           </DialogHeader>
-          {milestone.focus_area && (
-            <p className="text-xs text-muted-foreground mt-1">{milestone.focus_area}</p>
-          )}
           {descText && (
             <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{descText}</p>
           )}
@@ -137,7 +135,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
             ) : hasActionItems ? (
-              /* Linked action_items */
               <div className="space-y-1.5">
                 {actionItems?.map(item => (
                   <div
@@ -172,7 +169,6 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
                 ))}
               </div>
             ) : builtInTasks.length > 0 ? (
-              /* Built-in tasks from milestone row */
               <div className="space-y-1.5">
                 {builtInTasks.map((task, idx) => (
                   <div
@@ -190,11 +186,10 @@ export function MilestoneDetailModal({ open, onOpenChange, milestone }: Mileston
               </p>
             )}
 
-            {/* Challenge / Hypnosis recommendation */}
             {milestoneRow?.challenge && (
               <div className="mt-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
                 <p className="text-[10px] font-semibold text-amber-600 mb-1">
-                  {isHe ? '⚡ אתגר השבוע' : '⚡ Weekly Challenge'}
+                  {isHe ? '⚡ אתגר השלב' : '⚡ Phase Challenge'}
                 </p>
                 <p className="text-xs text-muted-foreground">{milestoneRow.challenge}</p>
               </div>

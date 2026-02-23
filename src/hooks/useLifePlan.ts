@@ -103,7 +103,9 @@ export function useCurrentWeekMilestone(planId: string | null, startDate: string
       const now = new Date();
       const diffTime = now.getTime() - start.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      const currentWeek = Math.min(12, Math.max(1, Math.ceil((diffDays + 1) / 7)));
+      // 100-day plan with 10 phases (10 days each)
+      const currentPhase = Math.min(10, Math.max(1, Math.ceil((diffDays + 1) / 10)));
+      const currentWeek = currentPhase; // week_number column = phase_number
 
       const { data, error } = await supabase
         .from('life_plan_milestones')
@@ -200,7 +202,7 @@ export function useLifePlanWithMilestones() {
     const now = new Date();
     const diffTime = now.getTime() - start.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.min(12, Math.max(1, Math.ceil((diffDays + 1) / 7)));
+    return Math.min(10, Math.max(1, Math.ceil((diffDays + 1) / 10)));
   };
 
   return {

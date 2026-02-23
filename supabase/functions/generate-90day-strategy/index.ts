@@ -5,6 +5,13 @@ import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/co
 const CORE_PILLAR_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
 const ARENA_PILLAR_IDS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'];
 
+const TOTAL_PHASES = 10;
+const TOTAL_DAYS = 100;
+const DAYS_PER_PHASE = TOTAL_DAYS / TOTAL_PHASES; // 10 days per phase
+
+// Phase labels A-J
+const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
 interface PillarAssessment {
   domain_id: string;
   domain_config: Record<string, any>;
@@ -90,6 +97,8 @@ function buildLayer1Prompt(
   return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS).
 
 TASK: Generate exactly 3 MAIN STRATEGIC GOALS for the pillar "${pillarId}" (${hub} hub).
+This is part of a 100-DAY TRANSFORMATION PLAN divided into 10 progressive phases (A through J).
+Each phase builds on the previous one — start with foundations, then layer complexity.
 
 ${userContext}
 
@@ -102,6 +111,7 @@ ${assessmentBlock}
 3. Use recent memory to understand current context and struggles.
 4. Platform is "Mind OS" — never use old branding.
 5. Hebrew must be natural, not translated.
+6. Goals should follow progressive complexity: Goal 1 = foundational, Goal 2 = intermediate, Goal 3 = advanced.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -122,6 +132,7 @@ function buildLayer2Prompt(
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
   
   return `You are Aurora for "Mind OS". TASK: Break down each main goal into exactly 3 SUB-GOALS.
+This is part of a 100-DAY TRANSFORMATION PLAN with 10 progressive phases.
 
 ## PILLAR: ${pillarId.toUpperCase()}
 
@@ -134,6 +145,7 @@ ${assessmentBlock}
 ## RULES:
 - Sub-goals must be specific and actionable, building toward the main goal.
 - Each sub-goal should target a different aspect of the main goal.
+- Sub-goals should be progressively more advanced.
 - Hebrew must be natural. Keep text concise.
 
 ## OUTPUT (JSON only, NO markdown):
@@ -162,7 +174,7 @@ ${assessmentBlock}
 }`;
 }
 
-// LAYER 3: Generate 5 milestones for each sub-goal
+// LAYER 3: Generate 10 milestones for each sub-goal (one per phase)
 function buildLayer3Prompt(
   pillarId: string,
   goalsWithSubGoals: any[],
@@ -174,7 +186,9 @@ function buildLayer3Prompt(
     return `  Goal ${gi+1}: "${g.goal_en}"\n${sgs}`;
   }).join('\n');
   
-  return `You are Aurora for "Mind OS". TASK: Generate exactly 5 CONCRETE MILESTONES for each sub-goal.
+  return `You are Aurora for "Mind OS". TASK: Generate exactly 10 CONCRETE MILESTONES for each sub-goal.
+These 10 milestones map to the 10 PHASES (A-J) of a 100-day transformation plan.
+Each phase builds on the previous — Phase A is foundational, Phase J is mastery-level.
 
 ## PILLAR: ${pillarId.toUpperCase()}
 
@@ -182,10 +196,11 @@ function buildLayer3Prompt(
 ${structure}
 
 ## RULES:
-- Milestones must be CONCRETE action steps (not vague).
+- Each sub-goal gets exactly 10 milestones (one per phase A-J).
+- Milestones MUST be progressively challenging: Phase A = basics, Phase J = mastery.
 - Each milestone under 12 words.
-- Milestones should be progressively challenging within each sub-goal.
-- Hebrew must be natural. No generic filler.
+- No generic filler. Be concrete and specific.
+- Hebrew must be natural.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -195,8 +210,8 @@ ${structure}
       "sub_goals": [
         {
           "sub_goal_en": "...", "sub_goal_he": "...",
-          "milestones_en": ["step1", "step2", "step3", "step4", "step5"],
-          "milestones_he": ["צעד1", "צעד2", "צעד3", "צעד4", "צעד5"]
+          "milestones_en": ["phase A step", "phase B step", "phase C step", "phase D step", "phase E step", "phase F step", "phase G step", "phase H step", "phase I step", "phase J step"],
+          "milestones_he": ["שלב A", "שלב B", "שלב C", "שלב D", "שלב E", "שלב F", "שלב G", "שלב H", "שלב I", "שלב J"]
         }
       ]
     }
@@ -235,21 +250,17 @@ async function callAI(apiKey: string, prompt: string, systemMsg: string, maxToke
       const raw = result.choices?.[0]?.message?.content || '';
       const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       
-      // Try to fix truncated JSON by closing open brackets
       let parsed: any;
       try {
         parsed = JSON.parse(jsonStr);
       } catch {
-        // Attempt auto-repair: count open/close brackets and append missing ones
         let fixed = jsonStr;
         const openBraces = (fixed.match(/{/g) || []).length;
         const closeBraces = (fixed.match(/}/g) || []).length;
         const openBrackets = (fixed.match(/\[/g) || []).length;
         const closeBrackets = (fixed.match(/\]/g) || []).length;
         
-        // Remove trailing comma if present
         fixed = fixed.replace(/,\s*$/, '');
-        // Remove incomplete string values
         fixed = fixed.replace(/,?\s*"[^"]*$/, '');
         
         for (let i = 0; i < openBrackets - closeBrackets; i++) fixed += ']';
@@ -297,13 +308,13 @@ async function generatePillarStrategy(
   console.log(`  [${pillarId}] Layer 2: generating sub-goals...`);
   const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 2500);
   if (!layer2?.goals) {
-    console.error(`  [${pillarId}] Layer 2 failed, using Layer 1 with generic sub-goals`);
+    console.error(`  [${pillarId}] Layer 2 failed`);
     return null;
   }
 
-  // LAYER 3: Milestones (builds on Layer 2 output) — needs most tokens
-  console.log(`  [${pillarId}] Layer 3: generating milestones...`);
-  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.goals), sysMsg, 6000);
+  // LAYER 3: Milestones — 10 per sub-goal (one per phase)
+  console.log(`  [${pillarId}] Layer 3: generating milestones (10 per sub-goal)...`);
+  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.goals), sysMsg, 8000);
   if (!layer3?.goals) {
     console.error(`  [${pillarId}] Layer 3 failed, using Layer 2 without milestones`);
     return layer2;
@@ -315,8 +326,8 @@ async function generatePillarStrategy(
 
 // ========== FALLBACK ==========
 function _g(id: string, e1: string, h1: string, e2: string, h2: string, e3: string, h3: string) {
-  const ms = (label: string) => Array.from({length:5}, (_,i) => `${label} step ${i+1}`);
-  const msH = (label: string) => Array.from({length:5}, (_,i) => `${label} צעד ${i+1}`);
+  const ms = (label: string) => Array.from({length:10}, (_,i) => `${label} phase ${PHASE_LABELS[i]} step`);
+  const msH = (label: string) => Array.from({length:10}, (_,i) => `${label} שלב ${PHASE_LABELS[i]}`);
   const sg = (en: string, he: string) => ({ sub_goal_en: en, sub_goal_he: he, milestones_en: ms(en), milestones_he: msH(he) });
   return { goals: [
     { goal_en: e1, goal_he: h1, sub_goals: [sg("Foundation","בסיס"), sg("Practice","תרגול"), sg("Mastery","שליטה")] },
@@ -354,22 +365,18 @@ serve(async (req) => {
 
     const targetHub = hub || 'both';
 
-    // === GENERATION LOCK: Prevent concurrent generation ===
-    // Check for any plans in "generating" status (indicates another call in progress)
+    // === GENERATION LOCK ===
     const { data: generatingPlans } = await supabase
       .from('life_plans').select('id, created_at')
       .eq('user_id', user_id).eq('status', 'generating');
     
     if (generatingPlans && generatingPlans.length > 0) {
-      // Check if generating plan is stale (> 5 min old = likely crashed)
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const stale = generatingPlans.filter((p: any) => p.created_at < fiveMinAgo);
       if (stale.length > 0) {
-        // Clean up stale locks
         await supabase.from('life_plans').delete().in('id', stale.map((p: any) => p.id));
         console.log(`Cleaned ${stale.length} stale generation locks`);
       } else {
-        // Active generation in progress — reject
         return new Response(JSON.stringify({ message: "Generation already in progress, please wait." }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -423,7 +430,6 @@ serve(async (req) => {
 
     const userContext = buildUserContext(profileContext, userProjects, userBusinesses, auroraMemory);
 
-    // Archiving moved to AFTER generation (atomic flip) — see below
     const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -437,8 +443,7 @@ serve(async (req) => {
       let allAiSuccess = true;
 
       if (LOVABLE_API_KEY) {
-        // Run 3-layer pipeline for each pillar (parallel across pillars)
-        console.log(`\n🚀 Generating ${h} hub with 3-layer pipeline...`);
+        console.log(`\n🚀 Generating ${h} hub — 100-day / 10-phase plan...`);
         
         const aiPromises = pillarIds.map(async (pillarId) => {
           const assessment = hubAssessments.find(a => a.domain_id === pillarId);
@@ -467,20 +472,23 @@ serve(async (req) => {
 
       const strategyData = {
         hub: h,
-        title_en: h === 'core' ? '90-Day Core Transformation' : '90-Day Arena Execution',
-        title_he: h === 'core' ? 'טרנספורמציה פנימית — 90 יום' : 'ביצוע בזירה — 90 יום',
+        total_phases: TOTAL_PHASES,
+        total_days: TOTAL_DAYS,
+        days_per_phase: DAYS_PER_PHASE,
+        phase_labels: PHASE_LABELS,
+        title_en: h === 'core' ? '100-Day Core Transformation' : '100-Day Arena Execution',
+        title_he: h === 'core' ? 'טרנספורמציה פנימית — 100 יום' : 'ביצוע בזירה — 100 יום',
         vision_en: h === 'core' ? 'Build unshakable internal systems for consciousness, energy, and identity.' : 'Create unstoppable momentum in wealth, influence, and impact.',
         vision_he: h === 'core' ? 'בנה מערכות פנימיות בלתי ניתנות לערעור.' : 'צור מומנטום בלתי ניתן לעצירה בעושר, השפעה ואימפקט.',
         pillars: pillarResults,
         ai_generated: allAiSuccess,
       };
 
-      // Store plan
+      // Store plan — 100 days
       const startDate = new Date();
       const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 90);
+      endDate.setDate(endDate.getDate() + TOTAL_DAYS);
 
-      // Insert plan with "generating" status (lock) then flip to "active" after milestones
       const { data: plan, error: planError } = await supabase
         .from('life_plans')
         .insert({
@@ -501,6 +509,7 @@ serve(async (req) => {
       }
 
       // Generate milestones — each sub-goal = one row
+      // week_number now represents phase_number (1-10)
       const milestoneRows: any[] = [];
 
       for (const [pillarId, pillarObj] of Object.entries(pillarResults)) {
@@ -508,10 +517,13 @@ serve(async (req) => {
         goals.forEach((goal: any, gi: number) => {
           const subGoals = goal.sub_goals || [];
           subGoals.forEach((sg: any, si: number) => {
+            // Map to phase: goal index * 3 + sub-goal index + 1 → but cap at 10
+            // With 3 goals × 3 sub-goals = 9 sub-goals per pillar, map each to a phase
+            const phaseNumber = Math.min(TOTAL_PHASES, gi * 3 + si + 1);
             milestoneRows.push({
               plan_id: plan.id,
-              week_number: gi * 5 + si + 1,
-              month_number: gi + 1,
+              week_number: phaseNumber, // Reuse week_number column for phase_number
+              month_number: Math.ceil(phaseNumber / 3), // Approximate month grouping
               title: sg.sub_goal_he || sg.sub_goal_en || goal.goal_he,
               title_en: sg.sub_goal_en || sg.sub_goal_he || goal.goal_en,
               description: goal.goal_he || goal.goal_en,
@@ -541,8 +553,7 @@ serve(async (req) => {
         }
       }
 
-      // === ATOMIC FLIP: Only now archive old plans and activate the new one ===
-      // This ensures we never lose data — old plan stays active until new one is fully ready
+      // === ATOMIC FLIP ===
       const { data: oldPlansForHub } = await supabase
         .from('life_plans').select('id, plan_data')
         .eq('user_id', user_id).eq('status', 'active');
@@ -558,7 +569,6 @@ serve(async (req) => {
         console.log(`Archived ${hubPlanIds.length} old ${h} plans`);
       }
 
-      // Now activate the new plan
       await supabase.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
 
       console.log(`✅ ${h} hub: ${milestoneRows.length} milestones created (AI: ${allAiSuccess})`);
@@ -570,8 +580,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
-    console.error("generate-90day-strategy error:", e);
-    // Clean up any "generating" locks on error
+    console.error("generate-100day-strategy error:", e);
     try {
       const body2 = await req.clone().json().catch(() => ({}));
       if (body2?.user_id) {

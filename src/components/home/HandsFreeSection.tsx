@@ -29,8 +29,8 @@ const chatExamples = [
   },
   {
     type: 'aurora',
-    textHe: '✅ נוצרה תזכורת למחר ב-8:00 בבוקר. גם הוספתי משימה לתוכנית ה-90 יום שלך.',
-    textEn: '✅ Created a reminder for tomorrow at 8:00 AM. Also added a task to your 90-day plan.',
+    textHe: '✅ נוצרה תזכורת למחר ב-8:00 בבוקר. גם הוספתי משימה לתוכנית ה-100 יום שלך.',
+    textEn: '✅ Created a reminder for tomorrow at 8:00 AM. Also added a task to your 100-day plan.',
     action: 'task_created',
   },
   {
