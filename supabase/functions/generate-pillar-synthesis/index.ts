@@ -19,8 +19,8 @@ DOMAIN DATA YOU WILL RECEIVE:
 RULES:
 - ALL text output in Hebrew except English title/translation versions
 - This is a REPLACEMENT analysis — it should be MORE PRECISE than the initial onboarding because you have real assessment data
+- The 90-day plan MUST contain EXACTLY 3 months, each with EXACTLY 4 weeks = 12 weeks total. Do NOT abbreviate or skip any weeks.
 - Cross-reference domains: e.g., poor sleep (vitality) limits strength gains (power) and focus capacity
-- Identify the TOP 3 leverage points across all domains
 - Generate identity elements that reflect the WHOLE person, not just one domain
 - The 90-day plan should integrate insights from ALL domains into a cohesive strategy
 - Be clinical, data-driven, and actionable
@@ -74,21 +74,14 @@ Respond with valid JSON:
         "focus_en": "Month 1 focus area in English",
         "milestone": "Key milestone",
         "weeks": [
-          {
-            "number": 1,
-            "title": "Week title in Hebrew",
-            "title_en": "Week title in English",
-            "description": "Week description in Hebrew",
-            "description_en": "Week description in English",
-            "tasks": ["task1 in Hebrew", "task2 in Hebrew", "task3 in Hebrew", "task4 in Hebrew"],
-            "tasks_en": ["task1 in English", "task2 in English", "task3 in English", "task4 in English"],
-            "goal": "Weekly goal in Hebrew",
-            "goal_en": "Weekly goal in English",
-            "challenge": "Weekly challenge in Hebrew",
-            "hypnosis_recommendation": "Specific hypnosis focus"
-          }
+          { "number": 1, "title": "...", "title_en": "...", "description": "...", "description_en": "...", "tasks": ["...","...","...","..."], "tasks_en": ["...","...","...","..."], "goal": "...", "goal_en": "...", "challenge": "...", "hypnosis_recommendation": "..." },
+          { "number": 2, "title": "...", "title_en": "...", "description": "...", "description_en": "...", "tasks": ["...","...","...","..."], "tasks_en": ["...","...","...","..."], "goal": "...", "goal_en": "...", "challenge": "...", "hypnosis_recommendation": "..." },
+          { "number": 3, "title": "...", "title_en": "...", "description": "...", "description_en": "...", "tasks": ["...","...","...","..."], "tasks_en": ["...","...","...","..."], "goal": "...", "goal_en": "...", "challenge": "...", "hypnosis_recommendation": "..." },
+          { "number": 4, "title": "...", "title_en": "...", "description": "...", "description_en": "...", "tasks": ["...","...","...","..."], "tasks_en": ["...","...","...","..."], "goal": "...", "goal_en": "...", "challenge": "...", "hypnosis_recommendation": "..." }
         ]
-      }
+      },
+      { "number": 2, "title": "...", "title_he": "...", "focus": "...", "focus_en": "...", "milestone": "...", "weeks": [ "...4 weeks same structure..." ] },
+      { "number": 3, "title": "...", "title_he": "...", "focus": "...", "focus_en": "...", "milestone": "...", "weeks": [ "...4 weeks same structure..." ] }
     ]
   },
   "scores": {
@@ -102,7 +95,13 @@ CRITICAL LANGUAGE RULE:
 - "title", "description", "tasks", "goal", "challenge", "focus" fields MUST be in HEBREW.
 - "title_en", "description_en", "tasks_en", "goal_en", "focus_en" fields MUST be in ENGLISH.
 - NEVER put English in Hebrew fields. NEVER put Hebrew in English fields.
-- Both versions must convey the same meaning.`;
+- Both versions must convey the same meaning.
+
+CRITICAL PLAN STRUCTURE RULE:
+- The "months" array MUST have EXACTLY 3 objects (month 1, 2, 3).
+- Each month MUST have EXACTLY 4 weeks in its "weeks" array.
+- Total: 12 weeks. No exceptions. Do NOT generate fewer weeks.
+- Each week must have unique, specific, actionable content — no placeholders.`;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -207,7 +206,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
-          max_tokens: 8000,
+          max_tokens: 16000,
           messages: [
             { role: 'system', content: SYNTHESIS_SYSTEM_PROMPT },
             { role: 'user', content: prompt },
