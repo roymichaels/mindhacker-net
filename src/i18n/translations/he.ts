@@ -4699,6 +4699,12 @@ export const he = {
       sub_play_frequency: 'תדירות משחק', sub_joy_capacity: 'יכולת הנאה', sub_variety_range: 'מגוון חוויות',
       sub_recovery_awareness: 'מודעות להתאוששות', sub_guilt_free_rest: 'מנוחה ללא אשמה', sub_somatic_connection: 'חיבור גופני',
     },
+    orderAssess: {
+      assessTitle: 'אבחון סדר וניקיון',
+      assessSubtitle: 'שיחה קצרה שתחשוף את רמת הסדר, הניקיון והשליטה הסביבתית שלך.',
+      sub_space_cleanliness: 'ניקיון סביבה', sub_system_organization: 'ארגון מערכות', sub_digital_order: 'סדר דיגיטלי',
+      sub_routine_consistency: 'עקביות שגרה', sub_environmental_mastery: 'שליטה סביבתית', sub_minimalism_clarity: 'בהירות מינימליסטית',
+    },
     combatCommunity: {
       pageTitle: 'לחימה | קהילה',
       title: 'Combat Community',

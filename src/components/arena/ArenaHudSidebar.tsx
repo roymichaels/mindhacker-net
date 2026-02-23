@@ -27,7 +27,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   const { journeys: businesses } = useBusinessJourneys();
 
   const domainColorMap: Record<string, string> = {
-    emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400',
+    emerald: 'text-emerald-400', purple: 'text-purple-400', sky: 'text-sky-400', amber: 'text-amber-400', orange: 'text-orange-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
   };
 
   const activeColorMap: Record<string, string> = {
@@ -37,6 +37,8 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
     amber: 'bg-amber-500/15 border-amber-500/30',
     orange: 'bg-orange-500/15 border-orange-500/30',
     rose: 'bg-rose-500/15 border-rose-500/30',
+    violet: 'bg-violet-500/15 border-violet-500/30',
+    teal: 'bg-teal-500/15 border-teal-500/30',
   };
 
   const activeProjects = projects.filter(p => p.status === 'active');
