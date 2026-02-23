@@ -17,8 +17,11 @@ const SidebarContext = createContext<SidebarContextType>({
 export const useSidebarContext = () => useContext(SidebarContext);
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
-  const [leftSidebar, setLeftSidebar] = useState<ReactNode | null | undefined>(undefined);
-  const [rightSidebar, setRightSidebar] = useState<ReactNode | null | undefined>(undefined);
+  const [leftSidebar, setLeftRaw] = useState<ReactNode | null | undefined>(undefined);
+  const [rightSidebar, setRightRaw] = useState<ReactNode | null | undefined>(undefined);
+
+  const setLeftSidebar = useCallback((node: ReactNode | null | undefined) => setLeftRaw(node), []);
+  const setRightSidebar = useCallback((node: ReactNode | null | undefined) => setRightRaw(node), []);
 
   return (
     <SidebarContext.Provider value={{ leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar }}>
