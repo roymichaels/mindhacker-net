@@ -3,12 +3,13 @@
  * Shows pillar info + its 3 mission cards (roadmap).
  */
 import { useTranslation } from '@/hooks/useTranslation';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, ChevronRight, ChevronLeft, LucideIcon } from 'lucide-react';
+import { CheckCircle2, Loader2, Rocket, LucideIcon } from 'lucide-react';
 import { MissionCard } from './MissionCard';
 
 const gradientMap: Record<string, string> = {
@@ -28,6 +29,7 @@ const iconColorMap: Record<string, string> = {
 interface PillarModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  hub: 'core' | 'arena';
   pillar: {
     id: string;
     labelHe: string;
@@ -58,9 +60,10 @@ interface PillarModalProps {
   isActive: boolean;
 }
 
-export function PillarModal({ open, onOpenChange, pillar, missions, milestonesByMission, isActive }: PillarModalProps) {
+export function PillarModal({ open, onOpenChange, hub, pillar, missions, milestonesByMission, isActive }: PillarModalProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const { generateStrategy, isGenerating } = useStrategyPlans();
 
   const label = isHe ? pillar.labelHe : pillar.labelEn;
   const desc = isHe ? pillar.descriptionHe : pillar.description;
@@ -73,6 +76,10 @@ export function PillarModal({ open, onOpenChange, pillar, missions, milestonesBy
   const progress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
   const completedMissions = missions.filter(m => m.is_completed).length;
 
+  const handleGenerate = () => {
+    generateStrategy.mutate({ hub });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-hidden p-0" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -80,7 +87,7 @@ export function PillarModal({ open, onOpenChange, pillar, missions, milestonesBy
         <div className={cn('p-4 pb-3 border-b bg-gradient-to-r to-transparent', gradientMap[pillar.color])}>
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className={cn('p-2 rounded-lg bg-background/60 backdrop-blur-sm')}>
+              <div className="p-2 rounded-lg bg-background/60 backdrop-blur-sm">
                 <Icon className={cn('w-6 h-6', iconColorMap[pillar.color])} />
               </div>
               <div className="flex-1">
@@ -91,25 +98,43 @@ export function PillarModal({ open, onOpenChange, pillar, missions, milestonesBy
             </div>
           </DialogHeader>
 
-          {/* Stats bar */}
-          <div className="flex items-center gap-3 mt-3">
-            <Progress value={progress} className="h-2 flex-1 [&>div]:bg-primary" />
-            <span className="text-xs font-medium text-muted-foreground">
-              {completedMissions}/{missions.length} {isHe ? 'משימות' : 'missions'}
-            </span>
-          </div>
+          {missions.length > 0 && (
+            <div className="flex items-center gap-3 mt-3">
+              <Progress value={progress} className="h-2 flex-1 [&>div]:bg-primary" />
+              <span className="text-xs font-medium text-muted-foreground">
+                {completedMissions}/{missions.length} {isHe ? 'משימות' : 'missions'}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Missions list */}
+        {/* Content */}
         <ScrollArea className="max-h-[60vh]">
           <div className="p-4 space-y-3">
             <h4 className="text-sm font-semibold text-muted-foreground mb-1">
               {isHe ? 'מפת הדרכים' : 'Roadmap'}
             </h4>
             {missions.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-8">
-                {isHe ? 'אין משימות עדיין — יש ליצור תוכנית 100 יום' : 'No missions yet — generate a 100-day plan'}
-              </p>
+              <div className="flex flex-col items-center justify-center py-8 gap-4">
+                <Rocket className={cn('w-10 h-10', iconColorMap[pillar.color], 'opacity-50')} />
+                <p className="text-sm text-muted-foreground text-center">
+                  {isHe
+                    ? 'עדיין אין תוכנית — ייצר תוכנית 100 יום כדי להתחיל'
+                    : 'No plan yet — generate a 100-day plan to start'}
+                </p>
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="gap-2"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Rocket className="w-4 h-4" />
+                  )}
+                  {isHe ? 'ייצר תוכנית 100 יום' : 'Generate 100-Day Plan'}
+                </Button>
+              </div>
             ) : (
               missions.map((mission, mi) => (
                 <MissionCard
