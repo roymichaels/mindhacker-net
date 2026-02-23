@@ -1,15 +1,21 @@
 /**
  * CoreHudSidebar - Left sidebar for Core System navigation.
  * Rose/pink color scheme matching Core identity.
+ * Pillar buttons open PillarModal with missions roadmap.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
-import { PanelRightClose, PanelRightOpen, Flame } from 'lucide-react';
-import { CORE_DOMAINS } from '@/navigation/lifeDomains';
+import { useQuery } from '@tanstack/react-query';
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { CORE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { supabase } from '@/integrations/supabase/client';
 import { SidebarOrbWidget } from '@/components/sidebar/SidebarOrbWidget';
+import { PillarModal } from '@/components/missions/PillarModal';
+import { Progress } from '@/components/ui/progress';
 
 export function LifeHudSidebar() {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -17,6 +23,8 @@ export function LifeHudSidebar() {
   const isHe = language === 'he';
   const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
+  const { corePlan } = useStrategyPlans();
+  const [selectedDomain, setSelectedDomain] = useState<LifeDomain | null>(null);
 
   const domainColorMap: Record<string, string> = {
     rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
@@ -35,114 +43,189 @@ export function LifeHudSidebar() {
     orange: 'bg-orange-500/15 border-orange-500/30',
   };
 
+  // Fetch missions & milestones for PillarModal
+  const { data: missions } = useQuery({
+    queryKey: ['plan-missions', corePlan?.id],
+    queryFn: async () => {
+      if (!corePlan?.id) return [];
+      const { data } = await supabase
+        .from('plan_missions').select('*')
+        .eq('plan_id', corePlan.id).order('mission_number');
+      return data || [];
+    },
+    enabled: !!corePlan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: milestones } = useQuery({
+    queryKey: ['mission-milestones', corePlan?.id],
+    queryFn: async () => {
+      if (!corePlan?.id) return [];
+      const { data } = await supabase
+        .from('life_plan_milestones')
+        .select('id, title, title_en, is_completed, mission_id, milestone_number, focus_area')
+        .eq('plan_id', corePlan.id).not('mission_id', 'is', null).order('milestone_number');
+      return data || [];
+    },
+    enabled: !!corePlan?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const missionsByPillar = useMemo(() => {
+    const grouped: Record<string, any[]> = {};
+    for (const m of (missions || [])) {
+      if (!grouped[m.pillar]) grouped[m.pillar] = [];
+      grouped[m.pillar].push(m);
+    }
+    return grouped;
+  }, [missions]);
+
+  const milestonesByMission = useMemo(() => {
+    const grouped: Record<string, any[]> = {};
+    for (const ms of (milestones || [])) {
+      if (!ms.mission_id) continue;
+      if (!grouped[ms.mission_id]) grouped[ms.mission_id] = [];
+      grouped[ms.mission_id].push(ms);
+    }
+    return grouped;
+  }, [milestones]);
+
+  const getPillarProgress = (domainId: string) => {
+    const pillarMissions = missionsByPillar[domainId] || [];
+    const totalMs = pillarMissions.reduce((s, m) => s + (milestonesByMission[m.id]?.length || 0), 0);
+    const doneMs = pillarMissions.reduce((s, m) => s + (milestonesByMission[m.id]?.filter(ms => ms.is_completed).length || 0), 0);
+    return totalMs > 0 ? Math.round((doneMs / totalMs) * 100) : 0;
+  };
+
   return (
-    <aside className={cn(
-      "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
-      "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
-      "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
-      "ltr:border-s rtl:border-e border-border/50 dark:border-rose-500/15",
-      collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
-    )}>
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className={cn(
-          "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
-          collapsed
-            ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
-            : "ltr:left-2 rtl:right-2"
-        )}
-        title={collapsed ? "Expand" : "Collapse"}
-      >
-        {collapsed
-          ? (isRTL ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />)
-          : (isRTL ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />)
-        }
-      </button>
+    <>
+      <aside className={cn(
+        "flex flex-col flex-shrink-0 h-full overflow-hidden transition-all duration-300 relative",
+        "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
+        "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
+        "ltr:border-s rtl:border-e border-border/50 dark:border-rose-500/15",
+        collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
+      )}>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(
+            "absolute top-2 z-10 p-1 rounded-md hover:bg-accent/20 transition-colors text-muted-foreground hover:text-foreground",
+            collapsed
+              ? "ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2"
+              : "ltr:left-2 rtl:right-2"
+          )}
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed
+            ? (isRTL ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />)
+            : (isRTL ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />)
+          }
+        </button>
 
-      {/* ===== COLLAPSED MINI VIEW ===== */}
-      {collapsed && (
-        <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
-          <SidebarOrbWidget collapsed />
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
-          <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
-            {CORE_DOMAINS.map((domain) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              return (
-                <button
-                  key={domain.id}
-                  onClick={() => navigate(`/life/${domain.id}`)}
-                  className={cn(
-                    "p-2 rounded-lg border transition-colors",
-                    status === 'active'
-                      ? activeColorMap[domain.color]
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
-                  )}
-                  title={isHe ? domain.labelHe : domain.labelEn}
-                >
-                  <domain.icon className={cn("w-4 h-4", domainColorMap[domain.color])} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ===== EXPANDED FULL VIEW ===== */}
-      {!collapsed && (
-        <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
-          <SidebarOrbWidget />
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
-          {/* Header badge */}
-          <div className="w-full rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/20 p-3 flex items-center justify-between">
-            <div className="text-center flex-1">
-              <span className="text-sm font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-                {isHe ? 'ליבה' : 'Core'}
-              </span>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? `${CORE_DOMAINS.length} תחומי ביצוע` : `${CORE_DOMAINS.length} execution domains`}
-              </p>
+        {/* ===== COLLAPSED MINI VIEW ===== */}
+        {collapsed && (
+          <div className="flex flex-col items-center gap-3 h-full pt-10 pb-4 px-0 overflow-hidden">
+            <SidebarOrbWidget collapsed />
+            <div className="w-8 h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+            <div className="flex flex-col items-center gap-1 overflow-y-auto scrollbar-hide">
+              {CORE_DOMAINS.map((domain) => {
+                const status = statusMap[domain.id] ?? 'unconfigured';
+                return (
+                  <button
+                    key={domain.id}
+                    onClick={() => setSelectedDomain(domain)}
+                    className={cn(
+                      "p-2 rounded-lg border transition-colors",
+                      status === 'active'
+                        ? activeColorMap[domain.color]
+                        : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                    )}
+                    title={isHe ? domain.labelHe : domain.labelEn}
+                  >
+                    <domain.icon className={cn("w-4 h-4", domainColorMap[domain.color])} />
+                  </button>
+                );
+              })}
             </div>
           </div>
+        )}
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+        {/* ===== EXPANDED FULL VIEW ===== */}
+        {!collapsed && (
+          <div className="flex flex-col gap-3 p-3 pt-8 pb-4 overflow-y-auto scrollbar-hide h-full">
+            <SidebarOrbWidget />
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+            {/* Header badge */}
+            <div className="w-full rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/20 p-3 flex items-center justify-between">
+              <div className="text-center flex-1">
+                <span className="text-sm font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
+                  {isHe ? 'ליבה' : 'Core'}
+                </span>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {isHe ? `${CORE_DOMAINS.length} תחומי ביצוע` : `${CORE_DOMAINS.length} execution domains`}
+                </p>
+              </div>
+            </div>
 
-          {/* Domain nav items */}
-          <div className="flex flex-col gap-1 w-full">
-            {CORE_DOMAINS.map((domain) => {
-              const status = statusMap[domain.id] ?? 'unconfigured';
-              const isActive = status === 'active';
-              return (
-                <button
-                  key={domain.id}
-                  onClick={() => navigate(`/life/${domain.id}`)}
-                  className={cn(
-                    "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
-                    isActive
-                      ? `${activeColorMap[domain.color]} shadow-sm`
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
-                  )}
-                >
-                  <domain.icon className={cn("w-4 h-4 shrink-0", domainColorMap[domain.color])} />
-                  <span className={cn("text-xs font-medium flex-1", isActive ? domainColorMap[domain.color] : 'text-foreground')}>
-                    {isHe ? domain.labelHe : domain.labelEn}
-                  </span>
-                  {status !== 'unconfigured' && (
-                    <span className={cn(
-                      "text-[9px] px-1.5 py-0.5 rounded-full border",
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+
+            {/* Domain nav items — now open PillarModal */}
+            <div className="flex flex-col gap-1 w-full">
+              {CORE_DOMAINS.map((domain) => {
+                const status = statusMap[domain.id] ?? 'unconfigured';
+                const isActive = status === 'active' || status === 'configured';
+                const progress = getPillarProgress(domain.id);
+                const hasMissions = (missionsByPillar[domain.id] || []).length > 0;
+                return (
+                  <button
+                    key={domain.id}
+                    onClick={() => setSelectedDomain(domain)}
+                    className={cn(
+                      "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
                       isActive
-                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
-                        : "bg-muted/40 text-muted-foreground border-border/20"
-                    )}>
-                      {isHe ? (isActive ? 'פעיל' : 'הוגדר') : (isActive ? 'Active' : 'Set')}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                        ? `${activeColorMap[domain.color]} shadow-sm`
+                        : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                    )}
+                  >
+                    <domain.icon className={cn("w-4 h-4 shrink-0", domainColorMap[domain.color])} />
+                    <div className="flex-1 min-w-0">
+                      <span className={cn("text-xs font-medium", isActive ? domainColorMap[domain.color] : 'text-foreground')}>
+                        {isHe ? domain.labelHe : domain.labelEn}
+                      </span>
+                      {hasMissions && (
+                        <Progress value={progress} className="h-1 mt-1 [&>div]:bg-rose-400" />
+                      )}
+                    </div>
+                    {status !== 'unconfigured' && (
+                      <span className={cn(
+                        "text-[9px] px-1.5 py-0.5 rounded-full border shrink-0",
+                        isActive
+                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
+                          : "bg-muted/40 text-muted-foreground border-border/20"
+                      )}>
+                        {isHe ? (isActive ? 'פעיל' : 'הוגדר') : (isActive ? 'Active' : 'Set')}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+      </aside>
+
+      {/* Pillar Modal */}
+      {selectedDomain && (
+        <PillarModal
+          open={!!selectedDomain}
+          onOpenChange={(o) => !o && setSelectedDomain(null)}
+          hub="core"
+          pillar={selectedDomain}
+          missions={missionsByPillar[selectedDomain.id] || []}
+          milestonesByMission={milestonesByMission}
+          isActive={(statusMap[selectedDomain.id] ?? 'unconfigured') === 'active' || statusMap[selectedDomain.id] === 'configured'}
+        />
       )}
-    </aside>
+    </>
   );
 }
