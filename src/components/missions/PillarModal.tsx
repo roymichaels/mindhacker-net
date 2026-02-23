@@ -77,7 +77,7 @@ export function PillarModal({ open, onOpenChange, hub, pillar, missions, milesto
   const completedMissions = missions.filter(m => m.is_completed).length;
 
   const handleGenerate = () => {
-    generateStrategy.mutate({ hub });
+    generateStrategy.mutate({ hub: 'both' });
   };
 
   return (

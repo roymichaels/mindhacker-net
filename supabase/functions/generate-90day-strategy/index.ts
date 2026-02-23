@@ -376,7 +376,9 @@ serve(async (req) => {
       }
     }
 
-    // Check existing plans
+    // Check existing plans — only generate missing hubs
+    let hubsToGenerate: ('core' | 'arena')[] = targetHub === 'both' ? ['core', 'arena'] : [targetHub as 'core' | 'arena'];
+    
     if (!force_regenerate) {
       const { data: existing } = await supabase
         .from('life_plans').select('id, plan_data')
@@ -384,46 +386,18 @@ serve(async (req) => {
         .order('created_at', { ascending: false });
 
       const existingHubs = (existing || []).map((p: any) => p.plan_data?.hub).filter(Boolean);
-      if (targetHub === 'both' && existingHubs.includes('core') && existingHubs.includes('arena')) {
+      
+      // Filter out hubs that already have plans
+      hubsToGenerate = hubsToGenerate.filter(h => !existingHubs.includes(h));
+      
+      if (hubsToGenerate.length === 0) {
         return new Response(JSON.stringify({ message: "Plans already exist", plans: existing }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (targetHub !== 'both' && existingHubs.includes(targetHub)) {
-        return new Response(JSON.stringify({ message: "Plan already exists", plans: existing }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      
+      console.log(`Generating missing hubs: ${hubsToGenerate.join(', ')} (existing: ${existingHubs.join(', ')})`);
     }
-
-    // Fetch user data
-    const [domainsRes, profileRes, launchpadRes, projectsRes, businessRes, memoryRes] = await Promise.all([
-      supabase.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id),
-      supabase.from('profiles').select('full_name, display_name, level, experience').eq('id', user_id).single(),
-      supabase.from('launchpad_progress').select('step_1_intention, step_2_profile_data, step_3_lifestyle_data').eq('user_id', user_id).single(),
-      supabase.from('user_projects').select('name, description, status, life_pillar, goals, milestones').eq('user_id', user_id).in('status', ['active', 'in_progress', 'planning']),
-      supabase.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id),
-      supabase.from('aurora_conversation_memory').select('summary, emotional_state, key_topics, action_items, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
-    ]);
-
-    const allDomains = (domainsRes.data || []) as PillarAssessment[];
-    const profile = profileRes.data || {};
-    const launchpad = launchpadRes.data || {};
-    const userProjects = projectsRes.data || [];
-    const userBusinesses = businessRes.data || [];
-    const auroraMemory = memoryRes.data || [];
-
-    const profileContext = {
-      name: profile.full_name || profile.display_name,
-      level: profile.level,
-      intention: launchpad.step_1_intention,
-      lifestyle: launchpad.step_3_lifestyle_data,
-      profile: launchpad.step_2_profile_data,
-    };
-
-    const userContext = buildUserContext(profileContext, userProjects, userBusinesses, auroraMemory);
-
-    const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const results: any[] = [];

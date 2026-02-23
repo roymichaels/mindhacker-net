@@ -50,11 +50,7 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
   };
 
   const handleGenerateStrategy = () => {
-    if (hub) {
-      generateStrategy.mutate({ hub, forceRegenerate: false });
-    } else {
-      generateStrategy.mutate({ hub: 'both', forceRegenerate: false });
-    }
+    generateStrategy.mutate({ hub: 'both', forceRegenerate: false });
   };
 
   if (isLoading) {
