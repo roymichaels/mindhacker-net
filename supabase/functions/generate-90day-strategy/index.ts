@@ -6,13 +6,14 @@ import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/co
  * generate-90day-strategy
  * 
  * Generates a pillar-based 90-day plan:
- * - Per pillar: 10 goals
- * - Per goal: 10 milestones
+ * - Per pillar: 3 main goals
+ * - Per main goal: 5 sub-goals
+ * - Per sub-goal: 10 milestones
  * Stores in life_plans (plan_data) + life_plan_milestones.
  */
 
 const CORE_PILLAR_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
-const ARENA_PILLAR_IDS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play'];
+const ARENA_PILLAR_IDS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'];
 
 interface PillarAssessment {
   domain_id: string;
@@ -86,17 +87,19 @@ ${memorySection}
 
 ## PILLARS TO GENERATE: ${JSON.stringify(pillarIds)}
 
-## STRUCTURE — CRITICAL:
-For EACH pillar above, generate exactly 10 GOALS for the next 90 days.
-For EACH goal, generate exactly 10 MILESTONES (concrete checkpoints/deliverables).
+## STRUCTURE — CRITICAL (3 × 5 × 10 hierarchy):
+For EACH pillar above, generate exactly 3 MAIN GOALS for the next 90 days.
+For EACH main goal, generate exactly 5 SUB-GOALS (focused objectives within the main goal).
+For EACH sub-goal, generate exactly 10 MILESTONES (concrete checkpoints/deliverables).
 
 ## RULES:
-1. Goals must be SPECIFIC and MEASURABLE — not generic motivational phrases.
-2. Milestones must be ACTIONABLE steps that clearly lead to the goal.
-3. Reference the user's ACTUAL projects and businesses BY NAME.
-4. Reference assessment data: if sleep score is low, include specific sleep goals; if combat training exists, reference the actual discipline.
-5. Progressive difficulty: early milestones are foundational, later ones are advanced.
-6. Both Hebrew and English for all text. Hebrew must be natural, not literal translation.
+1. Main goals must be BIG PICTURE themes — the 3 most important strategic directions for that pillar.
+2. Sub-goals break each main goal into 5 focused objectives.
+3. Milestones are ACTIONABLE steps that clearly lead to the sub-goal.
+4. Reference the user's ACTUAL projects and businesses BY NAME.
+5. Reference assessment data: if sleep score is low, include specific sleep goals; if combat training exists, reference the actual discipline.
+6. Progressive difficulty: early milestones are foundational, later ones are advanced.
+7. Both Hebrew and English for all text. Hebrew must be natural, not literal translation.
 
 ## OUTPUT FORMAT (JSON only, no markdown fences):
 {
@@ -109,17 +112,23 @@ For EACH goal, generate exactly 10 MILESTONES (concrete checkpoints/deliverables
     "${pillarIds[0]}": {
       "goals": [
         {
-          "goal_en": "Specific measurable goal",
-          "goal_he": "מטרה ספציפית מדידה",
-          "milestones_en": ["Step 1", "Step 2", "...", "Step 10"],
-          "milestones_he": ["צעד 1", "צעד 2", "...", "צעד 10"]
+          "goal_en": "Main goal title",
+          "goal_he": "כותרת מטרה ראשית",
+          "sub_goals": [
+            {
+              "sub_goal_en": "Sub-goal title",
+              "sub_goal_he": "כותרת מטרת משנה",
+              "milestones_en": ["Step 1", "Step 2", "...", "Step 10"],
+              "milestones_he": ["צעד 1", "צעד 2", "...", "צעד 10"]
+            }
+          ]
         }
       ]
     }
   }
 }
 
-Generate ALL ${pillarIds.length} pillars, each with exactly 10 goals, each goal with exactly 10 milestones.`;
+Generate ALL ${pillarIds.length} pillars, each with exactly 3 main goals, each main goal with 5 sub-goals, each sub-goal with 10 milestones.`;
 }
 
 serve(async (req) => {
@@ -238,7 +247,7 @@ serve(async (req) => {
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
             messages: [
-              { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual projects, businesses, and assessment data by name. Generate the FULL structure as requested with ALL pillars, ALL 10 goals per pillar, and ALL 10 milestones per goal." },
+              { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual projects, businesses, and assessment data by name. Generate the FULL structure as requested: 3 main goals per pillar, 5 sub-goals per main goal, 10 milestones per sub-goal." },
               { role: "user", content: prompt },
             ],
           }),
@@ -285,39 +294,39 @@ serve(async (req) => {
         continue;
       }
 
-      // Generate life_plan_milestones from the pillar-based goals structure
-      // Each goal becomes a milestone row; sub-milestones stored in tasks/tasks_en
+      // Generate life_plan_milestones from the 3×5×10 structure
+      // Each sub-goal becomes a milestone row; milestones stored in tasks/tasks_en
       const pillarsData = strategyData?.pillars || {};
       const milestoneRows: any[] = [];
-      let goalIndex = 0;
 
       for (const [pillarId, pillarObj] of Object.entries(pillarsData)) {
         const goals = (pillarObj as any)?.goals || [];
         goals.forEach((goal: any, gi: number) => {
-          milestoneRows.push({
-            plan_id: plan.id,
-            week_number: gi + 1, // reuse week_number as goal_index (1-10)
-            month_number: Math.ceil((gi + 1) / 4),
-            title: goal.goal_he || goal.goal_en,
-            title_en: goal.goal_en || goal.goal_he,
-            description: (goal.milestones_he || []).join(' | '),
-            description_en: (goal.milestones_en || []).join(' | '),
-            goal: goal.goal_he || goal.goal_en,
-            goal_en: goal.goal_en || goal.goal_he,
-            focus_area: pillarId,
-            focus_area_en: pillarId,
-            tasks: goal.milestones_he || [],
-            tasks_en: goal.milestones_en || [],
-            is_completed: false,
-            xp_reward: 50,
-            tokens_reward: 10,
+          const subGoals = goal.sub_goals || [];
+          subGoals.forEach((sg: any, si: number) => {
+            milestoneRows.push({
+              plan_id: plan.id,
+              week_number: gi * 5 + si + 1, // unique index within pillar
+              month_number: gi + 1, // main goal index (1-3)
+              title: sg.sub_goal_he || sg.sub_goal_en || goal.goal_he,
+              title_en: sg.sub_goal_en || sg.sub_goal_he || goal.goal_en,
+              description: goal.goal_he || goal.goal_en,
+              description_en: goal.goal_en || goal.goal_he,
+              goal: sg.sub_goal_he || sg.sub_goal_en,
+              goal_en: sg.sub_goal_en || sg.sub_goal_he,
+              focus_area: pillarId,
+              focus_area_en: pillarId,
+              tasks: sg.milestones_he || [],
+              tasks_en: sg.milestones_en || [],
+              is_completed: false,
+              xp_reward: 50,
+              tokens_reward: 10,
+            });
           });
-          goalIndex++;
         });
       }
 
       if (milestoneRows.length > 0) {
-        // Insert in batches to avoid payload limits
         const BATCH_SIZE = 50;
         for (let i = 0; i < milestoneRows.length; i += BATCH_SIZE) {
           const batch = milestoneRows.slice(i, i + BATCH_SIZE);
@@ -344,28 +353,34 @@ serve(async (req) => {
   }
 });
 
-// Fallback strategy — pillar-based structure
+// Fallback strategy — 3×5×10 structure
 function buildFallbackStrategy(hub: 'core' | 'arena', projects: any[] = [], businesses: any[] = []) {
   const pillarIds = hub === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
-  const projectNames = projects.map(p => p.name).filter(Boolean);
-  const businessNames = businesses.map(b => b.business_name).filter(Boolean);
 
   const pillars: Record<string, { goals: any[] }> = {};
 
   for (const pillarId of pillarIds) {
     const goals: any[] = [];
-    for (let g = 0; g < 10; g++) {
-      const milestones_en: string[] = [];
-      const milestones_he: string[] = [];
-      for (let m = 0; m < 10; m++) {
-        milestones_en.push(`${pillarId} goal ${g + 1} — milestone ${m + 1}`);
-        milestones_he.push(`${pillarId} מטרה ${g + 1} — אבן דרך ${m + 1}`);
+    for (let g = 0; g < 3; g++) {
+      const sub_goals: any[] = [];
+      for (let s = 0; s < 5; s++) {
+        const milestones_en: string[] = [];
+        const milestones_he: string[] = [];
+        for (let m = 0; m < 10; m++) {
+          milestones_en.push(`${pillarId} goal ${g + 1} sub ${s + 1} — milestone ${m + 1}`);
+          milestones_he.push(`${pillarId} מטרה ${g + 1} משנה ${s + 1} — אבן דרך ${m + 1}`);
+        }
+        sub_goals.push({
+          sub_goal_en: `${pillarId.charAt(0).toUpperCase() + pillarId.slice(1)} G${g + 1} — Sub-goal ${s + 1}`,
+          sub_goal_he: `${pillarId} מ${g + 1} — מטרת משנה ${s + 1}`,
+          milestones_en,
+          milestones_he,
+        });
       }
       goals.push({
-        goal_en: `${pillarId.charAt(0).toUpperCase() + pillarId.slice(1)} — Goal ${g + 1} for 90 days`,
-        goal_he: `${pillarId} — מטרה ${g + 1} ל-90 יום`,
-        milestones_en,
-        milestones_he,
+        goal_en: `${pillarId.charAt(0).toUpperCase() + pillarId.slice(1)} — Main Goal ${g + 1}`,
+        goal_he: `${pillarId} — מטרה ראשית ${g + 1}`,
+        sub_goals,
       });
     }
     pillars[pillarId] = { goals };

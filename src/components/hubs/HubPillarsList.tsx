@@ -91,16 +91,21 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
     const grouped: Record<string, { goal: string; milestones: string[] }[]> = {};
     const domainIds = domains.map(d => d.id);
 
-    // Source 1: strategy.pillars (new structure)
+    // Source 1: strategy.pillars (3×5×10 structure)
     const pillarsData = strategy?.pillars as Record<string, { goals: any[] }> | undefined;
     if (pillarsData) {
       for (const [pillarId, pillarObj] of Object.entries(pillarsData)) {
         if (!domainIds.includes(pillarId)) continue;
         if (!grouped[pillarId]) grouped[pillarId] = [];
         for (const g of (pillarObj?.goals || [])) {
+          const subGoals = g.sub_goals || [];
+          const subCount = subGoals.length;
+          const milestoneCount = subGoals.reduce((acc: number, sg: any) => acc + (sg.milestones_en?.length || sg.milestones_he?.length || 0), 0);
           grouped[pillarId].push({
             goal: isHe ? (g.goal_he || g.goal_en) : (g.goal_en || g.goal_he),
-            milestones: isHe ? (g.milestones_he || []) : (g.milestones_en || []),
+            milestones: subGoals.length > 0
+              ? subGoals.map((sg: any) => isHe ? (sg.sub_goal_he || sg.sub_goal_en) : (sg.sub_goal_en || sg.sub_goal_he))
+              : isHe ? (g.milestones_he || []) : (g.milestones_en || []),
           });
         }
       }
@@ -211,7 +216,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
                           <span className="line-clamp-1 font-medium">{g.goal}</span>
                           {g.milestones.length > 0 && (
                             <span className="text-[10px] text-muted-foreground/50">
-                              {g.milestones.length} {isHe ? 'אבני דרך' : 'milestones'}
+                              {g.milestones.length} {isHe ? 'מטרות משנה' : 'sub-goals'}
                             </span>
                           )}
                         </div>
