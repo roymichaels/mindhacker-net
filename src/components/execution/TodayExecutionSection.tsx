@@ -201,9 +201,9 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
         </motion.div>
       )}
 
-      {/* Schedule Timeline */}
-      {filteredSchedule.length > 0 && (
-        <TodayScheduleCard schedule={filteredSchedule} onActionClick={handleExecute} />
+      {/* Schedule — grouped by pillar */}
+      {filteredQueue.length > 0 && (
+        <TodayScheduleCard schedule={filteredSchedule} queue={filteredQueue} onActionClick={handleExecute} />
       )}
 
       {/* Movement Score */}
