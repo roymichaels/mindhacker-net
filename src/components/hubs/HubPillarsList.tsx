@@ -1,20 +1,19 @@
 /**
- * HubPillarsList — Grid of pillar cards with 3 mission cards each.
- * Each mission opens a modal with 5 milestones → 5 mini-milestones.
+ * HubPillarsList — Grid of compact pillar cards.
+ * Clicking a card opens a PillarModal with the missions roadmap.
  */
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Target } from 'lucide-react';
-import { MissionCard } from '@/components/missions/MissionCard';
+import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { PillarModal } from '@/components/missions/PillarModal';
 
 const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
@@ -23,14 +22,20 @@ const domainColorMap: Record<string, string> = {
   sky: 'text-sky-400', rose: 'text-rose-400', violet: 'text-violet-400', teal: 'text-teal-400',
 };
 
-const activeBgMap: Record<string, string> = {
-  blue: 'bg-blue-500/10 border-blue-500/25', fuchsia: 'bg-fuchsia-500/10 border-fuchsia-500/25',
-  red: 'bg-red-500/10 border-red-500/25', amber: 'bg-amber-500/10 border-amber-500/25',
-  cyan: 'bg-cyan-500/10 border-cyan-500/25', slate: 'bg-slate-500/10 border-slate-500/25',
-  indigo: 'bg-indigo-500/10 border-indigo-500/25', emerald: 'bg-emerald-500/10 border-emerald-500/25',
-  purple: 'bg-purple-500/10 border-purple-500/25', sky: 'bg-sky-500/10 border-sky-500/25',
-  rose: 'bg-rose-500/10 border-rose-500/25', violet: 'bg-violet-500/10 border-violet-500/25',
-  teal: 'bg-teal-500/10 border-teal-500/25',
+const cardBgMap: Record<string, string> = {
+  blue: 'from-blue-500/10 to-blue-600/5 border-blue-500/25 hover:border-blue-500/40',
+  fuchsia: 'from-fuchsia-500/10 to-fuchsia-600/5 border-fuchsia-500/25 hover:border-fuchsia-500/40',
+  red: 'from-red-500/10 to-red-600/5 border-red-500/25 hover:border-red-500/40',
+  amber: 'from-amber-500/10 to-amber-600/5 border-amber-500/25 hover:border-amber-500/40',
+  cyan: 'from-cyan-500/10 to-cyan-600/5 border-cyan-500/25 hover:border-cyan-500/40',
+  slate: 'from-slate-500/10 to-slate-600/5 border-slate-500/25 hover:border-slate-500/40',
+  indigo: 'from-indigo-500/10 to-indigo-600/5 border-indigo-500/25 hover:border-indigo-500/40',
+  emerald: 'from-emerald-500/10 to-emerald-600/5 border-emerald-500/25 hover:border-emerald-500/40',
+  purple: 'from-purple-500/10 to-purple-600/5 border-purple-500/25 hover:border-purple-500/40',
+  sky: 'from-sky-500/10 to-sky-600/5 border-sky-500/25 hover:border-sky-500/40',
+  rose: 'from-rose-500/10 to-rose-600/5 border-rose-500/25 hover:border-rose-500/40',
+  violet: 'from-violet-500/10 to-violet-600/5 border-violet-500/25 hover:border-violet-500/40',
+  teal: 'from-teal-500/10 to-teal-600/5 border-teal-500/25 hover:border-teal-500/40',
 };
 
 interface HubPillarsListProps {
@@ -38,15 +43,13 @@ interface HubPillarsListProps {
 }
 
 export function HubPillarsList({ hub }: HubPillarsListProps) {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
   const { corePlan, arenaPlan, generateStrategy } = useStrategyPlans();
+  const [selectedDomain, setSelectedDomain] = useState<LifeDomain | null>(null);
 
   const domains: LifeDomain[] = hub === 'core' ? CORE_DOMAINS : ARENA_DOMAINS;
-  const basePath = hub === 'core' ? '/life' : '/arena';
   const plan = hub === 'core' ? corePlan : arenaPlan;
 
   const sectionTitle = hub === 'core'
@@ -128,32 +131,42 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {domains.map((domain, i) => {
           const status = statusMap[domain.id] ?? 'unconfigured';
           const isActive = status === 'active' || status === 'configured';
           const Icon = domain.icon;
           const pillarMissions = missionsByPillar[domain.id] || [];
+          const completedMissions = pillarMissions.filter(m => m.is_completed).length;
+          const totalMilestones = pillarMissions.reduce(
+            (sum, m) => sum + (milestonesByMission[m.id]?.length || 0), 0
+          );
+          const completedMilestones = pillarMissions.reduce(
+            (sum, m) => sum + (milestonesByMission[m.id]?.filter(ms => ms.is_completed).length || 0), 0
+          );
+          const progress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
 
           return (
-            <motion.div
+            <motion.button
               key={domain.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: 0.25 }}
+              onClick={() => setSelectedDomain(domain)}
               className={cn(
-                'rounded-xl border transition-all overflow-hidden',
-                isActive ? activeBgMap[domain.color] : 'bg-card/40 border-border/30'
+                'w-full rounded-xl border bg-gradient-to-br p-3 text-start transition-all hover:scale-[1.01] hover:shadow-md cursor-pointer',
+                isActive
+                  ? cardBgMap[domain.color]
+                  : 'bg-card/40 border-border/30 hover:border-border/50'
               )}
             >
-              {/* Pillar header */}
-              <button
-                onClick={() => navigate(`${basePath}/${domain.id}`)}
-                className="w-full flex items-center gap-2.5 p-3 text-start hover:bg-accent/5 transition-colors"
-              >
-                <Icon className={cn('w-4 h-4 shrink-0', domainColorMap[domain.color])} />
+              <div className="flex items-center gap-2.5">
+                <Icon className={cn('w-5 h-5 shrink-0', domainColorMap[domain.color])} />
                 <div className="flex-1 min-w-0">
-                  <span className={cn('text-xs font-medium', isActive ? domainColorMap[domain.color] : 'text-foreground/80')}>
+                  <span className={cn(
+                    'text-xs font-semibold block',
+                    isActive ? domainColorMap[domain.color] : 'text-foreground/80'
+                  )}>
                     {isHe ? domain.labelHe : domain.labelEn}
                   </span>
                   <p className="text-[10px] text-muted-foreground/60 truncate">
@@ -162,33 +175,35 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
                 </div>
                 {pillarMissions.length > 0 && (
                   <span className="text-[10px] text-muted-foreground/50 shrink-0">
-                    {pillarMissions.filter(m => m.is_completed).length}/{pillarMissions.length} {isHe ? 'משימות' : 'missions'}
+                    {completedMissions}/{pillarMissions.length}
                   </span>
                 )}
                 {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                 <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
-              </button>
+              </div>
 
-              {/* Mission cards */}
+              {/* Mini progress bar */}
               {pillarMissions.length > 0 && (
-                <div className="px-3 pb-3 pt-0 border-t border-border/20">
-                  <div className="mt-2 grid grid-cols-1 gap-2">
-                    {pillarMissions.map((mission, mi) => (
-                      <MissionCard
-                        key={mission.id}
-                        mission={mission}
-                        milestones={milestonesByMission[mission.id] || []}
-                        color={domain.color}
-                        index={mi}
-                      />
-                    ))}
-                  </div>
+                <div className="mt-2">
+                  <Progress value={progress} className="h-1 [&>div]:bg-primary" />
                 </div>
               )}
-            </motion.div>
+            </motion.button>
           );
         })}
       </div>
+
+      {/* Pillar Modal */}
+      {selectedDomain && (
+        <PillarModal
+          open={!!selectedDomain}
+          onOpenChange={(o) => !o && setSelectedDomain(null)}
+          pillar={selectedDomain}
+          missions={missionsByPillar[selectedDomain.id] || []}
+          milestonesByMission={milestonesByMission}
+          isActive={(statusMap[selectedDomain.id] ?? 'unconfigured') === 'active' || statusMap[selectedDomain.id] === 'configured'}
+        />
+      )}
     </div>
   );
 }
