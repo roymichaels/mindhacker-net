@@ -221,9 +221,8 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           size="sm"
           className="gap-1.5 mt-1"
           disabled={isGenerating}
-          onClick={() => {
-            const target = missingHubs.length === 2 ? 'both' : missingHubs[0];
-            generateStrategy.mutate({ hub: target, forceRegenerate: false });
+         onClick={() => {
+            generateStrategy.mutate({ hub: 'both', forceRegenerate: false });
           }}
         >
           {isGenerating ? (
