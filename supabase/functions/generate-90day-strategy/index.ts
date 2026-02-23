@@ -152,13 +152,17 @@ serve(async (req) => {
       profile: launchpad.step_2_profile_data,
     };
 
-    // If force_regenerate, archive old plans
-    if (force_regenerate) {
-      await supabase
-        .from('life_plans')
-        .update({ status: 'archived' })
-        .eq('user_id', user_id)
-        .eq('status', 'active');
+    // Always archive old active plans and clean up their action items
+    const { data: oldActivePlans } = await supabase
+      .from('life_plans')
+      .select('id')
+      .eq('user_id', user_id)
+      .eq('status', 'active');
+    
+    const oldPlanIds = (oldActivePlans || []).map((p: any) => p.id);
+    if (oldPlanIds.length > 0) {
+      await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', oldPlanIds);
+      await supabase.from('life_plans').update({ status: 'archived' }).in('id', oldPlanIds);
     }
 
     const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
