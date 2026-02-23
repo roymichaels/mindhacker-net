@@ -25,14 +25,26 @@ function buildPillarPrompt(
   const latest = cfg.latest_assessment;
   const formData = cfg.form_data || cfg.onboarding_data || {};
 
-  const assessmentBlock = assessment && assessment.status === 'configured'
-    ? `Score: ${latest?.overallScore ?? '?'}/100
-Mirror: ${latest?.mirrorStatement || 'N/A'}
-Subsystems: ${JSON.stringify(latest?.subsystems || latest?.subScores || {}, null, 1)}
-Findings: ${JSON.stringify(latest?.findings?.slice(0, 3) || [], null, 1)}
-Next Step: ${latest?.nextStep || 'N/A'}
+  // Resolve score — different pillars use different key names
+  const overallScore = latest?.overall_index ?? latest?.domain_index ?? latest?.consciousness_index ?? latest?.overallScore ?? null;
+  // Resolve mirror statement (snake_case in DB)
+  const mirrorStatement = latest?.mirror_statement || latest?.mirrorStatement || '';
+  // Resolve next step
+  const nextStep = latest?.one_next_step || latest?.nextStep || '';
+  // Resolve subscores (always snake_case)
+  const subscores = latest?.subscores || latest?.subsystems || latest?.subScores || {};
+  // Resolve findings
+  const findings = latest?.findings?.slice(0, 5) || [];
+
+  const assessmentBlock = assessment && latest
+    ? `Score: ${overallScore ?? '?'}/100
+Mirror Statement: ${mirrorStatement || 'N/A'}
+Subscores: ${JSON.stringify(subscores, null, 1)}
+Findings: ${JSON.stringify(findings, null, 1)}
+Next Step: ${nextStep || 'N/A'}
+Assessed At: ${latest?.assessed_at || 'Unknown'}
 Form Data: ${JSON.stringify(formData, null, 1).slice(0, 600)}`
-    : 'No assessment data.';
+    : 'No assessment data — generate generic goals for this pillar.';
 
   const projectsSection = userProjects
     .filter(p => !p.life_pillar || p.life_pillar === pillarId || p.life_pillar === 'general')
@@ -43,15 +55,16 @@ Form Data: ${JSON.stringify(formData, null, 1).slice(0, 600)}`
     ? userBusinesses.map(b => `- "${b.business_name || 'Unnamed'}" (step ${b.current_step}/10)`).join('\n')
     : 'None';
 
-  const memorySnippets = auroraMemory.slice(0, 5)
-    .map(m => `- [${m.emotional_state || 'neutral'}] ${m.summary}`)
+  const memorySnippets = auroraMemory.slice(0, 10)
+    .map(m => `- [${m.created_at?.slice(0, 10) || '?'}] [${m.emotional_state || 'neutral'}] ${m.summary}`)
     .join('\n') || 'None';
 
-  return `You are Aurora, elite life transformation AI. Generate a 90-day strategy for the pillar "${pillarId}" (${hub} hub).
+  return `You are Aurora, elite life transformation AI for "Mind OS" (מיינד OS). Generate a 90-day strategy for the pillar "${pillarId}" (${hub} hub).
 
 ## USER
 Name: ${profileData?.name || 'Unknown'} | Level: ${profileData?.level || 1}
 Intention: ${JSON.stringify(profileData?.intention || '')}
+Today: ${new Date().toISOString().split('T')[0]}
 
 ## PILLAR "${pillarId.toUpperCase()}" ASSESSMENT
 ${assessmentBlock}
@@ -62,25 +75,26 @@ ${projectsSection}
 ## BUSINESSES
 ${businessSection}
 
-## RECENT MEMORY
+## USER MEMORY (chronological, most recent first)
 ${memorySnippets}
 
+## CRITICAL RULES:
+1. **ASSESSMENT-DRIVEN**: Your goals MUST directly address the assessment findings, subscores, and mirror statement above. If subscores show weakness in a specific area, create goals targeting THAT area.
+2. **HYPER-SPECIFIC**: Reference user's actual projects/businesses BY NAME. No generic filler like "improve skills" or "develop routine".
+3. **MEMORY-AWARE**: Use the user's conversation memory to understand their current situation, struggles, and preferences. Memory includes timestamps — prioritize RECENT entries.
+4. **BRANDING**: The platform is called "Mind OS" (מיינד OS), NOT "Mind Hacker". Never reference old branding.
+5. **LANGUAGE**: Hebrew must be natural, not literal translation. Keep milestone text under 12 words.
+
 ## REQUIRED OUTPUT — 3×3×5:
-Generate exactly 3 MAIN GOALS for this pillar.
+Generate exactly 3 MAIN GOALS that directly address the assessment findings.
 Each main goal has exactly 3 SUB-GOALS.
 Each sub-goal has exactly 5 MILESTONES (concrete action steps).
-
-Rules:
-- Be HYPER-SPECIFIC. Reference user's actual projects/businesses BY NAME.
-- Keep milestone text VERY SHORT (under 12 words).
-- Hebrew must be natural, not literal translation.
-- NO generic filler.
 
 ## OUTPUT FORMAT (JSON only, NO markdown fences):
 {
   "goals": [
     {
-      "goal_en": "Main goal title",
+      "goal_en": "Main goal addressing specific assessment finding",
       "goal_he": "כותרת מטרה ראשית",
       "sub_goals": [
         {
@@ -297,7 +311,7 @@ serve(async (req) => {
       supabase.from('launchpad_progress').select('step_1_intention, step_2_profile_data, step_3_lifestyle_data').eq('user_id', user_id).single(),
       supabase.from('user_projects').select('name, description, status, life_pillar, goals, milestones').eq('user_id', user_id).in('status', ['active', 'in_progress', 'planning']),
       supabase.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id),
-      supabase.from('aurora_conversation_memory').select('summary, emotional_state, key_topics, action_items').eq('user_id', user_id).order('created_at', { ascending: false }).limit(15),
+      supabase.from('aurora_conversation_memory').select('summary, emotional_state, key_topics, action_items, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
     ]);
 
     const allDomains = (domainsRes.data || []) as PillarAssessment[];
