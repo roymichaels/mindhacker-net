@@ -170,17 +170,42 @@ serve(async (req) => {
 
       const prompt = buildStrategyPrompt(h, hubAssessments, profileContext, 'en');
 
-      // Call AI via Lovable proxy
-      const aiResponse = await fetch("https://api.lovable.dev/v1/chat/completions", {
+      // Call OpenAI API
+      const openaiKey = Deno.env.get("OPENAI_API_KEY");
+      if (!openaiKey) {
+        console.error("OPENAI_API_KEY not configured");
+        strategyData = buildFallbackStrategy(h);
+        // Skip AI call, use fallback
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 90);
+        const { data: plan, error: planError } = await supabase
+          .from('life_plans')
+          .insert({
+            user_id,
+            duration_months: 3,
+            start_date: startDate.toISOString().split('T')[0],
+            end_date: endDate.toISOString().split('T')[0],
+            plan_data: { hub: h, strategy: strategyData },
+            status: 'active',
+            progress_percentage: 0,
+          })
+          .select('id')
+          .single();
+        if (!planError && plan) results.push({ hub: h, plan_id: plan.id, strategy: strategyData });
+        continue;
+      }
+
+      const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+          "Authorization": `Bearer ${openaiKey}`,
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "gpt-4o",
           messages: [
-            { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown." },
+            { role: "system", content: "You are Aurora, an elite transformation AI. Output ONLY valid JSON, no markdown fences." },
             { role: "user", content: prompt },
           ],
           temperature: 0.7,

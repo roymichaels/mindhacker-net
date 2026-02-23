@@ -3,7 +3,7 @@
  * Free: deterministic checklist. Plus/Apex: AI-generated steps via aurora-task-brief.
  * Uses translation keys only. RTL-aware.
  */
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckCircle2, SkipForward, Sparkles, Clock, Flame,
@@ -45,52 +45,70 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const domain = action ? getDomainById(action.pillarId) : null;
   const DomainIcon = domain?.icon;
 
-  const generateFallbackSteps = useCallback(() => {
-    if (!action) return;
-    const dur = action.durationMin;
-    const coreMin = Math.max(1, dur - 4);
-    const baseSteps: ExecutionStep[] = [
-      { label: t('today.prepare'), durationSec: 60 },
-      { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
-      { label: t('today.reflect'), durationSec: 120 },
-    ];
-    setSteps(baseSteps);
-    setAuroraMessage(`${t('today.letsBegin')} ${action.durationMin} ${t('today.minutesShort')}. ${t('today.withYou')}`);
-  }, [action, t]);
+  // Use a ref to track what we last generated for, to prevent infinite loops
+  const lastGeneratedRef = useRef<string | null>(null);
 
-  const generateSteps = useCallback(async () => {
-    if (!action || !user?.id) return;
+  useEffect(() => {
+    if (!open || !action || !user?.id) return;
+    
+    const actionKey = `${action.actionType}-${action.pillarId}-${action.durationMin}`;
+    if (lastGeneratedRef.current === actionKey) return;
+    lastGeneratedRef.current = actionKey;
+
+    let cancelled = false;
     setLoading(true);
     setCheckedSteps(new Set());
 
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-today-queue', {
-        body: {
-          user_id: user.id,
-          language,
-          mode: 'execution_steps',
-          action_type: action.actionType,
-          pillar: action.pillarId,
-          duration_min: action.durationMin,
-        },
-      });
+    const fetchSteps = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-today-queue', {
+          body: {
+            user_id: user.id,
+            language,
+            mode: 'execution_steps',
+            action_type: action.actionType,
+            pillar: action.pillarId,
+            duration_min: action.durationMin,
+          },
+        });
 
-      if (!error && data?.steps?.length) {
-        setSteps(data.steps);
-        setAuroraMessage(data.aurora_message || '');
-      } else {
-        generateFallbackSteps();
+        if (cancelled) return;
+        if (!error && data?.steps?.length) {
+          setSteps(data.steps);
+          setAuroraMessage(data.aurora_message || '');
+        } else {
+          // fallback
+          const dur = action.durationMin;
+          const coreMin = Math.max(1, dur - 4);
+          setSteps([
+            { label: t('today.prepare'), durationSec: 60 },
+            { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
+            { label: t('today.reflect'), durationSec: 120 },
+          ]);
+          setAuroraMessage(`${t('today.letsBegin')} ${action.durationMin} ${t('today.minutesShort')}. ${t('today.withYou')}`);
+        }
+      } catch {
+        if (cancelled) return;
+        const dur = action.durationMin;
+        const coreMin = Math.max(1, dur - 4);
+        setSteps([
+          { label: t('today.prepare'), durationSec: 60 },
+          { label: `${t('today.coreExecution')} — ${coreMin} ${t('today.minutesShort')}`, detail: action.title, durationSec: coreMin * 60 },
+          { label: t('today.reflect'), durationSec: 120 },
+        ]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch {
-      generateFallbackSteps();
-    } finally {
-      setLoading(false);
-    }
-  }, [action, user?.id, language, generateFallbackSteps]);
+    };
 
+    fetchSteps();
+    return () => { cancelled = true; };
+  }, [open, action, user?.id, language, t]);
+
+  // Reset ref when modal closes
   useEffect(() => {
-    if (open && action) generateSteps();
-  }, [open, action, generateSteps]);
+    if (!open) lastGeneratedRef.current = null;
+  }, [open]);
 
   const toggleStep = (idx: number) => {
     setCheckedSteps(prev => {
