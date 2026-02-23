@@ -21,10 +21,15 @@ interface Milestone {
   week_number: number;
   month_number: number;
   title: string;
+  title_en: string | null;
   description: string | null;
+  description_en: string | null;
   focus_area: string | null;
+  focus_area_en?: string | null;
   tasks: string[];
+  tasks_en: string[] | null;
   goal: string | null;
+  goal_en: string | null;
   challenge: string | null;
   hypnosis_recommendation: string | null;
   is_completed: boolean;

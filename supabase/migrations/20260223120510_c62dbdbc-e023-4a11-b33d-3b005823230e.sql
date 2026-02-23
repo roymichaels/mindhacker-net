@@ -1,0 +1,1 @@
+ALTER TABLE public.life_plan_milestones ADD COLUMN IF NOT EXISTS focus_area_en text;
