@@ -131,7 +131,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-3">
         {domains.map((domain, i) => {
           const status = statusMap[domain.id] ?? 'unconfigured';
           const isActive = status === 'active' || status === 'configured';
@@ -149,44 +149,36 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           return (
             <motion.button
               key={domain.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, duration: 0.25 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.03, duration: 0.2 }}
               onClick={() => setSelectedDomain(domain)}
               className={cn(
-                'w-full rounded-xl border bg-gradient-to-br p-3 text-start transition-all hover:scale-[1.01] hover:shadow-md cursor-pointer',
+                'flex flex-col items-center gap-2 rounded-xl border bg-gradient-to-br p-3 text-center transition-all hover:scale-[1.03] hover:shadow-lg cursor-pointer',
                 isActive
                   ? cardBgMap[domain.color]
                   : 'bg-card/40 border-border/30 hover:border-border/50'
               )}
             >
-              <div className="flex items-center gap-2.5">
-                <Icon className={cn('w-5 h-5 shrink-0', domainColorMap[domain.color])} />
-                <div className="flex-1 min-w-0">
-                  <span className={cn(
-                    'text-xs font-semibold block',
-                    isActive ? domainColorMap[domain.color] : 'text-foreground/80'
-                  )}>
-                    {isHe ? domain.labelHe : domain.labelEn}
-                  </span>
-                  <p className="text-[10px] text-muted-foreground/60 truncate">
-                    {isHe ? domain.descriptionHe : domain.description}
-                  </p>
-                </div>
-                {pillarMissions.length > 0 && (
-                  <span className="text-[10px] text-muted-foreground/50 shrink-0">
+              <div className="relative">
+                <Icon className={cn('w-6 h-6', domainColorMap[domain.color])} />
+                {isActive && (
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400 absolute -top-1 -end-1" />
+                )}
+              </div>
+              <span className={cn(
+                'text-[11px] font-semibold leading-tight',
+                isActive ? domainColorMap[domain.color] : 'text-foreground/80'
+              )}>
+                {isHe ? domain.labelHe : domain.labelEn}
+              </span>
+              {pillarMissions.length > 0 && (
+                <>
+                  <Progress value={progress} className="h-1 w-full [&>div]:bg-primary" />
+                  <span className="text-[9px] text-muted-foreground/50">
                     {completedMissions}/{pillarMissions.length}
                   </span>
-                )}
-                {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                <ChevronIcon className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
-              </div>
-
-              {/* Mini progress bar */}
-              {pillarMissions.length > 0 && (
-                <div className="mt-2">
-                  <Progress value={progress} className="h-1 [&>div]:bg-primary" />
-                </div>
+                </>
               )}
             </motion.button>
           );
