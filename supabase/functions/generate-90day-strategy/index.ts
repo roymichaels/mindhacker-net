@@ -65,17 +65,16 @@ ${businessSection}
 ## RECENT MEMORY
 ${memorySnippets}
 
-## REQUIRED OUTPUT — 3×5×10:
+## REQUIRED OUTPUT — 3×3×5:
 Generate exactly 3 MAIN GOALS for this pillar.
-Each main goal has exactly 5 SUB-GOALS.
-Each sub-goal has exactly 10 MILESTONES (concrete action steps).
+Each main goal has exactly 3 SUB-GOALS.
+Each sub-goal has exactly 5 MILESTONES (concrete action steps).
 
 Rules:
 - Be HYPER-SPECIFIC. Reference user's actual projects/businesses BY NAME.
-- Use assessment data: if score is low, target improvement; if high, push mastery.
-- Progressive difficulty: early milestones = foundational, later = advanced.
-- Hebrew must be natural and impactful, not literal translation.
-- NO generic filler. Every milestone must be a real, measurable action.
+- Keep milestone text VERY SHORT (under 12 words).
+- Hebrew must be natural, not literal translation.
+- NO generic filler.
 
 ## OUTPUT FORMAT (JSON only, NO markdown fences):
 {
@@ -87,8 +86,8 @@ Rules:
         {
           "sub_goal_en": "Sub-goal title",
           "sub_goal_he": "מטרת משנה",
-          "milestones_en": ["Step 1", "Step 2", ..., "Step 10"],
-          "milestones_he": ["צעד 1", "צעד 2", ..., "צעד 10"]
+          "milestones_en": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+          "milestones_he": ["צעד 1", "צעד 2", "צעד 3", "צעד 4", "צעד 5"]
         }
       ]
     }
@@ -344,7 +343,8 @@ serve(async (req) => {
       let allAiSuccess = true;
 
       if (LOVABLE_API_KEY) {
-        for (const pillarId of pillarIds) {
+        // PARALLEL AI calls to avoid timeout
+        const aiPromises = pillarIds.map(async (pillarId) => {
           try {
             const prompt = buildPillarPrompt(pillarId, h, hubAssessments, profileContext, userProjects, userBusinesses, auroraMemory);
             
@@ -356,9 +356,9 @@ serve(async (req) => {
               },
               body: JSON.stringify({
                 model: "google/gemini-2.5-flash-lite",
-                max_tokens: 4000,
+                max_tokens: 3000,
                 messages: [
-                  { role: "system", content: "You are Aurora, elite transformation AI. Output ONLY valid JSON, no markdown fences. Be HYPER-SPECIFIC — reference user's actual data. Generate exactly 3 goals with 5 sub-goals each with 10 milestones each. Keep milestone text SHORT (under 15 words each)." },
+                  { role: "system", content: "Output ONLY valid JSON. Generate 3 goals, each with 3 sub-goals, each with 5 milestones. Keep text SHORT (<12 words). No markdown." },
                   { role: "user", content: prompt },
                 ],
               }),
@@ -368,24 +368,26 @@ serve(async (req) => {
               const aiResult = await aiResponse.json();
               const raw = aiResult.choices?.[0]?.message?.content || '';
               const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-              try {
-                const parsed = JSON.parse(jsonStr);
-                pillarResults[pillarId] = parsed;
-                console.log(`✅ AI generated pillar: ${pillarId}`);
-              } catch {
-                console.error(`Failed to parse AI for ${pillarId}, using fallback`);
-                pillarResults[pillarId] = FALLBACK_DATA[pillarId] || _g(pillarId, "Transform","טרנספורמציה","Master","שליטה","Scale","הרחבה");
-                allAiSuccess = false;
-              }
+              const parsed = JSON.parse(jsonStr);
+              console.log(`✅ AI generated pillar: ${pillarId}`);
+              return { pillarId, data: parsed };
             } else {
-              const errText = await aiResponse.text();
-              console.error(`AI failed for ${pillarId}: ${aiResponse.status} ${errText}`);
-              pillarResults[pillarId] = FALLBACK_DATA[pillarId] || _g(pillarId, "Transform","טרנספורמציה","Master","שליטה","Scale","הרחבה");
-              allAiSuccess = false;
+              console.error(`AI failed for ${pillarId}: ${aiResponse.status}`);
+              return { pillarId, data: null };
             }
           } catch (e) {
             console.error(`Error generating ${pillarId}:`, e);
-            pillarResults[pillarId] = FALLBACK_DATA[pillarId] || _g(pillarId, "Transform","טרנספורמציה","Master","שליטה","Scale","הרחבה");
+            return { pillarId, data: null };
+          }
+        });
+
+        const aiResults = await Promise.allSettled(aiPromises);
+        for (const result of aiResults) {
+          if (result.status === 'fulfilled' && result.value.data) {
+            pillarResults[result.value.pillarId] = result.value.data;
+          } else {
+            const pid = result.status === 'fulfilled' ? result.value.pillarId : 'unknown';
+            pillarResults[pid] = FALLBACK_DATA[pid] || _g(pid, "Transform","טרנספורמציה","Master","שליטה","Scale","הרחבה");
             allAiSuccess = false;
           }
         }
