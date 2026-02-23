@@ -1,14 +1,14 @@
 /**
  * RoadmapSidebar — Right sidebar showing 90-day plan milestones timeline.
- * Displays weekly milestones with completion status, current week highlight.
+ * Groups milestones by week, showing high-level weekly focus areas.
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
-  RefreshCw, ChevronRight, ChevronLeft, CheckCircle2, Circle,
+  RefreshCw, ChevronDown, ChevronUp, CheckCircle2, Circle,
   Target, Calendar, Trophy, PanelLeftClose, PanelLeftOpen,
-  Loader2, Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { useLifePlanWithMilestones, useCompleteMilestone } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,20 +18,50 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from './MilestoneDetailModal';
 
+interface WeekGroup {
+  week: number;
+  focusAreas: string[];
+  total: number;
+  completed: number;
+  milestones: any[];
+}
+
 export function RoadmapSidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1280);
   const [recalibrating, setRecalibrating] = useState(false);
+  const [expandedWeek, setExpandedWeek] = useState<number | null>(null);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { plan, milestones, currentWeek, isLoading, hasLifePlan } = useLifePlanWithMilestones();
-  const completeMutation = useCompleteMilestone();
+
+  // Group milestones by week
+  const weekGroups = useMemo<WeekGroup[]>(() => {
+    const map = new Map<number, WeekGroup>();
+    for (const m of milestones) {
+      const w = m.week_number;
+      if (!map.has(w)) {
+        map.set(w, { week: w, focusAreas: [], total: 0, completed: 0, milestones: [] });
+      }
+      const g = map.get(w)!;
+      g.total++;
+      if (m.is_completed) g.completed++;
+      g.milestones.push(m);
+      const area = isHe ? m.focus_area : (m.focus_area_en || m.focus_area);
+      if (area && !g.focusAreas.includes(area)) g.focusAreas.push(area);
+    }
+    // Fill missing weeks 1-12
+    for (let w = 1; w <= 12; w++) {
+      if (!map.has(w)) map.set(w, { week: w, focusAreas: [], total: 0, completed: 0, milestones: [] });
+    }
+    return Array.from(map.values()).sort((a, b) => a.week - b.week);
+  }, [milestones, isHe]);
 
   const completedCount = milestones.filter(m => m.is_completed).length;
-  const totalCount = milestones.length || 12;
+  const totalCount = milestones.length || 1;
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
   const handleRecalibrate = async () => {
@@ -43,7 +73,6 @@ export function RoadmapSidebar() {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       if (error) throw error;
-
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
         queryClient.invalidateQueries({ queryKey: ['milestones'] }),
@@ -92,18 +121,22 @@ export function RoadmapSidebar() {
           <div className="flex flex-col items-center gap-2 h-full pt-8 pb-3">
             <Target className="w-4 h-4 text-primary" />
             <div className="flex-1 flex flex-col items-center justify-center gap-1">
-              {milestones.slice(0, 12).map((m, i) => (
-                <div
-                  key={m.id}
-                  className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-colors",
-                    m.is_completed ? "bg-primary" :
-                    m.week_number === currentWeek ? "bg-primary/50 ring-2 ring-primary/30" :
-                    "bg-muted-foreground/20"
-                  )}
-                  title={`W${m.week_number}: ${isHe ? m.title : (m.title_en || m.title)}`}
-                />
-              ))}
+              {weekGroups.map((g) => {
+                const isDone = g.total > 0 && g.completed === g.total;
+                const isCurrent = g.week === currentWeek;
+                return (
+                  <div
+                    key={g.week}
+                    className={cn(
+                      "w-2.5 h-2.5 rounded-full transition-colors",
+                      isDone ? "bg-primary" :
+                      isCurrent ? "bg-primary/50 ring-2 ring-primary/30" :
+                      "bg-muted-foreground/20"
+                    )}
+                    title={`W${g.week}: ${g.focusAreas.join(', ')}`}
+                  />
+                );
+              })}
             </div>
             <span className="text-[9px] font-bold text-primary">{progressPct}%</span>
             <button
@@ -112,7 +145,7 @@ export function RoadmapSidebar() {
               className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
               title={isHe ? 'כיול מחדש' : 'Recalibrate'}
             >
-              {recalibrating 
+              {recalibrating
                 ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
                 : <RefreshCw className="w-3.5 h-3.5 text-primary" />
               }
@@ -159,7 +192,7 @@ export function RoadmapSidebar() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent mb-2" />
 
-            {/* Milestones list */}
+            {/* Weekly milestones */}
             {isLoading ? (
               <div className="flex-1 flex items-center justify-center">
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -173,52 +206,42 @@ export function RoadmapSidebar() {
               </div>
             ) : (
               <div className="flex-1 space-y-0.5">
-                {milestones.map((m, idx) => {
-                  const isPast = m.week_number < currentWeek;
-                  const isDone = m.is_completed;
-                  // Only highlight the FIRST uncompleted milestone in the current week as "active now"
-                  const isCurrentWeek = m.week_number === currentWeek;
-                  const isActiveNow = isCurrentWeek && !isDone && 
-                    milestones.filter(x => x.week_number === currentWeek && !x.is_completed).indexOf(m) === 0;
+                {weekGroups.map((g, idx) => {
+                  const isDone = g.total > 0 && g.completed === g.total;
+                  const isCurrent = g.week === currentWeek;
+                  const isPast = g.week < currentWeek;
+                  const isExpanded = expandedWeek === g.week;
+                  const weekPct = g.total > 0 ? Math.round((g.completed / g.total) * 100) : 0;
 
                   return (
-                    <div key={m.id} className="relative">
+                    <div key={g.week} className="relative">
                       {/* Timeline line */}
-                      {idx < milestones.length - 1 && (
+                      {idx < weekGroups.length - 1 && (
                         <div className={cn(
-                          "absolute top-6 ltr:left-[11px] rtl:right-[11px] w-0.5 h-[calc(100%-4px)]",
-                          isDone ? "bg-primary/40" : "bg-muted-foreground/15"
+                          "absolute top-7 ltr:left-[11px] rtl:right-[11px] w-0.5",
+                          isExpanded ? "h-[calc(100%-8px)]" : "h-[calc(100%-4px)]",
+                          isDone || isPast ? "bg-primary/40" : "bg-muted-foreground/15"
                         )} />
                       )}
 
+                      {/* Week header */}
                       <button
-                        onClick={() => setSelectedMilestone({
-                          id: m.id,
-                          title: isHe ? m.title : (m.title_en || m.title),
-                          goal: m.goal || null,
-                          focus_area: isHe ? m.focus_area : (m.focus_area_en || m.focus_area),
-                          week_number: m.week_number,
-                          month_number: m.month_number || Math.ceil(m.week_number / 4),
-                          is_completed: m.is_completed,
-                        })}
+                        onClick={() => setExpandedWeek(isExpanded ? null : g.week)}
                         className={cn(
                           "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
-                          isActiveNow && "bg-primary/10 border border-primary/20",
-                          isCurrentWeek && !isDone && !isActiveNow && "border border-primary/10",
-                          isDone && "opacity-70",
-                          !isCurrentWeek && !isDone && "hover:bg-muted/30"
+                          isCurrent && "bg-primary/10 border border-primary/20",
+                          !isCurrent && !isDone && "hover:bg-muted/30",
+                          isDone && "opacity-80",
                         )}
                       >
                         {/* Node */}
                         <div className="mt-0.5 shrink-0">
                           {isDone ? (
                             <CheckCircle2 className="w-[18px] h-[18px] text-primary" />
-                          ) : isActiveNow ? (
+                          ) : isCurrent ? (
                             <div className="w-[18px] h-[18px] rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             </div>
-                          ) : isCurrentWeek ? (
-                            <Circle className="w-[18px] h-[18px] text-primary/40" />
                           ) : (
                             <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
                           )}
@@ -226,33 +249,100 @@ export function RoadmapSidebar() {
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <span className={cn(
                               "text-[10px] font-bold",
-                              isCurrentWeek ? "text-primary" : "text-muted-foreground"
+                              isCurrent ? "text-primary" : "text-muted-foreground"
                             )}>
-                              W{m.week_number}
+                              {isHe ? `שבוע ${g.week}` : `Week ${g.week}`}
                             </span>
-                            {isActiveNow && (
-                              <span className="text-[8px] px-1 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
+                            {isCurrent && (
+                              <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
                                 {isHe ? 'עכשיו' : 'NOW'}
                               </span>
                             )}
-                          </div>
-                          <p className={cn(
-                            "text-[11px] leading-tight mt-0.5",
-                            isDone && "line-through",
-                            isActiveNow ? "font-semibold text-foreground" : "text-muted-foreground"
-                          )}>
-                            {isHe ? m.title : (m.title_en || m.title)}
-                          </p>
-                          {(m.focus_area || m.focus_area_en) && (
-                            <span className="text-[9px] text-muted-foreground/60 mt-0.5 block">
-                              {isHe ? m.focus_area : (m.focus_area_en || m.focus_area)}
+                            <span className="text-[9px] text-muted-foreground ms-auto">
+                              {g.completed}/{g.total}
                             </span>
+                          </div>
+                          {/* Focus areas as tags */}
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {g.focusAreas.slice(0, 3).map((area) => (
+                              <span key={area} className={cn(
+                                "text-[9px] px-1.5 py-0.5 rounded-md",
+                                isCurrent ? "bg-primary/15 text-primary" : "bg-muted/60 text-muted-foreground"
+                              )}>
+                                {area}
+                              </span>
+                            ))}
+                            {g.focusAreas.length > 3 && (
+                              <span className="text-[9px] text-muted-foreground/60">
+                                +{g.focusAreas.length - 3}
+                              </span>
+                            )}
+                          </div>
+                          {/* Mini progress */}
+                          {g.total > 0 && (
+                            <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1.5">
+                              <div
+                                className={cn("h-full rounded-full transition-all", isDone ? "bg-primary" : "bg-primary/50")}
+                                style={{ width: `${weekPct}%` }}
+                              />
+                            </div>
                           )}
                         </div>
+
+                        {g.total > 0 && (
+                          <div className="mt-1 shrink-0">
+                            {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
+                          </div>
+                        )}
                       </button>
+
+                      {/* Expanded: individual milestones */}
+                      <AnimatePresence>
+                        {isExpanded && g.milestones.length > 0 && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ps-7 pe-1 py-1 space-y-0.5">
+                              {g.milestones.map((m) => (
+                                <button
+                                  key={m.id}
+                                  onClick={() => setSelectedMilestone({
+                                    id: m.id,
+                                    title: isHe ? m.title : (m.title_en || m.title),
+                                    goal: m.goal || null,
+                                    focus_area: isHe ? m.focus_area : (m.focus_area_en || m.focus_area),
+                                    week_number: m.week_number,
+                                    month_number: m.month_number || Math.ceil(m.week_number / 4),
+                                    is_completed: m.is_completed,
+                                  })}
+                                  className={cn(
+                                    "w-full flex items-center gap-1.5 p-1.5 rounded-md text-start transition-colors hover:bg-muted/30",
+                                    m.is_completed && "opacity-60"
+                                  )}
+                                >
+                                  {m.is_completed
+                                    ? <CheckCircle2 className="w-3 h-3 text-primary shrink-0" />
+                                    : <Circle className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+                                  }
+                                  <span className={cn(
+                                    "text-[10px] leading-tight line-clamp-2",
+                                    m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                                  )}>
+                                    {isHe ? m.title : (m.title_en || m.title)}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   );
                 })}
@@ -267,12 +357,12 @@ export function RoadmapSidebar() {
               disabled={recalibrating}
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all text-primary text-xs font-semibold disabled:opacity-50"
             >
-              {recalibrating 
+              {recalibrating
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 : <RefreshCw className="w-3.5 h-3.5" />
               }
-              <span>{recalibrating 
-                ? (isHe ? 'מחשב מחדש...' : 'Recalculating...') 
+              <span>{recalibrating
+                ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
                 : (isHe ? 'כיול מחדש' : 'Recalibrate')
               }</span>
             </button>
