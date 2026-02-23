@@ -18,6 +18,7 @@ import { Swords, ChevronRight, ChevronLeft, Sparkles, Target, Flame, Zap, Trendi
 import { PlaySummaryCard } from '@/components/arena/PlaySummaryCard';
 import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
 import { TodayExecutionSection } from '@/components/execution/TodayExecutionSection';
+import { UserPlateGrid } from '@/components/plate/UserPlateGrid';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 import { ProjectDetailModal } from '@/components/projects/ProjectDetailModal';
@@ -197,6 +198,9 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
             </div>
           );
         })()}
+
+        {/* ── User's Plate — Real items on their plate ── */}
+        <UserPlateGrid hub="arena" />
 
         {/* ── Play Summary Card ── */}
         <PlaySummaryCard />

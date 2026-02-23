@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Flame, ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, Sparkles, Target, Shield, Brain, Zap, Eye, Waves } from 'lucide-react';
 import { AnalysisProgressBar } from '@/components/hubs/AnalysisProgressBar';
 import { TodayExecutionSection } from '@/components/execution/TodayExecutionSection';
+import { UserPlateGrid } from '@/components/plate/UserPlateGrid';
 
 /* ───── Color maps ───── */
 const colorMap: Record<string, string> = {
@@ -199,6 +200,9 @@ export default function LifeHub() {
             </div>
           );
         })()}
+
+        {/* ── User's Plate — Real items on their plate ── */}
+        <UserPlateGrid hub="core" />
 
         {/* ── Quick Insights Row ── */}
         <div className="grid grid-cols-3 gap-2">
