@@ -1,0 +1,2 @@
+ALTER TABLE public.life_plans DROP CONSTRAINT life_plans_status_check;
+ALTER TABLE public.life_plans ADD CONSTRAINT life_plans_status_check CHECK (status = ANY (ARRAY['active'::text, 'completed'::text, 'paused'::text, 'archived'::text, 'generating'::text]));
