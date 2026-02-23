@@ -402,6 +402,25 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const results: any[] = [];
 
+    // === FETCH USER DATA FOR AI CONTEXT ===
+    const allPillarIds = [...CORE_PILLAR_IDS, ...ARENA_PILLAR_IDS];
+
+    const [profileRes, domainsRes, projectsRes, businessRes, memoryRes] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', user_id).single(),
+      supabase.from('life_domains').select('domain_id, domain_config, status').eq('user_id', user_id).in('domain_id', allPillarIds),
+      supabase.from('user_projects').select('name, status, description, life_pillar, goals').eq('user_id', user_id).limit(10),
+      supabase.from('business_journeys').select('business_name, current_step, journey_complete, step_1_vision, step_2_business_model, step_8_marketing').eq('user_id', user_id).limit(5),
+      supabase.from('aurora_conversation_memory').select('summary, emotional_state, created_at').eq('user_id', user_id).order('created_at', { ascending: false }).limit(25),
+    ]);
+
+    const allDomains: PillarAssessment[] = (domainsRes.data || []) as PillarAssessment[];
+    const userContext = buildUserContext(
+      profileRes.data,
+      projectsRes.data || [],
+      businessRes.data || [],
+      memoryRes.data || [],
+    );
+
     for (const h of hubsToGenerate) {
       const pillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
       const hubAssessments = allDomains.filter(d => pillarIds.includes(d.domain_id));
