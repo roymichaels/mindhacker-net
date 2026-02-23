@@ -1,16 +1,18 @@
 /**
- * DailyMilestones — Shows today's milestone for each pillar from the 90-day plan.
- * Picks based on day-of-plan offset, cycling through the 3×5×10 structure.
- * Always includes a daily hypnosis task under Consciousness.
+ * DailyMilestones — Shows today's milestone for each pillar from the 100-day plan.
+ * Reads from plan_missions + life_plan_milestones tables (not legacy plan_data JSON).
+ * Picks one milestone per pillar based on day-of-plan offset.
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { Calendar, Play, CheckCircle2, Flame } from 'lucide-react';
+import { Calendar, Play } from 'lucide-react';
 import { ExecutionModal } from '@/components/dashboard/ExecutionModal';
 import type { NowQueueItem } from '@/hooks/useNowEngine';
 
@@ -31,11 +33,12 @@ const dotBgMap: Record<string, string> = {
 interface DailyMilestone {
   pillarId: string;
   domain: LifeDomain;
-  goalTitle: string;
-  subGoalTitle: string;
-  milestone: string;
+  missionTitle: string;
+  milestoneTitle: string;
+  milestoneId: string;
   milestoneIndex: number;
   totalMilestones: number;
+  isCompleted: boolean;
 }
 
 interface DailyMilestonesProps {
@@ -52,85 +55,128 @@ function getDayOfPlan(startDate: string): number {
 export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMilestonesProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { coreStrategy, arenaStrategy, corePlan, arenaPlan } = useStrategyPlans();
+  const { corePlan, arenaPlan } = useStrategyPlans();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Determine which plan IDs to query
+  const planIds = useMemo(() => {
+    const ids: string[] = [];
+    if ((hub === 'core' || hub === 'both') && corePlan?.id) ids.push(corePlan.id);
+    if ((hub === 'arena' || hub === 'both') && arenaPlan?.id) ids.push(arenaPlan.id);
+    return ids;
+  }, [hub, corePlan?.id, arenaPlan?.id]);
+
+  // Fetch missions from DB
+  const { data: missions } = useQuery({
+    queryKey: ['daily-missions', planIds],
+    queryFn: async () => {
+      if (planIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('plan_missions')
+        .select('id, plan_id, pillar, mission_number, title, title_en')
+        .in('plan_id', planIds)
+        .order('mission_number');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: planIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch milestones from DB
+  const { data: milestones } = useQuery({
+    queryKey: ['daily-milestones', planIds],
+    queryFn: async () => {
+      if (planIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('life_plan_milestones')
+        .select('id, plan_id, mission_id, milestone_number, title, title_en, is_completed, focus_area')
+        .in('plan_id', planIds)
+        .order('milestone_number');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: planIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const allDomains = useMemo(() => {
+    const domains: LifeDomain[] = [];
+    if (hub === 'core' || hub === 'both') domains.push(...CORE_DOMAINS);
+    if (hub === 'arena' || hub === 'both') domains.push(...ARENA_DOMAINS);
+    return domains;
+  }, [hub]);
+
   const dailyMilestones = useMemo(() => {
     const results: DailyMilestone[] = [];
-    
-    const processHub = (strategy: any, plan: any, domains: LifeDomain[], hubType: 'core' | 'arena') => {
-      if (!strategy?.pillars || !plan?.start_date) return;
-      const dayOfPlan = getDayOfPlan(plan.start_date);
+    if (!missions?.length || !milestones?.length) return results;
+
+    // Determine plan start dates
+    const planStartMap: Record<string, string> = {};
+    if (corePlan?.id && corePlan.start_date) planStartMap[corePlan.id] = corePlan.start_date;
+    if (arenaPlan?.id && arenaPlan.start_date) planStartMap[arenaPlan.id] = arenaPlan.start_date;
+
+    for (const domain of allDomains) {
+      // Get all milestones for this pillar across its missions
+      const pillarMissions = missions.filter(m => m.pillar === domain.id);
+      if (pillarMissions.length === 0) continue;
+
+      const pillarMilestones = milestones.filter(ms => 
+        pillarMissions.some(m => m.id === ms.mission_id)
+      );
+      if (pillarMilestones.length === 0) continue;
+
+      // Get the plan for this domain
+      const planId = pillarMissions[0].plan_id;
+      const startDate = planStartMap[planId];
+      if (!startDate) continue;
+
+      const dayOfPlan = getDayOfPlan(startDate);
       
-      for (const domain of domains) {
-        const pillarData = (strategy.pillars as Record<string, { goals: any[] }>)[domain.id];
-        if (!pillarData?.goals?.length) continue;
-        
-        // Collect ALL milestones flat for this pillar
-        const allMilestones: { goalTitle: string; subGoalTitle: string; milestone: string; idx: number; total: number }[] = [];
-        
-        for (const goal of pillarData.goals) {
-          const goalTitle = isHe ? (goal.goal_he || goal.goal_en) : (goal.goal_en || goal.goal_he);
-          for (const sg of (goal.sub_goals || [])) {
-            const subGoalTitle = isHe ? (sg.sub_goal_he || sg.sub_goal_en) : (sg.sub_goal_en || sg.sub_goal_he);
-            const milestones = isHe ? (sg.milestones_he || sg.milestones_en || []) : (sg.milestones_en || sg.milestones_he || []);
-            milestones.forEach((m: string, mi: number) => {
-              allMilestones.push({ goalTitle, subGoalTitle, milestone: m, idx: allMilestones.length, total: 0 });
-            });
-          }
-        }
-        
-        if (allMilestones.length === 0) continue;
-        
-        // Set total
-        allMilestones.forEach(m => m.total = allMilestones.length);
-        
-        // Pick today's milestone by cycling through all milestones
-        const todayIdx = dayOfPlan % allMilestones.length;
-        const today = allMilestones[todayIdx];
-        
-        results.push({
-          pillarId: domain.id,
-          domain,
-          goalTitle: today.goalTitle,
-          subGoalTitle: today.subGoalTitle,
-          milestone: today.milestone,
-          milestoneIndex: todayIdx + 1,
-          totalMilestones: today.total,
-        });
-      }
-    };
-    
-    if (hub === 'core' || hub === 'both') {
-      processHub(coreStrategy, corePlan, CORE_DOMAINS, 'core');
-    }
-    if (hub === 'arena' || hub === 'both') {
-      processHub(arenaStrategy, arenaPlan, ARENA_DOMAINS, 'arena');
+      // Find first incomplete milestone, or cycle through all
+      const incomplete = pillarMilestones.filter(ms => !ms.is_completed);
+      const target = incomplete.length > 0 
+        ? incomplete[dayOfPlan % incomplete.length]
+        : pillarMilestones[dayOfPlan % pillarMilestones.length];
+
+      // Find which mission this milestone belongs to
+      const parentMission = pillarMissions.find(m => m.id === target.mission_id);
+
+      results.push({
+        pillarId: domain.id,
+        domain,
+        missionTitle: isHe ? (parentMission?.title || '') : (parentMission?.title_en || parentMission?.title || ''),
+        milestoneTitle: isHe ? (target.title || '') : (target.title_en || target.title || ''),
+        milestoneId: target.id,
+        milestoneIndex: pillarMilestones.indexOf(target) + 1,
+        totalMilestones: pillarMilestones.length,
+        isCompleted: target.is_completed ?? false,
+      });
     }
 
-    // Always inject a daily hypnosis task under Consciousness
+    // Inject daily hypnosis under Consciousness
     if (hub === 'core' || hub === 'both') {
       const consciousnessDomain = CORE_DOMAINS.find(d => d.id === 'consciousness');
       if (consciousnessDomain) {
         results.unshift({
           pillarId: 'consciousness-hypnosis',
           domain: consciousnessDomain,
-          goalTitle: isHe ? 'טרנספורמציה יומית' : 'Daily Transformation',
-          subGoalTitle: isHe ? 'סשן היפנוזה יומי — 15 דקות' : 'Daily Hypnosis Session — 15 min',
-          milestone: isHe ? '🧠 היפנוזה יומית — סשן תודעה מותאם אישית' : '🧠 Daily Hypnosis — Personalized Consciousness Session',
+          missionTitle: isHe ? 'טרנספורמציה יומית' : 'Daily Transformation',
+          milestoneTitle: isHe ? '🧠 היפנוזה יומית — סשן תודעה מותאם אישית' : '🧠 Daily Hypnosis — Personalized Session',
+          milestoneId: 'hypnosis',
           milestoneIndex: 1,
           totalMilestones: 1,
+          isCompleted: false,
         });
       }
     }
-    
+
     return results;
-  }, [coreStrategy, arenaStrategy, corePlan, arenaPlan, isHe, hub]);
+  }, [missions, milestones, allDomains, corePlan, arenaPlan, isHe, hub]);
 
   const handleExecute = (dm: DailyMilestone) => {
-    // Hypnosis task → navigate to hypnosis page
     if (dm.pillarId === 'consciousness-hypnosis') {
       navigate('/hypnosis');
       return;
@@ -140,11 +186,11 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
       pillarId: dm.pillarId,
       hub: hubType,
       actionType: dm.pillarId,
-      title: dm.milestone,
-      titleEn: dm.milestone,
+      title: dm.milestoneTitle,
+      titleEn: dm.milestoneTitle,
       durationMin: 15,
       urgencyScore: 80,
-      reason: dm.subGoalTitle,
+      reason: dm.missionTitle,
       sourceType: 'plan',
     });
     setExecutionOpen(true);
@@ -184,7 +230,8 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
               onClick={() => handleExecute(dm)}
               className={cn(
                 'group w-full flex items-start gap-3 p-3 rounded-xl border border-border/40',
-                'bg-card/40 hover:bg-accent/10 hover:border-primary/30 transition-all text-start'
+                'bg-card/40 hover:bg-accent/10 hover:border-primary/30 transition-all text-start',
+                dm.isCompleted && 'opacity-50'
               )}
             >
               <div className={cn('shrink-0 w-8 h-8 rounded-lg flex items-center justify-center', dotBgMap[dm.domain.color])}>
@@ -199,8 +246,8 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
                     {dm.milestoneIndex}/{dm.totalMilestones}
                   </span>
                 </div>
-                <p className="text-xs font-medium leading-snug line-clamp-2">{dm.milestone}</p>
-                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{dm.subGoalTitle}</p>
+                <p className="text-xs font-medium leading-snug line-clamp-2">{dm.milestoneTitle}</p>
+                <p className="text-[10px] text-muted-foreground/50 mt-0.5 line-clamp-1">{dm.missionTitle}</p>
               </div>
               <Play className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary shrink-0 mt-1 transition-colors" />
             </motion.button>
