@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MilestoneDetailModal } from './MilestoneDetailModal';
 
 interface Milestone {
   id: string;
@@ -37,6 +38,7 @@ export function GoalsPopover() {
   const [open, setOpen] = useState(false);
   const currentMonth = Math.min(Math.ceil((new Date().getMonth() % 3 + 1)), 3);
   const [expandedMonths, setExpandedMonths] = useState<Set<number>>(new Set([currentMonth]));
+  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
 
   const { data: milestones, isLoading } = useQuery({
     queryKey: ['goals-popover', user?.id],
@@ -172,11 +174,12 @@ export function GoalsPopover() {
                             className="overflow-hidden bg-muted/30"
                           >
                             <div className="px-3 py-2 space-y-1">
-                              {goals.map(goal => (
-                                <div
+                                {goals.map(goal => (
+                                <button
                                   key={goal.id}
+                                  onClick={() => setSelectedMilestone(goal)}
                                   className={cn(
-                                    'flex items-start gap-2 p-2 rounded-md',
+                                    'flex items-start gap-2 p-2 rounded-md w-full text-start hover:bg-muted/50 transition-colors',
                                     goal.is_completed && 'opacity-60'
                                   )}
                                 >
@@ -200,8 +203,8 @@ export function GoalsPopover() {
                                     )}
                                   </div>
                                   {goal.is_completed && <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
-                                </div>
-                              ))}
+                                </button>
+                                ))}
                             </div>
                           </motion.div>
                         )}
@@ -214,6 +217,12 @@ export function GoalsPopover() {
           )}
         </div>
       </PopoverContent>
+
+      <MilestoneDetailModal
+        open={!!selectedMilestone}
+        onOpenChange={(o) => !o && setSelectedMilestone(null)}
+        milestone={selectedMilestone}
+      />
     </Popover>
   );
 }
