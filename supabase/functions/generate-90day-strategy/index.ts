@@ -165,6 +165,17 @@ serve(async (req) => {
       await supabase.from('life_plans').update({ status: 'archived' }).in('id', oldPlanIds);
     }
 
+    // Also clean up orphaned plan-generated action items (habits/tasks with no plan_id)
+    // These were created by previous strategies but lost their plan reference
+    await supabase
+      .from('action_items')
+      .delete()
+      .eq('user_id', user_id)
+      .is('plan_id', null)
+      .in('source', ['plan', 'aurora', 'user'])
+      .in('type', ['habit', 'task'])
+      .neq('status', 'done');
+
     const hubsToGenerate = targetHub === 'both' ? ['core', 'arena'] as const : [targetHub as 'core' | 'arena'];
     const results: any[] = [];
 
