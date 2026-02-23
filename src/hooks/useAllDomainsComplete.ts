@@ -1,5 +1,5 @@
 /**
- * useAllDomainsComplete — Detects when all 11 life domains are configured/active.
+ * useAllDomainsComplete — Detects when all 14 life domains are configured/active.
  * Returns whether synthesis has already been done or should be triggered.
  */
 import { useLifeDomains } from '@/hooks/useLifeDomains';
@@ -12,7 +12,7 @@ export function useAllDomainsComplete() {
   const { user } = useAuth();
   const { statusMap, isLoading: domainsLoading } = useLifeDomains();
 
-  // Check if all 11 domains are configured or active
+  // Check if all 14 domains are configured or active
   const allComplete = !domainsLoading && LIFE_DOMAINS.every(
     (d) => statusMap[d.id] === 'configured' || statusMap[d.id] === 'active'
   );

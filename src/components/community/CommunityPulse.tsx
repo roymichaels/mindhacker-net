@@ -41,7 +41,7 @@ export function CommunityPulse() {
               {isHe ? 'דופק הקהילה' : 'Community Pulse'}
             </h2>
             <p className="text-[10px] text-muted-foreground">
-              {isHe ? '13 עמודים. ציוויליזציה אחת.' : '13 pillars. One civilization.'}
+              {isHe ? '14 עמודים. ציוויליזציה אחת.' : '14 pillars. One civilization.'}
             </p>
           </div>
         </div>

@@ -4,7 +4,7 @@
  * 
  * Core rules:
  * - No "Week X" or milestone-first surfaces
- * - Distributes across 13 pillars (Body / Mind / Arena coverage)
+ * - Distributes across 14 pillars (Body / Mind / Arena coverage)
  * - Tier-gated: Free=3-5 actions, Plus=full schedule, Apex=adaptive
  * - Movement Score tracks daily compliance
  */

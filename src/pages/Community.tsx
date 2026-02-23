@@ -39,7 +39,7 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
 
   useSEO({
     title: 'MindOS Community',
-    description: '13 pillars. One civilization.',
+    description: '14 pillars. One civilization.',
   });
 
   useEffect(() => {

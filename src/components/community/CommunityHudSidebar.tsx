@@ -104,7 +104,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
                 {isHe ? 'קומיוניטי MindOS' : 'MindOS Community'}
               </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {isHe ? '13 עמודים. ציוויליזציה אחת.' : '13 pillars. One civilization.'}
+                {isHe ? '14 עמודים. ציוויליזציה אחת.' : '14 pillars. One civilization.'}
               </p>
             </div>
           </div>
