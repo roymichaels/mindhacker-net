@@ -12,9 +12,9 @@ import {
 } from 'lucide-react';
 import { useLifePlanWithMilestones, useCompleteMilestone } from '@/hooks/useLifePlan';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from './MilestoneDetailModal';
 
@@ -34,7 +34,6 @@ export function RoadmapSidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1280);
-  const [recalibrating, setRecalibrating] = useState(false);
   const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
 
@@ -72,15 +71,12 @@ export function RoadmapSidebar() {
   const totalCount = milestones.length || 1;
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
+  const { generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
+
   const handleRecalibrate = async () => {
     if (!user?.id || recalibrating) return;
-    setRecalibrating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { error } = await supabase.functions.invoke('generate-pillar-synthesis', {
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
-      if (error) throw error;
+      await generateStrategy.mutateAsync({ hub: 'both', forceRegenerate: true });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
         queryClient.invalidateQueries({ queryKey: ['milestones'] }),
@@ -90,13 +86,11 @@ export function RoadmapSidebar() {
         queryClient.invalidateQueries({ queryKey: ['life-plan-milestones'] }),
         queryClient.invalidateQueries({ queryKey: ['daily-roadmap'] }),
         queryClient.invalidateQueries({ queryKey: ['action-items'] }),
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] }),
       ]);
-      toast.success(isHe ? '✨ התוכנית חושבה מחדש!' : '✨ Plan recalculated!');
     } catch (e) {
       console.error('Recalibration failed:', e);
       toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
-    } finally {
-      setRecalibrating(false);
     }
   };
 
