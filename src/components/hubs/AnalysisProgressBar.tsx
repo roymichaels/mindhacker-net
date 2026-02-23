@@ -1,5 +1,5 @@
 /**
- * AnalysisProgressBar — Unified progress bar across all 13 life domains.
+ * AnalysisProgressBar — Unified progress bar across all 14 life domains.
  * Sleek gradient design showing combined Core + Arena completion toward
  * the 90-day Apex plan renewal.
  */

@@ -1,6 +1,6 @@
 /**
  * TwoWorldsSection - Core (inner transformation) + Arena (external impact)
- * Shows all 13 life domains with icons and descriptions
+ * Shows all 14 life domains with icons and descriptions
  */
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -52,8 +52,8 @@ export default function TwoWorldsSection() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {isRTL
-              ? '13 תחומים. שני עולמות. מערכת אחת שמחברת את הכל.'
-              : '13 domains. Two worlds. One system that connects it all.'}
+              ? '14 תחומים. שני עולמות. מערכת אחת שמחברת את הכל.'
+              : '14 domains. Two worlds. One system that connects it all.'}
           </p>
         </motion.div>
 

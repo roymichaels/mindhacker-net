@@ -26,7 +26,7 @@ export default function CommunityHeader({ onCreateThread }: CommunityHeaderProps
             {t('combatCommunity.communityTitle') || 'MindOS Community'}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {t('combatCommunity.communitySubtitle') || '13 pillars. One civilization.'}
+            {t('combatCommunity.communitySubtitle') || '14 pillars. One civilization.'}
           </p>
         </div>
         {user && (

@@ -1,5 +1,5 @@
 /**
- * PillarSynthesisModal — Auto-triggered when all 11 domains are complete.
+ * PillarSynthesisModal — Auto-triggered when all 14 domains are complete.
  * Calls generate-pillar-synthesis to create a new comprehensive 90-day plan.
  */
 import { useState, useEffect } from 'react';
@@ -102,8 +102,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {isHe
-                    ? 'סיימת את ההערכה בכל 11 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 90 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
-                    : 'You completed assessments across all 11 life domains. The system will now synthesize everything into a comprehensive new 90-day plan — with updated identity, direction, and insights.'}
+                    ? 'סיימת את ההערכה בכל 14 תחומי החיים. עכשיו המערכת תנתח את כל המידע ותבנה תוכנית 90 ימים חדשה ומקיפה — עם זהות, כיוון ותובנות מעודכנים.'
+                    : 'You completed assessments across all 14 life domains. The system will now synthesize everything into a comprehensive new 90-day plan — with updated identity, direction, and insights.'}
                 </p>
               </div>
 
@@ -148,8 +148,8 @@ export function PillarSynthesisModal({ open, onOpenChange }: PillarSynthesisModa
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {isHe
-                    ? 'המערכת מסנתזת נתונים מ-11 תחומי חיים ובונה תוכנית מותאמת אישית'
-                    : 'Synthesizing data from 11 life domains into a personalized plan'}
+                    ? 'המערכת מסנתזת נתונים מ-14 תחומי חיים ובונה תוכנית מותאמת אישית'
+                    : 'Synthesizing data from 14 life domains into a personalized plan'}
                 </p>
               </div>
 

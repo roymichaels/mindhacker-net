@@ -1,7 +1,7 @@
 /**
  * DashboardLayoutWrapper - Wraps the Dashboard with conditional sidebar visibility.
  * Hides HUD sidebars for un-onboarded users (like CoachesLayoutWrapper does for non-coaches).
- * Auto-triggers PillarSynthesisModal when all 11 domains are complete.
+ * Auto-triggers PillarSynthesisModal when all 14 domains are complete.
  */
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { PageSkeleton } from '@/components/ui/skeleton';
