@@ -1,6 +1,6 @@
 /**
- * MovementScoreCard — Shows daily movement score + body/mind/arena coverage.
- * The primary daily compliance metric.
+ * MovementScoreCard — Daily movement score + body/mind/arena coverage.
+ * Uses translation keys only. RTL-aware.
  */
 import { motion } from 'framer-motion';
 import { Activity, Brain, Dumbbell, Briefcase, Flame, TrendingUp } from 'lucide-react';
@@ -27,49 +27,28 @@ export function MovementScoreCard({
   actionsTotal,
   isMinDayMode,
 }: MovementScoreCardProps) {
-  const { language, isRTL } = useTranslation();
-  const isHe = language === 'he';
+  const { t, isRTL } = useTranslation();
   const streak = useStreak();
 
   const coverageItems = [
-    {
-      icon: Dumbbell,
-      label: isHe ? 'גוף' : 'Body',
-      covered: bodyCovered,
-      color: 'text-red-400',
-      bg: 'bg-red-500/10',
-    },
-    {
-      icon: Brain,
-      label: isHe ? 'נפש' : 'Mind',
-      covered: mindCovered,
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-    },
-    {
-      icon: Briefcase,
-      label: isHe ? 'זירה' : 'Arena',
-      covered: arenaCovered,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-    },
+    { icon: Dumbbell, labelKey: 'today.body', covered: bodyCovered, color: 'text-red-400', bg: 'bg-red-500/10' },
+    { icon: Brain, labelKey: 'today.mind', covered: mindCovered, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { icon: Briefcase, labelKey: 'today.arena', covered: arenaCovered, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   ];
 
   const scoreColor = score >= 70 ? 'text-emerald-400' : score >= 40 ? 'text-amber-400' : 'text-red-400';
   const scoreGradient = score >= 70 ? 'from-emerald-500' : score >= 40 ? 'from-amber-500' : 'from-red-500';
+  const statusKey = score >= 70 ? 'today.excellent' : score >= 40 ? 'today.onTrack' : 'today.startMoving';
 
   return (
     <div className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold">
-            {isHe ? 'ציון תנועה' : 'Movement Score'}
-          </h3>
+          <h3 className="text-sm font-bold">{t('today.movementScore')}</h3>
           {isMinDayMode && (
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-              {isHe ? 'מצב מינימום' : 'Min Day'}
+              {t('today.minDayMode')}
             </span>
           )}
         </div>
@@ -81,21 +60,12 @@ export function MovementScoreCard({
         )}
       </div>
 
-      {/* Score + Progress */}
       <div className="flex items-center gap-4">
-        {/* Big score number */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="flex-shrink-0"
-        >
-          <span className={cn('text-3xl font-black tabular-nums', scoreColor)}>
-            {score}
-          </span>
+        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="shrink-0">
+          <span className={cn('text-3xl font-black tabular-nums', scoreColor)}>{score}</span>
           <span className="text-sm text-muted-foreground/60">/100</span>
         </motion.div>
 
-        {/* Progress bar */}
         <div className="flex-1 space-y-1.5">
           <div className="h-3 rounded-full bg-muted/30 overflow-hidden">
             <motion.div
@@ -106,30 +76,27 @@ export function MovementScoreCard({
             />
           </div>
           <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-            <span>{actionsCompleted}/{actionsTotal} {isHe ? 'הושלמו' : 'completed'}</span>
+            <span>{actionsCompleted}/{actionsTotal} {t('today.completed')}</span>
             <span className="flex items-center gap-1">
               <TrendingUp className="w-2.5 h-2.5" />
-              {score >= 70 ? (isHe ? 'מצוין!' : 'Excellent!') : score >= 40 ? (isHe ? 'בדרך הנכונה' : 'On track') : (isHe ? 'התחל לזוז!' : 'Start moving!')}
+              {t(statusKey)}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Coverage indicators */}
       <div className="grid grid-cols-3 gap-2">
         {coverageItems.map(item => (
           <div
-            key={item.label}
+            key={item.labelKey}
             className={cn(
               'flex flex-col items-center gap-1 p-2 rounded-xl border transition-all',
-              item.covered
-                ? `${item.bg} border-current/20`
-                : 'bg-muted/10 border-border/20 opacity-40',
+              item.covered ? `${item.bg} border-current/20` : 'bg-muted/10 border-border/20 opacity-40',
             )}
           >
             <item.icon className={cn('w-4 h-4', item.covered ? item.color : 'text-muted-foreground/40')} />
             <span className={cn('text-[10px] font-semibold', item.covered ? item.color : 'text-muted-foreground/40')}>
-              {item.covered ? '✓' : '–'} {item.label}
+              {item.covered ? '✓' : '–'} {t(item.labelKey)}
             </span>
           </div>
         ))}
