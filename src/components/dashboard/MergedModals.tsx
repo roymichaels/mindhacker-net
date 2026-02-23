@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AIAnalysisDisplay } from '@/components/launchpad/AIAnalysisDisplay';
-import { LifePlanExpanded } from './LifePlanExpanded';
 import { ConsciousnessCard, BehavioralInsightsCard, IdentityProfileCard, TraitsCard, CommitmentsCard, DailyAnchorsDisplay } from './unified';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
@@ -156,15 +155,11 @@ export function MergedDirectionModal({ open, onOpenChange, language, commitments
           title={language === 'he' ? 'כיוון' : 'Direction'}
           icon={<Compass className="h-5 w-5" />}
         />
-        <Tabs defaultValue="plan" className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="plan">{language === 'he' ? 'תוכנית 90 יום' : '90-Day Plan'}</TabsTrigger>
+        <Tabs defaultValue="commitments" className="w-full">
+          <TabsList className="w-full grid grid-cols-2">
             <TabsTrigger value="commitments">{language === 'he' ? 'מחויבות' : 'Commitments'}</TabsTrigger>
             <TabsTrigger value="anchors">{language === 'he' ? 'עוגנים' : 'Anchors'}</TabsTrigger>
           </TabsList>
-          <TabsContent value="plan" className="mt-4">
-            <LifePlanExpanded />
-          </TabsContent>
           <TabsContent value="commitments" className="mt-4">
             <CommitmentsCard commitments={commitments} />
           </TabsContent>

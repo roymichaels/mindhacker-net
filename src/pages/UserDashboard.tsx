@@ -32,35 +32,7 @@ const UserDashboard = () => {
   useGuestDataMigration();
   const { shouldShowPromo, dismissPromo } = usePromoPopup();
 
-  // Plan data query
-  const { data: planData } = useQuery({
-    queryKey: ['plan-hero-grid', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data: plan } = await supabase
-        .from('life_plans')
-        .select('id, duration_months, start_date, status')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!plan) return null;
-      const { data: milestones } = await supabase
-        .from('life_plan_milestones')
-        .select('id, title, week_number, is_completed')
-        .eq('plan_id', plan.id)
-        .order('week_number', { ascending: true });
-      const completedMilestones = milestones?.filter(m => m.is_completed) || [];
-      const currentMilestone = milestones?.find(m => !m.is_completed);
-      const totalWeeks = (plan.duration_months || 3) * 4;
-      const currentWeek = currentMilestone?.week_number || completedMilestones.length + 1;
-      const currentMonth = Math.min(3, Math.ceil(currentWeek / 4));
-      const progressPercent = Math.round((completedMilestones.length / (milestones?.length || totalWeeks)) * 100);
-      return { currentWeek, totalWeeks, currentMonth, completedCount: completedMilestones.length, totalCount: milestones?.length || totalWeeks, progressPercent, currentMilestone };
-    },
-    enabled: !!user?.id,
-  });
+  // Legacy planData query removed — TodayEngine is the primary surface
 
   useSEO({
     title: t('seo.dashboardTitle'),
@@ -169,7 +141,7 @@ const UserDashboard = () => {
 
   return (
     <PageShell className="flex-1 flex flex-col min-h-0 gap-4 !max-w-full !px-0 md:!px-4 !py-0 md:!py-4 overflow-y-auto">
-      <MobileHeroGrid planData={planData} />
+      <MobileHeroGrid planData={null} />
       <section className="md:hidden">
         <ProfileContent />
       </section>
