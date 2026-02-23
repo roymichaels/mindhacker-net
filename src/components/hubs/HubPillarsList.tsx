@@ -190,6 +190,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
         <PillarModal
           open={!!selectedDomain}
           onOpenChange={(o) => !o && setSelectedDomain(null)}
+          hub={hub}
           pillar={selectedDomain}
           missions={missionsByPillar[selectedDomain.id] || []}
           milestonesByMission={milestonesByMission}
