@@ -1,48 +1,21 @@
 /**
- * TodayScheduleCard — Shows today's actions grouped by PILLAR.
- * Each pillar section has icon, color, and bilingual label.
+ * TodayScheduleCard — Shows today's actions as a 3-column grid of cards.
+ * Each card shows pillar badge, title, and duration.
  * RTL-aware. Mobile-first.
  */
 import { motion } from 'framer-motion';
-import { Clock, Play, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { NowQueueItem } from '@/hooks/useNowEngine';
-import { Badge } from '@/components/ui/badge';
 import { getDomainById, CORE_DOMAINS, ARENA_DOMAINS } from '@/navigation/lifeDomains';
-import { useState, useMemo } from 'react';
-
-interface PillarGroup {
-  pillarId: string;
-  actions: NowQueueItem[];
-}
+import { useMemo } from 'react';
 
 interface TodayScheduleCardProps {
-  schedule: any[]; // kept for compat but we use queue directly
+  schedule: any[];
   onActionClick: (action: NowQueueItem) => void;
   queue?: NowQueueItem[];
 }
-
-const PILLAR_ORDER = [
-  ...CORE_DOMAINS.map(d => d.id),
-  ...ARENA_DOMAINS.map(d => d.id),
-];
-
-const PILLAR_BG: Record<string, string> = {
-  consciousness: 'bg-blue-500/10 border-blue-500/30',
-  presence: 'bg-fuchsia-500/10 border-fuchsia-500/30',
-  power: 'bg-red-500/10 border-red-500/30',
-  vitality: 'bg-amber-500/10 border-amber-500/30',
-  focus: 'bg-cyan-500/10 border-cyan-500/30',
-  combat: 'bg-slate-500/10 border-slate-400/30',
-  expansion: 'bg-indigo-500/10 border-indigo-500/30',
-  wealth: 'bg-emerald-500/10 border-emerald-500/30',
-  influence: 'bg-purple-500/10 border-purple-500/30',
-  relationships: 'bg-sky-500/10 border-sky-500/30',
-  business: 'bg-rose-500/10 border-rose-500/30',
-  projects: 'bg-amber-500/10 border-amber-500/30',
-  play: 'bg-violet-500/10 border-violet-500/30',
-};
 
 const PILLAR_ICON_COLOR: Record<string, string> = {
   consciousness: 'text-blue-400',
@@ -60,42 +33,32 @@ const PILLAR_ICON_COLOR: Record<string, string> = {
   play: 'text-violet-400',
 };
 
-export function TodayScheduleCard({ schedule, onActionClick, queue }: TodayScheduleCardProps) {
-  const { t, isRTL } = useTranslation();
+const PILLAR_ACCENT: Record<string, string> = {
+  consciousness: 'border-blue-500/30 hover:border-blue-500/50',
+  presence: 'border-fuchsia-500/30 hover:border-fuchsia-500/50',
+  power: 'border-red-500/30 hover:border-red-500/50',
+  vitality: 'border-amber-500/30 hover:border-amber-500/50',
+  focus: 'border-cyan-500/30 hover:border-cyan-500/50',
+  combat: 'border-slate-400/30 hover:border-slate-400/50',
+  expansion: 'border-indigo-500/30 hover:border-indigo-500/50',
+  wealth: 'border-emerald-500/30 hover:border-emerald-500/50',
+  influence: 'border-purple-500/30 hover:border-purple-500/50',
+  relationships: 'border-sky-500/30 hover:border-sky-500/50',
+  business: 'border-rose-500/30 hover:border-rose-500/50',
+  projects: 'border-amber-500/30 hover:border-amber-500/50',
+  play: 'border-violet-500/30 hover:border-violet-500/50',
+};
 
-  // Build pillar groups from queue (preferred) or flatten schedule actions
-  const pillarGroups = useMemo(() => {
-    const actions = queue && queue.length > 0
+export function TodayScheduleCard({ schedule, onActionClick, queue }: TodayScheduleCardProps) {
+  const { isRTL } = useTranslation();
+
+  const allActions = useMemo(() => {
+    return queue && queue.length > 0
       ? queue
       : schedule.flatMap(s => s.actions || []);
-
-    const groupMap = new Map<string, NowQueueItem[]>();
-    for (const action of actions) {
-      const pid = action.pillarId || 'focus';
-      if (!groupMap.has(pid)) groupMap.set(pid, []);
-      groupMap.get(pid)!.push(action);
-    }
-
-    // Sort by pillar order
-    const groups: PillarGroup[] = [];
-    for (const pid of PILLAR_ORDER) {
-      if (groupMap.has(pid)) {
-        groups.push({ pillarId: pid, actions: groupMap.get(pid)! });
-        groupMap.delete(pid);
-      }
-    }
-    // Any remaining pillars
-    for (const [pid, actions] of groupMap) {
-      groups.push({ pillarId: pid, actions });
-    }
-    return groups;
   }, [queue, schedule]);
 
-  const [expandedPillar, setExpandedPillar] = useState<string | null>(
-    pillarGroups[0]?.pillarId || null
-  );
-
-  if (pillarGroups.length === 0) return null;
+  if (allActions.length === 0) return null;
 
   return (
     <div className="space-y-2" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -105,109 +68,52 @@ export function TodayScheduleCard({ schedule, onActionClick, queue }: TodaySched
           {isRTL ? 'המשימות של היום' : "Today's Actions"}
         </h3>
         <span className="text-xs text-muted-foreground ms-auto">
-          {pillarGroups.reduce((sum, g) => sum + g.actions.length, 0)} {isRTL ? 'משימות' : 'tasks'}
+          {allActions.length} {isRTL ? 'משימות' : 'tasks'}
         </span>
       </div>
 
-      <div className="space-y-2">
-        {pillarGroups.map((group, idx) => {
-          const domain = getDomainById(group.pillarId);
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {allActions.map((action, i) => {
+          const domain = getDomainById(action.pillarId);
           const DomainIcon = domain?.icon;
-          const isExpanded = expandedPillar === group.pillarId;
-          const bgClass = PILLAR_BG[group.pillarId] || 'bg-muted/20 border-border/30';
-          const iconColor = PILLAR_ICON_COLOR[group.pillarId] || 'text-muted-foreground';
-          const totalMin = group.actions.reduce((sum, a) => sum + a.durationMin, 0);
+          const iconColor = PILLAR_ICON_COLOR[action.pillarId] || 'text-muted-foreground';
+          const accentBorder = PILLAR_ACCENT[action.pillarId] || 'border-border/40 hover:border-primary/30';
 
           return (
-            <motion.div
-              key={group.pillarId}
-              initial={{ opacity: 0, y: 6 }}
+            <motion.button
+              key={`${action.actionType}-${i}`}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="rounded-xl overflow-hidden"
-            >
-              {/* Pillar Header */}
-              <button
-                onClick={() => setExpandedPillar(isExpanded ? null : group.pillarId)}
-                className={cn(
-                  'w-full flex items-center gap-3 px-3.5 py-3 border transition-all text-start rounded-xl',
-                  bgClass,
-                  isExpanded && 'rounded-b-none'
-                )}
-              >
-                {DomainIcon && (
-                  <div className={cn('shrink-0 p-1.5 rounded-lg bg-background/60', iconColor)}>
-                    <DomainIcon className="w-4 h-4" />
-                  </div>
-                )}
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold">
-                    {domain ? (isRTL ? domain.labelHe : domain.labelEn) : group.pillarId}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {domain ? (isRTL ? domain.descriptionHe : domain.description) : ''}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] text-muted-foreground font-mono">
-                    {totalMin} {isRTL ? 'ד׳' : 'min'}
-                  </span>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                    {group.actions.length}
-                  </Badge>
-                  {isExpanded
-                    ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground/50" />
-                    : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/50" />
-                  }
-                </div>
-              </button>
-
-              {/* Action list */}
-              {isExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className={cn(
-                    'border border-t-0 rounded-b-xl px-2 pb-2 pt-1 space-y-1',
-                    bgClass.replace('border-', 'border-').split(' ').filter(c => c.startsWith('border-')).join(' '),
-                    'bg-card/20'
-                  )}
-                >
-                  {group.actions.map((action, ai) => (
-                    <button
-                      key={`${action.actionType}-${ai}`}
-                      onClick={() => onActionClick(action)}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg bg-card/50 border border-border/20 hover:border-primary/30 hover:bg-accent/10 transition-all text-start group"
-                    >
-                      <div className={cn('shrink-0 w-1.5 h-8 rounded-full', `bg-${domain?.color || 'primary'}-400/60`)} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">
-                          {isRTL ? action.title : action.titleEn}
-                        </p>
-                        {action.reason && (
-                          <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                            {action.reason}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5" />
-                          {action.durationMin}{isRTL ? 'ד׳' : 'm'}
-                        </span>
-                        <Play className={cn(
-                          "w-4 h-4 text-muted-foreground/30 group-hover:text-primary transition-colors",
-                          isRTL && "rotate-180"
-                        )} />
-                      </div>
-                    </button>
-                  ))}
-                </motion.div>
+              transition={{ delay: i * 0.03 }}
+              onClick={() => onActionClick(action)}
+              className={cn(
+                'flex flex-col gap-2 p-3 rounded-xl bg-card/50 border text-start',
+                'hover:bg-accent/10 transition-all group',
+                accentBorder
               )}
-            </motion.div>
+            >
+              <div className="flex items-center justify-between">
+                {DomainIcon && (
+                  <span className={cn('inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted/60 border border-border/50', iconColor)}>
+                    <DomainIcon className="h-3 w-3" />
+                    {domain ? (isRTL ? domain.labelHe : domain.labelEn) : action.pillarId}
+                  </span>
+                )}
+                <Play className={cn(
+                  "w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors shrink-0",
+                  isRTL && "rotate-180"
+                )} />
+              </div>
+              <p className="text-xs font-semibold leading-tight line-clamp-2">
+                {isRTL ? action.title : action.titleEn}
+              </p>
+              <div className="flex items-center gap-1.5 mt-auto">
+                <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">
+                  {action.durationMin} {isRTL ? 'דק׳' : 'min'}
+                </span>
+              </div>
+            </motion.button>
           );
         })}
       </div>
