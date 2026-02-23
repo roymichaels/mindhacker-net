@@ -379,13 +379,33 @@ serve(async (req) => {
     // Check existing plans — only generate missing hubs
     let hubsToGenerate: ('core' | 'arena')[] = targetHub === 'both' ? ['core', 'arena'] : [targetHub as 'core' | 'arena'];
     
-    if (!force_regenerate) {
-      const { data: existing } = await supabase
-        .from('life_plans').select('id, plan_data')
-        .eq('user_id', user_id).eq('status', 'active')
-        .order('created_at', { ascending: false });
+    // Always fetch existing active plans
+    const { data: existing } = await supabase
+      .from('life_plans').select('id, plan_data')
+      .eq('user_id', user_id).eq('status', 'active')
+      .order('created_at', { ascending: false });
 
+    if (force_regenerate) {
+      // Archive ALL active plans (including old-format ones without hub)
+      const allActiveIds = (existing || []).map((p: any) => p.id);
+      if (allActiveIds.length > 0) {
+        await supabase.from('plan_missions').delete().in('plan_id', allActiveIds);
+        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', allActiveIds);
+        await supabase.from('life_plan_milestones').delete().in('plan_id', allActiveIds);
+        await supabase.from('life_plans').update({ status: 'archived' }).in('id', allActiveIds);
+        console.log(`Force regenerate: archived ${allActiveIds.length} existing plans`);
+      }
+    } else {
       const existingHubs = (existing || []).map((p: any) => p.plan_data?.hub).filter(Boolean);
+      
+      // Also treat old-format plans (no hub) as covering both hubs to prevent duplicates
+      const hasOldFormat = (existing || []).some((p: any) => !p.plan_data?.hub);
+      if (hasOldFormat) {
+        // Old format plan exists — need force_regenerate to replace it
+        return new Response(JSON.stringify({ message: "Legacy plan exists. Use force_regenerate to rebuild.", plans: existing }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       
       // Filter out hubs that already have plans
       hubsToGenerate = hubsToGenerate.filter(h => !existingHubs.includes(h));
