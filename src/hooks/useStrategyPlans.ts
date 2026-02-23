@@ -24,13 +24,21 @@ export interface StrategyWeek {
   }[];
 }
 
+export interface StrategyPillarGoal {
+  goal_en: string;
+  goal_he: string;
+  milestones_en: string[];
+  milestones_he: string[];
+}
+
 export interface StrategyData {
   hub: 'core' | 'arena';
   title_en: string;
   title_he: string;
   vision_en: string;
   vision_he: string;
-  weeks: StrategyWeek[];
+  weeks?: StrategyWeek[];
+  pillars?: Record<string, { goals: StrategyPillarGoal[] }>;
 }
 
 export interface StrategyPlan {
