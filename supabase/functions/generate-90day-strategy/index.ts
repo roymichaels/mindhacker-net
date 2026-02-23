@@ -348,7 +348,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { user_id, hub, force_regenerate } = body;
+    const { user_id, hub, force_regenerate, selected_pillars, single_pillar } = body;
 
     if (!user_id) {
       return new Response(JSON.stringify({ error: "user_id required" }), {
@@ -444,7 +444,25 @@ serve(async (req) => {
     );
 
     for (const h of hubsToGenerate) {
-      const pillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
+      const allHubPillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
+      
+      // Filter to selected pillars only (if provided)
+      let pillarIds: string[];
+      if (single_pillar) {
+        // Modular mode: only generate for one pillar and merge into existing plan
+        pillarIds = allHubPillarIds.includes(single_pillar) ? [single_pillar] : [];
+      } else if (selected_pillars) {
+        const hubSelected = h === 'core' ? (selected_pillars.core || []) : (selected_pillars.arena || []);
+        pillarIds = allHubPillarIds.filter((id: string) => hubSelected.includes(id));
+      } else {
+        pillarIds = allHubPillarIds;
+      }
+      
+      if (pillarIds.length === 0) {
+        console.log(`No pillars selected for ${h} hub, skipping`);
+        continue;
+      }
+      
       const hubAssessments = allDomains.filter(d => pillarIds.includes(d.domain_id));
       
       const pillarResults: Record<string, any> = {};
@@ -476,6 +494,84 @@ serve(async (req) => {
           pillarResults[k] = v;
         }
         allAiSuccess = false;
+      }
+
+      // === MODULAR MODE: merge into existing plan ===
+      if (single_pillar) {
+        // Find existing active plan for this hub
+        const { data: existingPlan } = await supabase
+          .from('life_plans').select('id, plan_data')
+          .eq('user_id', user_id).eq('status', 'active')
+          .order('created_at', { ascending: false });
+        
+        const hubPlan = (existingPlan || []).find((p: any) => p.plan_data?.hub === h);
+        
+        if (hubPlan) {
+          // Merge new pillar into existing plan_data
+          const existingStrategy = hubPlan.plan_data?.strategy || hubPlan.plan_data || {};
+          const updatedPillars = { ...(existingStrategy.pillars || {}), ...pillarResults };
+          const updatedStrategy = { ...existingStrategy, pillars: updatedPillars };
+          
+          await supabase.from('life_plans')
+            .update({ plan_data: { hub: h, strategy: updatedStrategy } })
+            .eq('id', hubPlan.id);
+          
+          // Generate missions/milestones for the new pillar only
+          const planId = hubPlan.id;
+          let totalMissions = 0, totalMilestones = 0;
+          
+          for (const [pillarId, pillarObj] of Object.entries(pillarResults)) {
+            // Delete existing missions for this pillar (if re-adding)
+            const { data: oldMissions } = await supabase
+              .from('plan_missions').select('id')
+              .eq('plan_id', planId).eq('pillar', pillarId);
+            if (oldMissions && oldMissions.length > 0) {
+              const oldIds = oldMissions.map((m: any) => m.id);
+              await supabase.from('life_plan_milestones').delete().in('mission_id', oldIds);
+              await supabase.from('plan_missions').delete().in('id', oldIds);
+            }
+            
+            const missions = (pillarObj as any)?.missions || (pillarObj as any)?.goals || [];
+            for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
+              const mission = missions[mi];
+              const { data: missionRow, error: missionError } = await supabase
+                .from('plan_missions').insert({
+                  plan_id: planId, pillar: pillarId, mission_number: mi + 1,
+                  title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
+                  title_en: mission.mission_en || mission.goal_en,
+                  description: mission.mission_he || mission.goal_he,
+                  description_en: mission.mission_en || mission.goal_en,
+                  xp_reward: 50,
+                }).select('id').single();
+              if (missionError) continue;
+              totalMissions++;
+              
+              const milestones = mission.milestones || mission.sub_goals || [];
+              for (let si = 0; si < Math.min(milestones.length, 5); si++) {
+                const ms = milestones[si];
+                const phaseNumber = mi * 3 + Math.min(si, 3) + 1;
+                await supabase.from('life_plan_milestones').insert({
+                  plan_id: planId, mission_id: missionRow.id, milestone_number: si + 1,
+                  week_number: Math.min(phaseNumber, TOTAL_PHASES),
+                  month_number: Math.ceil(phaseNumber / 3),
+                  title: ms.title_he || ms.sub_goal_he || ms.title_en,
+                  title_en: ms.title_en || ms.sub_goal_en,
+                  description: ms.description_he || ms.title_he,
+                  description_en: ms.description_en || ms.title_en,
+                  goal: ms.title_he || ms.sub_goal_he,
+                  goal_en: ms.title_en || ms.sub_goal_en,
+                  focus_area: pillarId, focus_area_en: pillarId,
+                  is_completed: false, xp_reward: 20, tokens_reward: 5,
+                });
+                totalMilestones++;
+              }
+            }
+          }
+          
+          console.log(`✅ Modular add: ${single_pillar} → ${totalMissions} missions, ${totalMilestones} milestones`);
+          results.push({ hub: h, plan_id: planId, missions: totalMissions, milestones: totalMilestones, modular: true });
+          continue; // Skip normal plan creation
+        }
       }
 
       const strategyData = {

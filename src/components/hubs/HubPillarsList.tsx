@@ -1,5 +1,6 @@
 /**
  * HubPillarsList — Grid of compact pillar cards.
+ * Shows lock state for unselected pillars based on tier.
  * Clicking a card opens a PillarModal with the missions roadmap.
  */
 import { useMemo, useState } from 'react';
@@ -9,11 +10,14 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
+import { usePillarAccess } from '@/hooks/usePillarAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Lock, Settings } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { PillarModal } from '@/components/missions/PillarModal';
+import { PillarSelectionModal } from '@/components/pillars/PillarSelectionModal';
+import { Button } from '@/components/ui/button';
 
 const domainColorMap: Record<string, string> = {
   blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', red: 'text-red-400',
@@ -47,7 +51,9 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
   const { corePlan, arenaPlan, generateStrategy } = useStrategyPlans();
+  const { isPillarSelected, isApex, needsSelection, selectedPillars } = usePillarAccess();
   const [selectedDomain, setSelectedDomain] = useState<LifeDomain | null>(null);
+  const [selectionOpen, setSelectionOpen] = useState(false);
 
   const domains: LifeDomain[] = hub === 'core' ? CORE_DOMAINS : ARENA_DOMAINS;
   const plan = hub === 'core' ? corePlan : arenaPlan;
@@ -116,11 +122,42 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
+  // Show selection prompt if no pillars chosen yet
+  if (needsSelection) {
+    return (
+      <div>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          {sectionTitle}
+        </h3>
+        <div className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl border border-border/40 bg-card/30">
+          <Settings className="w-8 h-8 text-primary/60" />
+          <p className="text-sm font-medium text-center">
+            {isHe ? 'בחר את הפילרים שלך כדי להתחיל' : 'Choose your pillars to get started'}
+          </p>
+          <Button size="sm" onClick={() => setSelectionOpen(true)}>
+            {isHe ? 'בחר פילרים' : 'Select Pillars'}
+          </Button>
+        </div>
+        <PillarSelectionModal open={selectionOpen} onOpenChange={setSelectionOpen} />
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-        {sectionTitle}
-      </h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          {sectionTitle}
+        </h3>
+        {!isApex && (
+          <button 
+            onClick={() => setSelectionOpen(true)}
+            className="text-[10px] text-primary hover:underline"
+          >
+            {isHe ? 'שנה בחירה' : 'Change'}
+          </button>
+        )}
+      </div>
 
       {generateStrategy.isPending && (
         <div className="flex flex-col items-center justify-center py-10 gap-3">
@@ -133,6 +170,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
 
       <div className="grid grid-cols-3 gap-3">
         {domains.map((domain, i) => {
+          const selected = isPillarSelected(domain.id);
           const status = statusMap[domain.id] ?? 'unconfigured';
           const isActive = status === 'active' || status === 'configured';
           const Icon = domain.icon;
@@ -152,27 +190,34 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03, duration: 0.2 }}
-              onClick={() => setSelectedDomain(domain)}
+              onClick={() => selected ? setSelectedDomain(domain) : setSelectionOpen(true)}
               className={cn(
-                'flex flex-col items-center gap-2 rounded-xl border bg-gradient-to-br p-3 text-center transition-all hover:scale-[1.03] hover:shadow-lg cursor-pointer',
-                isActive
-                  ? cardBgMap[domain.color]
-                  : 'bg-card/40 border-border/30 hover:border-border/50'
+                'flex flex-col items-center gap-2 rounded-xl border bg-gradient-to-br p-3 text-center transition-all cursor-pointer relative',
+                selected
+                  ? (isActive
+                    ? cardBgMap[domain.color]
+                    : 'bg-card/40 border-border/30 hover:border-border/50')
+                  : 'bg-card/10 border-border/15 opacity-40 hover:opacity-60'
               )}
             >
+              {!selected && (
+                <Lock className="w-3 h-3 text-muted-foreground/40 absolute top-1.5 end-1.5" />
+              )}
               <div className="relative">
-                <Icon className={cn('w-6 h-6', domainColorMap[domain.color])} />
-                {isActive && (
+                <Icon className={cn('w-6 h-6', selected ? domainColorMap[domain.color] : 'text-muted-foreground/40')} />
+                {isActive && selected && (
                   <CheckCircle2 className="w-3 h-3 text-emerald-400 absolute -top-1 -end-1" />
                 )}
               </div>
               <span className={cn(
                 'text-[11px] font-semibold leading-tight',
-                isActive ? domainColorMap[domain.color] : 'text-foreground/80'
+                selected
+                  ? (isActive ? domainColorMap[domain.color] : 'text-foreground/80')
+                  : 'text-foreground/30'
               )}>
                 {isHe ? domain.labelHe : domain.labelEn}
               </span>
-              {pillarMissions.length > 0 && (
+              {selected && pillarMissions.length > 0 && (
                 <>
                   <Progress value={progress} className="h-1 w-full [&>div]:bg-primary" />
                   <span className="text-[9px] text-muted-foreground/50">
@@ -197,6 +242,9 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           isActive={(statusMap[selectedDomain.id] ?? 'unconfigured') === 'active' || statusMap[selectedDomain.id] === 'configured'}
         />
       )}
+
+      {/* Selection Modal */}
+      <PillarSelectionModal open={selectionOpen} onOpenChange={setSelectionOpen} />
     </div>
   );
 }

@@ -86,50 +86,53 @@ export function tierIncludes(userTier: SubscriptionTier, requiredTier: Subscript
   return TIER_RANK[userTier] >= TIER_RANK[requiredTier];
 }
 
+/** Pillar limits per tier per hub */
+export const TIER_PILLAR_LIMITS: Record<SubscriptionTier, { core: number; arena: number }> = {
+  free: { core: 1, arena: 1 },
+  plus: { core: 3, arena: 3 },
+  apex: { core: 7, arena: 7 }, // all pillars
+};
+
 /** Features list for each tier (for UI display) */
 export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[] }> = {
   free: {
     en: [
-      "7 Core pillar assessments (incl. Consciousness)",
-      "Dashboard & 90-day overview",
+      "1 Core pillar + 1 Arena pillar (your choice)",
+      "Dashboard & 100-day overview",
       "5 Aurora messages/day",
       "3 active habits",
       "XP, leveling & streaks",
       "Basic Orb",
-      "Arena overview (view-only)",
     ],
     he: [
-      "7 אבחוני ליבה (כולל תודעה)",
-      "דאשבורד וסקירת 90 יום",
+      "פילר ליבה 1 + פילר זירה 1 (לבחירתך)",
+      "דאשבורד וסקירת 100 יום",
       "5 הודעות יומיות לאורורה",
       "3 הרגלים פעילים",
       "XP, רמות ורצפים",
       "אורב בסיסי",
-      "סקירת זירה (צפייה בלבד)",
     ],
   },
   plus: {
     en: [
       "Everything in Awakening",
-      "Full 7 Core pillars + 6 Arena pillars",
+      "3 Core pillars + 3 Arena pillars",
       "Unlimited Aurora with memory",
       "AI hypnosis & daily scripts",
       "Basic proactive nudges",
-      "Full Arena access",
       "Business module (basic)",
-      "Full 90-day plan + recalibration",
+      "Full 100-day plan + recalibration",
       "Unlimited habits & checklists",
       "Community & leaderboards",
     ],
     he: [
       "הכל מ-Awakening",
-      "7 פילרי ליבה + 6 פילרי זירה",
+      "3 פילרי ליבה + 3 פילרי זירה",
       "אורורה ללא הגבלה עם זיכרון",
       "היפנוזה AI ותסריטים יומיים",
       "נאדג׳ים פרואקטיביים בסיסיים",
-      "גישה מלאה לזירה",
       "מודול עסקים (בסיסי)",
-      "תוכנית 90 יום מלאה + כיול מחדש",
+      "תוכנית 100 יום מלאה + כיול מחדש",
       "הרגלים ורשימות ללא הגבלה",
       "קהילה ולוחות מובילים",
     ],
@@ -137,6 +140,8 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
   apex: {
     en: [
       "Everything in Plus",
+      "All 14 pillars unlocked",
+      "Auto-update plan on assessment",
       "Full proactive intelligence engine",
       "Morning briefings & mid-day checks",
       "Behavioral pattern & energy modeling",
@@ -149,6 +154,8 @@ export const TIER_FEATURES: Record<SubscriptionTier, { en: string[]; he: string[
     ],
     he: [
       "הכל מ-Plus",
+      "כל 14 הפילרים פתוחים",
+      "עדכון תוכנית אוטומטי בכל אבחון",
       "מנוע אינטליגנציה פרואקטיבית מלא",
       "תדרוכי בוקר ובדיקות אמצע יום",
       "מודלינג דפוסים התנהגותיים ואנרגיה",
