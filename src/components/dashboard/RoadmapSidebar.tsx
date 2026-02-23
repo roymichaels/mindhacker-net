@@ -65,7 +65,7 @@ export function RoadmapSidebar() {
                     m.week_number === currentWeek ? "bg-primary/50 ring-2 ring-primary/30" :
                     "bg-muted-foreground/20"
                   )}
-                  title={`W${m.week_number}: ${m.title}`}
+                  title={`W${m.week_number}: ${isHe ? m.title : (m.title_en || m.title)}`}
                 />
               ))}
             </div>
@@ -195,11 +195,11 @@ export function RoadmapSidebar() {
                             isDone && "line-through",
                             isCurrent ? "font-semibold text-foreground" : "text-muted-foreground"
                           )}>
-                            {m.title}
+                            {isHe ? m.title : (m.title_en || m.title)}
                           </p>
-                          {m.focus_area && (
+                          {(m.focus_area || m.focus_area_en) && (
                             <span className="text-[9px] text-muted-foreground/60 mt-0.5 block">
-                              {m.focus_area}
+                              {isHe ? m.focus_area : (m.focus_area_en || m.focus_area)}
                             </span>
                           )}
                         </div>

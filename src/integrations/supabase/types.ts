@@ -3944,6 +3944,7 @@ export type Database = {
           description_en: string | null
           end_date: string | null
           focus_area: string | null
+          focus_area_en: string | null
           goal: string | null
           goal_en: string | null
           hypnosis_recommendation: string | null
@@ -3968,6 +3969,7 @@ export type Database = {
           description_en?: string | null
           end_date?: string | null
           focus_area?: string | null
+          focus_area_en?: string | null
           goal?: string | null
           goal_en?: string | null
           hypnosis_recommendation?: string | null
@@ -3992,6 +3994,7 @@ export type Database = {
           description_en?: string | null
           end_date?: string | null
           focus_area?: string | null
+          focus_area_en?: string | null
           goal?: string | null
           goal_en?: string | null
           hypnosis_recommendation?: string | null
