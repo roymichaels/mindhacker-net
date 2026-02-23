@@ -1,6 +1,7 @@
 /**
  * LifeActivitySidebar - Right sidebar with core stats + phase-based roadmap.
  * Rose/pink color scheme matching Core identity.
+ * Mirrors Dashboard's RoadmapSidebar style.
  */
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
@@ -8,12 +9,16 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   PanelLeftClose, PanelLeftOpen, Flame, CheckCircle2, Circle,
   Target, Trophy, Zap, Brain, Clock, Calendar, Loader2, ChevronDown, ChevronUp,
+  RefreshCw,
 } from 'lucide-react';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
 import { CORE_DOMAINS } from '@/navigation/lifeDomains';
 import { useStrategyPlans } from '@/hooks/useStrategyPlans';
 import { useHabits, useSessionsToday } from '@/hooks/useActionItems';
 import { useMilestones } from '@/hooks/useLifePlan';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
 
@@ -34,12 +39,14 @@ export function LifeActivitySidebar() {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
   const { statusMap } = useLifeDomains();
-  const { corePlan, coreStrategy, isLoading: stratLoading } = useStrategyPlans();
+  const { corePlan, coreStrategy, isLoading: stratLoading, generateStrategy, isGenerating: recalibrating } = useStrategyPlans();
   const { data: habits } = useHabits();
   const { data: sessionsToday } = useSessionsToday();
   const { data: allMilestones, isLoading: msLoading } = useMilestones(corePlan?.id || null);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [expandedPhase, setExpandedPhase] = useState<number | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const isLoading = stratLoading || msLoading;
 
@@ -55,7 +62,6 @@ export function LifeActivitySidebar() {
   const completedHabits = coreHabits.filter(h => h.status === 'done').length;
   const totalHabits = coreHabits.length;
 
-  // Current phase calculation
   const getCurrentPhase = () => {
     if (!corePlan?.start_date) return 1;
     const start = new Date(corePlan.start_date);
@@ -65,7 +71,6 @@ export function LifeActivitySidebar() {
   };
   const currentPhase = getCurrentPhase();
 
-  // Group milestones by phase
   const phaseGroups = useMemo<PhaseGroup[]>(() => {
     const map = new Map<number, PhaseGroup>();
     for (const m of (allMilestones || [])) {
@@ -103,6 +108,21 @@ export function LifeActivitySidebar() {
     { icon: Brain, value: `${completedHabits}/${totalHabits}`, label: isHe ? 'הרגלים היום' : 'Habits Today', color: 'text-indigo-400' },
     { icon: Zap, value: sessionsToday || 0, label: isHe ? 'סשנים היום' : 'Sessions', color: 'text-amber-400' },
   ];
+
+  const handleRecalibrate = async () => {
+    if (!user?.id || recalibrating) return;
+    try {
+      await generateStrategy.mutateAsync({ hub: 'core', forceRegenerate: true });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['life-plan'] }),
+        queryClient.invalidateQueries({ queryKey: ['milestones'] }),
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] }),
+      ]);
+    } catch (e) {
+      console.error('Recalibration failed:', e);
+      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    }
+  };
 
   return (
     <>
@@ -155,6 +175,17 @@ export function LifeActivitySidebar() {
               ))}
               <span className="text-[9px] font-bold text-rose-400">{progressPct}%</span>
             </div>
+            <button
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
+              className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-colors mt-2"
+              title={isHe ? 'כיול מחדש' : 'Recalibrate'}
+            >
+              {recalibrating
+                ? <Loader2 className="w-3.5 h-3.5 text-rose-400 animate-spin" />
+                : <RefreshCw className="w-3.5 h-3.5 text-rose-400" />
+              }
+            </button>
           </div>
         )}
 
@@ -175,13 +206,14 @@ export function LifeActivitySidebar() {
 
             <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-3" />
 
+            {/* Header — matching Dashboard style */}
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-1 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                <Trophy className="w-3.5 h-3.5 text-rose-400" />
+              <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
+                <Trophy className="w-4 h-4 text-rose-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xs font-bold text-foreground truncate">
-                  {isHe ? 'מפת דרכים — ליבה' : 'Roadmap — Core'}
+                  {isHe ? 'תוכנית 100 יום' : '100-Day Plan'}
                 </h3>
                 <p className="text-[10px] text-muted-foreground">
                   {isHe ? `שלב ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}` : `Phase ${PHASE_LABELS[currentPhase - 1]}/${TOTAL_PHASES}`}
@@ -189,7 +221,8 @@ export function LifeActivitySidebar() {
               </div>
             </div>
 
-            <div className="mb-2">
+            {/* Progress bar */}
+            <div className="mb-3">
               <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
                 <span>{isHe ? 'התקדמות' : 'Progress'}</span>
                 <span className="font-bold text-rose-400">{progressPct}%</span>
@@ -202,10 +235,14 @@ export function LifeActivitySidebar() {
                   transition={{ duration: 0.5 }}
                 />
               </div>
+              <p className="text-[9px] text-muted-foreground mt-0.5 text-center">
+                {completedCount}/{totalCount} {isHe ? 'אבני דרך' : 'milestones'}
+              </p>
             </div>
 
             <div className="h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mb-2" />
 
+            {/* Phase timeline — matching Dashboard style */}
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               {isLoading ? (
                 <div className="flex items-center justify-center py-4">
@@ -220,7 +257,8 @@ export function LifeActivitySidebar() {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  {phaseGroups.map((group) => {
+                  {phaseGroups.map((group, idx) => {
+                    const isDone = group.total > 0 && group.completed === group.total;
                     const isPast = group.phase < currentPhase;
                     const isCurrent = group.phase === currentPhase;
                     const isExpanded = expandedPhase === group.phase;
@@ -228,23 +266,28 @@ export function LifeActivitySidebar() {
 
                     return (
                       <div key={group.phase} className="relative">
-                        {group.phase < TOTAL_PHASES && (
+                        {/* Timeline line */}
+                        {idx < phaseGroups.length - 1 && (
                           <div className={cn(
-                            "absolute top-6 ltr:left-[11px] rtl:right-[11px] w-0.5 h-[calc(100%-4px)]",
-                            isPast ? "bg-rose-400/40" : "bg-muted-foreground/15"
+                            "absolute top-7 ltr:left-[11px] rtl:right-[11px] w-0.5",
+                            isExpanded ? "h-[calc(100%-8px)]" : "h-[calc(100%-4px)]",
+                            isDone || isPast ? "bg-rose-400/40" : "bg-muted-foreground/15"
                           )} />
                         )}
+
+                        {/* Phase header */}
                         <button
                           onClick={() => setExpandedPhase(isExpanded ? null : group.phase)}
                           className={cn(
-                            "relative w-full flex items-start gap-2 p-2 rounded-lg transition-all text-left",
+                            "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
                             isCurrent && "bg-rose-500/10 border border-rose-500/20",
-                            isPast && "opacity-70",
-                            !isCurrent && !isPast && "hover:bg-muted/30"
+                            !isCurrent && !isDone && "hover:bg-muted/30",
+                            isDone && "opacity-80",
                           )}
                         >
+                          {/* Node */}
                           <div className="mt-0.5 shrink-0">
-                            {isPast ? (
+                            {isDone ? (
                               <CheckCircle2 className="w-[18px] h-[18px] text-rose-400" />
                             ) : isCurrent ? (
                               <div className="w-[18px] h-[18px] rounded-full border-2 border-rose-400 bg-rose-400/20 flex items-center justify-center">
@@ -254,8 +297,10 @@ export function LifeActivitySidebar() {
                               <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
                             )}
                           </div>
+
+                          {/* Content */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
                               <span className={cn(
                                 "text-[10px] font-bold",
                                 isCurrent ? "text-rose-400" : "text-muted-foreground"
@@ -263,52 +308,89 @@ export function LifeActivitySidebar() {
                                 {isHe ? `שלב ${group.label}` : `Phase ${group.label}`}
                               </span>
                               {isCurrent && (
-                                <span className="text-[8px] px-1 py-0.5 rounded-full bg-rose-400/20 text-rose-400 font-bold">
+                                <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-rose-400/20 text-rose-400 font-bold">
                                   {isHe ? 'עכשיו' : 'NOW'}
                                 </span>
                               )}
-                              {group.total > 0 && (
-                                <span className="text-[9px] text-muted-foreground ms-auto">{phasePct}%</span>
+                              <span className="text-[9px] text-muted-foreground ms-auto">
+                                {group.completed}/{group.total}
+                              </span>
+                            </div>
+                            {/* Focus areas as tags */}
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {group.focusAreas.slice(0, 3).map((area) => (
+                                <span key={area} className={cn(
+                                  "text-[9px] px-1.5 py-0.5 rounded-md",
+                                  isCurrent ? "bg-rose-400/15 text-rose-400" : "bg-muted/60 text-muted-foreground"
+                                )}>
+                                  {area}
+                                </span>
+                              ))}
+                              {group.focusAreas.length > 3 && (
+                                <span className="text-[9px] text-muted-foreground/60">
+                                  +{group.focusAreas.length - 3}
+                                </span>
                               )}
                             </div>
-                            {group.focusAreas.length > 0 && (
-                              <p className="text-[10px] text-muted-foreground/70 mt-0.5 truncate">
-                                {group.focusAreas.join(' · ')}
-                              </p>
+                            {/* Mini progress */}
+                            {group.total > 0 && (
+                              <div className="h-1 rounded-full bg-muted/40 overflow-hidden mt-1.5">
+                                <div
+                                  className={cn("h-full rounded-full transition-all", isDone ? "bg-rose-400" : "bg-rose-400/50")}
+                                  style={{ width: `${phasePct}%` }}
+                                />
+                              </div>
                             )}
                           </div>
+
                           {group.total > 0 && (
-                            isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground mt-1" /> : <ChevronDown className="w-3 h-3 text-muted-foreground mt-1" />
+                            <div className="mt-1 shrink-0">
+                              {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
+                            </div>
                           )}
                         </button>
 
+                        {/* Expanded: individual milestones */}
                         <AnimatePresence>
                           {isExpanded && group.milestones.length > 0 && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden ltr:ml-6 rtl:mr-6"
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
                             >
-                              {group.milestones.map((m: any) => (
-                                <button
-                                  key={m.id}
-                                  onClick={() => setSelectedMilestone(m)}
-                                  className="w-full text-left flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-muted/30 transition-colors"
-                                >
-                                  {m.is_completed ? (
-                                    <CheckCircle2 className="w-3 h-3 text-rose-400 shrink-0" />
-                                  ) : (
-                                    <Circle className="w-3 h-3 text-muted-foreground/30 shrink-0" />
-                                  )}
-                                  <span className={cn(
-                                    "text-[10px] truncate",
-                                    m.is_completed ? "line-through text-muted-foreground" : "text-foreground"
-                                  )}>
-                                    {isHe ? m.title : (m.title_en || m.title)}
-                                  </span>
-                                </button>
-                              ))}
+                              <div className="ps-7 pe-1 py-1 space-y-0.5">
+                                {group.milestones.map((m: any) => (
+                                  <button
+                                    key={m.id}
+                                    onClick={() => setSelectedMilestone({
+                                      id: m.id,
+                                      title: isHe ? m.title : (m.title_en || m.title),
+                                      goal: m.goal || null,
+                                      focus_area: isHe ? m.focus_area : (m.focus_area_en || m.focus_area),
+                                      week_number: m.week_number,
+                                      month_number: m.month_number || Math.ceil(m.week_number / 3),
+                                      is_completed: m.is_completed,
+                                    })}
+                                    className={cn(
+                                      "w-full flex items-center gap-1.5 p-1.5 rounded-md text-start transition-colors hover:bg-muted/30",
+                                      m.is_completed && "opacity-60"
+                                    )}
+                                  >
+                                    {m.is_completed
+                                      ? <CheckCircle2 className="w-3 h-3 text-rose-400 shrink-0" />
+                                      : <Circle className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+                                    }
+                                    <span className={cn(
+                                      "text-[10px] leading-tight line-clamp-2",
+                                      m.is_completed ? "line-through text-muted-foreground" : "text-foreground/80"
+                                    )}>
+                                      {isHe ? m.title : (m.title_en || m.title)}
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -318,6 +400,24 @@ export function LifeActivitySidebar() {
                 </div>
               )}
             </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-rose-500/20 to-transparent mt-2 mb-2" />
+
+            {/* Recalibrate */}
+            <button
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-all text-rose-400 text-xs font-semibold disabled:opacity-50"
+            >
+              {recalibrating
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <RefreshCw className="w-3.5 h-3.5" />
+              }
+              <span>{recalibrating
+                ? (isHe ? 'מחשב מחדש...' : 'Recalculating...')
+                : (isHe ? 'כיול מחדש' : 'Recalibrate')
+              }</span>
+            </button>
           </div>
         )}
       </aside>
