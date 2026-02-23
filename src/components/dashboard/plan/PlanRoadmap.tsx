@@ -17,8 +17,11 @@ import { SchedulePreview } from './SchedulePreview';
 interface Milestone {
   id: string;
   title: string;
+  title_en: string | null;
   description: string | null;
+  description_en: string | null;
   goal: string | null;
+  goal_en: string | null;
   focus_area: string | null;
   week_number: number;
   month_number: number;
@@ -27,6 +30,7 @@ interface Milestone {
   xp_reward: number;
   tokens_reward: number;
   tasks: string[];
+  tasks_en: string[] | null;
 }
 
 const monthConfig = [
@@ -65,6 +69,7 @@ const monthConfig = [
 export function PlanRoadmap() {
   const { user } = useAuth();
   const { language, isRTL } = useTranslation();
+  const isEn = language === 'en';
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -85,7 +90,7 @@ export function PlanRoadmap() {
 
       const { data: milestones } = await supabase
         .from('life_plan_milestones')
-        .select('id, title, description, goal, focus_area, week_number, month_number, is_completed, completed_at, xp_reward, tokens_reward, tasks')
+        .select('id, title, title_en, description, description_en, goal, goal_en, focus_area, week_number, month_number, is_completed, completed_at, xp_reward, tokens_reward, tasks, tasks_en')
         .eq('plan_id', plan.id)
         .order('week_number', { ascending: true });
 
@@ -95,6 +100,7 @@ export function PlanRoadmap() {
         xp_reward: m.xp_reward || 50,
         tokens_reward: m.tokens_reward || 10,
         tasks: Array.isArray(m.tasks) ? (m.tasks as string[]) : [],
+        tasks_en: Array.isArray(m.tasks_en) ? (m.tasks_en as string[]) : null,
       }));
 
       // Determine current week based on start_date
@@ -276,7 +282,9 @@ export function PlanRoadmap() {
                             'text-sm font-medium truncate',
                             milestone.is_completed && 'text-muted-foreground line-through'
                           )}>
-                            {milestone.goal || milestone.title}
+                            {isEn 
+                              ? (milestone.goal_en || milestone.title_en || milestone.goal || milestone.title)
+                              : (milestone.goal || milestone.title)}
                           </span>
                           {isCurrent && (
                             <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
@@ -311,41 +319,47 @@ export function PlanRoadmap() {
                         >
                           <div className="px-4 pb-4 space-y-3">
                             {/* Description */}
-                            {(milestone.description || milestone.goal) && (
+                            {(milestone.description || milestone.description_en || milestone.goal) && (
                               <p className="text-sm text-muted-foreground ps-10">
-                                {milestone.description || milestone.goal}
+                                {isEn
+                                  ? (milestone.description_en || milestone.goal_en || milestone.description || milestone.goal)
+                                  : (milestone.description || milestone.goal)}
                               </p>
                             )}
 
                             {/* Tasks */}
-                            {milestone.tasks.length > 0 && (
-                              <div className="ps-10 space-y-1.5">
-                                {milestone.tasks.map((task, idx) => (
-                                  <div
-                                    key={idx}
-                                    className={cn(
-                                      'flex items-start gap-2.5 p-2.5 rounded-lg',
-                                      'bg-muted/30 border border-border/50'
-                                    )}
-                                  >
-                                    <div className={cn(
-                                      'w-4 h-4 rounded border mt-0.5 shrink-0 flex items-center justify-center',
-                                      milestone.is_completed
-                                        ? 'bg-primary border-primary'
-                                        : 'border-muted-foreground/30'
-                                    )}>
-                                      {milestone.is_completed && <Check className="w-3 h-3 text-primary-foreground" />}
+                            {(() => {
+                              const displayTasks = isEn && milestone.tasks_en ? milestone.tasks_en : milestone.tasks;
+                              if (displayTasks.length === 0) return null;
+                              return (
+                                <div className="ps-10 space-y-1.5">
+                                  {displayTasks.map((task, idx) => (
+                                    <div
+                                      key={idx}
+                                      className={cn(
+                                        'flex items-start gap-2.5 p-2.5 rounded-lg',
+                                        'bg-muted/30 border border-border/50'
+                                      )}
+                                    >
+                                      <div className={cn(
+                                        'w-4 h-4 rounded border mt-0.5 shrink-0 flex items-center justify-center',
+                                        milestone.is_completed
+                                          ? 'bg-primary border-primary'
+                                          : 'border-muted-foreground/30'
+                                      )}>
+                                        {milestone.is_completed && <Check className="w-3 h-3 text-primary-foreground" />}
+                                      </div>
+                                      <span className={cn(
+                                        'text-sm leading-relaxed',
+                                        milestone.is_completed && 'line-through text-muted-foreground'
+                                      )}>
+                                        {task}
+                                      </span>
                                     </div>
-                                    <span className={cn(
-                                      'text-sm leading-relaxed',
-                                      milestone.is_completed && 'line-through text-muted-foreground'
-                                    )}>
-                                      {task}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                                  ))}
+                                </div>
+                              );
+                            })()}
 
                             {/* Rewards + Complete button */}
                             <div className="ps-10 flex items-center justify-between gap-3">

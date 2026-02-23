@@ -104,10 +104,14 @@ Respond with JSON:
         "weeks": [
           {
             "number": 1,
-            "title": "week title",
-            "description": "desc",
-            "tasks": ["t1","t2","t3","t4","t5"],
-            "goal": "goal",
+            "title": "week title in Hebrew",
+            "title_en": "week title in English",
+            "description": "desc in Hebrew",
+            "description_en": "desc in English",
+            "tasks": ["t1_he","t2_he","t3_he","t4_he","t5_he"],
+            "tasks_en": ["t1_en","t2_en","t3_en","t4_en","t5_en"],
+            "goal": "goal in Hebrew",
+            "goal_en": "goal in English",
             "challenge": "challenge",
             "hypnosis_recommendation": "specific hypnosis type for this week",
             "daily_structure_adjustments": "any week-specific schedule tweaks"
@@ -138,7 +142,8 @@ Respond with JSON:
 
 PLAN RULES:
 - Include 3 months, 4 weeks each (12 total)
-- 3-5 tasks per week IN HEBREW
+- 3-5 tasks per week — provide BOTH Hebrew and English versions (tasks + tasks_en)
+- Provide BOTH Hebrew and English for: title/title_en, description/description_en, goal/goal_en
 - Tasks must fit within the generated daily structure time blocks
 - Week 1 tasks should address the highest-risk diagnostic score first
 - Hormonal reset actions should be embedded as daily habits
