@@ -44,14 +44,22 @@ function buildUserContext(
   auroraMemory: any[],
 ): string {
   const projectsSection = userProjects
-    .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''}`)
+    .map(p => `- "${p.name}" (${p.status}) — ${p.description || ''} | Pillar: ${p.life_pillar || 'general'} | Goals: ${JSON.stringify(p.goals || []).slice(0, 200)}`)
     .join('\n') || 'None';
 
   const businessSection = userBusinesses.length > 0
-    ? userBusinesses.map(b => `- "${b.business_name || 'Unnamed'}" (step ${b.current_step}/10)`).join('\n')
+    ? userBusinesses.map(b => {
+        const vision = b.step_1_vision ? JSON.stringify(b.step_1_vision).slice(0, 300) : '';
+        const model = b.step_2_business_model ? JSON.stringify(b.step_2_business_model).slice(0, 300) : '';
+        const marketing = b.step_8_marketing ? JSON.stringify(b.step_8_marketing).slice(0, 200) : '';
+        return `- "${b.business_name || 'Unnamed'}" (step ${b.current_step}/10, ${b.journey_complete ? 'complete' : 'in progress'})
+  Vision: ${vision || 'N/A'}
+  Model: ${model || 'N/A'}
+  Marketing: ${marketing || 'N/A'}`;
+      }).join('\n')
     : 'None';
 
-  const memorySnippets = auroraMemory.slice(0, 15)
+  const memorySnippets = auroraMemory.slice(0, 25)
     .map(m => `- [${m.created_at?.slice(0, 10) || '?'}] [${m.emotional_state || 'neutral'}] ${m.summary}`)
     .join('\n') || 'None';
 
@@ -60,13 +68,13 @@ Name: ${profileData?.name || 'Unknown'} | Level: ${profileData?.level || 1}
 Intention: ${JSON.stringify(profileData?.intention || '')}
 Today: ${new Date().toISOString().split('T')[0]}
 
-## PROJECTS
+## PROJECTS (with goals and pillar mapping)
 ${projectsSection}
 
-## BUSINESSES
+## BUSINESSES (with journey data)
 ${businessSection}
 
-## USER MEMORY (most recent first)
+## USER MEMORY (25 most recent, timeline-aware)
 ${memorySnippets}`;
 }
 
@@ -197,37 +205,73 @@ ${structure}
 }
 
 // ========== AI CALL HELPER ==========
-async function callAI(apiKey: string, prompt: string, systemMsg: string, maxTokens = 2500): Promise<any | null> {
-  try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        max_tokens: maxTokens,
-        messages: [
-          { role: "system", content: systemMsg },
-          { role: "user", content: prompt },
-        ],
-      }),
-    });
+async function callAI(apiKey: string, prompt: string, systemMsg: string, maxTokens = 4000, retries = 2): Promise<any | null> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          max_tokens: maxTokens,
+          temperature: 0.4,
+          messages: [
+            { role: "system", content: systemMsg },
+            { role: "user", content: prompt },
+          ],
+        }),
+      });
 
-    if (!response.ok) {
-      console.error(`AI call failed: ${response.status}`);
+      if (!response.ok) {
+        console.error(`AI call failed: ${response.status} (attempt ${attempt+1})`);
+        if (attempt < retries) continue;
+        return null;
+      }
+
+      const result = await response.json();
+      const raw = result.choices?.[0]?.message?.content || '';
+      const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      
+      // Try to fix truncated JSON by closing open brackets
+      let parsed: any;
+      try {
+        parsed = JSON.parse(jsonStr);
+      } catch {
+        // Attempt auto-repair: count open/close brackets and append missing ones
+        let fixed = jsonStr;
+        const openBraces = (fixed.match(/{/g) || []).length;
+        const closeBraces = (fixed.match(/}/g) || []).length;
+        const openBrackets = (fixed.match(/\[/g) || []).length;
+        const closeBrackets = (fixed.match(/\]/g) || []).length;
+        
+        // Remove trailing comma if present
+        fixed = fixed.replace(/,\s*$/, '');
+        // Remove incomplete string values
+        fixed = fixed.replace(/,?\s*"[^"]*$/, '');
+        
+        for (let i = 0; i < openBrackets - closeBrackets; i++) fixed += ']';
+        for (let i = 0; i < openBraces - closeBraces; i++) fixed += '}';
+        
+        try {
+          parsed = JSON.parse(fixed);
+          console.log(`  JSON auto-repaired successfully (attempt ${attempt+1})`);
+        } catch (e2) {
+          console.error(`AI parse error (attempt ${attempt+1}):`, e2);
+          if (attempt < retries) continue;
+          return null;
+        }
+      }
+      return parsed;
+    } catch (e) {
+      console.error(`AI call exception (attempt ${attempt+1}):`, e);
+      if (attempt < retries) continue;
       return null;
     }
-
-    const result = await response.json();
-    const raw = result.choices?.[0]?.message?.content || '';
-    const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(jsonStr);
-  } catch (e) {
-    console.error("AI parse error:", e);
-    return null;
   }
+  return null;
 }
 
 // ========== 3-LAYER ORCHESTRATION PER PILLAR ==========
@@ -243,7 +287,7 @@ async function generatePillarStrategy(
 
   // LAYER 1: Strategic goals
   console.log(`  [${pillarId}] Layer 1: generating goals...`);
-  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext), sysMsg, 800);
+  const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext), sysMsg, 1200);
   if (!layer1?.goals || layer1.goals.length < 3) {
     console.error(`  [${pillarId}] Layer 1 failed, using fallback`);
     return null;
@@ -251,18 +295,17 @@ async function generatePillarStrategy(
 
   // LAYER 2: Sub-goals (builds on Layer 1 output)
   console.log(`  [${pillarId}] Layer 2: generating sub-goals...`);
-  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 1500);
+  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 2500);
   if (!layer2?.goals) {
     console.error(`  [${pillarId}] Layer 2 failed, using Layer 1 with generic sub-goals`);
     return null;
   }
 
-  // LAYER 3: Milestones (builds on Layer 2 output)
+  // LAYER 3: Milestones (builds on Layer 2 output) — needs most tokens
   console.log(`  [${pillarId}] Layer 3: generating milestones...`);
-  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.goals), sysMsg, 3000);
+  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.goals), sysMsg, 6000);
   if (!layer3?.goals) {
     console.error(`  [${pillarId}] Layer 3 failed, using Layer 2 without milestones`);
-    // Return Layer 2 with empty milestones as partial result
     return layer2;
   }
 
