@@ -174,9 +174,12 @@ export function RoadmapSidebar() {
             ) : (
               <div className="flex-1 space-y-0.5">
                 {milestones.map((m, idx) => {
-                  const isCurrent = m.week_number === currentWeek;
                   const isPast = m.week_number < currentWeek;
                   const isDone = m.is_completed;
+                  // Only highlight the FIRST uncompleted milestone in the current week as "active now"
+                  const isCurrentWeek = m.week_number === currentWeek;
+                  const isActiveNow = isCurrentWeek && !isDone && 
+                    milestones.filter(x => x.week_number === currentWeek && !x.is_completed).indexOf(m) === 0;
 
                   return (
                     <div key={m.id} className="relative">
@@ -200,19 +203,22 @@ export function RoadmapSidebar() {
                         })}
                         className={cn(
                           "relative w-full flex items-start gap-2 p-2 rounded-lg text-start transition-all",
-                          isCurrent && !isDone && "bg-primary/10 border border-primary/20",
+                          isActiveNow && "bg-primary/10 border border-primary/20",
+                          isCurrentWeek && !isDone && !isActiveNow && "border border-primary/10",
                           isDone && "opacity-70",
-                          !isCurrent && !isDone && "hover:bg-muted/30"
+                          !isCurrentWeek && !isDone && "hover:bg-muted/30"
                         )}
                       >
                         {/* Node */}
                         <div className="mt-0.5 shrink-0">
                           {isDone ? (
                             <CheckCircle2 className="w-[18px] h-[18px] text-primary" />
-                          ) : isCurrent ? (
+                          ) : isActiveNow ? (
                             <div className="w-[18px] h-[18px] rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             </div>
+                          ) : isCurrentWeek ? (
+                            <Circle className="w-[18px] h-[18px] text-primary/40" />
                           ) : (
                             <Circle className="w-[18px] h-[18px] text-muted-foreground/30" />
                           )}
@@ -223,11 +229,11 @@ export function RoadmapSidebar() {
                           <div className="flex items-center gap-1">
                             <span className={cn(
                               "text-[10px] font-bold",
-                              isCurrent ? "text-primary" : "text-muted-foreground"
+                              isCurrentWeek ? "text-primary" : "text-muted-foreground"
                             )}>
                               W{m.week_number}
                             </span>
-                            {isCurrent && (
+                            {isActiveNow && (
                               <span className="text-[8px] px-1 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
                                 {isHe ? 'עכשיו' : 'NOW'}
                               </span>
@@ -236,7 +242,7 @@ export function RoadmapSidebar() {
                           <p className={cn(
                             "text-[11px] leading-tight mt-0.5",
                             isDone && "line-through",
-                            isCurrent ? "font-semibold text-foreground" : "text-muted-foreground"
+                            isActiveNow ? "font-semibold text-foreground" : "text-muted-foreground"
                           )}>
                             {isHe ? m.title : (m.title_en || m.title)}
                           </p>
