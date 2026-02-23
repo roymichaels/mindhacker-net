@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { UserPlateGrid } from '@/components/plate/UserPlateGrid';
+import { HubPillarsList } from '@/components/hubs/HubPillarsList';
 import { AddProjectWizard } from '@/components/projects/AddProjectWizard';
 
 interface ArenaHubProps {
@@ -19,8 +20,9 @@ export default function ArenaHub({ openWizardTrigger = 0 }: ArenaHubProps) {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="flex flex-col gap-4 flex-1 px-1 pt-2">
+      <div className="flex flex-col gap-6 flex-1 px-1 pt-2">
         <UserPlateGrid hub="arena" />
+        <HubPillarsList hub="arena" />
       </div>
       <AddProjectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </div>
