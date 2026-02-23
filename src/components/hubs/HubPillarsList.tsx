@@ -2,7 +2,7 @@
  * HubPillarsList — Grid of pillar cards with 90-day goals.
  * Sources goals from strategy pillars data + life_plan_milestones.
  */
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -56,14 +56,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
   const strategy = hub === 'core' ? coreStrategy : arenaStrategy;
   const plan = hub === 'core' ? corePlan : arenaPlan;
 
-  // Auto-generate strategy for this hub if it doesn't exist
-  const autoTriggered = useRef(false);
-  useEffect(() => {
-    if (!strategy && !strategyLoading && user?.id && !autoTriggered.current && !generateStrategy.isPending) {
-      autoTriggered.current = true;
-      generateStrategy.mutate({ hub, forceRegenerate: false });
-    }
-  }, [strategy, strategyLoading, user?.id, hub, generateStrategy]);
+  // No auto-generation on mount — plans are generated during onboarding or via explicit user action
 
   const sectionTitle = hub === 'core'
     ? (isHe ? 'תחומי הליבה' : 'Core Pillars')
