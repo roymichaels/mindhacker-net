@@ -3950,6 +3950,8 @@ export type Database = {
           hypnosis_recommendation: string | null
           id: string
           is_completed: boolean | null
+          milestone_number: number | null
+          mission_id: string | null
           month_number: number
           plan_id: string
           start_date: string | null
@@ -3975,6 +3977,8 @@ export type Database = {
           hypnosis_recommendation?: string | null
           id?: string
           is_completed?: boolean | null
+          milestone_number?: number | null
+          mission_id?: string | null
           month_number: number
           plan_id: string
           start_date?: string | null
@@ -4000,6 +4004,8 @@ export type Database = {
           hypnosis_recommendation?: string | null
           id?: string
           is_completed?: boolean | null
+          milestone_number?: number | null
+          mission_id?: string | null
           month_number?: number
           plan_id?: string
           start_date?: string | null
@@ -4012,6 +4018,13 @@ export type Database = {
           xp_reward?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "life_plan_milestones_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "plan_missions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "life_plan_milestones_plan_id_fkey"
             columns: ["plan_id"]
@@ -4144,6 +4157,59 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mini_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          id: string
+          is_completed: boolean | null
+          milestone_id: string
+          mini_number: number
+          scheduled_day: number | null
+          title: string
+          title_en: string | null
+          xp_reward: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_completed?: boolean | null
+          milestone_id: string
+          mini_number: number
+          scheduled_day?: number | null
+          title: string
+          title_en?: string | null
+          xp_reward?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_completed?: boolean | null
+          milestone_id?: string
+          mini_number?: number
+          scheduled_day?: number | null
+          title?: string
+          title_en?: string | null
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mini_milestones_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "life_plan_milestones"
             referencedColumns: ["id"]
           },
         ]
@@ -4571,6 +4637,62 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      plan_missions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          description_en: string | null
+          id: string
+          is_completed: boolean | null
+          mission_number: number
+          pillar: string
+          plan_id: string
+          title: string
+          title_en: string | null
+          updated_at: string | null
+          xp_reward: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_completed?: boolean | null
+          mission_number: number
+          pillar: string
+          plan_id: string
+          title: string
+          title_en?: string | null
+          updated_at?: string | null
+          xp_reward?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_en?: string | null
+          id?: string
+          is_completed?: boolean | null
+          mission_number?: number
+          pillar?: string
+          plan_id?: string
+          title?: string
+          title_en?: string | null
+          updated_at?: string | null
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_missions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       practitioner_availability: {
         Row: {

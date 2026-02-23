@@ -123,7 +123,7 @@ ${assessmentBlock}
 }`;
 }
 
-// LAYER 2: Generate 3 sub-goals for each main goal
+// LAYER 2: Generate 5 milestones for each mission (main goal)
 function buildLayer2Prompt(
   pillarId: string,
   goals: { goal_en: string; goal_he: string }[],
@@ -131,64 +131,58 @@ function buildLayer2Prompt(
 ): string {
   const goalsStr = goals.map((g, i) => `  ${i+1}. "${g.goal_en}" / "${g.goal_he}"`).join('\n');
   
-  return `You are Aurora for "Mind OS". TASK: Break down each main goal into exactly 3 SUB-GOALS.
-This is part of a 100-DAY TRANSFORMATION PLAN with 10 progressive phases.
+  return `You are Aurora for "Mind OS". TASK: Break down each mission into exactly 5 MILESTONES.
+This is part of a 100-DAY TRANSFORMATION PLAN. Each mission has 5 progressive milestones.
 
 ## PILLAR: ${pillarId.toUpperCase()}
 
-## MAIN GOALS:
+## MISSIONS:
 ${goalsStr}
 
 ## ASSESSMENT CONTEXT:
 ${assessmentBlock}
 
 ## RULES:
-- Sub-goals must be specific and actionable, building toward the main goal.
-- Each sub-goal should target a different aspect of the main goal.
-- Sub-goals should be progressively more advanced.
+- Each mission gets exactly 5 milestones, progressively more challenging.
+- Milestones must be specific and actionable.
+- Each milestone should target a different aspect of the mission.
 - Hebrew must be natural. Keep text concise.
 
 ## OUTPUT (JSON only, NO markdown):
 {
-  "goals": [
+  "missions": [
     {
-      "goal_en": "${goals[0]?.goal_en || ''}",
-      "goal_he": "${goals[0]?.goal_he || ''}",
-      "sub_goals": [
-        { "sub_goal_en": "Specific sub-goal", "sub_goal_he": "מטרת משנה" },
-        { "sub_goal_en": "...", "sub_goal_he": "..." },
-        { "sub_goal_en": "...", "sub_goal_he": "..." }
+      "mission_en": "${goals[0]?.goal_en || ''}",
+      "mission_he": "${goals[0]?.goal_he || ''}",
+      "milestones": [
+        { "title_en": "Specific milestone 1", "title_he": "אבן דרך 1", "description_en": "What to achieve", "description_he": "מה להשיג" },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." },
+        { "title_en": "...", "title_he": "...", "description_en": "...", "description_he": "..." }
       ]
     },
-    {
-      "goal_en": "${goals[1]?.goal_en || ''}",
-      "goal_he": "${goals[1]?.goal_he || ''}",
-      "sub_goals": [...]
-    },
-    {
-      "goal_en": "${goals[2]?.goal_en || ''}",
-      "goal_he": "${goals[2]?.goal_he || ''}",
-      "sub_goals": [...]
-    }
+    { "mission_en": "${goals[1]?.goal_en || ''}", "mission_he": "${goals[1]?.goal_he || ''}", "milestones": [...] },
+    { "mission_en": "${goals[2]?.goal_en || ''}", "mission_he": "${goals[2]?.goal_he || ''}", "milestones": [...] }
   ]
 }`;
 }
 
-// LAYER 3: Generate 10 milestones for each sub-goal (one per phase)
+// LAYER 3: Generate 5 mini-milestones for each milestone (daily actions)
 function buildLayer3Prompt(
   pillarId: string,
-  goalsWithSubGoals: any[],
+  missions: any[],
 ): string {
-  const structure = goalsWithSubGoals.map((g, gi) => {
-    const sgs = (g.sub_goals || []).map((sg: any, si: number) => 
-      `    ${gi+1}.${si+1} "${sg.sub_goal_en}" / "${sg.sub_goal_he}"`
+  const structure = missions.map((m, mi) => {
+    const mstones = (m.milestones || []).map((ms: any, si: number) => 
+      `    ${mi+1}.${si+1} "${ms.title_en}"`
     ).join('\n');
-    return `  Goal ${gi+1}: "${g.goal_en}"\n${sgs}`;
+    return `  Mission ${mi+1}: "${m.mission_en}"\n${mstones}`;
   }).join('\n');
   
-  return `You are Aurora for "Mind OS". TASK: Generate exactly 10 CONCRETE MILESTONES for each sub-goal.
-These 10 milestones map to the 10 PHASES (A-J) of a 100-day transformation plan.
-Each phase builds on the previous — Phase A is foundational, Phase J is mastery-level.
+  return `You are Aurora for "Mind OS". TASK: Generate exactly 5 MINI-MILESTONES for each milestone.
+Each mini-milestone becomes a DAILY ACTION in the user's queue.
+Total: 3 missions × 5 milestones × 5 mini-milestones = 75 daily actions spread across 100 days.
 
 ## PILLAR: ${pillarId.toUpperCase()}
 
@@ -196,22 +190,28 @@ Each phase builds on the previous — Phase A is foundational, Phase J is master
 ${structure}
 
 ## RULES:
-- Each sub-goal gets exactly 10 milestones (one per phase A-J).
-- Milestones MUST be progressively challenging: Phase A = basics, Phase J = mastery.
-- Each milestone under 12 words.
-- No generic filler. Be concrete and specific.
+- Each milestone gets exactly 5 mini-milestones (daily actionable tasks).
+- Mini-milestones must be completable in a single day/session.
+- Be concrete and specific — no generic filler.
+- Each mini-milestone under 15 words.
 - Hebrew must be natural.
+- Progressive difficulty within each milestone.
 
 ## OUTPUT (JSON only, NO markdown):
 {
-  "goals": [
+  "missions": [
     {
-      "goal_en": "...", "goal_he": "...",
-      "sub_goals": [
+      "mission_en": "...",
+      "milestones": [
         {
-          "sub_goal_en": "...", "sub_goal_he": "...",
-          "milestones_en": ["phase A step", "phase B step", "phase C step", "phase D step", "phase E step", "phase F step", "phase G step", "phase H step", "phase I step", "phase J step"],
-          "milestones_he": ["שלב A", "שלב B", "שלב C", "שלב D", "שלב E", "שלב F", "שלב G", "שלב H", "שלב I", "שלב J"]
+          "title_en": "...",
+          "minis": [
+            { "title_en": "Daily action 1", "title_he": "פעולה יומית 1" },
+            { "title_en": "Daily action 2", "title_he": "פעולה יומית 2" },
+            { "title_en": "Daily action 3", "title_he": "פעולה יומית 3" },
+            { "title_en": "Daily action 4", "title_he": "פעולה יומית 4" },
+            { "title_en": "Daily action 5", "title_he": "פעולה יומית 5" }
+          ]
         }
       ]
     }
@@ -292,31 +292,31 @@ async function generatePillarStrategy(
   hub: 'core' | 'arena',
   assessment: PillarAssessment | undefined,
   userContext: string,
-): Promise<{ goals: any[] } | null> {
+): Promise<{ missions: any[] } | null> {
   const assessmentBlock = resolveAssessmentBlock(assessment);
   const sysMsg = "Output ONLY valid JSON. No markdown. No explanation.";
 
-  // LAYER 1: Strategic goals
-  console.log(`  [${pillarId}] Layer 1: generating goals...`);
+  // LAYER 1: 3 Missions (strategic goals)
+  console.log(`  [${pillarId}] Layer 1: generating 3 missions...`);
   const layer1 = await callAI(apiKey, buildLayer1Prompt(pillarId, hub, assessment, userContext), sysMsg, 1200);
   if (!layer1?.goals || layer1.goals.length < 3) {
-    console.error(`  [${pillarId}] Layer 1 failed, using fallback`);
+    console.error(`  [${pillarId}] Layer 1 failed`);
     return null;
   }
 
-  // LAYER 2: Sub-goals (builds on Layer 1 output)
-  console.log(`  [${pillarId}] Layer 2: generating sub-goals...`);
-  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 2500);
-  if (!layer2?.goals) {
+  // LAYER 2: 5 milestones per mission
+  console.log(`  [${pillarId}] Layer 2: generating 5 milestones per mission...`);
+  const layer2 = await callAI(apiKey, buildLayer2Prompt(pillarId, layer1.goals, assessmentBlock), sysMsg, 3000);
+  if (!layer2?.missions) {
     console.error(`  [${pillarId}] Layer 2 failed`);
     return null;
   }
 
-  // LAYER 3: Milestones — 10 per sub-goal (one per phase)
-  console.log(`  [${pillarId}] Layer 3: generating milestones (10 per sub-goal)...`);
-  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.goals), sysMsg, 8000);
-  if (!layer3?.goals) {
-    console.error(`  [${pillarId}] Layer 3 failed, using Layer 2 without milestones`);
+  // LAYER 3: 5 mini-milestones per milestone
+  console.log(`  [${pillarId}] Layer 3: generating 5 mini-milestones per milestone...`);
+  const layer3 = await callAI(apiKey, buildLayer3Prompt(pillarId, layer2.missions), sysMsg, 8000);
+  if (!layer3?.missions) {
+    console.error(`  [${pillarId}] Layer 3 failed, using Layer 2 without minis`);
     return layer2;
   }
 
@@ -508,48 +508,97 @@ serve(async (req) => {
         continue;
       }
 
-      // Generate milestones — each sub-goal = one row
-      // week_number now represents phase_number (1-10)
-      const milestoneRows: any[] = [];
+      // Generate missions, milestones, and mini-milestones
+      // Structure: 3 missions × 5 milestones × 5 mini-milestones per pillar
+      let totalMissions = 0;
+      let totalMilestones = 0;
+      let totalMinis = 0;
 
       for (const [pillarId, pillarObj] of Object.entries(pillarResults)) {
-        const goals = (pillarObj as any)?.goals || [];
-        goals.forEach((goal: any, gi: number) => {
-          const subGoals = goal.sub_goals || [];
-          subGoals.forEach((sg: any, si: number) => {
-            // Map to phase: goal index * 3 + sub-goal index + 1 → but cap at 10
-            // With 3 goals × 3 sub-goals = 9 sub-goals per pillar, map each to a phase
-            const phaseNumber = Math.min(TOTAL_PHASES, gi * 3 + si + 1);
-            milestoneRows.push({
+        const missions = (pillarObj as any)?.missions || (pillarObj as any)?.goals || [];
+        
+        for (let mi = 0; mi < Math.min(missions.length, 3); mi++) {
+          const mission = missions[mi];
+          
+          // Insert mission
+          const { data: missionRow, error: missionError } = await supabase
+            .from('plan_missions')
+            .insert({
               plan_id: plan.id,
-              week_number: phaseNumber, // Reuse week_number column for phase_number
-              month_number: Math.ceil(phaseNumber / 3), // Approximate month grouping
-              title: sg.sub_goal_he || sg.sub_goal_en || goal.goal_he,
-              title_en: sg.sub_goal_en || sg.sub_goal_he || goal.goal_en,
-              description: goal.goal_he || goal.goal_en,
-              description_en: goal.goal_en || goal.goal_he,
-              goal: sg.sub_goal_he || sg.sub_goal_en,
-              goal_en: sg.sub_goal_en || sg.sub_goal_he,
-              focus_area: pillarId,
-              focus_area_en: pillarId,
-              tasks: sg.milestones_he || sg.milestones_en || [],
-              tasks_en: sg.milestones_en || [],
-              is_completed: false,
+              pillar: pillarId,
+              mission_number: mi + 1,
+              title: mission.mission_he || mission.goal_he || mission.mission_en || mission.goal_en,
+              title_en: mission.mission_en || mission.goal_en,
+              description: mission.mission_he || mission.goal_he,
+              description_en: mission.mission_en || mission.goal_en,
               xp_reward: 50,
-              tokens_reward: 10,
-            });
-          });
-        });
-      }
+            })
+            .select('id')
+            .single();
+          
+          if (missionError) {
+            console.error(`Mission insert error for ${pillarId}:`, missionError);
+            continue;
+          }
+          totalMissions++;
 
-      if (milestoneRows.length > 0) {
-        const BATCH_SIZE = 50;
-        for (let i = 0; i < milestoneRows.length; i += BATCH_SIZE) {
-          const batch = milestoneRows.slice(i, i + BATCH_SIZE);
-          const { error: milestoneError } = await supabase
-            .from('life_plan_milestones')
-            .insert(batch);
-          if (milestoneError) console.error("Milestone insert error:", milestoneError);
+          const milestones = mission.milestones || mission.sub_goals || [];
+          for (let si = 0; si < Math.min(milestones.length, 5); si++) {
+            const ms = milestones[si];
+            const phaseNumber = mi * 3 + Math.min(si, 3) + 1; // Spread across phases
+
+            const { data: msRow, error: msError } = await supabase
+              .from('life_plan_milestones')
+              .insert({
+                plan_id: plan.id,
+                mission_id: missionRow.id,
+                milestone_number: si + 1,
+                week_number: Math.min(phaseNumber, TOTAL_PHASES),
+                month_number: Math.ceil(phaseNumber / 3),
+                title: ms.title_he || ms.sub_goal_he || ms.title_en || ms.sub_goal_en,
+                title_en: ms.title_en || ms.sub_goal_en,
+                description: ms.description_he || ms.title_he,
+                description_en: ms.description_en || ms.title_en,
+                goal: ms.title_he || ms.sub_goal_he,
+                goal_en: ms.title_en || ms.sub_goal_en,
+                focus_area: pillarId,
+                focus_area_en: pillarId,
+                is_completed: false,
+                xp_reward: 20,
+                tokens_reward: 5,
+              })
+              .select('id')
+              .single();
+
+            if (msError) {
+              console.error(`Milestone insert error:`, msError);
+              continue;
+            }
+            totalMilestones++;
+
+            // Insert mini-milestones (daily actions)
+            const minis = ms.minis || [];
+            const miniRows = minis.slice(0, 5).map((mini: any, miniIdx: number) => ({
+              milestone_id: msRow.id,
+              mini_number: miniIdx + 1,
+              title: mini.title_he || mini.title_en,
+              title_en: mini.title_en,
+              xp_reward: 10,
+              // Spread across 100 days
+              scheduled_day: Math.min(
+                mi * 34 + si * 7 + miniIdx + 1,
+                TOTAL_DAYS
+              ),
+            }));
+
+            if (miniRows.length > 0) {
+              const { error: miniError } = await supabase
+                .from('mini_milestones')
+                .insert(miniRows);
+              if (miniError) console.error(`Mini-milestone insert error:`, miniError);
+              else totalMinis += miniRows.length;
+            }
+          }
         }
       }
 
@@ -563,6 +612,8 @@ serve(async (req) => {
         .map((p: any) => p.id);
       
       if (hubPlanIds.length > 0) {
+        // Clean up old plan data (mini_milestones cascade via milestone FK)
+        await supabase.from('plan_missions').delete().in('plan_id', hubPlanIds);
         await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', hubPlanIds);
         await supabase.from('life_plan_milestones').delete().in('plan_id', hubPlanIds);
         await supabase.from('life_plans').update({ status: 'archived' }).in('id', hubPlanIds);
@@ -571,8 +622,8 @@ serve(async (req) => {
 
       await supabase.from('life_plans').update({ status: 'active' }).eq('id', plan.id);
 
-      console.log(`✅ ${h} hub: ${milestoneRows.length} milestones created (AI: ${allAiSuccess})`);
-      results.push({ hub: h, plan_id: plan.id, goals_count: milestoneRows.length, ai_generated: allAiSuccess });
+      console.log(`✅ ${h} hub: ${totalMissions} missions, ${totalMilestones} milestones, ${totalMinis} mini-milestones (AI: ${allAiSuccess})`);
+      results.push({ hub: h, plan_id: plan.id, missions: totalMissions, milestones: totalMilestones, minis: totalMinis, ai_generated: allAiSuccess });
     }
 
     return new Response(
