@@ -398,16 +398,18 @@ serve(async (req) => {
     } else {
       const existingHubs = (existing || []).map((p: any) => p.plan_data?.hub).filter(Boolean);
       
-      // Also treat old-format plans (no hub) as covering both hubs to prevent duplicates
-      const hasOldFormat = (existing || []).some((p: any) => !p.plan_data?.hub);
-      if (hasOldFormat) {
-        // Old format plan exists — need force_regenerate to replace it
-        return new Response(JSON.stringify({ message: "Legacy plan exists. Use force_regenerate to rebuild.", plans: existing }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      // Auto-archive old-format plans (no hub key) — they're legacy and need replacement
+      const legacyPlans = (existing || []).filter((p: any) => !p.plan_data?.hub);
+      if (legacyPlans.length > 0) {
+        const legacyIds = legacyPlans.map((p: any) => p.id);
+        await supabase.from('plan_missions').delete().in('plan_id', legacyIds);
+        await supabase.from('action_items').delete().eq('user_id', user_id).in('plan_id', legacyIds);
+        await supabase.from('life_plan_milestones').delete().in('plan_id', legacyIds);
+        await supabase.from('life_plans').update({ status: 'archived' }).in('id', legacyIds);
+        console.log(`Auto-archived ${legacyIds.length} legacy (no-hub) plans`);
       }
       
-      // Filter out hubs that already have plans
+      // Filter out hubs that already have proper hub-tagged plans
       hubsToGenerate = hubsToGenerate.filter(h => !existingHubs.includes(h));
       
       if (hubsToGenerate.length === 0) {
