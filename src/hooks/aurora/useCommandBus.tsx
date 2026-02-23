@@ -260,6 +260,8 @@ export const useCommandBus = () => {
         if (!error) {
           await supabase.rpc('award_unified_xp', { p_user_id: user.id, p_amount: 50, p_source: 'milestone', p_reason: `Week ${command.weekNumber} completed` });
           queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+          queryClient.invalidateQueries({ queryKey: ['milestones'] });
+          queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         }
         return makeReceipt('milestone', 'complete', !error, isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}`);
       }
@@ -272,6 +274,8 @@ export const useCommandBus = () => {
         const updateData: Record<string, string> = { [command.field]: command.value };
         const { error } = await supabase.from('life_plan_milestones').update(updateData).eq('plan_id', plan.id).eq('week_number', command.weekNumber);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `${command.field}: ${command.value}`);
       }
 
@@ -286,6 +290,8 @@ export const useCommandBus = () => {
         if (Object.keys(safeUpdates).length === 0) return null;
         const { error } = await supabase.from('life_plan_milestones').update(safeUpdates).eq('id', command.milestoneId);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('plan', 'update', !error, command.milestoneId, Object.keys(safeUpdates).join(', '));
       }
 
@@ -300,6 +306,8 @@ export const useCommandBus = () => {
         tasks.push(command.task);
         const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `+${command.task}`);
       }
 
@@ -315,6 +323,8 @@ export const useCommandBus = () => {
         const removed = tasks.splice(command.taskIndex, 1);
         const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `-${removed[0]}`);
       }
 
@@ -331,6 +341,8 @@ export const useCommandBus = () => {
         tasks[command.taskIndex] = command.newTask;
         const { error } = await supabase.from('life_plan_milestones').update({ tasks }).eq('id', milestone.id);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('plan', 'update', !error, `Week ${command.weekNumber}`, `${old} → ${command.newTask}`);
       }
 
@@ -348,6 +360,8 @@ export const useCommandBus = () => {
           focus_area: command.focusArea || null,
         });
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('milestone', 'create', !error, command.title, `Week ${command.weekNumber}`);
       }
 
@@ -358,51 +372,78 @@ export const useCommandBus = () => {
         if (!plan) return null;
         const { error } = await supabase.from('life_plan_milestones').delete().eq('plan_id', plan.id).eq('week_number', command.weekNumber);
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
         return makeReceipt('milestone', 'delete', !error, isHebrew ? `שבוע ${command.weekNumber}` : `Week ${command.weekNumber}`);
       }
 
-      // ── Bulk Replace across all milestones ──
+      // ── Bulk Replace across all milestones + plan_data ──
       case 'bulkReplacePlan': {
         if (!user?.id) return null;
-        const { data: plan } = await supabase.from('life_plans').select('id').eq('user_id', user.id).eq('status', 'active').single();
-        if (!plan) return null;
-        const { data: milestones } = await supabase.from('life_plan_milestones').select('id, title, title_en, goal, goal_en, description, description_en, focus_area, focus_area_en, tasks, tasks_en').eq('plan_id', plan.id);
-        if (!milestones) return null;
+        // Get ALL active plans (core + arena)
+        const { data: plans } = await supabase.from('life_plans').select('id, plan_data').eq('user_id', user.id).eq('status', 'active');
+        if (!plans || plans.length === 0) return null;
         const regex = new RegExp(command.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
         let updatedCount = 0;
-        for (const m of milestones) {
-          const updates: Record<string, any> = {};
-          for (const field of ['title', 'title_en', 'goal', 'goal_en', 'description', 'description_en', 'focus_area', 'focus_area_en'] as const) {
-            const val = (m as any)[field];
-            if (typeof val === 'string' && regex.test(val)) {
-              updates[field] = val.replace(regex, command.newText);
-              regex.lastIndex = 0;
-            }
-          }
-          // Handle tasks arrays
-          for (const taskField of ['tasks', 'tasks_en'] as const) {
-            const tasks = (m as any)[taskField];
-            if (Array.isArray(tasks)) {
-              const newTasks = tasks.map((t: any) => {
-                if (typeof t === 'string') return t.replace(regex, command.newText);
-                if (t && typeof t === 'object' && typeof t.title === 'string') {
+
+        for (const plan of plans) {
+          // 1. Update milestones
+          const { data: milestones } = await supabase.from('life_plan_milestones').select('id, title, title_en, goal, goal_en, description, description_en, focus_area, focus_area_en, tasks, tasks_en').eq('plan_id', plan.id);
+          if (milestones) {
+            for (const m of milestones) {
+              const updates: Record<string, any> = {};
+              for (const field of ['title', 'title_en', 'goal', 'goal_en', 'description', 'description_en', 'focus_area', 'focus_area_en'] as const) {
+                const val = (m as any)[field];
+                if (typeof val === 'string' && regex.test(val)) {
+                  updates[field] = val.replace(regex, command.newText);
                   regex.lastIndex = 0;
-                  return { ...t, title: t.title.replace(regex, command.newText) };
                 }
-                return t;
-              });
-              regex.lastIndex = 0;
-              if (JSON.stringify(newTasks) !== JSON.stringify(tasks)) {
-                updates[taskField] = newTasks;
+              }
+              for (const taskField of ['tasks', 'tasks_en'] as const) {
+                const tasks = (m as any)[taskField];
+                if (Array.isArray(tasks)) {
+                  const newTasks = tasks.map((t: any) => {
+                    if (typeof t === 'string') { regex.lastIndex = 0; return t.replace(regex, command.newText); }
+                    if (t && typeof t === 'object' && typeof t.title === 'string') {
+                      regex.lastIndex = 0;
+                      return { ...t, title: t.title.replace(regex, command.newText) };
+                    }
+                    return t;
+                  });
+                  regex.lastIndex = 0;
+                  if (JSON.stringify(newTasks) !== JSON.stringify(tasks)) {
+                    updates[taskField] = newTasks;
+                  }
+                }
+              }
+              if (Object.keys(updates).length > 0) {
+                await supabase.from('life_plan_milestones').update(updates).eq('id', m.id);
+                updatedCount++;
               }
             }
           }
-          if (Object.keys(updates).length > 0) {
-            await supabase.from('life_plan_milestones').update(updates).eq('id', m.id);
-            updatedCount++;
+
+          // 2. Update plan_data JSON (strategy pillar texts)
+          if (plan.plan_data) {
+            const planDataStr = JSON.stringify(plan.plan_data);
+            regex.lastIndex = 0;
+            if (regex.test(planDataStr)) {
+              regex.lastIndex = 0;
+              const newPlanDataStr = planDataStr.replace(regex, command.newText);
+              try {
+                const newPlanData = JSON.parse(newPlanDataStr);
+                await supabase.from('life_plans').update({ plan_data: newPlanData }).eq('id', plan.id);
+              } catch (e) {
+                console.error('Failed to parse updated plan_data JSON:', e);
+              }
+            }
           }
         }
+
         queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        queryClient.invalidateQueries({ queryKey: ['milestones'] });
+        queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
+        queryClient.invalidateQueries({ queryKey: ['current-week-milestone'] });
         return makeReceipt('plan', 'update', updatedCount > 0, `${command.oldText} → ${command.newText}`, `${updatedCount} ${isHebrew ? 'אבני דרך עודכנו' : 'milestones updated'}`);
       }
 
