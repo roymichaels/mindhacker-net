@@ -2,6 +2,10 @@
  * ExecutionModal — Action Wizard modal with 6 execution templates.
  * Templates: tts_guided, video_embed, sets_reps_timer, step_by_step, timer_focus, social_checklist
  * Template is pre-assigned by strategy generation; falls back to pillar-based inference.
+ * 
+ * AI Enhancement: When modal opens, a background call to generate-execution-steps
+ * fetches detailed, AI-generated steps with an 8-second timeout. If successful,
+ * steps are swapped in smoothly. Otherwise, static fallback steps are used.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +28,7 @@ import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { BreathingGuide } from '@/components/hypnosis/BreathingGuide';
 import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio } from '@/services/voice';
 import { useHaptics } from '@/hooks/useHaptics';
+import { supabase } from '@/integrations/supabase/client';
 
 // ---- Template inference fallback ----
 function inferTemplate(action: NowQueueItem): ExecutionTemplate {
@@ -144,6 +149,11 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const [completing, setCompleting] = useState(false);
   const [scriptType, setScriptType] = useState<VoiceScriptType>('breathing');
 
+  // AI enhancement state
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isEnhanced, setIsEnhanced] = useState(false);
+  const enhanceCacheRef = useRef<Map<string, { steps: ExecutionStep[]; tts_script?: string[] }>>(new Map());
+
   // Voice guided state
   const [voiceState, setVoiceState] = useState<'idle' | 'playing' | 'paused' | 'complete'>('idle');
   const [voiceLineIndex, setVoiceLineIndex] = useState(0);
@@ -168,6 +178,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const breathStartRef = useRef<number>(0);
   const breathIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Custom AI voice script
+  const [aiVoiceScript, setAiVoiceScript] = useState<string[] | null>(null);
+
   const orbSize = isMobile ? 120 : 160;
 
   // Classify and build content when action changes
@@ -184,6 +197,8 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     setTimerRunning(false);
     setCurrentRound(0);
     setIsResting(false);
+    setIsEnhanced(false);
+    setAiVoiceScript(null);
     playingRef.current = false;
 
     if (tmpl !== 'tts_guided') {
@@ -192,6 +207,74 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       setSteps([]);
     }
   }, [open, action, isRTL]);
+
+  // AI Enhancement: fetch detailed steps in background with 8s timeout
+  useEffect(() => {
+    if (!open || !action) return;
+
+    const cacheKey = `${action.actionType}_${action.title}_${language}`;
+    const cached = enhanceCacheRef.current.get(cacheKey);
+    if (cached) {
+      setSteps(cached.steps);
+      if (cached.tts_script) setAiVoiceScript(cached.tts_script);
+      setIsEnhanced(true);
+      return;
+    }
+
+    const tmpl = inferTemplate(action);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    setIsEnhancing(true);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-execution-steps', {
+          body: {
+            title: action.title,
+            pillar: action.pillarId,
+            execution_template: tmpl,
+            action_type: action.actionType,
+            duration_min: action.durationMin,
+            language,
+          },
+        });
+
+        if (controller.signal.aborted) return;
+
+        if (!error && data?.steps && Array.isArray(data.steps) && data.steps.length > 0) {
+          const aiSteps = data.steps.map((s: any) => ({
+            label: s.label || '',
+            detail: s.detail,
+            durationSec: s.durationSec || 60,
+          }));
+
+          enhanceCacheRef.current.set(cacheKey, { steps: aiSteps, tts_script: data.tts_script });
+          
+          if (tmpl !== 'tts_guided') {
+            setSteps(aiSteps);
+          }
+          if (data.tts_script && Array.isArray(data.tts_script)) {
+            setAiVoiceScript(data.tts_script);
+          }
+          setIsEnhanced(true);
+        }
+      } catch (e) {
+        // Timeout or network error — keep static fallback
+        console.log('AI enhancement skipped:', e instanceof Error ? e.message : 'unknown');
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsEnhancing(false);
+        }
+      }
+    })();
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+      setIsEnhancing(false);
+    };
+  }, [open, action, language]);
 
   // Cleanup on close
   useEffect(() => {
@@ -209,9 +292,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
   }, [open]);
 
-  // Voice guided playback
+  // Voice guided playback — use AI script if available, else static
   const voiceScriptData = VOICE_SCRIPTS[scriptType];
-  const voiceScript = isRTL ? voiceScriptData.he : voiceScriptData.en;
+  const voiceScript = aiVoiceScript || (isRTL ? voiceScriptData.he : voiceScriptData.en);
 
   const startVoice = useCallback(() => {
     setVoiceState('playing');
@@ -424,6 +507,19 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             <Clock className="h-3.5 w-3.5" />
             <span>{action.durationMin} {isRTL ? 'דק׳' : 'min'}</span>
           </div>
+          {/* AI Enhancement indicator */}
+          {isEnhancing && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-1.5 mt-2 text-xs text-primary/70">
+              <Sparkles className="h-3 w-3 animate-pulse" />
+              <span>{isRTL ? 'מייצר תוכן מותאם אישית...' : 'Generating personalized content...'}</span>
+            </motion.div>
+          )}
+          {isEnhanced && !isEnhancing && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-1.5 mt-2 text-xs text-primary/50">
+              <Sparkles className="h-3 w-3" />
+              <span>{isRTL ? 'תוכן מותאם אישית ✓' : 'Personalized content ✓'}</span>
+            </motion.div>
+          )}
         </div>
 
         {/* Progress bar */}
