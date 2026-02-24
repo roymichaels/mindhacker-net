@@ -10,6 +10,7 @@ import CreateThreadModal from '@/components/community/CreateThreadModal';
 import CommunityMiniProfile from '@/components/community/CommunityMiniProfile';
 import SuggestTopicModal from '@/components/community/SuggestTopicModal';
 import ThreadList from '@/components/community/ThreadList';
+import PillarTopicBoards from '@/components/community/PillarTopicBoards';
 import CommunityPlayerCard from '@/components/community/CommunityPlayerCard';
 import AddToPlanModal from '@/components/community/AddToPlanModal';
 import { PageShell } from '@/components/aurora-ui/PageShell';
@@ -33,6 +34,7 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [feedMode, setFeedMode] = useState<'latest' | 'trending'>('latest');
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [planThread, setPlanThread] = useState<ThreadData | null>(null);
   const { language } = useTranslation();
   const isHe = language === 'he';
@@ -50,6 +52,7 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
 
   useEffect(() => {
     setActivePillar(selectedPillar);
+    setSelectedTopic(null);
     return () => {
       setActivePillar(null);
     };
@@ -125,12 +128,24 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
             </button>
           </div>
 
-          {/* Thread Feed */}
-          <ThreadList
-            pillarFilter={selectedPillar}
-            mode={feedMode}
-            onProfileClick={setProfileUserId}
-          />
+          {/* FXP-style Topic Boards */}
+          {!isAll && (
+            <PillarTopicBoards
+              pillar={selectedPillar}
+              selectedTopic={selectedTopic}
+              onSelectTopic={setSelectedTopic}
+            />
+          )}
+
+          {/* Thread Feed — shown when a topic is selected or in "all" mode */}
+          {(isAll || selectedTopic) && (
+            <ThreadList
+              pillarFilter={selectedPillar}
+              topicFilter={selectedTopic}
+              mode={feedMode}
+              onProfileClick={setProfileUserId}
+            />
+          )}
         </div>
 
         <CreateThreadModal

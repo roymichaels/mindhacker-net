@@ -20,13 +20,14 @@ export interface CommunityThread {
 
 interface UseCommunityFeedOptions {
   pillarFilter?: string;
+  topicFilter?: string;
   mode?: 'latest' | 'trending';
   limit?: number;
 }
 
-export function useCommunityFeed({ pillarFilter = 'all', mode = 'latest', limit = 50 }: UseCommunityFeedOptions = {}) {
+export function useCommunityFeed({ pillarFilter = 'all', topicFilter, mode = 'latest', limit = 50 }: UseCommunityFeedOptions = {}) {
   return useQuery({
-    queryKey: ['community-threads', pillarFilter, mode, limit],
+    queryKey: ['community-threads', pillarFilter, topicFilter, mode, limit],
     queryFn: async (): Promise<CommunityThread[]> => {
       let query = supabase
         .from('community_posts')
@@ -38,6 +39,23 @@ export function useCommunityFeed({ pillarFilter = 'all', mode = 'latest', limit 
 
       if (pillarFilter !== 'all') {
         query = query.eq('pillar', pillarFilter);
+      }
+
+      // If topicFilter is set, we need to find the matching category_id
+      if (topicFilter) {
+        const sub = (await import('@/lib/communityHelpers')).PILLAR_SUBCATEGORIES[pillarFilter]?.find(
+          (s: any) => s.id === topicFilter
+        );
+        if (sub) {
+          const { data: cat } = await supabase
+            .from('community_categories')
+            .select('id')
+            .eq('name_en', sub.en)
+            .maybeSingle();
+          if (cat) {
+            query = query.eq('category_id', cat.id);
+          }
+        }
       }
 
       const { data: posts, error } = await query;

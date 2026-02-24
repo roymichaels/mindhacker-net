@@ -9,16 +9,17 @@ import { cn } from '@/lib/utils';
 
 interface ThreadListProps {
   pillarFilter: string;
+  topicFilter?: string | null;
   mode?: 'latest' | 'trending';
   onProfileClick: (userId: string) => void;
 }
 
-export default function ThreadList({ pillarFilter, mode = 'latest', onProfileClick }: ThreadListProps) {
+export default function ThreadList({ pillarFilter, topicFilter, mode = 'latest', onProfileClick }: ThreadListProps) {
   const { language } = useTranslation();
   const isHe = language === 'he';
   const { user } = useAuth();
 
-  const { data: threads, isLoading } = useCommunityFeed({ pillarFilter, mode });
+  const { data: threads, isLoading } = useCommunityFeed({ pillarFilter, topicFilter: topicFilter || undefined, mode });
 
   if (isLoading) {
     return (
