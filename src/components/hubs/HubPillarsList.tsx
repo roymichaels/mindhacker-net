@@ -1,10 +1,11 @@
 /**
  * HubPillarsList — Grid of compact pillar cards.
  * Shows lock state for unselected pillars based on tier.
- * Clicking a card opens a PillarModal with the missions roadmap.
+ * Clicking a card navigates to the pillar's assessment results page.
  */
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -15,7 +16,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { CORE_DOMAINS, ARENA_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Lock, Settings } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { PillarModal } from '@/components/missions/PillarModal';
 import { PillarSelectionModal } from '@/components/pillars/PillarSelectionModal';
 import { Button } from '@/components/ui/button';
 
@@ -49,14 +49,15 @@ interface HubPillarsListProps {
 export function HubPillarsList({ hub }: HubPillarsListProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
+  const navigate = useNavigate();
   const { statusMap } = useLifeDomains();
   const { corePlan, arenaPlan, generateStrategy } = useStrategyPlans();
-  const { isPillarSelected, isApex, needsSelection, selectedPillars } = usePillarAccess();
-  const [selectedDomain, setSelectedDomain] = useState<LifeDomain | null>(null);
+  const { isPillarSelected, isApex, needsSelection } = usePillarAccess();
   const [selectionOpen, setSelectionOpen] = useState(false);
 
   const domains: LifeDomain[] = hub === 'core' ? CORE_DOMAINS : ARENA_DOMAINS;
   const plan = hub === 'core' ? corePlan : arenaPlan;
+  const basePath = hub === 'core' ? '/life' : '/arena';
 
   const sectionTitle = hub === 'core'
     ? (isHe ? 'תחומי הליבה' : 'Core Pillars')
@@ -120,7 +121,13 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
     return grouped;
   }, [milestones]);
 
-  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
+  const handlePillarClick = (domain: LifeDomain, selected: boolean) => {
+    if (selected) {
+      navigate(`${basePath}/${domain.id}/results`);
+    } else {
+      setSelectionOpen(true);
+    }
+  };
 
   // Show selection prompt if no pillars chosen yet
   if (needsSelection) {
@@ -190,7 +197,7 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03, duration: 0.2 }}
-              onClick={() => selected ? setSelectedDomain(domain) : setSelectionOpen(true)}
+              onClick={() => handlePillarClick(domain, selected)}
               className={cn(
                 'flex flex-col items-center gap-2 rounded-xl border bg-gradient-to-br p-3 text-center transition-all cursor-pointer relative',
                 selected
@@ -229,19 +236,6 @@ export function HubPillarsList({ hub }: HubPillarsListProps) {
           );
         })}
       </div>
-
-      {/* Pillar Modal */}
-      {selectedDomain && (
-        <PillarModal
-          open={!!selectedDomain}
-          onOpenChange={(o) => !o && setSelectedDomain(null)}
-          hub={hub}
-          pillar={selectedDomain}
-          missions={missionsByPillar[selectedDomain.id] || []}
-          milestonesByMission={milestonesByMission}
-          isActive={(statusMap[selectedDomain.id] ?? 'unconfigured') === 'active' || statusMap[selectedDomain.id] === 'configured'}
-        />
-      )}
 
       {/* Selection Modal */}
       <PillarSelectionModal open={selectionOpen} onOpenChange={setSelectionOpen} />
