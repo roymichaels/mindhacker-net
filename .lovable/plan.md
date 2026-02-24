@@ -1,91 +1,167 @@
 
+Goal: prevent any pillar plan (especially Combat) from being generated unless required assessment data is truly complete, and force a missing-data modal flow that asks the user the missing questions before generation continues.
 
-# Make ExecutionModal Live & Interactive + Improve Mission Completeness
+What I found in the current codebase
+1) Plan generation is not hard-gated by assessment completeness
+- In `supabase/functions/generate-90day-strategy/index.ts`, when assessment is missing/weak, `resolveAssessmentBlock()` falls back to “best practices” and still generates a plan.
+- This is why a combat plan can be created before required conditioning metrics are captured.
 
-## Part 1: Live Interactive Execution (ExecutionModal Upgrade)
+2) Frontend “Generate Plan” actions do not pre-check missing assessment fields
+- `generateStrategy.mutate(...)` is called directly from:
+  - `src/components/hubs/DailyMilestones.tsx`
+  - `src/components/execution/TodayExecutionSection.tsx`
+  - `src/components/missions/PillarModal.tsx`
+  - auto-add path in `src/hooks/useDomainAssessment.ts`
+- There is no mandatory “collect missing answers first” gate in these entry points.
 
-### Current Problems
-- Users can freely click ANY step checkbox in any order -- no enforcement
-- No per-step countdown timer (each step has `durationSec` but it's only displayed as text)
-- Users can close the modal or "Complete" before actually finishing
-- The `sets_reps_timer` template has a basic rest timer but no work timer
-- `step_by_step` template is just a plain checklist with no time enforcement
+3) Legacy config shape causes false “completed” signals
+- I verified in DB that at least one pillar (`power`) has `domain_config.latest` (legacy) but not `domain_config.latest_assessment`.
+- Some UI still checks legacy fields (e.g. `src/pages/power/PowerHome.tsx` uses `config.latest`), so the user can appear “assessed” while strategy engine receives incomplete/legacy data.
 
-### Changes to `ExecutionModal.tsx`
+4) Assessment extraction loses important planning constraints
+- `supabase/functions/domain-assess/index.ts` tool schema requires `willingness`, but `src/components/domain-assess/DomainAssessChat.tsx` currently saves only a subset (subscores/findings/mirror/next_step/confidence) and drops willingness and richer completeness metadata.
+- This weakens downstream personalization and hard-rule filtering.
 
-**A. Sequential Round Enforcement (sets_reps_timer)**
-- Lock all rounds except the current one -- greyed out, not clickable
-- Each round has 3 phases: **Ready -> Working (countdown) -> Rest (countdown) -> Next**
-- "Start Round" button begins a countdown timer using the step's `durationSec`
-- When work countdown hits 0: haptic buzz, auto-transition to rest period (30-60s configurable)
-- When rest countdown hits 0: haptic buzz, auto-advance to next round
-- Cannot mark a round complete without the timer finishing
-- Cannot close modal while a round timer is active (only Skip with confirmation)
+5) Combat assessment is not enforcing mandatory hard metrics
+- Combat system prompt is conversational and broad, but not strictly enforcing must-have fields like max sets / round capacity before allowing completion.
 
-**B. Step Timer for step_by_step**
-- Steps with `durationSec` show a mini countdown timer when tapped
-- Step auto-checks when its timer completes
-- Steps without `durationSec` remain manual checkboxes
-- Still sequential -- can't skip ahead
+Implementation plan
 
-**C. Close Prevention**
-- While any timer is running: block Escape key, block outside click, hide X button
-- "Skip" button shows a confirmation: "Are you sure? This will lose your progress"
-- "Complete" button only enabled when ALL rounds/steps are done (already implemented but will be stricter)
+Phase 1 — Introduce a strict “Assessment Quality Contract” per pillar
+Files:
+- `supabase/functions/_shared/assessment-quality.ts` (new shared helper)
+- `supabase/functions/generate-90day-strategy/index.ts`
+- `supabase/functions/generate-phase-actions/index.ts` (same gate for on-demand minis)
 
-**D. Visual Upgrades for Active Round**
-- Active round: pulsing border, large countdown display at top
-- Completed rounds: green checkmark, collapsed
-- Upcoming rounds: dimmed, locked icon
-- Rest period: full-screen overlay with breathing animation and countdown
+Actions:
+1. Define deterministic required fields per pillar.
+- Global minimum:
+  - `latest_assessment` exists
+  - `assessed_at` exists
+  - all subsystem scores present
+- Combat-specific mandatory metrics:
+  - e.g. `max_pushups`, `max_pullups`, `max_air_squats`, `round_length`, `rounds_capacity`, `rest_between_rounds`, `sparring_frequency` (names finalized to match stored schema)
+- Vitality/Power mandatory sets similarly based on their domain contracts.
 
-### New State Machine
-```text
-IDLE -> ROUND_ACTIVE (countdown running) -> REST (countdown) -> ROUND_ACTIVE -> ... -> ALL_DONE
-```
+2. Add a validator that returns:
+- `isReady: boolean`
+- `missingFields: string[]`
+- `missingQuestions: { field, question_he, question_en }[]`
+- `reasonCode` (e.g. `MISSING_REQUIRED_ASSESSMENT_DATA`)
 
-## Part 2: Comprehensive Mission Content (Strategy Prompts)
+3. In strategy generation, hard-fail when required inputs are missing.
+- Return structured 400 response containing missing pillars and required questions.
+- Do not silently fallback to generic goals when data is insufficient.
 
-### Current Problem
-The vitality missions mention sun exposure but miss critical daily protocols like:
-- **Grounding/Earthing** (30 min barefoot on earth/grass daily)
-- **Cold exposure** (cold showers, ice baths)
-- **Circadian rhythm** protocols (morning light + evening light blocking)
-- **Lymphatic activation** (dry brushing, rebounding)
-- **Hydration rituals** (structured water timing)
+4. In phase-action generation, apply same validation.
+- Prevent mini generation from running on low-quality pillar assessment state.
 
-### Changes to `generate-90day-strategy/index.ts`
+Result:
+- No plan generation if required assessment data isn’t truly present.
 
-Add a `COMPREHENSIVE DAILY HEALTH PROTOCOLS` section to the Layer 1 (Goals) and Layer 3 (Daily Actions) prompts:
+Phase 2 — Enforce required-question completion in Domain Assessment flow
+Files:
+- `supabase/functions/domain-assess/index.ts`
+- `src/components/domain-assess/DomainAssessChat.tsx`
+- `src/hooks/useDomainAssessment.ts` (if needed for metadata shape)
 
-```text
-## COMPREHENSIVE VITALITY PROTOCOLS (must include in Vitality pillar):
-- GROUNDING: 20-30 min barefoot on earth/grass/sand daily (combine with sun exposure when possible)
-- SUN EXPOSURE: 10-30 min morning sunlight within first hour of waking (no sunglasses)
-- COLD EXPOSURE: Cold shower finish (30s-3min) or ice bath protocol
-- BREATHING: Daily breathwork protocol (box breathing, Wim Hof, or power breathing)
-- HYDRATION: Structured water intake (500ml upon waking, then every 90 min)
-- LYMPHATIC: Dry brushing before shower or rebounding 5 min
-- CIRCADIAN: Blue light blocking 2h before sleep, morning bright light
-- MOVEMENT: Micro-movement every 60 min (not just training sessions)
+Actions:
+1. Extend extraction tool schema with required assessment metadata:
+- `coverage.required_fields_answered`
+- `coverage.missing_fields`
+- domain-specific `metrics` object (especially for Combat performance numbers)
+- keep `willingness` mandatory.
 
-For ALL pillars, generate COMPREHENSIVE protocols that cover the FULL spectrum of what science recommends for that domain. Do NOT generate surface-level tasks. Each mission should be a complete daily protocol.
-```
+2. Server-side completion guard:
+- If tool call arrives without required fields, instruct model to continue questioning instead of finalizing.
+- Ensure “extract_domain_profile” only accepted when required fields are populated.
 
-### Changes to `generate-phase-actions/index.ts`
+3. Save full extraction payload in `domain_config.latest_assessment`.
+- Include willingness + coverage + required metrics.
+- Avoid dropping fields currently discarded in `DomainAssessChat.handleToolCall`.
 
-Same comprehensive protocol list injected so daily actions include grounding, cold exposure, etc. alongside sun exposure.
+Result:
+- Assessment cannot close early with missing mandatory metrics.
 
-## Files Modified
+Phase 3 — Add “Missing Questions” popup gate before any plan generation trigger
+Files:
+- `src/hooks/useStrategyPlans.ts`
+- `src/components/hubs/DailyMilestones.tsx`
+- `src/components/execution/TodayExecutionSection.tsx`
+- `src/components/missions/PillarModal.tsx`
+- `src/components/domain-assess/DomainAssessModal.tsx` (optional prop extension)
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/ExecutionModal.tsx` | Add round state machine with work/rest countdowns, sequential locking, close prevention, visual upgrades for active/rest/done states |
-| `supabase/functions/generate-90day-strategy/index.ts` | Add comprehensive vitality protocol list to Layer 1 and Layer 3 prompts |
-| `supabase/functions/generate-phase-actions/index.ts` | Add same comprehensive protocol list to daily action generation |
+Actions:
+1. In `useStrategyPlans.generateStrategy`, call a backend preflight (same validator logic) before invoke.
+2. If backend returns missing requirements:
+- return structured error object with missing pillars/questions.
+3. In UI callers, catch this specific error and:
+- open `DomainAssessModal` for first missing pillar automatically,
+- show concise mandatory-message (“Missing required answers before plan generation”),
+- optionally queue remaining pillars for sequential completion.
 
-## Impact
-- ExecutionModal becomes a true guided workout/protocol timer -- users are walked through each round with countdowns, rest periods, and haptic feedback
-- Missions will include grounding, cold exposure, lymphatic activation, and other critical daily protocols instead of surface-level tasks
-- User must regenerate their plan after deployment to get updated missions
+Result:
+- User is always prompted for missing answers instead of receiving incomplete plans.
 
+Phase 4 — Legacy data normalization (critical for current users)
+Files:
+- `src/hooks/useLifeDomains.ts` (read normalization)
+- `supabase/functions/_shared/assessment-normalize.ts` (shared)
+- optional one-time backend utility function for migration
+
+Actions:
+1. Normalize legacy domain_config shapes at read time:
+- map `latest` -> `latest_assessment` when safely possible.
+- mark `completed=false` if required quality contract still fails.
+2. For impossible legacy mappings, require reassessment via modal.
+3. Ensure no screen uses legacy-only field checks for gating readiness.
+
+Result:
+- Existing users with old data are correctly forced through missing questions, not silently treated as complete.
+
+Phase 5 — Combat-specific hard requirements + UX messaging
+Files:
+- `supabase/functions/domain-assess/index.ts` (combat prompt/tool schema)
+- `src/components/domain-assess/DomainAssessChat.tsx` (UX helper chips)
+
+Actions:
+1. Add explicit combat required capture order:
+- training mode + discipline
+- max set capacity block
+- round performance block
+- live pressure/sparring block
+2. If user skips numeric answer, assistant must re-ask directly.
+3. Show “required remaining” indicator in assessment modal (e.g., 2/7 pending) so user sees why it cannot finalize.
+
+Result:
+- Combat plan cannot be created without maximum-set/round capacity data.
+
+Acceptance criteria
+1) Plan generation is blocked with structured missing-data response if any required assessment field is missing.
+2) Clicking Generate always opens missing assessment modal flow when needed (instead of generating).
+3) Domain assessment cannot finalize until required questions are answered for that pillar.
+4) Combat requires max sets + rounds + pressure metrics before completion.
+5) Legacy pillars with old schema are either normalized or explicitly forced to reassess.
+6) Stored `latest_assessment` includes willingness + coverage + required metrics for downstream plan engines.
+
+Technical risks and mitigations
+- Risk: strict gating may block users with old data.
+  - Mitigation: normalization layer + clear reassessment prompts + per-pillar migration fallback.
+- Risk: too-rigid required fields for edge users (injury/no gym/no sparring).
+  - Mitigation: required fields can accept constrained values (`"not possible"`) but must be explicitly captured.
+- Risk: multiple generate entry points drift.
+  - Mitigation: centralize preflight in `useStrategyPlans` and backend validator shared helper.
+
+Rollout order
+1) Backend validator + strategy hard gate
+2) Frontend generate preflight + modal trigger
+3) Domain-assess completion guard + full payload persistence
+4) Legacy normalization
+5) Combat hard-metric enforcement polish + UI progress indicator
+
+Validation plan
+- Case A: user with missing combat max sets -> Generate should fail, combat modal opens, asks required questions.
+- Case B: user with legacy `latest` only (power) -> marked incomplete until reassessed/normalized.
+- Case C: fully completed user -> Generate succeeds, no gating interruption.
+- Case D: on-demand mini generation for incomplete milestone pillar -> blocked until assessment quality passes.
+- Case E: willingness constraints present in saved assessment and visible in generated protocol outputs.
