@@ -79,7 +79,14 @@ interface ExecutionStep {
   durationSec?: number;
 }
 
+// Use pre-computed execution steps from the queue, or fall back to local generation
 function buildWorkoutSteps(action: NowQueueItem, isRTL: boolean): ExecutionStep[] {
+  // Priority 1: Use pre-computed steps from the server
+  if (action.executionSteps && action.executionSteps.length > 0) {
+    return action.executionSteps;
+  }
+
+  // Priority 2: Local keyword matching (fallback)
   const combined = `${action.actionType} ${action.title}`.toLowerCase();
   const isCombat = COMBAT_ACTIVITIES.some(a => combined.includes(a));
 

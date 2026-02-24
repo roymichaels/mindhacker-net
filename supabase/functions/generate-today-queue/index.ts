@@ -81,6 +81,8 @@ const FALLBACK_ACTIONS: FallbackAction[] = [
 interface ExecStep { label: string; detail?: string; durationSec: number; }
 
 function generateExecutionSteps(actionType: string, pillar: string, durationMin: number, isHe: boolean): ExecStep[] {
+  const combined = `${actionType} ${pillar}`.toLowerCase();
+  
   const templates: Record<string, () => ExecStep[]> = {
     shadowboxing_session: () => isHe ? [
       { label: "חימום — קפיצות + סיבובי מפרקים", durationSec: 120 },
@@ -134,17 +136,167 @@ function generateExecutionSteps(actionType: string, pillar: string, durationMin:
     ],
   };
 
+  // Direct template match
   if (templates[actionType]) return templates[actionType]();
 
+  // Keyword-based matching with actionType + pillar context
+  if (/combat|shadow|boxing|לחימה|אגרוף/.test(combined)) return templates.shadowboxing_session();
+  if (/strength|power|כוח|עוצמה/.test(combined) && !/influence|השפעה/.test(combined)) return templates.strength_session();
+  if (/meditation|מדיטציה|mindful|מודעות|consciousness|תודעה/.test(combined)) return templates.meditation_focus();
+  if (/deep.?work|focus.*strategy|מיקוד/.test(combined)) return templates.deep_work_block();
+  
+  // Skincare / grooming
+  if (/skin|טיפוח|פנים|skincare|grooming/.test(combined)) {
+    return isHe ? [
+      { label: "ניקוי פנים — ג׳ל ניקוי + מים פושרים", detail: "עסה 60 שניות בתנועות עדינות", durationSec: 120 },
+      { label: "טונר — הנח על פד כותנה", detail: "טפטף על הפנים והצוואר", durationSec: 60 },
+      { label: "סרום — ויטמין C (בוקר) / רטינול (ערב)", detail: "עסה פנימה בתנועות כלפי מעלה", durationSec: 90 },
+      { label: "קרם לחות — הנח בנקודות על הפנים", detail: "עסה בתנועות מעגליות", durationSec: 90 },
+      { label: "הגנה מהשמש — SPF בשכבה נדיבה", durationSec: 60 },
+    ] : [
+      { label: "Cleanse — gel cleanser + lukewarm water", detail: "Massage 60 seconds in gentle circles", durationSec: 120 },
+      { label: "Toner — apply on cotton pad", detail: "Pat onto face and neck", durationSec: 60 },
+      { label: "Serum — Vitamin C (AM) / Retinol (PM)", detail: "Massage in with upward strokes", durationSec: 90 },
+      { label: "Moisturize — dot on face", detail: "Massage in circular motions", durationSec: 90 },
+      { label: "Sunscreen — apply SPF generously", durationSec: 60 },
+    ];
+  }
+
+  // Reading / learning
+  if (/read|קריאה|לימוד|study|learn|book|ספר|expansion/.test(combined)) {
+    const readMin = Math.max(5, durationMin - 5);
+    return isHe ? [
+      { label: "בחר חומר — ספר/מאמר/קורס", detail: "סגור הסחות. הכן פנקס לרישומים.", durationSec: 120 },
+      { label: `קריאה ממוקדת — ${readMin} דקות`, detail: "סמן מילות מפתח ורעיונות חשובים", durationSec: readMin * 60 },
+      { label: "סיכום — 3 תובנות מרכזיות", detail: "כתוב מה למדת ואיך ליישם", durationSec: 180 },
+    ] : [
+      { label: "Choose material — book/article/course", detail: "Close distractions. Prepare notebook.", durationSec: 120 },
+      { label: `Focused reading — ${readMin} minutes`, detail: "Highlight key ideas and concepts", durationSec: readMin * 60 },
+      { label: "Summary — 3 key takeaways", detail: "Write what you learned and how to apply it", durationSec: 180 },
+    ];
+  }
+
+  // Walking / nature
+  if (/walk|הליכה|hiking|טיול|sunlight|אור/.test(combined)) {
+    const walkMin = Math.max(5, durationMin - 4);
+    return isHe ? [
+      { label: "צא מהבית — 2 דקות הליכה איטית לחימום", durationSec: 120 },
+      { label: `הליכה ראשית — ${walkMin} דקות`, detail: "קצב נוח אך ערני. שים לב לנשימה ולסביבה.", durationSec: walkMin * 60 },
+      { label: "סגירה — האט, 3 נשימות עמוקות", detail: "מה הרגשת? מה שמת לב אליו?", durationSec: 120 },
+    ] : [
+      { label: "Head out — 2 min slow walking to warm up", durationSec: 120 },
+      { label: `Main walk — ${walkMin} minutes`, detail: "Comfortable but alert pace. Notice your breathing.", durationSec: walkMin * 60 },
+      { label: "Close — slow down, 3 deep breaths", detail: "How did you feel? What did you notice?", durationSec: 120 },
+    ];
+  }
+
+  // Journaling / reflection
+  if (/journal|יומן|כתיבה|reflec|writing|הרהור/.test(combined)) {
+    const writeMin = Math.max(3, durationMin - 4);
+    return isHe ? [
+      { label: "התכוננות — 3 נשימות עמוקות", detail: "שאל את עצמך: מה עובר עליי עכשיו?", durationSec: 120 },
+      { label: `כתיבה חופשית — ${writeMin} דקות`, detail: "כתוב בלי לעצור. אל תערוך, אל תשפוט.", durationSec: writeMin * 60 },
+      { label: "תובנה מרכזית — קרא חזרה", detail: "מה מפתיע? מה הפעולה שעולה מזה?", durationSec: 120 },
+    ] : [
+      { label: "Center — 3 deep breaths", detail: "Ask yourself: what's on my mind right now?", durationSec: 120 },
+      { label: `Free writing — ${writeMin} minutes`, detail: "Write without stopping. Don't edit, don't judge.", durationSec: writeMin * 60 },
+      { label: "Core insight — read back", detail: "What's surprising? What action emerges?", durationSec: 120 },
+    ];
+  }
+
+  // Business / project / work
+  if (/business|wealth|project|work|עסק|פרויקט|עבודה|money|הכנסה|influence|השפעה/.test(combined)) {
+    const workMin = Math.max(5, durationMin - 5);
+    return isHe ? [
+      { label: "הגדר מטרה — מה בדיוק תעשה?", detail: "כתוב משפט אחד ברור", durationSec: 120 },
+      { label: `עבודה ממוקדת — ${workMin} דקות`, detail: "טלפון במצב טיסה. חלון אחד פתוח. מיקוד מלא.", durationSec: workMin * 60 },
+      { label: "סיכום — מה הושג?", detail: "מה סיימתי? מה נשאר? מה הצעד הבא?", durationSec: 180 },
+    ] : [
+      { label: "Define goal — what exactly will you do?", detail: "Write one clear sentence", durationSec: 120 },
+      { label: `Focused work — ${workMin} minutes`, detail: "Phone on airplane mode. One window open. Full focus.", durationSec: workMin * 60 },
+      { label: "Summary — what was achieved?", detail: "What's done? What remains? What's next?", durationSec: 180 },
+    ];
+  }
+
+  // Social / relationships
+  if (/social|relation|יחסים|networking|connect|קשר|presence|נוכחות/.test(combined)) {
+    const socialMin = Math.max(5, durationMin - 4);
+    return isHe ? [
+      { label: "הכנה — על מה לדבר?", detail: "חשוב על 2-3 נושאים. מה חשוב להעביר?", durationSec: 120 },
+      { label: `השיחה/המפגש — ${socialMin} דקות`, detail: "היה נוכח. הקשב באמת. שאל שאלות.", durationSec: socialMin * 60 },
+      { label: "סגירה — מה יצא מזה?", detail: "יש פעולה להמשך? מתי הפעם הבאה?", durationSec: 120 },
+    ] : [
+      { label: "Prepare — what to discuss?", detail: "Think of 2-3 topics. What's important to convey?", durationSec: 120 },
+      { label: `The call/meeting — ${socialMin} minutes`, detail: "Be present. Really listen. Ask questions.", durationSec: socialMin * 60 },
+      { label: "Close — what came of it?", detail: "Follow-up action? When's next time?", durationSec: 120 },
+    ];
+  }
+
+  // Play / adventure
+  if (/play|משחק|adventure|הרפתקה|fun|כיף/.test(combined)) {
+    const playMin = Math.max(5, durationMin - 3);
+    return isHe ? [
+      { label: "בחר פעילות — מה ישמח אותך?", detail: "משחק, טבע, תנועה, יצירתיות, או הרפתקה", durationSec: 60 },
+      { label: `זמן משחק — ${playMin} דקות`, detail: "שחרר ציפיות. תהנה מהתהליך. בלי טלפון.", durationSec: playMin * 60 },
+      { label: "מה הרגשת?", detail: "חייך. שמור את האנרגיה הזו.", durationSec: 60 },
+    ] : [
+      { label: "Choose activity — what would make you happy?", detail: "Game, nature, movement, creativity, or adventure", durationSec: 60 },
+      { label: `Play time — ${playMin} minutes`, detail: "Release expectations. Enjoy the process. No phone.", durationSec: playMin * 60 },
+      { label: "How did it feel?", detail: "Smile. Keep that energy.", durationSec: 60 },
+    ];
+  }
+
+  // Cold exposure (exact match, not broad)
+  if (/cold.?(exposure|shower)|מקלחת.?קרה|חשיפה.?קור/.test(combined)) {
+    const coldMin = Math.max(1, durationMin - 4);
+    return isHe ? [
+      { label: "נשימות כוח — 30 נשימות עמוקות (Wim Hof)", detail: "אחרי — עצור נשימה 30 שניות", durationSec: 120 },
+      { label: `חשיפה לקור — ${coldMin} דקות`, detail: "התחל מהרגליים ועלה. נשום לאט ועמוק. אל תברח.", durationSec: coldMin * 60 },
+      { label: "חימום — תנועה חופשית", detail: "התנער, זוז, קפוץ. תן לגוף להתחמם.", durationSec: 120 },
+    ] : [
+      { label: "Power breaths — 30 deep breaths (Wim Hof)", detail: "Then hold breath 30 seconds", durationSec: 120 },
+      { label: `Cold exposure — ${coldMin} minutes`, detail: "Start from legs, work up. Breathe slow and deep.", durationSec: coldMin * 60 },
+      { label: "Warm up — free movement", detail: "Shake, move, jump. Let body warm naturally.", durationSec: 120 },
+    ];
+  }
+
+  // Vitality / morning routine / hydration / sleep
+  if (/vitality|morning|hydrat|sleep|shutdown|ערב|בוקר|שינה|מים/.test(combined)) {
+    return isHe ? [
+      { label: "כוונה — מה המטרה שלי כרגע?", detail: "נשום 3 נשימות. חבר לגוף.", durationSec: 60 },
+      { label: `ביצוע — ${Math.max(3, durationMin - 3)} דקות`, detail: "עקוב אחרי הפרוטוקול צעד אחרי צעד.", durationSec: Math.max(3, durationMin - 3) * 60 },
+      { label: "סיום — בדוק: עשיתי את זה?", detail: "סמן V. זה חשוב.", durationSec: 60 },
+    ] : [
+      { label: "Intention — what's my goal right now?", detail: "3 breaths. Connect to your body.", durationSec: 60 },
+      { label: `Execute — ${Math.max(3, durationMin - 3)} minutes`, detail: "Follow the protocol step by step.", durationSec: Math.max(3, durationMin - 3) * 60 },
+      { label: "Done — check: did I do it?", detail: "Mark it off. This matters.", durationSec: 60 },
+    ];
+  }
+
+  // Order / organizing / cleaning
+  if (/order|סדר|clean|ניקיון|organiz|סידור/.test(combined)) {
+    const orderMin = Math.max(5, durationMin - 4);
+    return isHe ? [
+      { label: "סקירה — מה דורש טיפול?", detail: "בחר 3 אזורים/משימות לטפל בהם.", durationSec: 120 },
+      { label: `ביצוע — ${orderMin} דקות`, detail: "אזור אחרי אזור. לא לדלג.", durationSec: orderMin * 60 },
+      { label: "בדיקה סופית — צפה בתוצאה", detail: "סדר פרטים קטנים. תהנה מהסדר.", durationSec: 120 },
+    ] : [
+      { label: "Survey — what needs attention?", detail: "Pick 3 areas/tasks to tackle.", durationSec: 120 },
+      { label: `Execute — ${orderMin} minutes`, detail: "Zone by zone. No skipping.", durationSec: orderMin * 60 },
+      { label: "Final check — admire the result", detail: "Fix small details. Enjoy the order.", durationSec: 120 },
+    ];
+  }
+
+  // Generic fallback — still actionable
   const coreMin = Math.max(1, durationMin - 4);
   return isHe ? [
-    { label: "הכנה — נשימות + מיקוד כוונה", durationSec: 60 },
-    { label: `ביצוע ליבה — ${coreMin} דקות`, detail: "עבודה ממוקדת ללא הסחות", durationSec: coreMin * 60 },
-    { label: "סגירה — מה למדתי? מה הצעד הבא?", durationSec: 120 },
+    { label: "הכנה — נשימות + מיקוד כוונה", detail: "מה בדיוק אני עומד לעשות? הגדר בבירור.", durationSec: 60 },
+    { label: `ביצוע ליבה — ${coreMin} דקות`, detail: "עבודה ממוקדת ללא הסחות. צעד אחר צעד.", durationSec: coreMin * 60 },
+    { label: "סגירה — מה למדתי? מה הצעד הבא?", detail: "רשום תובנה אחת ופעולה אחת.", durationSec: 120 },
   ] : [
-    { label: "Prepare — deep breaths & set intention", durationSec: 60 },
-    { label: `Core execution — ${coreMin} minutes`, detail: "Focused work", durationSec: coreMin * 60 },
-    { label: "Close — what did I learn? What's next?", durationSec: 120 },
+    { label: "Prepare — breathe & set intention", detail: "What exactly am I about to do? Define clearly.", durationSec: 60 },
+    { label: `Core execution — ${coreMin} minutes`, detail: "Focused work, no distractions. Step by step.", durationSec: coreMin * 60 },
+    { label: "Close — what did I learn? What's next?", detail: "Write one insight and one action.", durationSec: 120 },
   ];
 }
 
@@ -161,6 +313,7 @@ interface QueueItem {
   sourceType: "strategy" | "plan" | "assessment" | "template" | "habit";
   sourceId?: string;
   blockType?: string;
+  executionSteps?: ExecStep[];
 }
 
 // ─── Get current week of the strategy ─────────────────────────
@@ -427,6 +580,13 @@ serve(async (req) => {
 
     // Sort final queue by urgency
     queue.sort((a, b) => b.urgencyScore - a.urgencyScore);
+
+    // Attach execution steps to each queue item
+    for (const item of queue) {
+      if (!item.executionSteps) {
+        item.executionSteps = generateExecutionSteps(item.actionType, item.pillarId, item.durationMin, isHe);
+      }
+    }
 
     // Current week info for UI
     const currentWeekCore = coreStrategy ? getCurrentWeek(coreStrategy.start_date) : null;
