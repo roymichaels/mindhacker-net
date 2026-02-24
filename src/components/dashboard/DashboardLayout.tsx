@@ -50,7 +50,7 @@ const DashboardLayout = ({ children, leftSidebar: propLeft, rightSidebar: propRi
             <TopNavBar onOpenSettings={() => setSettingsOpen(true)} />
           )}
 
-          <div className="flex-1 min-h-0 flex">
+          <div className="flex-1 min-h-0 flex [&>aside]:pb-16 lg:[&>aside]:pb-14">
             {leftSidebar !== null ? (leftSidebar || <HudSidebar />) : null}
 
             <main className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-2 lg:px-3 pt-0 pb-28 md:pb-14 flex flex-col">
