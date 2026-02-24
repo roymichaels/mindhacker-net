@@ -77,7 +77,14 @@ export function PillarModal({ open, onOpenChange, hub, pillar, missions, milesto
   const completedMissions = missions.filter(m => m.is_completed).length;
 
   const handleGenerate = () => {
-    generateStrategy.mutate({ hub: 'both' });
+    generateStrategy.mutate({ hub: 'both' }, {
+      onError: (err: any) => {
+        if (err?.message === 'MISSING_ASSESSMENT_DATA' && err.missingPillars?.length > 0) {
+          // Close this modal and let parent handle assessment
+          onOpenChange(false);
+        }
+      },
+    });
   };
 
   return (

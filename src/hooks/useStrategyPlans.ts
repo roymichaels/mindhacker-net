@@ -185,7 +185,30 @@ export function useStrategyPlans() {
           single_pillar: singlePillar,
         },
       });
-      if (error) throw error;
+
+      // Check for structured assessment-quality error from backend
+      if (error) {
+        // Try to parse the error body for MISSING_ASSESSMENT_DATA
+        try {
+          const errBody = typeof error === 'object' && error.context ? JSON.parse(error.context?.body || '{}') : {};
+          if (errBody.error === 'MISSING_ASSESSMENT_DATA') {
+            const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
+            missingError.missingPillars = errBody.missing_pillars || [];
+            throw missingError;
+          }
+        } catch (parseErr) {
+          if ((parseErr as any)?.message === 'MISSING_ASSESSMENT_DATA') throw parseErr;
+        }
+        throw error;
+      }
+
+      // Also check if data itself contains assessment error (edge function returns 400 as data)
+      if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+        const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
+        missingError.missingPillars = data.missing_pillars || [];
+        throw missingError;
+      }
+
       return data;
     },
     onSuccess: () => {
@@ -200,7 +223,9 @@ export function useStrategyPlans() {
         description: 'Your 90-day plan has been created based on your assessments.',
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      // Don't show toast for MISSING_ASSESSMENT_DATA — handled by UI callers
+      if (error?.message === 'MISSING_ASSESSMENT_DATA') return;
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to generate strategy',

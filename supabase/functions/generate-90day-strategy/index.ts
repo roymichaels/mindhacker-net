@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { corsHeaders, isCorsPreFlight, handleCorsPreFlight } from "../_shared/cors.ts";
+import { validateHubReadiness } from "../_shared/assessment-quality.ts";
 
 const CORE_PILLAR_IDS = ['consciousness', 'presence', 'power', 'vitality', 'focus', 'combat', 'expansion'];
 const ARENA_PILLAR_IDS = ['wealth', 'influence', 'relationships', 'business', 'projects', 'play', 'order'];
@@ -600,6 +601,41 @@ serve(async (req) => {
       businessRes.data || [],
       memoryRes.data || [],
     );
+
+    // === ASSESSMENT QUALITY GATE ===
+    // Validate that all target pillars have sufficient assessment data
+    const targetPillarIds = single_pillar
+      ? [single_pillar]
+      : selected_pillars
+        ? [...(selected_pillars.core || []), ...(selected_pillars.arena || [])]
+        : undefined;
+
+    const qualityCheck = validateHubReadiness(
+      targetHub as 'core' | 'arena' | 'both',
+      allDomains.map(d => ({ domain_id: d.domain_id, domain_config: d.domain_config })),
+      targetPillarIds,
+    );
+
+    if (!qualityCheck.ready) {
+      // Return structured error with missing pillars so frontend can open assessment modals
+      const missingPillars = qualityCheck.incompletePillars.map(ip => ({
+        pillarId: ip.pillarId,
+        reasonCode: ip.result.reasonCode,
+        missingFields: ip.result.missingFields,
+        missingQuestions: ip.result.missingQuestions,
+      }));
+
+      console.log(`❌ Assessment quality gate failed. Missing pillars: ${missingPillars.map(p => p.pillarId).join(', ')}`);
+
+      return new Response(JSON.stringify({
+        error: 'MISSING_ASSESSMENT_DATA',
+        message: 'Some pillars need assessment completion before plan generation.',
+        missing_pillars: missingPillars,
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     for (const h of hubsToGenerate) {
       const allHubPillarIds = h === 'core' ? CORE_PILLAR_IDS : ARENA_PILLAR_IDS;
