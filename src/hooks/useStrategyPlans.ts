@@ -254,37 +254,38 @@ export function useStrategyPlans() {
 
       if (error) {
         const errorAny = error as any;
+        const message = typeof errorAny?.message === 'string' ? errorAny.message : String(error);
 
-        // Case 1: context is a Fetch Response
-        if (typeof errorAny?.context?.clone === 'function') {
-          const responsePayload = await errorAny.context
-            .clone()
-            .json()
-            .catch(() => null);
+        // Fast path: check if the error message contains the marker at all
+        if (message.includes('MISSING_ASSESSMENT_DATA') || String(errorAny?.context?.body ?? '').includes('MISSING_ASSESSMENT_DATA')) {
+          // Try to extract structured JSON from message or context
+          let payload: any = null;
 
-          if (responsePayload?.error === 'MISSING_ASSESSMENT_DATA') {
-            throw buildMissingAssessmentError(responsePayload.missing_pillars || []);
+          // Try context as Response (wrap in try-catch since clone() can throw if body consumed)
+          if (!payload && typeof errorAny?.context?.clone === 'function') {
+            try {
+              payload = await errorAny.context.clone().json();
+            } catch { /* body already consumed */ }
           }
-        }
 
-        // Case 2: context.body is JSON string
-        const contextBodyPayload = parseMaybeJson(errorAny?.context?.body);
-        if (contextBodyPayload?.error === 'MISSING_ASSESSMENT_DATA') {
-          throw buildMissingAssessmentError(contextBodyPayload.missing_pillars || []);
-        }
+          // Try context.body as string
+          if (!payload) payload = parseMaybeJson(errorAny?.context?.body);
 
-        // Case 3: message includes JSON payload after status text
-        const message = typeof errorAny?.message === 'string' ? errorAny.message : '';
-        const messagePayload = parseMaybeJson(message);
-        if (messagePayload?.error === 'MISSING_ASSESSMENT_DATA') {
-          throw buildMissingAssessmentError(messagePayload.missing_pillars || []);
-        }
+          // Try message string
+          if (!payload) payload = parseMaybeJson(message);
 
-        // Case 4: payload text contains marker but JSON is malformed/truncated
-        if (message.includes('MISSING_ASSESSMENT_DATA')) {
+          if (payload?.missing_pillars) {
+            throw buildMissingAssessmentError(payload.missing_pillars);
+          }
+
+          // Last resort: regex extract pillar IDs from truncated text
           const pillarIds = Array.from(message.matchAll(/"pillarId"\s*:\s*"([^"]+)"/g)).map((m) => m[1]);
-          const fallbackMissing = pillarIds.map((pillarId) => ({ pillarId }));
-          throw buildMissingAssessmentError(fallbackMissing);
+          if (pillarIds.length > 0) {
+            throw buildMissingAssessmentError(pillarIds.map((id) => ({ pillarId: id })));
+          }
+
+          // Marker found but couldn't parse anything — still throw structured error
+          throw buildMissingAssessmentError([]);
         }
 
         throw error;
