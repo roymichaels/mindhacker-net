@@ -1,71 +1,96 @@
 
+# תיקון מערכת הביצוע: משימות ברורות עם הוראות מותאמות אישית
 
-# Homepage Redesign -- High-Conversion, Feature-Honest Landing Page
+## הבעיה
 
-## Goal
-Rebuild the homepage to authentically showcase everything the app offers, use Aurora's HoloOrb as the visual anchor, and maximize sign-up conversion -- without fabricated claims.
+כרגע, כשמשתמש לוחץ על משימה, המודל (ExecutionModal) מייצר את השלבים לפי **התאמת מילות מפתח** בלבד:
+- אם הכותרת מכילה "קר" → מראה תבנית חשיפה לקור (גם אם המשימה לא קשורה)
+- אם לא נמצאה התאמה → מראה 3 שלבים גנריים: "הכנה / ביצוע / סגירה" שלא אומרים למשתמש מה באמת לעשות
+- "סריקת גוף יומית לתחושות תקיעות" — המשתמש לא יודע מה זה בכלל ומה לעשות
+
+הסיבה: המודל מקבל רק את **הכותרת** של המשימה ומנסה להתאים תבנית. הוא לא מקבל את ההקשר של האסטרטגיה, האבחון, או ההוראות המפורטות.
+
+## הפתרון
+
+### שלב 1: הוספת הוראות ביצוע ברמת האסטרטגיה
+
+ב-`generate-90day-strategy` (הפונקציה שמייצרת את תוכנית 100 הימים), נוסיף ל-AI Prompt דרישה שכל `daily_action` יכלול שדה חדש: `execution_steps` — מערך של 3-5 שלבים ספציפיים עם הסבר ברור מה לעשות, כולל זמנים.
+
+דוגמה: במקום "סריקת גוף יומית" עם שלבים גנריים, האסטרטגיה תייצר:
+```text
+1. שכב על הגב, עצום עיניים (1 דק')
+2. סרוק מהראש: מצח, לסת, צוואר — חפש נקודות מתח (3 דק')
+3. המשך לכתפיים, חזה, בטן — שים לב איפה יש "תקיעות" (3 דק')
+4. רגליים: ירכיים, ברכיים, כפות רגליים (2 דק')
+5. נשימה עמוקה, פתח עיניים, רשום 2 תובנות (2 דק')
+```
+
+### שלב 2: שינוי generate-today-queue
+
+כשה-queue builder שולף פעולות מהאסטרטגיה, הוא יעביר את ה-`execution_steps` כחלק מה-QueueItem כך שהמודל יקבל אותם ישירות.
+
+שדה חדש ב-QueueItem:
+```
+executionSteps?: { label: string; detail?: string; durationSec: number }[]
+```
+
+### שלב 3: שינוי ExecutionModal
+
+- אם ה-action מגיע עם `executionSteps` מוכנים → **השתמש בהם ישירות** (ללא keyword matching)
+- אם אין → fallback ל-AI gateway שמייצר שלבים ספציפיים בזמן אמת (עם timeout של 5 שניות)
+- רק אם גם ה-AI נכשל → השתמש בתבניות הנוכחיות כ-fallback אחרון
+
+### שלב 4: תיקון keyword matching
+
+גם ב-fallback הנוכחי, נתקן את הבעיות:
+- הורדת regex רחב מדי (למשל `/cold|קר/` שתופס כל דבר עם "קר")
+- שימוש ב-`actionType` (שמגיע מהאסטרטגיה) כמפתח ראשי במקום חיפוש בכותרת
 
 ---
 
-## New Section Flow (7 sections)
+## פירוט טכני
 
-| # | Section | Purpose |
-|---|---------|---------|
-| 1 | **Hero** | Aurora HoloOrb center-stage (large, ~200px), orbiting domain icons (all 11 domains). Headline: "Your Life, Upgraded by AI." Clear value prop subtitle. Single primary CTA. |
-| 2 | **Two Worlds** (Core + Arena) | Side-by-side cards showing the 6 Core domains (Image, Power, Vitality, Focus, Combat, Expansion) and 5 Arena domains (Wealth, Influence, Relationships, Business, Projects). Each domain gets its icon + one-liner. Communicates breadth. |
-| 3 | **Aurora Coach** | Redesigned with AuroraHoloOrb (replacing PresetOrb). Chat preview showing cross-pillar intelligence. Feature bullets: 24/7 coaching, voice-to-text, personalized memory, hypnosis sessions. |
-| 4 | **How It Works** (3 steps) | Simple 3-step flow: 1) Take the Assessment (5 min) -> 2) Get Your 90-Day Plan -> 3) Execute Daily with Aurora. Clean, no fluff. |
-| 5 | **Feature Showcase Grid** | 6 cards: AI Coaching, Custom Hypnosis, Gamification (XP/Levels/Badges), Progress Dashboard, Personalized Orb Avatar, Combat Training. Each with icon + short description. |
-| 6 | **Before vs After** | Keep existing TransformationProofSection (authentic, no fake numbers). Minor polish. |
-| 7 | **Final CTA** | Aurora HoloOrb, strong headline, feature checklist, single CTA button. Remove countdown timer (felt manipulative). |
+### קבצים שישתנו
 
----
+1. **`supabase/functions/generate-90day-strategy/index.ts`**
+   - עדכון ה-AI prompt ב-Layer 2/3 לדרוש `execution_steps` לכל daily action
+   - כל שלב חייב להיות ספציפי, ברור, עם תיאור של מה בדיוק לעשות
 
-## Key Changes
+2. **`supabase/functions/generate-today-queue/index.ts`**
+   - העברת `execution_steps` מה-strategy data ל-queue item
+   - הוספת השדה לממשק QueueItem
 
-### Visual Identity
-- Replace all `PresetOrb` instances in homepage with `AuroraHoloOrb` (larger sizes: 120-200px)
-- Aurora HoloOrb becomes the hero visual -- no more generic WebGL orb
-- Keep orbiting domain icons but use all 11 domains from `CORE_DOMAINS` + `ARENA_DOMAINS`
+3. **`src/hooks/useNowEngine.ts`**
+   - הוספת `executionSteps` ל-interface `NowQueueItem`
 
-### Sections Removed
-- `FearOfMissingOutSection` (countdown timer to midnight -- feels dishonest)
-- `SystemArchitectureSection` (too technical)
-- `LifePillarsSection` (merged into "Two Worlds")
-- `FreeJourneyBannerSection` (no subscription/pricing talk)
-- `HandsFreeSection` (voice features folded into Aurora Coach section)
+4. **`src/components/dashboard/ExecutionModal.tsx`**
+   - שינוי `useEffect` שבונה steps: אם `action.executionSteps` קיים → השתמש בהם
+   - הוספת AI fallback (קריאה ל-generate-today-queue עם mode=execution_steps) שמקבל את הכותרת + הפילאר ומייצר שלבים מותאמים
+   - תיקון regex patterns ב-`getSpecificSteps` שמחזירים תוצאות שגויות
+   - הוספת הסברים ויזואליים ברורים יותר לכל שלב
 
-### Sections Added/Replaced
-- **"Two Worlds"** -- new component showing Core + Arena split with all domain icons
-- **"How It Works"** -- simple 3-step onboarding flow
-- **"Feature Showcase"** -- grid highlighting key platform capabilities
+5. **`src/hooks/useTodayExecution.ts`**
+   - עדכון הטיפוסים בהתאם לשדה החדש
 
-### Conversion Tactics (honest)
-- Single, repeated CTA: "Start Your Assessment" (links to `/onboarding`)
-- Trust signals: "5 minutes to start", "Cancel anytime", "Personalized from day 1"
-- Before/After section stays (authentic pain/gain framing)
-- No fake user counts, no fake testimonials, no countdown timers
+### זרימת הנתונים החדשה
 
----
+```text
+generate-90day-strategy
+  --> כל daily_action כולל execution_steps[]
+  --> נשמר ב-life_plans.plan_data.strategy.weeks[].daily_actions[]
 
-## Technical Plan
+generate-today-queue
+  --> שולף daily_actions עם execution_steps
+  --> מעביר כ-QueueItem.executionSteps
 
-### Files to Create
-1. `src/components/home/TwoWorldsSection.tsx` -- Core + Arena domain showcase
-2. `src/components/home/HowItWorksSection.tsx` -- 3-step flow
-3. `src/components/home/FeatureShowcaseSection.tsx` -- 6-card feature grid
+ExecutionModal
+  --> action.executionSteps קיים? --> הצג ישירות
+  --> לא קיים? --> קרא ל-AI gateway לייצר בזמן אמת
+  --> AI נכשל? --> fallback לתבניות keyword (מתוקנות)
+```
 
-### Files to Edit
-4. `src/components/home/GameHeroSection.tsx` -- Replace PresetOrb with large AuroraHoloOrb, use all 11 domains, simplify copy
-5. `src/components/home/AuroraCoachSection.tsx` -- Replace PresetOrb with AuroraHoloOrb, remove ego-state orbit (too esoteric for landing), keep chat preview
-6. `src/components/home/FinalCTASection.tsx` -- Replace PresetOrb with AuroraHoloOrb, remove "what you get" grid (moved to Feature Showcase), streamline
-7. `src/components/home/TransformationProofSection.tsx` -- Minor copy polish only
-8. `src/components/home/index.ts` -- Update exports
-9. `src/pages/Index.tsx` -- New section order: Hero -> TwoWorlds -> HowItWorks -> AuroraCoach -> FeatureShowcase -> TransformationProof -> FinalCTA
+### חשוב
 
-### Translation Keys
-- Will add inline bilingual strings (HE/EN) directly in components, following the existing pattern used in TransformationProofSection and FinalCTASection
-
-### No Database Changes
-- Purely frontend redesign
-
+- תוכניות קיימות ללא execution_steps ימשיכו לעבוד (fallback)
+- תוכניות חדשות (אחרי כיול מחדש) יכללו את השלבים המפורטים
+- ה-AI fallback ישתמש בנתוני האבחון + הפילאר לייצר הוראות ספציפיות ולא גנריות
