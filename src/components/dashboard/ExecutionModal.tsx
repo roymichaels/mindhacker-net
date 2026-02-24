@@ -35,6 +35,10 @@ const YOUTUBE_ACTIVITIES = [
 const VOICE_GUIDED_ACTIVITIES = [
   'meditation', 'breathwork', 'breathing', 'cold exposure', 'visualization',
   'body scan', 'progressive relaxation', 'mindfulness',
+  // Hebrew keywords
+  'מדיטציה', 'נשימה', 'נשימות', 'סריקת גוף', 'סריקה', 'הרפיה', 'דמיון מודרך',
+  'מיינדפולנס', 'מיקוד', 'הרגעה', 'ויזואליזציה', 'תודעה', 'נוכחות',
+  'שקט פנימי', 'מודעות', 'רגיעה', 'הפחתת מתח', 'תחושות',
 ];
 
 const COMBAT_ACTIVITIES = [
@@ -216,43 +220,173 @@ function getSpecificSteps(combined: string, dur: number, isRTL: boolean): Execut
   return null; // No specific match — fall through to generic
 }
 
-// ---- Voice guided breathing script ----
+// ---- Voice guided scripts by activity type ----
 
-const BREATHING_SCRIPT_HE = [
-  'שב בנוחות. עצום את העיניים.',
-  'נשימה עמוקה פנימה... 1... 2... 3... 4...',
-  'עצור... 1... 2... 3... 4...',
-  'נשוף החוצה לאט... 1... 2... 3... 4... 5... 6...',
-  'שוב. נשימה פנימה... הרגש את הריאות מתמלאות...',
-  'עצור... תן לגוף לספוג את החמצן...',
-  'נשוף... שחרר מתח... שחרר מחשבות...',
-  'ממשיכים. נשימה עמוקה...',
-  'עצירה...',
-  'נשיפה ארוכה...',
-  'אתה עושה עבודה מעולה. עוד כמה סבבים.',
-  'נשימה פנימה... הרגש את השקט...',
-  'עצור...',
-  'נשוף... שחרר הכל...',
-  'מצוין. אתה יכול לפתוח את העיניים כשאתה מוכן.',
-];
+type VoiceScriptType = 'body_scan' | 'breathing' | 'visualization' | 'mindfulness' | 'relaxation';
 
-const BREATHING_SCRIPT_EN = [
-  'Sit comfortably. Close your eyes.',
-  'Deep breath in... 1... 2... 3... 4...',
-  'Hold... 1... 2... 3... 4...',
-  'Exhale slowly... 1... 2... 3... 4... 5... 6...',
-  'Again. Breathe in... feel your lungs expanding...',
-  'Hold... let your body absorb the oxygen...',
-  'Exhale... release tension... release thoughts...',
-  'Continue. Deep breath in...',
-  'Hold...',
-  'Long exhale...',
-  'You\'re doing great. A few more rounds.',
-  'Breathe in... feel the stillness...',
-  'Hold...',
-  'Exhale... let it all go...',
-  'Wonderful. Open your eyes when you\'re ready.',
-];
+function detectScriptType(actionType: string, title: string): VoiceScriptType {
+  const combined = `${actionType} ${title}`.toLowerCase();
+  if (/body.?scan|סריקת גוף|סריקה|תחושות|scan/.test(combined)) return 'body_scan';
+  if (/visuali|דמיון מודרך|ויזואליזציה/.test(combined)) return 'visualization';
+  if (/mindful|מיינדפולנס|נוכחות|מודעות|תודעה/.test(combined)) return 'mindfulness';
+  if (/relax|הרפיה|הרגעה|רגיעה|מתח/.test(combined)) return 'relaxation';
+  return 'breathing';
+}
+
+const VOICE_SCRIPTS: Record<VoiceScriptType, { he: string[]; en: string[] }> = {
+  body_scan: {
+    he: [
+      'שכב על הגב בנוחות. עצום את העיניים.',
+      'קח 3 נשימות עמוקות... הרגש את הגוף שוקע לתוך המשטח.',
+      'הפנה את תשומת הלב לקודקוד הראש... מה אתה מרגיש שם?',
+      'יורד למצח... לרקות... שים לב אם יש מתח.',
+      'עיניים... לסת... שחרר כל לחיצה בלסת.',
+      'צוואר... כתפיים... הורד את הכתפיים רחוק מהאוזניים.',
+      'זרועות... כפות ידיים... אצבעות. הרגש כל אצבע.',
+      'חזה... הרגש את הנשימה עולה ויורדת.',
+      'בטן... שחרר את שרירי הבטן לגמרי.',
+      'גב תחתון... אגן... שחרר.',
+      'ירכיים... ברכיים... שוקיים.',
+      'כפות רגליים... אצבעות רגליים. הרגש את כל הגוף כמקשה אחת.',
+      'עכשיו סרוק את כל הגוף — איפה יש נקודות של מתח? של נעימות?',
+      'נשימה עמוקה... ועם הנשיפה, שחרר כל מה שמצאת.',
+      'קח רגע. פתח את העיניים כשאתה מוכן. רשום מה גילית.',
+    ],
+    en: [
+      'Lie down comfortably. Close your eyes.',
+      'Take 3 deep breaths... feel your body sinking into the surface.',
+      'Bring your attention to the top of your head... what do you feel there?',
+      'Move down to your forehead... temples... notice any tension.',
+      'Eyes... jaw... release any clenching in your jaw.',
+      'Neck... shoulders... drop your shoulders away from your ears.',
+      'Arms... palms... fingers. Feel each finger.',
+      'Chest... feel the breath rising and falling.',
+      'Belly... completely release your abdominal muscles.',
+      'Lower back... pelvis... let go.',
+      'Thighs... knees... calves.',
+      'Feet... toes. Feel your entire body as one.',
+      'Now scan your whole body — where is there tension? Pleasure?',
+      'Deep breath in... and with the exhale, release everything you found.',
+      'Take a moment. Open your eyes when ready. Note what you discovered.',
+    ],
+  },
+  breathing: {
+    he: [
+      'שב בנוחות. עצום את העיניים.',
+      'נשימה עמוקה פנימה... 1... 2... 3... 4...',
+      'עצור... 1... 2... 3... 4...',
+      'נשוף החוצה לאט... 1... 2... 3... 4... 5... 6...',
+      'שוב. נשימה פנימה... הרגש את הריאות מתמלאות...',
+      'עצור... תן לגוף לספוג את החמצן...',
+      'נשוף... שחרר מתח... שחרר מחשבות...',
+      'ממשיכים. נשימה עמוקה...',
+      'עצירה...',
+      'נשיפה ארוכה...',
+      'אתה עושה עבודה מעולה. עוד כמה סבבים.',
+      'נשימה פנימה... הרגש את השקט...',
+      'עצור...',
+      'נשוף... שחרר הכל...',
+      'מצוין. אתה יכול לפתוח את העיניים כשאתה מוכן.',
+    ],
+    en: [
+      'Sit comfortably. Close your eyes.',
+      'Deep breath in... 1... 2... 3... 4...',
+      'Hold... 1... 2... 3... 4...',
+      'Exhale slowly... 1... 2... 3... 4... 5... 6...',
+      'Again. Breathe in... feel your lungs expanding...',
+      'Hold... let your body absorb the oxygen...',
+      'Exhale... release tension... release thoughts...',
+      'Continue. Deep breath in...',
+      'Hold...',
+      'Long exhale...',
+      'You\'re doing great. A few more rounds.',
+      'Breathe in... feel the stillness...',
+      'Hold...',
+      'Exhale... let it all go...',
+      'Wonderful. Open your eyes when you\'re ready.',
+    ],
+  },
+  visualization: {
+    he: [
+      'שב בנוחות. עצום את העיניים. קח 3 נשימות עמוקות.',
+      'דמיין מקום שאתה מרגיש בו בטוח ושלו...',
+      'מה אתה רואה סביבך? צבעים, צורות, אור...',
+      'מה אתה שומע? קולות, שקט, מוזיקה...',
+      'מה אתה מרגיש על העור? רוח, חום, מגע...',
+      'עכשיו דמיין את עצמך בגרסה הטובה ביותר שלך...',
+      'איך אתה עומד? איך אתה מדבר? מה הביטוי בעיניים?',
+      'הרגש את הביטחון, את הכוח, את השקט הפנימי.',
+      'זה אתה. זה מי שאתה באמת.',
+      'קח את התמונה הזו איתך. נשום עמוק.',
+      'לאט לאט, חזור לחדר. פתח את העיניים.',
+    ],
+    en: [
+      'Sit comfortably. Close your eyes. Take 3 deep breaths.',
+      'Imagine a place where you feel safe and peaceful...',
+      'What do you see around you? Colors, shapes, light...',
+      'What do you hear? Sounds, silence, music...',
+      'What do you feel on your skin? Wind, warmth, touch...',
+      'Now visualize yourself at your very best...',
+      'How do you stand? How do you speak? What\'s the look in your eyes?',
+      'Feel the confidence, the strength, the inner calm.',
+      'This is you. This is who you really are.',
+      'Take this image with you. Breathe deeply.',
+      'Slowly, return to the room. Open your eyes.',
+    ],
+  },
+  mindfulness: {
+    he: [
+      'שב ישר. כפות הרגליים על הרצפה. ידיים על הברכיים.',
+      'עצום עיניים. שים לב לנשימה — בלי לשנות אותה.',
+      'רק צפה. אוויר נכנס... אוויר יוצא...',
+      'מחשבות יגיעו. זה בסדר. שים לב אליהן ותן להן ללכת.',
+      'חזור לנשימה. תמיד חזור לנשימה.',
+      'שים לב לקולות סביבך. אל תשפוט. רק שמע.',
+      'שים לב לתחושות בגוף. חום, קור, לחץ, קלילות.',
+      'כל מה שעולה — קבל אותו. אל תיאבק.',
+      'אתה כאן. עכשיו. זה כל מה שיש.',
+      'נשימה אחת עמוקה... ופתח את העיניים.',
+    ],
+    en: [
+      'Sit upright. Feet flat on the floor. Hands on your knees.',
+      'Close your eyes. Notice your breathing — without changing it.',
+      'Just observe. Air coming in... air going out...',
+      'Thoughts will come. That\'s okay. Notice them and let them go.',
+      'Return to the breath. Always return to the breath.',
+      'Notice the sounds around you. Don\'t judge. Just hear.',
+      'Notice sensations in your body. Warmth, cold, pressure, lightness.',
+      'Whatever arises — accept it. Don\'t fight.',
+      'You are here. Now. That\'s all there is.',
+      'One deep breath... and open your eyes.',
+    ],
+  },
+  relaxation: {
+    he: [
+      'שכב בנוחות. עצום עיניים. נשימה עמוקה.',
+      'כווץ את שרירי הפנים חזק... 5 שניות... ושחרר.',
+      'כתפיים — הרם אותן לאוזניים... 5 שניות... ושחרר.',
+      'אגרופים — כווץ חזק... 5 שניות... ושחרר. הרגש את ההבדל.',
+      'בטן — כווץ... 5 שניות... ושחרר.',
+      'רגליים — כווץ את כפות הרגליים... 5 שניות... ושחרר.',
+      'עכשיו הרגש את כל הגוף רפוי ומשוחרר.',
+      'נשימה עמוקה... כל נשיפה מעמיקה את ההרפיה.',
+      'אתה בטוח. אתה רגוע. אתה משוחרר.',
+      'כשאתה מוכן, פתח את העיניים לאט.',
+    ],
+    en: [
+      'Lie down comfortably. Close your eyes. Deep breath.',
+      'Tense your facial muscles tightly... 5 seconds... and release.',
+      'Shoulders — lift them to your ears... 5 seconds... and release.',
+      'Fists — clench hard... 5 seconds... and release. Feel the difference.',
+      'Belly — tense... 5 seconds... and release.',
+      'Legs — curl your toes... 5 seconds... and release.',
+      'Now feel your entire body loose and relaxed.',
+      'Deep breath... each exhale deepens the relaxation.',
+      'You are safe. You are calm. You are released.',
+      'When you\'re ready, slowly open your eyes.',
+    ],
+  },
+};
 
 // ---- Main Modal ----
 interface ExecutionModalProps {
@@ -273,6 +407,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const [steps, setSteps] = useState<ExecutionStep[]>([]);
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
   const [completing, setCompleting] = useState(false);
+  const [scriptType, setScriptType] = useState<VoiceScriptType>('breathing');
 
   // Voice guided state
   const [voiceState, setVoiceState] = useState<'idle' | 'playing' | 'paused' | 'complete'>('idle');
@@ -294,6 +429,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
 
     const actionMode = classifyAction(action.actionType, action.title);
     setMode(actionMode);
+    setScriptType(detectScriptType(action.actionType, action.title));
     setCheckedSteps(new Set());
     setVoiceState('idle');
     setVoiceLineIndex(0);
@@ -318,8 +454,9 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
   }, [open]);
 
-  // Voice guided playback
-  const voiceScript = isRTL ? BREATHING_SCRIPT_HE : BREATHING_SCRIPT_EN;
+  // Voice guided playback — dynamic script based on action type
+  const voiceScriptData = VOICE_SCRIPTS[scriptType];
+  const voiceScript = isRTL ? voiceScriptData.he : voiceScriptData.en;
 
   const startVoice = useCallback(() => {
     setVoiceState('playing');
@@ -618,8 +755,20 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
                     </h3>
                     <p className="text-muted-foreground text-sm">
                       {isRTL
-                        ? `${Math.floor(breathElapsed / 60)} דקות של נשימה מודעת. כל הכבוד.`
-                        : `${Math.floor(breathElapsed / 60)} minutes of conscious breathing. Well done.`}
+                        ? `${Math.floor(breathElapsed / 60)} דקות של ${
+                            scriptType === 'body_scan' ? 'סריקת גוף' :
+                            scriptType === 'visualization' ? 'דמיון מודרך' :
+                            scriptType === 'mindfulness' ? 'מיינדפולנס' :
+                            scriptType === 'relaxation' ? 'הרפיה עמוקה' :
+                            'נשימה מודעת'
+                          }. כל הכבוד.`
+                        : `${Math.floor(breathElapsed / 60)} minutes of ${
+                            scriptType === 'body_scan' ? 'body scanning' :
+                            scriptType === 'visualization' ? 'guided visualization' :
+                            scriptType === 'mindfulness' ? 'mindfulness practice' :
+                            scriptType === 'relaxation' ? 'deep relaxation' :
+                            'conscious breathing'
+                          }. Well done.`}
                     </p>
                   </motion.div>
                 )}
