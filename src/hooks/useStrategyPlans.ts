@@ -275,7 +275,9 @@ export function useStrategyPlans() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      // Guard: if the response is actually a MISSING_ASSESSMENT_DATA payload, don't celebrate
+      if (data?.error === 'MISSING_ASSESSMENT_DATA') return;
       queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
       queryClient.invalidateQueries({ queryKey: ['now-engine'] });
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
