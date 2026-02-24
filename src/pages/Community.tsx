@@ -88,6 +88,13 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
                 </p>
               )}
             </div>
+            <button
+              onClick={() => setSuggestOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              <MessageSquarePlus className="h-3.5 w-3.5" />
+              {isHe ? 'בקש נושא' : 'Suggest Topic'}
+            </button>
           </div>
 
           {/* Feed mode tabs */}
