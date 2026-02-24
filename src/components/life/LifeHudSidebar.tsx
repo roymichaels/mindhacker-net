@@ -220,9 +220,14 @@ export function LifeHudSidebar() {
                       "text-[9px] px-1.5 py-0.5 rounded-full border shrink-0",
                       isActive
                         ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
-                        : "bg-muted/40 text-muted-foreground border-border/20"
+                        : status === 'needs_reassessment'
+                          ? "bg-amber-500/20 text-amber-400 border-amber-500/20"
+                          : "bg-muted/40 text-muted-foreground border-border/20"
                     )}>
-                      {isHe ? (isActive ? 'פעיל' : 'הוגדר') : (isActive ? 'Active' : 'Set')}
+                      {isHe
+                        ? (isActive ? 'פעיל' : status === 'needs_reassessment' ? 'נדרש כיול' : 'הוגדר')
+                        : (isActive ? 'Active' : status === 'needs_reassessment' ? 'Needs Update' : 'Set')
+                      }
                     </span>
                   )}
                 </button>

@@ -164,15 +164,14 @@ export default function PowerAssess() {
 
       const assessment = buildPowerAssessment(selectedTracks, scores);
       const row = getDomain('power');
-      const existing = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
-      const history = [...(existing.history ?? [])];
-      if (existing.latest) history.push(existing.latest);
+      const existing = (row?.domain_config ?? {}) as Record<string, any>;
+      const legacyHistory = [...(existing.legacy_power_history ?? [])];
+      if (existing.latest) legacyHistory.push(existing.latest);
 
-      const newConfig: PowerDomainConfig = {
+      const newConfig: Record<string, any> = {
+        ...existing,
         latest: assessment,
-        history,
-        completed: existing.completed ?? false,
-        completed_at: existing.completed_at ?? null,
+        legacy_power_history: legacyHistory,
       };
 
       await upsertDomain.mutateAsync({

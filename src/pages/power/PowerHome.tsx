@@ -1,6 +1,7 @@
 /**
  * @tab Life > Power
  * PowerHome — Assessment CTA + Last assessment summary. Bilingual + RTL.
+ * Reads from unified `latest_assessment` (DomainAssessmentResult) shape.
  */
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { useNavigate } from 'react-router-dom';
@@ -8,18 +9,18 @@ import { Dumbbell, ArrowLeft, ChevronRight, ChevronLeft, ArrowRight } from 'luci
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import type { PowerDomainConfig } from '@/lib/power/types';
+import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { useState, useEffect } from 'react';
 import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 
 export default function PowerHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
-  const { getDomain, isLoading } = useLifeDomains();
+  const { statusMap, isLoading } = useLifeDomains();
+  const { config } = useDomainAssessment('power');
 
-  const row = getDomain('power');
-  const config = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
-  const latest = config.latest;
+  const latest = config.latest_assessment;
+  const status = statusMap['power'] ?? 'unconfigured';
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
@@ -27,10 +28,10 @@ export default function PowerHome() {
   const [assessOpen, setAssessOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !latest) {
+    if (!isLoading && !latest && status === 'unconfigured') {
       setAssessOpen(true);
     }
-  }, [isLoading, latest]);
+  }, [isLoading, latest, status]);
 
   if (isLoading) {
     return (
@@ -66,24 +67,24 @@ export default function PowerHome() {
             {t('power.assessmentDesc')}
           </p>
           <Button onClick={() => setAssessOpen(true)} className="w-full bg-red-600 hover:bg-red-700" size="lg">
-            {t('power.beginAssessment')} <ChevronIcon className="w-4 h-4 ms-1" />
+            {latest ? t('power.reAssess') : t('power.beginAssessment')} <ChevronIcon className="w-4 h-4 ms-1" />
           </Button>
         </div>
 
-        {/* Last Assessment Summary */}
+        {/* Last Assessment Summary (unified shape) */}
         {latest && (
           <div className="p-4 rounded-2xl border border-border bg-card">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('power.lastAssessment')}</p>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-baseline gap-2">
-                <span className={`text-3xl font-black ${latest.powerIndex >= 70 ? 'text-emerald-500' : latest.powerIndex >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
-                  {latest.powerIndex >= 0 ? latest.powerIndex : '—'}
+                <span className={`text-3xl font-black ${(latest.domain_index ?? 0) >= 70 ? 'text-emerald-500' : (latest.domain_index ?? 0) >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                  {latest.domain_index ?? '—'}
                 </span>
                 <span className="text-sm text-muted-foreground">{t('power.powerIndex')}</span>
               </div>
               <div className="text-end">
                 <p className="text-xs text-muted-foreground">
-                  {new Date(latest.assessedAt).toLocaleDateString()}
+                  {new Date(latest.assessed_at).toLocaleDateString()}
                 </p>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {t(`power.conf_${latest.confidence}`)}
@@ -110,9 +111,18 @@ export default function PowerHome() {
         )}
 
         {/* Completion */}
-        {config.completed && (
+        {(status === 'active' || status === 'configured') && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
             <p className="text-sm font-medium text-emerald-600">{t('power.assessmentComplete')}</p>
+          </div>
+        )}
+
+        {/* Needs reassessment */}
+        {status === 'needs_reassessment' && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+            <p className="text-sm font-medium text-amber-600">
+              {isRTL ? 'נדרש אבחון מחדש — הנתונים חסרים או ישנים' : 'Reassessment needed — data incomplete or outdated'}
+            </p>
           </div>
         )}
 

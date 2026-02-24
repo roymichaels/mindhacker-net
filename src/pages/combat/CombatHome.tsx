@@ -34,16 +34,16 @@ export default function CombatHome() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
   const { config, isLoading } = useCombatCoach();
-  const { getDomain } = useLifeDomains();
+  const { statusMap } = useLifeDomains();
   const [assessOpen, setAssessOpen] = useState(false);
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
   const ForwardIcon = isRTL ? ChevronLeft : ChevronRight;
 
-  const vitalityDomain = getDomain('vitality');
-  const focusDomain = getDomain('focus');
-  const vitalityComplete = !!(vitalityDomain?.domain_config as any)?.completed;
-  const focusComplete = !!(focusDomain?.domain_config as any)?.completed;
+  const vitalityStatus = statusMap['vitality'] ?? 'unconfigured';
+  const focusStatus = statusMap['focus'] ?? 'unconfigured';
+  const vitalityComplete = vitalityStatus === 'active' || vitalityStatus === 'configured';
+  const focusComplete = focusStatus === 'active' || focusStatus === 'configured';
   const isUnlocked = vitalityComplete && focusComplete;
 
   const latest = config.latest_assessment;

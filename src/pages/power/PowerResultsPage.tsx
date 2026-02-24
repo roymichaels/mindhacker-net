@@ -1,45 +1,33 @@
 /**
  * @tab Life > Power > Results
- * Power Index, subscores, findings, focus items, fix library, mark complete.
+ * Unified assessment results page — reads from latest_assessment (DomainAssessmentResult).
  */
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, Dumbbell, Target } from 'lucide-react';
+import { useDomainAssessment } from '@/hooks/useDomainAssessment';
+import { AlertTriangle, ArrowLeft, ArrowRight, Dumbbell, Target, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { PowerDomainConfig, ModuleScore, PowerFinding, FixItem } from '@/lib/power/types';
-import { useState } from 'react';
+import { DOMAIN_ASSESS_META } from '@/lib/domain-assess/types';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
 export default function PowerResultsPage() {
   const navigate = useNavigate();
   const { t, isRTL, language } = useTranslation();
-  const { getDomain, upsertDomain, isLoading } = useLifeDomains();
-  const [marking, setMarking] = useState(false);
+  const isHe = language === 'he';
+  const { config, isLoading } = useDomainAssessment('power');
 
-  const row = getDomain('power');
-  const config = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
-  const latest = config.latest;
+  const latest = config.latest_assessment;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const meta = DOMAIN_ASSESS_META['power'];
+  const lang = isHe ? 'he' : 'en';
 
-  const markComplete = async () => {
-    setMarking(true);
-    try {
-      const newConfig: PowerDomainConfig = {
-        ...config,
-        completed: true,
-        completed_at: new Date().toISOString(),
-      };
-      await upsertDomain.mutateAsync({
-        domainId: 'power',
-        config: newConfig as unknown as Record<string, any>,
-        status: 'configured',
-      });
-    } finally {
-      setMarking(false);
-    }
-  };
+  const scoreColor = (s: number) =>
+    s >= 70 ? 'text-emerald-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
+  const barColor = (s: number) =>
+    s >= 70 ? 'bg-emerald-500' : s >= 50 ? 'bg-amber-500' : 'bg-red-500';
 
   if (isLoading) {
     return (
@@ -67,14 +55,6 @@ export default function PowerResultsPage() {
     );
   }
 
-  const scoreColor = (s: number) =>
-    s >= 70 ? 'text-emerald-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
-  const barColor = (s: number) =>
-    s >= 70 ? 'bg-emerald-500' : s >= 50 ? 'bg-amber-500' : 'bg-red-500';
-
-  const moduleScores = Object.values(latest.moduleScores) as ModuleScore[];
-
-
   return (
     <PageShell>
       <div className="space-y-6 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -87,110 +67,92 @@ export default function PowerResultsPage() {
           <h1 className="text-xl font-bold text-foreground">{t('power.results')}</h1>
         </div>
 
-        {/* A) Power Index */}
+        {/* Overall Index */}
         <div className="p-6 rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-500/5 to-red-500/10 text-center">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t('power.powerIndex')}</p>
-          <span className={cn('text-5xl font-black', latest.powerIndex >= 0 ? scoreColor(latest.powerIndex) : 'text-muted-foreground')}>
-            {latest.powerIndex >= 0 ? latest.powerIndex : '—'}
+          <span className={cn('text-5xl font-black', scoreColor(latest.domain_index))}>
+            {latest.domain_index}
           </span>
           <div className="mt-2">
-            <span className={cn('text-[10px] px-2 py-0.5 rounded-full',
-              latest.confidence === 'high' ? 'bg-emerald-500/10 text-emerald-600' :
-              latest.confidence === 'med' ? 'bg-amber-500/10 text-amber-600' :
-              'bg-muted text-muted-foreground'
-            )}>
+            <Badge variant={latest.confidence === 'high' ? 'default' : 'secondary'} className="text-xs">
               {t(`power.conf_${latest.confidence}`)}
-            </span>
+            </Badge>
           </div>
-          {latest.powerIndex >= 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {latest.powerIndex >= 80 ? t('power.confidenceElite') : latest.powerIndex >= 60 ? t('power.confidenceStrong') : latest.powerIndex >= 40 ? t('power.confidenceModerate') : t('power.confidenceDeveloping')}
+        </div>
+
+        {/* Mirror Statement */}
+        {latest.mirror_statement && (
+          <Card className="p-5 border-red-500/20 bg-red-500/5">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-red-500" />
+              <h3 className="text-sm font-semibold text-red-500">
+                {isHe ? 'מה שאני רואה' : 'What I See'}
+              </h3>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed">
+              {latest.mirror_statement[lang]}
             </p>
-          )}
-        </div>
+          </Card>
+        )}
 
-        {/* B) Subscores */}
-        <div className="space-y-2">
-          <h3 className="font-bold text-sm text-foreground">{t('power.subscores')}</h3>
-          <div className="p-4 rounded-2xl border border-border bg-card space-y-3">
-            {moduleScores.map(ms => (
-              <div key={ms.trackId}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-foreground">{t(`power.track_${ms.trackId}`)}</span>
-                  <span className={cn('text-xs font-bold', ms.score >= 0 ? scoreColor(ms.score) : 'text-muted-foreground')}>
-                    {ms.score >= 0 ? `${ms.score}/100` : t('power.unassessed')}
-                  </span>
-                </div>
-                {ms.score >= 0 && (
-                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden" dir="ltr">
-                    <div className={cn('h-full rounded-full transition-all', barColor(ms.score))} style={{ width: `${ms.score}%` }} />
+        {/* Subscores */}
+        {meta && latest.subscores && (
+          <div className="space-y-2">
+            <h3 className="font-bold text-sm text-foreground">{t('power.subscores')}</h3>
+            <div className="p-4 rounded-2xl border border-border bg-card space-y-3">
+              {meta.subsystems.map(sub => {
+                const val = latest.subscores?.[sub.id] ?? 0;
+                return (
+                  <div key={sub.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                        <span>{sub.icon}</span> {t(sub.nameKey)}
+                      </span>
+                      <span className={cn('text-xs font-bold', scoreColor(val))}>
+                        {val}/100
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-muted overflow-hidden" dir="ltr">
+                      <div className={cn('h-full rounded-full transition-all', barColor(val))} style={{ width: `${val}%` }} />
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* C) Findings */}
-        {latest.findings.length > 0 && (
+        {/* Findings */}
+        {latest.findings && latest.findings.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
               <h3 className="font-bold text-sm text-foreground">{t('power.findings')}</h3>
             </div>
             <div className="p-4 rounded-2xl border border-border bg-card space-y-2">
-              {latest.findings.map((f: PowerFinding) => (
+              {latest.findings.map((f: any) => (
                 <div key={f.id} className="flex items-start gap-2">
                   <span className={cn('text-xs mt-0.5',
-                    f.severity === 'notable' ? 'text-red-500' : f.severity === 'moderate' ? 'text-amber-500' : 'text-muted-foreground'
+                    f.severity === 'high' ? 'text-red-500' : f.severity === 'med' ? 'text-amber-500' : 'text-muted-foreground'
                   )}>•</span>
-                  <p className="text-sm text-foreground">{language === 'he' ? f.textHe : f.text}</p>
+                  <p className="text-sm text-foreground">{isHe ? (f.text_he || f.textHe || f.text) : (f.text_en || f.text)}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* D) Top 3 Focus Items */}
-        {latest.focusItems.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-primary" />
-              <h3 className="font-bold text-sm text-foreground">{t('power.topFocus')}</h3>
+        {/* One Next Step */}
+        {latest.one_next_step && (
+          <Card className="p-4 border-emerald-500/30 bg-emerald-500/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-semibold text-emerald-400">
+                {isHe ? 'הצעד הבא' : 'One Next Step'}
+              </h3>
             </div>
-            <div className="space-y-2">
-              {latest.focusItems.map((item: FixItem, i: number) => (
-                <div key={item.id}
-                  className={cn('p-4 rounded-xl border',
-                    i === 0 ? 'border-red-500/40 bg-red-500/5' : 'border-border bg-card'
-                  )}>
-                  <span className={cn('text-[10px] uppercase font-bold tracking-wider',
-                    i === 0 ? 'text-red-500' : 'text-muted-foreground'
-                  )}>
-                    {i === 0 ? t('power.lever1') : i === 1 ? t('power.lever2') : t('power.lever3')}
-                  </span>
-                  <p className="text-sm font-bold text-foreground mt-1">{language === 'he' ? item.titleHe : item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{language === 'he' ? item.whyHe : item.why}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-
-        {/* F) Mark Complete */}
-        {!config.completed && (
-          <Button onClick={markComplete} disabled={marking} variant="outline"
-            className="w-full border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/5" size="lg">
-            <CheckCircle2 className="w-4 h-4 me-2" />
-            {marking ? t('common.saving') : t('power.markComplete')}
-          </Button>
-        )}
-
-        {config.completed && (
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-            <p className="text-sm font-medium text-emerald-600">{t('power.assessmentComplete')}</p>
-          </div>
+            <p className="text-sm text-foreground">{latest.one_next_step[lang]}</p>
+          </Card>
         )}
       </div>
     </PageShell>
