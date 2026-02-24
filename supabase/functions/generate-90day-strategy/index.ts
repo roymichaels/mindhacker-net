@@ -217,6 +217,32 @@ Total: 3 missions × 5 milestones × 5 mini-milestones = 75 daily actions spread
 ## STRUCTURE:
 ${structure}
 
+## EXECUTION TEMPLATES (CRITICAL):
+Each mini-milestone MUST include an "execution_template" and "action_type" field.
+Choose the template based on what the action physically involves:
+
+| Template | When to use |
+|----------|-------------|
+| tts_guided | Meditation, body scan, breathwork, visualization, relaxation, guided breathing, progressive muscle relaxation |
+| video_embed | Yoga, tai chi, qigong, pilates, stretching, mobility, foam rolling — movement practices best shown via video |
+| sets_reps_timer | Strength training, boxing, shadowboxing, HIIT, combat drills, calisthenics — anything with sets/reps/rounds |
+| step_by_step | Skincare, cooking, cleaning, journaling, reading, reflection, morning/evening routines — sequential tasks with instructions |
+| timer_focus | Deep work, studying, business tasks, project execution, financial planning, content creation — focused timed blocks |
+| social_checklist | Networking, relationship building, calls, meetings, social outreach, dating practice — interpersonal tasks |
+
+Mapping by pillar (use as guide, but override based on actual activity):
+- focus (meditation/breathwork/body scan) → tts_guided
+- focus (tai chi/yoga/qigong) → video_embed
+- power/combat (training/sets/reps) → sets_reps_timer
+- vitality (skincare/nutrition/sleep protocol) → step_by_step
+- expansion (reading/learning/courses) → timer_focus
+- wealth/business/projects → timer_focus
+- influence (content creation) → timer_focus
+- relationships/presence → social_checklist
+- consciousness (journaling/reflection) → step_by_step
+- play → step_by_step
+- order (routines/cleaning) → step_by_step
+
 ## RULES:
 - Each milestone gets exactly 5 mini-milestones (daily actionable tasks).
 - Mini-milestones must be completable in a single day/session.
@@ -224,6 +250,8 @@ ${structure}
 - Each mini-milestone under 15 words.
 - Hebrew must be natural.
 - Progressive difficulty within each milestone.
+- CRITICAL: Every mini-milestone MUST have execution_template and action_type.
+- action_type should be a snake_case identifier like "body_scan_15min", "shadowboxing_3_rounds", "deep_work_45min", "skincare_morning", etc.
 
 ## OUTPUT (JSON only, NO markdown):
 {
@@ -234,11 +262,11 @@ ${structure}
         {
           "title_en": "...",
           "minis": [
-            { "title_en": "Daily action 1", "title_he": "פעולה יומית 1" },
-            { "title_en": "Daily action 2", "title_he": "פעולה יומית 2" },
-            { "title_en": "Daily action 3", "title_he": "פעולה יומית 3" },
-            { "title_en": "Daily action 4", "title_he": "פעולה יומית 4" },
-            { "title_en": "Daily action 5", "title_he": "פעולה יומית 5" }
+            { "title_en": "Daily action 1", "title_he": "פעולה יומית 1", "execution_template": "timer_focus", "action_type": "deep_work_45min" },
+            { "title_en": "Daily action 2", "title_he": "פעולה יומית 2", "execution_template": "step_by_step", "action_type": "journaling_reflection" },
+            { "title_en": "Daily action 3", "title_he": "פעולה יומית 3", "execution_template": "tts_guided", "action_type": "body_scan_15min" },
+            { "title_en": "Daily action 4", "title_he": "פעולה יומית 4", "execution_template": "sets_reps_timer", "action_type": "pushup_circuit" },
+            { "title_en": "Daily action 5", "title_he": "פעולה יומית 5", "execution_template": "social_checklist", "action_type": "networking_outreach" }
           ]
         }
       ]

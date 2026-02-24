@@ -10,6 +10,8 @@ export interface ExecutionStep {
   durationSec: number;
 }
 
+export type ExecutionTemplate = 'tts_guided' | 'video_embed' | 'sets_reps_timer' | 'step_by_step' | 'timer_focus' | 'social_checklist';
+
 export interface NowQueueItem {
   pillarId: string;
   hub: 'core' | 'arena';
@@ -22,6 +24,7 @@ export interface NowQueueItem {
   sourceType: 'plan' | 'assessment' | 'template' | 'habit';
   sourceId?: string;
   executionSteps?: ExecutionStep[];
+  executionTemplate?: ExecutionTemplate;
 }
 
 export interface NowEngineData {
