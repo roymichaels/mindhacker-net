@@ -38,7 +38,8 @@ export const DEFAULT_VOICE: VoiceConfig = ELEVENLABS_VOICES[0]; // Sarah (Eleven
 
 /**
  * Synthesize speech using the appropriate TTS provider
- * Falls back through: ElevenLabs → OpenAI → Browser
+ * Falls back through: ElevenLabs → Browser
+ * (OpenAI TTS is not available via Lovable AI Gateway, so we skip it)
  */
 export async function synthesizeSpeech(
   text: string,
@@ -50,17 +51,11 @@ export async function synthesizeSpeech(
 ): Promise<{ audioUrl: string; usedFallback: boolean; provider: VoiceProvider } | null> {
   const { provider = 'elevenlabs', voice = 'sarah', speed = 1.0 } = options;
 
-  // Try ElevenLabs first
-  if (provider === 'elevenlabs' || provider === 'openai') {
-    const result = await tryElevenLabsTTS(text, voice, speed);
-    if (result) return result;
+  // Try ElevenLabs first (primary TTS provider)
+  const result = await tryElevenLabsTTS(text, voice, speed);
+  if (result) return result;
 
-    // Fallback to OpenAI
-    const openaiResult = await tryOpenAITTS(text, voice, speed);
-    if (openaiResult) return openaiResult;
-  }
-
-  // Final fallback to browser
+  // Final fallback to browser speech synthesis
   return tryBrowserFallback(text, speed);
 }
 
@@ -111,77 +106,8 @@ async function tryElevenLabsTTS(
   }
 }
 
-/**
- * Try OpenAI TTS via Lovable Gateway
- */
-async function tryOpenAITTS(
-  text: string,
-  voice: string,
-  speed: number
-): Promise<{ audioUrl: string; usedFallback: boolean; provider: VoiceProvider } | null> {
-  try {
-    // Map ElevenLabs voices to OpenAI equivalents
-    const openaiVoice = mapToOpenAIVoice(voice);
-
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ text, voice: openaiVoice, speed }),
-      }
-    );
-
-    // Check for fallback signal first
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) {
-      const data = await response.json().catch(() => ({}));
-      if (data.fallback) {
-        console.warn('OpenAI TTS signaled fallback');
-        return null;
-      }
-    }
-
-    if (!response.ok) {
-      throw new Error(`OpenAI TTS failed: ${response.status}`);
-    }
-
-    if (contentType?.includes('audio')) {
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      return { audioUrl, usedFallback: false, provider: 'openai' };
-    }
-
-    return null;
-
-  } catch (error) {
-    console.warn('OpenAI TTS error:', error);
-    return null;
-  }
-}
-
-/**
- * Map voice names to OpenAI voices
- */
-function mapToOpenAIVoice(voice: string): OpenAIVoice {
-  const voiceMap: Record<string, OpenAIVoice> = {
-    // ElevenLabs female → OpenAI female
-    'sarah': 'nova',
-    'laura': 'shimmer',
-    'matilda': 'nova',
-    'lily': 'shimmer',
-    // ElevenLabs male → OpenAI male
-    'roger': 'onyx',
-    'brian': 'echo',
-    'daniel': 'alloy',
-    'charlie': 'fable',
-  };
-  return voiceMap[voice.toLowerCase()] || (voice as OpenAIVoice) || 'nova';
-}
+// OpenAI TTS removed — Lovable AI Gateway doesn't support audio/TTS models.
+// The fallback chain is now: ElevenLabs → Browser speechSynthesis.
 
 /**
  * Try browser's built-in speech synthesis as fallback
