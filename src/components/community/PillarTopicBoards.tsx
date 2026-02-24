@@ -66,7 +66,7 @@ export default function PillarTopicBoards({ pillar, selectedTopic, onSelectTopic
           <TopicCard
             key={sub.id}
             sub={sub}
-            threadCount={0}
+            threadCount={topicCounts?.[sub.id] || 0}
             isHe={isHe}
             onClick={() => onSelectTopic(sub.id)}
           />
