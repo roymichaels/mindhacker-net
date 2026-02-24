@@ -29,7 +29,7 @@ function scoreColor(v: number): string {
 export default function ArenaDomainPage() {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
-  const { getDomain: getDomainRow, isLoading } = useLifeDomains();
+  const { statusMap, isLoading } = useLifeDomains();
   const { config } = useDomainAssessment(domainId ?? '');
   const { language, isRTL, t } = useTranslation();
   const isHe = language === 'he';
@@ -41,10 +41,10 @@ export default function ArenaDomainPage() {
   // Scope Aurora chat to this pillar so history persists
   usePillarContext(domainId || '');
 
-  const row = getDomainRow(domain?.id ?? '');
-  const status = row?.status ?? 'unconfigured';
+  
+  const status = statusMap[domain?.id ?? ''] ?? 'unconfigured';
 
-  // Auto-open assessment if unconfigured
+  // Auto-open assessment if unconfigured or needs reassessment
   useEffect(() => {
     if (!isLoading && domain && (status === 'unconfigured' || status === 'needs_reassessment')) {
       setAssessOpen(true);

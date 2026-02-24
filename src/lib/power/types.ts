@@ -1,7 +1,12 @@
 /**
  * @module lib/power/types
  * Power Pillar – Elite Strength & Skill Assessment Engine types.
+ * 
+ * NOTE: The canonical assessment shape is DomainAssessmentResult from domain-assess/types.
+ * Legacy PowerAssessment types are kept for backward compatibility with old data.
  */
+
+import type { DomainAssessmentConfig, DomainAssessmentResult } from '@/lib/domain-assess/types';
 
 /* ─── Track IDs (goal-based, not abstract) ─── */
 export type PowerTrackId =
@@ -101,7 +106,7 @@ export interface FixItem {
   tags: PowerTrackId[];
 }
 
-/* ─── Assessment ─── */
+/* ─── Legacy Assessment (old shape, pre-DomainAssessModal) ─── */
 export interface PowerAssessment {
   selectedTracks: PowerTrackId[];
   moduleScores: Record<string, ModuleScore>;
@@ -113,9 +118,7 @@ export interface PowerAssessment {
 }
 
 /* ─── Domain Config stored in life_domains ─── */
-export interface PowerDomainConfig {
-  latest: PowerAssessment | null;
-  history: PowerAssessment[];
-  completed: boolean;
-  completed_at: string | null;
+export interface PowerDomainConfig extends DomainAssessmentConfig {
+  /** @deprecated Legacy field — use latest_assessment instead */
+  latest?: PowerAssessment | null;
 }

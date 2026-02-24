@@ -1,28 +1,28 @@
 /**
  * @tab Life > Power > History
+ * Reads from unified DomainAssessmentResult history.
  */
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useLifeDomains } from '@/hooks/useLifeDomains';
+import { useDomainAssessment } from '@/hooks/useDomainAssessment';
 import { ArrowLeft, ArrowRight, Dumbbell } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { PowerDomainConfig, PowerAssessment } from '@/lib/power/types';
+import { Badge } from '@/components/ui/badge';
+import type { DomainAssessmentResult } from '@/lib/domain-assess/types';
 
 export default function PowerHistory() {
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
-  const { getDomain, isLoading } = useLifeDomains();
+  const { config, isLoading } = useDomainAssessment('power');
 
-  const row = getDomain('power');
-  const config = (row?.domain_config ?? {}) as unknown as PowerDomainConfig;
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
-  const allAssessments: PowerAssessment[] = [];
-  if (config.latest) allAssessments.push(config.latest);
+  const allAssessments: DomainAssessmentResult[] = [];
+  if (config.latest_assessment) allAssessments.push(config.latest_assessment);
   if (config.history) allAssessments.push(...config.history);
-  allAssessments.sort((a, b) => new Date(b.assessedAt).getTime() - new Date(a.assessedAt).getTime());
+  allAssessments.sort((a, b) => new Date(b.assessed_at).getTime() - new Date(a.assessed_at).getTime());
 
   const scoreColor = (s: number) =>
     s >= 70 ? 'text-emerald-500' : s >= 50 ? 'text-amber-500' : 'text-red-500';
@@ -56,26 +56,26 @@ export default function PowerHistory() {
               <div key={idx} className="p-4 rounded-xl border border-border bg-card">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-baseline gap-2">
-                    <span className={cn('text-2xl font-black', a.powerIndex >= 0 ? scoreColor(a.powerIndex) : 'text-muted-foreground')}>
-                      {a.powerIndex >= 0 ? a.powerIndex : '—'}
+                    <span className={cn('text-2xl font-black', scoreColor(a.domain_index))}>
+                      {a.domain_index}
                     </span>
-                    <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full',
-                      a.confidence === 'high' ? 'bg-emerald-500/10 text-emerald-600' :
-                      a.confidence === 'med' ? 'bg-amber-500/10 text-amber-600' :
-                      'bg-muted text-muted-foreground'
-                    )}>{t(`power.conf_${a.confidence}`)}</span>
+                    <Badge variant={a.confidence === 'high' ? 'default' : 'secondary'} className="text-xs">
+                      {t(`power.conf_${a.confidence}`)}
+                    </Badge>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(a.assessedAt).toLocaleDateString()}
+                    {new Date(a.assessed_at).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {a.selectedTracks.map(m => (
-                    <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      {t(`power.track_${m}`)}
-                    </span>
-                  ))}
-                </div>
+                {a.subscores && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {Object.entries(a.subscores).map(([key, val]) => (
+                      <span key={key} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {key}: {val as number}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
