@@ -8,6 +8,8 @@ import { useAllDomainsComplete } from '@/hooks/useAllDomainsComplete';
 import { PillarSynthesisModal } from '@/components/dashboard/PillarSynthesisModal';
 import { useSidebars } from '@/hooks/useSidebars';
 import { flowAudit } from '@/lib/flowAudit';
+import { HudSidebar } from '@/components/dashboard/HudSidebar';
+import { RoadmapSidebar } from '@/components/dashboard/RoadmapSidebar';
 
 const UserDashboard = lazy(() => import('@/pages/UserDashboard'));
 
@@ -16,10 +18,10 @@ export default function DashboardLayoutWrapper() {
   const { shouldTriggerSynthesis } = useAllDomainsComplete();
   const [synthesisOpen, setSynthesisOpen] = useState(false);
 
-  // Set sidebars via context: null for un-onboarded, undefined (defaults) for onboarded
+  // Explicitly set sidebars like Arena/Core do
   useSidebars(
-    isLaunchpadComplete ? undefined : null,
-    isLaunchpadComplete ? undefined : null
+    isLaunchpadComplete ? <HudSidebar /> : null,
+    isLaunchpadComplete ? <RoadmapSidebar /> : null
   );
 
   useEffect(() => {
