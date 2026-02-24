@@ -1,167 +1,86 @@
 
-Goal: prevent any pillar plan (especially Combat) from being generated unless required assessment data is truly complete, and force a missing-data modal flow that asks the user the missing questions before generation continues.
 
-What I found in the current codebase
-1) Plan generation is not hard-gated by assessment completeness
-- In `supabase/functions/generate-90day-strategy/index.ts`, when assessment is missing/weak, `resolveAssessmentBlock()` falls back to “best practices” and still generates a plan.
-- This is why a combat plan can be created before required conditioning metrics are captured.
+# Add Required Assessment Metrics for ALL 14 Pillars
 
-2) Frontend “Generate Plan” actions do not pre-check missing assessment fields
-- `generateStrategy.mutate(...)` is called directly from:
-  - `src/components/hubs/DailyMilestones.tsx`
-  - `src/components/execution/TodayExecutionSection.tsx`
-  - `src/components/missions/PillarModal.tsx`
-  - auto-add path in `src/hooks/useDomainAssessment.ts`
-- There is no mandatory “collect missing answers first” gate in these entry points.
+## Problem
+Currently only 4 pillars (combat, power, vitality, focus) have `DOMAIN_REQUIRED_METRICS` defined in the assessment quality contract. The remaining 10 pillars (consciousness, presence, expansion, wealth, influence, relationships, business, projects, play, order) have NO required metrics -- meaning they pass the quality gate with just basic subscores and willingness, even though the AI needs real data (income numbers, relationship patterns, etc.) to generate a meaningful plan.
 
-3) Legacy config shape causes false “completed” signals
-- I verified in DB that at least one pillar (`power`) has `domain_config.latest` (legacy) but not `domain_config.latest_assessment`.
-- Some UI still checks legacy fields (e.g. `src/pages/power/PowerHome.tsx` uses `config.latest`), so the user can appear “assessed” while strategy engine receives incomplete/legacy data.
+This is why pillars like "Projects" and "Play" generate plans with generic content -- no hard data was required or captured.
 
-4) Assessment extraction loses important planning constraints
-- `supabase/functions/domain-assess/index.ts` tool schema requires `willingness`, but `src/components/domain-assess/DomainAssessChat.tsx` currently saves only a subset (subscores/findings/mirror/next_step/confidence) and drops willingness and richer completeness metadata.
-- This weakens downstream personalization and hard-rule filtering.
+## Solution
 
-5) Combat assessment is not enforcing mandatory hard metrics
-- Combat system prompt is conversational and broad, but not strictly enforcing must-have fields like max sets / round capacity before allowing completion.
+### 1. Define required metrics for ALL 14 pillars in `assessment-quality.ts`
 
-Implementation plan
+Each pillar will get a `DOMAIN_REQUIRED_METRICS` entry with specific fields and questions the user MUST answer before plan generation:
 
-Phase 1 — Introduce a strict “Assessment Quality Contract” per pillar
-Files:
-- `supabase/functions/_shared/assessment-quality.ts` (new shared helper)
-- `supabase/functions/generate-90day-strategy/index.ts`
-- `supabase/functions/generate-phase-actions/index.ts` (same gate for on-demand minis)
+| Pillar | Required Metrics | Key Questions |
+|--------|-----------------|---------------|
+| **consciousness** | `consciousness_metrics` | Daily self-reflection practice? Journaling frequency? Awareness of emotional triggers? |
+| **presence** | `presence_metrics` | Current skincare routine? Last intentional style purchase? Posture awareness level? |
+| **power** | `power_metrics` | (already defined -- training type, frequency, max pullups/pushups, bodyweight) |
+| **vitality** | `vitality_metrics` | (already defined -- sleep hours/times, diet type, caffeine) |
+| **focus** | `focus_metrics` | (already defined -- deep work hours, screen time, meditation) |
+| **combat** | `combat_metrics` | (already defined -- disciplines, frequencies, round capacity, maxes) |
+| **expansion** | `expansion_metrics` | Books read per month? Languages spoken? Current learning project? Creative output frequency? |
+| **wealth** | `wealth_metrics` | Monthly income range? Savings rate? Active income streams? Debt status? |
+| **influence** | `influence_metrics` | Team/people managed? Public speaking frequency? Content creation? Network size estimate? |
+| **relationships** | `relationships_metrics` | Close friends count? Relationship status? Conflict frequency? Support network quality? |
+| **business** | `business_metrics` | Business exists (yes/no)? Monthly revenue? Team size? Years in operation? |
+| **projects** | `projects_metrics` | Active projects count? Completion rate? Average project duration? Biggest blocker? |
+| **play** | `play_metrics` | Weekly play hours? Types of play activities? Last vacation? Rest guilt level? |
+| **order** | `order_metrics` | Cleaning frequency? Unread emails count? Digital organization level? Minimalism score? |
 
-Actions:
-1. Define deterministic required fields per pillar.
-- Global minimum:
-  - `latest_assessment` exists
-  - `assessed_at` exists
-  - all subsystem scores present
-- Combat-specific mandatory metrics:
-  - e.g. `max_pushups`, `max_pullups`, `max_air_squats`, `round_length`, `rounds_capacity`, `rest_between_rounds`, `sparring_frequency` (names finalized to match stored schema)
-- Vitality/Power mandatory sets similarly based on their domain contracts.
+### 2. Update each pillar's system prompt in `domain-assess/index.ts`
 
-2. Add a validator that returns:
-- `isReady: boolean`
-- `missingFields: string[]`
-- `missingQuestions: { field, question_he, question_en }[]`
-- `reasonCode` (e.g. `MISSING_REQUIRED_ASSESSMENT_DATA`)
+For every pillar that currently lacks a `MANDATORY HARD METRICS` block (all except combat), add one -- same pattern as combat's existing block. This instructs the AI to collect those specific numbers/facts before calling `extract_domain_profile`.
 
-3. In strategy generation, hard-fail when required inputs are missing.
-- Return structured 400 response containing missing pillars and required questions.
-- Do not silently fallback to generic goals when data is insufficient.
+### 3. Update `domain_metrics` description in the extraction tool
 
-4. In phase-action generation, apply same validation.
-- Prevent mini generation from running on low-quality pillar assessment state.
+The `domain_metrics` field description in `buildExtractTool()` currently only lists combat/power/vitality/focus examples. Expand it to cover all 14 pillars so the model knows what to extract for each domain.
 
-Result:
-- No plan generation if required assessment data isn’t truly present.
+### 4. Frontend preflight already works
 
-Phase 2 — Enforce required-question completion in Domain Assessment flow
-Files:
-- `supabase/functions/domain-assess/index.ts`
-- `src/components/domain-assess/DomainAssessChat.tsx`
-- `src/hooks/useDomainAssessment.ts` (if needed for metadata shape)
+The existing flow in `useStrategyPlans.ts` and `DailyMilestones.tsx` already catches `MISSING_ASSESSMENT_DATA` errors and opens the `DomainAssessModal`. Once the backend validator has proper required metrics for all pillars, this existing gate will automatically trigger for any pillar missing data.
 
-Actions:
-1. Extend extraction tool schema with required assessment metadata:
-- `coverage.required_fields_answered`
-- `coverage.missing_fields`
-- domain-specific `metrics` object (especially for Combat performance numbers)
-- keep `willingness` mandatory.
+## Files Modified
 
-2. Server-side completion guard:
-- If tool call arrives without required fields, instruct model to continue questioning instead of finalizing.
-- Ensure “extract_domain_profile” only accepted when required fields are populated.
+| File | Change |
+|------|--------|
+| `supabase/functions/_shared/assessment-quality.ts` | Add `DOMAIN_REQUIRED_METRICS` entries for all 10 missing pillars (consciousness, presence, expansion, wealth, influence, relationships, business, projects, play, order) |
+| `supabase/functions/domain-assess/index.ts` | Add `MANDATORY HARD METRICS` blocks to system prompts for all 10 pillars that don't have them; expand `domain_metrics` description in `buildExtractTool()` to list all 14 pillar metric fields |
 
-3. Save full extraction payload in `domain_config.latest_assessment`.
-- Include willingness + coverage + required metrics.
-- Avoid dropping fields currently discarded in `DomainAssessChat.handleToolCall`.
+## Technical Details
 
-Result:
-- Assessment cannot close early with missing mandatory metrics.
+### assessment-quality.ts additions (example for wealth)
 
-Phase 3 — Add “Missing Questions” popup gate before any plan generation trigger
-Files:
-- `src/hooks/useStrategyPlans.ts`
-- `src/components/hubs/DailyMilestones.tsx`
-- `src/components/execution/TodayExecutionSection.tsx`
-- `src/components/missions/PillarModal.tsx`
-- `src/components/domain-assess/DomainAssessModal.tsx` (optional prop extension)
+```typescript
+wealth: {
+  fields: ['wealth_metrics'],
+  questions: [
+    { field: 'wealth_metrics.monthly_income_range', question_he: 'מה טווח ההכנסה החודשית שלך?', question_en: 'What is your monthly income range?' },
+    { field: 'wealth_metrics.income_streams', question_he: 'כמה מקורות הכנסה יש לך?', question_en: 'How many income streams do you have?' },
+    { field: 'wealth_metrics.savings_rate', question_he: 'כמה אחוז מההכנסה אתה חוסך?', question_en: 'What percentage of income do you save?' },
+    { field: 'wealth_metrics.debt_status', question_he: 'יש לך חובות? באיזה היקף?', question_en: 'Do you have debt? How much?' },
+    { field: 'wealth_metrics.financial_goal', question_he: 'מה היעד הפיננסי שלך ל-12 חודשים?', question_en: 'What is your financial goal for 12 months?' },
+  ],
+},
+```
 
-Actions:
-1. In `useStrategyPlans.generateStrategy`, call a backend preflight (same validator logic) before invoke.
-2. If backend returns missing requirements:
-- return structured error object with missing pillars/questions.
-3. In UI callers, catch this specific error and:
-- open `DomainAssessModal` for first missing pillar automatically,
-- show concise mandatory-message (“Missing required answers before plan generation”),
-- optionally queue remaining pillars for sequential completion.
+### domain-assess/index.ts prompt addition (example for wealth)
 
-Result:
-- User is always prompted for missing answers instead of receiving incomplete plans.
+```text
+MANDATORY HARD METRICS (YOU MUST COLLECT ALL BEFORE CALLING extract_domain_profile):
+1. "What is your monthly income range?" -> monthly_income_range
+2. "How many income streams?" -> income_streams (number)
+3. "What % do you save?" -> savings_rate
+4. "Any debt?" -> debt_status
+5. "12-month financial goal?" -> financial_goal
+```
 
-Phase 4 — Legacy data normalization (critical for current users)
-Files:
-- `src/hooks/useLifeDomains.ts` (read normalization)
-- `supabase/functions/_shared/assessment-normalize.ts` (shared)
-- optional one-time backend utility function for migration
+Same pattern applied to all remaining pillars.
 
-Actions:
-1. Normalize legacy domain_config shapes at read time:
-- map `latest` -> `latest_assessment` when safely possible.
-- mark `completed=false` if required quality contract still fails.
-2. For impossible legacy mappings, require reassessment via modal.
-3. Ensure no screen uses legacy-only field checks for gating readiness.
-
-Result:
-- Existing users with old data are correctly forced through missing questions, not silently treated as complete.
-
-Phase 5 — Combat-specific hard requirements + UX messaging
-Files:
-- `supabase/functions/domain-assess/index.ts` (combat prompt/tool schema)
-- `src/components/domain-assess/DomainAssessChat.tsx` (UX helper chips)
-
-Actions:
-1. Add explicit combat required capture order:
-- training mode + discipline
-- max set capacity block
-- round performance block
-- live pressure/sparring block
-2. If user skips numeric answer, assistant must re-ask directly.
-3. Show “required remaining” indicator in assessment modal (e.g., 2/7 pending) so user sees why it cannot finalize.
-
-Result:
-- Combat plan cannot be created without maximum-set/round capacity data.
-
-Acceptance criteria
-1) Plan generation is blocked with structured missing-data response if any required assessment field is missing.
-2) Clicking Generate always opens missing assessment modal flow when needed (instead of generating).
-3) Domain assessment cannot finalize until required questions are answered for that pillar.
-4) Combat requires max sets + rounds + pressure metrics before completion.
-5) Legacy pillars with old schema are either normalized or explicitly forced to reassess.
-6) Stored `latest_assessment` includes willingness + coverage + required metrics for downstream plan engines.
-
-Technical risks and mitigations
-- Risk: strict gating may block users with old data.
-  - Mitigation: normalization layer + clear reassessment prompts + per-pillar migration fallback.
-- Risk: too-rigid required fields for edge users (injury/no gym/no sparring).
-  - Mitigation: required fields can accept constrained values (`"not possible"`) but must be explicitly captured.
-- Risk: multiple generate entry points drift.
-  - Mitigation: centralize preflight in `useStrategyPlans` and backend validator shared helper.
-
-Rollout order
-1) Backend validator + strategy hard gate
-2) Frontend generate preflight + modal trigger
-3) Domain-assess completion guard + full payload persistence
-4) Legacy normalization
-5) Combat hard-metric enforcement polish + UI progress indicator
-
-Validation plan
-- Case A: user with missing combat max sets -> Generate should fail, combat modal opens, asks required questions.
-- Case B: user with legacy `latest` only (power) -> marked incomplete until reassessed/normalized.
-- Case C: fully completed user -> Generate succeeds, no gating interruption.
-- Case D: on-demand mini generation for incomplete milestone pillar -> blocked until assessment quality passes.
-- Case E: willingness constraints present in saved assessment and visible in generated protocol outputs.
+## Impact
+- Every pillar now has a defined "data contract" -- no plan generation until real data is captured
+- Existing preflight gate (DomainAssessModal popup) automatically triggers for any pillar with missing metrics
+- Assessment conversations become more structured and produce actionable planning data
+- Users who already completed assessments without these metrics will be prompted to supplement their data before next plan generation
