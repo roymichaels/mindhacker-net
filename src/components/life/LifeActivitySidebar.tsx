@@ -122,7 +122,8 @@ export function LifeActivitySidebar() {
       ]);
     } catch (e: any) {
       if (e?.missingPillars?.length) {
-        setAssessDomainId(e.missingPillars[0].pillar);
+        const firstMissing = e.missingPillars[0]?.pillarId || e.missingPillars[0]?.pillar;
+        if (firstMissing) setAssessDomainId(firstMissing);
         toast.info(isHe ? 'נדרשים נתונים חסרים לפני כיול מחדש' : 'Missing assessment data required before recalibration');
       } else {
         console.error('Recalibration failed:', e);

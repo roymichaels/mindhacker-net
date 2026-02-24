@@ -186,26 +186,58 @@ export function useStrategyPlans() {
         },
       });
 
-      // Check data FIRST — Supabase functions.invoke populates data even on non-2xx
-      if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+      const buildMissingAssessmentError = (missing: any[] = []) => {
         const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
-        missingError.missingPillars = data.missing_pillars || [];
-        throw missingError;
+        missingError.code = 'MISSING_ASSESSMENT_DATA';
+        missingError.missingPillars = missing;
+        return missingError;
+      };
+
+      const parseMaybeJson = (value: unknown): any | null => {
+        if (!value || typeof value !== 'string') return null;
+        try {
+          return JSON.parse(value);
+        } catch {
+          return null;
+        }
+      };
+
+      // Supabase may return structured error in `data` on non-2xx
+      if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+        throw buildMissingAssessmentError(data.missing_pillars || []);
       }
 
-      // Then check for other errors
       if (error) {
-        // Try to parse the error body for MISSING_ASSESSMENT_DATA
-        try {
-          const errBody = typeof error === 'object' && (error as any).context ? JSON.parse((error as any).context?.body || '{}') : {};
-          if (errBody.error === 'MISSING_ASSESSMENT_DATA') {
-            const missingError = new Error('MISSING_ASSESSMENT_DATA') as any;
-            missingError.missingPillars = errBody.missing_pillars || [];
-            throw missingError;
+        const errorAny = error as any;
+
+        // Case 1: context is a Fetch Response
+        if (typeof errorAny?.context?.clone === 'function') {
+          const responsePayload = await errorAny.context
+            .clone()
+            .json()
+            .catch(() => null);
+
+          if (responsePayload?.error === 'MISSING_ASSESSMENT_DATA') {
+            throw buildMissingAssessmentError(responsePayload.missing_pillars || []);
           }
-        } catch (parseErr) {
-          if ((parseErr as any)?.message === 'MISSING_ASSESSMENT_DATA') throw parseErr;
         }
+
+        // Case 2: context.body is JSON string
+        const contextBodyPayload = parseMaybeJson(errorAny?.context?.body);
+        if (contextBodyPayload?.error === 'MISSING_ASSESSMENT_DATA') {
+          throw buildMissingAssessmentError(contextBodyPayload.missing_pillars || []);
+        }
+
+        // Case 3: message includes JSON payload after status text
+        const message = typeof errorAny?.message === 'string' ? errorAny.message : '';
+        const jsonStart = message.indexOf('{');
+        if (jsonStart >= 0) {
+          const messagePayload = parseMaybeJson(message.slice(jsonStart));
+          if (messagePayload?.error === 'MISSING_ASSESSMENT_DATA') {
+            throw buildMissingAssessmentError(messagePayload.missing_pillars || []);
+          }
+        }
+
         throw error;
       }
 
@@ -225,7 +257,7 @@ export function useStrategyPlans() {
     },
     onError: (error: any) => {
       // Don't show toast for MISSING_ASSESSMENT_DATA — handled by UI callers
-      if (error?.message === 'MISSING_ASSESSMENT_DATA') return;
+      if (error?.message === 'MISSING_ASSESSMENT_DATA' || error?.code === 'MISSING_ASSESSMENT_DATA') return;
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to generate strategy',
