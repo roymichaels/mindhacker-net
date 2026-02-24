@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
+import { BreathingGuide } from '@/components/hypnosis/BreathingGuide';
 import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio } from '@/services/voice';
 import { useHaptics } from '@/hooks/useHaptics';
 
@@ -280,6 +281,11 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
   const voiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playingRef = useRef(false);
 
+  // Breathing timer state
+  const [breathElapsed, setBreathElapsed] = useState(0);
+  const breathStartRef = useRef<number>(0);
+  const breathIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const orbSize = isMobile ? 120 : 160;
 
   // Classify and build content when action changes
@@ -307,6 +313,8 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       stopCurrentAudio();
       stopBrowserSpeech();
       if (voiceTimerRef.current) clearTimeout(voiceTimerRef.current);
+      if (breathIntervalRef.current) clearInterval(breathIntervalRef.current);
+      setBreathElapsed(0);
     }
   }, [open]);
 
@@ -317,6 +325,12 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     setVoiceState('playing');
     playingRef.current = true;
     setVoiceLineIndex(0);
+    setBreathElapsed(0);
+    breathStartRef.current = Date.now();
+    // Start elapsed timer
+    breathIntervalRef.current = setInterval(() => {
+      setBreathElapsed(Math.floor((Date.now() - breathStartRef.current) / 1000));
+    }, 1000);
     speakLine(0);
   }, []);
 
@@ -324,13 +338,14 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     if (!playingRef.current || index >= voiceScript.length) {
       setVoiceState('complete');
       playingRef.current = false;
+      if (breathIntervalRef.current) clearInterval(breathIntervalRef.current);
       return;
     }
     setVoiceLineIndex(index);
     const text = voiceScript[index];
 
     try {
-      await synthesizeSpeech(text);
+      if (!isMuted) await synthesizeSpeech(text);
     } catch {
       // Browser TTS fallback handled internally
     }
@@ -341,7 +356,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
         speakLine(index + 1);
       }
     }, 4000);
-  }, [voiceScript, language]);
+  }, [voiceScript, language, isMuted]);
 
   const toggleVoice = () => {
     if (voiceState === 'idle') {
@@ -351,10 +366,15 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
       stopCurrentAudio();
       stopBrowserSpeech();
       if (voiceTimerRef.current) clearTimeout(voiceTimerRef.current);
+      if (breathIntervalRef.current) clearInterval(breathIntervalRef.current);
       setVoiceState('paused');
     } else if (voiceState === 'paused') {
       playingRef.current = true;
       setVoiceState('playing');
+      breathStartRef.current = Date.now() - breathElapsed * 1000;
+      breathIntervalRef.current = setInterval(() => {
+        setBreathElapsed(Math.floor((Date.now() - breathStartRef.current) / 1000));
+      }, 1000);
       speakLine(voiceLineIndex);
     }
   };
@@ -476,63 +496,133 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
         <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide" dir={isRTL ? 'rtl' : 'ltr'}>
           <AnimatePresence mode="wait">
 
-            {/* ---- VOICE GUIDED MODE ---- */}
+            {/* ---- VOICE GUIDED MODE (Immersive Breathing) ---- */}
             {mode === 'voice' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center space-y-6 min-h-[300px]"
+                className="flex flex-col items-center justify-center min-h-[380px] py-4"
               >
-                {/* Orb */}
-                <div
-                  className="relative flex items-center justify-center"
-                  style={{ width: orbSize + 60, height: orbSize + 60 }}
-                >
-                  <PersonalizedOrb
-                    size={orbSize}
-                    state={voiceState === 'playing' ? 'speaking' : 'idle'}
-                    showGlow={voiceState === 'playing'}
-                  />
-                </div>
-
-                {/* Current line */}
-                <motion.p
-                  key={voiceLineIndex}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-lg font-medium max-w-md leading-relaxed px-4"
-                >
-                  {voiceState === 'idle'
-                    ? (isRTL ? 'לחץ Play כדי להתחיל סשן מודרך' : 'Press Play to start a guided session')
-                    : voiceState === 'complete'
-                      ? (isRTL ? '✨ סשן הסתיים. כל הכבוד.' : '✨ Session complete. Well done.')
-                      : voiceScript[voiceLineIndex]
-                  }
-                </motion.p>
-
-                {/* Voice controls */}
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsMuted(!isMuted)}
-                    className="rounded-full"
+                {/* Idle / Start screen */}
+                {voiceState === 'idle' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center space-y-6 text-center"
                   >
-                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  </Button>
+                    <div
+                      className="relative flex items-center justify-center"
+                      style={{ width: orbSize + 60, height: orbSize + 60 }}
+                    >
+                      <PersonalizedOrb size={orbSize} state="idle" showGlow={false} />
+                    </div>
+                    <p className="text-muted-foreground text-sm max-w-xs">
+                      {isRTL
+                        ? 'שב בנוחות, עצום עיניים, ולחץ כדי להתחיל'
+                        : 'Sit comfortably, close your eyes, and press to begin'}
+                    </p>
+                    <Button
+                      size="lg"
+                      onClick={toggleVoice}
+                      className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30"
+                    >
+                      <Play className="h-7 w-7 ms-0.5" />
+                    </Button>
+                  </motion.div>
+                )}
 
-                  <Button
-                    size="lg"
-                    onClick={toggleVoice}
-                    disabled={voiceState === 'complete'}
-                    className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-accent"
+                {/* Active breathing session */}
+                {(voiceState === 'playing' || voiceState === 'paused') && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center space-y-5 w-full"
                   >
-                    {voiceState === 'playing'
-                      ? <Pause className="h-6 w-6" />
-                      : <Play className="h-6 w-6 ms-0.5" />
-                    }
-                  </Button>
-                </div>
+                    {/* Breathing Guide Circle */}
+                    <BreathingGuide
+                      isActive={voiceState === 'playing'}
+                      pattern={[4, 4, 4, 4]}
+                      language={language as 'he' | 'en'}
+                      className="my-2"
+                    />
+
+                    {/* Elapsed timer */}
+                    <div className="text-center">
+                      <span className="text-3xl font-mono font-light tabular-nums tracking-wider">
+                        {Math.floor(breathElapsed / 60).toString().padStart(2, '0')}
+                        <span className="animate-pulse">:</span>
+                        {(breathElapsed % 60).toString().padStart(2, '0')}
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        / {action?.durationMin ?? 5} {isRTL ? 'דק׳' : 'min'}
+                      </p>
+                    </div>
+
+                    {/* Current voice guidance line */}
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={voiceLineIndex}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="text-center text-sm text-muted-foreground max-w-xs leading-relaxed px-4 min-h-[3rem]"
+                      >
+                        {voiceScript[voiceLineIndex]}
+                      </motion.p>
+                    </AnimatePresence>
+
+                    {/* Controls */}
+                    <div className="flex items-center gap-5 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsMuted(!isMuted)}
+                        className="rounded-full h-10 w-10"
+                      >
+                        {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                      </Button>
+
+                      <Button
+                        size="lg"
+                        onClick={toggleVoice}
+                        className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30"
+                      >
+                        {voiceState === 'playing'
+                          ? <Pause className="h-7 w-7" />
+                          : <Play className="h-7 w-7 ms-0.5" />
+                        }
+                      </Button>
+
+                      <div className="w-10" /> {/* Symmetry spacer */}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Complete screen */}
+                {voiceState === 'complete' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center space-y-5 text-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: 'spring' }}
+                      className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center"
+                    >
+                      <span className="text-4xl">✨</span>
+                    </motion.div>
+                    <h3 className="text-xl font-bold">
+                      {isRTL ? 'סשן הושלם' : 'Session Complete'}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      {isRTL
+                        ? `${Math.floor(breathElapsed / 60)} דקות של נשימה מודעת. כל הכבוד.`
+                        : `${Math.floor(breathElapsed / 60)} minutes of conscious breathing. Well done.`}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
