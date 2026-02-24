@@ -369,10 +369,10 @@ const ORB_FRAGMENT_SHADER = `
 
     // === 7. Brightness floor — NEVER allow dark orbs ===
     float brightness = dot(finalColor, vec3(0.299, 0.587, 0.114));
-    if (brightness < 0.25) {
+    if (brightness < 0.35) {
       // Boost toward base color to maintain hue, not just inject blue
-      finalColor = mix(finalColor, baseColor * 0.8, (0.25 - brightness) / 0.25);
-      finalColor = max(finalColor, baseColor * 0.35);
+      finalColor = mix(finalColor, baseColor * 1.2, (0.35 - brightness) / 0.35);
+      finalColor = max(finalColor, baseColor * 0.5);
     }
 
     gl_FragColor = vec4(finalColor, 0.92);
@@ -529,6 +529,8 @@ export const WebGLOrb = forwardRef<OrbRef, OrbProps>(function WebGLOrb(
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // CRITICAL: Use LinearSRGBColorSpace so our shader's sRGB output isn't double-gamma-encoded
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
