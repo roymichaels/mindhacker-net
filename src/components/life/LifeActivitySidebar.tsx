@@ -53,7 +53,7 @@ export function LifeActivitySidebar() {
   const coreDomainIds = CORE_DOMAINS.map(d => d.id);
   const coreEntries = Object.entries(statusMap).filter(([id]) => coreDomainIds.includes(id));
   const totalDomains = CORE_DOMAINS.length;
-  const activeDomains = coreEntries.filter(([, s]) => s === 'active').length;
+  const activeDomains = coreEntries.filter(([, s]) => s === 'active' || s === 'configured').length;
 
   const coreHabits = (habits || []).filter(h => {
     const pillar = (h as any).pillar;

@@ -52,7 +52,7 @@ export function ArenaActivitySidebar() {
   const arenaDomainIds = ARENA_DOMAINS.map(d => d.id);
   const arenaEntries = Object.entries(statusMap).filter(([id]) => arenaDomainIds.includes(id));
   const totalDomains = ARENA_DOMAINS.length;
-  const activeDomains = arenaEntries.filter(([, s]) => s === 'active').length;
+  const activeDomains = arenaEntries.filter(([, s]) => s === 'active' || s === 'configured').length;
 
   const activeProjects = projects.filter(p => p.status === 'active').length;
   const completedProjects = projects.filter(p => p.status === 'completed').length;
