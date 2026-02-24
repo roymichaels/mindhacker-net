@@ -36,14 +36,25 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
   };
 
   const activeColorMap: Record<string, string> = {
-    emerald: 'bg-emerald-500/15 border-emerald-500/30',
-    purple: 'bg-purple-500/15 border-purple-500/30',
-    sky: 'bg-sky-500/15 border-sky-500/30',
-    amber: 'bg-amber-500/15 border-amber-500/30',
-    orange: 'bg-orange-500/15 border-orange-500/30',
-    rose: 'bg-rose-500/15 border-rose-500/30',
-    violet: 'bg-violet-500/15 border-violet-500/30',
-    teal: 'bg-teal-500/15 border-teal-500/30',
+    emerald: 'bg-emerald-500/20 border-emerald-500/30',
+    purple: 'bg-purple-500/20 border-purple-500/30',
+    sky: 'bg-sky-500/20 border-sky-500/30',
+    amber: 'bg-amber-500/20 border-amber-500/30',
+    orange: 'bg-orange-500/20 border-orange-500/30',
+    rose: 'bg-rose-500/20 border-rose-500/30',
+    violet: 'bg-violet-500/20 border-violet-500/30',
+    teal: 'bg-teal-500/20 border-teal-500/30',
+  };
+
+  const inactiveColorMap: Record<string, string> = {
+    emerald: 'bg-emerald-500/8 border-emerald-500/15 hover:bg-emerald-500/15',
+    purple: 'bg-purple-500/8 border-purple-500/15 hover:bg-purple-500/15',
+    sky: 'bg-sky-500/8 border-sky-500/15 hover:bg-sky-500/15',
+    amber: 'bg-amber-500/8 border-amber-500/15 hover:bg-amber-500/15',
+    orange: 'bg-orange-500/8 border-orange-500/15 hover:bg-orange-500/15',
+    rose: 'bg-rose-500/8 border-rose-500/15 hover:bg-rose-500/15',
+    violet: 'bg-violet-500/8 border-violet-500/15 hover:bg-violet-500/15',
+    teal: 'bg-teal-500/8 border-teal-500/15 hover:bg-teal-500/15',
   };
 
   const activeProjects = projects.filter(p => p.status === 'active');
@@ -146,7 +157,7 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
                     "p-2 rounded-lg border transition-colors",
                     status === 'active'
                       ? activeColorMap[domain.color]
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
                   )}
                   title={isHe ? domain.labelHe : domain.labelEn}
                 >
@@ -205,16 +216,16 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
                     "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
                     isActive
                       ? `${activeColorMap[domain.color]} shadow-sm`
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
                   )}
                 >
                   <domain.icon className={cn("w-4 h-4 shrink-0", domainColorMap[domain.color])} />
                   <div className="flex-1 min-w-0">
-                    <span className={cn("text-xs font-medium", isActive ? domainColorMap[domain.color] : 'text-foreground')}>
+                    <span className={cn("text-xs font-semibold", domainColorMap[domain.color])}>
                       {isHe ? domain.labelHe : domain.labelEn}
                     </span>
                     {hasMissions && (
-                      <Progress value={progress} className="h-1 mt-1 [&>div]:bg-amber-400" />
+                      <Progress value={progress} className="h-1 mt-1" />
                     )}
                   </div>
                   {status !== 'unconfigured' && (
