@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PersonalizedOrb from '@/components/orb/PersonalizedOrb';
 import { BreathingGuide } from '@/components/hypnosis/BreathingGuide';
-import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio } from '@/services/voice';
+import { synthesizeSpeech, stopBrowserSpeech, stopCurrentAudio, playAudioUrl } from '@/services/voice';
 import { useHaptics } from '@/hooks/useHaptics';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -352,8 +352,25 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
     setVoiceLineIndex(index);
     try {
-      if (!isMuted) await synthesizeSpeech(voiceScript[index]);
+      if (!isMuted) {
+        const result = await synthesizeSpeech(voiceScript[index]);
+        if (result?.audioUrl && playingRef.current) {
+          await playAudioUrl(result.audioUrl, {
+            onEnd: () => {
+              if (playingRef.current) speakLine(index + 1);
+            },
+            onError: () => {
+              // On error, still advance after a short delay
+              voiceTimerRef.current = setTimeout(() => {
+                if (playingRef.current) speakLine(index + 1);
+              }, 2000);
+            },
+          });
+          return; // playAudioUrl handles advancing via onEnd
+        }
+      }
     } catch { /* fallback handled */ }
+    // If muted or no audio result, advance after a pause
     voiceTimerRef.current = setTimeout(() => {
       if (playingRef.current) speakLine(index + 1);
     }, 4000);
