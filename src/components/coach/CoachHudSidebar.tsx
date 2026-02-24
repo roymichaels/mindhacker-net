@@ -84,7 +84,7 @@ export function CoachHudSidebar({ activeTab = 'dashboard', onTabChange }: CoachH
       "backdrop-blur-xl bg-gradient-to-b from-card/80 via-background/60 to-card/80",
       "dark:from-gray-900/90 dark:via-gray-950/70 dark:to-gray-900/90",
       "ltr:border-s rtl:border-e border-border/50 dark:border-purple-500/15",
-      collapsed ? "w-16 min-w-[64px]" : "fixed inset-0 z-50 w-full lg:relative lg:inset-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
+      collapsed ? "w-16 min-w-[64px]" : "fixed top-14 bottom-14 inset-x-0 z-50 w-full lg:relative lg:top-auto lg:bottom-auto lg:inset-x-auto lg:z-auto lg:w-[280px] xl:w-[300px]"
     )}>
       {/* Collapse toggle */}
       <button
