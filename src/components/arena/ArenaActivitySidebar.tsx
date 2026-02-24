@@ -3,7 +3,7 @@
  * Amber/orange color scheme.
  * Mirrors Dashboard's RoadmapSidebar style.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
@@ -21,7 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneDetailModal } from '@/components/dashboard/MilestoneDetailModal';
-
+import { DomainAssessModal } from '@/components/domain-assess/DomainAssessModal';
 const PHASE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const TOTAL_PHASES = 10;
 
@@ -104,6 +104,8 @@ export function ArenaActivitySidebar() {
     { icon: Briefcase, value: completedProjects, label: isHe ? 'הושלמו' : 'Completed', color: 'text-emerald-400' },
   ];
 
+  const [assessDomainId, setAssessDomainId] = useState<string | null>(null);
+
   const handleRecalibrate = async () => {
     if (!user?.id || recalibrating) return;
     try {
@@ -113,9 +115,14 @@ export function ArenaActivitySidebar() {
         queryClient.invalidateQueries({ queryKey: ['milestones'] }),
         queryClient.invalidateQueries({ queryKey: ['strategy-plans'] }),
       ]);
-    } catch (e) {
-      console.error('Recalibration failed:', e);
-      toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+    } catch (e: any) {
+      if (e?.missingPillars?.length) {
+        setAssessDomainId(e.missingPillars[0].pillar);
+        toast.info(isHe ? 'נדרשים נתונים חסרים לפני כיול מחדש' : 'Missing assessment data required before recalibration');
+      } else {
+        console.error('Recalibration failed:', e);
+        toast.error(isHe ? 'שגיאה בכיול מחדש' : 'Recalibration failed');
+      }
     }
   };
 
@@ -422,6 +429,14 @@ export function ArenaActivitySidebar() {
         onOpenChange={(o) => !o && setSelectedMilestone(null)}
         milestone={selectedMilestone}
       />
+
+      {assessDomainId && (
+        <DomainAssessModal
+          open={!!assessDomainId}
+          onOpenChange={(o) => !o && setAssessDomainId(null)}
+          domainId={assessDomainId}
+        />
+      )}
     </>
   );
 }
