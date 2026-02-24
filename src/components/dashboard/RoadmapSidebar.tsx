@@ -51,7 +51,7 @@ export function RoadmapSidebar() {
 
   // Stats
   const allDomainIds = Object.keys(statusMap);
-  const activeDomains = Object.values(statusMap).filter(s => s === 'active').length;
+  const activeDomains = Object.values(statusMap).filter(s => s === 'active' || s === 'configured').length;
   const totalDomains = allDomainIds.length || 14;
 
   const statItems = [
