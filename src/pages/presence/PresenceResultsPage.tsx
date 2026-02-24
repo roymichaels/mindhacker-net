@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FindingsList from '@/components/presence/FindingsList';
-import FixLibrary from '@/components/presence/FixLibrary';
-import TopPriorities from '@/components/presence/TopPriorities';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -65,13 +63,6 @@ export default function PresenceResultsPage() {
     }
   };
 
-  const handleFocusChange = async (selectedIds: string[]) => {
-    try {
-      await saveFocusItems(selectedIds);
-    } catch {
-      toast.error('Failed to save focus items.');
-    }
-  };
 
   const BackIcon = isRTL ? ChevronRight : ArrowLeft;
 
@@ -146,18 +137,6 @@ export default function PresenceResultsPage() {
           <FindingsList findings={latest.findings} />
         )}
 
-        {/* E) Top 3 Priorities */}
-        <TopPriorities
-          priorities={latest.top_priorities}
-          selectedIds={config.focus_items_selected ?? []}
-          onToggle={handleFocusChange}
-        />
-
-        {/* D) Fix Library */}
-        <FixLibrary
-          selectedIds={config.focus_items_selected ?? []}
-          onSelectionChange={handleFocusChange}
-        />
 
         {/* Disclaimer */}
         <p className="text-[10px] text-muted-foreground text-center">

@@ -7,10 +7,9 @@ import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLifeDomains } from '@/hooks/useLifeDomains';
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, Dumbbell, Star, Target, Wrench } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, Dumbbell, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PowerDomainConfig, ModuleScore, PowerFinding, FixItem } from '@/lib/power/types';
-import { FIX_LIBRARY } from '@/lib/power/scoring';
 import { useState } from 'react';
 
 export default function PowerResultsPage() {
@@ -75,9 +74,6 @@ export default function PowerResultsPage() {
 
   const moduleScores = Object.values(latest.moduleScores) as ModuleScore[];
 
-  // Group fix library by tier
-  const fixByTier = (tier: 1 | 2 | 3) =>
-    FIX_LIBRARY.filter(f => f.tier === tier && f.tags.some(tag => latest.selectedTracks.includes(tag)));
 
   return (
     <PageShell>
@@ -181,39 +177,6 @@ export default function PowerResultsPage() {
           </div>
         )}
 
-        {/* E) Fix Library */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-muted-foreground" />
-            <h3 className="font-bold text-sm text-foreground">{t('power.fixLibrary')}</h3>
-          </div>
-          {([1, 2, 3] as const).map(tier => {
-            const items = fixByTier(tier);
-            if (items.length === 0) return null;
-            return (
-              <div key={tier} className="space-y-1.5">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  {t(`power.tier${tier}`)}
-                </p>
-                {items.map(item => (
-                  <div key={item.id} className="p-3 rounded-lg border border-border bg-card">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium text-foreground">{language === 'he' ? item.titleHe : item.title}</p>
-                      <div className="flex gap-1">
-                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full',
-                          item.impact === 'high' ? 'bg-emerald-500/10 text-emerald-600' :
-                          item.impact === 'med' ? 'bg-amber-500/10 text-amber-600' :
-                          'bg-muted text-muted-foreground'
-                        )}>{t(`power.impact_${item.impact}`)}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{language === 'he' ? item.whyHe : item.why}</p>
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
 
         {/* F) Mark Complete */}
         {!config.completed && (
