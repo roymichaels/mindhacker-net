@@ -28,17 +28,35 @@ export function LifeHudSidebar() {
     rose: 'text-rose-400', red: 'text-red-400', amber: 'text-amber-400',
     violet: 'text-violet-400', emerald: 'text-emerald-400', slate: 'text-slate-400',
     indigo: 'text-indigo-400', orange: 'text-orange-400',
+    blue: 'text-blue-400', fuchsia: 'text-fuchsia-400', cyan: 'text-cyan-400',
   };
 
   const activeColorMap: Record<string, string> = {
-    rose: 'bg-rose-500/15 border-rose-500/30',
-    red: 'bg-red-500/15 border-red-500/30',
-    amber: 'bg-amber-500/15 border-amber-500/30',
-    violet: 'bg-violet-500/15 border-violet-500/30',
-    emerald: 'bg-emerald-500/15 border-emerald-500/30',
-    slate: 'bg-slate-500/15 border-slate-500/30',
-    indigo: 'bg-indigo-500/15 border-indigo-500/30',
-    orange: 'bg-orange-500/15 border-orange-500/30',
+    rose: 'bg-rose-500/20 border-rose-500/30',
+    red: 'bg-red-500/20 border-red-500/30',
+    amber: 'bg-amber-500/20 border-amber-500/30',
+    violet: 'bg-violet-500/20 border-violet-500/30',
+    emerald: 'bg-emerald-500/20 border-emerald-500/30',
+    slate: 'bg-slate-500/20 border-slate-500/30',
+    indigo: 'bg-indigo-500/20 border-indigo-500/30',
+    orange: 'bg-orange-500/20 border-orange-500/30',
+    blue: 'bg-blue-500/20 border-blue-500/30',
+    fuchsia: 'bg-fuchsia-500/20 border-fuchsia-500/30',
+    cyan: 'bg-cyan-500/20 border-cyan-500/30',
+  };
+
+  const inactiveColorMap: Record<string, string> = {
+    rose: 'bg-rose-500/8 border-rose-500/15 hover:bg-rose-500/15',
+    red: 'bg-red-500/8 border-red-500/15 hover:bg-red-500/15',
+    amber: 'bg-amber-500/8 border-amber-500/15 hover:bg-amber-500/15',
+    violet: 'bg-violet-500/8 border-violet-500/15 hover:bg-violet-500/15',
+    emerald: 'bg-emerald-500/8 border-emerald-500/15 hover:bg-emerald-500/15',
+    slate: 'bg-slate-500/8 border-slate-500/15 hover:bg-slate-500/15',
+    indigo: 'bg-indigo-500/8 border-indigo-500/15 hover:bg-indigo-500/15',
+    orange: 'bg-orange-500/8 border-orange-500/15 hover:bg-orange-500/15',
+    blue: 'bg-blue-500/8 border-blue-500/15 hover:bg-blue-500/15',
+    fuchsia: 'bg-fuchsia-500/8 border-fuchsia-500/15 hover:bg-fuchsia-500/15',
+    cyan: 'bg-cyan-500/8 border-cyan-500/15 hover:bg-cyan-500/15',
   };
 
   // Fetch missions for progress display
@@ -139,7 +157,7 @@ export function LifeHudSidebar() {
                     "p-2 rounded-lg border transition-colors",
                     status === 'active'
                       ? activeColorMap[domain.color]
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
                   )}
                   title={isHe ? domain.labelHe : domain.labelEn}
                 >
@@ -185,16 +203,16 @@ export function LifeHudSidebar() {
                     "w-full rounded-xl p-2.5 flex items-center gap-2.5 transition-all border text-start",
                     isActive
                       ? `${activeColorMap[domain.color]} shadow-sm`
-                      : "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10"
+                      : (inactiveColorMap[domain.color] || "bg-muted/30 dark:bg-muted/15 border-border/20 hover:bg-accent/10")
                   )}
                 >
                   <domain.icon className={cn("w-4 h-4 shrink-0", domainColorMap[domain.color])} />
                   <div className="flex-1 min-w-0">
-                    <span className={cn("text-xs font-medium", isActive ? domainColorMap[domain.color] : 'text-foreground')}>
+                    <span className={cn("text-xs font-semibold", domainColorMap[domain.color])}>
                       {isHe ? domain.labelHe : domain.labelEn}
                     </span>
                     {hasMissions && (
-                      <Progress value={progress} className="h-1 mt-1 [&>div]:bg-rose-400" />
+                      <Progress value={progress} className="h-1 mt-1" />
                     )}
                   </div>
                   {status !== 'unconfigured' && (
