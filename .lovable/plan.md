@@ -1,136 +1,127 @@
 
-# מערכת תבניות ביצוע (Execution Templates)
 
-## הבעיה הנוכחית
+# שדרוג תוכן משימות עם AI בזמן אמת
 
-כל המשימות מסווגות ב-runtime על ידי regex שמנסה לנחש מה סוג המשימה. זה גורם ל:
-- משימות מדיטציה שמופיעות כצ'קליסט רגיל
-- משימות עסקיות שמקבלות תבנית חשיפה לקור
-- כל דבר שלא מזוהה נופל ל-3 שלבים גנריים ("הכנה / ביצוע / סגירה")
+## הבעיה
 
-## הפתרון: תבניות קבועות מראש
-
-כל משימה תקבל **סוג תבנית** (`execution_template`) כבר ברגע שהאסטרטגיה נוצרת. כשהמשתמש לוחץ על משימה, המודל יודע מיד איזה חוויה להציג.
-
-### 6 תבניות ביצוע
-
-| תבנית | מתי | מה קורה במודל |
-|--------|------|----------------|
-| `tts_guided` | מדיטציה, סריקת גוף, נשימות, ויזואליזציה, הרפיה | אורב + עיגול נשימה + סקריפט TTS מונחה (כמו מודל ההיפנוזה) — AI מייצר סקריפט מותאם בזמן אמת |
-| `video_embed` | יוגה, טאי צ'י, צ'יגונג, פילאטיס, מתיחות | סרטון YouTube משובץ + צ'קליסט שלבים מתחת |
-| `sets_reps_timer` | אימון כוח, לחימה, HIIT, shadowboxing | טיימר סטים/חזרות עם מנוחות — ספירה אוטומטית, רטט בין סטים |
-| `step_by_step` | טיפוח, בישול, ניקיון, יומן, קריאה | רשימת שלבים אינטראקטיבית עם הסבר מפורט לכל שלב |
-| `timer_focus` | עבודה עמוקה, למידה, פרויקט, עסקים | טיימר Pomodoro + מסך ריכוז מינימלי (אין הסחות) |
-| `social_checklist` | יחסים, נטוורקינג, שיחות, נוכחות | צ'קליסט + טיפים חברתיים + תזכורת סגירה |
-
-### איך זה עובד
+התבניות (templates) עובדות — המודל מציג את ה-UI הנכון (טיימר, סטים, TTS). אבל **התוכן בתוך כל תבנית עדיין גנרי**: "הכנה / ביצוע / סגירה". 
 
 ```text
-generate-90day-strategy (Layer 3)
-  --> כל daily_action מקבל execution_template + action_type
-  --> נשמר ב-plan_data
+למשל: "השגת רמת בסיס של הידרציה (2 ליטר מים ביום)"
+מקבל: הכנה → ביצוע 12 דקות → סגירה
 
-generate-today-queue
-  --> מעביר את execution_template ל-QueueItem
-  --> אם חסר (תוכניות ישנות) --> קובע לפי pillar + actionType
-
-ExecutionModal
-  --> קורא action.executionTemplate
-  --> מפעיל את הקומפוננטה המתאימה:
-
-     tts_guided     --> TTS + Orb + BreathingGuide + AI Script
-     video_embed    --> YouTube iframe + steps
-     sets_reps_timer --> WorkoutTimer (חדש) עם סטים/מנוחות/רטט
-     step_by_step   --> StepWizard (חדש) עם הסברים מפורטים
-     timer_focus    --> FocusTimer (חדש) בסגנון Pomodoro
-     social_checklist --> צ'קליסט + טיפים
+צריך לקבל:
+  1. מלא בקבוק 750מ"ל ושים ליד העבודה (60 שניות)
+  2. שתה כוס מלאה עכשיו — 250מ"ל (30 שניות)
+  3. הגדר תזכורת כל 90 דקות (60 שניות)
+  4. עקוב: כמה שתית עד עכשיו? רשום. (60 שניות)
+  5. יעד ערב: לפחות 1.5 ליטר עד 18:00 (30 שניות)
 ```
+
+הסיבה: הפונקציה `generateExecutionSteps` ב-`generate-today-queue` משתמשת ב-regex + תבניות סטטיות קבועות מראש.
+
+## הפתרון: AI Content Generation עם Timeout + Fallback
+
+כשמשתמש לוחץ על משימה, המערכת:
+1. מציגה מיד את ה-UI הנכון (תבנית) עם שלבים סטטיים (מה שיש עכשיו)
+2. ברקע, שולחת קריאת AI ליצירת שלבים מפורטים ומותאמים
+3. אם AI מגיב תוך 8 שניות — מחליפה את השלבים בתוכן המפורט
+4. אם לא — נשארת עם ה-fallback הסטטי (מה שיש היום)
+
+```text
+המשתמש לוחץ "התחל משימה"
+        |
+        v
+  [מציג UI מיידי עם שלבים סטטיים]
+        |
+        +---> [קריאת AI ברקע — 8 שניות timeout]
+        |         |
+        |     מצליח? → מחליף שלבים בתוכן AI מפורט
+        |         |
+        |     נכשל/timeout? → נשאר עם fallback סטטי
+        v
+  [המשתמש מתחיל לעבוד]
+```
+
+## מה ישתנה
+
+### 1. Edge Function חדשה: `generate-execution-steps`
+פונקציה קלה שמקבלת: `title`, `pillar`, `execution_template`, `action_type`, `duration_min`, `language`
+
+ומחזירה שלבי ביצוע מפורטים שנוצרו על ידי AI:
+- לכל תבנית, הפרומפט שונה (סטים+חזרות לאימון, שלבים מפורטים לרוטינה, וכו')
+- כולל `label`, `detail`, `durationSec` לכל שלב
+- ל-`sets_reps_timer`: כולל `sets`, `reps`, `restSec` לכל תרגיל
+- ל-`tts_guided`: מייצר סקריפט TTS מותאם אישית במקום סקריפטים סטטיים
+
+### 2. שדרוג `ExecutionModal.tsx`
+- כשנפתח, מציג מיד את השלבים הסטטיים (כמו עכשיו)
+- שולח קריאה ל-`generate-execution-steps` ברקע
+- אם מגיע תוך 8 שניות — מחליף את השלבים בצורה חלקה (אנימציה)
+- מראה אינדיקטור "מייצר תוכן מותאם..." בזמן שממתין
+- ל-`tts_guided`: מחליף את הסקריפטים הסטטיים בסקריפט AI מותאם
+
+### 3. שיפור השלבים הסטטיים ב-`generate-today-queue`
+- שדרוג ה-fallback templates שיהיו יותר ספציפיים (עדיין סטטיים, אבל טובים יותר)
+- הוספת שלבים ספציפיים לתבניות חסרות (הידרציה, שינה, וכו')
 
 ## פירוט טכני
 
-### 1. שינוי ב-`generate-90day-strategy` (Layer 3 Prompt)
-
-הוספת שדה `execution_template` ו-`action_type` לכל mini-milestone ב-Layer 3 Prompt:
+### Edge Function: `generate-execution-steps`
 
 ```text
-## RULES:
-- Each mini-milestone MUST include:
-  - execution_template: one of "tts_guided", "video_embed", 
-    "sets_reps_timer", "step_by_step", "timer_focus", "social_checklist"
-  - action_type: specific activity identifier (e.g. "body_scan", 
-    "shadowboxing_3_rounds", "deep_work_45min")
+Input:
+{
+  title: "השגת רמת בסיס של הידרציה (2 ליטר מים ביום)",
+  pillar: "vitality",
+  execution_template: "step_by_step",
+  action_type: "hydration_baseline",
+  duration_min: 15,
+  language: "he"
+}
+
+Output:
+{
+  steps: [
+    { label: "מלא בקבוק 750מ\"ל", detail: "שים ליד שולחן העבודה...", durationSec: 60 },
+    { label: "שתה כוס מלאה עכשיו", detail: "250מ\"ל — לאט...", durationSec: 30 },
+    ...
+  ],
+  tts_script?: ["שורה 1...", "שורה 2..."]  // רק עבור tts_guided
+}
 ```
 
-Mapping rules בפרומפט:
-- Focus pillar (meditation, breathwork, body scan) --> `tts_guided`
-- Focus pillar (tai chi, yoga, qigong) --> `video_embed`  
-- Combat/Power pillar (training, sets, reps) --> `sets_reps_timer`
-- Vitality (skincare, nutrition, sleep protocol) --> `step_by_step`
-- Expansion (reading, learning, courses) --> `timer_focus`
-- Wealth/Business/Projects --> `timer_focus`
-- Relationships/Influence/Presence --> `social_checklist`
-- Consciousness (journaling, reflection) --> `step_by_step`
-- Play --> `step_by_step`
+הפרומפט ל-AI:
+- מקבל את סוג התבנית ומתאים את הפורמט
+- `sets_reps_timer` → תרגילים עם סטים, חזרות, מנוחות
+- `tts_guided` → סקריפט מונחה מותאם (למשל סריקת גוף ספציפית למתח בכתפיים)
+- `step_by_step` → שלבים מפורטים עם הסברים
+- `timer_focus` → כוונה + בלוק עבודה + סיכום מותאמים
+- `social_checklist` → טיפים ושלבים ספציפיים לסוג האינטראקציה
 
-### 2. שינוי ב-`generate-today-queue`
+### שינויים ב-ExecutionModal
 
-- הוספת `executionTemplate` ל-`QueueItem` interface
-- העברת השדה מה-strategy data
-- Fallback mapping: אם תוכנית ישנה בלי template --> מיפוי לפי pillar
-
-### 3. שינוי ב-`useNowEngine.ts`
-
-הוספת `executionTemplate` ל-`NowQueueItem` interface:
-```typescript
-executionTemplate?: 'tts_guided' | 'video_embed' | 'sets_reps_timer' | 
-                    'step_by_step' | 'timer_focus' | 'social_checklist';
+```text
+useEffect (כש-action משתנה):
+  1. הצג שלבים סטטיים מיידית
+  2. setIsEnhancing(true)
+  3. קריאה ל-generate-execution-steps עם AbortController (8 שניות)
+  4. אם הצליח → setSteps(aiSteps), setIsEnhancing(false)
+  5. אם נכשל → setIsEnhancing(false), נשאר עם סטטי
 ```
 
-### 4. שדרוג `ExecutionModal.tsx`
-
-**מבנה חדש** — במקום 3 מצבים (voice/youtube/workout), 6 תבניות:
-
-**`tts_guided`** (קיים — שדרוג):
-- שימוש באורב + BreathingGuide (כמו עכשיו)
-- חדש: קריאה ל-AI gateway ליצירת סקריפט TTS מותאם אישית בזמן אמת (כמו במודל ההיפנוזה) במקום סקריפטים סטטיים
-- Fallback: סקריפטים מקומיים אם AI לא זמין
-
-**`video_embed`** (קיים — ללא שינוי):
-- YouTube iframe + צ'קליסט
-
-**`sets_reps_timer`** (חדש):
-- תצוגת "Round X / Y" עם טיימר גדול
-- כפתור "סיים סט" שמעביר לסט הבא
-- טיימר מנוחה בין סטים (30-90 שניות) עם ספירה לאחור
-- רטט (haptics) בסיום מנוחה
-- שלבי האימון מגיעים מ-executionSteps
-
-**`step_by_step`** (קיים — שדרוג):
-- כמו workout mode אבל ללא באנר מוטיבציוני של לחימה
-- כל שלב עם הסבר מפורט
-- כפתור "הבא" שמסמן ועובר לשלב הבא
-
-**`timer_focus`** (חדש):
-- מסך מינימלי: טיימר גדול + שם המשימה
-- כפתור Start/Pause
-- ללא הסחות — רקע כהה
-- צליל/רטט בסיום
-
-**`social_checklist`** (חדש):
-- צ'קליסט שלבים (הכנה, שיחה, סגירה)
-- טיפ חברתי רנדומלי בראש ("הקשב יותר ממה שאתה מדבר")
-
-### 5. קבצים שישתנו
+### קבצים
 
 | קובץ | שינוי |
 |-------|-------|
-| `supabase/functions/generate-90day-strategy/index.ts` | Layer 3 prompt: הוספת `execution_template` + `action_type` |
-| `supabase/functions/generate-today-queue/index.ts` | העברת template + fallback mapping |
-| `src/hooks/useNowEngine.ts` | הוספת `executionTemplate` ל-interface |
-| `src/components/dashboard/ExecutionModal.tsx` | 6 rendering modes + WorkoutTimer + FocusTimer |
+| `supabase/functions/generate-execution-steps/index.ts` | **חדש** — Edge function ליצירת שלבים עם AI |
+| `src/components/dashboard/ExecutionModal.tsx` | הוספת קריאת AI ברקע + אינדיקטור טעינה + החלפת שלבים חלקה |
+| `supabase/functions/generate-today-queue/index.ts` | שיפור fallback templates סטטיים (יותר ספציפיים) |
 
-### 6. תאימות לאחור
+### ביצועים ו-UX
 
-- תוכניות קיימות ללא `execution_template` --> הגדרה אוטומטית לפי pillar ו-actionType
-- כל הלוגיקה הקיימת נשמרת כ-fallback
-- תוכניות חדשות (אחרי כיול מחדש) יכללו את ה-template מובנה
+- **אפס עיכוב**: המודל נפתח מיידית עם תוכן סטטי
+- **שדרוג חלק**: אם AI מגיב — השלבים מתחלפים באנימציה
+- **Timeout 8 שניות**: אם AI איטי — המשתמש לא מחכה
+- **אינדיקטור**: "Sparkles" icon + "מותאם אישית..." כשממתין ל-AI
+- **Cache**: תוצאות AI נשמרות ב-state כדי למנוע קריאות כפולות באותו session
