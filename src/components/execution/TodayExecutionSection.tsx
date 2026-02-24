@@ -54,9 +54,9 @@ export function TodayExecutionSection({ hub }: TodayExecutionSectionProps) {
   const handleGenerateStrategy = () => {
     generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
       onError: (err: any) => {
-        if ((err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') && err.missingPillars?.length > 0) {
-          const firstMissing = err.missingPillars[0]?.pillarId || err.missingPillars[0]?.pillar;
-          if (firstMissing) setAssessDomainId(firstMissing);
+        if (err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') {
+          const firstMissing = err.missingPillars?.[0]?.pillarId || err.missingPillars?.[0]?.pillar || 'consciousness';
+          setAssessDomainId(firstMissing);
         }
       },
     });

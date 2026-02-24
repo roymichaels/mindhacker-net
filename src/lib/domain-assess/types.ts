@@ -105,6 +105,15 @@ export const PROJECTS_SUBSYSTEMS: SubsystemMeta[] = [
 
 /* ───── CORE DOMAIN SUBSYSTEMS ───── */
 
+export const CONSCIOUSNESS_SUBSYSTEMS: SubsystemMeta[] = [
+  { id: 'self_reflection', icon: '🪞', nameKey: 'consciousnessAssess.sub_self_reflection', weight: 0.20 },
+  { id: 'emotional_awareness', icon: '💡', nameKey: 'consciousnessAssess.sub_emotional_awareness', weight: 0.20 },
+  { id: 'inner_dialogue', icon: '🗣️', nameKey: 'consciousnessAssess.sub_inner_dialogue', weight: 0.15 },
+  { id: 'mindfulness_practice', icon: '🧘', nameKey: 'consciousnessAssess.sub_mindfulness_practice', weight: 0.15 },
+  { id: 'journaling_habit', icon: '📓', nameKey: 'consciousnessAssess.sub_journaling_habit', weight: 0.15 },
+  { id: 'trigger_mastery', icon: '🎯', nameKey: 'consciousnessAssess.sub_trigger_mastery', weight: 0.15 },
+];
+
 export const PRESENCE_SUBSYSTEMS: SubsystemMeta[] = [
   { id: 'facial_structure', icon: '👤', nameKey: 'presenceAssess.sub_facial_structure', weight: 0.15 },
   { id: 'body_composition', icon: '🏋️', nameKey: 'presenceAssess.sub_body_composition', weight: 0.20 },
@@ -229,6 +238,13 @@ export const DOMAIN_ASSESS_META: Record<string, DomainAssessMeta> = {
     subsystems: ORDER_SUBSYSTEMS,
   },
   /* Core domains */
+  consciousness: {
+    domainId: 'consciousness',
+    color: 'blue',
+    introTitleKey: 'consciousnessAssess.assessTitle',
+    introSubtitleKey: 'consciousnessAssess.assessSubtitle',
+    subsystems: CONSCIOUSNESS_SUBSYSTEMS,
+  },
   presence: {
     domainId: 'presence',
     color: 'fuchsia',
