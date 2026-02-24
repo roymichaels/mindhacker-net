@@ -3,7 +3,7 @@
  * Shows all 14 pillars organized into topic categories.
  */
 import { LIFE_DOMAINS, type LifeDomain } from '@/navigation/lifeDomains';
-import { PILLAR_TOPIC_GROUPS, PILLAR_SUBCATEGORIES, type TopicGroup, type PillarSubcategory } from '@/lib/communityHelpers';
+import { PILLAR_TOPIC_GROUPS, type TopicGroup } from '@/lib/communityHelpers';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,7 @@ import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CommunityForumBoardProps {
-  onNavigate: (pillarId: string, topicId: string) => void;
+  onNavigate: (pillarId: string, groupId: string) => void;
 }
 
 export default function CommunityForumBoard({ onNavigate }: CommunityForumBoardProps) {
@@ -49,7 +49,6 @@ export default function CommunityForumBoard({ onNavigate }: CommunityForumBoardP
           key={domain.id}
           domain={domain}
           groups={PILLAR_TOPIC_GROUPS[domain.id] || []}
-          subcategories={PILLAR_SUBCATEGORIES[domain.id] || []}
           counts={allCounts || {}}
           isHe={isHe}
           onNavigate={onNavigate}
@@ -62,25 +61,21 @@ export default function CommunityForumBoard({ onNavigate }: CommunityForumBoardP
 function PillarBoard({
   domain,
   groups,
-  subcategories,
   counts,
   isHe,
   onNavigate,
 }: {
   domain: LifeDomain;
   groups: TopicGroup[];
-  subcategories: PillarSubcategory[];
   counts: Record<string, number>;
   isHe: boolean;
-  onNavigate: (pillarId: string, topicId: string) => void;
+  onNavigate: (pillarId: string, groupId: string) => void;
 }) {
   const Icon = domain.icon;
   const totalThreads = counts[domain.id] || 0;
   const colorClass = `text-${domain.color}-500`;
   const bgClass = `bg-${domain.color}-500/8`;
   const borderClass = `border-${domain.color}-500/20`;
-
-  const subMap = new Map(subcategories.map(s => [s.id, s]));
 
   return (
     <div className={cn(
@@ -99,49 +94,28 @@ function PillarBoard({
         </div>
       </div>
 
-      {/* Category groups */}
-      <div className="flex flex-col gap-1.5">
+      {/* Category groups only — no subcategories */}
+      <div className="flex flex-col gap-1">
         {groups.map((group) => {
           const groupThreads = group.topicIds.reduce(
             (sum, tid) => sum + (counts[`${domain.id}::${tid}`] || 0), 0
           );
 
           return (
-            <div key={group.id} className="space-y-0.5">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isHe ? group.he : group.en}
-                </span>
-                {groupThreads > 0 && (
-                  <span className="text-[10px] text-muted-foreground">{groupThreads}</span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {group.topicIds.map((tid) => {
-                  const sub = subMap.get(tid);
-                  if (!sub) return null;
-                  const tCount = counts[`${domain.id}::${tid}`] || 0;
-                  return (
-                    <button
-                      key={tid}
-                      onClick={() => onNavigate(domain.id, tid)}
-                      className={cn(
-                        "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px]",
-                        "bg-background/60 hover:bg-primary/10 hover:text-primary",
-                        "transition-colors text-foreground/80 border border-transparent hover:border-primary/20"
-                      )}
-                      title={isHe ? sub.he : sub.en}
-                    >
-                      <span className="text-xs">{sub.icon}</span>
-                      <span className="truncate max-w-[100px]">{isHe ? sub.he : sub.en}</span>
-                      {tCount > 0 && (
-                        <span className="text-[9px] text-muted-foreground ml-0.5">({tCount})</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <button
+              key={group.id}
+              onClick={() => onNavigate(domain.id, group.id)}
+              className={cn(
+                "flex items-center justify-between px-2 py-1.5 rounded-md text-xs",
+                "bg-background/60 hover:bg-primary/10 hover:text-primary",
+                "transition-colors text-foreground/80 border border-transparent hover:border-primary/20"
+              )}
+            >
+              <span className="font-medium">{isHe ? group.he : group.en}</span>
+              {groupThreads > 0 && (
+                <span className="text-[10px] text-muted-foreground">({groupThreads})</span>
+              )}
+            </button>
           );
         })}
       </div>
