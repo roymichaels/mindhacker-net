@@ -4,6 +4,12 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { toggleActionStatus } from '@/services/actionItems';
 
+export interface ExecutionStep {
+  label: string;
+  detail?: string;
+  durationSec: number;
+}
+
 export interface NowQueueItem {
   pillarId: string;
   hub: 'core' | 'arena';
@@ -15,6 +21,7 @@ export interface NowQueueItem {
   reason: string;
   sourceType: 'plan' | 'assessment' | 'template' | 'habit';
   sourceId?: string;
+  executionSteps?: ExecutionStep[];
 }
 
 export interface NowEngineData {
