@@ -573,96 +573,24 @@ serve(async (req) => {
     }
 
     // ============================================
-    // BUILD THE PROMPT - SINGLE CONTINUOUS SCRIPT
+    // BUILD 4-PHASE PARALLEL GENERATION
     // ============================================
     
     const wordsPerMinute = 130;
-    const totalWords = durationMinutes * wordsPerMinute;
-    
-    let hebrewGrammarInstruction = '';
-    if (userGender === 'male') {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
-You MUST address the listener using ONLY MASCULINE singular forms (לשון זכר יחיד).
+    // Target ~14 minutes total → ~1820 words at 130 WPM
+    // Each phase gets ~450-500 words
+    const wordsPerPhase = 500;
 
-CORRECT FORMS TO USE:
-- "אתה מרגיש" (NOT "את מרגישה" or "אתה/את")
-- "אתה נושם" (NOT "את נושמת")
-- "תן לעצמך" (NOT "תני לעצמך")
-- "הרגש את" (NOT "הרגישי")
-- "אתה יכול" (NOT "את יכולה")
-- "שלך" (masculine possession)
+    const baseSystemContext = `You are a master hypnotherapist writing ONE PHASE of a 4-phase hypnosis session.
+This session is deeply personalized. You have the user's complete psychological profile below.
 
-STRICTLY FORBIDDEN:
-- DO NOT use feminine forms
-- DO NOT use combined forms like "אתה/את" or "מרגיש/ה"
-- DO NOT use the word "את" as "you" - only "אתה"
-- Every single verb and pronoun must be masculine`;
-    } else if (userGender === 'female') {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
-You MUST address the listener using ONLY FEMININE singular forms (לשון נקבה יחיד).
+${languageInstruction}
 
-CORRECT FORMS TO USE:
-- "את מרגישה" (NOT "אתה מרגיש" or "אתה/את")
-- "את נושמת" (NOT "אתה נושם")
-- "תני לעצמך" (NOT "תן לעצמך")
-- "הרגישי את" (NOT "הרגש")
-- "את יכולה" (NOT "אתה יכול")
-- "שלך" (feminine possession)
+USER EXPERIENCE LEVEL:
+${experienceContext}
+${streakContext}
 
-STRICTLY FORBIDDEN:
-- DO NOT use masculine forms
-- DO NOT use combined forms like "אתה/את" or "מרגיש/ה"
-- DO NOT use the word "אתה" as "you" - only "את"
-- Every single verb and pronoun must be feminine`;
-    } else {
-      hebrewGrammarInstruction = `CRITICAL HEBREW GRAMMAR REQUIREMENT (MANDATORY):
-The user hasn't set a gender preference. Use MASCULINE singular forms as Hebrew default.
-
-CORRECT FORMS TO USE:
-- "אתה מרגיש" (NOT "את מרגישה")
-- "אתה נושם"
-- "תן לעצמך"
-- "הרגש את"
-- "אתה יכול"
-
-STRICTLY FORBIDDEN:
-- DO NOT mix forms like "אתה/את" or "מרגיש/ה" - this sounds terrible in hypnosis
-- DO NOT use the slash "/" character anywhere in the script
-- Pick ONE consistent form (masculine) and use it throughout`;
-    }
-
-    const languageInstruction = language === 'he' 
-      ? `Write the entire script in Hebrew. Use warm, flowing Hebrew that feels natural and poetic.
-${hebrewGrammarInstruction}`
-      : 'Write the entire script in English. Use warm, flowing language that feels natural and poetic.';
-
-    const experienceContext = previousSessions === 0
-      ? 'This is the user\'s first session. Be extra welcoming and gentle with explanations.'
-      : userLevel >= 5
-        ? 'This is an experienced user. You can use deeper hypnotic techniques and less explanation.'
-        : 'This user has some experience. Balance guidance with deeper work.';
-
-    const streakContext = sessionStreak >= 7
-      ? `Acknowledge their ${sessionStreak}-day streak and commitment to daily practice.`
-      : sessionStreak >= 3
-        ? `Note their ${sessionStreak}-day streak - they're building momentum.`
-        : '';
-
-    const systemPrompt = `You are a master hypnotherapist creating a SINGLE CONTINUOUS hypnosis script.
-This is NOT segmented - it's ONE flowing, uninterrupted experience from start to finish.
-
-You have access to the user's complete psychological profile, life context, and current moment context.
-Your script is warm, flowing, deeply relaxing, and feels like it was crafted specifically for this one person AT THIS EXACT MOMENT.
-
-CRITICAL: Write as ONE CONTINUOUS FLOWING TEXT. No segments, no markers, no breaks.
-The script should flow naturally from welcome → induction → deepening → core work → integration → emergence.
-Transitions should be seamless and invisible.
-
-IMPORTANT: You are TIME-AWARE. Consider:
-- The current time of day (morning energizing vs evening relaxation)
-- The day of the week (Sunday fresh start vs Friday reflection)
-- What the user has accomplished today and this week
-- Their recent activity and engagement
+IMPORTANT: You are TIME-AWARE. Consider the current time of day and day of week.
 
 You use Ericksonian techniques, embedded commands, metaphorical language, and utilize:
 - Pacing and leading
@@ -671,13 +599,7 @@ You use Ericksonian techniques, embedded commands, metaphorical language, and ut
 - Future pacing tied to their specific goals
 - Metaphors drawn from their life context and values
 - Embedded commands using their name or identity
-- Time-appropriate suggestions (morning activation vs night relaxation)
-
-${languageInstruction}
-
-USER EXPERIENCE LEVEL:
-${experienceContext}
-${streakContext}
+- Time-appropriate suggestions
 
 ============================================
 COMPREHENSIVE USER PROFILE
@@ -685,130 +607,204 @@ COMPREHENSIVE USER PROFILE
 ${personalizationContext}
 ============================================
 
-Structure your CONTINUOUS script to include (but DON'T use any markers or labels):
-
-1. Welcome (~8%) - Greet warmly, establish safety, introduce the goal: "${goal}"
-2. Induction (~25%) - Progressive relaxation, hypnotic state
-3. Deepening (~20%) - Deepen trance with counting, stairs, metaphors
-4. Core Work (~30%) - Main therapeutic work for: "${goal}"
-5. Integration (~12%) - Lock in changes, future pacing
-6. Emergence (~5%) - Gently return to awareness
-
 CRITICAL INSTRUCTIONS:
-- Write as ONE FLOWING TEXT - no headers, no segment markers, no breaks
-- This script should feel like it was written specifically for this ONE person
-- Reference their name, values, identity naturally
+- Write as ONE FLOWING TEXT - no headers, no segment markers, no labels, no breaks
+- This script must feel like it was written specifically for this ONE person
+- Reference their name, values, identity naturally where appropriate
 - Every metaphor should resonate with their psychological profile
 - Make them feel truly SEEN and understood
 - Respect any health constraints or special instructions
+- DO NOT include markers like [WELCOME] or [INDUCTION] - just flowing text
+- Write approximately ${wordsPerPhase} words for this phase`;
 
-Total target: approximately ${totalWords} words.
-DO NOT include any segment markers like [WELCOME] or [INDUCTION] - just flowing text.`;
-
-    const userPrompt = `Create a ${durationMinutes}-minute CONTINUOUS hypnosis script for:
-Goal: ${goal}
+    const phases = [
+      {
+        name: 'Welcome & Induction',
+        prompt: `Write PHASE 1 of 4 of a hypnosis session.
+Goal: "${goal}"
 ${currentMilestone ? `Weekly Milestone: ${currentMilestone.title}` : ''}
 ${userName ? `User: ${userName}` : ''}
 ${jobTitle ? `Identity: ${jobTitle}` : ''}
 
-This should be a deeply personal, transformative experience.
-Write it as ONE CONTINUOUS FLOWING TEXT with no breaks or markers.`;
+This is the WELCOME & INDUCTION phase (~3.5 minutes).
+- Greet the user warmly by name if available
+- Establish safety and trust
+- Introduce the session goal naturally
+- Begin progressive relaxation (body scan, breathing guidance)
+- Start inducing a hypnotic state with counting, breathing patterns
+- End this phase with the user entering a comfortable trance
 
-    console.log('Generating continuous hypnosis script:', { 
+Write ~${wordsPerPhase} words. This text will flow directly into Phase 2 (Deepening), so end with a natural transition into deeper relaxation.`,
+      },
+      {
+        name: 'Deepening',
+        prompt: `Write PHASE 2 of 4 of a hypnosis session.
+Goal: "${goal}"
+${userName ? `User: ${userName}` : ''}
+
+This is the DEEPENING phase (~3.5 minutes).
+The user is already in a light trance from Phase 1 (progressive relaxation was done).
+- Deepen the trance using staircase/elevator metaphors, counting down
+- Use confusion techniques and embedded commands
+- Introduce imagery that resonates with the user's values and life context
+- Use yes-sets and pacing/leading patterns
+- Reference their recent emotional states or life situation subtly
+- Bring them to a deep, receptive state
+
+Write ~${wordsPerPhase} words. This flows directly from Phase 1 and into Phase 3 (Core Therapeutic Work). End with a natural transition.`,
+      },
+      {
+        name: 'Core Therapeutic Work',
+        prompt: `Write PHASE 3 of 4 of a hypnosis session.
+Goal: "${goal}"
+${currentMilestone ? `Weekly Milestone: ${currentMilestone.title}` : ''}
+${userName ? `User: ${userName}` : ''}
+${jobTitle ? `Identity: ${jobTitle}` : ''}
+
+This is the CORE THERAPEUTIC WORK phase (~3.5 minutes).
+The user is in deep trance from Phase 2.
+- This is the main therapeutic content targeting: "${goal}"
+- Use metaphors deeply tied to their life direction, values, and identity
+- Apply future pacing — have them vividly experience achieving the goal
+- Address their specific blockers and limiting beliefs through metaphor
+- Embed commands for behavioral change
+- Reference their current milestone and commitments
+- Tie the work to their 100-day transformation journey
+- This is the most intense and transformative part
+
+Write ~${wordsPerPhase} words. This flows from Phase 2 and into Phase 4 (Integration & Emergence). End with a transition toward integration.`,
+      },
+      {
+        name: 'Integration & Emergence',
+        prompt: `Write PHASE 4 of 4 of a hypnosis session.
+Goal: "${goal}"
+${userName ? `User: ${userName}` : ''}
+
+This is the INTEGRATION & EMERGENCE phase (~3.5 minutes).
+The user has completed deep therapeutic work in Phase 3.
+- Lock in the changes made during core work
+- Future pace: have them see themselves tomorrow/next week living the changes
+- Create anchors they can use in daily life
+- Acknowledge their commitment and progress (streak, level, etc.)
+- Begin gently counting them back to awareness (1-5 or 1-10)
+- Suggest they'll feel energized/calm (time-of-day appropriate)
+- End with a warm, empowering closing that makes them feel ready for what's next
+- The very last sentences should bring them fully back to awareness
+
+Write ~${wordsPerPhase} words. This is the final phase — end the session completely.`,
+      },
+    ];
+
+    console.log('Generating 4-phase hypnosis script:', { 
       goal, 
-      durationMinutes, 
       language,
+      wordsPerPhase,
       isDailySession,
       hasLaunchpadData: !!launchpadSummary,
       hasMilestone: !!currentMilestone,
       hasName: !!userName,
-      hasJobTitle: !!jobTitle,
-      valuesCount: values.length,
-      commitmentsCount: activeCommitments.length,
-      previousSessions: previousHypnosisSessions.length,
     });
 
-    // Add timeout to AI call to prevent edge function from hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+    // Generate all 4 phases in parallel
+    const generatePhase = async (phasePrompt: string, phaseName: string): Promise<string> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
 
-    let response: Response;
+      try {
+        const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: baseSystemContext },
+              { role: 'user', content: phasePrompt },
+            ],
+            temperature: 0.85,
+            max_tokens: 4000,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error(`Phase "${phaseName}" AI error:`, resp.status, errorText);
+          if (resp.status === 429) throw new Error('RATE_LIMIT');
+          if (resp.status === 402) throw new Error('PAYMENT_REQUIRED');
+          throw new Error(`Phase "${phaseName}" failed`);
+        }
+
+        const data = await resp.json();
+        return data.choices?.[0]?.message?.content || '';
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          throw new Error(`Phase "${phaseName}" timed out`);
+        }
+        throw err;
+      }
+    };
+
+    let phaseResults: string[];
     try {
-      response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-lite', // Use faster model for better reliability
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          temperature: 0.85,
-          max_tokens: 4000,
-        }),
-        signal: controller.signal,
-      });
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('AI request timed out after 90 seconds');
-        throw new Error('Request timed out. Please try again.');
+      phaseResults = await Promise.all(
+        phases.map(p => generatePhase(p.prompt, p.name))
+      );
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message === 'RATE_LIMIT') {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded, please try again' }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (err.message === 'PAYMENT_REQUIRED') {
+          return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
       }
-      throw fetchError;
-    } finally {
-      clearTimeout(timeoutId);
+      throw err;
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded, please try again' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      throw new Error('Failed to generate script');
-    }
+    // Concatenate all phases into one flowing script
+    const fullScript = phaseResults
+      .map(text => text
+        .replace(/\[WELCOME\]/gi, '')
+        .replace(/\[INDUCTION\]/gi, '')
+        .replace(/\[DEEPENING\]/gi, '')
+        .replace(/\[CORE_WORK\]/gi, '')
+        .replace(/\[INTEGRATION\]/gi, '')
+        .replace(/\[EMERGENCE\]/gi, '')
+        .replace(/---+/g, '')
+        .replace(/\*\*\*+/g, '')
+        .replace(/^#+\s.*/gm, '') // Remove markdown headers
+        .trim()
+      )
+      .filter(t => t.length > 0)
+      .join('\n\n');
 
-    const aiResponse = await response.json();
-    const fullScript = aiResponse.choices?.[0]?.message?.content || '';
-
-    // Clean up any accidental segment markers the AI might have added
-    const cleanedScript = fullScript
-      .replace(/\[WELCOME\]/gi, '')
-      .replace(/\[INDUCTION\]/gi, '')
-      .replace(/\[DEEPENING\]/gi, '')
-      .replace(/\[CORE_WORK\]/gi, '')
-      .replace(/\[INTEGRATION\]/gi, '')
-      .replace(/\[EMERGENCE\]/gi, '')
-      .replace(/---+/g, '')
-      .replace(/\*\*\*+/g, '')
-      .trim();
+    const totalWords = fullScript.split(/\s+/).length;
 
     const script = {
       title: goal,
       egoState: 'personalized',
       language,
-      fullScript: cleanedScript,
+      fullScript,
       metadata: {
-        durationMinutes,
-        totalWords: cleanedScript.split(/\s+/).length,
+        durationMinutes: Math.round(totalWords / 85), // 85 WPM hypnosis pace
+        totalWords,
         wordsPerMinute,
         generatedAt: new Date().toISOString(),
         userLevel,
         isDailySession,
+        phases: 4,
         personalizationSources: {
           hasName: !!userName,
           hasJobTitle: !!jobTitle,
@@ -823,9 +819,10 @@ Write it as ONE CONTINUOUS FLOWING TEXT with no breaks or markers.`;
       },
     };
 
-    console.log('Continuous script generated successfully:', {
+    console.log('4-phase script generated successfully:', {
       totalWords: script.metadata.totalWords,
-      personalizationDepth: Object.values(script.metadata.personalizationSources).filter(Boolean).length,
+      estimatedMinutes: script.metadata.durationMinutes,
+      phases: 4,
     });
 
     return new Response(JSON.stringify(script), {
