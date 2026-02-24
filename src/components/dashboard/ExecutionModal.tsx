@@ -100,26 +100,39 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
 
     const fetchSteps = async () => {
       try {
-        const actionLower = `${action.actionType} ${action.title}`.toLowerCase();
         const wantYouTube = isYouTubeActivity(action.actionType, action.title);
         const wantCombat = isCombatActivity(action.actionType, action.title);
 
-        const { data, error } = await supabase.functions.invoke('generate-today-queue', {
-          body: {
-            user_id: user.id,
-            language,
-            mode: 'execution_steps',
-            action_type: action.actionType,
-            pillar: action.pillarId,
-            duration_min: action.durationMin,
-            title: action.title,
-            want_youtube: wantYouTube,
-            want_combat_routine: wantCombat,
-          },
-        });
+        // Race the edge function against a 8s timeout
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+
+        let data: any = null;
+        let fetchError: any = null;
+        try {
+          const res = await supabase.functions.invoke('generate-today-queue', {
+            body: {
+              user_id: user.id,
+              language,
+              mode: 'execution_steps',
+              action_type: action.actionType,
+              pillar: action.pillarId,
+              duration_min: action.durationMin,
+              title: action.title,
+              want_youtube: wantYouTube,
+              want_combat_routine: wantCombat,
+            },
+          });
+          data = res.data;
+          fetchError = res.error;
+        } catch (e: any) {
+          fetchError = e;
+        } finally {
+          clearTimeout(timeout);
+        }
 
         if (cancelled) return;
-        if (!error && data?.steps?.length) {
+        if (!fetchError && data?.steps?.length) {
           setSteps(data.steps);
           setAuroraMessage(data.aurora_message || '');
         } else {
