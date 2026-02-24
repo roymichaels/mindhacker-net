@@ -231,56 +231,6 @@ export function ArenaHudSidebar({ onNewProject }: ArenaHudSidebarProps) {
               })}
             </div>
 
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-
-            {/* Projects section */}
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              {isHe ? `פרויקטים (${activeProjects.length})` : `Projects (${activeProjects.length})`}
-            </span>
-            <div className="flex flex-col gap-1">
-              {activeProjects.slice(0, 5).map((project) => (
-                <div key={project.id} className="rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: project.cover_color || '#f59e0b' }} />
-                    <span className="text-[11px] font-medium leading-tight truncate">{project.title}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-
-            {/* Businesses section */}
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              {isHe ? `עסקים (${businesses.length})` : `Businesses (${businesses.length})`}
-            </span>
-            <div className="flex flex-col gap-1">
-              {businesses.slice(0, 5).map((biz) => (
-                <button
-                  key={biz.id}
-                  onClick={() => navigate(`/business/journey/${biz.id}`)}
-                  className="w-full rounded-lg bg-muted/30 dark:bg-muted/15 border border-border/20 p-2 text-start hover:bg-accent/10 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
-                    <span className="text-[11px] font-medium leading-tight truncate">
-                      {biz.business_name || (isHe ? 'עסק ללא שם' : 'Unnamed Business')}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-
-            {/* New Project button */}
-            <button
-              onClick={onNewProject}
-              className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white p-2.5 flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="text-xs font-semibold">{isHe ? 'פרויקט חדש' : 'New Project'}</span>
-            </button>
           </div>
         )}
       </aside>
