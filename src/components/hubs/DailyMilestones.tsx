@@ -263,16 +263,25 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
           className="gap-1.5 mt-1"
           disabled={isGenerating}
          onClick={() => {
+            const openFirstMissing = (missingPillars?: any[]) => {
+              const firstMissing = missingPillars?.[0]?.pillarId || missingPillars?.[0]?.pillar;
+              const fallbackPillar = firstMissing || allDomains.find(d => {
+                const row = getDomainRow(d.id);
+                return !row?.domain_config?.completed;
+              })?.id;
+              if (fallbackPillar) setAssessDomainId(fallbackPillar);
+            };
+
             generateStrategy.mutate({ hub: 'both', forceRegenerate: false }, {
+              onSuccess: (data: any) => {
+                // Backend returns 200 with MISSING_ASSESSMENT_DATA — open assessment modal
+                if (data?.error === 'MISSING_ASSESSMENT_DATA') {
+                  openFirstMissing(data.missing_pillars);
+                }
+              },
               onError: (err: any) => {
                 if (err?.message === 'MISSING_ASSESSMENT_DATA' || err?.code === 'MISSING_ASSESSMENT_DATA') {
-                  const firstMissing = err.missingPillars?.[0]?.pillarId || err.missingPillars?.[0]?.pillar;
-                  // Fallback: if no pillar list, open first uncompleted domain
-                  const fallbackPillar = firstMissing || allDomains.find(d => {
-                    const row = getDomainRow(d.id);
-                    return !row?.domain_config?.completed;
-                  })?.id;
-                  if (fallbackPillar) setAssessDomainId(fallbackPillar);
+                  openFirstMissing(err.missingPillars);
                 }
               },
             });
