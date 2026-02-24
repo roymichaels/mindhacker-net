@@ -222,10 +222,15 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
     }
 
     const tmpl = inferTemplate(action);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    let cancelled = false;
 
     setIsEnhancing(true);
+
+    const timeoutId = setTimeout(() => {
+      cancelled = true;
+      setIsEnhancing(false);
+      console.log('AI enhancement timed out — keeping static fallback');
+    }, 20_000);
 
     (async () => {
       try {
@@ -241,7 +246,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           },
         });
 
-        if (controller.signal.aborted) return;
+        if (cancelled) return;
 
         if (!error && data?.steps && Array.isArray(data.steps) && data.steps.length > 0) {
           const aiSteps = data.steps.map((s: any) => ({
@@ -261,18 +266,17 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
           setIsEnhanced(true);
         }
       } catch (e) {
-        // Timeout or network error — keep static fallback
         console.log('AI enhancement skipped:', e instanceof Error ? e.message : 'unknown');
       } finally {
-        if (!controller.signal.aborted) {
+        if (!cancelled) {
           setIsEnhancing(false);
         }
       }
     })();
 
     return () => {
-      clearTimeout(timeout);
-      controller.abort();
+      cancelled = true;
+      clearTimeout(timeoutId);
       setIsEnhancing(false);
     };
   }, [open, action, language]);
