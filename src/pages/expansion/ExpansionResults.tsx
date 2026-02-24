@@ -2,7 +2,7 @@
  * @page ExpansionResults (/life/expansion/results)
  * Displays assessment results: overall index, subscores, findings, fix library.
  */
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageShell } from '@/components/aurora-ui/PageShell';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useExpansionCoach } from '@/hooks/useExpansionCoach';
-import { EXPANSION_LEVERS, autoPickLevers } from '@/lib/expansion/levers';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowRight, Check, AlertTriangle,
-  ChevronDown, ChevronUp, Trophy, Brain,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ExpansionAssessmentResult, SubsystemId } from '@/lib/expansion/types';
@@ -51,21 +49,6 @@ export default function ExpansionResults() {
 
   const isHistorical = histIdx != null;
 
-  const [selectedLevers, setSelectedLevers] = useState<string[]>(
-    () => assessment?.selected_focus_items ?? []
-  );
-  const [expandedTier, setExpandedTier] = useState<number | null>(1);
-
-  const autoPicks = useMemo(() =>
-    assessment ? autoPickLevers(assessment.subscores as Record<SubsystemId, number>) : [],
-    [assessment]
-  );
-
-  const toggleLever = (id: string) => {
-    setSelectedLevers(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
 
   if (!assessment) {
     return (
@@ -143,100 +126,12 @@ export default function ExpansionResults() {
           </div>
         )}
 
-        {/* Top 3 Auto-Picks */}
-        {autoPicks.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-indigo-500" />
-              {t('expansion.topPriorities')}
-            </h3>
-            <div className="space-y-2">
-              {autoPicks.map(id => {
-                const lever = EXPANSION_LEVERS.find(l => l.id === id);
-                if (!lever) return null;
-                const isSelected = selectedLevers.includes(id);
-                return (
-                  <button key={id} type="button" onClick={() => toggleLever(id)}
-                    className={cn(
-                      'w-full p-3 rounded-xl border text-start transition-all flex items-center justify-between',
-                      isSelected ? 'border-indigo-500 bg-indigo-500/10' : 'border-border bg-card hover:bg-muted/50'
-                    )}>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{t(lever.title_key)}</p>
-                      <p className="text-xs text-muted-foreground">{t(lever.why_key)}</p>
-                    </div>
-                    {isSelected && <Check className="w-4 h-4 text-indigo-500 shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Fix Library grouped by Tier */}
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t('expansion.fixLibrary')}</h3>
-          {[1, 2, 3].map(tier => {
-            const tierLevers = EXPANSION_LEVERS.filter(l => l.tier === tier);
-            const isExpanded = expandedTier === tier;
-            return (
-              <div key={tier} className="mb-2">
-                <button type="button" onClick={() => setExpandedTier(isExpanded ? null : tier)}
-                  className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <span className="text-sm font-medium text-foreground">{t(TIER_LABELS[tier])}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{tierLevers.length}</span>
-                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </div>
-                </button>
-                {isExpanded && (
-                  <div className="space-y-2 mt-2">
-                    {tierLevers.map(lever => {
-                      const isSelected = selectedLevers.includes(lever.id);
-                      return (
-                        <button key={lever.id} type="button" onClick={() => toggleLever(lever.id)}
-                          className={cn(
-                            'w-full p-3 rounded-xl border text-start transition-all flex items-center justify-between',
-                            isSelected ? 'border-indigo-500 bg-indigo-500/10' : 'border-border bg-card hover:bg-muted/50'
-                          )}>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-semibold text-foreground">{t(lever.title_key)}</p>
-                              <Badge variant="outline" className="text-[9px]">{lever.difficulty}</Badge>
-                              <Badge variant="outline" className={cn("text-[9px]",
-                                lever.impact === 'high' ? 'text-emerald-400 border-emerald-500/30' : ''
-                              )}>{lever.impact}</Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">{t(lever.why_key)}</p>
-                          </div>
-                          {isSelected && <Check className="w-4 h-4 text-indigo-500 shrink-0 ms-2" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Save & Complete */}
-        {!isHistorical && (
-          <div className="space-y-3">
-            {selectedLevers.length > 0 && (
-              <Button onClick={() => saveFocusItems(selectedLevers)} disabled={isSaving}
-                className="w-full bg-indigo-600 hover:bg-indigo-700" size="lg">
-                {t('expansion.saveSelection')} ({selectedLevers.length})
-              </Button>
-            )}
-
-            {!config.completed && (
-              <Button onClick={markComplete} disabled={isSaving} variant="outline"
-                className="w-full border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10" size="lg">
-                <Check className="w-4 h-4 me-1" /> {t('expansion.markComplete')}
-              </Button>
-            )}
-          </div>
+        {/* Mark complete */}
+        {!isHistorical && !config.completed && (
+          <Button onClick={markComplete} disabled={isSaving} variant="outline"
+            className="w-full border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10" size="lg">
+            <Check className="w-4 h-4 me-1" /> {t('expansion.markComplete')}
+          </Button>
         )}
       </div>
     </PageShell>
