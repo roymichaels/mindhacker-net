@@ -88,8 +88,20 @@ export function useStrategyPlans() {
       const legacyPlans = plans.filter(p => !p.plan_data?.hub);
       const hubPlans = plans.filter(p => !!p.plan_data?.hub);
       
-      const core = hubPlans.find(p => p.plan_data?.hub === 'core') || null;
-      const arena = hubPlans.find(p => p.plan_data?.hub === 'arena') || null;
+      // Take the newest plan per hub; archive duplicates
+      const corePlans = hubPlans.filter(p => p.plan_data?.hub === 'core');
+      const arenaPlans = hubPlans.filter(p => p.plan_data?.hub === 'arena');
+      const core = corePlans[0] || null; // already sorted by created_at DESC
+      const arena = arenaPlans[0] || null;
+      
+      // Auto-archive duplicate plans (keep only newest per hub)
+      const duplicateIds = [
+        ...corePlans.slice(1).map(p => p.id),
+        ...arenaPlans.slice(1).map(p => p.id),
+      ];
+      if (duplicateIds.length > 0) {
+        supabase.from('life_plans').update({ status: 'archived' }).in('id', duplicateIds).then(() => {});
+      }
       
       // Self-healing flags
       const hasLegacy = legacyPlans.length > 0;
