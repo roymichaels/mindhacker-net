@@ -9,7 +9,7 @@ import { useSidebars } from '@/hooks/useSidebars';
 const Community = lazy(() => import('@/pages/Community'));
 
 export default function CommunityLayoutWrapper() {
-  const [selectedPillar, setSelectedPillar] = useState('consciousness');
+  const [selectedPillar, setSelectedPillar] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
   useSidebars(

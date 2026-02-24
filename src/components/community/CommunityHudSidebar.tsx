@@ -131,7 +131,7 @@ export function CommunityHudSidebar({ selectedPillar, onPillarSelect, onCreateTh
                 "text-xs font-medium flex-1",
                 selectedPillar === 'all' ? 'text-violet-400' : 'text-foreground'
               )}>
-                {isHe ? 'כל הפילרים' : 'All Pillars'}
+                {isHe ? 'הכל' : 'All'}
               </span>
             </button>
             {LIFE_DOMAINS.map((domain) => (

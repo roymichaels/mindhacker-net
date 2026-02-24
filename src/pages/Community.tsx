@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import { useAuroraChatContext } from '@/contexts/AuroraChatContext';
-import { PILLAR_SUBCATEGORIES } from '@/lib/communityHelpers';
 import { MessageSquarePlus } from 'lucide-react';
 import UsernameGate from '@/components/community/UsernameGate';
 import CreateThreadModal from '@/components/community/CreateThreadModal';
@@ -27,7 +26,7 @@ interface CommunityProps {
   onCreateOpenChange?: (open: boolean) => void;
 }
 
-const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
+const Community = ({ selectedPillar = 'all', onPillarSelect, createOpen = false, onCreateOpenChange }: CommunityProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { setActivePillar } = useAuroraChatContext();
@@ -75,60 +74,64 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
   return (
     <UsernameGate>
       <PageShell>
-        <div className="flex flex-col gap-3">
-          {/* Player Card - compact stats */}
+        <div className="flex flex-col gap-4 max-w-3xl mx-auto w-full">
+          {/* Player Card */}
           <CommunityPlayerCard userId={user.id} />
 
-          {/* Pillar header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-foreground">
-                {isAll ? (isHe ? 'כל הפילרים' : 'All Pillars') : pillarLabel}
+          {/* Pillar header + controls row */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-foreground truncate">
+                {isAll ? (isHe ? 'פיד כללי' : 'Global Feed') : pillarLabel}
               </h1>
               {domain && (
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {isHe ? domain.descriptionHe : domain.description}
                 </p>
               )}
             </div>
-            <button
-              onClick={() => setSuggestOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-            >
-              <MessageSquarePlus className="h-3.5 w-3.5" />
-              {isHe ? 'בקש נושא' : 'Suggest Topic'}
-            </button>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Feed mode toggle */}
+              <div className="flex bg-muted/40 rounded-lg p-0.5">
+                <button
+                  onClick={() => setFeedMode('latest')}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
+                    feedMode === 'latest'
+                      ? "bg-background shadow-sm text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Clock className="h-3 w-3" />
+                  {isHe ? 'חדש' : 'New'}
+                </button>
+                <button
+                  onClick={() => setFeedMode('trending')}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
+                    feedMode === 'trending'
+                      ? "bg-background shadow-sm text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Flame className="h-3 w-3" />
+                  {isHe ? 'חם' : 'Hot'}
+                </button>
+              </div>
+
+              {/* Suggest topic */}
+              <button
+                onClick={() => setSuggestOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+              >
+                <MessageSquarePlus className="h-3 w-3" />
+                <span className="hidden sm:inline">{isHe ? 'בקש נושא' : 'Suggest'}</span>
+              </button>
+            </div>
           </div>
 
-          {/* Feed mode tabs */}
-          <div className="flex gap-1 bg-muted/30 rounded-lg p-1 w-fit">
-            <button
-              onClick={() => setFeedMode('latest')}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                feedMode === 'latest'
-                  ? "bg-background shadow-sm text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Clock className="h-3.5 w-3.5" />
-              {isHe ? 'אחרונים' : 'Latest'}
-            </button>
-            <button
-              onClick={() => setFeedMode('trending')}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                feedMode === 'trending'
-                  ? "bg-background shadow-sm text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Flame className="h-3.5 w-3.5" />
-              {isHe ? 'טרנדי' : 'Trending'}
-            </button>
-          </div>
-
-          {/* FXP-style Topic Boards */}
+          {/* Topic Boards — only for specific pillar, not "all" */}
           {!isAll && (
             <PillarTopicBoards
               pillar={selectedPillar}
@@ -137,7 +140,7 @@ const Community = ({ selectedPillar = 'consciousness', onPillarSelect, createOpe
             />
           )}
 
-          {/* Thread Feed — shown when a topic is selected or in "all" mode */}
+          {/* Thread Feed — always show for "all", or when a topic is selected */}
           {(isAll || selectedTopic) && (
             <ThreadList
               pillarFilter={selectedPillar}
