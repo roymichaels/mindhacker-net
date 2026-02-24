@@ -286,7 +286,7 @@ CRITICAL: You are the user's brain — they should NOT think, decide, or analyze
         tools: [tool],
         tool_choice: { type: "function", function: { name: "generate_steps" } },
       }),
-    }, 15_000);
+    }, 90_000);
 
     if (!response.ok) {
       const errText = await response.text();
