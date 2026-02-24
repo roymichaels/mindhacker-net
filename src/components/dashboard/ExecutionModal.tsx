@@ -237,6 +237,7 @@ export function ExecutionModal({ open, onOpenChange, action, onComplete }: Execu
             action_type: action.actionType,
             duration_min: action.durationMin,
             language,
+            userId: user?.id || null,
           },
         });
 
