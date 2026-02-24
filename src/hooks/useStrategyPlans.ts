@@ -1,7 +1,9 @@
 /**
  * useStrategyPlans — hook for managing 90-day strategy plans.
  * Reads active Core + Arena strategies and provides generation trigger.
+ * Includes self-healing: detects incomplete orchestration and auto-fixes.
  */
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,7 +37,6 @@ export interface StrategyPillarGoal {
   goal_en: string;
   goal_he: string;
   sub_goals?: StrategySubGoal[];
-  // Legacy flat milestones
   milestones_en?: string[];
   milestones_he?: string[];
 }
@@ -65,11 +66,12 @@ export function useStrategyPlans() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const healingRef = useRef(false);
 
   const query = useQuery({
     queryKey: ['strategy-plans', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { core: null, arena: null };
+      if (!user?.id) return { core: null, arena: null, _legacyFound: false, _needsHeal: false };
 
       const { data, error } = await supabase
         .from('life_plans')
@@ -81,14 +83,79 @@ export function useStrategyPlans() {
       if (error) throw error;
 
       const plans = (data || []) as unknown as StrategyPlan[];
-      return {
-        core: plans.find(p => p.plan_data?.hub === 'core') || null,
-        arena: plans.find(p => p.plan_data?.hub === 'arena') || null,
-      };
+      
+      // Detect legacy plans (no hub key)
+      const legacyPlans = plans.filter(p => !p.plan_data?.hub);
+      const hubPlans = plans.filter(p => !!p.plan_data?.hub);
+      
+      const core = hubPlans.find(p => p.plan_data?.hub === 'core') || null;
+      const arena = hubPlans.find(p => p.plan_data?.hub === 'arena') || null;
+      
+      // Self-healing flags
+      const hasLegacy = legacyPlans.length > 0;
+      const missingHub = (core && !arena) || (!core && arena);
+      const needsHeal = hasLegacy || (missingHub && hubPlans.length > 0);
+
+      return { core, arena, _legacyFound: hasLegacy, _needsHeal: needsHeal };
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
   });
+
+  // Self-healing effect: auto-archive legacy plans and trigger regeneration
+  useEffect(() => {
+    if (!query.data || !user?.id || healingRef.current) return;
+    const { _legacyFound, _needsHeal, core, arena } = query.data;
+    
+    if (!_needsHeal && !_legacyFound) return;
+    
+    // Prevent multiple heal attempts
+    healingRef.current = true;
+    
+    const heal = async () => {
+      try {
+        // Archive legacy plans first
+        if (_legacyFound) {
+          const { data: legacies } = await supabase
+            .from('life_plans')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .is('plan_data->hub', null);
+          
+          if (legacies?.length) {
+            const ids = legacies.map(l => l.id);
+            await supabase.from('life_plans').update({ status: 'archived' }).in('id', ids);
+          }
+        }
+        
+        // If missing one or both hubs, trigger generation for the missing hub(s)
+        const missingHub = !core && !arena ? 'both' : !core ? 'core' : !arena ? 'arena' : null;
+        if (missingHub) {
+          await supabase.functions.invoke('generate-90day-strategy', {
+            body: {
+              user_id: user.id,
+              hub: missingHub,
+              force_regenerate: false,
+            },
+          });
+          queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
+          queryClient.invalidateQueries({ queryKey: ['milestones'] });
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+          queryClient.invalidateQueries({ queryKey: ['daily-missions'] });
+          queryClient.invalidateQueries({ queryKey: ['daily-milestones'] });
+        } else if (_legacyFound) {
+          // Just refresh after archiving legacy
+          queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
+          queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+        }
+      } catch (e) {
+        console.error('[Self-Heal] Strategy orchestration fix failed:', e);
+      }
+    };
+    
+    heal();
+  }, [query.data, user?.id]);
 
   const generateStrategy = useMutation({
     mutationFn: async ({ hub, forceRegenerate, selectedPillars, singlePillar }: { 
@@ -112,6 +179,10 @@ export function useStrategyPlans() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['strategy-plans'] });
       queryClient.invalidateQueries({ queryKey: ['now-engine'] });
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
+      queryClient.invalidateQueries({ queryKey: ['life-plan'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-missions'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-milestones'] });
       toast({
         title: '✅ Strategy generated',
         description: 'Your 90-day plan has been created based on your assessments.',
@@ -126,7 +197,6 @@ export function useStrategyPlans() {
     },
   });
 
-  // Current week calculation
   const getCurrentWeek = (startDate: string) => {
     const start = new Date(startDate);
     const now = new Date();
@@ -146,6 +216,7 @@ export function useStrategyPlans() {
     arenaWeek: arenaPlan ? getCurrentWeek(arenaPlan.start_date) : null,
     hasAnyStrategy: !!(corePlan || arenaPlan),
     isLoading: query.isLoading,
+    isHealing: query.data?._needsHeal || query.data?._legacyFound || false,
     generateStrategy,
     isGenerating: generateStrategy.isPending,
   };

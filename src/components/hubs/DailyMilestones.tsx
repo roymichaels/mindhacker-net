@@ -56,7 +56,7 @@ function getDayOfPlan(startDate: string): number {
 export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMilestonesProps) {
   const { language, isRTL } = useTranslation();
   const isHe = language === 'he';
-  const { corePlan, arenaPlan, generateStrategy, isGenerating } = useStrategyPlans();
+  const { corePlan, arenaPlan, generateStrategy, isGenerating, isHealing } = useStrategyPlans();
   const [executionAction, setExecutionAction] = useState<NowQueueItem | null>(null);
   const [executionOpen, setExecutionOpen] = useState(false);
   const navigate = useNavigate();
@@ -206,6 +206,21 @@ export function DailyMilestones({ hub = 'both', hideHeader = false }: DailyMiles
   ];
 
   if (dailyMilestones.length === 0 && missingHubs.length > 0) {
+    // If healing is in progress, show loading state instead of generate CTA
+    if (isHealing || isGenerating) {
+      return (
+        <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl border border-border/40 bg-card/30">
+          <Loader2 className="w-8 h-8 text-primary/60 animate-spin" />
+          <p className="text-sm font-medium text-center text-foreground/80">
+            {isHe ? 'מסנכרן תוכנית 100 יום...' : 'Syncing 100-day plan...'}
+          </p>
+          <p className="text-xs text-muted-foreground text-center max-w-xs">
+            {isHe ? 'המערכת מזהה ומשלימה את התוכנית עבורך' : 'The system is detecting and completing your plan'}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div dir={isRTL ? 'rtl' : 'ltr'} className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl border border-border/40 bg-card/30">
         <Rocket className="w-8 h-8 text-primary/60" />
